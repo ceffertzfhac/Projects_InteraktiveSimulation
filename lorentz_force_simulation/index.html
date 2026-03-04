@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Lorentzkraft – Interaktive Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']] },
+  svg: { fontCache:'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-title">Lorentzkraft: Parallele Leiter <span style="opacity:0.4; font-weight:300; font-size:0.7rem; margin-left:5px;">v1.4.0</span> <span> FH Aachen - FB 8 - Physik </span></div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="reset_btn">Reset</button>
+  </div>
+</header>
+
+<div class="app-layout">
+<aside class="panel left-panel">
+  <div class="panel-section">
+    <div class="panel-label">Eingabemodus</div>
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+      <label class="radio-row"><input type="radio" name="input_mode" value="voltage" checked id="mode_u"><span class="custom-radio"></span>Spannung \(U\)</label>
+      <label class="radio-row"><input type="radio" name="input_mode" value="current" id="mode_i"><span class="custom-radio"></span>Strom \(I\)</label>
+    </div>
+
+    <!-- Messgeräte (Gauges) -->
+    <div class="gauge-container">
+      <div class="gauge-label">
+        <span>Spannung \(U\)</span>
+        <span id="v_gauge_val">0,00 V</span>
+      </div>
+      <div class="gauge-track"><div id="v_gauge_fill" class="gauge-fill"></div></div>
+      <div class="gauge-markers"><span id="v_marker_0">0</span><span id="v_marker_1">5</span><span id="v_marker_2">10V</span></div>
+    </div>
+
+    <div class="gauge-container">
+      <div class="gauge-label">
+        <span>Stromstärke \(I\)</span>
+        <span id="i_gauge_val">0,00 A</span>
+      </div>
+      <div class="gauge-track"><div id="i_gauge_fill" class="gauge-fill"></div></div>
+      <div class="gauge-markers"><span id="i_marker_0">0</span><span id="i_marker_1">100</span><span id="i_marker_2">200A</span></div>
+    </div>
+
+    <div id="u_group">
+      <div class="slider-label">Spannung \(U\)</div>
+      <div class="slider-row">
+        <input type="range" id="voltage_slider" min="0" max="2" value="0.59" step="0.01">
+        <span class="slider-val" id="voltage_val">0,590 V</span>
+      </div>
+    </div>
+    <div id="i_group" style="display:none;">
+      <div class="slider-label">Stromstärke \(I\)</div>
+      <div class="slider-row">
+        <input type="range" id="current_slider" min="0" max="1000" value="30" step="10">
+        <span class="slider-val" id="current_val">30 A</span>
+      </div>
+    </div>
+    
+    <div class="slider-label">Leiterlänge \(L\)</div>
+    <div class="slider-row">
+      <input type="range" id="length_slider" min="1.0" max="4.0" value="2.0" step="0.1">
+      <span class="slider-val" id="length_val">2,00 m</span>
+    </div>
+    <div class="slider-label">Querschnitt \(A\)</div>
+    <div class="slider-row">
+      <input type="range" id="cross_section_slider" min="1" max="10" value="4.0" step="0.5">
+      <span class="slider-val" id="cross_section_val">4,00 mm²</span>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Mechanik</div>
+    <div class="slider-label">Federkonstante \(D\) (je Feder)</div>
+    <div class="slider-row">
+      <input type="range" id="spring_k_slider" min="2" max="20" value="8.79" step="0.01">
+      <span class="slider-val" id="spring_k_val">8,79 N/m</span>
+    </div>
+    <div class="slider-label">Abstand stromlos \(d_0\)</div>
+    <div class="slider-row">
+      <input type="range" id="distance_slider" min="300" max="1000" value="600" step="10">
+      <span class="slider-val" id="distance_val">600 mm</span>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Konfiguration & Anzeige</div>
+    <div style="margin-bottom:12px;">
+      <div class="vis-label" style="margin-bottom:4px;">Stromfluss:</div>
+      <div style="display:flex; gap:10px;">
+        <label class="radio-row"><input type="radio" name="flow_mode" value="parallel" checked id="flow_par"><span class="custom-radio"></span>parallel</label>
+        <label class="radio-row"><input type="radio" name="flow_mode" value="antiparallel" id="flow_antipar"><span class="custom-radio"></span>antiparallel</label>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div class="vis-label" style="margin-bottom:4px;">Stromrichtung:</div>
+      <div style="display:flex; gap:10px;">
+        <label class="radio-row"><input type="radio" name="dir_mode" value="technical" checked id="dir_tech"><span class="custom-radio"></span>technisch</label>
+        <label class="radio-row"><input type="radio" name="dir_mode" value="physical" id="dir_phys"><span class="custom-radio"></span>physikalisch</label>
+      </div>
+    </div>
+    <div class="vis-toggle-row"><span class="vis-label">Kräfte anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_forces" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Stromfluss visualisieren</span><label class="toggle-switch"><input type="checkbox" id="tog_flow"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Stromrichtung anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_current" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+  </div>
+</aside>
+
+<main class="center-area" style="grid-template-rows: 1fr;">
+  <div class="sim-wrapper">
+    <svg id="main_svg" viewBox="0 0 700 500" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="arr-fl" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-l)"/></marker>
+        <marker id="arr-fs" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-s)"/></marker>
+        <marker id="arr-current" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current)"/></marker>
+        <marker id="arr-current-phys" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current-phys)"/></marker>
+        <linearGradient id="condGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stop-color="#d48a4d" />
+          <stop offset="30%"  stop-color="#ffb37e" />
+          <stop offset="100%" stop-color="#8b4513" />
+        </linearGradient>
+        <linearGradient id="springGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#555" />
+          <stop offset="50%" stop-color="#eee" />
+          <stop offset="100%" stop-color="#555" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="1" dy="1" stdDeviation="1.2" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+      <g id="bg_g">
+        <rect x="0" y="0" width="700" height="20" fill="var(--surface3)" />
+        <line x1="0" y1="20" x2="700" y2="20" stroke="var(--border2)" stroke-width="1" />
+        <g id="table_g">
+          <rect x="100" y="449" width="12" height="51" rx="1" fill="var(--table-leg)" stroke="var(--table-border)" stroke-width="1" />
+          <rect x="588" y="449" width="12" height="51" rx="1" fill="var(--table-leg)" stroke="var(--table-border)" stroke-width="1" />
+          <rect x="50" y="434" width="600" height="15" rx="2" fill="var(--table-top)" stroke="var(--table-border)" stroke-width="1.5" />
+        </g>
+      </g>
+      <g id="field_g"></g>
+      <g id="leads_g" stroke="var(--text3)" stroke-width="2" fill="none">
+        <path id="lead1_l" d="M 0 0 L 0 0" />
+        <path id="lead1_r" d="M 0 0 L 0 0" />
+        <path id="lead2_l" d="M 0 0 L 0 0" />
+        <path id="lead2_r" d="M 0 0 L 0 0" />
+      </g>
+      <g id="springs_g"></g>
+      <g id="conductors_g">
+        <rect id="cond1" x="150" y="426" width="400" height="8" rx="4" fill="url(#condGrad)" stroke="#8b4513" stroke-width="0.5" />
+        <text id="label_cond1" x="350" y="455" font-size="11" font-family="Syne" fill="var(--text3)" text-anchor="middle">Kupferleitung 1 (fixiert)</text>
+        <g id="cond2_group">
+           <rect id="cond2" x="150" y="196" width="400" height="8" rx="4" fill="url(#condGrad)" stroke="#8b4513" stroke-width="0.5" />
+           <text id="label_cond2" x="350" y="190" font-size="11" font-family="Syne" fill="var(--text3)" text-anchor="middle">Kupferleitung 2 (beweglich)</text>
+        </g>
+      </g>
+      <g id="vectors_g"></g>
+    </svg>
+    <div class="time-label" id="status_label">Statisch</div>
+  </div>
+</main>
+
+<aside class="panel right-panel">
+  <div class="panel-section">
+    <div class="panel-label">Live-Analyse</div>
+    <div class="analysis-subject">
+      <div class="analysis-subject-header" style="color:var(--accent)"><div class="dot" style="background:var(--accent)"></div>Physikalische Werte</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Widerstand \(R\)</div>
+        <div class="analysis-cell val" id="res_val">\(0,0000 \, \Omega\)</div>
+        <div class="analysis-cell key">Stromstärke \(I\)</div>
+        <div class="analysis-cell val" id="cur_val">\(0,00 \, \text{A}\)</div>
+        <div class="analysis-cell key">Lorentzkraft \(F_L\)</div>
+        <div class="analysis-cell val" id="force_val">\(0,0000 \, \text{N}\)</div>
+        <div class="analysis-cell key">Abstand \(d\)</div>
+        <div class="analysis-cell val" id="dist_curr_val">\(0,0 \, \text{mm}\)</div>
+        <div class="analysis-cell key">Auslenkung \(\Delta y\)</div>
+        <div class="analysis-cell val" id="delta_y_val">\(0,00 \, \text{mm}\)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Formeln</div>
+    <div class="formula-box" style="font-size: 0.72rem;">
+      <div>Widerstand:</div>
+      <div>\[R = \rho \cdot \frac{L}{A}\]</div>
+      <div>Lorentzkraft:</div>
+      <div>\[F_L = \frac{\mu_0 \cdot I^2 \cdot L}{2\pi d}\]</div>
+      <div>Federkraft (2 Federn):</div>
+      <div>\[F_s = 2 \cdot D \cdot \Delta y\]</div>
+      <div>Gleichgewicht: \(F_L = F_s\)</div>
+    </div>
+  </div>
+</aside>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
