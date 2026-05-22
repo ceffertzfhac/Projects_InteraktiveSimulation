@@ -72,6 +72,52 @@ docs/
 - Semantic color names in use: `--c-vel` (blue), `--c-acc` (red), `--c-force-l` (purple), `--c-force-s` (green), `--c-current` (gold), `--c-current-phys` (orange)
 - Fonts: `Syne` for headlines/UI; `JetBrains Mono` for numeric values
 
+## Git Workflow
+
+### Commit-Format (Conventional Commits — automatisch erzwungen)
+
+```
+<typ>(<scope>): <kurzbeschreibung in Deutsch>
+```
+
+| Typ | Wann |
+|---|---|
+| `feat` | Neue Funktion / neue Simulation |
+| `fix` | Bugfix |
+| `docs` | Nur Dokumentation (CHANGELOG, README, …) |
+| `style` | CSS, Formatierung — keine Logikänderung |
+| `refactor` | Umbau ohne Verhaltensänderung |
+| `chore` | Tooling, .gitignore, Hooks, Build |
+| `perf` | Performance-Verbesserung |
+
+| Scope | Bedeutung |
+|---|---|
+| `lorentz` | `Project_lorentz_force_simulation/` |
+| `rolling` | `Project_rolling_bodies_simulation/` |
+| `standalone` | `Standalone Proto/` |
+| `global` | `global_docs/` |
+| `repo` | Root-Dateien (CLAUDE.md, .gitignore, …) |
+
+**Beispiele:**
+```
+feat(rolling): Ghosting-Snapshots alle 0,5 s hinzugefügt
+fix(lorentz): Federlängen-Fallback bei d < 5 px korrigiert
+docs(rolling): CHANGELOG für v1.9.5 aktualisiert
+chore(repo): .gitignore um *.bak ergänzt
+```
+
+### Hooks (automatisch aktiv)
+
+Die Hooks liegen in `.githooks/` und sind versioniert. Sie werden automatisch angewendet, weil `core.hooksPath = .githooks` in der lokalen Git-Konfiguration gesetzt ist.
+
+> **Neuer Klon:** Nach dem Klonen einmalig ausführen:
+> ```bash
+> git config core.hooksPath .githooks
+> ```
+
+- **`commit-msg`** — lehnt Commits ab, die nicht dem Conventional-Commits-Format entsprechen.
+- **`pre-commit`** — blockiert das Einchecken von `.DS_Store`, `test.txt` und ähnlichen Junk-Dateien.
+
 ## After Every Code Change
 
 Update `docs/CHANGELOG.md` (add entry at top) and, if relevant, `docs/FEATURE_BACKLOG.md` or `docs/issues.md`.
