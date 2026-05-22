@@ -1,0 +1,13 @@
+# macOS Metadaten
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+
+# Scratch / temporäre Dateien
+test.txt
+*.tmp
+*.bak

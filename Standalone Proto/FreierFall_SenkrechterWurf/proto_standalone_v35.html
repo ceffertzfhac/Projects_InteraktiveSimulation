@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finaler Standalone Prototyp: Freier Fall (Stabil)</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; /* Typisches Matplotlib/Seaborn Orange für Geschwindigkeit */
+            --fh-purple: #9467BD; /* Typisches Matplotlib/Seaborn Lila für Beschleunigung */
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        /* SVG-Höhe erhöht, um mehr Platz nach unten zu schaffen */
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 50px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #e0e0e0; }
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Standalone Prototyp: Freier Fall / Senkrechter Wurf</h1>
+    
+    <div id="container">
+        <!-- SVG-ViewBox-Höhe erhöht -->
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <!-- Definition für den Pfeil am Ende der Achsen -->
+            <defs>
+                <!-- Pfeil für Vektoren (Geschwindigkeit, Beschleunigung, Graphenachsen) -->
+                <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="currentColor" />
+                </marker>
+                <!-- Pfeil für den Y-Achsen-Indikator auf der Skizze (50% größer als die ursprüngliche Version) -->
+                <marker id="yAxisArrowhead" markerWidth="15" markerHeight="10.5" refX="0" refY="5.25" orient="auto">
+                    <polygon points="0 0, 15 5.25, 0 10.5" fill="currentColor" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect> <!-- Hintergrundhöhe angepasst -->
+                <line x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" /> <!-- Bodenlinie bleibt bei 440 -->
+                <rect id="building" x="80" width="80" fill="#e0e0e0" z-order="1" />
+                
+                <!-- Gruppe für die vertikale Längenskala (Maßband) -->
+                <g id="ruler_group"></g>
+
+                <g id="stick_figure"></g>
+                
+                <circle id="ball" r="8" fill="var(--fh-red)" z-order="10" />
+                
+                <!-- Acceleration Vector (vor Velocity Vector, um Velocity optisch "darüber" zu legen) -->
+                <line id="acceleration_vector" x1="0" y1="0" x2="0" y2="0" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <!-- Velocity Vector (jetzt orange) -->
+                <line id="velocity_vector" x1="0" y1="0" x2="0" y2="0" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+
+                <!-- Gruppe für die Y-Achsen-Anzeige auf der linken Skizze -->
+                <g id="y_axis_display"></g>
+
+                <g id="stopwatch">
+                    <!-- Stoppuhr Kreis: Radius 90 * 0.8 = 72, cy 120 -->
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" />
+                    <!-- Gruppe für die Striche der Haupt-Stoppuhr -->
+                    <g id="stopwatch_marks"></g>
+                    
+                    <!-- Sub-Zifferblatt: cy 160 -> 150 (10px nach oben) -->
+                    <g id="subdial">
+                        <!-- Sub-Zifferblatt Kreis: Radius 20 * 0.8 = 16 -->
+                        <circle id="subdial_circle" cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <!-- x1 und y1 des Sub-Zeigers müssen dem Mittelpunkt des Sub-Kreises entsprechen -->
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+
+                    <!-- Haupt-Zeiger: y1 120 -->
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                </g>
+            </g>
+            <!-- Graph-Gruppe nach unten verschoben, um mehr Platz am unteren Rand des Diagramms zu schaffen -->
+            <g id="graph_group" transform="translate(400, 40)">
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <input type="range" id="h0_slider" min="1.8" max="25" value="10" step="0.1">
+                    <div class="value" id="h0_value">10 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangsgeschw. \(v_0\):</div>
+                    <input type="range" id="v0_slider" min="-10" max="10" value="0" step="1">
+                    <div class="value" id="v0_value">0 m/s</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <div><input type="checkbox" id="toggle_velocity_vector" checked> Geschwindigkeitsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_acceleration_vector" checked> Beschleunigungsvektor anzeigen</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                    <option value="weg" selected>Weg-Zeit</option>
+                    <option value="geschw">Geschw.-Zeit</option>
+                    <option value="beschl">Beschl.-Zeit</option>
+                </select>
+                <!-- Dropdown für Y-Achsen-Konfiguration -->
+                <div style="margin-top: 15px;">
+                    <label for="y_axis_config">Y-Achsen-Konfiguration:</label>
+                    <select id="y_axis_config">
+                        <option value="up_ground" selected>Y-Achse: hoch (+), Nullpunkt: Boden</option>
+                        <option value="up_start">Y-Achse: hoch (+), Nullpunkt: Start</option>
+                        <option value="down_ground">Y-Achse: runter (+), Nullpunkt: Boden</option>
+                        <option value="down_start">Y-Achse: runter (+), Nullpunkt: Start</option>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        const PIXELS_PER_METER = 13; 
+        const WATCH_DISPLAY_SCALE = 0.8; 
+        const PIXELS_PER_VELOCITY_UNIT = 4; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5; 
+        const VELOCITY_VISIBILITY_THRESHOLD = 0.1; 
+        const HORIZONTAL_VECTOR_OFFSET = 0; 
+
+        let aniFrameId = null;
+        let lastFrameTime = 0;
+        let simulatedTimeElapsed = 0;
+
+        let h0, v0, graphType, speedFactor;
+        let t_data = [], y_data = [], v_data = [], a_data = [];
+
+        // Globale Variable für die Y-Achsen-Konfiguration
+        let yAxisConfig = {
+            direction: 'up',   // 'up' oder 'down'
+            origin: 'ground'   // 'ground' oder 'start'
+        };
+
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'),   
+            gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'), h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), h0Value: document.getElementById('h0_value'),
+            v0Value: document.getElementById('v0_value'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+            graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'),
+            pauseButton: document.getElementById('pause_button'),
+            resetButton: document.getElementById('reset_button'),
+            rulerGroup: document.getElementById('ruler_group'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), 
+            subdialMarks: document.getElementById('subdial_marks'),     
+            velocityVector: document.getElementById('velocity_vector'), 
+            toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            accelerationVector: document.getElementById('acceleration_vector'),
+            toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            yAxisDisplay: document.getElementById('y_axis_display'), 
+            yAxisConfigSelect: document.getElementById('y_axis_config'), 
+        };
+        
+        // Diese Skalierung bildet physikalische Meter (Y-Wert, positive nach oben, 0 ist Boden) auf SVG Pixel (positive nach unten, 440 ist Boden) ab.
+        const scaleY = (y_meters_from_ground) => 440 - y_meters_from_ground * PIXELS_PER_METER; 
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) { el.setAttribute(key, attributes[key]); }
+            return el;
+        }
+        
+        function drawStickFigure(h_building_base) { 
+            ui.stickFigure.innerHTML = '';
+            const feet_y = scaleY(h_building_base); 
+
+            const head_r = 0.2 * PIXELS_PER_METER; 
+            const torso_h = 0.8 * PIXELS_PER_METER; 
+            const leg_h = 1.0 * PIXELS_PER_METER;   
+            const leg_spread = 0.3 * PIXELS_PER_METER; 
+            
+            const crotch_y = feet_y - leg_h; 
+            const shoulder_y = crotch_y - torso_h; 
+            const base_x = 120; 
+            
+            const arm_y_scaled = scaleY(h0); 
+            const arm_x2 = base_x + 16; 
+
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x, y2: shoulder_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x - leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x + leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: arm_y_scaled + 3, x2: arm_x2, y2: arm_y_scaled + 3, stroke: 'black', 'stroke-width': 2})); 
+            ui.stickFigure.appendChild(createSVGElement('circle', {cx: base_x, cy: shoulder_y - head_r, r: head_r, stroke: 'black', 'stroke-width': 2, fill: 'none'}));
+        }
+
+        // Funktion zur Transformation eines physikalischen Y-Wertes (Höhe über Boden)
+        // in den Wert, der auf der Graph-Y-Achse angezeigt werden soll.
+        function getDisplayYValue(y_abs_from_ground_physics) {
+            let y_val_raw; 
+            if (yAxisConfig.origin === 'ground') {
+                y_val_raw = y_abs_from_ground_physics;
+            } else { 
+                y_val_raw = y_abs_from_ground_physics - h0; 
+            }
+
+            if (yAxisConfig.direction === 'down') {
+                y_val_raw = -y_val_raw;
+            }
+            return y_val_raw;
+        }
+
+        // Funktion zur Transformation eines physikalischen V-Wertes (positiv nach oben)
+        // in den Wert, der auf der Graph-Y-Achse angezeigt werden soll.
+        function getDisplayVValue(v_upwards_physics) {
+            return yAxisConfig.direction === 'up' ? v_upwards_physics : -v_upwards_physics;
+        }
+
+        // Funktion zur Transformation eines physikalischen A-Wertes (negativ nach oben = -G)
+        // in den Wert, der auf der Graph-Y-Achse angezeigt werden soll.
+        function getDisplayAValue(a_upwards_physics) { 
+            return yAxisConfig.direction === 'up' ? a_upwards_physics : -a_upwards_physics;
+        }
+
+        // Funktion zum Zeichnen der Y-Achsen-Anzeige auf der linken Skizze
+        function drawYAxisDisplay() {
+            ui.yAxisDisplay.innerHTML = ''; 
+
+            const axis_x = 180; 
+            const y_ground_scaled = scaleY(0); 
+            const h0_scaled = scaleY(h0); 
+
+            let y_origin_for_display_axis_scaled; 
+            let y_end_for_display_axis_scaled;    
+
+            if (yAxisConfig.origin === 'ground') {
+                y_origin_for_display_axis_scaled = y_ground_scaled;
+            } else { 
+                y_origin_for_display_axis_scaled = h0_scaled;
+            }
+
+            // KORREKTUR: Dynamische Länge des Achsen-Indikators
+            let effective_display_range_px;
+            if (yAxisConfig.direction === 'down' && yAxisConfig.origin === 'ground') {
+                effective_display_range_px = 15; // Kurz für diesen speziellen Fall
+            } else {
+                effective_display_range_px = 50; // Normal für andere Fälle
+            }
+
+            if (yAxisConfig.direction === 'up') {
+                y_end_for_display_axis_scaled = y_origin_for_display_axis_scaled - effective_display_range_px;
+            } else { 
+                y_end_for_display_axis_scaled = y_origin_for_display_axis_scaled + effective_display_range_px;
+            }
+            
+            // Sicherstellen, dass die Achse nicht über die Gesamt-SVG-Höhe hinausgeht (480px)
+            // Die Boden-Y-Koordinate der Animation ist 440. Der unterste sichtbare Punkt ist 480.
+            y_end_for_display_axis_scaled = Math.max(0, Math.min(480, y_end_for_display_axis_scaled));
+            y_origin_for_display_axis_scaled = Math.max(0, Math.min(480, y_origin_for_display_axis_scaled));
+
+            ui.yAxisDisplay.appendChild(createSVGElement('line', {
+                x1: axis_x, y1: y_origin_for_display_axis_scaled,
+                x2: axis_x, y2: y_end_for_display_axis_scaled,
+                stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#yAxisArrowhead)' 
+            }));
+
+            ui.yAxisDisplay.appendChild(createSVGElement('text', {
+                x: axis_x + 5, y: y_origin_for_display_axis_scaled + 4, 
+                'text-anchor': 'start', 'font-size': '12px', fill: 'black'
+            })).textContent = '0';
+
+            const yAxisArrowhead_protrusion_length = 15; 
+            const label_offset_from_tip = 2; 
+
+            let label_y_pos;
+            let label_transform_angle;
+
+            if (yAxisConfig.direction === 'up') {
+                label_y_pos = y_end_for_display_axis_scaled - yAxisArrowhead_protrusion_length - label_offset_from_tip; 
+                label_transform_angle = -90; 
+            } else { 
+                label_y_pos = y_end_for_display_axis_scaled + yAxisArrowhead_protrusion_length + label_offset_from_tip;
+                label_transform_angle = 90; 
+            }
+
+            ui.yAxisDisplay.appendChild(createSVGElement('text', {
+                x: axis_x + 20, y: label_y_pos, 
+                'transform': `rotate(${label_transform_angle} ${axis_x + 20}, ${label_y_pos})`, 
+                'text-anchor': 'middle', 'font-size': '14px', fill: 'black'
+            })).textContent = 'y / m';
+        }
+
+        function drawRuler() {
+            ui.rulerGroup.innerHTML = ''; 
+            const ruler_x = 45; 
+            const ruler_width = 15; 
+            // Max Höhe des Maßbandes basierend auf dem Boden bei 440px
+            const max_ruler_height_m = Math.ceil(440 / PIXELS_PER_METER) + 5; 
+
+            ui.rulerGroup.appendChild(createSVGElement('rect', {
+                x: ruler_x, y: scaleY(max_ruler_height_m), width: ruler_width, height: max_ruler_height_m * PIXELS_PER_METER,
+                fill: '#f0f0f0', stroke: '#888', 'stroke-width': 1
+            }));
+
+            for (let m = 0; m <= max_ruler_height_m; m++) {
+                const y_pos = scaleY(m);
+                let line_length = 5;
+                let text_offset = 0;
+                let stroke_width = 1;
+
+                if (m % 5 === 0) { 
+                    line_length = 10;
+                    text_offset = -15;
+                    stroke_width = 2;
+                    ui.rulerGroup.appendChild(createSVGElement('text', {
+                        x: ruler_x + text_offset, y: y_pos + 4, 'text-anchor': 'end', 'font-size': '12px', fill: 'black'
+                    })).textContent = `${m} m`;
+                } else if (m % 1 === 0) { 
+                    line_length = 5;
+                    text_offset = 0; 
+                }
+
+                ui.rulerGroup.appendChild(createSVGElement('line', {
+                    x1: ruler_x + ruler_width, y1: y_pos,
+                    x2: ruler_x + ruler_width - line_length, y2: y_pos,
+                    stroke: 'black', 'stroke-width': stroke_width
+                }));
+            }
+        }
+
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; 
+            const cx = 280, cy = 120; 
+            const effective_radius_main = 30 * 3 * WATCH_DISPLAY_SCALE; 
+
+            const outer_r = effective_radius_main; 
+            const inner_r_major = (22/30) * outer_r; 
+            const inner_r_minor = (25/30) * outer_r; 
+
+            for (let s = 0; s < 60; s++) {
+                const angle_rad = Math.PI / 2 - (s / 60) * 2 * Math.PI; 
+
+                let current_inner_r = inner_r_minor;
+                let stroke_width = 1;
+
+                if (s % 5 === 0) { 
+                    current_inner_r = inner_r_major;
+                    stroke_width = 2;
+                }
+
+                const x1 = cx + current_inner_r * Math.cos(angle_rad);
+                const y1 = cy - current_inner_r * Math.sin(angle_rad);
+                const x2 = cx + outer_r * Math.cos(angle_rad);
+                const y2 = cy - outer_r * Math.sin(angle_rad);
+
+                ui.stopwatchMarks.appendChild(createSVGElement('line', {
+                    x1: x1, y1: y1, x2: x2, y2: y2, stroke: 'black', 'stroke-width': stroke_width
+                }));
+            }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; 
+            const cx_sub = 280, cy_sub = 150; 
+            const r_sub = 20 * WATCH_DISPLAY_SCALE; 
+            const inner_r_mark = r_sub - (5 * WATCH_DISPLAY_SCALE); 
+
+            for (let i = 0; i < 10; i++) {
+                const angle_rad = Math.PI / 2 - (i / 10) * 2 * Math.PI; 
+
+                const x1 = cx_sub + inner_r_mark * Math.cos(angle_rad);
+                const y1 = cy_sub - inner_r_mark * Math.sin(angle_rad);
+                const x2 = cx_sub + r_sub * Math.cos(angle_rad); 
+                const y2 = cy_sub - r_sub * Math.sin(angle_rad);
+
+                ui.subdialMarks.appendChild(createSVGElement('line', {
+                    x1: x1, y1: y1, x2: x2, y2: y2, stroke: 'black', 'stroke-width': 1
+                }));
+            }
+        }
+
+        function getNiceTickStep(range, targetTicks) {
+            const minStep = range / targetTicks;
+            const exponent = Math.floor(Math.log10(minStep));
+            const powerOf10 = 10 ** exponent;
+            let niceFraction = minStep / powerOf10; 
+
+            if (niceFraction <= 1) niceFraction = 1;
+            else if (niceFraction <= 2) niceFraction = 2;
+            else if (niceFraction <= 5) niceFraction = 5;
+            else niceFraction = 10; 
+
+            return niceFraction * powerOf10;
+        }
+
+
+        function updateGraph() {
+            ui.gridGroup.innerHTML = '';
+            ui.gridGroup.appendChild(createSVGElement('rect', { x: 0, y: 0, width: 480, height: 410, fill: 'white' }));
+
+            let t_max, val_min, val_max, y_label;
+
+            let time_to_ground_physics = (v0 + Math.sqrt(v0**2 + 2 * G * h0)) / G;
+            t_max = Math.max(time_to_ground_physics, 1.0);
+
+            const scaleXGraph = (t) => (t / t_max) * 460; 
+
+            // Bestimme den Datenbereich für die Y-Achse basierend auf dem Diagrammtyp und den transformierten Werten
+            let temp_val_min_transformed, temp_val_max_transformed;
+
+            if (graphType === 'weg') {
+                const y_max_flight_physics = h0 + (v0 > 0 ? (v0**2 / (2 * G)) : 0);
+                const y_min_flight_physics = 0; // Boden
+                
+                // Transformation der physikalischen Extremwerte
+                temp_val_min_transformed = getDisplayYValue(y_min_flight_physics);
+                temp_val_max_transformed = getDisplayYValue(y_max_flight_physics);
+
+                // Anpassung des Y-Labels basierend auf der Achsenkonfiguration
+                y_label = "Höhe y(t) /m";
+                if (yAxisConfig.origin === 'start') y_label = "Weg s(t) /m"; 
+                if (yAxisConfig.direction === 'down') {
+                    if (yAxisConfig.origin === 'ground') y_label = "Tiefe y(t) /m"; 
+                    else y_label = "Weg s(t) /m"; 
+                }
+                
+            } else if (graphType === 'geschw') {
+                const v_min_flight_physics = v0 - G * t_max;
+                const v_max_flight_physics = v0; 
+                
+                // Transformation der physikalischen Extremwerte
+                temp_val_min_transformed = getDisplayVValue(v_min_flight_physics);
+                temp_val_max_transformed = getDisplayVValue(v_max_flight_physics);
+
+                y_label = "Geschw. v(t) /(m/s)";
+            } else { // Beschleunigung
+                const a_physics = -G; 
+                
+                // Transformation der physikalischen Extremwerte
+                temp_val_min_transformed = getDisplayAValue(a_physics);
+                temp_val_max_transformed = getDisplayAValue(a_physics); 
+
+                y_label = "Beschl. a(t) /(m/s²)";
+            }
+
+            // Sicherstellen, dass min und max korrekt sortiert sind, falls Transformation die Reihenfolge ändert
+            val_min = Math.min(temp_val_min_transformed, temp_val_max_transformed);
+            val_max = Math.max(temp_val_min_transformed, temp_val_max_transformed);
+
+            // Etwas Puffer hinzufügen und sicherstellen, dass 0 enthalten ist
+            const initial_range = val_max - val_min;
+            if (initial_range === 0) { 
+                val_min -= Math.abs(val_min) * 0.2 + 1; 
+                val_max += Math.abs(val_max) * 0.2 + 1;
+            } else {
+                val_min -= initial_range * 0.1;
+                val_max += initial_range * 0.1;
+            }
+            if (val_min > 0 && 0 < val_min) val_min = 0; 
+            if (val_max < 0 && 0 > val_max) val_max = 0;
+            if (Math.abs(val_min) < 0.01 && val_min !== 0) val_min = 0;
+            if (Math.abs(val_max) < 0.01 && val_max !== 0) val_max = 0;
+
+            const y_data_range_effective = val_max - val_min;
+            const target_y_ticks = 8; 
+            const y_tick_step = getNiceTickStep(y_data_range_effective, target_y_ticks);
+
+            let y_axis_min = Math.floor(val_min / y_tick_step) * y_tick_step;
+            let y_axis_max = Math.ceil(val_max / y_tick_step) * y_tick_step;
+
+            // Feinjustierung für die Achsgrenzen, falls sie 0 überspringen
+            if (y_axis_min > 0 && val_min <= 0 && y_axis_min > y_tick_step) y_axis_min = 0;
+            if (y_axis_max < 0 && val_max >= 0 && y_axis_max < -y_tick_step) y_axis_max = 0;
+
+            if (y_axis_min === y_axis_max) { 
+                if (y_axis_min === 0) {
+                    y_axis_min = -y_tick_step;
+                    y_axis_max = y_tick_step;
+                } else {
+                    y_axis_min -= y_tick_step;
+                    y_axis_max += y_tick_step;
+                }
+            }
+            
+            // scaleYGraph verwendet die neu berechneten y_axis_min/max
+            const scaleYGraph = (val) => 400 - ((val - y_axis_min) / (y_axis_max - y_axis_min || 1)) * 380;
+
+            const x_origin_pixel = scaleXGraph(0); 
+            const y_origin_pixel_for_zero_line = scaleYGraph(getDisplayYValue(0)); 
+
+            // Schleife zum Zeichnen der X-Achsen Gitterlinien und Beschriftungen
+            for(let i = 0; i <= 10; i++) { 
+                const t_grid = (t_max / 10) * i;
+                const x_grid_pixel = scaleXGraph(t_grid);
+
+                if (Math.abs(x_grid_pixel - x_origin_pixel) > 2) { 
+                    ui.gridGroup.appendChild(createSVGElement('line', {x1:x_grid_pixel, y1:0, x2:x_grid_pixel, y2:410, stroke:'#eee'}));
+                }
+                
+                let text_x = createSVGElement('text', {
+                    x:x_grid_pixel,
+                    y:y_origin_pixel_for_zero_line + 15, 
+                    'text-anchor':'middle',
+                    fill: 'black',
+                    'font-size': '12px'
+                });
+                text_x.textContent = t_grid.toFixed(1);
+                ui.gridGroup.appendChild(text_x);
+            }
+
+            // Schleife zum Zeichnen der Y-Achsen Gitterlinien und Beschriftungen
+            for(let val = y_axis_min; val <= y_axis_max; val += y_tick_step) {
+                const y_grid_pixel = scaleYGraph(val);
+                if (Math.abs(y_grid_pixel - y_origin_pixel_for_zero_line) > 2 || Math.abs(val) > 0.01) { 
+                    ui.gridGroup.appendChild(createSVGElement('line', {x1:0, y1:y_grid_pixel, x2:480, y2:y_grid_pixel, stroke:'#eee'}));
+                }
+                
+                let text_y = createSVGElement('text', {x:x_origin_pixel - 10, y:y_grid_pixel + 4, 'text-anchor':'end', fill: 'black', 'font-size': '12px'});
+                text_y.textContent = val.toFixed(y_tick_step % 1 === 0 ? 0 : 1); 
+                ui.gridGroup.appendChild(text_y);
+            }
+
+            // Zeichne die Haupt-X-Achse (y=0-Linie des Graphen)
+            ui.gridGroup.appendChild(createSVGElement('line', {
+                x1: x_origin_pixel, y1: y_origin_pixel_for_zero_line,
+                x2: 480, y2: y_origin_pixel_for_zero_line,
+                stroke: 'black', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
+            }));
+
+            // Zeichne die Haupt-Y-Achse (x=0-Linie des Graphen)
+            ui.gridGroup.appendChild(createSVGElement('line', {
+                x1: x_origin_pixel, y1: 410, 
+                x2: x_origin_pixel, y2: 0,   
+                stroke: 'black', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
+            }));
+
+            let time_label_text = createSVGElement('text', {x:240, y:y_origin_pixel_for_zero_line + 30, 'text-anchor':'middle', fill: 'black', 'font-size': '14px'});
+            time_label_text.textContent = "Zeit t/s";
+            ui.gridGroup.appendChild(time_label_text);
+
+            let y_axis_label_text = createSVGElement('text', {x:x_origin_pixel - 40, y:205, 'transform':`rotate(-90 ${x_origin_pixel - 40}, ${205})`, 'text-anchor':'middle', fill: 'black', 'font-size': '14px'});
+            y_axis_label_text.textContent = y_label;
+            ui.gridGroup.appendChild(y_axis_label_text);
+            
+            let points = "";
+            let data_y = (graphType === 'weg') ? y_data : (graphType === 'geschw') ? v_data : a_data;
+            for(let i=0; i<t_data.length; i++) {
+                points += `${scaleXGraph(t_data[i])},${scaleYGraph(data_y[i])} `; 
+            }
+            ui.graphLine.setAttribute('points', points);
+            
+            if (t_data.length > 0) {
+                ui.graphPoint.setAttribute('cx', scaleXGraph(t_data[t_data.length-1]));
+                ui.graphPoint.setAttribute('cy', scaleYGraph(data_y[data_y.length-1]));
+                ui.graphPoint.setAttribute('visibility', 'visible');
+            } else { ui.graphPoint.setAttribute('visibility', 'hidden'); }
+            ui.graphTitle.textContent = `${ui.graphSelect.options[ui.graphSelect.selectedIndex].text}-Diagramm`;
+        }
+        
+        function animate(currentTime) {
+            if (!lastFrameTime) {
+                lastFrameTime = currentTime;
+            }
+            
+            const deltaTimeReal = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += deltaTimeReal * speedFactor;
+            lastFrameTime = currentTime;
+
+            // Interne Physik-Berechnungen (immer Y nach oben, Nullpunkt am Boden, Beschleunigung -G)
+            const y_abs_from_ground_physics = h0 + v0 * simulatedTimeElapsed - 0.5 * G * simulatedTimeElapsed**2;
+            const v_upwards_physics = v0 - G * simulatedTimeElapsed; 
+            const a_upwards_physics = -G; 
+
+            if (y_abs_from_ground_physics >= 0) { 
+                // Datenpunkte für Graphen, transformiert in das Display-Koordinatensystem
+                t_data.push(simulatedTimeElapsed); 
+                y_data.push(getDisplayYValue(y_abs_from_ground_physics)); 
+                v_data.push(getDisplayVValue(v_upwards_physics)); 
+                a_data.push(getDisplayAValue(a_upwards_physics));
+                
+                // Ball-Position (immer basierend auf physikalischer Höhe über dem Boden)
+                const ball_cx = parseFloat(ui.ball.getAttribute('cx')); 
+                const ball_cy_scaled = scaleY(y_abs_from_ground_physics); 
+                ui.ball.setAttribute('cy', ball_cy_scaled);
+                
+                // Sichtbarkeitsprüfung für Vektoren
+                const displayVelVector = ui.toggleVelocityVector.checked && Math.abs(v_upwards_physics) >= VELOCITY_VISIBILITY_THRESHOLD; 
+                const displayAccelVector = ui.toggleAccelerationVector.checked; 
+
+                // Vektoren starten immer im Mittelpunkt des Balls
+                const vector_start_x = ball_cx; 
+                const vector_start_y = ball_cy_scaled;
+
+                // Update Beschleunigungsvektor (wird zuerst gezeichnet, damit Geschwindigkeit "darüber" liegt)
+                if (displayAccelVector) {
+                    ui.accelerationVector.setAttribute('visibility', 'visible');
+                    ui.accelerationVector.setAttribute('x1', vector_start_x);
+                    ui.accelerationVector.setAttribute('y1', vector_start_y);
+                    
+                    const accel_length_pixels = G * PIXELS_PER_ACCELERATION_UNIT;
+                    const accel_y2_scaled = vector_start_y + accel_length_pixels; 
+
+                    ui.accelerationVector.setAttribute('x2', vector_start_x); 
+                    ui.accelerationVector.setAttribute('y2', accel_y2_scaled);
+                } else {
+                    ui.accelerationVector.setAttribute('visibility', 'hidden');
+                }
+
+                // Update Geschwindigkeitsvektor (wird danach gezeichnet)
+                if (displayVelVector) {
+                    ui.velocityVector.setAttribute('visibility', 'visible'); 
+                    ui.velocityVector.setAttribute('x1', vector_start_x);
+                    ui.velocityVector.setAttribute('y1', vector_start_y);
+
+                    const vector_length_pixels = Math.abs(v_upwards_physics) * PIXELS_PER_VELOCITY_UNIT; 
+                    let vector_y2_scaled;
+                    
+                    if (v_upwards_physics > 0) { 
+                        vector_y2_scaled = vector_start_y - vector_length_pixels; 
+                    } else { 
+                        vector_y2_scaled = vector_start_y + vector_length_pixels; 
+                    }
+                    
+                    ui.velocityVector.setAttribute('x2', vector_start_x); 
+                    ui.velocityVector.setAttribute('y2', vector_y2_scaled);
+                } else {
+                    ui.velocityVector.setAttribute('visibility', 'hidden');
+                }
+                
+                // Hauptuhr Zeiger (Sekundenzeiger)
+                const cx_main = 280, cy_main = 120; 
+                const main_hand_length = (25 * 3) * WATCH_DISPLAY_SCALE; 
+                const main_angle = Math.PI/2 - (simulatedTimeElapsed % 60) / 60.0 * 2 * Math.PI; 
+                ui.mainHand.setAttribute('x2', cx_main + main_hand_length * Math.cos(main_angle)); 
+                ui.mainHand.setAttribute('y2', cy_main - main_hand_length * Math.sin(main_angle));
+                
+                // Sub-Zifferblatt Zeiger (Zehntel-Sekunden-Zeiger)
+                const cx_sub = 280, cy_sub = 150; 
+                const sub_hand_length = 18 * WATCH_DISPLAY_SCALE; 
+                const sub_angle = Math.PI/2 - (simulatedTimeElapsed % 1) * 2 * Math.PI; 
+                ui.subHand.setAttribute('x2', cx_sub + sub_hand_length * Math.cos(sub_angle)); 
+                ui.subHand.setAttribute('y2', cy_sub - sub_hand_length * Math.sin(sub_angle));
+                
+                updateGraph();
+                aniFrameId = requestAnimationFrame(animate);
+            } else { 
+                // Kugel hat Boden erreicht (finaler Zustand)
+                const final_t_physics = (v0 + Math.sqrt(v0**2 + 2 * G * h0)) / G;
+                const final_y_abs_from_ground_physics = 0; 
+                const final_v_upwards_physics = v0 - G * final_t_physics; 
+                const final_a_upwards_physics = -G;
+
+                t_data.push(final_t_physics); 
+                y_data.push(getDisplayYValue(final_y_abs_from_ground_physics)); 
+                v_data.push(getDisplayVValue(final_v_upwards_physics)); 
+                a_data.push(getDisplayAValue(final_a_upwards_physics));
+
+                ui.ball.setAttribute('cy', scaleY(final_y_abs_from_ground_physics)); 
+
+                // Sichtbarkeitsprüfung für Vektoren
+                const displayVelVector = ui.toggleVelocityVector.checked && Math.abs(final_v_upwards_physics) >= VELOCITY_VISIBILITY_THRESHOLD;
+                const displayAccelVector = ui.toggleAccelerationVector.checked;
+
+                const vector_start_x_final = parseFloat(ui.ball.getAttribute('cx'));
+                const vector_start_y_final = scaleY(final_y_abs_from_ground_physics); 
+                
+                // Update Beschleunigungsvektor
+                if (displayAccelVector) {
+                    ui.accelerationVector.setAttribute('visibility', 'visible');
+                    ui.accelerationVector.setAttribute('x1', vector_start_x_final);
+                    ui.accelerationVector.setAttribute('y1', vector_start_y_final);
+                    const accel_length_pixels = G * PIXELS_PER_ACCELERATION_UNIT;
+                    const accel_y2_scaled = vector_start_y_final + accel_length_pixels;
+                    ui.accelerationVector.setAttribute('x2', vector_start_x_final);
+                    ui.accelerationVector.setAttribute('y2', accel_y2_scaled);
+                } else {
+                    ui.accelerationVector.setAttribute('visibility', 'hidden');
+                }
+
+                // Update Geschwindigkeitsvektor
+                if (displayVelVector) {
+                    ui.velocityVector.setAttribute('visibility', 'visible');
+                    ui.velocityVector.setAttribute('x1', vector_start_x_final);
+                    ui.velocityVector.setAttribute('y1', vector_start_y_final);
+                    const vector_length_pixels = Math.abs(final_v_upwards_physics) * PIXELS_PER_VELOCITY_UNIT;
+                    let vector_y2_scaled = vector_start_y_final + vector_length_pixels; 
+                    ui.velocityVector.setAttribute('x2', vector_start_x_final);
+                    ui.velocityVector.setAttribute('y2', vector_y2_scaled);
+                } else {
+                    ui.velocityVector.setAttribute('visibility', 'hidden');
+                }
+
+                updateGraph();
+                stopAnimation();
+            }
+        }
+
+        function stopAnimation() {
+            if (aniFrameId) {
+                cancelAnimationFrame(aniFrameId);
+                aniFrameId = null;
+            }
+            ui.playButton.disabled = false;
+            ui.pauseButton.disabled = true;
+            ui.h0Slider.disabled = false;
+            ui.v0Slider.disabled = false;
+        }
+
+        function resetScene() {
+            stopAnimation();
+            
+            simulatedTimeElapsed = 0;
+            lastFrameTime = 0;
+
+            h0 = parseFloat(ui.h0Slider.value); 
+            v0 = parseFloat(ui.v0Slider.value);
+            graphType = ui.graphSelect.value;
+            ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+
+            // Y-Achsen-Konfiguration aus Dropdown lesen
+            const [direction, origin] = ui.yAxisConfigSelect.value.split('_');
+            yAxisConfig.direction = direction;
+            yAxisConfig.origin = origin;
+
+            ui.h0Value.textContent = `${h0.toFixed(1)} m`; 
+            ui.v0Value.textContent = `${v0} m/s`;
+
+            t_data = []; y_data = [], v_data = [], a_data = [];
+            
+            const ball_start_x = 136; 
+            const ball_start_y_physics = h0; 
+            
+            const building_height_m = Math.max(0, h0 - 1.8); 
+            
+            ui.building.setAttribute('height', building_height_m * PIXELS_PER_METER);
+            ui.building.setAttribute('y', scaleY(building_height_m));
+            
+            drawStickFigure(building_height_m); 
+            drawRuler(); 
+            drawStopwatchMarks(); 
+            drawSubdialMarks(); 
+            drawYAxisDisplay(); 
+
+            ui.ball.setAttribute('cx', ball_start_x);
+            ui.ball.setAttribute('cy', scaleY(ball_start_y_physics));
+            
+            // Beide Vektoren beim Reset ausblenden und Startposition setzen
+            ui.velocityVector.setAttribute('x1', ball_start_x); 
+            ui.velocityVector.setAttribute('y1', scaleY(ball_start_y_physics)); 
+            ui.velocityVector.setAttribute('visibility', 'hidden'); 
+
+            ui.accelerationVector.setAttribute('x1', ball_start_x); 
+            ui.accelerationVector.setAttribute('y1', scaleY(ball_start_y_physics)); 
+            ui.accelerationVector.setAttribute('visibility', 'hidden'); 
+
+
+            // Stoppuhr Zeigerlängen für Reset: Hauptuhr (cx=280, cy=120), Sub-Zifferblatt (cx=280, cy=150)
+            const cx_main = 280, cy_main = 120; 
+            const cx_sub = 280, cy_sub = 150;  
+
+            const main_hand_length = (25 * 3) * WATCH_DISPLAY_SCALE; 
+            const sub_hand_length = 18 * WATCH_DISPLAY_SCALE;      
+
+            ui.mainHand.setAttribute('x1',cx_main); ui.mainHand.setAttribute('y1',cy_main);
+            ui.mainHand.setAttribute('x2',cx_main); ui.mainHand.setAttribute('y2',cy_main-main_hand_length); 
+            void ui.mainHand.offsetWidth; // KORREKTUR: Erzwingt Re-Layout für Hauptzeiger
+
+            ui.subHand.setAttribute('x1',cx_sub); ui.subHand.setAttribute('y1',cy_sub);
+            ui.subHand.setAttribute('x2',cx_sub); ui.subHand.setAttribute('y2',cy_sub-sub_hand_length); 
+            void ui.subHand.offsetWidth; // KORREKTUR: Erzwingt Re-Layout für Sub-Zeiger
+
+            updateGraph();
+        }
+
+        ['input', 'change'].forEach(evt => { 
+            ui.h0Slider.addEventListener(evt, resetScene); 
+            ui.v0Slider.addEventListener(evt, resetScene); 
+        });
+        ui.graphSelect.addEventListener('change', resetScene);
+        ui.speedRadios.forEach(radio => radio.addEventListener('change', resetScene));
+        ui.toggleVelocityVector.addEventListener('change', resetScene);
+        ui.toggleAccelerationVector.addEventListener('change', resetScene); 
+        ui.yAxisConfigSelect.addEventListener('change', resetScene); 
+        
+        ui.playButton.addEventListener('click', () => {
+            if (!aniFrameId) { 
+                resetScene(); 
+                ui.playButton.disabled = true;
+                ui.pauseButton.disabled = false;
+                ui.h0Slider.disabled = true;
+                ui.v0Slider.disabled = true;
+                lastFrameTime = 0; 
+                aniFrameId = requestAnimationFrame(animate);
+            }
+        });
+
+        ui.pauseButton.addEventListener('click', () => {
+            if (aniFrameId) {
+                stopAnimation();
+            }
+        });
+
+        ui.resetButton.addEventListener('click', resetScene);
+
+        window.onload = resetScene;
+    </script>
+
+</body>
+</html>

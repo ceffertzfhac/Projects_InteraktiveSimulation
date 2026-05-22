@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Geschwindigkeit als Steigung im Weg/Ort-Zeit-Diagramm</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1;
+            --fh-red: #d1002d;
+            --bg-color: #f0f2f5;
+            --border-color: #ccc;
+            --text-color: #333;
+            --control-bg: #fff;
+            --label-color: #555;
+            --fh-green: #2ca02c; /* Farbe für Sekante und Steigungsdreieck */
+            --fh-purple: #9467BD; /* Farbe für Tangente */
+            --fh-lightgray: lightgray; /* Farbe für die Funktionskurve */
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1em;
+        }
+
+        h1 {
+            font-weight: 300;
+            font-size: 1.6em;
+            margin-bottom: 0.5em;
+            color: var(--text-color);
+        }
+
+        #container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--control-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #main_svg {
+            border: 1px solid var(--border-color);
+            width: 650px;
+            height: 500px;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            width: 230px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .slider-group .label-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-group .label {
+            text-align: left;
+            color: var(--label-color);
+            font-size: 0.9em;
+        }
+
+        .slider-group .value {
+            font-family: monospace;
+            text-align: right;
+            font-size: 0.9em;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            margin: 0;
+        }
+
+        .radio-group div, .check-group div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .radio-group input, .check-group input {
+            margin-right: 8px;
+        }
+
+        label {
+            color: var(--label-color);
+            font-size: 0.95em;
+        }
+
+        h3 {
+            font-weight: 500;
+            font-size: 1.1em;
+            margin: 0 0 10px 0;
+            color: var(--fh-blue);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        text {
+            font-size: 12px;
+        }
+
+        #formula_container_div {
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slider-with-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-with-buttons input[type="range"] {
+            flex-grow: 1;
+        }
+
+        .step-button {
+            padding: 2px 8px;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .step-button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        footer p {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Geschwindigkeit als Steigung der Ort-Zeit-Kurve</h1>
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 650 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" />
+                </marker>
+            </defs>
+            <g id="graph_group" transform="translate(0, 0)">
+                <foreignObject x="0" y="10" width="650" height="40">
+                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
+                        Funktionsgleichung x(t)
+                    </div>
+                </foreignObject>
+                <g id="grid_group"></g>
+                <polyline id="func_line" fill="none" stroke="var(--fh-lightgray)" stroke-width="3" />
+                <polyline id="tangent_line" fill="none" stroke="var(--fh-purple)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
+                <polyline id="secant_line" fill="none" stroke="var(--fh-green)" stroke-width="1.5" stroke-dasharray="2,2" visibility="hidden" />
+                
+                <line id="sec_triangle_h" stroke="var(--fh-green)" stroke-width="1" visibility="hidden" />
+                <line id="sec_triangle_v" stroke="var(--fh-green)" stroke-width="1" visibility="hidden" />
+
+                <circle id="p1_dot" r="4" fill="var(--fh-green)" visibility="hidden" />
+                <circle id="p2_dot" r="4" fill="var(--fh-green)" visibility="hidden" />
+                <circle id="point" r="5" fill="var(--fh-red)" visibility="hidden" />
+                
+                <text id="dt_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
+                <text id="dx_text_sec" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
+                <g id="legend_group"></g>
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <h3>Funktion</h3>
+                <div class="radio-group" id="func_radio_group">
+                    <div><input type="radio" name="func" value="Gerade" checked> <label>Gerade</label></div>
+                    <div><input type="radio" name="func" value="Parabel"> <label>Parabel</label></div>
+                    <div><input type="radio" name="func" value="Komplex"> <label>Komplex</label></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Parameter</h3>
+                <div class="slider-group">
+                    <div class="label-container">
+                        <span class="label">t am Stützpunkt:</span>
+                        <span class="value" id="t_pos_value"></span>
+                    </div>
+                    <div class="slider-with-buttons">
+                        <button id="t_step_down_button" class="step-button">-</button>
+                        <input type="range" id="t_pos_slider" min="0" max="20" step="0.01" value="10.00">
+                        <button id="t_step_up_button" class="step-button">+</button>
+                    </div>
+                </div>
+                <div class="slider-group">
+                    <div class="label-container">
+                        <span class="label">Delta t:</span>
+                        <span class="value" id="delta_t_value"></span>
+                    </div>
+                    <input type="range" id="delta_t_slider" min="-5" max="5" step="0.01" value="1.0">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Visualisierung</h3>
+                <div class="check-group">
+                    <div><input type="checkbox" id="toggle_tangent"> <label for="toggle_tangent">Tangente anzeigen</label></div>
+                    <div><input type="checkbox" id="toggle_triangle"> <label for="toggle_triangle">Steigungsdreieck anzeigen</label></div>
+                    <div><input type="checkbox" id="toggle_mode" checked> <label for="toggle_mode">Zentrierter Modus</label></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8. Alle Rechte vorbehalten.</small></p>
+    </footer>
+
+    <script>
+        const t_min_global = 0, t_max_global = 20;
+        const NUM_POINTS = 10000;
+        const t_values = Array.from({length: NUM_POINTS}, (_, i) => t_min_global + i * (t_max_global - t_min_global) / (NUM_POINTS - 1));
+        const dt_step = t_values[1] - t_values[0];
+
+        let position_values = new Array(NUM_POINTS);
+        let velocity_values = new Array(NUM_POINTS);
+        let position_min_scaled = -1, position_max_scaled = 1;
+
+        let show_tangent = false;
+        let show_triangle = false;
+        let centered_mode = true;
+
+        const ui = {
+            tPosSlider: document.getElementById('t_pos_slider'), tPosValue: document.getElementById('t_pos_value'),
+            deltaTSlider: document.getElementById('delta_t_slider'), deltaTValue: document.getElementById('delta_t_value'),
+            funcRadioGroup: document.getElementById('func_radio_group'),
+            toggleTangent: document.getElementById('toggle_tangent'),
+            toggleTriangle: document.getElementById('toggle_triangle'),
+            toggleMode: document.getElementById('toggle_mode'),
+            gridGroup: document.getElementById('grid_group'),
+            legendGroup: document.getElementById('legend_group'),
+            funcLine: document.getElementById('func_line'),
+            tangentLine: document.getElementById('tangent_line'),
+            secantLine: document.getElementById('secant_line'),
+            point: document.getElementById('point'),
+            p1_dot: document.getElementById('p1_dot'), p2_dot: document.getElementById('p2_dot'),
+            secTriangleH: document.getElementById('sec_triangle_h'), secTriangleV: document.getElementById('sec_triangle_v'),
+            dtText: document.getElementById('dt_text'), dxTextSec: document.getElementById('dx_text_sec'),
+            formulaContainer: document.getElementById('formula_container_div'),
+            tStepDownButton: document.getElementById('t_step_down_button'),
+            tStepUpButton: document.getElementById('t_step_up_button')
+        };
+        
+        const plotPaddingLeft = 50, plotPaddingBottom = 40, plotPaddingTop = 50, plotPaddingRight = 20;
+        const plotWidth = 650 - plotPaddingLeft - plotPaddingRight;
+        const plotHeight = 500 - plotPaddingTop - plotPaddingBottom;
+
+        const scaleT = (t_val) => plotPaddingLeft + ((t_val - t_min_global) / (t_max_global - t_min_global)) * plotWidth;
+        const scaleX = (x_val) => plotPaddingTop + plotHeight - (((x_val - position_min_scaled) / (position_max_scaled - position_min_scaled)) * plotHeight);
+        
+        const twoDecimalFormat = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+        // KORRIGIERT: Formatierung für Geschwindigkeit auf 2 Nachkommastellen geändert
+        const slopeFormat = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        function calculateDerivative(y_data, t_step_size) {
+            const dy_dt_data = new Array(y_data.length);
+            if (y_data.length < 2) return dy_dt_data.fill(0);
+            dy_dt_data[0] = (y_data[1] - y_data[0]) / t_step_size;
+            for (let i = 1; i < y_data.length - 1; i++) {
+                dy_dt_data[i] = (y_data[i+1] - y_data[i-1]) / (2 * t_step_size);
+            }
+            dy_dt_data[y_data.length - 1] = (y_data[y_data.length - 1] - y_data[y_data.length - 2]) / t_step_size;
+            return dy_dt_data;
+        }
+
+        function drawGraphAxesAndGrid() {
+            ui.gridGroup.innerHTML = '';
+            const t_tick_step = (t_max_global - t_min_global) / 5;
+            for(let t_val = t_min_global; t_val <= t_max_global + 1e-9; t_val += t_tick_step) {
+                ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleT(t_val), y1: plotPaddingTop, x2: scaleT(t_val), y2: plotPaddingTop+plotHeight, stroke: '#eee'}));
+                ui.gridGroup.appendChild(createSVGElement('text', {x: scaleT(t_val), y: plotPaddingTop+plotHeight+15, 'text-anchor': 'middle'})).textContent = t_val.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            }
+            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft + plotWidth / 2, y: plotPaddingTop + plotHeight + 35, 'text-anchor': 'middle', 'font-size': '14px'})).textContent = "Zeit t / s";
+            
+            const position_range = position_max_scaled - position_min_scaled;
+            const y_tick_step = (position_range > 0) ? getNiceTickStep(position_range, 8) : 1;
+            for(let y_val = Math.ceil(position_min_scaled / y_tick_step) * y_tick_step; y_val <= position_max_scaled + 1e-9; y_val += y_tick_step) {
+                if (Math.abs(y_tick_step) < 1e-9) break;
+                ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleX(y_val), x2: plotPaddingLeft+plotWidth, y2: scaleX(y_val), stroke: '#eee'}));
+                ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft-8, y: scaleX(y_val)+4, 'text-anchor': 'end'})).textContent = y_val.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            }
+            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft - 35, y: plotPaddingTop + plotHeight / 2, 'text-anchor': 'middle', 'font-size': '14px', transform: `rotate(-90, ${plotPaddingLeft - 35}, ${plotPaddingTop + plotHeight / 2})`})).textContent = "Ort x / m";
+
+            ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleX(0), x2: plotPaddingLeft+plotWidth, y2: scaleX(0), stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
+            ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleT(0), y1: plotPaddingTop+plotHeight, x2: scaleT(0), y2: plotPaddingTop, stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
+        }
+
+        function getNiceTickStep(range, targetTicks) {
+            if (range < 1e-9) return 1;
+            const minStep = range / targetTicks;
+            const exponent = Math.floor(Math.log10(minStep));
+            const powerOf10 = 10 ** exponent;
+            let niceFraction = minStep / powerOf10;
+            if (niceFraction <= 1) niceFraction = 1;
+            else if (niceFraction <= 2) niceFraction = 2;
+            else if (niceFraction <= 5) niceFraction = 5;
+            else niceFraction = 10;
+            return niceFraction * powerOf10;
+        }
+
+        function updateLegend(t0_val, x0_pos_val, v_inst_val, v_avg_val = null) {
+            ui.legendGroup.innerHTML = '';
+            let legendY = plotPaddingTop + 10;
+            const legendX = plotPaddingLeft + 10;
+            const items = [
+                { color: 'var(--fh-lightgray)', label: 'Ort x(t)', type: 'line', width: 3 },
+                { color: 'var(--fh-red)', label: `Stützpunkt (t=${t0_val.toLocaleString('de-DE', twoDecimalFormat)}s, x=${x0_pos_val.toLocaleString('de-DE', twoDecimalFormat)}m)`, type: 'dot' }
+            ];
+            if (show_tangent) items.push({ color: 'var(--fh-purple)', label: `Tangente: v = ${v_inst_val.toLocaleString('de-DE', slopeFormat)} m/s`, type: 'line', dash: '4,4'});
+            if (show_triangle && v_avg_val !== null) {
+                const secantLabel = isNaN(v_avg_val) ? "Sekante: (Δt = 0)" : `Sekante: v̄ = ${v_avg_val.toLocaleString('de-DE', slopeFormat)} m/s`;
+                items.push({ color: 'var(--fh-green)', label: secantLabel, type: 'line', dash: '2,2'});
+            }
+
+            items.forEach(item => {
+                const g = createSVGElement('g', { transform: `translate(${legendX}, ${legendY})`});
+                if (item.type === 'dot') {
+                    g.appendChild(createSVGElement('circle', { cx: 10, cy: -4, r: 5, fill: item.color }));
+                } else {
+                    g.appendChild(createSVGElement('line', { x1: 0, y1: -5, x2: 20, y2: -5, stroke: item.color, 'stroke-width': item.width || 2, 'stroke-dasharray': item.dash || 'none'}));
+                }
+                const text = createSVGElement('text', { x: 30, y: 0, 'font-size': '12px', fill: 'var(--text-color)'});
+                text.textContent = item.label;
+                g.appendChild(text);
+                ui.legendGroup.appendChild(g);
+                legendY += 20;
+            });
+        }
+
+        const func_labels = ['Gerade', 'Parabel', 'Komplex'];
+        function changeFunction(label) {
+            let formulaString = ""; 
+
+            if (label === func_labels[2]) {
+                position_values = t_values.map(t => (1/1000 * (-4*Math.pow(t+2, 2) - 4*(t+2) - 20) * Math.sin(t)));
+                formulaString = "Funktionsgleichung: \\(x(t) = \\frac{1}{1000} \\left( -4\\,\\frac{\\text{m}}{\\text{s}^2}(t+2\\,\\text{s})^2 - 4\\,\\frac{\\text{m}}{\\text{s}}(t+2\\,\\text{s}) - 20\\,\\text{m} \\right) \\sin\\left( \\frac{t}{1\\,\\text{s}} \\right) \\)";
+            } else if (label === func_labels[0]) {
+                position_values = t_values.map(t => 2 * t - 5);
+                formulaString = "Funktionsgleichung: \\(x(t) = 2 \\, \\frac{\\text{m}}{\\text{s}} \\cdot t - 5 \\, \\text{m} \\)";
+            } else if (label === func_labels[1]) {
+                position_values = t_values.map(t => Math.pow(t - 5, 2) + 1);
+                formulaString = "Funktionsgleichung: \\(x(t) = 1 \\, \\frac{\\text{m}}{\\text{s}^2} \\cdot (t - 5 \\, \\text{s})^2 + 1 \\, \\text{m} \\)";
+            }
+
+            velocity_values = calculateDerivative(position_values, dt_step);
+            
+            const position_min_data = Math.min(...position_values);
+            const position_max_data = Math.max(...position_values);
+            const position_range_data = position_max_data - position_min_data;
+            const min_absolute_pad = 0.5;
+            const position_pad = Math.max(0.1 * position_range_data, min_absolute_pad);
+            position_min_scaled = position_min_data - position_pad;
+            position_max_scaled = position_max_data + position_pad;
+            
+            drawGraphAxesAndGrid();
+
+            let points_str = "";
+            for(let i=0; i<t_values.length; i++) {
+                points_str += `${scaleT(t_values[i])},${scaleX(position_values[i])} `;
+            }
+            ui.funcLine.setAttribute('points', points_str.trim());
+            
+            ui.formulaContainer.innerHTML = formulaString;
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise([ui.formulaContainer]);
+            }
+            update();
+        }
+
+        function update() {
+            if (!position_values || !velocity_values || position_values.length === 0) return;
+
+            const t_current_val = parseFloat(ui.tPosSlider.value);
+            let delta_t_val = parseFloat(ui.deltaTSlider.value);
+            
+            const max_abs_delta_limit = centered_mode 
+                ? Math.min(t_current_val - t_min_global, t_max_global - t_current_val) 
+                : (delta_t_val > 0 ? t_max_global - t_current_val : t_current_val - t_min_global);
+            
+            const actual_max_delta = Math.min(Math.abs(max_abs_delta_limit), 5.0);
+            ui.deltaTSlider.min = -actual_max_delta.toFixed(2);
+            ui.deltaTSlider.max = actual_max_delta.toFixed(2);
+            
+            if (delta_t_val > actual_max_delta) delta_t_val = actual_max_delta;
+            if (delta_t_val < -actual_max_delta) delta_t_val = -actual_max_delta;
+            ui.deltaTSlider.value = delta_t_val.toFixed(2);
+
+            const i = Math.round((t_current_val - t_min_global) / dt_step);
+            const delta_index = Math.round(delta_t_val / dt_step);
+            
+            ui.tPosValue.textContent = `${t_values[i].toLocaleString('de-DE', twoDecimalFormat)} s`;
+            ui.deltaTValue.textContent = `${(delta_index * dt_step).toLocaleString('de-DE', twoDecimalFormat)} s`;
+
+            const t0 = t_values[i];
+            const x0_pos = position_values[i];
+            const v_inst = velocity_values[i];
+
+            if (delta_index === 0) {
+                [ui.secantLine, ui.p1_dot, ui.p2_dot, ui.secTriangleV, ui.secTriangleH, ui.dtText, ui.dxTextSec].forEach(el => el.style.visibility = 'hidden');
+
+                if (show_tangent) {
+                    const x_start = v_inst * (t_min_global - t0) + x0_pos;
+                    const x_end = v_inst * (t_max_global - t0) + x0_pos;
+                    ui.tangentLine.setAttribute('points', `${scaleT(t_min_global)},${scaleX(x_start)} ${scaleT(t_max_global)},${scaleX(x_end)}`);
+                    ui.tangentLine.style.visibility = 'visible';
+                } else {
+                    ui.tangentLine.style.visibility = 'hidden';
+                }
+                ui.point.setAttribute('cx', scaleT(t0));
+                ui.point.setAttribute('cy', scaleX(x0_pos));
+                ui.point.style.visibility = 'visible';
+                updateLegend(t0, x0_pos, v_inst);
+                return;
+            }
+
+            let i1, i2;
+            if (centered_mode) {
+                i1 = i - delta_index;
+                i2 = i + delta_index;
+            } else {
+                i1 = i;
+                i2 = i + delta_index;
+            }
+            
+            i1 = Math.max(0, Math.min(NUM_POINTS - 1, i1));
+            i2 = Math.max(0, Math.min(NUM_POINTS - 1, i2));
+
+            const t1 = t_values[i1], x1_pos = position_values[i1];
+            const t2 = t_values[i2], x2_pos = position_values[i2];
+            const dt_val = t2 - t1;
+            const dx_val = x2_pos - x1_pos;
+            const v_avg = (dt_val !== 0) ? dx_val / dt_val : NaN;
+
+            if (show_tangent) {
+                const x_start = v_inst * (t_min_global - t0) + x0_pos;
+                const x_end = v_inst * (t_max_global - t0) + x0_pos;
+                ui.tangentLine.setAttribute('points', `${scaleT(t_min_global)},${scaleX(x_start)} ${scaleT(t_max_global)},${scaleX(x_end)}`);
+                ui.tangentLine.style.visibility = 'visible';
+            } else {
+                ui.tangentLine.style.visibility = 'hidden';
+            }
+
+            ui.point.setAttribute('cx', scaleT(t0));
+            ui.point.setAttribute('cy', scaleX(x0_pos));
+            ui.point.style.visibility = 'visible';
+
+            if (show_triangle) {
+                const x_sec_start = v_avg * (t_min_global - t1) + x1_pos;
+                const x_sec_end = v_avg * (t_max_global - t1) + x1_pos;
+                ui.secantLine.setAttribute('points', `${scaleT(t_min_global)},${scaleX(x_sec_start)} ${scaleT(t_max_global)},${scaleX(x_sec_end)}`);
+                ui.secantLine.style.visibility = 'visible';
+
+                ui.p1_dot.setAttribute('cx', scaleT(t1)); ui.p1_dot.setAttribute('cy', scaleX(x1_pos));
+                ui.p2_dot.setAttribute('cx', scaleT(t2)); ui.p2_dot.setAttribute('cy', scaleX(x2_pos));
+                ui.p1_dot.style.visibility = 'visible';
+                ui.p2_dot.style.visibility = 'visible';
+
+                ui.secTriangleH.setAttribute('x1', scaleT(t1)); ui.secTriangleH.setAttribute('y1', scaleX(x1_pos));
+                ui.secTriangleH.setAttribute('x2', scaleT(t2)); ui.secTriangleH.setAttribute('y2', scaleX(x1_pos));
+                ui.secTriangleV.setAttribute('x1', scaleT(t2)); ui.secTriangleV.setAttribute('y1', scaleX(x1_pos));
+                ui.secTriangleV.setAttribute('x2', scaleT(t2)); ui.secTriangleV.setAttribute('y2', scaleX(x2_pos));
+                ui.secTriangleV.style.visibility = 'visible';
+                ui.secTriangleH.style.visibility = 'visible';
+
+                ui.dtText.setAttribute('x', scaleT((t1 + t2)/2)); 
+                ui.dtText.setAttribute('y', scaleX(x1_pos) + 12);
+                ui.dtText.textContent = `Δt = ${dt_val.toLocaleString('de-DE', twoDecimalFormat)} s`;
+                ui.dtText.style.visibility = 'visible';
+                ui.dtText.setAttribute('text-anchor', 'middle');
+
+                const dx_t_pos_scaled = scaleT(t2);
+                let dx_text_sec_x = dx_t_pos_scaled + 5;
+                let dx_text_sec_anchor = 'start';
+                if (dx_t_pos_scaled > plotPaddingLeft + plotWidth * 0.9) {
+                    dx_text_sec_x = dx_t_pos_scaled - 5;
+                    dx_text_sec_anchor = 'end';
+                }
+                ui.dxTextSec.setAttribute('x', dx_text_sec_x);
+                ui.dxTextSec.setAttribute('y', scaleX((x1_pos + x2_pos)/2));
+                ui.dxTextSec.textContent = `Δx = ${dx_val.toLocaleString('de-DE', twoDecimalFormat)} m`;
+                ui.dxTextSec.style.visibility = 'visible';
+                ui.dxTextSec.setAttribute('text-anchor', dx_text_sec_anchor);
+                ui.dxTextSec.setAttribute('dominant-baseline', 'middle');
+            } else {
+                [ui.secantLine, ui.p1_dot, ui.p2_dot, ui.secTriangleV, ui.secTriangleH, ui.dtText, ui.dxTextSec].forEach(el => el.style.visibility = 'hidden');
+            }
+            updateLegend(t0, x0_pos, v_inst, v_avg);
+        }
+
+        function stepTValue(step) {
+            const slider = ui.tPosSlider;
+            let currentValue = parseFloat(slider.value);
+            let newValue = currentValue + step;
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            if (newValue < min) newValue = min;
+            if (newValue > max) newValue = max;
+            slider.value = newValue;
+            update();
+        }
+
+        function toggleHandler() {
+            show_tangent = ui.toggleTangent.checked;
+            show_triangle = ui.toggleTriangle.checked;
+            centered_mode = ui.toggleMode.checked;
+            update();
+        }
+
+        function setupEventListeners() {
+            ui.tPosSlider.addEventListener('input', update);
+            ui.deltaTSlider.addEventListener('input', update);
+            ui.funcRadioGroup.addEventListener('change', (e) => changeFunction(e.target.value));
+            [ui.toggleTangent, ui.toggleTriangle, ui.toggleMode].forEach(el => el.addEventListener('change', toggleHandler));
+            
+            ui.tStepDownButton.addEventListener('click', () => stepTValue(-0.01));
+            ui.tStepUpButton.addEventListener('click', () => stepTValue(0.01));
+        }
+
+        window.onload = () => {
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            setupEventListeners();
+            changeFunction(func_labels[0]);
+        };
+    </script>
+</body>
+</html>

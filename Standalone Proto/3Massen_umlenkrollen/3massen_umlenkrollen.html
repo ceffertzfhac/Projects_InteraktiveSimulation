@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Statisches Kräftegleichgewicht (Finale analytische Lösung V2)</title>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --force-gravity: #005eb1; --force-tension: #d1002d;
+            --force-vertical: #2ca02c; --force-horizontal: #ff7f0e;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 500px; position: relative; }
+        #controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px 40px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); font-size: 0.9em; }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 80px; font-family: monospace; text-align: left; }
+        .checkbox-group label { margin-left: 8px; user-select: none; }
+        h3 { font-weight: 500; font-size: 1.1em; margin: 15px 0 10px 0; color: var(--fh-blue); border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        text { font-size: 14px; }
+        .info-group .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
+        .info-group .info-label { color: var(--label-color); }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        .note { font-size: 0.8em; color: #777; margin-top: 10px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <h1>Analyse: Asymmetrisches Kräftegleichgewicht mit variabler Geometrie</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead_gravity" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-gravity)" /></marker>
+                <marker id="arrowhead_tension" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-tension)" /></marker>
+                <marker id="arrowhead_vertical" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-vertical)" /></marker>
+                <marker id="arrowhead_horizontal" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-horizontal)" /></marker>
+            </defs>
+            
+            <rect id="ceiling" x="0" y="20" width="900" height="20" fill="#e0e0e0" stroke="#b0b0b0" />
+            <circle id="pulley_left" cx="250" cy="40" r="15" fill="#b3b3b3" stroke="#888" />
+            <circle id="pulley_right" cx="650" cy="40" r="15" fill="#b3b3b3" stroke="#888" />
+            <circle id="pulley_left_center" cx="250" cy="40" r="3" fill="#555" />
+            <circle id="pulley_right_center" cx="650" cy="40" r="3" fill="#555" />
+
+            <path id="rope" fill="none" stroke="black" stroke-width="2.5" />
+            
+            <g id="mass_left_group">
+                <rect id="mass_left" width="50" height="50" fill="#0000ff" ry="4" />
+                <text id="mass_left_label" x="25" y="30" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₁</text>
+            </g>
+            <g id="mass_right_group">
+                <rect id="mass_right" width="50" height="50" fill="#000080" ry="4" />
+                <text id="mass_right_label" x="25" y="30" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₃</text>
+            </g>
+             <g id="mass_middle_group">
+                <rect id="mass_middle" width="50" height="50" fill="#ff0000" ry="4" />
+                <text id="mass_middle_label" x="25" y="30" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₂</text>
+            </g>
+
+            <g id="force_vectors_group"></g>
+        </svg>
+
+        <div id="controls">
+             <div class="control-group">
+                <h3>Parameter</h3>
+                <div class="slider-group">
+                    <div class="label">Masse Links \(m_1\):</div>
+                    <input type="range" id="m1_slider" min="1.1" max="2.1" value="1.9" step="0.01">
+                    <div class="value" id="m1_value">1.9 kg</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Masse Rechts \(m_3\):</div>
+                    <input type="range" id="m3_slider" min="1.1" max="2.1" value="1.1" step="0.01">
+                    <div class="value" id="m3_value">2.1 kg</div>
+                </div>
+                 <div class="slider-group">
+                    <div class="label">Abstand Rollen:</div>
+                    <input type="range" id="pulley_dist_slider" min="20" max="60" value="40" step="1">
+                    <div class="value" id="pulley_dist_value">40.0 cm</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Gesamte Seillänge:</div>
+                    <input type="range" id="rope_len_slider" min="80" max="150" value="100" step="1">
+                    <div class="value" id="rope_len_value">100.0 cm</div>
+                </div>
+                <div class="note">
+                    Mittlere Masse fest: \(m_2 = 2.0\) kg. <br/>
+                    Annahmen: Ideales Seil (masselos), reibungsfreie Rollen.
+                </div>
+            </div>
+            
+            <div class="control-group info-group">
+                 <h3>Gleichgewichtsanalyse</h3>
+                 <div class="info-row">
+                    <span class="info-label">Seilkraft / Winkel (Links):</span>
+                    <span class="info-value" id="left_values">...</span>
+                 </div>
+                 <div class="info-row">
+                    <span class="info-label">Seilkraft / Winkel (Rechts):</span>
+                    <span class="info-value" id="right_values">...</span>
+                 </div>
+                 <div class="info-row">
+                    <span class="info-label" style="color: var(--force-vertical);">Vertikalkräfte (auf \(m_2\)):</span>
+                    <span class="info-value" id="vertical_forces_value" style="color: var(--force-vertical);">...</span>
+                 </div>
+                 <div class="info-row">
+                    <span class="info-label" style="color: var(--force-horizontal);">Horizontalkräfte (auf \(m_2\)):</span>
+                    <span class="info-value" id="horizontal_forces_value" style="color: var(--force-horizontal);">...</span>
+                 </div>
+                 <div id="equilibrium_warning" style="color: var(--fh-red); text-align: center; font-weight: bold; margin-top: 10px; visibility: hidden;">
+                    Kein statisches Gleichgewicht möglich!
+                 </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Anzeigeoptionen</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show_gravity_vectors" checked><label for="show_gravity_vectors">Gewichtskräfte</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show_tension_vectors" checked><label for="show_tension_vectors">Seilkräfte (Gesamt)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show_component_vectors" checked><label for="show_component_vectors">Komponentenzerlegung</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() { // --- Start of IIFE for code encapsulation ---
+
+        const G = 9.81; 
+        const M2_FIXED = 2.0; 
+        const SVG_CENTER_X = 450;
+        const PIXELS_PER_CM = 10;
+        
+        const PULLEY_Y = 40;
+        const PULLEY_RADIUS = 15;
+        
+        const FORCE_SCALE_FACTOR = 10;
+        const MASS_WIDTH = 50;
+        const MASS_HEIGHT = 50;
+
+        const ui = {
+            m1Slider: document.getElementById('m1_slider'),
+            m3Slider: document.getElementById('m3_slider'),
+            pulleyDistSlider: document.getElementById('pulley_dist_slider'),
+            ropeLenSlider: document.getElementById('rope_len_slider'),
+            m1Value: document.getElementById('m1_value'),
+            m3Value: document.getElementById('m3_value'),
+            pulleyDistValue: document.getElementById('pulley_dist_value'),
+            ropeLenValue: document.getElementById('rope_len_value'),
+            rope: document.getElementById('rope'),
+            pulleyLeft: document.getElementById('pulley_left'),
+            pulleyRight: document.getElementById('pulley_right'),
+            pulleyLeftCenter: document.getElementById('pulley_left_center'),
+            pulleyRightCenter: document.getElementById('pulley_right_center'),
+            massLeftGroup: document.getElementById('mass_left_group'),
+            massMiddleGroup: document.getElementById('mass_middle_group'),
+            massRightGroup: document.getElementById('mass_right_group'),
+            forceVectorsGroup: document.getElementById('force_vectors_group'),
+            leftValues: document.getElementById('left_values'),
+            rightValues: document.getElementById('right_values'),
+            verticalForcesValue: document.getElementById('vertical_forces_value'),
+            horizontalForcesValue: document.getElementById('horizontal_forces_value'),
+            equilibriumWarning: document.getElementById('equilibrium_warning'),
+            showGravityVectors: document.getElementById('show_gravity_vectors'),
+            showTensionVectors: document.getElementById('show_tension_vectors'),
+            showComponentVectors: document.getElementById('show_component_vectors'),
+        };
+
+        function createForceVector(id, x1, y1, x2, y2, type, dashed = false) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('id', id);
+            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+            line.setAttribute('stroke', `var(--force-${type})`);
+            line.setAttribute('stroke-width', 2.5);
+            line.setAttribute('marker-end', `url(#arrowhead_${type})`);
+            if (dashed) line.setAttribute('stroke-dasharray', '4 4');
+            return line;
+        }
+        
+        function solveForAngles(m1, m2, m3) {
+            const T1 = m1 * G;
+            const T3 = m3 * G;
+            const Fg2 = m2 * G;
+            
+            if (T1 + T3 < Fg2 || T1 + Fg2 < T3 || T3 + Fg2 < T1) {
+                return null;
+            }
+
+            const cos_alpha = (T1**2 + Fg2**2 - T3**2) / (2 * T1 * Fg2);
+            const cos_beta = (T3**2 + Fg2**2 - T1**2) / (2 * T3 * Fg2);
+            
+            const alpha = Math.acos(cos_alpha);
+            const beta = Math.acos(cos_beta);
+
+            const angle1 = Math.PI - alpha;
+            const angle3 = beta;
+            
+            return { angle1, angle3 };
+        }
+
+        function calculateAnalyticalEquilibrium(m1, m2, m3, pulleyLeftX, pulleyRightX) {
+            const angles = solveForAngles(m1, m2, m3);
+            if (!angles) return null;
+
+            const { angle1, angle3 } = angles;
+
+            const phi_L = angle1 - Math.PI / 2;
+            const phi_R = angle3 + Math.PI / 2;
+
+            const tp_L = {
+                x: pulleyLeftX + PULLEY_RADIUS * Math.cos(phi_L),
+                y: PULLEY_Y - PULLEY_RADIUS * Math.sin(phi_L)
+            };
+            const tp_R = {
+                x: pulleyRightX + PULLEY_RADIUS * Math.cos(phi_R),
+                y: PULLEY_Y - PULLEY_RADIUS * Math.sin(phi_R)
+            };
+            
+            const m1_screen = -Math.tan(angle1);
+            const m3_screen = -Math.tan(angle3);
+            
+            const c1_screen = tp_L.y - m1_screen * tp_L.x;
+            const c3_screen = tp_R.y - m3_screen * tp_R.x;
+
+            if (Math.abs(m1_screen - m3_screen) < 1e-9) return null;
+
+            const m2_x = (c3_screen - c1_screen) / (m1_screen - m3_screen);
+            const m2_y = m1_screen * m2_x + c1_screen;
+            const m2_pos = { x: m2_x, y: m2_y };
+
+            return { m2_pos, tp_L, tp_R, angle1, angle3, phi_L, phi_R };
+        }
+
+        function update() {
+            const m1 = parseFloat(ui.m1Slider.value);
+            const m3 = parseFloat(ui.m3Slider.value);
+            const pulleyDistCm = parseFloat(ui.pulleyDistSlider.value);
+            const totalRopeLengthCm = parseFloat(ui.ropeLenSlider.value);
+
+            const pulleyDist = pulleyDistCm * PIXELS_PER_CM;
+            const totalRopeLength = totalRopeLengthCm * PIXELS_PER_CM;
+
+            ui.m1Value.textContent = `${m1.toFixed(2)} kg`;
+            ui.m3Value.textContent = `${m3.toFixed(2)} kg`;
+            ui.pulleyDistValue.textContent = `${pulleyDistCm.toFixed(1)} cm`;
+            ui.ropeLenValue.textContent = `${totalRopeLengthCm.toFixed(1)} cm`;
+            
+            const pulleyLeftX = SVG_CENTER_X - pulleyDist / 2;
+            const pulleyRightX = SVG_CENTER_X + pulleyDist / 2;
+
+            ui.pulleyLeft.setAttribute('cx', pulleyLeftX);
+            ui.pulleyRight.setAttribute('cx', pulleyRightX);
+            ui.pulleyLeftCenter.setAttribute('cx', pulleyLeftX);
+            ui.pulleyRightCenter.setAttribute('cx', pulleyRightX);
+
+            const equilibrium = calculateAnalyticalEquilibrium(m1, M2_FIXED, m3, pulleyLeftX, pulleyRightX);
+            
+            if (!equilibrium) {
+                ui.equilibriumWarning.style.visibility = 'visible';
+                ui.rope.setAttribute('d', '');
+                return;
+            }
+            ui.equilibriumWarning.style.visibility = 'hidden';
+
+            const { m2_pos, tp_L, tp_R, angle1, angle3, phi_L, phi_R } = equilibrium;
+            
+            const len_L_diag = Math.hypot(m2_pos.x - tp_L.x, m2_pos.y - tp_L.y);
+            const len_R_diag = Math.hypot(m2_pos.x - tp_R.x, m2_pos.y - tp_R.y);
+            
+            const exit_point_left = { x: pulleyLeftX - PULLEY_RADIUS, y: PULLEY_Y }; // 9h
+            const exit_point_right = { x: pulleyRightX + PULLEY_RADIUS, y: PULLEY_Y }; // 3h
+            
+            const arc_len_L = (Math.PI - phi_L) * PULLEY_RADIUS;
+            const arc_len_R = (phi_R - 0) * PULLEY_RADIUS; // Angle at 3h is 0, so arc length is simply phi_R*R
+            
+            const middle_rope_len = len_L_diag + arc_len_L + arc_len_R + len_R_diag;
+            let remaining_rope_len = totalRopeLength - middle_rope_len;
+            if (remaining_rope_len < 0) remaining_rope_len = 0;
+
+            const len_hang1 = remaining_rope_len / 2;
+            const len_hang3 = remaining_rope_len / 2;
+
+            const m1_attach_point = { x: exit_point_left.x, y: exit_point_left.y + len_hang1 };
+            const m3_attach_point = { x: exit_point_right.x, y: exit_point_right.y + len_hang3 };
+            
+            // --- START OF PATH CORRECTION ---
+            // To draw over the top, the sweep-flag must be 0 (clockwise) for BOTH pulleys.
+            // For the LEFT pulley, we draw from the 9h exit point to the tangent point.
+            // For the RIGHT pulley, we draw from the tangent point to the 3h exit point.
+            // The large-arc-flag (4th parameter) is 0 because we want the shorter arc.
+            const path_d = 
+                `M ${m1_attach_point.x} ${m1_attach_point.y}` +
+                `L ${exit_point_left.x} ${exit_point_left.y}` +
+                `A ${PULLEY_RADIUS} ${PULLEY_RADIUS} 0 0 1 ${tp_L.x} ${tp_L.y}` +
+                `L ${m2_pos.x} ${m2_pos.y}` +
+                `L ${tp_R.x} ${tp_R.y}` +
+                `A ${PULLEY_RADIUS} ${PULLEY_RADIUS} 0 0 1 ${exit_point_right.x} ${exit_point_right.y}` +
+                `L ${m3_attach_point.x} ${m3_attach_point.y}`;
+            // --- END OF PATH CORRECTION ---
+            
+            ui.rope.setAttribute('d', path_d);
+
+            ui.massLeftGroup.setAttribute('transform', `translate(${m1_attach_point.x - MASS_WIDTH/2}, ${m1_attach_point.y})`);
+            ui.massRightGroup.setAttribute('transform', `translate(${m3_attach_point.x - MASS_WIDTH/2}, ${m3_attach_point.y})`);
+            ui.massMiddleGroup.setAttribute('transform', `translate(${m2_pos.x - MASS_WIDTH/2}, ${m2_pos.y})`);
+            
+            const T1 = m1 * G; const T3 = m3 * G; const Fg2 = M2_FIXED * G;
+            ui.forceVectorsGroup.innerHTML = '';
+            
+            const m1_center_y = m1_attach_point.y + MASS_HEIGHT/2;
+            const m3_center_y = m3_attach_point.y + MASS_HEIGHT/2;
+            const m2_attach = { x: m2_pos.x, y: m2_pos.y };
+            
+            const T1_vec = { x: T1 * Math.cos(angle1), y: -T1 * Math.sin(angle1) };
+            const T3_vec = { x: T3 * Math.cos(angle3), y: -T3 * Math.sin(angle3) };
+
+            if (ui.showGravityVectors.checked) {
+                ui.forceVectorsGroup.appendChild(createForceVector('fg1', m1_attach_point.x, m1_center_y, m1_attach_point.x, m1_center_y + T1 * FORCE_SCALE_FACTOR, 'gravity'));
+                ui.forceVectorsGroup.appendChild(createForceVector('fg3', m3_attach_point.x, m3_center_y, m3_attach_point.x, m3_center_y + T3 * FORCE_SCALE_FACTOR, 'gravity'));
+                ui.forceVectorsGroup.appendChild(createForceVector('fg2', m2_attach.x, m2_attach.y + MASS_HEIGHT/2, m2_attach.x, m2_attach.y + MASS_HEIGHT/2 + Fg2 * FORCE_SCALE_FACTOR, 'gravity'));
+            }
+            if (ui.showTensionVectors.checked) {
+                ui.forceVectorsGroup.appendChild(createForceVector('t1', m1_attach_point.x, m1_center_y, m1_attach_point.x, m1_center_y - T1 * FORCE_SCALE_FACTOR, 'tension'));
+                ui.forceVectorsGroup.appendChild(createForceVector('t3', m3_attach_point.x, m3_center_y, m3_attach_point.x, m3_center_y - T3 * FORCE_SCALE_FACTOR, 'tension'));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left', m2_attach.x, m2_attach.y, m2_attach.x + T1_vec.x * FORCE_SCALE_FACTOR, m2_attach.y + T1_vec.y * FORCE_SCALE_FACTOR, 'tension'));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right', m2_attach.x, m2_attach.y, m2_attach.x + T3_vec.x * FORCE_SCALE_FACTOR, m2_attach.y + T3_vec.y * FORCE_SCALE_FACTOR, 'tension'));
+            }
+            if (ui.showComponentVectors.checked) {
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left_x', m2_attach.x, m2_attach.y, m2_attach.x + T1_vec.x * FORCE_SCALE_FACTOR, m2_attach.y, 'horizontal', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left_y', m2_attach.x + T1_vec.x * FORCE_SCALE_FACTOR, m2_attach.y, m2_attach.x + T1_vec.x * FORCE_SCALE_FACTOR, m2_attach.y + T1_vec.y * FORCE_SCALE_FACTOR, 'vertical', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right_x', m2_attach.x, m2_attach.y, m2_attach.x + T3_vec.x * FORCE_SCALE_FACTOR, m2_attach.y, 'horizontal', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right_y', m2_attach.x + T3_vec.x * FORCE_SCALE_FACTOR, m2_attach.y, m2_attach.x + T3_vec.x * FORCE_SCALE_FACTOR, m2_attach.y + T3_vec.y * FORCE_SCALE_FACTOR, 'vertical', true));
+            }
+            
+            const angle1_deg_display = 180 - (angle1 * 180 / Math.PI);
+            const angle3_deg_display = angle3 * 180 / Math.PI;
+            
+            ui.leftValues.textContent = `${T1.toFixed(1)} N / ${angle1_deg_display.toFixed(1)}°`;
+            ui.rightValues.textContent = `${T3.toFixed(1)} N / ${angle3_deg_display.toFixed(1)}°`;
+            ui.verticalForcesValue.textContent = `↑ ${(Math.abs(T1_vec.y) + Math.abs(T3_vec.y)).toFixed(1)}N vs ↓ ${Fg2.toFixed(1)}N`;
+            ui.horizontalForcesValue.textContent = `← ${Math.abs(T1_vec.x).toFixed(1)}N vs → ${Math.abs(T3_vec.x).toFixed(1)}N`;
+        }
+
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        function setupEventListeners() {
+            const debouncedUpdate = debounce(update, 15); 
+            
+            ui.m1Slider.addEventListener('input', debouncedUpdate);
+            ui.m3Slider.addEventListener('input', debouncedUpdate);
+            ui.pulleyDistSlider.addEventListener('input', debouncedUpdate);
+            ui.ropeLenSlider.addEventListener('input', debouncedUpdate);
+
+            ui.showGravityVectors.addEventListener('change', update);
+            ui.showTensionVectors.addEventListener('change', update);
+            ui.showComponentVectors.addEventListener('change', update);
+        }
+
+        window.onload = () => {
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+            setupEventListeners();
+            update();
+        };
+
+    })(); // --- End of IIFE ---
+    </script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finaler Standalone Prototyp: Freier Fall (Stabil)</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 2em; }
+        h1 { font-weight: 300; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 50px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #e0e0e0; }
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Standalone Prototyp: Freier Fall / Senkrechter Wurf</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 450">
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="450" fill="#fdfdfd"></rect>
+                <line x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" />
+                <rect id="building" x="80" width="80" fill="#e0e0e0" z-order="1" />
+                <g id="stick_figure"></g>
+                <circle id="ball" r="8" fill="var(--fh-red)" z-order="10" />
+                <g id="stopwatch">
+                    <circle cx="280" cy="60" r="30" fill="white" stroke="black" stroke-width="2" />
+                    <line id="stopwatch_main_hand" x1="280" y1="60" stroke="black" stroke-width="3" />
+                    <line id="stopwatch_sub_hand" x1="280" y1="60" stroke="var(--fh-red)" stroke-width="1" />
+                </g>
+            </g>
+            <g id="graph_group" transform="translate(400, 20)">
+                <rect x="0" y="0" width="480" height="410" fill="white"></rect>
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <!-- *** HIER IST DIE GEÄNDERTE ZEILE *** -->
+                    <input type="range" id="h0_slider" min="0" max="20" value="10" step="1">
+                    <div class="value" id="h0_value">10 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangsgeschw. \(v_0\):</div>
+                    <input type="range" id="v0_slider" min="-10" max="10" value="0" step="1">
+                    <div class="value" id="v0_value">0 m/s</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                    <option value="weg" selected>Weg-Zeit</option>
+                    <option value="geschw">Geschw.-Zeit</option>
+                    <option value="beschl">Beschl.-Zeit</option>
+                </select>
+                <button id="start_button" style="margin-top: 20px;">Start</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        let aniFrameId = null;
+        let t_start = 0.0;
+        let h0, v0, graphType, speedFactor;
+        let t_data = [], y_data = [], v_data = [], a_data = [];
+
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), mainHand: document.getElementById('stopwatch_main_hand'),
+            subHand: document.getElementById('stopwatch_sub_hand'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'), h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), h0Value: document.getElementById('h0_value'),
+            v0Value: document.getElementById('v0_value'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+            graphSelect: document.getElementById('graph_select'), startButton: document.getElementById('start_button'),
+        };
+        
+        const scaleY = (y) => 440 - y * 17; // 1m = 17px, angepasst an max 25m sichtbare Höhe
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) { el.setAttribute(key, attributes[key]); }
+            return el;<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finaler Standalone Prototyp: Freier Fall (Stabil)</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 2em; }
+        h1 { font-weight: 300; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 50px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #e0e0e0; }
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Standalone Prototyp: Freier Fall / Senkrechter Wurf</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 450">
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="450" fill="#fdfdfd"></rect>
+                <line x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" />
+                <rect id="building" x="80" width="80" fill="#e0e0e0" z-order="1" />
+                <g id="stick_figure"></g>
+                <circle id="ball" r="8" fill="var(--fh-red)" z-order="10" />
+                <g id="stopwatch">
+                    <circle cx="280" cy="60" r="30" fill="white" stroke="black" stroke-width="2" />
+                    <line id="stopwatch_main_hand" x1="280" y1="60" stroke="black" stroke-width="3" />
+                    <line id="stopwatch_sub_hand" x1="280" y1="60" stroke="var(--fh-red)" stroke-width="1" />
+                </g>
+            </g>
+            <g id="graph_group" transform="translate(400, 20)">
+                <rect x="0" y="0" width="480" height="410" fill="white"></rect>
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <!-- *** HIER IST DIE GEÄNDERTE ZEILE *** -->
+                    <input type="range" id="h0_slider" min="0" max="20" value="10" step="1">
+                    <div class="value" id="h0_value">10 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangsgeschw. \(v_0\):</div>
+                    <input type="range" id="v0_slider" min="-10" max="10" value="0" step="1">
+                    <div class="value" id="v0_value">0 m/s</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                    <option value="weg" selected>Weg-Zeit</option>
+                    <option value="geschw">Geschw.-Zeit</option>
+                    <option value="beschl">Beschl.-Zeit</option>
+                </select>
+                <button id="start_button" style="margin-top: 20px;">Start</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        let aniFrameId = null;
+        let t_start = 0.0;
+        let h0, v0, graphType, speedFactor;
+        let t_data = [], y_data = [], v_data = [], a_data = [];
+
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), mainHand: document.getElementById('stopwatch_main_hand'),
+            subHand: document.getElementById('stopwatch_sub_hand'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'), h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), h0Value: document.getElementById('h0_value'),
+            v0Value: document.getElementById('v0_value'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+            graphSelect: document.getElementById('graph_select'), startButton: document.getElementById('start_button'),
+        };
+        
+        const scaleY = (y) => 440 - y * 17; // 1m = 17px, angepasst an max 25m sichtbare Höhe
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) { el.setAttribute(key, attributes[key]); }
+            return el;
+        }
+        
+        function drawStickFigure(h) {
+            ui.stickFigure.innerHTML = '';
+            const feet_y = scaleY(h);
+            const torso_h = 2.0 * 17, leg_h = 2.0 * 17, head_r = 0.8 * 17, leg_spread = 0.8 * 17;
+            const crotch_y = feet_y - leg_h, shoulder_y = crotch_y - torso_h, base_x = 120;
+            const ball_start_y_scaled = scaleY(h + 3.0);
+            
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x, y2: shoulder_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x - leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x + leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: shoulder_y + 5, x2: 128, y2: ball_start_y_scaled, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('circle', {cx: base_x, cy: shoulder_y - head_r, r: head_r, stroke: 'black', 'stroke-width': 2, fill: 'none'}));
+        }
+
+        function updateGraph() {
+            ui.gridGroup.innerHTML = '';
+            let t_max, val_min, val_max, y_label;
+
+            if (v0 >= 0) { t_max = (v0 + Math.sqrt(v0**2 + 2 * G * h0)) / G; } 
+            else { t_max = (-v0 + Math.sqrt(v0**2 + 2 * G * h0)) / G; }
+            t_max = Math.max(t_max, 1.0);
+
+            const scaleXGraph = (t, t_max) => (t / t_max) * 460;
+            const scaleYGraph = (val, min, max) => 400 - ((val - min) / (max - min || 1)) * 380;
+            
+            if (graphType === 'weg') { const y_max_flight = h0 + (v0 > 0 ? (v0**2 / (2 * G)) : 0); val_min = -5; val_max = Math.max(y_max_flight, h0) * 1.1 + 5; y_label = "Höhe y(t) [m]"; } 
+            else if (graphType === 'geschw') { const v_min_flight = v0 - G * t_max; val_min = v_min_flight * 1.1 - 2; val_max = Math.max(v0 * 1.1, 0) + 2; y_label = "Geschw. v(t) [m/s]"; } 
+            else { val_min = -G * 1.5; val_max = G * 0.5; y_label = "Beschl. a(t) [m/s²]"; }
+
+            for(let i = 0; i <= 10; i++) {
+                const t = (t_max / 10) * i; const x = scaleXGraph(t, t_max);
+                ui.gridGroup.appendChild(createSVGElement('line', {x1:x, y1:0, x2:x, y2:410, stroke:'#eee'}));
+                let text = createSVGElement('text', {x:x, y:425, 'text-anchor':'middle'}); text.textContent = t.toFixed(1); ui.gridGroup.appendChild(text);
+                const val = val_min + (val_max - val_min) / 10 * i; const y = scaleYGraph(val, val_min, val_max);
+                ui.gridGroup.appendChild(createSVGElement('line', {x1:0, y1:y, x2:480, y2:y, stroke:'#eee'}));
+                text = createSVGElement('text', {x:-10, y:y+4, 'text-anchor':'end'}); text.textContent = Math.round(val); ui.gridGroup.appendChild(text);
+            }
+            let text = createSVGElement('text', {x:240, y:445, 'text-anchor':'middle'}); text.textContent = "Zeit t [s]"; ui.gridGroup.appendChild(text);
+            text = createSVGElement('text', {x:-200, y:-25, 'transform':'rotate(-90)'}); text.textContent = y_label; ui.gridGroup.appendChild(text);
+            
+            let points = ""; let data_y = (graphType === 'weg') ? y_data : (graphType === 'geschw') ? v_data : a_data;
+            for(let i=0; i<t_data.length; i++) { points += `${scaleXGraph(t_data[i], t_max)},${scaleYGraph(data_y[i], val_min, val_max)} `; }
+            ui.graphLine.setAttribute('points', points);
+            
+            if (t_data.length > 0) {
+                ui.graphPoint.setAttribute('cx', scaleXGraph(t_data[t_data.length-1], t_max));
+                ui.graphPoint.setAttribute('cy', scaleYGraph(data_y[data_y.length-1], val_min, val_max));
+                ui.graphPoint.setAttribute('visibility', 'visible');
+            } else { ui.graphPoint.setAttribute('visibility', 'hidden'); }
+            ui.graphTitle.textContent = `${ui.graphSelect.options[ui.graphSelect.selectedIndex].text}-Diagramm`;
+        }
+        
+        function animate() {
+            const t_real = (performance.now() - t_start) / 1000.0;
+            const t_sim = t_real * speedFactor;
+            const ball_start_y = h0 + 3.0;
+            const y = ball_start_y + v0 * t_sim - 0.5 * G * t_sim**2;
+            
+            if (y >= 0) {
+                t_data.push(t_sim); y_data.push(y); v_data.push(v0 - G * t_sim); a_data.push(-G);
+                ui.ball.setAttribute('cy', scaleY(y));
+                const cx = 280, cy = 60;
+                const main_angle = Math.PI/2 - (t_sim % 60) / 60.0 * 2 * Math.PI;
+                const sub_angle = Math.PI/2 - (t_sim % 1) * 2 * Math.PI;
+                ui.mainHand.setAttribute('x2', cx + 25 * Math.cos(main_angle)); ui.mainHand.setAttribute('y2', cy - 25 * Math.sin(main_angle));
+                ui.subHand.setAttribute('x2', cx + 15 * Math.cos(sub_angle)); ui.subHand.setAttribute('y2', cy - 15 * Math.sin(sub_angle));
+                updateGraph();
+                aniFrameId = requestAnimationFrame(animate);
+            } else { stopAnimation(); ui.startButton.textContent = "Reset"; }
+        }
+
+        function stopAnimation() {
+            if (aniFrameId) { cancelAnimationFrame(aniFrameId); aniFrameId = null; }
+            ui.h0Slider.disabled = false; ui.v0Slider.disabled = false;
+        }
+
+        function resetScene() {
+            stopAnimation();
+            ui.startButton.textContent = "Start";
+            
+            h0 = parseFloat(ui.h0Slider.value); v0 = parseFloat(ui.v0Slider.value);
+            graphType = ui.graphSelect.value;
+            ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+
+            ui.h0Value.textContent = `${h0} m`; ui.v0Value.textContent = `${v0} m/s`;
+            t_data = []; y_data = []; v_data = []; a_data = [];
+            
+            const ball_start_x = 128;
+            const ball_start_y_physics = h0 + 3.0;
+            
+            ui.building.setAttribute('height', h0 * 17);
+            ui.building.setAttribute('y', scaleY(h0));
+            drawStickFigure(h0);
+            ui.ball.setAttribute('cx', ball_start_x);
+            ui.ball.setAttribute('cy', scaleY(ball_start_y_physics));
+            
+            const cx = 280, cy = 60;
+            ui.mainHand.setAttribute('x1',cx); ui.mainHand.setAttribute('y1',cy);
+            ui.mainHand.setAttribute('x2',cx); ui.mainHand.setAttribute('y2',cy-25);
+            ui.subHand.setAttribute('x1',cx); ui.subHand.setAttribute('y1',cy);
+            ui.subHand.setAttribute('x2',cx); ui.subHand.setAttribute('y2',cy-15);
+
+            updateGraph();
+        }
+
+        ['input', 'change'].forEach(evt => { ui.h0Slider.addEventListener(evt, resetScene); ui.v0Slider.addEventListener(evt, resetScene); });
+        ui.graphSelect.addEventListener('change', resetScene);
+        ui.speedRadios.forEach(radio => radio.addEventListener('change', resetScene));
+        
+        ui.startButton.addEventListener('click', () => {
+            if (aniFrameId) { resetScene(); } 
+            else {
+                resetScene();
+                ui.h0Slider.disabled = true; ui.v0Slider.disabled = true;
+                ui.startButton.textContent = "Stop";
+                t_start = performance.now();
+                aniFrameId = requestAnimationFrame(animate);
+            }
+        });
+        window.onload = resetScene;
+    </script>
+
+</body>
+</html>
+       

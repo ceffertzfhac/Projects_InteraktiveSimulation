@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Analyse: Ableitung als Grenzwert</title>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-green: #2ca02c; --fh-purple: #9467BD;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 650px; height: 500px; }
+        #controls { display: flex; flex-direction: column; width: 230px; }
+        .control-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+        .slider-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        .slider-group .label-container { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .slider-group .label { text-align: left; color: var(--label-color); font-size: 0.9em;}
+        .slider-group .value { font-family: monospace; text-align: right; font-size: 0.9em; }
+        .slider-group input[type="range"] { width: 100%; margin: 0; }
+        .radio-group div, .check-group div { display: flex; align-items: center; margin-bottom: 8px; }
+        .radio-group input, .check-group input { margin-right: 8px; }
+        label { color: var(--label-color); font-size: 0.95em; }
+        h3 { font-weight: 500; font-size: 1.1em; margin: 0 0 10px 0; color: var(--fh-blue); border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        text { font-size: 12px; }
+        /* Styling für den HTML-Inhalt innerhalb des SVGs */
+        #formula_container_div {
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        footer { margin-top: 30px; text-align: center; }
+        footer p { font-size: 0.8em; color: #888; }
+    </style>
+</head>
+<body>
+    <h1>Interaktive Analyse: Die Ableitung als Grenzwert</h1>
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 650 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" />
+                </marker>
+            </defs>
+            <g id="graph_group" transform="translate(0, 0)">
+                <!-- NEU: foreignObject statt text, um HTML/MathJax im SVG zu rendern -->
+                <foreignObject x="0" y="10" width="650" height="40">
+                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
+                        Graph der Funktion
+                    </div>
+                </foreignObject>
+                <g id="grid_group"></g>
+                <polyline id="func_line" fill="none" stroke="lightgray" stroke-width="3" />
+                <polyline id="tangent_line" fill="none" stroke="var(--fh-purple)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
+                <polyline id="secant_line" fill="none" stroke="var(--fh-green)" stroke-width="1.5" stroke-dasharray="2,2" visibility="hidden" />
+                
+                <line id="sec_triangle_h" stroke="var(--fh-green)" stroke-width="1" visibility="hidden" />
+                <line id="sec_triangle_v" stroke="var(--fh-green)" stroke-width="1" visibility="hidden" />
+
+                <circle id="p1_dot" r="4" fill="var(--fh-green)" visibility="hidden" />
+                <circle id="p2_dot" r="4" fill="var(--fh-green)" visibility="hidden" />
+                <circle id="point" r="5" fill="var(--fh-red)" visibility="hidden" />
+                
+                <text id="dx_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
+                <text id="dy_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
+                <g id="legend_group"></g>
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <h3>Funktion</h3>
+                <div class="radio-group" id="func_radio_group">
+                    <div><input type="radio" name="func" value="Gerade" checked> <label>Gerade</label></div>
+                    <div><input type="radio" name="func" value="Parabel"> <label>Parabel</label></div>
+                    <div><input type="radio" name="func" value="Komplex"> <label>Komplex</label></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Parameter</h3>
+                <div class="slider-group">
+                    <div class="label-container">
+                        <span class="label">x-Position:</span>
+                        <span class="value" id="x_pos_value"></span>
+                    </div>
+                    <input type="range" id="x_pos_slider" min="1" max="24" step="0.1" value="12.5">
+                </div>
+                <div class="slider-group">
+                    <div class="label-container">
+                        <span class="label">Abstand δ:</span>
+                        <span class="value" id="delta_value"></span>
+                    </div>
+                    <input type="range" id="delta_slider" min="-5" max="5" step="0.05" value="2.5">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Visualisierung</h3>
+                <div class="check-group">
+                    <div><input type="checkbox" id="toggle_tangent"> <label for="toggle_tangent">Tangente anzeigen</label></div>
+                    <div><input type="checkbox" id="toggle_triangle"> <label for="toggle_triangle">Steigungsdreieck anzeigen</label></div>
+                    <div><input type="checkbox" id="toggle_mode" checked> <label for="toggle_mode">Zentrierter Modus</label></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const x_data = [];
+        let y_data = [];
+        let dy_dx_data = [];
+        let x_min = 0, x_max = 25, y_min = -1, y_max = 1;
+        
+        const NUM_POINTS = 500;
+        const x_step = (x_max - x_min) / (NUM_POINTS - 1);
+        for(let i=0; i<NUM_POINTS; i++) x_data.push(x_min + i * x_step);
+
+        const ui = {
+            xPosSlider: document.getElementById('x_pos_slider'), xPosValue: document.getElementById('x_pos_value'),
+            deltaSlider: document.getElementById('delta_slider'), deltaValue: document.getElementById('delta_value'),
+            funcRadioGroup: document.getElementById('func_radio_group'),
+            toggleTangent: document.getElementById('toggle_tangent'),
+            toggleTriangle: document.getElementById('toggle_triangle'),
+            toggleMode: document.getElementById('toggle_mode'),
+            gridGroup: document.getElementById('grid_group'),
+            legendGroup: document.getElementById('legend_group'),
+            funcLine: document.getElementById('func_line'),
+            tangentLine: document.getElementById('tangent_line'),
+            secantLine: document.getElementById('secant_line'),
+            point: document.getElementById('point'),
+            p1_dot: document.getElementById('p1_dot'), p2_dot: document.getElementById('p2_dot'),
+            secTriangleH: document.getElementById('sec_triangle_h'), secTriangleV: document.getElementById('sec_triangle_v'),
+            dxText: document.getElementById('dx_text'), dyText: document.getElementById('dy_text'),
+            formulaContainer: document.getElementById('formula_container_div')
+        };
+        
+        const plotPaddingLeft = 50, plotPaddingBottom = 40, plotPaddingTop = 50, plotPaddingRight = 20;
+        const plotWidth = 650 - plotPaddingLeft - plotPaddingRight;
+        const plotHeight = 500 - plotPaddingTop - plotPaddingBottom;
+        const scaleX = (v) => plotPaddingLeft + ((v - x_min) / (x_max - x_min)) * plotWidth;
+        const scaleY = (v) => plotPaddingTop + plotHeight - ((v - y_min) / (y_max - y_min)) * plotHeight;
+        
+        const decimalFormat = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+        const slopeFormat = { minimumFractionDigits: 3, maximumFractionDigits: 3 };
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        function changeFunction(funcName) {
+            let formulaString = ""; 
+            if (funcName === 'Gerade') {
+                y_data = x_data.map(x => 2 * x - 2);
+                formulaString = "Graph der Funktion: \\(f(x) = 2x - 2\\)";
+            } else if (funcName === 'Parabel') {
+                y_data = x_data.map(x => 0.1 * (x - 12)**2 - 2);
+                formulaString = "Graph der Funktion: \\(f(x) = 0.1 (x-12)^2 - 2\\)";
+            } else if (funcName === 'Komplex') {
+                // GEÄNDERT: Funktion angepasst
+                y_data = x_data.map(x => -5 * Math.sin(x / 2) + 0.03 * x**2);
+                formulaString = "Graph der Funktion: \\(f(x) = -5 \\sin\\left(\\frac{x}{2}\\right) + 0.03 x^2\\)";
+            }
+            
+            dy_dx_data = [];
+            dy_dx_data.push((y_data[1] - y_data[0]) / x_step);
+            for(let i=1; i < y_data.length - 1; i++) {
+                dy_dx_data.push((y_data[i+1] - y_data[i-1]) / (2 * x_step));
+            }
+            dy_dx_data.push((y_data[y_data.length-1] - y_data[y_data.length-2]) / x_step);
+            
+            recalculateAxisLimits();
+            drawGraph();
+            update();
+            
+            ui.formulaContainer.innerHTML = formulaString;
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise([ui.formulaContainer]);
+            }
+        }
+
+        function recalculateAxisLimits() {
+            const y_min_data = Math.min(...y_data);
+            const y_max_data = Math.max(...y_data);
+            const range = y_max_data - y_min_data;
+            const padding = Math.max(0.1 * range, 0.5);
+            y_min = y_min_data - padding;
+            y_max = y_max_data + padding;
+        }
+
+        function drawGraph() {
+            ui.gridGroup.innerHTML = '';
+            
+            const x_tick_step = 5;
+            for(let x_val = x_min; x_val <= x_max; x_val += x_tick_step) {
+                ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleX(x_val), y1: plotPaddingTop, x2: scaleX(x_val), y2: plotPaddingTop+plotHeight, stroke: '#eee'}));
+                ui.gridGroup.appendChild(createSVGElement('text', {x: scaleX(x_val), y: plotPaddingTop+plotHeight+15, 'text-anchor': 'middle'})).textContent = x_val.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            }
+            const y_range = y_max - y_min;
+            const y_tick_step = Math.pow(10, Math.floor(Math.log10(y_range) || 0)) || 1;
+            for(let y_val = Math.ceil(y_min/y_tick_step)*y_tick_step; y_val <= y_max; y_val += y_tick_step) {
+                if (y_tick_step === 0) break;
+                ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleY(y_val), x2: plotPaddingLeft+plotWidth, y2: scaleY(y_val), stroke: '#eee'}));
+                ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft-8, y: scaleY(y_val)+4, 'text-anchor': 'end'})).textContent = y_val.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            }
+
+            ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleY(0), x2: plotPaddingLeft+plotWidth, y2: scaleY(0), stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
+            ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleX(0), y1: plotPaddingTop+plotHeight, x2: scaleX(0), y2: plotPaddingTop, stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
+            
+            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft+plotWidth+15, y: scaleY(0)+4, 'text-anchor': 'middle'})).textContent = 'x';
+            ui.gridGroup.appendChild(createSVGElement('text', {x: scaleX(0), y: plotPaddingTop-10, 'text-anchor': 'middle'})).textContent = 'y';
+
+            let points_str = "";
+            for(let i=0; i<x_data.length; i++) {
+                points_str += `${scaleX(x_data[i])},${scaleY(y_data[i])} `;
+            }
+            ui.funcLine.setAttribute('points', points_str.trim());
+        }
+        
+        function adjustDeltaSliderRange() {
+            const x_pos = parseFloat(ui.xPosSlider.value);
+            const isCentered = ui.toggleMode.checked;
+            
+            let max_abs_delta_limit;
+
+            if (isCentered) {
+                max_abs_delta_limit = Math.min(x_pos - x_min, x_max - x_pos);
+            } else {
+                max_abs_delta_limit = Math.min(x_pos - x_min, x_max - x_pos); 
+            }
+
+            const actual_max_delta = Math.min(max_abs_delta_limit, 5.0);
+            
+            ui.deltaSlider.min = -actual_max_delta;
+            ui.deltaSlider.max = actual_max_delta;
+            
+            let current_delta_value = parseFloat(ui.deltaSlider.value);
+            if (current_delta_value > actual_max_delta) {
+                ui.deltaSlider.value = actual_max_delta;
+            } else if (current_delta_value < -actual_max_delta) {
+                ui.deltaSlider.value = -actual_max_delta;
+            }
+
+            if (Math.abs(parseFloat(ui.deltaSlider.value)) < ui.deltaSlider.step / 2) { 
+                 if (ui.deltaSlider.max >= ui.deltaSlider.step) {
+                    ui.deltaSlider.value = ui.deltaSlider.step;
+                } else if (ui.deltaSlider.min <= -ui.deltaSlider.step) {
+                    ui.deltaSlider.value = -ui.deltaSlider.step;
+                } else {
+                    ui.deltaSlider.value = 0; 
+                }
+            }
+        }
+
+        function update() {
+            adjustDeltaSliderRange();
+            
+            const x_pos = parseFloat(ui.xPosSlider.value);
+            let delta = parseFloat(ui.deltaSlider.value);
+            
+            if (Math.abs(delta) < ui.deltaSlider.step / 2) {
+                delta = ui.deltaSlider.step * Math.sign(delta || 1);
+                if (delta === 0) delta = ui.deltaSlider.step;
+                ui.deltaSlider.value = delta;
+            }
+            
+            const i = Math.round((x_pos - x_min) / x_step);
+            const i_delta = Math.round(delta / x_step); 
+
+            ui.xPosValue.textContent = x_pos.toLocaleString('de-DE', decimalFormat);
+            ui.deltaValue.textContent = delta.toLocaleString('de-DE', decimalFormat);
+            
+            let i1, i2;
+            const isCentered = ui.toggleMode.checked;
+
+            if (isCentered) {
+                i1 = i - i_delta;
+                i2 = i + i_delta;
+            } else {
+                i1 = i;
+                i2 = i + i_delta;
+            }
+            
+            i1 = Math.max(0, Math.min(NUM_POINTS - 1, i1));
+            i2 = Math.max(0, Math.min(NUM_POINTS - 1, i2));
+
+            const x0 = x_data[i], y0 = y_data[i];
+            const x1 = x_data[i1], y1_val = y_data[i1];
+            const x2 = x_data[i2], y2_val = y_data[i2];
+            
+            const dx = x2 - x1;
+            const dy = y2_val - y1_val;
+            
+            let m_sek;
+            if (Math.abs(dx) < 1e-9) {
+                m_sek = NaN;
+            } else {
+                m_sek = dy / dx;
+            }
+            
+            const m_tan = dy_dx_data[i];
+            
+            ui.point.setAttribute('cx', scaleX(x0));
+            ui.point.setAttribute('cy', scaleY(y0));
+            ui.point.style.visibility = 'visible';
+
+            if (ui.toggleTangent.checked) {
+                const tan_y1 = m_tan * (x_min - x0) + y0;
+                const tan_y2 = m_tan * (x_max - x0) + y0;
+                ui.tangentLine.setAttribute('points', `${scaleX(x_min)},${scaleY(tan_y1)} ${scaleX(x_max)},${scaleY(tan_y2)}`);
+                ui.tangentLine.style.visibility = 'visible';
+            } else {
+                ui.tangentLine.style.visibility = 'hidden';
+            }
+            
+            if (ui.toggleTriangle.checked) {
+                if (!isNaN(m_sek)) {
+                    const sec_y1 = m_sek * (x_min - x1) + y1_val;
+                    const sec_y2 = m_sek * (x_max - x1) + y1_val;
+                    ui.secantLine.setAttribute('points', `${scaleX(x_min)},${scaleY(sec_y1)} ${scaleX(x_max)},${scaleY(sec_y2)}`);
+                    
+                    ui.p1_dot.setAttribute('cx', scaleX(x1)); ui.p1_dot.setAttribute('cy', scaleY(y1_val));
+                    ui.p2_dot.setAttribute('cx', scaleX(x2)); ui.p2_dot.setAttribute('cy', scaleY(y2_val));
+                    
+                    ui.secTriangleH.setAttribute('x1', scaleX(x1)); ui.secTriangleH.setAttribute('y1', scaleY(y1_val));
+                    ui.secTriangleH.setAttribute('x2', scaleX(x2)); ui.secTriangleH.setAttribute('y2', scaleY(y1_val));
+                    ui.secTriangleV.setAttribute('x1', scaleX(x2)); ui.secTriangleV.setAttribute('y1', scaleY(y1_val));
+                    ui.secTriangleV.setAttribute('x2', scaleX(x2)); ui.secTriangleV.setAttribute('y2', scaleY(y2_val));
+
+                    ui.dxText.setAttribute('x', scaleX((x1+x2)/2)); ui.dxText.setAttribute('y', scaleY(y1_val) + 12);
+                    ui.dxText.textContent = `Δx = ${dx.toLocaleString('de-DE', decimalFormat)}`;
+                    ui.dyText.setAttribute('x', scaleX(x2) + 5); ui.dyText.setAttribute('y', scaleY((y1_val+y2_val)/2));
+                    ui.dyText.textContent = `Δy = ${dy.toLocaleString('de-DE', decimalFormat)}`;
+                    
+                    [ui.secantLine, ui.p1_dot, ui.p2_dot, ui.secTriangleH, ui.secTriangleV, ui.dxText, ui.dyText].forEach(el => el.style.visibility = 'visible');
+                } else {
+                    [ui.secantLine, ui.p1_dot, ui.p2_dot, ui.secTriangleH, ui.secTriangleV, ui.dxText, ui.dyText].forEach(el => el.style.visibility = 'hidden');
+                }
+            } else {
+                [ui.secantLine, ui.p1_dot, ui.p2_dot, ui.secTriangleH, ui.secTriangleV, ui.dxText, ui.dyText].forEach(el => el.style.visibility = 'hidden');
+            }
+
+            updateLegend(x0, y0, m_tan, m_sek);
+        }
+
+        function updateLegend(x0, y0, m_tan, m_sek) {
+            ui.legendGroup.innerHTML = '';
+            let legendY = plotPaddingTop;
+            const legendX = plotPaddingLeft + 10;
+            const items = [
+                { color: 'lightgray', label: 'Funktion', width: 3 },
+                { color: 'var(--fh-red)', label: `Stützpunkt (${x0.toLocaleString('de-DE', decimalFormat)}, ${y0.toLocaleString('de-DE', decimalFormat)})`, type: 'dot' }
+            ];
+            if (ui.toggleTangent.checked) items.push({ color: 'var(--fh-purple)', label: `Tangente: m ≈ ${m_tan.toLocaleString('de-DE', slopeFormat)}`, type: 'line', dash: '4,4'});
+            if (ui.toggleTriangle.checked) {
+                const secantLabel = isNaN(m_sek) ? "Sekante: (ungültig Δx=0)" : `Sekante: m = ${m_sek.toLocaleString('de-DE', slopeFormat)}`;
+                items.push({ color: 'var(--fh-green)', label: secantLabel, type: 'line', dash: '2,2'});
+            }
+
+            items.forEach(item => {
+                const g = createSVGElement('g', { transform: `translate(${legendX}, ${legendY})`});
+                if (item.type === 'dot') {
+                    g.appendChild(createSVGElement('circle', { cx: 10, cy: -4, r: 5, fill: item.color }));
+                } else {
+                    g.appendChild(createSVGElement('line', { x1: 0, y1: -5, x2: 20, y2: -5, stroke: item.color, 'stroke-width': item.width || 2, 'stroke-dasharray': item.dash || 'none'}));
+                }
+                const text = createSVGElement('text', { x: 30, y: 0, 'font-size': '12px'});
+                text.textContent = item.label;
+                g.appendChild(text);
+                ui.legendGroup.appendChild(g);
+                legendY += 20;
+            });
+        }
+        
+        function setupEventListeners() {
+            ui.xPosSlider.addEventListener('input', update);
+            ui.deltaSlider.addEventListener('input', update);
+            ui.funcRadioGroup.addEventListener('change', (e) => changeFunction(e.target.value));
+            [ui.toggleTangent, ui.toggleTriangle, ui.toggleMode].forEach(el => el.addEventListener('change', update));
+        }
+
+        setupEventListeners();
+        changeFunction('Gerade'); // Initialer Aufruf
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
+        <footer>
+        <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8. Alle Rechte vorbehalten.</small></p>
+    </footer>
+
+    <script>
+        // Setzt automatisch das aktuelle Jahr im Copyright-Hinweis
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+        // Öffnet alle Links in einem neuen Tab
+        document.querySelectorAll('a').forEach(a => {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener noreferrer');
+        });
+    </script>
+</body>
+</html>

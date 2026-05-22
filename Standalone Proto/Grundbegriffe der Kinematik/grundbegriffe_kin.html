@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Kinematik: Grundbegriffe</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; 
+            --fh-red: #d1002d;
+            --fh-orange: #FF7F0E;
+            --color-main: var(--fh-blue);      /* Bahnsegment */
+            --color-accent1: var(--fh-orange); /* Ortsvektoren s_A, s_B */
+            --color-accent2: #2ca02c;         /* Verschiebung Delta_s (Grün für Unterscheidung) */
+            --color-accent3: #d62728;         /* Verschiebung Delta_s (Rot für zweiten Vektor) */
+            --color-path-bg: #AAAAAA;   
+            --color-text-primary: #333;
+            --bg-color: #f0f2f5;
+            --control-bg: #fff;
+            --border-color: #ccc;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 1fr; gap: 15px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        .vis-control { 
+            display: grid; 
+            grid-template-columns: 20px 1fr 150px; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 8px; 
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .vis-control:hover { background-color: #f0f0f0; }
+        .vis-control-label { font-size: 1.1em; }
+        .vis-control-value { font-family: monospace; font-weight: bold; font-size: 1.1em; justify-self: end; display: flex; align-items: center; gap: 0.3em; }
+        
+        .vector-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .vector-display::before, .vector-display::after { font-size: 2.2em; font-weight: 100; }
+        .vector-display::before { content: '\0028'; }
+        .vector-display::after { content: '\0029'; }
+        .vector-components { display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
+
+        .slider-control { display: grid; grid-template-columns: 120px 1fr 60px; gap: 10px; align-items: center; padding: 0 10px; }
+        .slider-control label { text-align: right; }
+        .slider-control .value { font-family: monospace; }
+        
+        #analysis-box { padding: 15px; background-color: #f9f9f9; border-radius: 6px; min-height: 400px; box-sizing: border-box; }
+        #analysis-box h3 { margin-top: 0; color: var(--fh-blue); }
+        #analysis-box p { line-height: 1.6; }
+
+        .sA-label, .sA-value, .sB-label, .sB-value { color: var(--color-accent1); }
+        .deltaS-BA-label, .deltaS-BA-value { color: var(--color-accent2); }
+        .deltaS-AB-label, .deltaS-AB-value { color: var(--color-accent3); }
+        .abstand-label, .abstand-value { color: var(--color-accent2); }
+        .weg-label, .weg-value { color: var(--color-main); }
+        .strecke-label { color: var(--color-path-bg); }
+
+        text { font-size: 16px; pointer-events: none; }
+        .vector-label tspan { font-style: italic; }
+        marker#arrowhead-accent1 polygon { fill: var(--color-accent1); }
+        marker#arrowhead-accent2 polygon { fill: var(--color-accent2); }
+        marker#arrowhead-accent3 polygon { fill: var(--color-accent3); }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Kinematik: Grundbegriffe</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 480">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" /></marker>
+                <marker id="arrowhead-accent1" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" /></marker>
+                <marker id="arrowhead-accent2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" /></marker>
+                <marker id="arrowhead-accent3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" /></marker>
+            </defs>
+            
+            <g id="animation_area"></g>
+
+            <foreignObject x="610" y="40" width="280" height="420">
+                <div id="analysis-box" xmlns="http://www.w.org/1999/xhtml">
+                    <h3 id="analysis-title">Erklärung</h3>
+                    <p id="analysis-text">Wählen Sie einen Begriff aus der unteren Liste aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern.</p>
+                </div>
+            </foreignObject>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-control">
+                    <label for="tA_slider">Zeitpunkt \(t_A\):</label>
+                    <input type="range" id="tA_slider" min="0" max="4.2" step="0.01" value="0.8">
+                    <span class="value" id="tA_value">0,80 s</span>
+                </div>
+                <div class="slider-control">
+                    <label for="tB_slider">Zeitpunkt \(t_B\):</label>
+                    <input type="range" id="tB_slider" min="0" max="4.2" step="0.01" value="3.2">
+                    <span class="value" id="tB_value">3,20 s</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="vis-control" id="control_path_bg">
+                    <input type="checkbox" id="toggle_path_bg" checked>
+                    <div class="vis-control-label strecke-label">Ganze Strecke \(\vec{s}(t)\)</div>
+                    <div class="vis-control-value strecke-value"></div>
+                </div>
+                <div class="vis-control" id="control_sA">
+                    <input type="checkbox" id="toggle_sA">
+                    <div class="vis-control-label sA-label">Ortsvektor \(\vec{s}_A = \vec{s}(t_A)\)</div>
+                    <div class="vis-control-value sA-value" id="val_sA"></div>
+                </div>
+                <div class="vis-control" id="control_sB">
+                    <input type="checkbox" id="toggle_sB">
+                    <div class="vis-control-label sB-label">Ortsvektor \(\vec{s}_B = \vec{s}(t_B)\)</div>
+                    <div class="vis-control-value sB-value" id="val_sB"></div>
+                </div>
+                 <div class="vis-control" id="control_weg">
+                    <input type="checkbox" id="toggle_weg">
+                    <div class="vis-control-label weg-label">Weglänge \(s_{AB}\) (Bahnsegment)</div>
+                    <div class="vis-control-value weg-value" id="val_weg"></div>
+                </div>
+                <div class="vis-control" id="control_verschiebung_BA">
+                    <input type="checkbox" id="toggle_verschiebung_BA">
+                    <div class="vis-control-label deltaS-BA-label">Verschiebung \(\Delta\vec{s}_{BA}\) (von A nach B)</div>
+                    <div class="vis-control-value deltaS-BA-value" id="val_verschiebung_BA"></div>
+                </div>
+                 <div class="vis-control" id="control_verschiebung_AB">
+                    <input type="checkbox" id="toggle_verschiebung_AB">
+                    <div class="vis-control-label deltaS-AB-label">Verschiebung \(\Delta\vec{s}_{AB}\) (von B nach A)</div>
+                    <div class="vis-control-value deltaS-AB-value" id="val_verschiebung_AB"></div>
+                </div>
+                <div class="vis-control" id="control_abstand">
+                    <input type="checkbox" id="toggle_abstand">
+                    <div class="vis-control-label abstand-label">Abstand \(|\Delta\vec{s}_{BA}|\)</div>
+                    <div class="vis-control-value abstand-value" id="val_abstand"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const T_MIN = 0, T_MAX = 4.2;
+        let t_A = 0.8, t_B = 3.2;
+        const NUM_POINTS = 2000;
+        const ANIMATION_WIDTH = 600; 
+        const PLOT_MARGINS = { top: 40, right: 40, bottom: 40, left: 60 };
+        const PLOT_WIDTH = ANIMATION_WIDTH - PLOT_MARGINS.left - PLOT_MARGINS.right;
+        const PLOT_HEIGHT = PLOT_WIDTH / (4 / 3);
+        const ANIMATION_HEIGHT = PLOT_HEIGHT + PLOT_MARGINS.top + PLOT_MARGINS.bottom;
+
+        const ui = {
+            plotArea: document.getElementById('animation_area'),
+            tASlider: document.getElementById('tA_slider'), tAValue: document.getElementById('tA_value'),
+            tBSlider: document.getElementById('tB_slider'), tBValue: document.getElementById('tB_value'),
+            valSA: document.getElementById('val_sA'), valSB: document.getElementById('val_sB'),
+            valVerschiebungBA: document.getElementById('val_verschiebung_BA'),
+            valVerschiebungAB: document.getElementById('val_verschiebung_AB'),
+            valAbstand: document.getElementById('val_abstand'),
+            valWeg: document.getElementById('val_weg'),
+            analysisTitle: document.getElementById('analysis-title'),
+            analysisText: document.getElementById('analysis-text'),
+            controls: {
+                sA: document.getElementById('control_sA'), sB: document.getElementById('control_sB'),
+                verschiebung_BA: document.getElementById('control_verschiebung_BA'),
+                verschiebung_AB: document.getElementById('control_verschiebung_AB'),
+                abstand: document.getElementById('control_abstand'),
+                weg: document.getElementById('control_weg'),
+                pathBg: document.getElementById('control_path_bg')
+            },
+            toggles: {
+                sA: document.getElementById('toggle_sA'), sB: document.getElementById('toggle_sB'),
+                verschiebung_BA: document.getElementById('toggle_verschiebung_BA'),
+                verschiebung_AB: document.getElementById('toggle_verschiebung_AB'),
+                abstand: document.getElementById('toggle_abstand'),
+                weg: document.getElementById('toggle_weg'),
+                pathBg: document.getElementById('toggle_path_bg')
+            }
+        };
+        
+        const explanations = {
+            sA: { title: "Ortsvektor \\(\\vec{s}_A = \\vec{s}(t_A)\\)", text: "Der Ortsvektor zeigt vom Ursprung zum Ort A zur Zeit \\(t_A\\). Er beschreibt die genaue Position als Spaltenvektor \\((x_A, y_A)^T\\)." },
+            sB: { title: "Ortsvektor \\(\\vec{s}_B = \\vec{s}(t_B)\\)", text: "Der Ortsvektor zum Zeitpunkt \\(t_B\\). Der Vergleich von \\(\\vec{s}_A\\) und \\(\\vec{s}_B\\) zeigt die Bewegung des Objekts." },
+            verschiebung_BA: { title: "Verschiebung \\(\\Delta\\vec{s}_{BA}\\)", text: "Die Verschiebung von A nach B ist der Vektor, der direkt vom Startpunkt A zum Endpunkt B zeigt: \\(\\Delta\\vec{s}_{BA} = \\vec{s}_B - \\vec{s}_A\\). Er beschreibt die Netto-Ortsänderung." },
+            verschiebung_AB: { title: "Verschiebung \\(\\Delta\\vec{s}_{AB}\\)", text: "Die Verschiebung von B nach A ist der Gegenvektor zu \\(\\Delta\\vec{s}_{BA}\\). Er zeigt vom Endpunkt B zurück zum Startpunkt A: \\(\\Delta\\vec{s}_{AB} = \\vec{s}_A - \\vec{s}_B = -\\Delta\\vec{s}_{BA}\\)." },
+            abstand: { title: "Abstand \\(|\\Delta\\vec{s}_{BA}|\\)", text: "Der Abstand ist der Betrag (die Länge) des Verschiebungsvektors. Er ist die direkte Distanz (Luftlinie) zwischen A und B und ist immer ein positiver Wert: \\(|\\Delta\\vec{s}_{BA}| = |\\Delta\\vec{s}_{AB}|\\)." },
+            weg: { title: "Weglänge \\(s_{AB}\\)", text: "Die Weglänge ist die Länge des tatsächlichen Pfades, den das Objekt zwischen A und B zurückgelegt hat. Sie ist immer größer oder gleich dem Abstand." },
+            pathBg: { title: "Strecke \\(\\vec{s}(t)\\)", text: "Die Strecke (oder Bahnkurve) ist die Menge aller Orte, die das Objekt im Laufe der Zeit durchläuft. Sie ist die 'Spur', die die Bewegung hinterlässt." },
+            default: { title: "Erklärung", text: "Wählen Sie einen Begriff aus der unteren Liste aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern." }
+        };
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+        
+        function linspace(start, stop, num) {
+            const arr = [];
+            const step = (stop - start) / (num - 1);
+            for (let i = 0; i < num; i++) { arr.push(start + (step * i)); }
+            return arr;
+        }
+
+        let pathData = {};
+        let scaleX, scaleY;
+
+        function f_x(t) { return t; }
+        function f_y(t) { return 0.5 * Math.sin(2 * t) + 0.5 * t; }
+
+        function calculatePath() {
+            const t = linspace(T_MIN, T_MAX, NUM_POINTS);
+            const x = t.map(f_x);
+            const y = t.map(f_y);
+            let cumulative_s = [0];
+            for (let i = 1; i < NUM_POINTS; i++) {
+                const dx = x[i] - x[i - 1];
+                const dy = y[i] - y[i - 1];
+                cumulative_s.push(cumulative_s[i - 1] + Math.sqrt(dx * dx + dy * dy));
+            }
+            const indexA = t.findIndex(val => val >= t_A);
+            const indexB = t.findIndex(val => val >= t_B);
+            pathData = {
+                t, x, y, cumulative_s, indexA, indexB,
+                x_A: x[indexA], y_A: y[indexA], x_B: x[indexB], y_B: y[indexB],
+                deltaS_mag: Math.hypot(x[indexB] - x[indexA], y[indexB] - y[indexA]),
+                s_AB_length: cumulative_s[indexB] - cumulative_s[indexA]
+            };
+        }
+
+        function setupScales() {
+            const x_min = 0, y_min = 0;
+            const data_x_max = T_MAX + 0.5;
+            const data_y_max = Math.max(...pathData.y) + 0.5;
+            const target_aspect_ratio = PLOT_WIDTH / PLOT_HEIGHT;
+            let x_max, y_max;
+            if ((data_x_max / data_y_max) > target_aspect_ratio) {
+                x_max = data_x_max;
+                y_max = data_x_max / target_aspect_ratio;
+            } else {
+                y_max = data_y_max;
+                x_max = data_y_max * target_aspect_ratio;
+            }
+            scaleX = (phys_x) => PLOT_MARGINS.left + ((phys_x - x_min) / (x_max - x_min)) * PLOT_WIDTH;
+            scaleY = (phys_y) => (PLOT_MARGINS.top + PLOT_HEIGHT) - ((phys_y - y_min) / (y_max - y_min)) * PLOT_HEIGHT;
+            return { x_min, x_max, y_min, y_max };
+        }
+
+        function drawGridAndAxes(physBounds) {
+            const { x_min, x_max, y_min, y_max } = physBounds;
+            const x0 = scaleX(0), y0 = scaleY(0);
+            for (let x_val = Math.ceil(x_min); x_val <= Math.floor(x_max); x_val++) {
+                ui.plotArea.appendChild(createSVGElement('line', { x1: scaleX(x_val), y1: scaleY(y_min), x2: scaleX(x_val), y2: scaleY(y_max), stroke: '#e0e0e0' }));
+                ui.plotArea.appendChild(createSVGElement('text', { x: scaleX(x_val), y: y0 + 15, 'text-anchor': 'middle', fill: '#888', 'font-size': '12px' })).textContent = x_val;
+            }
+            for (let y_val = Math.ceil(y_min); y_val <= Math.floor(y_max); y_val++) {
+                ui.plotArea.appendChild(createSVGElement('line', { x1: scaleX(x_min), y1: scaleY(y_val), x2: scaleX(x_max), y2: scaleY(y_val), stroke: '#e0e0e0' }));
+                ui.plotArea.appendChild(createSVGElement('text', { x: x0 - 10, y: scaleY(y_val), 'text-anchor': 'end', 'alignment-baseline': 'middle', fill: '#888', 'font-size': '12px' })).textContent = y_val;
+            }
+            ui.plotArea.appendChild(createSVGElement('line', { x1: scaleX(x_min), y1: y0, x2: scaleX(x_max), y2: y0, stroke: 'currentColor', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            ui.plotArea.appendChild(createSVGElement('line', { x1: x0, y1: scaleY(y_min), x2: x0, y2: scaleY(y_max), stroke: 'currentColor', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            ui.plotArea.appendChild(createSVGElement('text', { x: scaleX(x_max), y: y0 + 35, 'text-anchor': 'end', fill: 'currentColor'})).innerHTML = 'x-Position / m';
+            ui.plotArea.appendChild(createSVGElement('text', { x: x0 + 10, y: scaleY(y_max) - 20, 'text-anchor': 'start', fill: 'currentColor'})).innerHTML = 'y-Position / m';
+            ui.plotArea.appendChild(createSVGElement('text', { x: PLOT_MARGINS.left + PLOT_WIDTH / 2, y: PLOT_MARGINS.top - 15, 'text-anchor': 'middle', 'font-size': '18px', 'font-weight': 'bold', fill: 'currentColor' })).textContent = 'Bahndiagramm / x-y-Diagramm';
+        }
+
+        function drawScene() {
+            ui.plotArea.innerHTML = '';
+            const physBounds = setupScales();
+            drawGridAndAxes(physBounds);
+            updateVisualization();
+        }
+
+        function updateVisualization(highlightId = null) {
+            [
+             'full_path_visual', 'segment_path_visual', 'vector_sA', 'vector_sB', 
+             'vector_verschiebung_BA', 'vector_verschiebung_AB',
+             'label_sA', 'label_sB', 'label_verschiebung_BA', 'label_verschiebung_AB', 
+             'label_weg', 'point_A', 'point_B', 'dimension_line_abstand'
+            ].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            });
+
+            const xA = scaleX(pathData.x_A), yA = scaleY(pathData.y_A);
+            const xB = scaleX(pathData.x_B), yB = scaleY(pathData.y_B);
+            const x0 = scaleX(0), y0 = scaleY(0);
+            
+            const isChecked = (key) => ui.toggles[key].checked;
+            const formatNum = (num) => num.toFixed(2).replace('.', ',');
+
+            if (isChecked('pathBg')) {
+                const pathD = pathData.x.map((x, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(x)} ${scaleY(pathData.y[i])}`).join(' ');
+                ui.plotArea.insertBefore(createSVGElement('path', { id: 'full_path_visual', d: pathD, fill: 'none', stroke: 'var(--color-path-bg)', 'stroke-width': (highlightId === 'pathBg' ? 4.5 : 2.5) }), ui.plotArea.firstChild);
+            }
+            
+            const createVectorLabel = (sub) => `s\u20D7<tspan baseline-shift="sub" font-size="0.7em">${sub}</tspan>`;
+
+            if (isChecked('sA')) {
+                ui.plotArea.appendChild(createSVGElement('line', { id: 'vector_sA', x1: x0, y1: y0, x2: xA, y2: yA, stroke: 'var(--color-accent1)', 'stroke-width': (highlightId === 'sA' ? 4 : 2), 'marker-end': 'url(#arrowhead-accent1)' }));
+                const labelSA = createSVGElement('text', { fill: 'var(--color-accent1)', 'text-anchor':'middle', class:'vector-label'});
+                labelSA.innerHTML = createVectorLabel('A');
+                const vecAx = xA - x0, vecAy = yA - y0; const checkBx = xB - x0, checkBy = yB - y0;
+                const sideCheckA = vecAx * checkBy - vecAy * checkBx; const placementSignA = -Math.sign(sideCheckA) || -1; 
+                const normalAx = -vecAy, normalAy = vecAx; const lenA = Math.hypot(normalAx, normalAy);
+                labelSA.setAttribute('x', (x0 + xA) / 2 + placementSignA * 20 * normalAx / lenA);
+                labelSA.setAttribute('y', (y0 + yA) / 2 + placementSignA * 20 * normalAy / lenA);
+                labelSA.id = 'label_sA'; ui.plotArea.appendChild(labelSA);
+            }
+            if (isChecked('sB')) {
+                ui.plotArea.appendChild(createSVGElement('line', { id: 'vector_sB', x1: x0, y1: y0, x2: xB, y2: yB, stroke: 'var(--color-accent1)', 'stroke-width': (highlightId === 'sB' ? 4 : 2), 'marker-end': 'url(#arrowhead-accent1)' }));
+                const labelSB = createSVGElement('text', { fill: 'var(--color-accent1)', 'text-anchor':'middle', class:'vector-label' });
+                labelSB.innerHTML = createVectorLabel('B');
+                const vecBx = xB - x0, vecBy = yB - y0; const checkAx = xA - x0, checkAy = yA - y0;
+                const sideCheckB = vecBx * checkAy - vecBy * checkAx; const placementSignB = -Math.sign(sideCheckB) || -1;
+                const normalBx = -vecBy, normalBy = vecBx; const lenB = Math.hypot(normalBx, normalBy);
+                labelSB.setAttribute('x', (x0 + xB) / 2 + placementSignB * 20 * normalBx / lenB);
+                labelSB.setAttribute('y', (y0 + yB) / 2 + placementSignB * 20 * normalBy / lenB);
+                labelSB.id = 'label_sB'; ui.plotArea.appendChild(labelSB);
+            }
+            if (isChecked('verschiebung_BA')) {
+                ui.plotArea.appendChild(createSVGElement('line', { id: 'vector_verschiebung_BA', x1: xA, y1: yA, x2: xB, y2: yB, stroke: 'var(--color-accent2)', 'stroke-width': (highlightId === 'verschiebung_BA' ? 4.5 : 2.5), 'stroke-dasharray': '5,5', 'marker-end': 'url(#arrowhead-accent2)' }));
+                const dx = xB - xA, dy = yB - yA;
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                const readableAngle = (angle > 90 || angle < -90) ? angle + 180 : angle;
+                const textOffset = (angle > 90 || angle < -90) ? 15 : -15; // Offset umkehren, wenn der Winkel umgekehrt wird
+                const label = createSVGElement('text', { x: (xA+xB)/2, y: (yA+yB)/2, fill: 'var(--color-accent2)', 'text-anchor':'middle', transform: `rotate(${readableAngle} ${(xA+xB)/2} ${(yA+yB)/2}) translate(0, ${textOffset})`, class:'vector-label'});
+                label.innerHTML = 'Δs\u20D7<tspan baseline-shift="sub" font-size="0.7em">BA</tspan>';
+                label.id = 'label_verschiebung_BA'; ui.plotArea.appendChild(label);
+            }
+            if (isChecked('verschiebung_AB')) {
+                ui.plotArea.appendChild(createSVGElement('line', { id: 'vector_verschiebung_AB', x1: xB, y1: yB, x2: xA, y2: yA, stroke: 'var(--color-accent3)', 'stroke-width': (highlightId === 'verschiebung_AB' ? 4.5 : 2.5), 'stroke-dasharray': '5,5', 'marker-end': 'url(#arrowhead-accent3)' }));
+                const dx = xA - xB, dy = yA - yB;
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                const readableAngle = (angle > 90 || angle < -90) ? angle + 180 : angle;
+                const textOffset = (angle > 90 || angle < -90) ? 15 : -15; // Offset umkehren
+                const label = createSVGElement('text', { x: (xA+xB)/2, y: (yA+yB)/2, fill: 'var(--color-accent3)', 'text-anchor':'middle', transform: `rotate(${readableAngle} ${(xA+xB)/2} ${(yA+yB)/2}) translate(0, ${textOffset})`, class:'vector-label'});
+                label.innerHTML = 'Δs\u20D7<tspan baseline-shift="sub" font-size="0.7em">AB</tspan>';
+                label.id = 'label_verschiebung_AB'; ui.plotArea.appendChild(label);
+            }
+             if (isChecked('abstand')) {
+                const group = createSVGElement('g', { id: 'dimension_line_abstand', stroke: 'var(--color-accent2)', fill: 'var(--color-accent2)', 'stroke-width': 1.2, 'font-size': '16px' });
+                const dx = xB - xA, dy = yB - yA, len = Math.hypot(dx, dy);
+                if (len > 5) {
+                    const offset = 25, tickLength = 8;
+                    const originSide = dx * (y0 - yA) - dy * (x0 - xA);
+                    const placementSign = Math.sign(originSide) || 1;
+                    const nx = -dy / len, ny = dx / len;
+                    const xA_offset = xA + offset * nx * placementSign, yA_offset = yA + offset * ny * placementSign;
+                    const xB_offset = xB + offset * nx * placementSign, yB_offset = yB + offset * ny * placementSign;
+                    group.appendChild(createSVGElement('line', { x1: xA_offset, y1: yA_offset, x2: xB_offset, y2: yB_offset }));
+                    const udx = dx / len, udy = dy / len;
+                    group.appendChild(createSVGElement('line', { x1: xA_offset - udy * tickLength / 2, y1: yA_offset + udx * tickLength / 2, x2: xA_offset + udy * tickLength / 2, y2: yA_offset - udx * tickLength / 2 }));
+                    group.appendChild(createSVGElement('line', { x1: xB_offset - udy * tickLength / 2, y1: yB_offset + udx * tickLength / 2, x2: xB_offset + udy * tickLength / 2, y2: yB_offset - udx * tickLength / 2 }));
+                    group.appendChild(createSVGElement('line', { x1: xA, y1: yA, x2: xA_offset, y2: yA_offset, stroke: '#b0b0b0', 'stroke-width': 0.8, 'stroke-dasharray': '2,2' }));
+                    group.appendChild(createSVGElement('line', { x1: xB, y1: yB, x2: xB_offset, y2: yB_offset, stroke: '#b0b0b0', 'stroke-width': 0.8, 'stroke-dasharray': '2,2' }));
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    const readableAngle = (angle > 90 || angle < -90) ? angle + 180 : angle;
+                    const textX = (xA_offset + xB_offset) / 2, textY = (yA_offset + yB_offset) / 2;
+                    const textLabel = createSVGElement('text', { x: textX, y: textY, 'text-anchor': 'middle', 'alignment-baseline': 'hanging', transform: `rotate(${readableAngle} ${textX} ${textY}) translate(0, 5)`, class:'vector-label'});
+                    textLabel.innerHTML = '|Δs\u20D7<tspan baseline-shift="sub" font-size="0.7em">BA</tspan>|';
+                    group.appendChild(textLabel);
+                }
+                ui.plotArea.appendChild(group);
+            }
+            
+            if (isChecked('weg')) {
+                const segPathD = pathData.x.slice(pathData.indexA, pathData.indexB + 1).map((x, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(x)} ${scaleY(pathData.y.slice(pathData.indexA, pathData.indexB + 1)[i])}`).join(' ');
+                ui.plotArea.appendChild(createSVGElement('path', { id: 'segment_path_visual', d: segPathD, fill: 'none', stroke: 'var(--color-main)', 'stroke-width': (highlightId === 'weg' ? 5 : 3.5) }));
+            }
+
+            ui.plotArea.appendChild(createSVGElement('circle', { id: 'point_A', cx: xA, cy: yA, r: 5, fill: 'var(--color-text-primary)' }));
+            ui.plotArea.appendChild(createSVGElement('circle', { id: 'point_B', cx: xB, cy: yB, r: 5, fill: 'var(--color-text-primary)' }));
+
+            const buildVectorHTML = (x, y) => `<div class="vector-display"><div class="vector-components"><span>${formatNum(x)}</span><span>${formatNum(y)}</span></div></div> m`;
+            ui.valSA.innerHTML = isChecked('sA') ? buildVectorHTML(pathData.x_A, pathData.y_A) : '';
+            ui.valSB.innerHTML = isChecked('sB') ? buildVectorHTML(pathData.x_B, pathData.y_B) : '';
+            ui.valVerschiebungBA.innerHTML = isChecked('verschiebung_BA') ? buildVectorHTML(pathData.x_B - pathData.x_A, pathData.y_B - pathData.y_A) : '';
+            ui.valVerschiebungAB.innerHTML = isChecked('verschiebung_AB') ? buildVectorHTML(pathData.x_A - pathData.x_B, pathData.y_A - pathData.y_B) : '';
+            ui.valAbstand.textContent = isChecked('abstand') ? `${formatNum(pathData.deltaS_mag)} m` : '';
+            ui.valWeg.textContent = isChecked('weg') ? `${formatNum(pathData.s_AB_length)} m` : '';
+        }
+        
+        function updateAnalysisBox(key) {
+            const content = explanations[key] || explanations.default;
+            ui.analysisTitle.innerHTML = content.title;
+            ui.analysisText.innerHTML = content.text;
+            if (typeof MathJax !== 'undefined' && MathJax.typeset) { MathJax.typesetPromise([ui.analysisTitle, ui.analysisText]); }
+        }
+        
+        function handleTimeSliderInput() {
+            t_A = parseFloat(ui.tASlider.value);
+            t_B = parseFloat(ui.tBSlider.value);
+            if (this.id === 'tA_slider' && t_A > t_B) { t_B = t_A; ui.tBSlider.value = t_B; }
+            if (this.id === 'tB_slider' && t_B < t_A) { t_A = t_B; ui.tASlider.value = t_A; }
+            ui.tAValue.textContent = `${t_A.toFixed(2).replace('.', ',')} s`;
+            ui.tBValue.textContent = `${t_B.toFixed(2).replace('.', ',')} s`;
+            calculatePath();
+            updateVisualization();
+        }
+
+        window.onload = function() {
+            calculatePath();
+            drawScene();
+            Object.entries(ui.controls).forEach(([key, controlElement]) => {
+                const toggle = ui.toggles[key];
+                const updateFn = () => { updateVisualization(key); updateAnalysisBox(key); };
+                toggle.addEventListener('change', updateFn);
+                controlElement.addEventListener('mouseenter', updateFn);
+                controlElement.addEventListener('mouseleave', () => { updateVisualization(null); updateAnalysisBox('default'); });
+                controlElement.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        toggle.checked = !toggle.checked;
+                        toggle.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+            ui.tASlider.addEventListener('input', handleTimeSliderInput);
+            ui.tBSlider.addEventListener('input', handleTimeSliderInput);
+        };
+    </script>
+</body>
+</html>

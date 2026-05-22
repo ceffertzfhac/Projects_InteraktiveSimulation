@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Kinematik des Rollenden Zylinders v1.6</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async 
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js?packages=base,ams,color">
+    </script>
+    <style>
+        :root {
+            --bg-color: #f0f2f5; --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --p1-color: #ffae42; /* Gelb-Orange */ --p2-color: #485fc7; /* Blau */
+            --p3-color: #48c78e; /* Grün */ --p4-color: #f14668; /* Rot */
+            --sp-color: #363636; /* Grau */
+            --trace-color: #dbdbdb;
+            --vector-v-color: #3273dc;
+            --vector-a-color: #ff3860;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main-content { display: flex; gap: 20px; align-items: flex-start; }
+        #main_svg { border: 1px solid var(--border-color); width: 600px; height: 400px; background-color: #fff; }
+        #graph_container { border: 1px solid var(--border-color); width: 600px; height: 400px; position: relative; }
+        #graph_svg_single { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 1220px; padding: 20px 0; margin-top: 10px; align-items: start; }
+        fieldset { border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-top: 0; height: 100%; box-sizing: border-box; }
+        legend { font-weight: bold; color: var(--label-color); padding: 0 5px; font-size: 0.9em; }
+        .slider-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: center; }
+        .slider-group .label { text-align: right; color: var(--label-color); }
+        .slider-group .value { font-family: monospace; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        button:disabled, input:disabled, select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa; }
+        .radio-group div, .checkbox-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input, .checkbox-group input { margin-right: 8px; }
+        .note { font-size: 0.8em; color: #777; margin-top: 5px; }
+        .select-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+        .select-group label { color: var(--label-color); font-size: 0.9em; }
+        footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #888; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.9em; }
+        .legend-color-box { width: 15px; height: 15px; border: 1px solid #ccc; border-radius: 50%; }
+        #subject_checkboxes { display: grid; grid-template-columns: 1fr 1fr; }
+        
+        #analysis_panel_container { width: 1220px; margin-top: 10px; }
+        #analysis_panel_header { display: flex; justify-content: space-between; align-items: center; padding: 8px 15px; background-color: #f7f7f7; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; }
+        #analysis_panel_header h3 { margin: 0; font-weight: bold; color: var(--label-color); font-size: 0.9em; }
+        #analysis_panel_toggle { font-family: monospace; font-size: 1.2em; }
+        #analysis_panel_content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 6px 6px; }
+        .info-group .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 2px; }
+        .info-group .info-label { color: var(--label-color); text-align: right; }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        #analysis_panel_container.collapsed #analysis_panel_content { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Interaktive Simulation: Kinematik des Rollenden Zylinders</h1>
+    <div id="container">
+        <div id="main-content">
+            <svg id="main_svg" viewBox="0 0 600 400">
+                <defs>
+                    <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" /></marker>
+                    <marker id="arrowhead-v" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--vector-v-color)" /></marker>
+                    <marker id="arrowhead-a" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--vector-a-color)" /></marker>
+                </defs>
+                <g id="world_group">
+                    <g id="background_group"></g>
+                    <g id="traces_group"></g>
+                    <g id="cylinder_group">
+                        <circle id="cylinder_body" r="50" fill="#e0e0e0" stroke="#888" stroke-width="1.5" />
+                        <circle id="sp_point" r="5" fill="var(--sp-color)" />
+                        <circle id="p1_point" r="5" fill="var(--p1-color)" stroke="black" stroke-width="0.5" />
+                        <circle id="p2_point" r="5" fill="var(--p2-color)" stroke="black" stroke-width="0.5" />
+                        <circle id="p3_point" r="5" fill="var(--p3-color)" stroke="black" stroke-width="0.5" />
+                        <circle id="p4_point" r="5" fill="var(--p4-color)" stroke="black" stroke-width="0.5" />
+                    </g>
+                    <line id="ground" x1="-10" y1="350" x2="6000" y2="350" stroke="black" stroke-width="2" />
+                    <g id="vectors_group"></g>
+                </g>
+            </svg>
+            <div id="graph_container">
+                <svg id="graph_svg_single" viewBox="0 0 600 400">
+                     <text class="graph_title" x="300" y="25" text-anchor="middle" font-size="16px"></text>
+                     <g class="graph_grid"></g>
+                     <polyline id="graph_line_sp" fill="none" stroke="var(--sp-color)" stroke-width="2" />
+                     <polyline id="graph_line_p1" fill="none" stroke="var(--p1-color)" stroke-width="2" />
+                     <polyline id="graph_line_p2" fill="none" stroke="var(--p2-color)" stroke-width="2" />
+                     <polyline id="graph_line_p3" fill="none" stroke="var(--p3-color)" stroke-width="2" />
+                     <polyline id="graph_line_p4" fill="none" stroke="var(--p4-color)" stroke-width="2" />
+                     <circle id="graph_point_sp" r="4" fill="var(--sp-color)" visibility="hidden" />
+                     <circle id="graph_point_p1" r="4" fill="var(--p1-color)" visibility="hidden" />
+                     <circle id="graph_point_p2" r="4" fill="var(--p2-color)" visibility="hidden" />
+                     <circle id="graph_point_p3" r="4" fill="var(--p3-color)" visibility="hidden" />
+                     <circle id="graph_point_p4" r="4" fill="var(--p4-color)" visibility="hidden" />
+                </svg>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <fieldset>
+                <legend>Systemparameter</legend>
+                <div class="slider-group">
+                    <span class="label">Radius \(R\):</span>
+                    <input type="range" id="radius_slider" min="20" max="80" value="50" step="1">
+                    <span class="value" id="radius_value">50 cm</span>
+                </div>
+                <div class="slider-group">
+                    <span class="label">Geschwindigkeit \(v_c\):</span>
+                    <input type="range" id="velocity_slider" min="10" max="100" value="50" step="5">
+                    <span class="value" id="velocity_value">50 cm/s</span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+                <div class="radio-group" style="margin-top: 10px;">
+                    <label>Simulationsgeschwindigkeit:</label>
+                    <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                    <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                    <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                </div>
+                <div class="note">Annahme: Reines Abrollen ohne Schlupf. Der Radius der Punkte ist fest auf \(r = 0.9 \cdot R\) gesetzt.</div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Visualisierung & Diagramm</legend>
+                <div class="checkbox-group">
+                    <div><input type="checkbox" id="toggle_sp_trace"> Bahn Schwerpunkt anzeigen</div>
+                    <div><input type="checkbox" id="toggle_traces"> Spuren der Punkte anzeigen</div>
+                    <div><input type="checkbox" id="toggle_trace_z_order"> Spuren im Vordergrund</div>
+                    <div><input type="checkbox" id="toggle_v_vectors"> Geschwindigkeitsvektoren anzeigen</div>
+                    <div><input type="checkbox" id="toggle_a_vectors"> Beschleunigungsvektoren anzeigen</div>
+                </div>
+                <div class="select-group" style="margin-top: 10px;">
+                    <label for="graph_select">Diagramm-Anzeige:</label>
+                    <select id="graph_select"></select>
+                </div>
+                <div class="select-group" style="margin-top: 10px;">
+                    <label>Analyse-Objekte:</label>
+                    <div id="subject_checkboxes" class="checkbox-group">
+                        <div><input type="checkbox" name="subjects" id="subject_sp" value="sp" checked> SP</div>
+                        <div><input type="checkbox" name="subjects" id="subject_p1" value="p1"> Punkt 1 (Gelb)</div>
+                        <div><input type="checkbox" name="subjects" id="subject_p2" value="p2"> Punkt 2 (Blau)</div>
+                        <div><input type="checkbox" name="subjects" id="subject_p3" value="p3"> Punkt 3 (Grün)</div>
+                        <div><input type="checkbox" name="subjects" id="subject_p4" value="p4"> Punkt 4 (Rot)</div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="analysis_panel_container">
+            <div id="analysis_panel_header">
+                <h3>Analyse-Daten (für zuletzt ausgewähltes Objekt)</h3>
+                <span id="analysis_panel_toggle">[-]</span>
+            </div>
+            <div id="analysis_panel_content">
+                <div class="info-group">
+                    <div class="info-row"><span class="info-label">\(x(t)\):</span><span class="info-value" id="info_x">...</span></div>
+                    <div class="info-row"><span class="info-label">\(y(t)\):</span><span class="info-value" id="info_y">...</span></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-row"><span class="info-label">\(v_x(t)\):</span><span class="info-value" id="info_vx">...</span></div>
+                    <div class="info-row"><span class="info-label">\(v_y(t)\):</span><span class="info-value" id="info_vy">...</span></div>
+                    <div class="info-row"><span class="info-label">\(|\vec{v}(t)|\):</span><span class="info-value" id="info_vabs">...</span></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-row"><span class="info-label">\(a_x(t)\):</span><span class="info-value" id="info_ax">...</span></div>
+                    <div class="info-row"><span class="info-label">\(a_y(t)\):</span><span class="info-value" id="info_ay">...</span></div>
+                    <div class="info-row"><span class="info-label">\(|\vec{a}(t)|\):</span><span class="info-value" id="info_aabs">...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span></small></p>
+    </footer>
+
+<script>
+    const ui = {
+        radiusSlider: document.getElementById('radius_slider'),
+        velocitySlider: document.getElementById('velocity_slider'),
+        radiusValue: document.getElementById('radius_value'),
+        velocityValue: document.getElementById('velocity_value'),
+        playButton: document.getElementById('play_button'),
+        pauseButton: document.getElementById('pause_button'),
+        resetButton: document.getElementById('reset_button'),
+        speedRadios: document.querySelectorAll('input[name="speed"]'),
+        subjectCheckboxes: {
+            sp: document.getElementById('subject_sp'),
+            p1: document.getElementById('subject_p1'),
+            p2: document.getElementById('subject_p2'),
+            p3: document.getElementById('subject_p3'),
+            p4: document.getElementById('subject_p4'),
+        },
+        graphSelect: document.getElementById('graph_select'),
+        toggleSpTrace: document.getElementById('toggle_sp_trace'),
+        toggleTraces: document.getElementById('toggle_traces'),
+        toggleTraceZOrder: document.getElementById('toggle_trace_z_order'),
+        toggleVvectors: document.getElementById('toggle_v_vectors'),
+        toggleAvectors: document.getElementById('toggle_a_vectors'),
+        
+        mainSvg: document.getElementById('main_svg'),
+        worldGroup: document.getElementById('world_group'),
+        backgroundGroup: document.getElementById('background_group'),
+        cylinderGroup: document.getElementById('cylinder_group'),
+        cylinderBody: document.getElementById('cylinder_body'),
+        points: {
+            sp: document.getElementById('sp_point'),
+            p1: document.getElementById('p1_point'),
+            p2: document.getElementById('p2_point'),
+            p3: document.getElementById('p3_point'),
+            p4: document.getElementById('p4_point'),
+        },
+        tracesGroup: document.getElementById('traces_group'),
+        vectorsGroup: document.getElementById('vectors_group'),
+        
+        info: {
+            x: document.getElementById('info_x'), y: document.getElementById('info_y'),
+            vx: document.getElementById('info_vx'), vy: document.getElementById('info_vy'), vabs: document.getElementById('info_vabs'),
+            ax: document.getElementById('info_ax'), ay: document.getElementById('info_ay'), aabs: document.getElementById('info_aabs'),
+        },
+
+        graphSvgSingle: document.getElementById('graph_svg_single'),
+        copyrightYear: document.getElementById('copyright-year'),
+        analysisPanelContainer: document.getElementById('analysis_panel_container'),
+        analysisPanelToggle: document.getElementById('analysis_panel_toggle'),
+    };
+
+    const PIXELS_PER_METER = 200;
+    const TIME_STEP = 1 / 60;
+    const SIM_DURATION = 60;
+    const DIAGRAM_WINDOW_S = 10;
+    const POINT_RADIUS_FACTOR = 0.9;
+    const SVG_WIDTH = 600;
+
+    let R_m, Vc_m_s, omega_rad_s, speedFactor;
+    let animFrameId = null;
+    let lastFrameTime = 0;
+    let simulatedTimeElapsed = 0;
+    let activeInfoSubject = 'sp';
+
+    let fullData = {};
+    const subjects = ['sp', 'p1', 'p2', 'p3', 'p4'];
+    const quantities = ['x', 'y', 'vx', 'vy', 'vabs', 'ax', 'ay', 'aabs'];
+
+    const graphOptions = {
+        'x': { label: "x-Position x(t)", unit: "m" },
+        'y': { label: "y-Position y(t)", unit: "m" },
+        'vx': { label: "x-Geschwindigkeit v<sub>x</sub>(t)", unit: "m/s" },
+        'vy': { label: "y-Geschwindigkeit v<sub>y</sub>(t)", unit: "m/s" },
+        'vabs': { label: "Geschwindigkeitsbetrag |v|(t)", unit: "m/s" },
+        'ax': { label: "x-Beschleunigung a<sub>x</sub>(t)", unit: "m/s²" },
+        'ay': { label: "y-Beschleunigung a<sub>y</sub>(t)", unit: "m/s²" },
+        'aabs': { label: "Beschleunigungsbetrag |a|(t)", unit: "m/s²" },
+    };
+    
+    const subjectColors = {
+        sp: 'var(--sp-color)', p1: 'var(--p1-color)', p2: 'var(--p2-color)',
+        p3: 'var(--p3-color)', p4: 'var(--p4-color)'
+    };
+
+    function formatNumber(num, digits = 2) {
+        if (typeof num !== 'number' || isNaN(num)) return '...';
+        return num.toFixed(digits).replace('.', ',');
+    }
+
+    function createSVGElement(tag, attributes) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const key in attributes) el.setAttribute(key, attributes[key]);
+        return el;
+    }
+    
+    function createStyledSvgText(svgElement, textString) {
+        const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+        let match;
+        svgElement.innerHTML = '';
+        while ((match = regex.exec(textString)) !== null) {
+            if (match[1]) { 
+                svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1];
+            } else if (match[2]) {
+                svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2];
+            } else if (match[3]) {
+                svgElement.appendChild(document.createTextNode(match[3]));
+            }
+        }
+    }
+
+    function getNiceTickStep(range, ticks) { 
+        if(range < 1e-9) return 1;
+        const m = range / ticks, e = Math.floor(Math.log10(m)), p = 10**e;
+        let n = m / p;
+        if(n <= 1) n = 1; else if(n <= 2) n = 2; else if(n <= 5) n = 5; else n = 10;
+        return n * p;
+    }
+
+    function resetScene(isPlayTrigger = false) {
+        stopAnimation();
+        if (!isPlayTrigger) {
+            simulatedTimeElapsed = 0;
+            lastFrameTime = 0;
+        }
+
+        R_m = parseFloat(ui.radiusSlider.value) / 100;
+        Vc_m_s = parseFloat(ui.velocitySlider.value) / 100;
+        omega_rad_s = Vc_m_s / R_m;
+        ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+        
+        ui.radiusValue.textContent = `${formatNumber(R_m * 100, 0)} cm`;
+        ui.velocityValue.textContent = `${formatNumber(Vc_m_s * 100, 0)} cm/s`;
+        
+        precomputeMotionData();
+        drawBackground();
+        updateTraceZOrder();
+        
+        ui.playButton.disabled = false;
+        ui.pauseButton.disabled = true;
+        [ui.radiusSlider, ui.velocitySlider, ui.graphSelect].forEach(el => el.disabled = false);
+        Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = false);
+
+        updateScene(0);
+    }
+
+    function precomputeMotionData() {
+        fullData = { t: [] };
+        subjects.forEach(s => {
+            quantities.forEach(q => {
+                fullData[`${s}_${q}`] = [];
+            });
+        });
+
+        const r_m = R_m * POINT_RADIUS_FACTOR;
+        const initialAngles = { p1: 0, p2: Math.PI / 2, p3: Math.PI, p4: 3 * Math.PI / 2 };
+
+        for (let t = 0; t <= SIM_DURATION; t += TIME_STEP) {
+            fullData.t.push(t);
+            
+            fullData.sp_x.push(Vc_m_s * t);
+            fullData.sp_y.push(R_m);
+            fullData.sp_vx.push(Vc_m_s);
+            fullData.sp_vy.push(0);
+            fullData.sp_vabs.push(Vc_m_s);
+            fullData.sp_ax.push(0);
+            fullData.sp_ay.push(0);
+            fullData.sp_aabs.push(0);
+
+            for (const p in initialAngles) {
+                const theta0 = initialAngles[p];
+                const angle = theta0 - omega_rad_s * t;
+                
+                const x = Vc_m_s * t + r_m * Math.cos(angle);
+                const y = R_m + r_m * Math.sin(angle);
+                fullData[`${p}_x`].push(x);
+                fullData[`${p}_y`].push(y);
+
+                const vx = Vc_m_s - r_m * omega_rad_s * Math.sin(angle);
+                const vy = r_m * omega_rad_s * Math.cos(angle);
+                fullData[`${p}_vx`].push(vx);
+                fullData[`${p}_vy`].push(vy);
+                fullData[`${p}_vabs`].push(Math.sqrt(vx*vx + vy*vy));
+
+                const ax = -r_m * omega_rad_s**2 * Math.cos(angle);
+                const ay = -r_m * omega_rad_s**2 * Math.sin(angle);
+                fullData[`${p}_ax`].push(ax);
+                fullData[`${p}_ay`].push(ay);
+                fullData[`${p}_aabs`].push(Math.sqrt(ax*ax + ay*ay));
+            }
+        }
+    }
+
+    function drawBackground() {
+        ui.backgroundGroup.innerHTML = '';
+        const totalWidth = (Vc_m_s * SIM_DURATION * PIXELS_PER_METER) + SVG_WIDTH;
+        for (let x = 0; x < totalWidth; x += 50) {
+            ui.backgroundGroup.appendChild(createSVGElement('line', {
+                x1: x, y1: 0, x2: x, y2: 350,
+                stroke: '#f0f0f0', 'stroke-width': 1
+            }));
+        }
+    }
+
+    function updateScene(time) {
+        let i = 0;
+        while (i < fullData.t.length - 1 && fullData.t[i + 1] <= time) i++;
+        const alpha = (fullData.t[i+1] > fullData.t[i]) ? (time - fullData.t[i]) / (fullData.t[i+1] - fullData.t[i]) : 0;
+        const interp = (data) => data[i] + alpha * ((data[i+1] || data[i]) - data[i]);
+
+        const sp_x_m = interp(fullData.sp_x);
+        
+        const R_px = R_m * PIXELS_PER_METER;
+        const sp_x_px = 50 + sp_x_m * PIXELS_PER_METER;
+        const sp_y_px = 350 - R_px;
+        
+        const trigger_x_px = SVG_WIDTH - R_px - 10;
+        let camera_shift_px = 0;
+        if (sp_x_px > trigger_x_px) {
+            camera_shift_px = sp_x_px - trigger_x_px;
+        }
+        ui.worldGroup.setAttribute('transform', `translate(${-camera_shift_px}, 0)`);
+        
+        ui.cylinderGroup.setAttribute('transform', `translate(${sp_x_px}, ${sp_y_px})`);
+        ui.cylinderBody.setAttribute('r', R_px);
+        
+        const angle = -omega_rad_s * time;
+        const r_px = R_px * POINT_RADIUS_FACTOR;
+
+        ui.points.p1.setAttribute('cx', r_px * Math.cos(angle));
+        ui.points.p1.setAttribute('cy', -r_px * Math.sin(angle));
+        ui.points.p2.setAttribute('cx', r_px * Math.cos(Math.PI/2 + angle));
+        ui.points.p2.setAttribute('cy', -r_px * Math.sin(Math.PI/2 + angle));
+        ui.points.p3.setAttribute('cx', r_px * Math.cos(Math.PI + angle));
+        ui.points.p3.setAttribute('cy', -r_px * Math.sin(Math.PI + angle));
+        ui.points.p4.setAttribute('cx', r_px * Math.cos(3*Math.PI/2 + angle));
+        ui.points.p4.setAttribute('cy', -r_px * Math.sin(3*Math.PI/2 + angle));
+
+        drawTraces(time);
+        drawVectors(interp);
+        updateInfoBox(interp);
+        updateGraph(time);
+    }
+
+    function updateTraceZOrder() {
+        if (ui.toggleTraceZOrder.checked) {
+            ui.worldGroup.appendChild(ui.tracesGroup);
+        } else {
+            ui.worldGroup.insertBefore(ui.tracesGroup, ui.cylinderGroup);
+        }
+    }
+
+    function drawTraces(time) {
+        ui.tracesGroup.innerHTML = '';
+        const numPoints = Math.floor(time / TIME_STEP);
+        
+        const drawTrace = (subjectKey, color) => {
+            let path = '';
+            for (let i = 0; i <= numPoints; i++) {
+                const x_m = fullData[`${subjectKey}_x`][i];
+                const y_m = fullData[`${subjectKey}_y`][i];
+                const x_px = 50 + x_m * PIXELS_PER_METER;
+                const y_px = 350 - y_m * PIXELS_PER_METER;
+                path += (i === 0 ? 'M' : 'L') + `${x_px},${y_px}`;
+            }
+            ui.tracesGroup.appendChild(createSVGElement('path', {
+                d: path, fill: 'none', stroke: color, 'stroke-width': 1.5, opacity: 0.5
+            }));
+        };
+
+        if (ui.toggleSpTrace.checked) {
+            drawTrace('sp', subjectColors.sp);
+        }
+        if (ui.toggleTraces.checked) {
+            for (const p of ['p1', 'p2', 'p3', 'p4']) {
+                drawTrace(p, subjectColors[p]);
+            }
+        }
+    }
+
+    function drawVectors(interp) {
+        ui.vectorsGroup.innerHTML = '';
+        const showV = ui.toggleVvectors.checked;
+        const showA = ui.toggleAvectors.checked;
+        if (!showV && !showA) return;
+
+        const V_SCALE = 50;
+        const A_SCALE = 50;
+
+        for (const s of subjects) {
+            const x_m = interp(fullData[`${s}_x`]);
+            const y_m = interp(fullData[`${s}_y`]);
+            const x_px = 50 + x_m * PIXELS_PER_METER;
+            const y_px = 350 - y_m * PIXELS_PER_METER;
+
+            if (showV) {
+                const vx = interp(fullData[`${s}_vx`]);
+                const vy = interp(fullData[`${s}_vy`]);
+                ui.vectorsGroup.appendChild(createSVGElement('line', {
+                    x1: x_px, y1: y_px, x2: x_px + vx * V_SCALE, y2: y_px - vy * V_SCALE,
+                    stroke: 'var(--vector-v-color)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-v)'
+                }));
+            }
+            if (showA) {
+                const ax = interp(fullData[`${s}_ax`]);
+                const ay = interp(fullData[`${s}_ay`]);
+                ui.vectorsGroup.appendChild(createSVGElement('line', {
+                    x1: x_px, y1: y_px, x2: x_px + ax * A_SCALE, y2: y_px - ay * A_SCALE,
+                    stroke: 'var(--vector-a-color)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-a)'
+                }));
+            }
+        }
+    }
+
+    function updateInfoBox(interp) {
+        const subject = activeInfoSubject;
+        ui.info.x.textContent = `${formatNumber(interp(fullData[`${subject}_x`]))} m`;
+        ui.info.y.textContent = `${formatNumber(interp(fullData[`${subject}_y`]))} m`;
+        ui.info.vx.textContent = `${formatNumber(interp(fullData[`${subject}_vx`]))} m/s`;
+        ui.info.vy.textContent = `${formatNumber(interp(fullData[`${subject}_vy`]))} m/s`;
+        ui.info.vabs.textContent = `${formatNumber(interp(fullData[`${subject}_vabs`]))} m/s`;
+        ui.info.ax.textContent = `${formatNumber(interp(fullData[`${subject}_ax`]))} m/s²`;
+        ui.info.ay.textContent = `${formatNumber(interp(fullData[`${subject}_ay`]))} m/s²`;
+        ui.info.aabs.textContent = `${formatNumber(interp(fullData[`${subject}_aabs`]))} m/s²`;
+    }
+
+    function updateGraph(time) {
+        const svg = ui.graphSvgSingle;
+        const title = svg.querySelector('.graph_title');
+        const grid = svg.querySelector('.graph_grid');
+        
+        subjects.forEach(s => {
+            document.getElementById(`graph_line_${s}`).setAttribute('points', '');
+            document.getElementById(`graph_point_${s}`).style.visibility = 'hidden';
+        });
+        grid.innerHTML = '';
+
+        const G_W = 600, G_H = 400;
+        const P = { top: 40, right: 50, bottom: 40, left: 60 };
+        const PLOT_W = G_W - P.left - P.right, PLOT_H = G_H - P.top - P.bottom;
+
+        const activeSubjects = subjects.filter(s => ui.subjectCheckboxes[s].checked);
+        if (activeSubjects.length === 0) return;
+
+        const quantity = ui.graphSelect.value;
+        
+        const t_max_display = Math.max(DIAGRAM_WINDOW_S, time);
+        const t_min_display = 0;
+        const time_range_display = t_max_display - t_min_display;
+
+        let startIndex = 0;
+        let endIndex = fullData.t.findIndex(t_val => t_val > t_max_display);
+        if (endIndex === -1) endIndex = fullData.t.length;
+
+        let val_min = Infinity, val_max = -Infinity;
+        activeSubjects.forEach(s => {
+            const data_window = fullData[`${s}_${quantity}`].slice(startIndex, endIndex);
+            val_min = Math.min(val_min, ...data_window);
+            val_max = Math.max(val_max, ...data_window);
+        });
+        
+        val_min = Math.min(0, val_min);
+        val_max = Math.max(0, val_max);
+
+        const range = val_max - val_min;
+        if (range < 1e-9) {
+            val_min -= 0.5;
+            val_max += 0.5;
+        } else {
+            const padding = range * 0.1;
+            val_min -= padding;
+            val_max += padding;
+        }
+        
+        const scaleT = (t_v) => P.left + ((t_v - t_min_display) / time_range_display) * PLOT_W;
+        const scaleY = (v) => P.top + PLOT_H - ( (v - val_min) / (val_max - val_min || 1) ) * PLOT_H;
+        
+        const xAxisYPosition = P.top + PLOT_H;
+        const axisAttrs = { stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+        grid.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: xAxisYPosition, x2: G_W - P.right, y2: xAxisYPosition }));
+        grid.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: P.top + PLOT_H, x2: P.left, y2: P.top }));
+
+        const y_tick_step = getNiceTickStep(val_max - val_min, 8);
+        for (let v = Math.ceil(val_min / y_tick_step) * y_tick_step; v <= val_max + 1e-9; v += y_tick_step) {
+            const y = scaleY(v);
+            const isZeroLine = Math.abs(v) < 1e-9;
+            grid.appendChild(createSVGElement('line', { x1: P.left, y1: y, x2: P.left + PLOT_W, y2: y, stroke: isZeroLine ? '#ccc' : '#eee' }));
+            const tLbl = createSVGElement('text', { x: P.left - 8, y: y + 4, 'font-size': '12px', 'text-anchor': 'end' });
+            tLbl.textContent = formatNumber(v, y_tick_step % 1 === 0 ? 0 : (v.toString().split('.')[1] || '').length > 1 ? 2 : 1);
+            grid.appendChild(tLbl);
+        }
+
+        const t_tick_step = getNiceTickStep(time_range_display, 10);
+        for (let t_grid = Math.ceil(t_min_display / t_tick_step) * t_tick_step; t_grid <= t_max_display + 1e-9; t_grid += t_tick_step) {
+            const x = scaleT(t_grid);
+            grid.appendChild(createSVGElement('line', { x1: x, y1: P.top, x2: x, y2: P.top + PLOT_H, stroke: '#eee' }));
+            const tLbl = createSVGElement('text', { x: x, y: xAxisYPosition + 15, 'font-size': '12px', 'text-anchor': 'middle' });
+            tLbl.textContent = formatNumber(t_grid, t_tick_step < 1 ? 1 : 0);
+            grid.appendChild(tLbl);
+        }
+
+        title.innerHTML = `${graphOptions[quantity].label.replace(/\(t\)/, '')} vs. Zeit`;
+        MathJax.typesetPromise([title]);
+        const yLabel = createSVGElement('text', { transform: `rotate(-90, ${P.left - 40}, ${P.top + PLOT_H / 2})`, x: P.left - 40, y: P.top + PLOT_H / 2, 'text-anchor': 'middle', 'font-size': '13px' });
+        createStyledSvgText(yLabel, `${graphOptions[quantity].label.replace(/\(t\)/, '')} / ${graphOptions[quantity].unit}`);
+        grid.appendChild(yLabel);
+        const tLabel = createSVGElement('text', { x: P.left + PLOT_W / 2, y: xAxisYPosition + 30, 'text-anchor': 'middle', 'font-size': '13px' });
+        createStyledSvgText(tLabel, 'Zeit <i>t</i> / s');
+        grid.appendChild(tLabel);
+
+        let plotIndex = fullData.t.findIndex(t_val => t_val > time);
+        if (plotIndex === -1 && time > 0) plotIndex = fullData.t.length;
+        
+        activeSubjects.forEach(s => {
+            const data = fullData[`${s}_${quantity}`];
+            const lineEl = document.getElementById(`graph_line_${s}`);
+            const pointEl = document.getElementById(`graph_point_${s}`);
+            
+            let path_points = [];
+            const data_to_plot = data.slice(0, plotIndex);
+            const time_to_plot = fullData.t.slice(0, plotIndex);
+
+            data_to_plot.forEach((val, i) => {
+                path_points.push(`${scaleT(time_to_plot[i])},${scaleY(val)}`);
+            });
+            
+            let currentValue = null;
+            if (time <= SIM_DURATION) {
+                const i = Math.max(0, plotIndex - 1);
+                const t1 = fullData.t[i], t2 = fullData.t[i+1] || t1;
+                const alpha = (t2 > t1) ? (time - t1) / (t2 - t1) : 0;
+                currentValue = data[i] + alpha * ((data[i+1] || data[i]) - data[i]);
+                path_points.push(`${scaleT(time)},${scaleY(currentValue)}`);
+            }
+
+            lineEl.setAttribute('points', path_points.join(' '));
+            if (currentValue !== null) {
+                pointEl.setAttribute('cx', scaleT(time));
+                pointEl.setAttribute('cy', scaleY(currentValue));
+                pointEl.style.visibility = 'visible';
+            }
+        });
+    }
+
+    function animate(currentTime) {
+        if (lastFrameTime === 0) lastFrameTime = currentTime;
+        const dt = (currentTime - lastFrameTime) / 1000.0;
+        simulatedTimeElapsed += dt * speedFactor;
+        lastFrameTime = currentTime;
+        
+        if (simulatedTimeElapsed >= SIM_DURATION) {
+            simulatedTimeElapsed = SIM_DURATION;
+            updateScene(simulatedTimeElapsed);
+            stopAnimation();
+            return;
+        }
+        
+        updateScene(simulatedTimeElapsed);
+        animFrameId = requestAnimationFrame(animate);
+    }
+
+    function startAnimation() { 
+        if (animFrameId) return;
+        if (simulatedTimeElapsed >= SIM_DURATION - 1e-6) {
+            resetScene(true);
+        }
+        ui.playButton.disabled = true; 
+        ui.pauseButton.disabled = false; 
+        [ui.radiusSlider, ui.velocitySlider].forEach(el => el.disabled = true);
+        Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = true);
+        lastFrameTime = 0; 
+        animFrameId = requestAnimationFrame(animate); 
+    }
+    function stopAnimation() { 
+        if (!animFrameId) return; 
+        cancelAnimationFrame(animFrameId); 
+        animFrameId = null; 
+        ui.playButton.disabled = false; 
+        ui.pauseButton.disabled = true; 
+        [ui.radiusSlider, ui.velocitySlider].forEach(el => el.disabled = false);
+        Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = false);
+    }
+    
+    function setupUI() {
+        for (const key in graphOptions) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.innerHTML = graphOptions[key].label.replace(/\(t\)/, '');
+            ui.graphSelect.appendChild(opt);
+        }
+        ui.copyrightYear.textContent = new Date().getFullYear();
+        
+        [ui.radiusSlider, ui.velocitySlider].forEach(el => {
+            el.addEventListener('input', () => resetScene());
+        });
+        
+        const displayOnlyTriggers = [ui.toggleSpTrace, ui.toggleTraces, ui.toggleTraceZOrder, ui.toggleVvectors, ui.toggleAvectors];
+        displayOnlyTriggers.forEach(el => {
+            el.addEventListener('input', () => {
+                if (el.id === 'toggle_trace_z_order') updateTraceZOrder();
+                updateScene(simulatedTimeElapsed);
+            });
+        });
+
+        Object.values(ui.subjectCheckboxes).forEach(cb => {
+            cb.addEventListener('input', (e) => {
+                if(e.target.checked) {
+                    activeInfoSubject = e.target.value;
+                }
+                updateGraph(simulatedTimeElapsed);
+                updateScene(simulatedTimeElapsed);
+            });
+        });
+
+        ui.graphSelect.addEventListener('input', () => updateGraph(simulatedTimeElapsed));
+
+        ui.playButton.addEventListener('click', startAnimation);
+        ui.pauseButton.addEventListener('click', stopAnimation);
+        ui.resetButton.addEventListener('click', () => {
+            simulatedTimeElapsed = 0;
+            resetScene();
+        });
+        ui.speedRadios.forEach(el => el.addEventListener('change', () => {
+            ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+        }));
+
+        ui.analysisPanelToggle.addEventListener('click', () => {
+            const container = ui.analysisPanelContainer;
+            container.classList.toggle('collapsed');
+            ui.analysisPanelToggle.textContent = container.classList.contains('collapsed') ? '[+]' : '[-]';
+        });
+    }
+
+    window.onload = () => {
+        setupUI();
+        resetScene();
+    };
+</script>
+</body>
+</html>

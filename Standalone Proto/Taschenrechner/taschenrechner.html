@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signifikante Stellen Rechner</title>
+    <style>
+        :root {
+            --fh-blue: #005eb1;
+            --fh-red: #d1002d;
+            --bg-color: #f0f2f5;
+            --border-color: #ccc;
+            --text-color: #333;
+            --control-bg: #fff;
+            --label-color: #555;
+            --button-bg: #e0e0e0;
+            --button-hover-bg: #d0d0d0;
+            --operator-bg: #f0a04b;
+            --operator-hover-bg: #e0903a;
+            --clear-bg: #d1002d;
+            --clear-hover-bg: #c10020;
+            --equals-bg: #005eb1;
+            --equals-hover-bg: #004e90;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2em;
+        }
+
+        h1 {
+            font-weight: 300;
+            font-size: 1.6em;
+            margin-bottom: 1em;
+            color: var(--text-color);
+        }
+
+        #calculator-container {
+            width: 350px;
+            background-color: var(--control-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        #display {
+            background-color: #eee;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-height: 5em; /* Ensure enough space for two lines */
+            overflow-x: auto;
+        }
+
+        #previous-operation-display {
+            font-size: 0.9em;
+            color: var(--label-color);
+            min-height: 1.2em; /* To prevent jumping */
+            line-height: 1.2em;
+        }
+
+        #current-result-display {
+            font-size: 1.8em;
+            min-height: 1.8em; /* To prevent jumping */
+            line-height: 1.8em;
+        }
+
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-button {
+            padding: 15px 10px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--button-bg);
+            transition: background-color 0.1s ease;
+            color: var(--text-color);
+        }
+
+        .calc-button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .operator {
+            background-color: var(--operator-bg);
+            color: white;
+        }
+
+        .operator:hover {
+            background-color: var(--operator-hover-bg);
+        }
+
+        .clear {
+            background-color: var(--clear-bg);
+            color: white;
+        }
+
+        .clear:hover {
+            background-color: var(--clear-hover-bg);
+        }
+
+        .equals {
+            background-color: var(--equals-bg);
+            color: white;
+            grid-column: span 2; /* Make equals button span two columns */
+        }
+
+        .equals:hover {
+            background-color: var(--equals-hover-bg);
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        footer p {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Signifikante Stellen Rechner (Intervall-Arithmetik)</h1>
+
+    <div id="calculator-container">
+        <div id="display">
+            <div id="previous-operation-display"></div>
+            <div id="current-result-display"></div>
+        </div>
+        <div class="buttons-grid">
+            <button class="calc-button clear" data-action="clear-all">AC</button>
+            <button class="calc-button clear" data-action="clear-entry">C</button>
+            <button class="calc-button operator" data-operator="/">&divide;</button>
+            <button class="calc-button operator" data-operator="*">&times;</button>
+
+            <button class="calc-button" data-number="7">7</button>
+            <button class="calc-button" data-number="8">8</button>
+            <button class="calc-button" data-number="9">9</button>
+            <button class="calc-button operator" data-operator="-">-</button>
+
+            <button class="calc-button" data-number="4">4</button>
+            <button class="calc-button" data-number="5">5</button>
+            <button class="calc-button" data-number="6">6</button>
+            <button class="calc-button operator" data-operator="+">+</button>
+
+            <button class="calc-button" data-number="1">1</button>
+            <button class="calc-button" data-number="2">2</button>
+            <button class="calc-button" data-number="3">3</button>
+            <button class="calc-button equals" data-action="equals">=</button>
+
+            <button class="calc-button" data-number="0">0</button>
+            <button class="calc-button" data-number=".">.</button>
+        </div>
+    </div>
+
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> Ihr Name / Ihre Hochschule. Alle Rechte vorbehalten.</small></p>
+    </footer>
+
+    <script>
+        const GERMAN_LOCALE = 'de-DE';
+        const DEFAULT_DISPLAY_DIGITS = { minimumFractionDigits: 2, maximumFractionDigits: 10, useGrouping: false }; // Max 10 for intermediate results, min 2 for initial clarity
+
+        // Class to represent a number as an interval, storing its precision metadata
+        class NumberInterval {
+            constructor(min, max, sigFigs, decPlaces) {
+                this.min = min;
+                this.max = max;
+                this.sigFigs = sigFigs;
+                this.decPlaces = decPlaces;
+            }
+
+            // Formats the interval for display with appropriate German locale settings
+            format(numFormat = DEFAULT_DISPLAY_DIGITS) {
+                const min = this.min.toLocaleString(GERMAN_LOCALE, numFormat);
+                const max = this.max.toLocaleString(GERMAN_LOCALE, numFormat);
+                return `[${min} ; ${max}]`;
+            }
+        }
+
+        class Calculator {
+            constructor(previousOperationDisplay, currentResultDisplay) {
+                this.previousOperationDisplay = previousOperationDisplay;
+                this.currentResultDisplay = currentResultDisplay;
+                this.clear();
+            }
+
+            // Resets all calculator state
+            clear() {
+                this.currentOperandInput = '0'; // Raw string input for the number currently being typed
+                this.firstOperandInterval = null; // Stores the NumberInterval object for the first operand
+                this.operator = null; // The chosen operator (+, -, *, /)
+                this.previousCalculationString = ''; // String for the top display line
+                this.updateDisplay();
+            }
+
+            // Clears only the current input/operand
+            clearEntry() {
+                this.currentOperandInput = '0';
+                this.updateDisplay();
+            }
+
+            // Appends a digit or decimal point to the current input
+            appendNumber(number) {
+                // If a calculation was just completed (operator is null but firstOperandInterval holds a result)
+                // and user types a number, clear previous result to start a new number.
+                if (this.operator === null && this.firstOperandInterval !== null) {
+                    this.clear(); // Start fresh
+                }
+
+                // Prevent multiple leading zeros (e.g., '00', but allow '0.1')
+                if (this.currentOperandInput === '0' && number === '0' && !this.currentOperandInput.includes('.')) return;
+                // Replace leading zero if typing a non-decimal number (e.g., '0' -> '5')
+                if (this.currentOperandInput === '0' && number !== '.' && !this.currentOperandInput.includes('.')) {
+                    this.currentOperandInput = number;
+                } else if (number === '.' && this.currentOperandInput.includes('.')) {
+                    // Prevent multiple decimal points
+                    return;
+                } else {
+                    this.currentOperandInput += number;
+                }
+                this.updateDisplay();
+            }
+
+            // Handles selection of an operator (+, -, *, /)
+            chooseOperator(operator) {
+                // If there's no first operand yet, the current input becomes the first operand
+                if (this.firstOperandInterval === null) {
+                    this.firstOperandInterval = Calculator.parseNumberToInterval(this.currentOperandInput);
+                } else if (this.currentOperandInput !== '0' || this.previousCalculationString.includes('=')) {
+                    // If chaining operations (first operand exists, and we have a new input or a previous result)
+                    this.calculate(); // Perform the pending calculation first
+                    // The result is now stored in this.firstOperandInterval
+                }
+                
+                this.operator = operator;
+                this.previousCalculationString = this.firstOperandInterval.format() + ` ${this.operator} `;
+                this.currentOperandInput = '0'; // Reset currentOperandInput for the second number input
+                this.updateDisplay();
+            }
+
+            // Performs the actual calculation based on the stored operands and operator
+            calculate() {
+                // Cannot calculate if incomplete operation
+                if (this.firstOperandInterval === null || this.operator === null || this.currentOperandInput === '') {
+                    return;
+                }
+
+                const secondOperandInterval = Calculator.parseNumberToInterval(this.currentOperandInput);
+                
+                let resultInterval;
+                // Get precision metadata for rounding
+                const sigFigs1 = this.firstOperandInterval.sigFigs;
+                const sigFigs2 = secondOperandInterval.sigFigs;
+                const decPlaces1 = this.firstOperandInterval.decPlaces;
+                const decPlaces2 = secondOperandInterval.decPlaces;
+
+                try {
+                    switch (this.operator) {
+                        case '+':
+                            resultInterval = new NumberInterval(
+                                this.firstOperandInterval.min + secondOperandInterval.min,
+                                this.firstOperandInterval.max + secondOperandInterval.max,
+                                Math.min(sigFigs1, sigFigs2),
+                                Math.min(decPlaces1, decPlaces2) // Rounding rule for addition
+                            );
+                            // Apply rounding for addition/subtraction
+                            resultInterval.min = Calculator.roundToDecimalPlaces(resultInterval.min, resultInterval.decPlaces);
+                            resultInterval.max = Calculator.roundToDecimalPlaces(resultInterval.max, resultInterval.decPlaces);
+                            break;
+                        case '-':
+                            resultInterval = new NumberInterval(
+                                this.firstOperandInterval.min - secondOperandInterval.max, // Interval subtraction rule
+                                this.firstOperandInterval.max - secondOperandInterval.min,
+                                Math.min(sigFigs1, sigFigs2),
+                                Math.min(decPlaces1, decPlaces2) // Rounding rule for subtraction
+                            );
+                            // Apply rounding for addition/subtraction
+                            resultInterval.min = Calculator.roundToDecimalPlaces(resultInterval.min, resultInterval.decPlaces);
+                            resultInterval.max = Calculator.roundToDecimalPlaces(resultInterval.max, resultInterval.decPlaces);
+                            break;
+                        case '*':
+                            const p = [this.firstOperandInterval.min * secondOperandInterval.min,
+                                       this.firstOperandInterval.min * secondOperandInterval.max,
+                                       this.firstOperandInterval.max * secondOperandInterval.min,
+                                       this.firstOperandInterval.max * secondOperandInterval.max];
+                            resultInterval = new NumberInterval(
+                                Math.min(...p),
+                                Math.max(...p),
+                                Math.min(sigFigs1, sigFigs2), // Rounding rule for multiplication
+                                0 // Decimal places not directly used for rounding in this case
+                            );
+                            // Apply rounding for multiplication/division
+                            resultInterval.min = Calculator.roundToSignificantFigures(resultInterval.min, resultInterval.sigFigs);
+                            resultInterval.max = Calculator.roundToSignificantFigures(resultInterval.max, resultInterval.sigFigs);
+                            break;
+                        case '/':
+                            // Handle division by zero interval
+                            if (secondOperandInterval.min <= 0 && secondOperandInterval.max >= 0) {
+                                throw new Error("Division durch Null oder Intervall, das Null enthält!");
+                            }
+                            const q = [this.firstOperandInterval.min / secondOperandInterval.min,
+                                       this.firstOperandInterval.min / secondOperandInterval.max,
+                                       this.firstOperandInterval.max / secondOperandInterval.min,
+                                       this.firstOperandInterval.max / secondOperandInterval.max];
+                            resultInterval = new NumberInterval(
+                                Math.min(...q),
+                                Math.max(...q),
+                                Math.min(sigFigs1, sigFigs2), // Rounding rule for division
+                                0
+                            );
+                            // Apply rounding for multiplication/division
+                            resultInterval.min = Calculator.roundToSignificantFigures(resultInterval.min, resultInterval.sigFigs);
+                            resultInterval.max = Calculator.roundToSignificantFigures(resultInterval.max, resultInterval.sigFigs);
+                            break;
+                        default:
+                            throw new Error("Ungültiger Operator");
+                    }
+                } catch (error) {
+                    alert(error.message);
+                    this.clear();
+                    return;
+                }
+
+                // Update display strings
+                this.previousCalculationString = this.firstOperandInterval.format() + ` ${this.operator} ` + secondOperandInterval.format() + ' =';
+                this.firstOperandInterval = resultInterval; // The result becomes the new first operand for potential chaining
+                this.currentOperandInput = '0'; // Clear input for next operation (but result will be displayed)
+                this.operator = null; // Clear operator, as this specific calculation is finished
+                this.updateDisplay();
+            }
+
+            // Updates the calculator display based on current state
+            updateDisplay() {
+                // Update top display line
+                this.previousOperationDisplay.innerHTML = this.previousCalculationString;
+
+                // Update bottom display line
+                if (this.operator === null && this.firstOperandInterval !== null) {
+                    // If a calculation just finished (no pending operator, but a result exists)
+                    this.currentResultDisplay.innerHTML = this.firstOperandInterval.format();
+                } else {
+                    // Otherwise, show the raw input being typed, formatted for German locale
+                    // Handle special cases for decimal point input
+                    let formattedCurrent = this.currentOperandInput.replace('.', ',');
+                    this.currentResultDisplay.innerHTML = formattedCurrent;
+                }
+                
+                // Special case for initial state: if everything is clear, show interval for '0'
+                if (this.currentOperandInput === '0' && this.firstOperandInterval === null && this.operator === null) {
+                     this.currentResultDisplay.innerHTML = Calculator.parseNumberToInterval('0').format();
+                }
+            }
+
+            // --- STATIC HELPER FUNCTIONS (for NumberInterval and Calculator class) ---
+            static parseNumberToInterval(numStr) {
+                // Handle empty or invalid input string for safety
+                if (!numStr || numStr.trim() === '' || numStr === '.' || isNaN(parseFloat(numStr))) {
+                    return new NumberInterval(0, 0, 1, 0); 
+                }
+                
+                const value = parseFloat(numStr);
+                const decimalPlaces = Calculator.countDecimalPlaces(numStr);
+                const significantFigures = Calculator.countSignificantFigures(numStr);
+
+                let precisionUnit;
+                if (decimalPlaces > 0) {
+                    // Precision based on the last decimal digit
+                    precisionUnit = Math.pow(10, -decimalPlaces);
+                } else {
+                    // For integers like "12", precision unit is 1.
+                    // For "120", if the user types "120", the '0' is the last written digit, so precision is 1.
+                    // This aligns with "die letzte, also genau eine, noch ausgeschriebene Stelle mit einem Fehler behaftet sein kann"
+                    precisionUnit = 1;
+                }
+
+                const min = value - (0.5 * precisionUnit);
+                const max = value + (0.5 * precisionUnit);
+                
+                return new NumberInterval(min, max, significantFigures, decimalPlaces);
+            }
+
+            // Counts decimal places in a string representation of a number
+            static countDecimalPlaces(numStr) {
+                const parts = numStr.split('.');
+                if (parts.length > 1) {
+                    return parts[1].length;
+                }
+                return 0;
+            }
+
+            // Counts significant figures in a string representation of a number
+            static countSignificantFigures(numStr) {
+                if (!numStr || numStr.trim() === '' || numStr === '0') return 1; // "0", "0.0" etc. treated as 1 sig fig
+                numStr = numStr.replace(/^-/, ''); // Remove leading minus sign for counting
+
+                // Remove leading zeros before decimal point (if present)
+                if (numStr.includes('.')) {
+                    numStr = numStr.replace(/^0+\./, ''); // "0.00120" -> ".120", then "120"
+                } else {
+                    // For integers like "1200", per problem statement: "davon auszugehen, dass Sie 4 signifikante Stellen meinen"
+                    // So we count all digits.
+                }
+
+                // Remove decimal point for counting
+                numStr = numStr.replace(/\./, '');
+                
+                // Finally, the length of the processed string is the count of significant figures
+                return numStr.length;
+            }
+
+            // Rounds a number to a specified number of decimal places
+            static roundToDecimalPlaces(value, decimalPlaces) {
+                if (isNaN(value)) return value;
+                if (decimalPlaces < 0) { // Handle rounding to nearest 10, 100, etc.
+                    const factor = Math.pow(10, -decimalPlaces);
+                    return Math.round(value / factor) * factor;
+                }
+                return parseFloat(value.toFixed(decimalPlaces));
+            }
+
+            // Rounds a number to a specified number of significant figures
+            static roundToSignificantFigures(value, sigFigs) {
+                if (isNaN(value) || sigFigs <= 0) return value;
+                if (value === 0) return 0; // Avoid toPrecision(0) issues
+                return parseFloat(value.toPrecision(sigFigs));
+            }
+        }
+
+        // --- Event Listeners ---
+        const calculator = new Calculator(document.getElementById('previous-operation-display'), document.getElementById('current-result-display'));
+        const buttons = document.querySelectorAll('.calc-button');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.dataset.number) {
+                    calculator.appendNumber(button.dataset.number);
+                } else if (button.dataset.operator) {
+                    calculator.chooseOperator(button.dataset.operator);
+                } else if (button.dataset.action === 'equals') {
+                    calculator.calculate(); // equals also calls calculate
+                } else if (button.dataset.action === 'clear-all') {
+                    calculator.clear();
+                } else if (button.dataset.action === 'clear-entry') {
+                    calculator.clearEntry();
+                }
+            });
+        });
+
+        // Setzt automatisch das aktuelle Jahr im Copyright-Hinweis
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

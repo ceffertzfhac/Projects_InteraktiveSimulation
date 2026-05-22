@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inhaltsverzeichnis: Interaktive Physik-Animationen</title>
+    <style>
+        :root {
+            --fh-blue: #005eb1;
+            --fh-red: #d1002d;
+            --bg-color: #f0f2f5;
+            --border-color: #ccc;
+            --text-color: #333;
+            --control-bg: #fff;
+            --label-color: #555;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2em;
+        }
+
+        h1 {
+            font-weight: 300;
+            font-size: 2em;
+            margin-bottom: 0.5em;
+            color: var(--text-color);
+        }
+
+        #index-container {
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--control-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            font-weight: 400;
+            font-size: 1.5em;
+            color: var(--fh-blue);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 25px;
+        }
+
+        .animation-grid {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            /* NEU: Zentriert die Kacheln, wenn der Platz nicht voll ist */
+            justify-content: center;
+        }
+
+        .animation-card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #fdfdfd;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /* NEU: Verhindert, dass eine einzelne Kachel zu breit wird */
+            max-width: 300px;
+            width: 100%;
+        }
+        
+        .animation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        .animation-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+        
+        .card-preview {
+            height: 150px;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--label-color);
+            font-style: italic;
+        }
+        
+        .animation-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-content h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .card-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--label-color);
+            line-height: 1.5;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        footer p {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Physik-Animationen</h1>
+    
+    <div id="index-container">
+        <h2>Kapitel 0: Mathematische Grundlagen</h2>
+        <ul class="animation-grid">
+                <li class="animation-card">
+                <a href="ableitung.html">
+                    <img src="Vorschaubilder/ableitung.png" alt="Vorschau Ableitung als Grenzwert">
+                    <div class="card-content">
+                        <h3>Ableitung als Grenzwert</h3>
+                        <p>Visualisierung des Grenzwertprozesses vom Differenzen- zum Differentialquotienten.</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+
+ 
+        <h2>Kapitel 1.1: Kinematik in 1D, 2D und 3D</h2>
+        <ul class="animation-grid">
+            <li class="animation-card">
+                <a href="freier_fall_senkrechter_wurf.html">
+                    <img src="Vorschaubilder/freier_fall_senkrechter_wurf.png" alt="Vorschau Freier Fall & Senkrechter Wurf">
+                    <div class="card-content">
+                        <h3>Freier Fall & Senkrechter Wurf</h3>
+                        <p>Analyse der eindimensionalen Bewegung im Gravitationsfeld mit anpassbarer Anfangshöhe und -geschwindigkeit.</p>
+                    </div>
+                </a>
+            </li>
+             <li class="animation-card">
+                <a href="federpendel.html">
+                    <img src="Vorschaubilder/federschwingung.png" alt="Vorschau Federschwingung">
+                    <div class="card-content">
+                        <h3>Federschwingung</h3>
+                        <p>Untersuchung der Kinematik der Schwingung eines Federpendels als Beispiel einer eindimensionalen Bewegung. Darstellung von Auslenkung, Geschwindigkeit und Beschleunigung über die Zeit.</p>
+                    </div>
+                </a>
+            </li>
+            <li class="animation-card">
+                <a href="geschwindigkeit.html">
+                    <img src="Vorschaubilder/geschwindigkeit.png" alt="Vorschau Geschwindigkeit">
+                    <div class="card-content">
+                        <h3>Geschwindigkeit als Steigung der Ort-Zeit-Kurve</h3>
+                        <p>Untersuchung der Geschwindigkeit als Steigung der Ort-Zeit-Kurve zur Verdeutlichung des Unterschieds zwischen Durchschnitts- und Momentangeschwindigkeit.</p>
+                    </div>
+                </a>
+            </li>
+            <li class="animation-card">
+                <a href="grundbegriffe_kin.html">
+                    <img src="Vorschaubilder/grundbegriffe.png" alt="Vorschau Grundbegriffe der Kinematik">
+                    <div class="card-content">
+                        <h3>Grundbegriffe der Kinematik</h3>
+                        <p>Visualisierung einiger Grundbegriffe der Kinematik anhang einer Bahnkurve einer zweidimensionalen Bewegung</p>
+                    </div>
+                </a>
+            </li>
+            <li class="animation-card">
+                <a href="schräger_wurf.html">
+                    <img src="Vorschaubilder/schraeger_wurf.png" alt="Vorschau Schräger Wurf">
+                    <div class="card-content">
+                        <h3>Schräger Wurf</h3>
+                        <p>Simulation der zweidimensionalen Wurfbewegung. Untersuchung von Vektorkomponenten und Flugbahnen.</p>
+                    </div>
+                </a>
+            </li>
+            <li class="animation-card">
+                <a href="kreisbewegung.html">
+                    <img src="Vorschaubilder/kreisbewegung.png" alt="Vorschau Ebene Kreisbewegung">
+                    <div class="card-content">
+                        <h3>Ebene Kreisbewegung</h3>
+                        <p>Visualisierung der gleichförmigen Kreisbewegung. Analyse von Orts-, Geschwindigkeits- und Zentripetalbeschleunigungsvektoren.</p>
+                    </div>
+                </a>
+            </li>
+           
+            
+        </ul>
+
+        <h2>Kapitel 1.2: Dynamik: Impuls und Kraft</h2>
+        <ul class="animation-grid">
+            <li class="animation-card">
+                <a href="3massen_umlenkrollen_v2.html">
+                    <img src="Vorschaubilder/3massen_umlenkrolle.png" alt="Vorschau Statisches Kräftegleichgewicht">
+                    <div class="card-content">
+                        <h3>Statisches Kräftegleichgewicht</h3>
+                        <p>Interaktive Simulation zum Gleichgewicht von Kräften mit Umlenkrollen und Massen.</p>
+                    </div>
+                </a>
+            </li>
+            <li class="animation-card">
+                <a href="atwood.html">
+                    <img src="Vorschaubilder/atwood.png" alt="Vorschau Atwood'sche Fallmaschine">
+                    <div class="card-content">
+                        <h3>Die Atwood'sche Fallmaschine</h3>
+                        <p>Interaktive Simulation zur Atwood'schen Fallmaschine.</p>
+                    </div>
+                </a>
+            </li>            
+            <li class="animation-card">
+                <a href="zykloide3.html">
+                    <img src="Vorschaubilder/rollender_zylinder.png" alt="Vorschau Rollender Zylinder">
+                    <div class="card-content">
+                        <h3>Kinematik des rollenden Zylinder / Zykloide</h3>
+                        <p>Interaktive Simulation zur Kinematik des rollenden Zylinders als Visualisierung des Schwerpunktsatzes.</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <h2>Kapitel 1.3: Arbeit, Energie und Leistung</h2>
+        <ul class="animation-grid">
+            <li class="animation-card">
+                <a href="atwood_energy.html">
+                    <img src="Vorschaubilder/atwood_energie.png" alt="Vorschau Atwood mit Energiebilanz">
+                    <div class="card-content">
+                        <h3>Atwood mit Energiebilanz</h3>
+                        <p>Erweiterte Interaktive Simulation zur Atwood'schen Fallmaschine mit Energiebilanz</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <h2>Kapitel 1.4: Dreh- und Kreisbewegung</h2>
+        <ul class="animation-grid">
+            <li class="animation-card">
+                <a href="kreiskinematik_v5.html">
+                    <img src="Vorschaubilder/drehundspiralbewegung.png" alt="Vorschau Kinematik der Kreis- und Spiralbewegungen">
+                    <div class="card-content">
+                        <h3>Kreis- und Spiralbewegung</h3>
+                        <p>Erweiterte Interaktive Simulation zur Kinematik der Kreis- und Spiralbewegungen</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <h2>Kapitel 1.8: Elastische Stöße</h2>
+            <ul class="animation-grid">
+                <li class="animation-card">
+                    <a href="elastischerStoß.html">
+                        <img src="Vorschaubilder/elastischer_stoss.png" alt="Vorschau elastischer Stoß">
+                        <div class="card-content">
+                            <h3>Zentraler elastischer Stoß</h3>
+                            <p>Interaktive Simulation zum zentralen elastischen Stoß</p>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        
+    </div>
+    
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8. Alle Rechte vorbehalten.</small></p>
+    </footer>
+
+    <script>
+        // Setzt automatisch das aktuelle Jahr im Copyright-Hinweis
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+        // Öffnet alle Links in einem neuen Tab
+        document.querySelectorAll('a').forEach(a => {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener noreferrer');
+        });
+    </script>
+</body>
+</html>

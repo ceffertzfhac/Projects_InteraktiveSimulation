@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Elastischer Stoß auf der Luftkissenbahn</title>
+    <!-- MathJax -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; 
+            --fh-red: #d1002d; 
+            --fh-orange: #FF7F0E;
+            --bg-color: #f0f2f5; 
+            --border-color: #ccc; 
+            --text-color: #333; 
+            --control-bg: #fff; 
+            --label-color: #555;
+        }
+        body { font-family: system-ui, -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; text-align: center; }
+        
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 1000px; width: 100%; }
+        
+        #main-content { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; align-items: flex-start; }
+        
+        .vis-wrapper { position: relative; width: 500px; height: 350px; border: 1px solid var(--border-color); background: #fff; overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); }
+        
+        canvas { display: block; width: 100%; height: 100%; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
+        svg.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        #graph_wrapper { display: flex; flex-direction: column; width: 380px; height: 350px; }
+        .graph-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; height: 25px;}
+        .graph-header select { padding: 2px 5px; font-size: 0.9em; border: 1px solid #ccc; border-radius: 3px; }
+        
+        #graph_container { width: 100%; flex-grow: 1; border: 1px solid var(--border-color); position: relative; background: #fff; display: flex; flex-direction: column; border-radius: 4px; }
+        #graph_svg { width: 100%; height: 220px; }
+        
+        .bar-container { padding: 8px; border-top: 1px solid #eee; height: 90px; display: flex; flex-direction: column; justify-content: space-around; background: #fafafa; border-radius: 0 0 4px 4px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; font-size: 0.85em; }
+        .bar-label { width: 85px; min-width: 85px; text-align: right; color: #666; font-weight: bold; white-space: nowrap; }
+        .bar-wrapper { flex-grow: 1; height: 16px; background: #e0e0e0; border-radius: 3px; position: relative; overflow: hidden; border: 1px solid #ccc; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        
+        .bar-e1 { height: 100%; background: var(--fh-blue); float: left; transition: width 0.1s linear; }
+        .bar-e2 { height: 100%; background: var(--fh-red); float: left; transition: width 0.1s linear; }
+        .bar-p-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #555; z-index: 10; transform: translateX(-50%); }
+        .bar-p1 { position: absolute; top: 0; bottom: 0; background: var(--fh-blue); opacity: 0.8; transition: all 0.1s linear; }
+        .bar-p2 { position: absolute; top: 0; bottom: 0; background: var(--fh-red); opacity: 0.8; transition: all 0.1s linear; }
+
+        #controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 20px; align-items: start; }
+        fieldset { border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-top: 0; height: 100%; box-sizing: border-box; background: #fcfcfc; }
+        legend { font-weight: bold; color: var(--label-color); padding: 0 5px; font-size: 0.9em; }
+        
+        .slider-group { display: grid; grid-template-columns: 110px 1fr 70px; gap: 10px; align-items: center; margin-bottom: 5px; }
+        .slider-group .label { text-align: right; color: var(--label-color); font-size: 0.9em; }
+        .slider-group .value { font-family: monospace; font-size: 0.9em; text-align: right; color: #333; }
+        
+        button { padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; background: linear-gradient(to bottom, #fff, #f0f0f0); cursor: pointer; font-size: 14px; color: #333; transition: all 0.2s; }
+        button:hover { background: linear-gradient(to bottom, #f8f8f8, #e0e0e0); border-color: #999; }
+        button:active { background: #ddd; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        button:disabled { background: #f8f8f8; cursor: not-allowed; color: #aaa; border-color: #ddd; }
+        
+        .info-group .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .info-group .info-label { color: var(--label-color); }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+
+        footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #888; }
+        input[type=range] { cursor: pointer; }
+        input[type=range]:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <h1>Elastischer Stoß auf der Luftkissenbahn</h1>
+    
+    <div id="container">
+        <div id="main-content">
+            <!-- Linke Spalte: Visualisierung -->
+            <div class="vis-wrapper" id="vis_container">
+                <canvas id="sim_canvas"></canvas>
+                <svg id="overlay_svg" class="overlay" viewBox="0 0 500 350">
+                    <defs>
+                        <marker id="arrowhead-blue" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0, 7 2.5, 0 5" fill="var(--fh-blue)" />
+                        </marker>
+                        <marker id="arrowhead-red" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0, 7 2.5, 0 5" fill="var(--fh-red)" />
+                        </marker>
+                    </defs>
+                    <g id="vectors_layer"></g>
+                    
+                    <!-- Legende -->
+                    <g transform="translate(10, 10)">
+                        <rect width="125" height="85" fill="rgba(255,255,255,0.9)" stroke="#ccc" rx="4" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));"/>
+                        <circle cx="15" cy="18" r="5" fill="var(--fh-blue)"/>
+                        <text x="30" y="22" font-size="11" fill="#333" font-family="sans-serif">Gleiter 1 (blau)</text>
+                        <circle cx="15" cy="38" r="5" fill="var(--fh-red)"/>
+                        <text x="30" y="42" font-size="11" fill="#333" font-family="sans-serif">Gleiter 2 (rot)</text>
+                        <circle cx="15" cy="58" r="4" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="15" y="58" font-size="10" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif">+</text>
+                        <text x="30" y="62" font-size="11" fill="#333" font-family="sans-serif">Schwerpunkt S</text>
+                    </g>
+
+                    <!-- Stoppuhr -->
+                    <g id="stopwatch" transform="translate(440, 50) scale(0.6)">
+                        <circle cx="0" cy="0" r="60" fill="white" stroke="black" stroke-width="2" />
+                        <g id="stopwatch_marks"></g>
+                        <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50" stroke="black" stroke-width="3" />
+                    </g>
+
+                    <!-- Status Text -->
+                    <text x="490" y="340" text-anchor="end" font-size="10" fill="#888" font-family="sans-serif">
+                        Auto-Stopp, Auto-Zoom und Auto-Pan aktiv
+                    </text>
+                </svg>
+            </div>
+
+            <!-- Rechte Spalte: Graph & Balken -->
+            <div id="graph_wrapper">
+                <div class="graph-header">
+                    <span style="font-size:0.9em; font-weight:bold; color:#555;">Diagramm:</span>
+                    <select id="sel_graph_mode">
+                        <option value="v">Geschwindigkeit v(t)</option>
+                        <option value="a">Beschleunigung a(t)</option>
+                        <option value="p">Impuls p(t)</option>
+                        <option value="E">Energie E(t)</option>
+                    </select>
+                </div>
+                <div id="graph_container">
+                    <svg id="graph_svg" viewBox="0 0 380 220">
+                        <g class="graph_grid"></g>
+                        <polyline id="line_v1" fill="none" stroke="var(--fh-blue)" stroke-width="2" stroke-linejoin="round" />
+                        <polyline id="line_v2" fill="none" stroke="var(--fh-red)" stroke-width="2" stroke-linejoin="round" />
+                        <!-- Deformationsenergie der Feder -->
+                        <polyline id="line_Es" fill="none" stroke="var(--fh-orange)" stroke-width="2"
+                                  stroke-linejoin="round" stroke-dasharray="4,2" />
+                        <circle id="dot_v1" r="4" fill="var(--fh-blue)" stroke="#fff" stroke-width="1"/>
+                        <circle id="dot_v2" r="4" fill="var(--fh-red)" stroke="#fff" stroke-width="1"/>
+                    </svg>
+                    <div class="bar-container">
+                        <div class="bar-row">
+                            <div class="bar-label">Energie \(E\):</div>
+                            <div class="bar-wrapper">
+                                <div id="bar_e1" class="bar-e1"></div>
+                                <div id="bar_e2" class="bar-e2"></div>
+                            </div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">Impuls \(p\):</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-p-center"></div>
+                                <div id="bar_p1" class="bar-p1"></div>
+                                <div id="bar_p2" class="bar-p2"></div>
+                            </div>
+                        </div>
+                        <div id="momentum_note" style="text-align:center; font-size:0.75em; color:#888; display:none;">
+                            (Impulsübertrag auf Wand)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unterer Bereich: Controls -->
+        <div id="controls">
+            <div class="control-group">
+                <fieldset>
+                    <legend>Parameter</legend>
+                    <div class="slider-group">
+                        <span class="label">Masse \(m_1\):</span>
+                        <input type="range" id="sl_m1" min="0.5" max="5.5" step="0.1" value="0.5">
+                        <span class="value" id="val_m1">0,5 kg</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="label">Geschw. \(v_1\):</span>
+                        <input type="range" id="sl_v1" min="-1.5" max="1.5" step="0.1" value="0.8">
+                        <span class="value" id="val_v1">0,8 m/s</span>
+                    </div>
+                    <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
+                    <div class="slider-group">
+                        <span class="label">Masse \(m_2\):</span>
+                        <input type="range" id="sl_m2" min="0.5" max="5.5" step="0.1" value="0.5">
+                        <span class="value" id="val_m2">0,5 kg</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="label">Geschw. \(v_2\):</span>
+                        <input type="range" id="sl_v2" min="-1.5" max="1.5" step="0.1" value="-0.4">
+                        <span class="value" id="val_v2">-0,4 m/s</span>
+                    </div>
+                    <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
+                    <div class="slider-group">
+                        <span class="label">Federkonstante \(k\):</span>
+                        <!-- 5 ... 2000 N/m, danach Inf (Schwelle 2005) -->
+                        <input type="range" id="sl_k" min="5" max="205" step="5" value="50">
+                        <span class="value" id="val_k">50 N/m</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button id="btn_play">Start</button>
+                        <button id="btn_pause" disabled>Pause</button>
+                        <button id="btn_reset">Reset</button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="control-group">
+                <fieldset>
+                    <legend>Analyse & Visualisierung</legend>
+                    <div class="info-group">
+                        <div class="info-row">
+                            <span class="info-label">Endgeschw. \(v_1'\):</span>
+                            <span class="info-value" id="out_v1_prime" style="color:var(--fh-blue)">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Endgeschw. \(v_2'\):</span>
+                            <span class="info-value" id="out_v2_prime" style="color:var(--fh-red)">-</span>
+                        </div>
+                        <hr style="border:0; border-top:1px solid #eee;">
+                        <div class="info-row">
+                            <span class="info-label">Stoßdauer \(\Delta t\):</span>
+                            <span class="info-value" id="out_dt">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Max. Kraft \(F_{max}\):</span>
+                            <span class="info-value" id="out_fmax" style="color:var(--fh-orange)">-</span>
+                        </div>
+                    </div>
+                    <div class="slider-group" style="margin-top:20px;">
+                        <span class="label">Zeitlupe:</span>
+                        <input type="range" id="sl_speed" min="10" max="100" step="10" value="100">
+                        <span class="value" id="val_speed">100%</span>
+                    </div>
+                    <div style="margin-top:10px; font-size: 0.85em; color: #555;">
+                        <input type="checkbox" id="chk_vectors" checked> Vektoren |
+                        <input type="checkbox" id="chk_com" checked> Schwerpunkt (S)
+                    </div>
+                    <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+                    <button id="btn_export" style="width:100%; font-size:0.9em;">📥 CSV Export (Alle Daten)</button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <footer><p><small>&copy; 2026 Prof. Dr. rer. nat. C. Effertz | FH Aachen | FB 08 | Physik-Simulationen </small></p></footer>
+
+<script>
+/**
+ * KONFIGURATION & STATE
+ */
+const CONFIG = {
+    canvasW: 500, canvasH: 350, trackY: 250, 
+    gliderWidthM: 0.6, springRestLengthM: 0.4,
+    infiniteMassThreshold: 5.1,
+    infiniteKThreshold: 204 // ab 2005 N/m wird k als ∞ behandelt
+};
+
+const state = {
+    m1: 0.5, v1: 0.8, x1: -0.8,
+    m2: 0.5, v2: -0.4, x2: 0.8,
+    k: 50.0,
+    m1_inf: false, m2_inf: false, k_inf: false,
+    time: 0, running: false, speedFactor: 1.0, collisionDone: false,
+    curX1: 0, curV1: 0, curX2: 0, curV2: 0,
+    curA1: 0, curA2: 0, 
+    camPPM: 100, camOffset: 0,
+    predV1: 0, predV2: 0, predDt: 0, predFmax: 0, 
+    timeFinish: 0, 
+    autoStopAt: 0, 
+    wasInContact: false,
+    graphMode: 'v'
+};
+
+const ui = {
+    canvas: document.getElementById('sim_canvas'),
+    ctx: document.getElementById('sim_canvas').getContext('2d', { alpha: false }),
+    svgVectors: document.getElementById('vectors_layer'),
+    slM1: document.getElementById('sl_m1'),
+    slV1: document.getElementById('sl_v1'),
+    slM2: document.getElementById('sl_m2'),
+    slV2: document.getElementById('sl_v2'),
+    slK:  document.getElementById('sl_k'),
+    slSpeed: document.getElementById('sl_speed'),
+    valM1: document.getElementById('val_m1'),
+    valV1: document.getElementById('val_v1'),
+    valM2: document.getElementById('val_m2'),
+    valV2: document.getElementById('val_v2'),
+    valK:  document.getElementById('val_k'),
+    valSpeed: document.getElementById('val_speed'),
+    btnPlay: document.getElementById('btn_play'),
+    btnPause: document.getElementById('btn_pause'),
+    btnReset: document.getElementById('btn_reset'),
+    btnExport: document.getElementById('btn_export'),
+    chkVectors: document.getElementById('chk_vectors'),
+    chkCom: document.getElementById('chk_com'),
+    selGraphMode: document.getElementById('sel_graph_mode'),
+    outV1p: document.getElementById('out_v1_prime'),
+    outV2p: document.getElementById('out_v2_prime'),
+    outDt: document.getElementById('out_dt'),
+    outFmax: document.getElementById('out_fmax'),
+    lineV1: document.getElementById('line_v1'),
+    lineV2: document.getElementById('line_v2'),
+    lineEs: document.getElementById('line_Es'),
+    dotV1: document.getElementById('dot_v1'),
+    dotV2: document.getElementById('dot_v2'),
+    graphGrid: document.querySelector('.graph_grid'),
+    barE1: document.getElementById('bar_e1'),
+    barE2: document.getElementById('bar_e2'),
+    barP1: document.getElementById('bar_p1'),
+    barP2: document.getElementById('bar_p2'),
+    momNote: document.getElementById('momentum_note'),
+    stopwatchMarks: document.getElementById('stopwatch_marks'),
+    stopwatchHand: document.getElementById('stopwatch_main_hand')
+};
+
+let animId = null, lastTime = 0, history = [];
+
+// --- HILFSFUNKTIONEN ---
+function fmt(num, digits = 1) {
+    if (typeof num !== 'number' || !isFinite(num)) return "-";
+    return num.toFixed(digits).replace('.', ',');
+}
+
+function createStyledSvgText(svgElement, textString) {
+    const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+    let match;
+    svgElement.innerHTML = '';
+    while ((match = regex.exec(textString)) !== null) {
+        if (match[1]) {
+            const t = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            t.textContent = match[1];
+            svgElement.appendChild(t);
+        } else if (match[2]) {
+            let s = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            s.setAttribute('baseline-shift', 'sub');
+            s.setAttribute('font-size', '70%');
+            s.textContent = match[2];
+            svgElement.appendChild(s);
+        } else if (match[3]) {
+            svgElement.appendChild(document.createTextNode(match[3]));
+        }
+    }
+}
+
+function getNiceTickStep(range, ticks) {
+    if (range < 1e-9) return 1;
+    const m = range / ticks, e = Math.floor(Math.log10(m)), p = 10 ** e;
+    let n = m / p;
+    if (n <= 1) n = 1; else if (n <= 2) n = 2; else if (n <= 5) n = 5; else n = 10;
+    return n * p;
+}
+
+function toPx(x_m, camPPM, camOffset) { 
+    return (CONFIG.canvasW / 2) + (x_m - camOffset) * camPPM; 
+}
+
+function adjustColor(col, amount) {
+    if (col.includes("blue") || col.includes("005eb1")) return amount > 0 ? "#4a9eff" : "#003f7a";
+    if (col.includes("red") || col.includes("d1002d")) return amount > 0 ? "#ff5c7c" : "#8a001e";
+    return col;
+}
+
+// --- CONTROLS LOGIC ---
+function togglePhysicsControls(enable) {
+    ui.slM1.disabled = !enable;
+    ui.slM2.disabled = !enable;
+    ui.slK.disabled  = !enable;
+
+    if (!enable) {
+        ui.slV1.disabled = true;
+        ui.slV2.disabled = true;
+    } else {
+        ui.slV1.disabled = state.m1_inf;
+        ui.slV2.disabled = state.m2_inf;
+    }
+}
+
+// --- STOPPUHR ---
+function drawStopwatchMarks() {
+    ui.stopwatchMarks.innerHTML = '';
+    const r = 60;
+    for (let s = 0; s < 60; s++) {
+        const angle = (s / 60) * 2 * Math.PI;
+        const r_inner = (s % 5 === 0) ? r - 8 : r - 4;
+        const x1 = r_inner * Math.sin(angle);
+        const y1 = -r_inner * Math.cos(angle);
+        const x2 = r * Math.sin(angle);
+        const y2 = -r * Math.cos(angle);
+        
+        let l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+        l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+        l.setAttribute('stroke', 'black');
+        l.setAttribute('stroke-width', (s % 5 === 0) ? 2 : 1);
+        ui.stopwatchMarks.appendChild(l);
+    }
+}
+
+function updateStopwatch(time) {
+    const angle = (time % 60 / 60) * 360;
+    ui.stopwatchHand.setAttribute('transform', `rotate(${angle})`);
+}
+
+// --- CSV EXPORT ---
+function exportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Zeit t /s; v1 / m/s;v2 / m/s;a1 / m/s^2;a2 / m/s^2;p1 / kg*m/s;p2 / kg*m/s;E1 /J;E2 /J;E_Feder /J\n";
+    
+    history.forEach(row => {
+        let p1 = state.m1_inf ? 0 : state.m1 * row.v1;
+        let p2 = state.m2_inf ? 0 : state.m2 * row.v2;
+        let E1 = state.m1_inf ? 0 : 0.5 * state.m1 * row.v1**2;
+        let E2 = state.m2_inf ? 0 : 0.5 * state.m2 * row.v2**2;
+        let Es = row.Es || 0;
+        
+        let line = [
+            fmt(row.t, 4), fmt(row.v1, 4), fmt(row.v2, 4), 
+            fmt(row.a1, 4), fmt(row.a2, 4), 
+            fmt(p1, 4), fmt(p2, 4), 
+            fmt(E1, 4), fmt(E2, 4),
+            fmt(Es, 4)
+        ].join(";");
+        csvContent += line + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "stoss_simulation_daten.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- ZEICHENFUNKTIONEN ---
+
+function drawSpring(ctx, xStart, y, width, height) {
+    const coils = 6;
+    if (width <= 0) return;
+    const coilWidth = width / coils;
+    
+    ctx.beginPath();
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    
+    ctx.moveTo(xStart, y);
+    for (let i = 0; i < coils; i++) {
+        const cx = xStart + i * coilWidth;
+        ctx.lineTo(cx + coilWidth * 0.25, y - height * 0.4);
+        ctx.lineTo(cx + coilWidth * 0.75, y + height * 0.4);
+        ctx.lineTo(cx + coilWidth, y);
+    }
+    ctx.stroke();
+    
+    ctx.fillStyle = "#333";
+    ctx.beginPath();
+    ctx.arc(xStart + width, y, 3, 0, Math.PI*2);
+    ctx.fill();
+}
+
+function drawGlider3D(ctx, xCenter, yBase, width, height, color, mass, isInfinite) {
+    const halfW = width / 2;
+    const x = xCenter - halfW;
+    const y = yBase - height;
+    
+    ctx.shadowColor = "rgba(0,0,0,0.2)";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 8;
+
+    let grad = ctx.createLinearGradient(x, y, x, y + height);
+    if (isInfinite) {
+        grad.addColorStop(0, "#555");
+        grad.addColorStop(0.5, "#777");
+        grad.addColorStop(1, "#555");
+    } else {
+        grad.addColorStop(0, adjustColor(color, 40));
+        grad.addColorStop(0.4, color);
+        grad.addColorStop(1, adjustColor(color, -30));
+    }
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, [3, 3, 5, 5]); 
+    ctx.fill();
+    
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    if (isInfinite) {
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x, y, width, height); ctx.clip();
+        ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.lineWidth = 2;
+        for(let i = -width; i < width*2; i+=8) {
+            ctx.moveTo(x + i, y); ctx.lineTo(x + i - 15, y + height);
+        }
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = "#bbb";
+        ctx.beginPath(); ctx.arc(x + 6, yBase - 6, 2.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + width - 6, yBase - 6, 2.5, 0, Math.PI*2); ctx.fill();
+    } else {
+        const baseMass = 0.5;
+        let addedMass = mass - baseMass;
+        
+        if (addedMass > 0.01) {
+            const massPerDisk = 0.5;
+            const maxDiskH = 5;
+            const diskW = width * 0.7;
+            const diskX = xCenter - diskW / 2;
+            
+            let currentY = y;
+            let remainingMass = addedMass;
+            
+            ctx.fillStyle = "#888";
+            ctx.fillRect(xCenter - 2, y - 15, 4, 15);
+
+            while (remainingMass > 0.05) {
+                let layerMass = Math.min(remainingMass, massPerDisk);
+                let layerH = (layerMass / massPerDisk) * maxDiskH;
+                currentY -= layerH;
+                
+                let dGrad = ctx.createLinearGradient(diskX, currentY, diskX + diskW, currentY);
+                dGrad.addColorStop(0, "#ccc");
+                dGrad.addColorStop(0.5, "#fff");
+                dGrad.addColorStop(1, "#999");
+                
+                ctx.fillStyle = dGrad;
+                ctx.fillRect(diskX, currentY, diskW, layerH);
+                ctx.strokeStyle = "#777";
+                ctx.strokeRect(diskX, currentY, diskW, layerH);
+                
+                remainingMass -= layerMass;
+            }
+        }
+        
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(fmt(mass) + "kg", xCenter, y + height - 8);
+    }
+}
+
+function drawScene() {
+    const camPPM = CONFIG.canvasW / Math.max(4.0, Math.abs(state.curX2 - state.curX1) + 2.2);
+    const camOffset = (state.curX1 + state.curX2) / 2;
+    const ctx = ui.ctx, w = CONFIG.canvasW, h = CONFIG.canvasH;
+    const trackY = CONFIG.trackY; 
+    
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#fcfcfc"; 
+    ctx.fillRect(0, 0, w, h);
+
+    // Bahn
+    const vL = camOffset - (w / 2) / camPPM;
+    const vR = camOffset + (w / 2) / camPPM;
+    
+    ctx.fillStyle = "#444";
+    ctx.fillRect(50, trackY + 40, 20, 40);
+    ctx.fillRect(w - 70, trackY + 40, 20, 40);
+    ctx.fillRect(40, trackY + 75, 40, 5);
+    ctx.fillRect(w - 80, trackY + 75, 40, 5);
+
+    let trackGrad = ctx.createLinearGradient(0, trackY, 0, trackY + 40);
+    trackGrad.addColorStop(0, "#a0a0a0"); 
+    trackGrad.addColorStop(0.1, "#e0e0e0"); 
+    trackGrad.addColorStop(0.4, "#f8f8f8"); 
+    trackGrad.addColorStop(1, "#b0b0b0"); 
+    
+    ctx.fillStyle = trackGrad;
+    ctx.fillRect(0, trackY, w, 40);
+    
+    ctx.beginPath(); ctx.moveTo(0, trackY); ctx.lineTo(w, trackY);
+    ctx.strokeStyle = "#888"; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, trackY+40); ctx.lineTo(w, trackY+40);
+    ctx.stroke();
+
+    ctx.fillStyle = "#666"; ctx.textAlign = "center"; ctx.font = "10px sans-serif";
+    for (let g = Math.floor(vL * 10) / 10; g <= Math.ceil(vR * 10) / 10; g += 0.1) {
+        const gFix = Math.round(g * 10) / 10;
+        let x = toPx(gFix, camPPM, camOffset);
+        
+        const holeY = trackY + 15;
+        
+        if (x > -10 && x < w + 10) {
+            let airGrad = ctx.createLinearGradient(x, holeY, x, holeY - 15);
+            airGrad.addColorStop(0, "rgba(100, 200, 255, 0.4)"); 
+            airGrad.addColorStop(1, "rgba(100, 200, 255, 0.0)");
+            
+            ctx.fillStyle = airGrad;
+            ctx.beginPath();
+            ctx.moveTo(x - 1.5, holeY);
+            ctx.lineTo(x - 3, holeY - 15);
+            ctx.lineTo(x + 3, holeY - 15);
+            ctx.lineTo(x + 1.5, holeY);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.fillStyle = "#111"; 
+            ctx.arc(x, holeY, 2, 0, Math.PI*2);
+            ctx.fill();
+            
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
+            ctx.beginPath(); ctx.arc(x, holeY + 0.5, 2, 0, Math.PI); ctx.fill();
+        }
+
+        if (Math.abs(gFix % 0.5) < 0.01) {
+            ctx.beginPath(); ctx.moveTo(x, trackY + 30); ctx.lineTo(x, trackY + 40);
+            ctx.strokeStyle = "#444"; ctx.stroke();
+            if (Math.abs(gFix % 1.0) < 0.01) {
+                ctx.fillStyle = "#333"; ctx.fillText(gFix.toFixed(0) + "m", x, trackY + 28);
+            }
+        }
+    }
+
+    const sc = camPPM / 100;
+    const gWidthPx = CONFIG.gliderWidthM * camPPM;
+    const gHeightPx = 30 * Math.min(1.4, Math.max(0.9, sc));
+    
+    const px1 = toPx(state.curX1, camPPM, camOffset);
+    const px2 = toPx(state.curX2, camPPM, camOffset);
+
+    const drawAirCushion = (x, width) => {
+        let grad = ctx.createLinearGradient(x, trackY - 4, x, trackY + 2);
+        grad.addColorStop(0, "rgba(100, 200, 255, 0.6)");
+        grad.addColorStop(1, "rgba(100, 200, 255, 0.0)");
+        
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - width/2 + 2, trackY - 4, width - 4, 6);
+    };
+    if (!state.m1_inf) drawAirCushion(px1, gWidthPx);
+    if (!state.m2_inf) drawAirCushion(px2, gWidthPx);
+
+    const hoverY = trackY - 4; 
+
+    const distPx = px2 - px1;
+    const springRestPx = (CONFIG.springRestLengthM / 2) * camPPM;
+    const gapPx = distPx - gWidthPx;
+    let currentSpringLen = springRestPx;
+    if (gapPx < springRestPx * 2) currentSpringLen = Math.max(0, gapPx / 2); 
+
+    const s1Start = px1 + gWidthPx / 2;
+    const s2Start = px2 - gWidthPx / 2;
+
+    if (!state.k_inf) {
+        // endliche Feder
+        drawSpring(ctx, s1Start, hoverY - gHeightPx/2, currentSpringLen, 10 * sc);
+        ctx.save();
+        ctx.translate(s2Start, hoverY - gHeightPx/2);
+        ctx.scale(-1, 1);
+        drawSpring(ctx, 0, 0, currentSpringLen, 10 * sc);
+        ctx.restore();
+    } else {
+        // schwarze unendlich harte „Federn“ mit Ruhelänge = springRestPx
+        const bumperW = springRestPx;
+        ctx.fillStyle = "#222";
+        ctx.fillRect(s1Start,            hoverY - gHeightPx/1.5, bumperW, gHeightPx/3);
+        ctx.fillRect(s2Start - bumperW,  hoverY - gHeightPx/1.5, bumperW, gHeightPx/3);
+    }
+
+    drawGlider3D(ctx, px1, hoverY, gWidthPx, gHeightPx, "#005eb1", state.m1, state.m1_inf);
+    drawGlider3D(ctx, px2, hoverY, gWidthPx, gHeightPx, "#d1002d", state.m2, state.m2_inf);
+
+    // Overlays
+    ui.svgVectors.innerHTML = '';
+    
+    const drawV = (px, v, col) => {
+        if (Math.abs(v) < 0.05) return;
+        const len = v * 80; 
+        const yV = hoverY - gHeightPx - 35; 
+        
+        let l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', px); l.setAttribute('y1', yV); 
+        l.setAttribute('x2', px + len); l.setAttribute('y2', yV);
+        l.setAttribute('stroke', col); l.setAttribute('stroke-width', '3');
+        l.setAttribute('marker-end', col.includes('blue') ? 'url(#arrowhead-blue)' : 'url(#arrowhead-red)');
+        
+        let txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', px + len/2); txt.setAttribute('y', yV - 6);
+        txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', col);
+        txt.setAttribute('font-size', '11'); txt.setAttribute('font-weight', 'bold');
+        txt.textContent = fmt(v, 2) + " m/s"; 
+        
+        ui.svgVectors.appendChild(l); ui.svgVectors.appendChild(txt);
+    };
+
+    if (ui.chkVectors.checked) {
+        if (!state.m1_inf) drawV(px1, state.curV1, 'var(--fh-blue)');
+        if (!state.m2_inf) drawV(px2, state.curV2, 'var(--fh-red)');
+    }
+
+    if (ui.chkCom.checked && !state.m1_inf && !state.m2_inf) {
+        let sPx = toPx((state.m1 * state.curX1 + state.m2 * state.curX2) / (state.m1 + state.m2), camPPM, camOffset);
+        let sY = trackY + 15;
+        
+        ctx.beginPath(); ctx.arc(sPx, sY, 5, 0, Math.PI*2); 
+        ctx.fillStyle = "#fff"; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = "#000"; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sPx, sY-5); ctx.lineTo(sPx, sY+5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sPx-5, sY); ctx.lineTo(sPx+5, sY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sPx, sY); ctx.arc(sPx, sY, 5, 0, Math.PI/2); ctx.lineTo(sPx,sY); ctx.fillStyle="#000"; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(sPx, sY); ctx.arc(sPx, sY, 5, Math.PI, Math.PI*1.5); ctx.lineTo(sPx,sY); ctx.fillStyle="#000"; ctx.fill();
+        
+        ctx.fillStyle = "#333"; ctx.font = "10px sans-serif"; ctx.fillText("S", sPx, sY + 16);
+    }
+}
+
+// --- LOGIK & INITIALISIERUNG ---
+
+function init() {
+    const dpr = window.devicePixelRatio || 1;
+    ui.canvas.width = CONFIG.canvasW * dpr; ui.canvas.height = CONFIG.canvasH * dpr;
+    ui.ctx.scale(dpr, dpr);
+    drawStopwatchMarks();
+    setupListeners();
+    resetSim();
+    loop();
+}
+
+function setupListeners() {
+    const update = () => {
+        if (state.running) return;
+        readInputs();
+        if (state.time === 0) {
+            state.curV1 = state.v1; state.curV2 = state.v2;
+            state.curX1 = state.x1; state.curX2 = state.x2;
+        }
+        preCalculatePhysics();
+        drawScene(); drawGraph(); updateBars();
+    };
+    [ui.slM1, ui.slV1, ui.slM2, ui.slV2, ui.slK].forEach(el => el.addEventListener('input', update));
+    ui.slSpeed.addEventListener('input', () => {
+        state.speedFactor = parseInt(ui.slSpeed.value) / 100;
+        ui.valSpeed.textContent = ui.slSpeed.value + "%";
+    });
+    
+    ui.btnPlay.addEventListener('click', () => { 
+        state.running = true; 
+        ui.btnPlay.disabled = true; 
+        ui.btnPause.disabled = false; 
+        lastTime = performance.now(); 
+        togglePhysicsControls(false);
+    });
+    
+    ui.btnPause.addEventListener('click', () => { 
+        state.running = false; 
+        ui.btnPlay.disabled = false; 
+        ui.btnPause.disabled = true;
+    });
+    
+    ui.btnReset.addEventListener('click', () => { 
+        state.running = false; 
+        ui.btnPlay.disabled = false; 
+        ui.btnPause.disabled = true; 
+        togglePhysicsControls(true);
+        resetSim(); 
+    });
+    
+    ui.chkVectors.addEventListener('change', drawScene);
+    ui.chkCom.addEventListener('change', drawScene);
+    ui.selGraphMode.addEventListener('change', () => {
+        state.graphMode = ui.selGraphMode.value;
+        drawGraph();
+    });
+    ui.btnExport.addEventListener('click', exportCSV);
+}
+
+function readInputs() {
+    const rM1 = parseFloat(ui.slM1.value),
+          rM2 = parseFloat(ui.slM2.value),
+          rK  = parseFloat(ui.slK.value);
+
+    state.m1_inf = rM1 >= CONFIG.infiniteMassThreshold;
+    state.m2_inf = rM2 >= CONFIG.infiniteMassThreshold;
+    state.k_inf  = rK  >= CONFIG.infiniteKThreshold;
+
+    state.m1 = state.m1_inf ? Infinity : rM1;
+    state.m2 = state.m2_inf ? Infinity : rM2;
+    state.k  = state.k_inf  ? Infinity : rK;
+
+    state.v1 = state.m1_inf ? 0 : parseFloat(ui.slV1.value);
+    ui.slV1.disabled = state.m1_inf;
+    state.v2 = state.m2_inf ? 0 : parseFloat(ui.slV2.value);
+    ui.slV2.disabled = state.m2_inf;
+    
+    ui.valM1.textContent = state.m1_inf ? "∞ kg" : fmt(state.m1) + " kg";
+    ui.valV1.textContent = fmt(state.v1) + " m/s"; 
+    ui.valM2.textContent = state.m2_inf ? "∞ kg" : fmt(state.m2) + " kg";
+    ui.valV2.textContent = fmt(state.v2) + " m/s"; 
+    ui.valK.textContent  = state.k_inf  ? "∞ N/m" : fmt(state.k, 0) + " N/m";
+}
+
+function resetSim() {
+    state.time = 0;
+    state.collisionDone = false;
+    state.wasInContact = false;
+    history = [];
+    state.curA1 = 0; state.curA2 = 0;
+
+    readInputs();
+    state.x1 = -0.8; state.x2 = 0.8;
+    state.curX1 = state.x1; state.curV1 = state.v1;
+    state.curX2 = state.x2; state.curV2 = state.v2;
+    preCalculatePhysics();
+    drawScene();
+    drawGraph();
+    updateBars();
+    updateStopwatch(0);
+}
+
+function preCalculatePhysics() {
+    const v1 = state.v1, v2 = state.v2, m1 = state.m1, m2 = state.m2;
+
+    if (state.m1_inf) {
+        state.predV1 = v1;
+        state.predV2 = 2*v1 - v2;
+    } else if (state.m2_inf) {
+        state.predV2 = v2;
+        state.predV1 = 2*v2 - v1;
+    } else {
+        state.predV1 = ((m1 - m2)*v1 + 2*m2*v2) / (m1 + m2);
+        state.predV2 = ((m2 - m1)*v2 + 2*m1*v1) / (m1 + m2);
+    }
+
+    if (v1 > v2) {
+        // Kontaktabstand: immer Wagenbreite + Feder-Ruhelänge
+        const contactDist = CONFIG.gliderWidthM + CONFIG.springRestLengthM;
+
+        const collisionStart = (state.x2 - state.x1 - contactDist) / (v1 - v2);
+        let mu = (state.m1_inf) ? m2 : (state.m2_inf) ? m1 : (m1 * m2) / (m1 + m2);
+
+        state.predDt   = state.k_inf ? 0 : Math.PI * Math.sqrt(mu / state.k);
+        state.predFmax = state.k_inf ? Infinity : Math.abs(v1 - v2) * Math.sqrt(state.k * mu);
+        
+        state.timeFinish = collisionStart + state.predDt;
+        state.autoStopAt = 3.0 * state.timeFinish; 
+    } else {
+        state.timeFinish = 0;
+        state.autoStopAt = 5.0;
+        state.predDt = 0;
+    }
+    ui.outV1p.textContent = "-"; ui.outV2p.textContent = "-";
+    ui.outDt.textContent = (v1 > v2) ? fmt(state.predDt * 1000, 0) + " ms" : "-";
+    ui.outFmax.textContent = (v1 > v2) ? (state.predFmax === Infinity ? "∞" : fmt(state.predFmax, 1)) + " N" : "-";
+}
+
+function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const dtFrame = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    if (state.running) {
+        // Integrationsschritt: 0,1 ms
+        const pDt = 0.00001;
+        const steps = Math.ceil((dtFrame * state.speedFactor) / pDt);
+
+        // Ein gemeinsamer Kontaktabstand: Wagenbreite + Feder-Ruhelänge
+        const contactDist = CONFIG.gliderWidthM + CONFIG.springRestLengthM;
+
+        for (let i = 0; i < steps; i++) {
+            const dist = state.curX2 - state.curX1;
+            
+            let F = 0, inContact = false;
+
+            // Federkraft nur bei endlicher Feder
+            if (!state.k_inf && dist < contactDist) {
+                inContact = true;
+                F = state.k * (contactDist - dist);
+            }
+            
+            if (state.k_inf) {
+                // Harte Kollision: sobald die schwarzen Federn sich berühren
+                if (dist <= contactDist && state.curV1 > state.curV2 && !state.collisionDone) {
+                    state.curV1 = state.predV1;
+                    state.curV2 = state.predV2;
+                    state.collisionDone = true;
+                }
+                state.curA1 = 0;
+                state.curA2 = 0;
+            } else {
+                if (inContact) state.wasInContact = true;
+                if (state.wasInContact && !inContact) state.collisionDone = true;
+                
+                state.curA1 = state.m1_inf ? 0 : -F / state.m1;
+                state.curA2 = state.m2_inf ? 0 :  F / state.m2;
+                
+                state.curV1 += state.curA1 * pDt;
+                state.curV2 += state.curA2 * pDt;
+            }
+
+            state.curX1 += state.curV1 * pDt;
+            state.curX2 += state.curV2 * pDt;
+            state.time  += pDt;
+        }
+        
+        // History nur alle 5 ms loggen (Ausgabeauflösung)
+        if (history.length === 0 || state.time - history[history.length-1].t > 0.005) {
+            const dist = state.curX2 - state.curX1;
+            const contactDist = CONFIG.gliderWidthM + CONFIG.springRestLengthM;
+            const compression = Math.max(0, contactDist - dist);
+
+            const Espring = (state.k_inf || compression <= 0)
+                ? 0
+                : 0.5 * state.k * compression * compression;
+
+            history.push({
+                t:   state.time,
+                v1:  state.curV1,
+                v2:  state.curV2,
+                a1:  state.curA1,
+                a2:  state.curA2,
+                Es:  Espring
+            });
+        }
+        
+        drawScene();
+        drawGraph();
+        updateBars();
+        updateStopwatch(state.time);
+
+        if (state.collisionDone) {
+            ui.outV1p.textContent = fmt(state.predV1, 2) + " m/s";
+            ui.outV2p.textContent = fmt(state.predV2, 2) + " m/s";
+        }
+        if (state.time >= state.autoStopAt) {
+            state.running = false;
+            ui.btnPlay.disabled = false;
+            ui.btnPause.disabled = true;
+        }
+    }
+    animId = requestAnimationFrame(loop);
+}
+
+function updateBars() {
+    let E1 = state.m1_inf ? 0 : 0.5 * state.m1 * state.curV1**2;
+    let E2 = state.m2_inf ? 0 : 0.5 * state.m2 * state.curV2**2;
+    const ET = E1 + E2;
+    ui.barE1.style.width = (ET > 0.001 ? (E1/ET)*100 : 0) + "%";
+    ui.barE2.style.width = (ET > 0.001 ? (E2/ET)*100 : 0) + "%";
+    
+    let p1 = state.m1_inf ? 0 : state.m1 * state.curV1;
+    let p2 = state.m2_inf ? 0 : state.m2 * state.curV2;
+
+    let initP1 = state.m1_inf ? 0 : state.m1 * Math.abs(state.v1);
+    let initP2 = state.m2_inf ? 0 : state.m2 * Math.abs(state.v2);
+    let scale  = Math.max(1.0, (initP1 + initP2) * 1.2);
+
+    const setP = (el, P) => { 
+        let pct = (Math.abs(P) / scale) * 50;
+        pct = Math.min(50, pct); 
+        el.style.width = pct + "%"; 
+        el.style.left  = P >= 0 ? "50%" : "auto"; 
+        el.style.right = P <  0 ? "50%" : "auto"; 
+    };
+    setP(ui.barP1, p1);
+    setP(ui.barP2, p2); 
+    ui.momNote.style.display = (state.m1_inf || state.m2_inf) ? "block" : "none";
+}
+
+function drawGraph() {
+    let targetTMax = state.timeFinish > 0 ? state.timeFinish * 2 : 5.0;
+    const tMax = Math.max(targetTMax, state.time * 1.05);
+    
+    const mode = state.graphMode;
+    let yMin = -2.5, yMax = 2.5, unit = "m/s", label = "Geschw. v";
+    
+    // Auto-Scaling basierend auf History
+    if (history.length > 0) {
+        let vals = [];
+        history.forEach(h => {
+            if (mode === 'v') {
+                vals.push(h.v1, h.v2);
+                unit = "m/s"; label = "Geschw. v";
+            }
+            else if (mode === 'a') {
+                vals.push(h.a1, h.a2);
+                unit = "m/s²"; label = "Beschl. a";
+            }
+            else if (mode === 'p') { 
+                vals.push(
+                    state.m1_inf ? 0 : state.m1*h.v1,
+                    state.m2_inf ? 0 : state.m2*h.v2
+                ); 
+                unit = "kg·m/s"; label = "Impuls p"; 
+            }
+            else if (mode === 'E') { 
+                const E1 = state.m1_inf ? 0 : 0.5*state.m1*h.v1**2;
+                const E2 = state.m2_inf ? 0 : 0.5*state.m2*h.v2**2;
+                const Es = h.Es || 0;
+                vals.push(E1, E2, Es); 
+                unit = "J"; label = "Energie E"; 
+            }
+        });
+        let minV = Math.min(...vals), maxV = Math.max(...vals);
+        if (mode === 'E') minV = 0; 
+        
+        let range = maxV - minV;
+        if (range < 0.1) range = 1.0;
+        yMin = minV - range * 0.1;
+        yMax = maxV + range * 0.1;
+        
+        if (mode !== 'E') {
+            let absMax = Math.max(Math.abs(yMin), Math.abs(yMax));
+            yMin = -absMax; yMax = absMax;
+        }
+    }
+
+    const w = 380, h = 220, p = {l: 45, r: 20, t: 20, b: 35};
+    const plotW = w - p.l - p.r, plotH = h - p.t - p.b;
+    const yRange = yMax - yMin || 1;
+    const g = ui.graphGrid;
+    g.innerHTML = '';
+    
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', p.l); rect.setAttribute('y', p.t);
+    rect.setAttribute('width', plotW); rect.setAttribute('height', plotH);
+    rect.setAttribute('fill', 'none'); rect.setAttribute('stroke', '#eee');
+    g.appendChild(rect);
+    
+    const line = (x1, y1, x2, y2, s) => {
+        let l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+        l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+        l.setAttribute('stroke', s);
+        g.appendChild(l);
+    };
+    
+    // Nulllinie
+    if (yMin <= 0 && yMax >= 0) {
+        let zeroY = p.t + plotH - (0 - yMin)/yRange*plotH;
+        line(p.l, zeroY, w - p.r, zeroY, '#ccc');
+    }
+    line(p.l, p.t, p.l, h - p.b, '#ccc');
+    
+    // X Ticks
+    const tS = getNiceTickStep(tMax, 5);
+    for (let t = 0; t <= tMax + 0.01; t += tS) {
+        let x = p.l + (t/tMax)*plotW;
+        line(x, p.t, x, h-p.b, '#eee');
+        let txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', x); txt.setAttribute('y', h-p.b+15);
+        txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('font-size', '10'); 
+        txt.textContent = fmt(t, 1); 
+        g.appendChild(txt);
+    }
+    
+    // Y Ticks
+    const yS = getNiceTickStep(yRange, 5);
+    for (let v = Math.ceil(yMin/yS)*yS; v <= yMax; v += yS) {
+        let y = p.t + plotH - (v - yMin)/yRange*plotH;
+        if (y >= p.t && y <= h-p.b) {
+            line(p.l, y, w-p.r, y, '#eee');
+            let txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            txt.setAttribute('x', p.l - 5); txt.setAttribute('y', y + 4); 
+            txt.setAttribute('text-anchor', 'end'); txt.setAttribute('font-size', '10'); txt.setAttribute('fill', '#666');
+            txt.textContent = fmt(v, 1); 
+            g.appendChild(txt);
+        }
+    }
+
+    const yL = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    yL.setAttribute('x', 12); yL.setAttribute('y', p.t + plotH/2);
+    yL.setAttribute('transform', `rotate(-90, 12, ${p.t + plotH/2})`);
+    yL.setAttribute('text-anchor', 'middle'); yL.setAttribute('font-size', '11');
+    createStyledSvgText(yL, `${label} / ${unit}`);
+    g.appendChild(yL);
+
+    const xL = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    xL.setAttribute('x', p.l+plotW/2); xL.setAttribute('y', h-5);
+    xL.setAttribute('text-anchor', 'middle'); xL.setAttribute('font-size', '11');
+    createStyledSvgText(xL, 'Zeit <i>t</i> / s');
+    g.appendChild(xL);
+    
+    const sX = t => p.l + (t/tMax)*plotW;
+    const sY = val => p.t + plotH - (val - yMin)/yRange*plotH;
+    
+    let p1 = "", p2 = "", pEs = "";
+    const getVal = (h, idx) => {
+        if (mode === 'v') return idx===1 ? h.v1 : h.v2;
+        if (mode === 'a') return idx===1 ? h.a1 : h.a2;
+        if (mode === 'p') return idx===1
+            ? (state.m1_inf?0:state.m1*h.v1)
+            : (state.m2_inf?0:state.m2*h.v2);
+        if (mode === 'E') {
+            if (idx === 1) return state.m1_inf?0:0.5*state.m1*h.v1**2;
+            if (idx === 2) return state.m2_inf?0:0.5*state.m2*h.v2**2;
+            if (idx === 3) return h.Es || 0;
+        }
+        return 0;
+    };
+
+    history.forEach((pt, i) => { 
+        let v1 = getVal(pt, 1), v2 = getVal(pt, 2);
+        if (i===0) {
+            p1 += `${sX(pt.t)},${sY(v1)} `;
+            p2 += `${sX(pt.t)},${sY(v2)} `;
+        } else {
+            p1 += `${sX(pt.t)},${sY(v1)} `;
+            p2 += `${sX(pt.t)},${sY(v2)} `;
+        }
+
+        if (mode === 'E') {
+            const Es = getVal(pt, 3);
+            pEs += `${sX(pt.t)},${sY(Es)} `;
+        }
+    });
+    
+    if (state.time > 0) {
+        const dist = state.curX2 - state.curX1;
+        const contactDist = CONFIG.gliderWidthM + CONFIG.springRestLengthM;
+        const compression = Math.max(0, contactDist - dist);
+        const EsCur = (state.k_inf || compression <= 0) ? 0 : 0.5 * state.k * compression * compression;
+
+        let curH = {
+            t: state.time,
+            v1: state.curV1,
+            v2: state.curV2,
+            a1: state.curA1,
+            a2: state.curA2,
+            Es: EsCur
+        };
+        let cv1 = getVal(curH, 1), cv2 = getVal(curH, 2);
+        p1 += `${sX(state.time)},${sY(cv1)}`;
+        p2 += `${sX(state.time)},${sY(cv2)}`;
+
+        if (mode === 'E') {
+            const cEs = getVal(curH, 3);
+            pEs += `${sX(state.time)},${sY(cEs)}`;
+        }
+        
+        if (state.time <= tMax) {
+            ui.dotV1.setAttribute('cx', sX(state.time)); ui.dotV1.setAttribute('cy', sY(cv1)); 
+            ui.dotV2.setAttribute('cx', sX(state.time)); ui.dotV2.setAttribute('cy', sY(cv2)); 
+            ui.dotV1.style.display = ui.dotV2.style.display = "block";
+        } else {
+            ui.dotV1.style.display = ui.dotV2.style.display = "none";
+        }
+    }
+    
+    ui.lineV1.setAttribute('points', p1);
+    ui.lineV2.setAttribute('points', p2);
+
+    if (mode === 'E') {
+        ui.lineEs.setAttribute('points', pEs);
+        ui.lineEs.style.display = "block";
+    } else {
+        ui.lineEs.style.display = "none";
+    }
+}
+
+init();
+</script>
+</body>
+</html>

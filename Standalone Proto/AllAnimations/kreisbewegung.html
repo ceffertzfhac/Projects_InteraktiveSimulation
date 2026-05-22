@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Ebene Kreisbewegung (Vektoraddition)</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD; --fh-grey: #7f7f7f;
+            --lcd-bg-color: #c0c4cc;
+            --lcd-segment-off-color: #a8afb8;
+            --lcd-segment-on-color: #333;
+
+            /* Farben für Vektor-Komponenten */
+            --fh-position-x-color: #1f77b4; /* Blau für Px, etwas anders als allgemeines FH-Blue für Unterscheidung */
+            --fh-position-y-color: #2CA02C; /* Grün für Py */
+            --fh-velocity-x-color: #E6B800; /* Dunkelgelb für Vx */
+            --fh-velocity-y-color: var(--fh-red); /* Rot für Vy */
+            --fh-acceleration-x-color: #17becf; /* Türkis für Ax */
+            --fh-acceleration-y-color: #FF7F0E; /* Orange für Ay */ /* Geändert, um vom Rot von Vy abzuweichen */
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 70px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        button:disabled, select:disabled, input[type="checkbox"]:disabled + * { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+        .position-label { color: var(--fh-grey); }
+        .velocity-label { color: var(--fh-orange); }
+        .acceleration-label { color: var(--fh-purple); }
+
+        /* NEU: Farben für die x- und y-Komponenten-Labels im UI */
+        .px-text { color: var(--fh-position-x-color); font-style: italic; }
+        .py-text { color: var(--fh-position-y-color); font-style: italic; }
+        .vx-text { color: var(--fh-velocity-x-color); font-style: italic; }
+        .vy-text { color: var(--fh-velocity-y-color); font-style: italic; }
+        .ax-text { color: var(--fh-acceleration-x-color); font-style: italic; }
+        .ay-text { color: var(--fh-acceleration-y-color); font-style: italic; }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        footer p {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Simulation: Ebene Kreisbewegung</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <!-- Original arrowheads for main vectors -->
+                <marker id="arrowhead-grey" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-grey)" />
+                </marker>
+                <marker id="arrowhead-orange" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-orange)" />
+                </marker>
+                <marker id="arrowhead-purple" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-purple)" />
+                </marker>
+                 <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" />
+                </marker>
+
+                <!-- NEU: Arrowheads für Ortsvektor-Komponenten -->
+                <marker id="arrowhead-position-x" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-position-x-color)" />
+                </marker>
+                <marker id="arrowhead-position-y" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-position-y-color)" />
+                </marker>
+                <!-- NEU: Arrowheads für Geschwindigkeitsvektor-Komponenten (bereits vorhanden von schräger wurf, hier wiederholt zur Klarheit) -->
+                <marker id="arrowhead-velocity-x" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-velocity-x-color)" />
+                </marker>
+                <marker id="arrowhead-velocity-y" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-velocity-y-color)" />
+                </marker>
+                <!-- NEU: Arrowheads für Beschleunigungsvektor-Komponenten -->
+                <marker id="arrowhead-acceleration-x" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-acceleration-x-color)" />
+                </marker>
+                <marker id="arrowhead-acceleration-y" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-acceleration-y-color)" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                <g id="animation_coord_system"></g>
+                <!-- KORRIGIERT: fill-opacity hinzugefügt -->
+                <circle id="disk" fill="#e0e0e0" stroke="#ccc" stroke-width="1" fill-opacity="0.4" />
+                <path id="trajectory_path" d="" fill="none" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4" />
+                <circle id="point" r="8" fill="var(--fh-red)" />
+                
+                <line id="position_vector" stroke="var(--fh-grey)" stroke-width="2.5" marker-end="url(#arrowhead-grey)" visibility="hidden" />
+                <!-- NEU: Komponenten für Ortsvektor -->
+                <line id="position_vector_x" stroke="var(--fh-position-x-color)" stroke-width="2" marker-end="url(#arrowhead-position-x)" visibility="hidden" stroke-dasharray="4,4" />
+                <line id="position_vector_y" stroke="var(--fh-position-y-color)" stroke-width="2" marker-end="url(#arrowhead-position-y)" visibility="hidden" stroke-dasharray="4,4" />
+
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead-orange)" visibility="hidden" />
+                <!-- NEU: Komponenten für Geschwindigkeitsvektor -->
+                <line id="velocity_vector_x" stroke="var(--fh-velocity-x-color)" stroke-width="2" marker-end="url(#arrowhead-velocity-x)" visibility="hidden" stroke-dasharray="4,4" />
+                <line id="velocity_vector_y" stroke="var(--fh-velocity-y-color)" stroke-width="2" marker-end="url(#arrowhead-velocity-y)" visibility="hidden" stroke-dasharray="4,4" />
+
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                <!-- NEU: Komponenten für Beschleunigungsvektor -->
+                <line id="acceleration_vector_x" stroke="var(--fh-acceleration-x-color)" stroke-width="2" marker-end="url(#arrowhead-acceleration-x)" visibility="hidden" stroke-dasharray="4,4" />
+                <line id="acceleration_vector_y" stroke="var(--fh-acceleration-y-color)" stroke-width="2" marker-end="url(#arrowhead-acceleration-y)" visibility="hidden" stroke-dasharray="4,4" />
+                
+                <g id="stopwatch" transform="translate(84, -24) scale(0.595)">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" id="stopwatch_circle" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                    <g id="digital_display_group" visibility="hidden"></g>
+                </g>
+                <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" font-family="monospace" font-size="14px" fill="#555"></text>
+            </g>
+            
+            <g id="graph_group_single" transform="translate(400, 40)" visibility="visible">
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+             <g id="graph_group_stacked_top" transform="translate(400, 20)" visibility="hidden">
+                 <text id="graph_title_top" x="257.5" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_top"></g>
+                 <polyline id="graph_line_top" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_top" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+             <g id="graph_group_stacked_bottom" transform="translate(400, 255)" visibility="hidden">
+                 <text id="graph_title_bottom" x="257.5" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_bottom"></g>
+                 <polyline id="graph_line_bottom" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_bottom" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Radius \(R\):</div>
+                    <input type="range" id="radius_slider" min="0.5" max="2.0" value="1.5" step="0.1">
+                    <div class="value" id="radius_value">1.5 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangswinkel \(\varphi_0\):</div>
+                    <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+                    <div class="value" id="phi0_value">0 °</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Winkelgeschw. \(\omega\):</div>
+                    <input type="range" id="omega_slider" min="-180" max="180" value="60" step="5">
+                    <div class="value" id="omega_value">60 °/s</div>
+                </div>
+                 <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <div class="position-label">
+                        <input type="checkbox" id="toggle_position_vector"> Ortsvektor anzeigen
+                    </div>
+                    <div style="padding-left: 25px;">
+                        <!-- KORRIGIERT: Farbige Span-Tags hinzugefügt -->
+                        <input type="checkbox" id="toggle_position_components"> in <span class="px-text">x</span>-<span class="py-text">y</span> Komponenten zerlegen
+                    </div>
+                    <div class="velocity-label">
+                        <input type="checkbox" id="toggle_velocity_vector"> Geschwindigkeitsvektor anzeigen
+                    </div>
+                    <div style="padding-left: 25px;">
+                        <!-- KORRIGIERT: Farbige Span-Tags hinzugefügt -->
+                        <input type="checkbox" id="toggle_velocity_components"> in <span class="vx-text">x</span>-<span class="vy-text">y</span> Komponenten zerlegen
+                    </div>
+                    <div class="acceleration-label">
+                        <input type="checkbox" id="toggle_acceleration_vector"> Beschleunigungsvektor anzeigen
+                    </div>
+                    <div style="padding-left: 25px;">
+                        <!-- KORRIGIERT: Farbige Span-Tags hinzugefügt -->
+                        <input type="checkbox" id="toggle_acceleration_components"> in <span class="ax-text">x</span>-<span class="ay-text">y</span> Komponenten zerlegen
+                    </div>
+                    <div><input type="checkbox" id="toggle_trajectory"> Bahnverlauf zeichnen</div>
+                    <div><input type="checkbox" id="toggle_xy_stacked"> x/y-Komponenten gleichzeitig</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select"></select> <!-- Inhalt wird dynamisch gefüllt -->
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                    <button id="export_csv_button">Export CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ANIM_CX = 175, ANIM_CY = 240;
+        const DEFAULT_PIXELS_PER_METER = 75;
+        let currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+        let zoomFactor = 1.0;
+        
+        const PIXELS_PER_VELOCITY_UNIT = 20; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5;
+        const TIME_STEP = 1 / 60; 
+
+        let aniFrameId = null; let lastFrameTime = 0; let simulatedTimeElapsed = 0;
+        let R, omega_deg, phi0_deg, omega_rad, phi0_rad, graphType, speedFactor;
+        
+        let full_t_data = [], full_xt_data = [], full_yt_data = [], 
+            full_vxt_data = [], full_vyt_data = [], full_axt_data = [], full_ayt_data = [], 
+            full_vabs_data = [], full_aabs_data = [], full_phit_data = [];
+        
+        let axisLimits = {};
+        let isDigitalDisplay = false; 
+
+        const ui = {
+            disk: document.getElementById('disk'), point: document.getElementById('point'),
+            stopwatch: document.getElementById('stopwatch'),
+            stopwatchCircle: document.getElementById('stopwatch_circle'),
+            mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), 
+            subdial: document.getElementById('subdial'),
+            subdialMarks: document.getElementById('subdial_marks'),     
+            digitalDisplayGroup: document.getElementById('digital_display_group'),
+            zoomTextDisplay: document.getElementById('zoom_text_display'),
+            radiusSlider: document.getElementById('radius_slider'), omegaSlider: document.getElementById('omega_slider'),
+            phi0Slider: document.getElementById('phi0_slider'), radiusValue: document.getElementById('radius_value'),
+            omegaValue: document.getElementById('omega_value'), phi0Value: document.getElementById('phi0_value'),
+            speedRadios: document.querySelectorAll('input[name="speed"]'), graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), 
+            resetButton: document.getElementById('reset_button'),
+            exportButton: document.getElementById('export_csv_button'), 
+            animationCoordSystem: document.getElementById('animation_coord_system'),
+            positionVector: document.getElementById('position_vector'), togglePositionVector: document.getElementById('toggle_position_vector'),
+            positionVectorX: document.getElementById('position_vector_x'),
+            positionVectorY: document.getElementById('position_vector_y'),
+            togglePositionComponents: document.getElementById('toggle_position_components'),
+
+            velocityVector: document.getElementById('velocity_vector'), toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            velocityVectorX: document.getElementById('velocity_vector_x'),
+            velocityVectorY: document.getElementById('velocity_vector_y'),
+            toggleVelocityComponents: document.getElementById('toggle_velocity_components'),
+
+            accelerationVector: document.getElementById('acceleration_vector'), toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            accelerationVectorX: document.getElementById('acceleration_vector_x'),
+            accelerationVectorY: document.getElementById('acceleration_vector_y'),
+            toggleAccelerationComponents: document.getElementById('toggle_acceleration_components'),
+
+            trajectoryPath: document.getElementById('trajectory_path'),
+            toggleTrajectory: document.getElementById('toggle_trajectory'),
+            toggleXYStacked: document.getElementById('toggle_xy_stacked'),
+            graphGroupSingle: document.getElementById('graph_group_single'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'),
+            graphGroupStackedTop: document.getElementById('graph_group_stacked_top'), graphTitleTop: document.getElementById('graph_title_top'),
+            gridGroupTop: document.getElementById('grid_group_top'), graphLineTop: document.getElementById('graph_line_top'),
+            graphPointTop: document.getElementById('graph_point_top'),
+            graphGroupStackedBottom: document.getElementById('graph_group_stacked_bottom'), graphTitleBottom: document.getElementById('graph_title_bottom'),
+            gridGroupBottom: document.getElementById('grid_group_bottom'), graphLineBottom: document.getElementById('graph_line_bottom'),
+            graphPointBottom: document.getElementById('graph_point_bottom'),
+        };
+        
+        const singleGraphOptions = {
+            "Bahnkurve": { "yx": "Bahn <i>y(x)</i>", "xy": "Bahn <i>x(y)</i>" },
+            "Orts-Komponenten": { "xt": "Ort <i>x(t)</i>", "yt": "Ort <i>y(t)</i>" },
+            "Geschwindigkeits-Komponenten": { "vxt": "Geschw. <i>v</i><sub>x</sub><i>(t)</i>", "vyt": "Geschw. <i>v</i><sub>y</sub><i>(t)</i>" },
+            "Beschleunigungs-Komponenten": { "axt": "Beschl. <i>a</i><sub>x</sub><i>(t)</i>", "ayt": "Beschl. <i>a</i><sub>y</sub><i>(t)</i>" },
+            "Beträge & Winkel": { "phit": "Winkel <i>φ(t)</i>", "vabs": "Betrag |<i>v(t)</i>|", "aabs": "Betrag |<i>a(t)</i>|" }
+        };
+        const stackedGraphOptions = { 
+            "Komponenten-Analyse": { "pos": "Ort (<i>x/y</i>)", "vel": "Geschwindigkeit (<i>v</i><sub>x</sub>/<i>v</i><sub>y</sub>)", "acc": "Beschleunigung (<i>a</i><sub>x</sub>/<i>a</i><sub>y</sub>)" }
+        };
+        
+        const scaleX = (x_meters) => ANIM_CX + x_meters * currentPixelsPerMeter; 
+        const scaleY = (y_meters) => ANIM_CY - y_meters * currentPixelsPerMeter;
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        function createStyledSvgText(svgElement, textString) {
+            const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+            let match;
+            while ((match = regex.exec(textString)) !== null) {
+                if (match[1]) { svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1];
+                } else if (match[2]) { svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2];
+                } else if (match[3]) { svgElement.appendChild(document.createTextNode(match[3])); }
+            }
+        }
+
+        function drawAnimationCoordinateSystem() {
+            ui.animationCoordSystem.innerHTML = '';
+            const axis_length = 150;
+            const attrs = { stroke: 'rgba(0,0,0,0.4)', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX - axis_length, y1: ANIM_CY, x2: ANIM_CX + axis_length, y2: ANIM_CY }));
+            const xLabel = createSVGElement('text', { x: ANIM_CX + axis_length + 10, y: ANIM_CY + 4, fill: 'grey' });
+            createStyledSvgText(xLabel, '<i>x</i>');
+            ui.animationCoordSystem.appendChild(xLabel);
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX, y1: ANIM_CY + axis_length, x2: ANIM_CX, y2: ANIM_CY - axis_length }));
+            const yLabel = createSVGElement('text', { x: ANIM_CX - 10, y: ANIM_CY - axis_length - 5, fill: 'grey' });
+            createStyledSvgText(yLabel, '<i>y</i>');
+            ui.animationCoordSystem.appendChild(yLabel);
+        }
+
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; 
+            const cx = 280, cy = 120, r = 72;
+            for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 8 : r - 5; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; 
+            const cx=280, cy=150, r=16;
+            for(let i=0;i<10;i++){const a=(i/10)*2*Math.PI;ui.subdialMarks.appendChild(createSVGElement('line',{x1:cx+(r-3)*Math.sin(a),y1:cy-(r-3)*Math.cos(a),x2:cx+r*Math.sin(a),y2:cy-r*Math.cos(a),stroke:'black','stroke-width':1}))}
+        }
+        
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        
+        function updateGraphs(plotCurrentTime, plotCurrentValue, plotCurrentValueTop = null, plotCurrentValueBottom = null, current_x_phys = null, current_y_phys = null) {
+            const isStacked = ui.toggleXYStacked.checked;
+            ui.graphGroupSingle.style.visibility = isStacked ? 'hidden' : 'visible';
+            ui.graphGroupStackedTop.style.visibility = isStacked ? 'visible' : 'hidden';
+            ui.graphGroupStackedBottom.style.visibility = isStacked ? 'visible' : 'hidden';
+
+            if (isStacked) {
+                ui.graphTitle.textContent = ""; 
+                drawSingleGraph({ elements: { title: ui.graphTitleTop, grid: ui.gridGroupTop, line: ui.graphLineTop, point: ui.graphPointTop }, type: `x-${graphType}`, plotCurrentTime, plotCurrentValue: plotCurrentValueTop });
+                drawSingleGraph({ elements: { title: ui.graphTitleBottom, grid: ui.gridGroupBottom, line: ui.graphLineBottom, point: ui.graphPointBottom }, type: `y-${graphType}`, plotCurrentTime, plotCurrentValue: plotCurrentValueBottom });
+            } else {
+                 drawSingleGraph({ elements: { title: ui.graphTitle, grid: ui.gridGroup, line: ui.graphLine, point: ui.graphPoint }, type: graphType, plotCurrentTime, plotCurrentValue, current_x_phys, current_y_phys });
+            }
+        }
+        
+        function drawSingleGraph({ elements, type, plotCurrentTime, plotCurrentValue, current_x_phys, current_y_phys }) {
+            const { titleEl, gridEl, lineEl, pointEl } = { titleEl: elements.title, gridEl: elements.grid, lineEl: elements.line, pointEl: elements.point };
+            const isStacked = ui.toggleXYStacked.checked;
+            
+            const graphWidth = 480; const graphHeight = isStacked ? 210 : 410;
+            const plotPaddingLeft = 50, plotPaddingBottom = 35, plotPaddingTop = 10, plotPaddingRight = 25;
+            const plotWidth = graphWidth - plotPaddingLeft - plotPaddingRight;
+            const plotHeight = graphHeight - plotPaddingTop - plotPaddingBottom;
+
+            pointEl.style.visibility = 'hidden'; pointEl.setAttribute('cx', -100);
+            gridEl.innerHTML = '';
+            gridEl.appendChild(createSVGElement('rect', { x: plotPaddingLeft, y: plotPaddingTop, width: plotWidth, height: plotHeight, fill: 'white', stroke: '#eee', 'stroke-width': 0.5 })); 
+
+            const typeMap = { 'x-pos': 'xt', 'y-pos': 'yt', 'x-vel': 'vxt', 'y-vel': 'vyt', 'x-acc': 'axt', 'y-acc': 'ayt' };
+            const effectiveType = typeMap[type] || type;
+            const isTrajectoryGraph = ['yx', 'xy'].includes(effectiveType);
+
+            let x_data, y_data, x_axis_min, x_axis_max, y_axis_min, y_axis_max, x_label_text, y_label_text, title_text, plot_x_val, plot_y_val;
+            
+            if (isTrajectoryGraph) {
+                if (!axisLimits.xt || !axisLimits.yt) { lineEl.setAttribute('points', ''); return; }
+                if (effectiveType === 'yx') {
+                    x_data = full_xt_data; y_data = full_yt_data;
+                    x_axis_min = axisLimits.xt.min; x_axis_max = axisLimits.xt.max;
+                    y_axis_min = axisLimits.yt.min; y_axis_max = axisLimits.yt.max;
+                    x_label_text = "Ort <i>x</i> / m"; y_label_text = "Ort <i>y</i> / m";
+                    title_text = "Bahnkurve <i>y(x)</i>";
+                    plot_x_val = current_x_phys; plot_y_val = current_y_phys;
+                } else { // xy
+                    x_data = full_yt_data; y_data = full_xt_data;
+                    x_axis_min = axisLimits.yt.min; x_axis_max = axisLimits.yt.max;
+                    y_axis_min = axisLimits.xt.min; y_axis_max = axisLimits.xt.max;
+                    x_label_text = "Ort <i>y</i> / m"; y_label_text = "Ort <i>x</i> / m";
+                    title_text = "Bahnkurve <i>x(y)</i>";
+                    plot_x_val = current_y_phys; plot_y_val = current_x_phys;
+                }
+            } else {
+                const limits = axisLimits[effectiveType];
+                if (!limits) { lineEl.setAttribute('points', ''); return; }
+                x_data = full_t_data; y_data = limits.full_data;
+                x_axis_min = 0; x_axis_max = limits.t_max;
+                y_axis_min = limits.min; y_axis_max = limits.max;
+                x_label_text = 'Zeit <i>t</i> / s';
+                title_text = isStacked ? `${type.split('-')[1]} vs. Zeit` : `${limits.y_label_text_full} vs. Zeit`;
+                y_label_text = limits.y_label_text_full;
+                plot_x_val = plotCurrentTime; plot_y_val = plotCurrentValue;
+            }
+
+            if (Math.abs(y_axis_max - y_axis_min) < 1e-9) { y_axis_min -= 1; y_axis_max += 1; }
+            if (Math.abs(x_axis_max - x_axis_min) < 1e-9) { x_axis_min -= 1; x_axis_max += 1; }
+
+            const scaleXGraph = (v) => plotPaddingLeft + (((v - x_axis_min) / (x_axis_max - x_axis_min || 1)) * plotWidth);
+            const scaleYGraph = (v) => plotPaddingTop + plotHeight - (((v - y_axis_min) / (y_axis_max - y_axis_min || 1)) * plotHeight);
+            
+            const y0_px = scaleYGraph(0), x0_px = scaleXGraph(0);
+            const y_axis_pos_x = isTrajectoryGraph ? x0_px : plotPaddingLeft;
+
+            const y_tick_step = getNiceTickStep(y_axis_max - y_axis_min, isStacked ? 4 : 8);
+            for (let v = Math.ceil(y_axis_min / y_tick_step) * y_tick_step; v <= y_axis_max + 1e-9; v += y_tick_step) {
+                const y_px = scaleYGraph(v);
+                gridEl.appendChild(createSVGElement('line', { x1: plotPaddingLeft, y1: y_px, x2: plotPaddingLeft + plotWidth, y2: y_px, stroke: '#eee' }));
+                // KORRIGIERT: X-Position der numerischen Labels an die Y-Achse binden
+                let txt = createSVGElement('text', { x: y_axis_pos_x - 8, y: y_px + 4, 'text-anchor': 'end', fill: 'black' });
+                txt.textContent = v.toFixed(y_tick_step % 1 === 0 ? 0 : (y_tick_step < 0.1 ? 2 : 1));
+                gridEl.appendChild(txt);
+            }
+
+            const x_tick_step = getNiceTickStep(x_axis_max - x_axis_min, 10);
+            for (let v = Math.ceil(x_axis_min / x_tick_step) * x_tick_step; v <= x_axis_max + 1e-9; v += x_tick_step) {
+                const x_px = scaleXGraph(v);
+                gridEl.appendChild(createSVGElement('line', { x1: x_px, y1: plotPaddingTop, x2: x_px, y2: plotPaddingTop + plotHeight, stroke: '#eee' }));
+                let txt = createSVGElement('text', { x: x_px, y: y0_px + 15, 'text-anchor': 'middle', fill: 'black' });
+                txt.textContent = v.toFixed(x_tick_step % 1 === 0 ? 0 : 1);
+                gridEl.appendChild(txt);
+            }
+            
+            gridEl.appendChild(createSVGElement('line', { x1: plotPaddingLeft, y1: y0_px, x2: plotPaddingLeft + plotWidth, y2: y0_px, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            gridEl.appendChild(createSVGElement('line', { x1: y_axis_pos_x, y1: plotPaddingTop + plotHeight, x2: y_axis_pos_x, y2: plotPaddingTop, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            
+            const xAxisLabel = createSVGElement('text', { 'font-size': '13px', fill: 'black' });
+            createStyledSvgText(xAxisLabel, x_label_text);
+            gridEl.appendChild(xAxisLabel);
+            
+            const yAxisLabel = createSVGElement('text', { 'font-size': '13px', fill: 'black' });
+            const unit = isTrajectoryGraph ? "" : (effectiveType === 'phit' ? ' / °' : ' / SI-Einheit');
+            createStyledSvgText(yAxisLabel, y_label_text + unit);
+            gridEl.appendChild(yAxisLabel);
+
+            if (isTrajectoryGraph) {
+                xAxisLabel.setAttribute('x', plotPaddingLeft + plotWidth + 6);
+                xAxisLabel.setAttribute('y', y0_px + 5);
+                xAxisLabel.setAttribute('text-anchor', 'start');
+                
+                yAxisLabel.setAttribute('x', y_axis_pos_x + 6);
+                yAxisLabel.setAttribute('y', plotPaddingTop + 12);
+                yAxisLabel.setAttribute('text-anchor', 'start');
+            } else {
+                xAxisLabel.setAttribute('x', plotPaddingLeft + plotWidth / 2);
+                xAxisLabel.setAttribute('y', y0_px + 30);
+                xAxisLabel.setAttribute('text-anchor', 'middle');
+                
+                yAxisLabel.setAttribute('text-anchor', 'middle');
+                yAxisLabel.setAttribute('transform', `rotate(-90, -15, ${plotPaddingTop + plotHeight / 2})`);
+                yAxisLabel.setAttribute('x', -15);
+                yAxisLabel.setAttribute('y', plotPaddingTop + plotHeight / 2);
+            }
+            
+            const titleTextNode = createSVGElement('text', { x: 240, y: isStacked ? 5 : 20, 'text-anchor': 'middle', 'font-size': isStacked ? '14' : '16', fill: 'black' });
+            createStyledSvgText(titleTextNode, title_text);
+            titleEl.innerHTML = ''; titleEl.appendChild(titleTextNode);
+            
+            let p = "";
+            let linePlotIndex = full_t_data.findIndex(t => t > plotCurrentTime);
+            if (linePlotIndex === -1 && full_t_data.length > 0) linePlotIndex = full_t_data.length;
+
+            const x_data_for_line = x_data.slice(0, linePlotIndex);
+            const y_data_for_line = y_data.slice(0, linePlotIndex);
+            for (let i = 0; i < x_data_for_line.length; i++) { p += `${scaleXGraph(x_data_for_line[i])},${scaleYGraph(y_data_for_line[i])} `; }
+            if (plot_x_val !== null && plot_y_val !== null && linePlotIndex < x_data.length) { p += `${scaleXGraph(plot_x_val)},${scaleYGraph(plot_y_val)} `; }
+            lineEl.setAttribute('points', p);
+
+            if (plot_x_val !== null && plot_y_val !== null) {
+                pointEl.setAttribute('cx', scaleXGraph(plot_x_val));
+                pointEl.setAttribute('cy', scaleYGraph(plot_y_val));
+                pointEl.style.visibility = 'visible';
+            }
+        }
+
+        const DIGITAL_DISPLAY_SCALE_FACTOR = 0.85; 
+        const SEG_THICK_BASE = 6; const SEG_LEN_BASE = 40; const DIGIT_SPACING_BASE = 5; 
+        const COLON_WIDTH_BASE = 10; const COLON_DOT_SIZE_BASE = SEG_THICK_BASE * 1.5; 
+        const LCD_FRAME_PADDING_BASE = 10; 
+        const SEG_THICK = SEG_THICK_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const SEG_LEN = SEG_LEN_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const COLON_DOT_SIZE = COLON_DOT_SIZE_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const LCD_FRAME_PADDING = LCD_FRAME_PADDING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const DIGIT_WIDTH = SEG_LEN + 2 * SEG_THICK;
+        const DIGIT_HEIGHT = 2 * SEG_LEN + 3 * SEG_THICK;
+        const INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN = (4 * DIGIT_WIDTH) + (COLON_WIDTH_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + (3 * DIGIT_SPACING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR); 
+        const WIDENING_FACTOR = 1.0; 
+        const WIDENED_TOTAL_CONTENT_WIDTH_FINAL = INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN * WIDENING_FACTOR;
+        const ADDED_SPACE_FOR_WIDENING = WIDENED_TOTAL_CONTENT_WIDTH_FINAL - INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN;
+        const DIGIT_SPACING = (DIGIT_SPACING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + (ADDED_SPACE_FOR_WIDENING / 4); 
+        const COLON_WIDTH = (COLON_WIDTH_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + (ADDED_SPACE_FOR_WIDENING / 4);
+        const DIGITAL_FRAME_WIDTH = WIDENED_TOTAL_CONTENT_WIDTH_FINAL + (2 * LCD_FRAME_PADDING);
+        const DIGITAL_FRAME_HEIGHT = DIGIT_HEIGHT + (2 * LCD_FRAME_PADDING); 
+        const DIGITAL_FRAME_X = 280 - (DIGITAL_FRAME_WIDTH / 2);
+        const DIGITAL_FRAME_Y = 120 - (DIGITAL_FRAME_HEIGHT / 2);
+        const DIGIT_SEGMENTS_MAP = { 0: [0,1,2,3,4,5], 1: [1,2], 2: [0,1,6,4,3], 3: [0,1,6,2,3], 4: [5,6,1,2], 5: [0,5,6,2,3], 6: [0,5,4,3,2,6], 7: [0,1,2], 8: [0,1,2,3,4,5,6], 9: [0,1,2,3,5,6] };
+        function getSegmentRectDefs() { return [ {x:SEG_THICK,y:0,width:SEG_LEN,height:SEG_THICK}, {x:SEG_LEN+SEG_THICK,y:SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_LEN+SEG_THICK,y:SEG_LEN+2*SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_THICK,y:2*SEG_LEN+2*SEG_THICK,width:SEG_LEN,height:SEG_THICK}, {x:0,y:SEG_LEN+2*SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:0,y:SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_THICK,y:SEG_LEN+SEG_THICK,width:SEG_THICK,height:SEG_LEN} ]; }
+        function initDigitalDisplaySegments() { ui.digitalDisplayGroup.innerHTML = ''; ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'digital_display_frame',x:DIGITAL_FRAME_X,y:DIGITAL_FRAME_Y,width:DIGITAL_FRAME_WIDTH,height:DIGITAL_FRAME_HEIGHT,fill:'var(--lcd-bg-color)',stroke:'black','stroke-width':2,rx:8,ry:8})); const c=DIGITAL_FRAME_Y+LCD_FRAME_PADDING,d=getSegmentRectDefs(),e=DIGITAL_FRAME_X+LCD_FRAME_PADDING,f=e+DIGIT_WIDTH+DIGIT_SPACING,g=f+DIGIT_WIDTH+DIGIT_SPACING,h=g+COLON_WIDTH+DIGIT_SPACING,i=h+DIGIT_WIDTH+DIGIT_SPACING,j=[e,f,h,i]; for(let k=0;k<4;k++){d.forEach((l,m)=>{ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:`digit_seg_${k}_${m}`,x:j[k]+l.x,y:c+l.y,width:l.width,height:l.height,fill:'var(--lcd-segment-off-color)',rx:1,ry:1}))})} const n=g+COLON_WIDTH/2,o=c+DIGIT_HEIGHT*.3,p=c+DIGIT_HEIGHT*.7; ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'colon_dot_top',x:n-COLON_DOT_SIZE/2,y:o-COLON_DOT_SIZE/2,width:COLON_DOT_SIZE,height:COLON_DOT_SIZE,fill:'var(--lcd-segment-off-color)',rx:COLON_DOT_SIZE/2,ry:COLON_DOT_SIZE/2})); ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'colon_dot_bottom',x:n-COLON_DOT_SIZE/2,y:p-COLON_DOT_SIZE/2,width:COLON_DOT_SIZE,height:COLON_DOT_SIZE,fill:'var(--lcd-segment-off-color)',rx:COLON_DOT_SIZE/2,ry:COLON_DOT_SIZE/2})); }
+        function updateDigitalDisplay(s) { let t=Math.floor(s%100),u=Math.round(s*100)%100,v=Math.floor(t/10),w=t%10,x=Math.floor(u/10),y=u%10,z=[v,w,x,y]; for(let A=0;A<4;A++){const B=z[A],C=DIGIT_SEGMENTS_MAP[B]; for(let D=0;D<7;D++){const E=document.getElementById(`digit_seg_${A}_${D}`); if(E){if(C.includes(D)){E.setAttribute('fill','var(--lcd-segment-on-color)')}else{E.setAttribute('fill','var(--lcd-segment-off-color)')}}}} document.getElementById('colon_dot_top').setAttribute('fill','var(--lcd-segment-on-color)'); document.getElementById('colon_dot_bottom').setAttribute('fill','var(--lcd-segment-on-color)'); }
+
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt_real = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += dt_real * speedFactor;
+            lastFrameTime = currentTime;
+            
+            if (full_t_data.length > 0 && simulatedTimeElapsed >= full_t_data[full_t_data.length - 1]) {
+                extendMotionData(10); 
+            }
+
+            let i = 0;
+            while (i < full_t_data.length - 1 && full_t_data[i + 1] <= simulatedTimeElapsed) i++;
+
+            if (i >= full_t_data.length - 1) { i = Math.max(0, full_t_data.length - 2); }
+
+            const t1 = full_t_data[i], t2 = full_t_data[i+1];
+            const alpha = (t2 > t1) ? (simulatedTimeElapsed - t1) / (t2 - t1) : 0;
+            const interp = (data) => data[i] + alpha * (data[i+1] - data[i]);
+
+            const x_pos = interp(full_xt_data), y_pos = interp(full_yt_data);
+            const vx = interp(full_vxt_data), vy = interp(full_vyt_data);
+            const ax = interp(full_axt_data), ay = interp(full_ayt_data);
+
+            const cx = scaleX(x_pos), cy = scaleY(y_pos);
+            ui.point.setAttribute('cx', cx); ui.point.setAttribute('cy', cy);
+            
+            ui.disk.style.transform = `rotate(${(-phi0_deg -omega_deg * simulatedTimeElapsed)}deg)`;
+            
+            if (ui.toggleTrajectory.checked) {
+                let d_str = `M ${scaleX(full_xt_data[0])},${scaleY(full_yt_data[0])}`;
+                for (let k = 1; k <= i; k++) d_str += ` L ${scaleX(full_xt_data[k])},${scaleY(full_yt_data[k])}`;
+                d_str += ` L ${cx},${cy}`;
+                ui.trajectoryPath.setAttribute('d', d_str);
+            }
+
+
+            // --- Ortsvektor und seine Komponenten ---
+            if (ui.togglePositionVector.checked) {
+                const showComponents = ui.togglePositionComponents.checked;
+                
+                ui.positionVector.style.visibility = 'visible';
+                const vec_x_diff_px = cx - ANIM_CX;
+                const vec_y_diff_px = cy - ANIM_CY;
+                const current_pixel_len = Math.sqrt(vec_x_diff_px * vec_x_diff_px + vec_y_diff_px * vec_y_diff_px);
+                const shorten_px = 2.5; 
+                const ratio_shorten = (current_pixel_len > shorten_px) ? (current_pixel_len - shorten_px) / current_pixel_len : 0;
+                ui.positionVector.setAttribute('x1', ANIM_CX); ui.positionVector.setAttribute('y1', ANIM_CY);
+                ui.positionVector.setAttribute('x2', ANIM_CX + vec_x_diff_px * ratio_shorten);
+                ui.positionVector.setAttribute('y2', ANIM_CY + vec_y_diff_px * ratio_shorten);
+
+                if (showComponents) {
+                    ui.positionVectorX.style.visibility = 'visible';
+                    ui.positionVectorY.style.visibility = 'visible';
+
+                    // X-Komponente: vom Ursprung zur x-Position auf der Achse
+                    ui.positionVectorX.setAttribute('x1', ANIM_CX);
+                    ui.positionVectorX.setAttribute('y1', ANIM_CY);
+                    ui.positionVectorX.setAttribute('x2', scaleX(x_pos));
+                    ui.positionVectorX.setAttribute('y2', ANIM_CY);
+
+                    // GEÄNDERT: Y-Komponente startet am Ende der X-Komponente
+                    ui.positionVectorY.setAttribute('x1', scaleX(x_pos));
+                    ui.positionVectorY.setAttribute('y1', ANIM_CY);
+                    ui.positionVectorY.setAttribute('x2', scaleX(x_pos));
+                    ui.positionVectorY.setAttribute('y2', scaleY(y_pos));
+                } else {
+                    ui.positionVectorX.style.visibility = 'hidden';
+                    ui.positionVectorY.style.visibility = 'hidden';
+                }
+            } else { // Main toggle is off
+                ui.positionVector.style.visibility = 'hidden';
+                ui.positionVectorX.style.visibility = 'hidden';
+                ui.positionVectorY.style.visibility = 'hidden';
+            }
+
+            // --- Geschwindigkeitsvektor und seine Komponenten ---
+            if (ui.toggleVelocityVector.checked) {
+                const showComponents = ui.toggleVelocityComponents.checked;
+                const end_vx_px = cx + vx * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                const end_vy_px = cy - vy * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+
+                ui.velocityVector.style.visibility = 'visible';
+                ui.velocityVector.setAttribute('x1', cx); ui.velocityVector.setAttribute('y1', cy);
+                ui.velocityVector.setAttribute('x2', end_vx_px); ui.velocityVector.setAttribute('y2', end_vy_px);
+
+                if (showComponents) {
+                    ui.velocityVectorX.style.visibility = 'visible';
+                    ui.velocityVectorY.style.visibility = 'visible';
+
+                    ui.velocityVectorX.setAttribute('x1', cx); ui.velocityVectorX.setAttribute('y1', cy);
+                    ui.velocityVectorX.setAttribute('x2', end_vx_px); ui.velocityVectorX.setAttribute('y2', cy);
+
+                    ui.velocityVectorY.setAttribute('x1', cx); ui.velocityVectorY.setAttribute('y1', cy);
+                    ui.velocityVectorY.setAttribute('x2', cx); ui.velocityVectorY.setAttribute('y2', end_vy_px);
+                } else {
+                    ui.velocityVectorX.style.visibility = 'hidden';
+                    ui.velocityVectorY.style.visibility = 'hidden';
+                }
+            } else { // Main toggle is off
+                ui.velocityVector.style.visibility = 'hidden';
+                ui.velocityVectorX.style.visibility = 'hidden';
+                ui.velocityVectorY.style.visibility = 'hidden';
+            }
+
+            // --- Beschleunigungsvektor und seine Komponenten ---
+            if (ui.toggleAccelerationVector.checked) {
+                const showComponents = ui.toggleAccelerationComponents.checked;
+                const end_ax_px = cx + ax * PIXELS_PER_ACCELERATION_UNIT * zoomFactor;
+                const end_ay_px = cy - ay * PIXELS_PER_ACCELERATION_UNIT * zoomFactor;
+
+                ui.accelerationVector.style.visibility = 'visible';
+                ui.accelerationVector.setAttribute('x1', cx); ui.accelerationVector.setAttribute('y1', cy);
+                ui.accelerationVector.setAttribute('x2', end_ax_px); ui.accelerationVector.setAttribute('y2', end_ay_px);
+
+                if (showComponents) {
+                    ui.accelerationVectorX.style.visibility = 'visible';
+                    ui.accelerationVectorY.style.visibility = 'visible';
+
+                    ui.accelerationVectorX.setAttribute('x1', cx); ui.accelerationVectorX.setAttribute('y1', cy);
+                    ui.accelerationVectorX.setAttribute('x2', end_ax_px); ui.accelerationVectorX.setAttribute('y2', cy);
+
+                    ui.accelerationVectorY.setAttribute('x1', cx); ui.accelerationVectorY.setAttribute('y1', cy);
+                    ui.accelerationVectorY.setAttribute('x2', cx); ui.accelerationVectorY.setAttribute('y2', end_ay_px);
+                } else {
+                    ui.accelerationVectorX.style.visibility = 'hidden';
+                    ui.accelerationVectorY.style.visibility = 'hidden';
+                }
+            } else { // Main toggle is off
+                ui.accelerationVector.style.visibility = 'hidden';
+                ui.accelerationVectorX.style.visibility = 'hidden';
+                ui.accelerationVectorY.style.visibility = 'hidden';
+            }
+            
+            if (isDigitalDisplay) { updateDigitalDisplay(simulatedTimeElapsed);
+            } else {
+                const main_a = (simulatedTimeElapsed % 60 / 60) * 2 * Math.PI, sub_a = (simulatedTimeElapsed % 1) * 2 * Math.PI;
+                ui.mainHand.setAttribute('x2', 280 + 60 * Math.sin(main_a)); ui.mainHand.setAttribute('y2', 120 - 60 * Math.cos(main_a));
+                ui.subHand.setAttribute('x2', 280 + 15 * Math.sin(sub_a)); ui.subHand.setAttribute('y2', 150 - 15 * Math.cos(sub_a));
+            }
+            
+            let currentGraphValue, currentGraphValueTop, currentGraphValueBottom;
+            const isStacked = ui.toggleXYStacked.checked;
+            if(isStacked) {
+                currentGraphValueTop = interp(axisLimits[`xt-${graphType}`].full_data);
+                currentGraphValueBottom = interp(axisLimits[`yt-${graphType}`].full_data);
+            } else {
+                if (axisLimits[graphType]) { currentGraphValue = interp(axisLimits[graphType].full_data); }
+            }
+            
+            updateGraphs(simulatedTimeElapsed, currentGraphValue, currentGraphValueTop, currentGraphValueBottom, x_pos, y_pos);
+            aniFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() {
+            if (aniFrameId) cancelAnimationFrame(aniFrameId);
+            aniFrameId = null;
+            ui.playButton.disabled = false; ui.pauseButton.disabled = true;
+            ui.radiusSlider.disabled = false; ui.omegaSlider.disabled = false; ui.phi0Slider.disabled = false;
+        }
+        
+        function recalculateAxisLimits() {
+            axisLimits = {}; 
+            const t_max_calc = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 10;
+
+            const dataSets = {
+                xt: { data: full_xt_data, label: "Ort <i>x(t)</i>" },
+                yt: { data: full_yt_data, label: "Ort <i>y(t)</i>" },
+                vxt: { data: full_vxt_data, label: "Geschw. <i>v</i><sub>x</sub><i>(t)</i>" },
+                vyt: { data: full_vyt_data, label: "Geschw. <i>v</i><sub>y</sub><i>(t)</i>" },
+                axt: { data: full_axt_data, label: "Beschl. <i>a</i><sub>x</sub><i>(t)</i>" },
+                ayt: { data: full_ayt_data, label: "Beschl. <i>a</i><sub>y</sub><i>(t)</i>" },
+                phit: { data: full_phit_data, label: "Winkel <i>φ(t)</i>" },
+                vabs: { data: full_vabs_data, label: "Betrag |<i>v(t)</i>|" },
+                aabs: { data: full_aabs_data, label: "Betrag |<i>a(t)</i>|" },
+            };
+
+            for (const key in dataSets) {
+                if (dataSets[key].data.length === 0) continue;
+                let min = Math.min(...dataSets[key].data);
+                let max = Math.max(...dataSets[key].data);
+
+                if (['xt', 'yt', 'vxt', 'vyt', 'axt', 'ayt'].includes(key)) {
+                    const max_abs = Math.max(Math.abs(min), Math.abs(max));
+                    min = -max_abs; max = max_abs;
+                }
+                
+                const range = max - min;
+                if (range < 1e-9) { min -= 1; max += 1; } 
+                else { const pad = range * 0.1; min -= pad; max += pad; }
+                if (min > 0 && min < 1e-9 && !['phit', 'vabs', 'aabs'].includes(key)) min = 0;
+                
+                axisLimits[key] = { min, max, t_max: t_max_calc, y_label_text_full: dataSets[key].label, full_data: dataSets[key].data };
+            }
+            axisLimits['xt-pos'] = axisLimits['xt']; axisLimits['yt-pos'] = axisLimits['yt'];
+            axisLimits['xt-vel'] = axisLimits['vxt']; axisLimits['yt-vel'] = axisLimits['vyt'];
+            axisLimits['xt-acc'] = axisLimits['axt']; axisLimits['yt-acc'] = axisLimits['ayt'];
+        }
+
+        function extendMotionData(extend_duration_s) {
+            const last_t = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 0;
+            const new_t_max = last_t + extend_duration_s;
+
+            for (let t = last_t + TIME_STEP; t <= new_t_max; t += TIME_STEP) {
+                const phi_t = phi0_rad + omega_rad * t;
+                full_t_data.push(t);
+                full_xt_data.push(R * Math.cos(phi_t));
+                full_yt_data.push(R * Math.sin(phi_t));
+                full_vxt_data.push(-R * omega_rad * Math.sin(phi_t));
+                full_vyt_data.push(R * omega_rad * Math.cos(phi_t));
+                full_axt_data.push(-R * omega_rad**2 * Math.cos(phi_t));
+                full_ayt_data.push(-R * omega_rad**2 * Math.sin(phi_t));
+                full_vabs_data.push(Math.abs(R * omega_rad));
+                full_aabs_data.push(Math.abs(R * omega_rad**2));
+                full_phit_data.push(phi_t * 180 / Math.PI);
+            }
+            recalculateAxisLimits(); 
+        }
+
+        function precomputeMotionData() {
+            full_t_data = []; full_xt_data = []; full_yt_data = []; full_vxt_data = []; 
+            full_vyt_data = []; full_axt_data = []; full_ayt_data = []; full_vabs_data = []; 
+            full_aabs_data = []; full_phit_data = [];
+            extendMotionData(10);
+        }
+
+        function exportCsvData() {
+            const currentSelection = ui.graphSelect.value;
+            const isTrajectoryGraph = ['yx', 'xy'].includes(currentSelection);
+
+            let csvContent = ""; let fileName = "kreisbewegung_daten.csv";
+            let dataArrays = []; let headers = [];
+
+            if (isTrajectoryGraph) {
+                if(currentSelection === 'yx') {
+                    headers.push("Ort x / m", "Ort y / m");
+                    dataArrays.push(full_xt_data, full_yt_data);
+                    fileName = "kreisbewegung_bahn_yx.csv";
+                } else { // xy
+                    headers.push("Ort y / m", "Ort x / m");
+                    dataArrays.push(full_yt_data, full_xt_data);
+                    fileName = "kreisbewegung_bahn_xy.csv";
+                }
+            } else if (ui.toggleXYStacked.checked) {
+                headers.push("Zeit t / s"); dataArrays.push(full_t_data);
+                const topKey = `xt-${currentSelection}`, bottomKey = `yt-${currentSelection}`;
+                const topLimits = axisLimits[topKey], bottomLimits = axisLimits[bottomKey];
+                headers.push(topLimits.y_label_text_full.replace(/<[^>]*>/g, "") + " (SI)", bottomLimits.y_label_text_full.replace(/<[^>]*>/g, "") + " (SI)");
+                dataArrays.push(topLimits.full_data, bottomLimits.full_data);
+                fileName = `kreisbewegung_stacked_${currentSelection}.csv`;
+            } else {
+                headers.push("Zeit t / s"); dataArrays.push(full_t_data);
+                const limits = axisLimits[currentSelection];
+                headers.push(limits.y_label_text_full.replace(/<[^>]*>/g, "") + " (SI)");
+                dataArrays.push(limits.full_data);
+                fileName = `kreisbewegung_${currentSelection}.csv`;
+            }
+            csvContent += headers.join(',') + '\n';
+            for (let i = 0; i < dataArrays[0].length; i++) {
+                let row = dataArrays.map(arr => arr[i].toFixed(4));
+                csvContent += row.join(',') + '\n';
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.setAttribute('href', URL.createObjectURL(blob));
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+        
+        function updateDropdownOptions(isModeChange) {
+            const isStacked = ui.toggleXYStacked.checked;
+            const options = isStacked ? stackedGraphOptions : singleGraphOptions;
+            let currentSelection = ui.graphSelect.value;
+            
+            const singleToStackedMap = { xt:'pos', yt:'pos', vxt:'vel', vyt:'vel', axt:'acc', ayt:'acc', yx: 'pos', xy: 'pos' };
+            const stackedToSingleMap = { pos:'xt', vel:'vxt', acc:'axt' };
+            
+            if(isModeChange) {
+                currentSelection = isStacked ? (singleToStackedMap[currentSelection] || 'pos') : (stackedToSingleMap[currentSelection] || currentSelection || 'xt');
+            }
+
+            ui.graphSelect.innerHTML = '';
+            for (const groupLabel in options) {
+                const group = document.createElement('optgroup'); group.label = groupLabel;
+                for (const value in options[groupLabel]) {
+                    if (isStacked && ['yx', 'xy'].includes(value)) continue;
+                    const option = document.createElement('option'); option.value = value;
+                    option.innerHTML = options[groupLabel][value]; group.appendChild(option);
+                }
+                ui.graphSelect.appendChild(group);
+            }
+            
+            if (!Array.from(ui.graphSelect.options).some(opt => opt.value === currentSelection)) {
+                currentSelection = isStacked ? 'pos' : 'xt';
+            }
+            ui.graphSelect.value = currentSelection;
+            graphType = ui.graphSelect.value;
+        }
+
+        function resetScene(isModeChange = false, isPlayTrigger = false) {
+            stopAnimation();
+            simulatedTimeElapsed = 0; lastFrameTime = 0;
+            
+            if (!isPlayTrigger) {
+                R = parseFloat(ui.radiusSlider.value);
+                omega_deg = parseFloat(ui.omegaSlider.value);
+                phi0_deg = parseFloat(ui.phi0Slider.value);
+                ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value) });
+                updateDropdownOptions(isModeChange);
+            }
+            graphType = ui.graphSelect.value;
+            
+            ui.radiusValue.textContent = `${R.toFixed(1)} m`;
+            ui.omegaValue.textContent = `${omega_deg} °/s`;
+            ui.phi0Value.textContent = `${phi0_deg} °`;
+
+            omega_rad = omega_deg * Math.PI / 180;
+            phi0_rad = phi0_deg * Math.PI / 180;
+
+            currentPixelsPerMeter = Math.min(DEFAULT_PIXELS_PER_METER, (Math.min(ANIM_CX, ANIM_CY) * 0.9) / R);
+            zoomFactor = currentPixelsPerMeter / DEFAULT_PIXELS_PER_METER;
+            ui.zoomTextDisplay.innerHTML = '';
+            ui.zoomTextDisplay.appendChild(document.createTextNode(`Zoom: ${zoomFactor.toFixed(2)}`));
+            ui.zoomTextDisplay.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = 'x';
+            
+            ui.disk.setAttribute('cx', ANIM_CX); ui.disk.setAttribute('cy', ANIM_CY);
+            ui.disk.setAttribute('r', R * currentPixelsPerMeter);
+            ui.disk.style.transformOrigin = `${ANIM_CX}px ${ANIM_CY}px`;
+            ui.disk.style.transform = `rotate(${-phi0_deg}deg)`;
+
+            ui.trajectoryPath.setAttribute('d', ''); 
+            drawAnimationCoordinateSystem(); drawStopwatchMarks(); drawSubdialMarks();
+
+            const initial_x = R * Math.cos(phi0_rad);
+            const initial_y = R * Math.sin(phi0_rad);
+            const initial_vx = -R * omega_rad * Math.sin(phi0_rad);
+            const initial_vy = R * omega_rad * Math.cos(phi0_rad);
+            const initial_ax = -R * omega_rad**2 * Math.cos(phi0_rad);
+            const initial_ay = -R * omega_rad**2 * Math.sin(phi0_rad);
+
+            const cx_initial = scaleX(initial_x);
+            const cy_initial = scaleY(initial_y);
+            ui.point.setAttribute('cx', cx_initial); ui.point.setAttribute('cy', cy_initial);
+
+            const initVectorDisplay = (mainToggle, compToggle, mainVec, compX, compY, drawMain, drawCompX, drawCompY) => {
+                compToggle.disabled = !mainToggle.checked;
+                if (!mainToggle.checked) {
+                    compToggle.checked = false;
+                }
+
+                if (mainToggle.checked) {
+                    mainVec.style.visibility = 'visible'; // Hauptvektor immer sichtbar
+                    drawMain();
+                    if (compToggle.checked) {
+                        compX.style.visibility = 'visible';
+                        compY.style.visibility = 'visible';
+                        drawCompX();
+                        drawCompY();
+                    } else {
+                        compX.style.visibility = 'hidden';
+                        compY.style.visibility = 'hidden';
+                    }
+                } else {
+                    mainVec.style.visibility = 'hidden';
+                    compX.style.visibility = 'hidden';
+                    compY.style.visibility = 'hidden';
+                }
+            };
+
+            initVectorDisplay(
+                ui.togglePositionVector, ui.togglePositionComponents, ui.positionVector, ui.positionVectorX, ui.positionVectorY,
+                () => { 
+                    const vec_x_diff_px = cx_initial - ANIM_CX;
+                    const vec_y_diff_px = cy_initial - ANIM_CY;
+                    const current_pixel_len = Math.sqrt(vec_x_diff_px * vec_x_diff_px + vec_y_diff_px * vec_y_diff_px);
+                    const shorten_px = 2.5; 
+                    const ratio_shorten = (current_pixel_len > shorten_px) ? (current_pixel_len - shorten_px) / current_pixel_len : 0;
+                    ui.positionVector.setAttribute('x1', ANIM_CX); ui.positionVector.setAttribute('y1', ANIM_CY);
+                    ui.positionVector.setAttribute('x2', ANIM_CX + vec_x_diff_px * ratio_shorten);
+                    ui.positionVector.setAttribute('y2', ANIM_CY + vec_y_diff_px * ratio_shorten);
+                },
+                () => { 
+                    ui.positionVectorX.setAttribute('x1', ANIM_CX); ui.positionVectorX.setAttribute('y1', ANIM_CY);
+                    ui.positionVectorX.setAttribute('x2', scaleX(initial_x)); ui.positionVectorX.setAttribute('y2', ANIM_CY);
+                },
+                () => { // GEÄNDERT: Logik für Vektoraddition
+                    ui.positionVectorY.setAttribute('x1', scaleX(initial_x)); ui.positionVectorY.setAttribute('y1', ANIM_CY);
+                    ui.positionVectorY.setAttribute('x2', scaleX(initial_x)); ui.positionVectorY.setAttribute('y2', scaleY(initial_y));
+                }
+            );
+
+            initVectorDisplay(
+                ui.toggleVelocityVector, ui.toggleVelocityComponents, ui.velocityVector, ui.velocityVectorX, ui.velocityVectorY,
+                () => { 
+                    ui.velocityVector.setAttribute('x1', cx_initial); ui.velocityVector.setAttribute('y1', cy_initial);
+                    ui.velocityVector.setAttribute('x2', cx_initial + initial_vx * PIXELS_PER_VELOCITY_UNIT * zoomFactor);
+                    ui.velocityVector.setAttribute('y2', cy_initial - initial_vy * PIXELS_PER_VELOCITY_UNIT * zoomFactor);
+                },
+                () => { 
+                    ui.velocityVectorX.setAttribute('x1', cx_initial); ui.velocityVectorX.setAttribute('y1', cy_initial);
+                    ui.velocityVectorX.setAttribute('x2', cx_initial + initial_vx * PIXELS_PER_VELOCITY_UNIT * zoomFactor); ui.velocityVectorX.setAttribute('y2', cy_initial);
+                },
+                () => { 
+                    ui.velocityVectorY.setAttribute('x1', cx_initial); ui.velocityVectorY.setAttribute('y1', cy_initial);
+                    ui.velocityVectorY.setAttribute('x2', cx_initial); ui.velocityVectorY.setAttribute('y2', cy_initial - initial_vy * PIXELS_PER_VELOCITY_UNIT * zoomFactor);
+                }
+            );
+
+            initVectorDisplay(
+                ui.toggleAccelerationVector, ui.toggleAccelerationComponents, ui.accelerationVector, ui.accelerationVectorX, ui.accelerationVectorY,
+                () => { 
+                    ui.accelerationVector.setAttribute('x1', cx_initial); ui.accelerationVector.setAttribute('y1', cy_initial);
+                    ui.accelerationVector.setAttribute('x2', cx_initial + initial_ax * PIXELS_PER_ACCELERATION_UNIT * zoomFactor);
+                    ui.accelerationVector.setAttribute('y2', cy_initial - initial_ay * PIXELS_PER_ACCELERATION_UNIT * zoomFactor);
+                },
+                () => { 
+                    ui.accelerationVectorX.setAttribute('x1', cx_initial); ui.accelerationVectorX.setAttribute('y1', cy_initial);
+                    ui.accelerationVectorX.setAttribute('x2', cx_initial + initial_ax * PIXELS_PER_ACCELERATION_UNIT * zoomFactor); ui.accelerationVectorX.setAttribute('y2', cy_initial);
+                },
+                () => { 
+                    ui.accelerationVectorY.setAttribute('x1', cx_initial); ui.accelerationVectorY.setAttribute('y1', cy_initial);
+                    ui.accelerationVectorY.setAttribute('x2', cx_initial); ui.accelerationVectorY.setAttribute('y2', cy_initial - initial_ay * PIXELS_PER_ACCELERATION_UNIT * zoomFactor);
+                }
+            );
+            
+            const isTrajectorySelected = ['yx', 'xy'].includes(graphType);
+            ui.toggleXYStacked.disabled = isTrajectorySelected;
+            if(isTrajectorySelected) ui.toggleXYStacked.checked = false;
+
+            precomputeMotionData();
+            
+            let initialGraphValue, initialGraphValueTop, initialGraphValueBottom;
+            if(ui.toggleXYStacked.checked) {
+                initialGraphValueTop = axisLimits[`xt-${graphType}`]?.full_data[0];
+                initialGraphValueBottom = axisLimits[`yt-${graphType}`]?.full_data[0];
+            } else {
+                initialGraphValue = axisLimits[graphType]?.full_data[0];
+            }
+            updateGraphs(0, initialGraphValue, initialGraphValueTop, initialGraphValueBottom, initial_x, initial_y);
+
+            // KORRIGIERT: Uhr beim Reset auf 0:00 setzen und Zeigerlängen korrigieren
+            if (isDigitalDisplay) {
+                updateDigitalDisplay(0);
+            } else {
+                // Hauptzeiger-Länge: 60px (passend zu r=72 mit etwas Abstand zum Rand)
+                // Subzeiger-Länge: 15px (passend zu r=16 mit etwas Abstand zum Rand)
+                ui.mainHand.setAttribute('x2', 280); ui.mainHand.setAttribute('y2', 120 - 60); 
+                ui.subHand.setAttribute('x2', 280); ui.subHand.setAttribute('y2', 150 - 15);
+            }
+        }
+        
+        function setupEventListeners() {
+            ['input','change'].forEach(e => {
+                ui.radiusSlider.addEventListener(e, ()=>resetScene(false));
+                ui.omegaSlider.addEventListener(e, ()=>resetScene(false));
+                ui.phi0Slider.addEventListener(e, ()=>resetScene(false));
+            });
+            ui.graphSelect.addEventListener('change', ()=>resetScene(false));
+            ui.speedRadios.forEach(r => r.addEventListener('change', ()=>resetScene(false)));
+            
+            ui.togglePositionVector.addEventListener('change', () => {
+                ui.togglePositionComponents.disabled = !ui.togglePositionVector.checked;
+                if (!ui.togglePositionVector.checked) ui.togglePositionComponents.checked = false;
+                resetScene(false);
+            });
+            ui.togglePositionComponents.addEventListener('change', () => resetScene(false));
+
+            ui.toggleVelocityVector.addEventListener('change', () => {
+                ui.toggleVelocityComponents.disabled = !ui.toggleVelocityVector.checked;
+                if (!ui.toggleVelocityVector.checked) ui.toggleVelocityComponents.checked = false;
+                resetScene(false);
+            });
+            ui.toggleVelocityComponents.addEventListener('change', () => resetScene(false));
+
+            ui.toggleAccelerationVector.addEventListener('change', () => {
+                ui.toggleAccelerationComponents.disabled = !ui.toggleAccelerationVector.checked;
+                if (!ui.toggleAccelerationVector.checked) ui.toggleAccelerationComponents.checked = false;
+                resetScene(false);
+            });
+            ui.toggleAccelerationComponents.addEventListener('change', () => resetScene(false));
+
+            ui.toggleTrajectory.addEventListener('change', () => resetScene(false));
+            ui.toggleXYStacked.addEventListener('change', () => resetScene(true));
+
+            ui.playButton.addEventListener('click', () => {
+                if (!aniFrameId) {
+                    if (simulatedTimeElapsed === 0) resetScene(false, true);
+                    ui.playButton.disabled = true; ui.pauseButton.disabled = false;
+                    ui.radiusSlider.disabled = true; ui.omegaSlider.disabled = true;
+                    ui.phi0Slider.disabled = true;
+                    lastFrameTime = 0; 
+                    aniFrameId = requestAnimationFrame(animate);
+                }
+            });
+            ui.pauseButton.addEventListener('click', stopAnimation);
+            ui.resetButton.addEventListener('click', () => {
+                simulatedTimeElapsed = 0;
+                resetScene(false);
+            });
+            ui.exportButton.addEventListener('click', exportCsvData);
+            ui.stopwatch.addEventListener('click', () => {
+                isDigitalDisplay = !isDigitalDisplay;
+                resetScene(false);
+            });
+        }
+
+        window.onload = () => {
+            initDigitalDisplaySegments();
+            setupEventListeners();
+            resetScene(false); // Initialer Reset, um alles korrekt einzustellen
+        };
+    </script>
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8. Alle Rechte vorbehalten.</small></p>
+    </footer>
+
+    <script>
+        // Setzt automatisch das aktuelle Jahr im Copyright-Hinweis
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+        // Öffnet alle Links in einem neuen Tab
+        document.querySelectorAll('a').forEach(a => {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener noreferrer');
+        });
+    </script>
+
+</body>
+</html>

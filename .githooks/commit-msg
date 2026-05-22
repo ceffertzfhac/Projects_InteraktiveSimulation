@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Erzwingt das Conventional-Commits-Format:
+#   <typ>(<scope>): <beschreibung>
+#
+# Erlaubte Typen : feat fix docs style refactor chore test perf ci build revert
+# Erlaubte Scopes: lorentz rolling standalone global repo  (optional)
+
+COMMIT_MSG_FILE=$1
+head_line=$(head -n1 "$COMMIT_MSG_FILE")
+
+# Merge-, Revert-, fixup!- und squash!-Commits überspringen
+echo "$head_line" | grep -qE '^(Merge|Revert|fixup!|squash!)' && exit 0
+
+PATTERN='^(feat|fix|docs|style|refactor|chore|test|perf|ci|build|revert)(\([a-z0-9_-]+\))?(!)?: .{1,}'
+
+if ! echo "$head_line" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "FEHLER: Ungültiges Commit-Nachrichtenformat."
+  echo ""
+  echo "  Erwartet : <typ>(<scope>): <kurzbeschreibung>"
+  echo ""
+  echo "  Typen    : feat | fix | docs | style | refactor | chore | test | perf"
+  echo "  Scopes   : lorentz | rolling | standalone | global | repo  (optional)"
+  echo ""
+  echo "  Beispiele:"
+  echo "    feat(rolling): Ghosting-Snapshots alle 0,5 s hinzugefügt"
+  echo "    fix(lorentz): Federlängen-Fallback bei d < 5 px korrigiert"
+  echo "    docs(rolling): CHANGELOG für v1.9.5 aktualisiert"
+  echo "    chore(repo): .gitignore um .vscode ergänzt"
+  echo ""
+  exit 1
+fi
+
+exit 0

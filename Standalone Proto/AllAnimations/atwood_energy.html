@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Atwoodsche Fallmaschine v7.6 (Final Korrigiert)</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js?packages=base,ams,color">
+    </script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --aperture-color: #d8d8d8;
+            --floor-color: #e0e0e0;
+            --axle-color: #555;
+            --force-g-color: var(--fh-blue);
+            --force-t-color: var(--fh-red);
+            --force-net-color: #ff7f0e;
+            --force-friction-color: #c51b7d; /* Magenta, passend zu Energieverlust */
+            /* Energie-Farben */
+            --energy-kin-color: #ff7f0e; /* Orange */
+            --energy-pot-color: #1f77b4; /* Dunkelblau */
+            --energy-tot-color: #7f7f7f; /* Grau */
+            --energy-loss-color: #c51b7d; /* Magenta */
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+        #main-content { display: flex; gap: 20px; align-items: flex-start; }
+        #main_svg { border: 1px solid var(--border-color); width: 400px; height: 500px; }
+        #graph_container { border: 1px solid var(--border-color); width: 480px; height: 500px; position: relative; }
+        #graph_svg_single, #graph_svg_top, #graph_svg_bottom { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #graph_svg_top { height: 50%; }
+        #graph_svg_bottom { top: 50%; height: 50%; }
+        #controls { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        fieldset { border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-top: 0; }
+        legend { font-weight: bold; color: var(--label-color); padding: 0 5px; font-size: 0.9em; }
+        .slider-group { display: grid; grid-template-columns: 140px 1fr 90px; gap: 10px; align-items: center; }
+        .slider-group .label { text-align: right; color: var(--label-color); }
+        .slider-group .value { font-family: monospace; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        button:disabled, input:disabled, select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa; }
+        .radio-group div, .checkbox-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input, .checkbox-group input { margin-right: 8px; }
+        .info-group .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; margin-bottom: 5px; }
+        .info-group .info-label { color: var(--label-color); }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        #friction-group { display: none; }
+        #friction_note { color: var(--fh-red); font-weight: bold; }
+        .note { font-size: 0.8em; color: #777; margin-top: 5px; }
+        .select-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+        .select-group label { color: var(--label-color); font-size: 0.9em; }
+        footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #888; }
+        
+        #legend_grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0px 20px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.9em; }
+        .legend-color-box { width: 15px; height: 15px; border: 1px solid #ccc; }
+        .legend-line { width: 15px; height: 2px; border: 1px solid #ccc; }
+        #export_buttons_container { display: flex; flex-direction: column; gap: 5px; }
+
+        /* --- STYLES FÜR ENERGIEANZEIGE (HORIZONTAL) --- */
+        #energy_display_container { width: 900px; margin-top: 20px; }
+        #energy_fieldset { width: 100%; box-sizing: border-box; }
+        #energy_bars_container { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .energy-bar-row { display: grid; grid-template-columns: 100px 1fr 85px; align-items: center; font-size: 0.9em; }
+        .energy-bar-label { text-align: right; padding-right: 10px; font-size: 1.1em; }
+        .energy-bar-value { font-family: monospace; font-weight: bold; padding-left: 10px;}
+        .energy-bar-svg-wrapper { height: 16px; background-color: #eee; border: 1px solid #ccc; border-radius: 4px; position: relative;}
+        .energy-bar-svg { width: 100%; height: 100%; display: block; }
+        .energy-bar-center-line { stroke: #aaa; stroke-width: 1; }
+        #energy_note { text-align: center; }
+        #ep_zero_select_group { margin-bottom: 15px; }
+        .energy-separator { height: 1px; background-color: #ddd; margin: 8px 0; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <h1>Interaktive Simulation: Atwoodsche Fallmaschine</h1>
+    <div id="container">
+        <div id="main-content">
+            <svg id="main_svg" viewBox="0 0 400 500">
+                <defs>
+                    <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" /></marker>
+                    <marker id="arrowhead-g" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-g-color)" /></marker>
+                    <marker id="arrowhead-t" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-t-color)" /></marker>
+                    <marker id="arrowhead-net" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-net-color)" /></marker>
+                    <marker id="arrowhead-friction" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-friction-color)" /></marker>
+                </defs>
+                <g id="y_direction_indicator" transform="translate(30, 30)">
+                    <line x1="0" y1="0" x2="0" y2="30" stroke="black" stroke-width="2" marker-end="url(#arrowhead)" />
+                    <text x="5" y="30" font-size="14px" fill="black">y</text>
+                </g>
+                <rect id="ceiling" x="0" y="0" width="400" height="10" fill="#e0e0e0" stroke="#b0b0b0" stroke-width="2" />
+                <polygon id="pulley_mount" fill="#b3b3b3" stroke="#888" />
+                <circle id="pulley" cx="200" cy="50" r="40" fill="#b3b3b3" stroke="#888" />
+                <path id="friction_arrow" fill="none" stroke="var(--force-friction-color)" stroke-width="2.5" marker-end="url(#arrowhead-friction)" visibility="hidden" />
+                <circle id="pulley_axle" cx="200" cy="50" r="5" fill="var(--axle-color)" stroke="#333" />
+                <path id="aperture_path" fill="var(--aperture-color)" stroke="#b0b0b0" />
+                <path id="rope" fill="none" stroke="black" stroke-width="1.05" />
+                <rect id="floor" fill="var(--floor-color)" stroke="#b0b0b0" stroke-width="2" />
+                
+                <g id="ruler_group"></g>
+                <g id="ep_zero_lines_group"></g>
+
+                <g id="mass1_group"><rect id="mass1_rect" fill="var(--fh-blue)" ry="4" /><text id="mass1_label" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₁</text></g>
+                <g id="mass2_group"><rect id="mass2_rect" fill="var(--fh-red)" ry="4" /><text id="mass2_label" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₂</text></g>
+                <line id="force_g1_vector" stroke="var(--force-g-color)" stroke-width="3" marker-end="url(#arrowhead-g)" visibility="hidden" />
+                <line id="force_t1_vector" stroke="var(--force-t-color)" stroke-width="3" marker-end="url(#arrowhead-t)" visibility="hidden" />
+                <line id="force_g2_vector" stroke="var(--force-g-color)" stroke-width="3" marker-end="url(#arrowhead-g)" visibility="hidden" />
+                <line id="force_t2_vector" stroke="var(--force-t-color)" stroke-width="3" marker-end="url(#arrowhead-t)" visibility="hidden" />
+                <line id="force_net1_vector" stroke="var(--force-net-color)" stroke-width="4" marker-end="url(#arrowhead-net)" visibility="hidden" />
+                <line id="force_net2_vector" stroke="var(--force-net-color)" stroke-width="4" marker-end="url(#arrowhead-net)" visibility="hidden" />
+                <g id="stopwatch" transform="translate(340, 65) scale(0.5)">
+                    <circle cx="0" cy="0" r="60" fill="white" stroke="black" stroke-width="2" />
+                    <g id="stopwatch_marks"></g>
+                    <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50" stroke="black" stroke-width="3" />
+                </g>
+            </svg>
+            <div id="graph_container">
+                <svg id="graph_svg_single" viewBox="0 0 480 500">
+                     <text class="graph_title" x="240" y="25" text-anchor="middle" font-size="16px"></text>
+                     <g class="graph_grid"></g>
+                     <polyline class="graph_line_1" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                     <polyline class="graph_line_2" fill="none" stroke="var(--fh-red)" stroke-width="2" />
+                     <circle class="graph_point_1" r="4" fill="var(--fh-blue)" visibility="hidden" />
+                     <circle class="graph_point_2" r="4" fill="var(--fh-red)" visibility="hidden" />
+                </svg>
+                <svg id="graph_svg_top" viewBox="0 0 480 250">
+                     <text class="graph_title" x="240" y="25" text-anchor="middle" font-size="14px"></text>
+                     <g class="graph_grid"></g>
+                     <polyline class="graph_line_1" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                     <circle class="graph_point_1" r="4" fill="var(--fh-blue)" visibility="hidden" />
+                </svg>
+                <svg id="graph_svg_bottom" viewBox="0 0 480 250">
+                     <text class="graph_title" x="240" y="25" text-anchor="middle" font-size="14px"></text>
+                     <g class="graph_grid"></g>
+                     <polyline class="graph_line_1" fill="none" stroke="var(--fh-red)" stroke-width="2" />
+                     <circle class="graph_point_1" r="4" fill="var(--fh-red)" visibility="hidden" />
+                </svg>
+            </div>
+        </div>
+        
+        <div id="energy_display_container">
+            <fieldset id="energy_fieldset">
+                <legend>Energiebilanz</legend>
+                <div class="select-group" id="ep_zero_select_group">
+                    <label for="ep_zero_select">Nullpunkt der potentiellen Energie (\(E_p = 0\)) wählen:</label>
+                    <select id="ep_zero_select">
+                        <option value="separate">Für jede Masse am eigenen Startpunkt</option>
+                        <option value="y1_start">Am Startpunkt von Masse 1</option>
+                        <option value="y2_start">Am Startpunkt von Masse 2</option>
+                    </select>
+                </div>
+                <div id="energy_bars_container">
+                    <!-- Balken werden hier per JS eingefügt -->
+                </div>
+                <div class="note" id="energy_note">
+                    Die Gesamtenergie \(E_{ges}\) ist konstant (ohne Reibung), ihr Wert hängt aber vom gewählten Nullpunkt ab. Skalierung: ±120 J.
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="controls">
+            <div class="control-group">
+                <fieldset>
+                    <legend>Systemparameter</legend>
+                    <div class="slider-group">
+                        <span class="label">Masse 1 \(m_1\):</span>
+                        <input type="range" id="m1_slider" min="1.0" max="4.0" value="3.0" step="0.1">
+                        <span class="value" id="m1_value">3,0 kg</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="label">Masse 2 \(m_2\):</span>
+                        <input type="range" id="m2_slider" min="1.0" max="4.0" value="2.0" step="0.1">
+                        <span class="value" id="m2_value">2,0 kg</span>
+                    </div>
+                     <div class="checkbox-group" style="margin-top: 10px;">
+                        <div><input type="checkbox" id="toggle_friction"> Reibung simulieren</div>
+                     </div>
+                     <div class="slider-group" id="friction-group">
+                        <span class="label">Rollenreibung \(F_R\):</span>
+                        <input type="range" id="friction_slider" min="0.0" max="10.0" value="0.0" step="0.1">
+                        <span class="value" id="friction_value">0,00 N</span>
+                    </div>
+                    <div class="note" id="assumptions_note">Annahmen: Ideales Seil, reibungsfreie, masselose Rolle.</div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Anfangsposition</legend>
+                    <div class="select-group">
+                        <label for="height_mode_select">Einstellungsmodus:</label>
+                        <select id="height_mode_select">
+                            <option value="y1y2">Startposition \(y_1\) und \(y_2\) wählen</option>
+                            <option value="y1diff">Startposition \(y_1\) und Differenz \(\Delta y\) wählen</option>
+                        </select>
+                    </div>
+                    
+                    <div class="slider-group" id="y1_group">
+                        <span class="label" id="y1_label">\(y_1\):</span>
+                        <input type="range" id="y1_slider" min="50" max="200" value="100" step="5">
+                        <span class="value" id="y1_value">100 cm</span>
+                    </div>
+                    
+                    <div class="slider-group" id="y2_group">
+                        <span class="label" id="y2_label">\(y_2\):</span>
+                        <input type="range" id="y2_slider" min="50" max="200" value="100" step="5">
+                        <span class="value" id="y2_value">100 cm</span>
+                    </div>
+
+                    <div class="slider-group" id="diff_group" style="display: none;">
+                        <span class="label" id="diff_label">\(\Delta y = y_2 - y_1\):</span>
+                        <input type="range" id="diff_slider" min="-80" max="80" value="0" step="5">
+                        <span class="value" id="diff_value">0 cm</span>
+                    </div>
+                    <div class="note">\(y_1\) und \(y_2\) beziehen sich auf den Massen-Schwerpunkt. \(y=0\) an der Unterkante der Blende.</div>
+                </fieldset>
+                <fieldset>
+                    <legend>Legende</legend>
+                    <div id="legend_grid">
+                        <div class="legend-item"><div class="legend-color-box" style="background-color: var(--fh-blue);"></div><span id="legend_m1">Masse 1</span></div>
+                        <div class="legend-item"><div class="legend-line" style="background-color: var(--force-g-color);"></div><span id="legend_fg">Gewichtskraft \(\vec{F}_g\)</span></div>
+                        <div class="legend-item"><div class="legend-color-box" style="background-color: var(--fh-red);"></div><span id="legend_m2">Masse 2</span></div>
+                        <div class="legend-item"><div class="legend-line" style="background-color: var(--force-t-color);"></div><span id="legend_ft">Seilkraft \(\vec{F}_S\)</span></div>
+                        <div class="legend-item"><div class="legend-line" style="background-color: var(--force-friction-color);"></div><span id="legend_fr">Reibungskraft \(\vec{F}_R\)</span></div>
+                        <div class="legend-item"><div class="legend-line" style="background-color: var(--force-net-color); height: 3px;"></div><span id="legend_fres">Resultierende Kraft \(\vec{F}_{res}\)</span></div>
+                    </div>
+                </fieldset>
+            </div>
+             <div class="control-group">
+                <fieldset>
+                    <legend>Steuerung & Analyse</legend>
+                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button id="play_button">Play</button>
+                        <button id="pause_button" disabled>Pause</button>
+                        <button id="reset_button">Reset</button>
+                    </div>
+                    <div id="export_buttons_container">
+                        <button id="export_diagram_button">Export Diagramm-Daten (CSV)</button>
+                        <button id="export_all_data_button">Export Alle Daten (CSV)</button>
+                    </div>
+                    <div class="radio-group" style="margin-top: 10px;">
+                        <label>Simulationsgeschwindigkeit:</label>
+                        <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                        <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                        <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                    </div>
+                    <div class="info-group" style="margin-top: 10px;">
+                         <div class="info-row"><span class="info-label" id="a1_label"></span><span class="info-value" id="a1_value">...</span></div>
+                         <div class="info-row"><span class="info-label" id="a2_label"></span><span class="info-value" id="a2_value">...</span></div>
+                         <div class="info-row" id="t1_row"><span class="info-label" id="t1_label"></span><span class="info-value" id="t1_value">...</span></div>
+                         <div class="info-row" id="t2_row"><span class="info-label" id="t2_label"></span><span class="info-value" id="t2_value">...</span></div>
+                         <div class="info-row" id="friction_note_container" style="display: none;"><span id="friction_note" class="info-value"></span></div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Visualisierung</legend>
+                     <div class="checkbox-group">
+                        <div><input type="checkbox" id="toggle_force_vectors"> Kräfte anzeigen</div>
+                        <div style="padding-left: 25px;"><input type="checkbox" id="toggle_net_force_vector" disabled> Resultierende Gesamtkraft anzeigen</div>
+                     </div>
+                     <div class="radio-group" style="margin-top: 10px;">
+                        <label>Diagramm-Modus:</label>
+                        <div><input type="radio" name="graph_mode" value="single" checked> Ein Diagramm</div>
+                        <div><input type="radio" name="graph_mode" value="dual"> Zwei Diagramme</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <select id="graph_select_1"></select>
+                        <select id="graph_select_2" disabled></select>
+                    </div>
+                    <div class="select-group" style="margin-top: 10px;">
+                        <label for="subject_select">Angezeigte Daten:</label>
+                        <select id="subject_select">
+                            <option value="m1">Masse 1</option>
+                            <option value="m2">Masse 2</option>
+                            <option value="both">Beide (m₁ & m₂)</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <footer>
+            <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8</small></p>
+        </footer>
+
+<script>
+    const ui = {
+        m1Slider: document.getElementById('m1_slider'), m2Slider: document.getElementById('m2_slider'),
+        m1Value: document.getElementById('m1_value'), m2Value: document.getElementById('m2_value'),
+        a1Label: document.getElementById('a1_label'), a1Value: document.getElementById('a1_value'), 
+        a2Label: document.getElementById('a2_label'), a2Value: document.getElementById('a2_value'), 
+        t1Label: document.getElementById('t1_label'), t1Value: document.getElementById('t1_value'),
+        t2Label: document.getElementById('t2_label'), t2Value: document.getElementById('t2_value'),
+        t1Row: document.getElementById('t1_row'), t2Row: document.getElementById('t2_row'),
+        playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), resetButton: document.getElementById('reset_button'),
+        exportDiagramButton: document.getElementById('export_diagram_button'),
+        exportAllDataButton: document.getElementById('export_all_data_button'),
+        mass1Group: document.getElementById('mass1_group'), mass2Group: document.getElementById('mass2_group'),
+        mass1Rect: document.getElementById('mass1_rect'), mass2Rect: document.getElementById('mass2_rect'),
+        mass1Label: document.getElementById('mass1_label'), mass2Label: document.getElementById('mass2_label'),
+        rope: document.getElementById('rope'),
+        rulerGroup: document.getElementById('ruler_group'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+        
+        graphModeRadios: document.querySelectorAll('input[name="graph_mode"]'), 
+        graphSelect1: document.getElementById('graph_select_1'),
+        graphSelect2: document.getElementById('graph_select_2'), 
+        subjectSelect: document.getElementById('subject_select'),
+        
+        graphSvgSingle: document.getElementById('graph_svg_single'),
+        graphSvgTop: document.getElementById('graph_svg_top'),
+        graphSvgBottom: document.getElementById('graph_svg_bottom'),
+
+        heightModeSelect: document.getElementById('height_mode_select'),
+        y1Slider: document.getElementById('y1_slider'), y1Value: document.getElementById('y1_value'), y1Group: document.getElementById('y1_group'), y1Label: document.getElementById('y1_label'),
+        y2Slider: document.getElementById('y2_slider'), y2Value: document.getElementById('y2_value'), y2Group: document.getElementById('y2_group'), y2Label: document.getElementById('y2_label'),
+        diffSlider: document.getElementById('diff_slider'), diffValue: document.getElementById('diff_value'), diffGroup: document.getElementById('diff_group'), diffLabel: document.getElementById('diff_label'),
+        
+        aperturePath: document.getElementById('aperture_path'),
+        floor: document.getElementById('floor'),
+        pulleyMount: document.getElementById('pulley_mount'),
+        copyrightYear: document.getElementById('copyright-year'),
+
+        toggleForceVectors: document.getElementById('toggle_force_vectors'),
+        toggleNetForceVector: document.getElementById('toggle_net_force_vector'),
+        forceG1Vector: document.getElementById('force_g1_vector'),
+        forceT1Vector: document.getElementById('force_t1_vector'),
+        forceG2Vector: document.getElementById('force_g2_vector'),
+        forceT2Vector: document.getElementById('force_t2_vector'),
+        forceNet1Vector: document.getElementById('force_net1_vector'),
+        forceNet2Vector: document.getElementById('force_net2_vector'),
+        frictionArrow: document.getElementById('friction_arrow'),
+
+        stopwatch: document.getElementById('stopwatch'),
+        stopwatchMarks: document.getElementById('stopwatch_marks'),
+        stopwatchMainHand: document.getElementById('stopwatch_main_hand'),
+        
+        energyBarsContainer: document.getElementById('energy_bars_container'),
+        energyFieldset: document.getElementById('energy_fieldset'),
+        epZeroSelect: document.getElementById('ep_zero_select'),
+        epZeroLinesGroup: document.getElementById('ep_zero_lines_group'),
+
+        toggleFriction: document.getElementById('toggle_friction'),
+        frictionGroup: document.getElementById('friction-group'),
+        frictionSlider: document.getElementById('friction_slider'),
+        frictionValue: document.getElementById('friction_value'),
+        frictionNoteContainer: document.getElementById('friction_note_container'),
+        frictionNote: document.getElementById('friction_note'),
+        assumptionsNote: document.getElementById('assumptions_note'),
+    };
+
+    const G = 9.81;
+    const CEILING_HEIGHT = 10;
+    const PULLEY_X = 200, PULLEY_R = 40;
+    const PULLEY_Y = CEILING_HEIGHT + PULLEY_R;
+    const APERTURE_THICKNESS_PX = 7.5;
+    const APERTURE_GAP_PX = 10;
+    const APERTURE_HOLE_WIDTH_PX = 8;
+    const SVG_HEIGHT = 500;
+    const PIXELS_PER_METER = 100;
+    const PIXELS_PER_NEWTON = 1.5;
+    const MASS_SIZE_BASE = 30, MASS_SIZE_FACTOR = 2.5;
+    const TIME_STEP = 1 / 60;
+    
+    const Y_APERTURE_BOTTOM_SVG = PULLEY_Y + PULLEY_R + APERTURE_GAP_PX + APERTURE_THICKNESS_PX; 
+    const CM_PER_METER = 100;
+    const Y_MIN_ABS_CM = 0.0; 
+    const Y_MAX_ABS_CM = 350.0;
+    const Y_BOTTOM_SVG = Y_APERTURE_BOTTOM_SVG + (Y_MAX_ABS_CM / CM_PER_METER) * PIXELS_PER_METER;
+
+    const GLOBAL_MAX_ENERGY_FOR_SCALING = 120;
+
+    let m1, m2, a, T1, T2, speedFactor, frictionForce;
+    let y1_phys_start_cm, y2_phys_start_cm, L_cm; 
+    let animFrameId = null;
+    let lastFrameTime = 0;
+    let simulatedTimeElapsed = 0;
+    
+    let full_t_data = [], full_y1_data = [], full_y2_data = [], full_v1_data = [], full_v2_data = [], full_a1_data = [], full_a2_data = [], full_ydiff_data = [];
+    let full_ek1_data = [], full_ek2_data = [], full_ep1_data = [], full_ep2_data = [], full_eges1_data = [], full_eges2_data = [];
+    let full_ek_sum_data = [], full_ep_sum_data = [], full_etot_data = [], full_wr_data = [];
+    let axisLimits = {};
+    
+    let graphCfg = { mode: 'single', type1: 'y', type2: 'v', subject: 'm1' };
+    
+    const graphOptions = {
+        'y': { label: "Position y(t)", unit: "cm" },
+        'v': { label: "Geschwindigkeit v(t)", unit: "m/s" },
+        'a': { label: "Beschleunigung a(t)", unit: "m/s²" },
+        'ydiff': { label: "Höhendifferenz Δy(t)", unit: "cm" },
+        'ek': { label: "Kinetische Energie E<sub>k</sub>(t)", unit: "J" },
+        'ep': { label: "Potentielle Energie E<sub>p</sub>(t)", unit: "J" },
+        'eges': { label: "Gesamtenergie E<sub>ges</sub>(t)", unit: "J" },
+        'wr': { label: "Energieverlust W<sub>R</sub>(t)", unit: "J" },
+    };
+
+    function formatNumber(num, digits = 2) {
+        if (typeof num !== 'number' || isNaN(num)) {
+            return '...';
+        }
+        return num.toFixed(digits).replace('.', ',');
+    }
+
+    function createSVGElement(tag, attributes) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const key in attributes) el.setAttribute(key, attributes[key]);
+        return el;
+    }
+    
+    function createStyledSvgText(svgElement, textString) {
+        const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+        let match;
+        svgElement.innerHTML = '';
+        while ((match = regex.exec(textString)) !== null) {
+            if (match[1]) { 
+                svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1];
+            } else if (match[2]) {
+                svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2];
+            } else if (match[3]) {
+                svgElement.appendChild(document.createTextNode(match[3]));
+            }
+        }
+    }
+
+    function updateAnalysisLabels() {
+        const a1 = a;
+        const a2 = -a;
+        ui.a1Label.innerHTML = `Beschleunigung \\(a_1\\):`; ui.a1Value.innerHTML = `${formatNumber(a1, 3)} m/s²`;
+        ui.a2Label.innerHTML = `Beschleunigung \\(a_2\\):`; ui.a2Value.innerHTML = `${formatNumber(a2, 3)} m/s²`;
+
+        // Seilkräfte immer anzeigen
+        ui.t1Row.style.display = 'flex';
+        ui.t2Row.style.display = 'flex';
+        ui.t1Label.innerHTML = `Seilkraft \\(F_{S1}\\):`; ui.t1Value.innerHTML = `${formatNumber(T1, 2)} N`;
+        ui.t2Label.innerHTML = `Seilkraft \\(F_{S2}\\):`; ui.t2Value.innerHTML = `${formatNumber(T2, 2)} N`;
+
+        MathJax.typesetPromise([ui.a1Label, ui.a2Label, ui.t1Label, ui.t2Label, ui.epZeroSelect.parentElement]);
+    }
+    
+    function updatePositionsAndSliders() {
+        const mode = ui.heightModeSelect.value;
+        
+        let y1 = parseFloat(ui.y1Slider.value);
+        let y2 = parseFloat(ui.y2Slider.value);
+        let L = 0, diff = 0;
+        
+        ui.y1Group.style.display = 'grid';
+        ui.y2Group.style.display = (mode === 'y1y2') ? 'grid' : 'none';
+        ui.diffGroup.style.display = (mode === 'y1diff') ? 'grid' : 'none';
+
+        if (mode === 'y1diff') {
+            diff = parseFloat(ui.diffSlider.value);
+            y2 = y1 + diff; 
+            L = y1 + y2;
+        } else {
+            L = y1 + y2;
+            diff = y2 - y1;
+        }
+
+        y1_phys_start_cm = y1;
+        y2_phys_start_cm = y2;
+        L_cm = L;
+        
+        ui.y1Value.textContent = `${formatNumber(y1, 0)} cm`;
+        ui.y2Value.textContent = `${formatNumber(y2, 0)} cm`;
+        ui.diffValue.textContent = `${formatNumber(diff, 0)} cm`;
+        
+        resetScene(); 
+    }
+
+    function resetScene(isPlayTrigger = false) {
+        stopAnimation();
+        if (!isPlayTrigger) {
+            simulatedTimeElapsed = 0;
+            lastFrameTime = 0;
+        }
+
+        m1 = parseFloat(ui.m1Slider.value); m2 = parseFloat(ui.m2Slider.value);
+        frictionForce = ui.toggleFriction.checked ? parseFloat(ui.frictionSlider.value) : 0;
+        ui.frictionValue.textContent = `${formatNumber(frictionForce, 2)} N`;
+        ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+        
+        ui.m1Value.textContent = `${formatNumber(m1, 1)} kg`; ui.m2Value.textContent = `${formatNumber(m2, 1)} kg`;
+        
+        if (ui.toggleFriction.checked) {
+            ui.assumptionsNote.textContent = 'Annahmen: Ideales Seil, masselose Rolle.';
+        } else {
+            ui.assumptionsNote.textContent = 'Annahmen: Ideales Seil, reibungsfreie, masselose Rolle.';
+        }
+        
+        precomputeMotionData();
+        
+        // Berechne die Seilkräfte basierend auf der Beschleunigung a (von m1)
+        // Diese Formeln sind universell gültig.
+        T1 = m1 * (G - a);
+        T2 = m2 * (G + a);
+        
+        const y1_start = y1_phys_start_cm / CM_PER_METER;
+        const y2_start = y2_phys_start_cm / CM_PER_METER;
+        
+        ui.playButton.disabled = false; ui.pauseButton.disabled = true;
+        [ui.m1Slider, ui.m2Slider, ui.y1Slider, ui.y2Slider, ui.diffSlider, ui.heightModeSelect, ui.epZeroSelect, ui.toggleFriction, ui.frictionSlider].forEach(el => el.disabled = false);
+
+        drawStaticElements();
+        drawEpZeroLines();
+        updateVisualPositions(y1_start, y2_start);
+        drawVectors(y1_start, y2_start);
+        drawEnergyBars(0);
+        updateGraphs(0);
+        updateAnalysisLabels();
+    }
+
+    function drawStaticElements() {
+        const aperture_y_start = Y_APERTURE_BOTTOM_SVG - APERTURE_THICKNESS_PX;
+        const h1_x_start = PULLEY_X - PULLEY_R - APERTURE_HOLE_WIDTH_PX / 2;
+        const h2_x_start = PULLEY_X + PULLEY_R - APERTURE_HOLE_WIDTH_PX / 2;
+
+        const path_d = `M 0 ${aperture_y_start} L 400 ${aperture_y_start} L 400 ${Y_APERTURE_BOTTOM_SVG} L 0 ${Y_APERTURE_BOTTOM_SVG} Z` +
+            ` M ${h1_x_start} ${aperture_y_start} L ${h1_x_start + APERTURE_HOLE_WIDTH_PX} ${aperture_y_start} L ${h1_x_start + APERTURE_HOLE_WIDTH_PX} ${Y_APERTURE_BOTTOM_SVG} L ${h1_x_start} ${Y_APERTURE_BOTTOM_SVG} Z` +
+            ` M ${h2_x_start} ${aperture_y_start} L ${h2_x_start + APERTURE_HOLE_WIDTH_PX} ${aperture_y_start} L ${h2_x_start + APERTURE_HOLE_WIDTH_PX} ${Y_APERTURE_BOTTOM_SVG} L ${h2_x_start} ${Y_APERTURE_BOTTOM_SVG} Z`;
+        ui.aperturePath.setAttribute('d', path_d);
+        ui.aperturePath.setAttribute('fill-rule', 'evenodd');
+        
+        ui.floor.setAttribute('x', 0); ui.floor.setAttribute('y', Y_BOTTOM_SVG);
+        ui.floor.setAttribute('width', 400); ui.floor.setAttribute('height', 10);
+        
+        const mount_y = CEILING_HEIGHT;
+        const mount_x1 = PULLEY_X - PULLEY_R;
+        const mount_x2 = PULLEY_X + PULLEY_R;
+        ui.pulleyMount.setAttribute('points', `${mount_x1},${mount_y} ${mount_x2},${mount_y} ${PULLEY_X},${PULLEY_Y}`);
+    }
+    
+    function drawEpZeroLines() {
+        ui.epZeroLinesGroup.innerHTML = '';
+        const epZeroMode = ui.epZeroSelect.value;
+
+        const posToSvgY = (y_cm) => Y_APERTURE_BOTTOM_SVG + (y_cm / CM_PER_METER) * PIXELS_PER_METER;
+
+        const drawLine = (y_cm, color) => {
+            const y_svg = posToSvgY(y_cm);
+            ui.epZeroLinesGroup.appendChild(createSVGElement('line', {
+                x1: 0, y1: y_svg, x2: 400, y2: y_svg,
+                stroke: color, 'stroke-width': 1.5, 'stroke-dasharray': '5,5',
+            }));
+        };
+
+        if (epZeroMode === 'y1_start') {
+            drawLine(y1_phys_start_cm, '#888');
+        } else if (epZeroMode === 'y2_start') {
+            drawLine(y2_phys_start_cm, '#888');
+        } else if (epZeroMode === 'separate') {
+            drawLine(y1_phys_start_cm, 'var(--fh-blue)');
+            drawLine(y2_phys_start_cm, 'var(--fh-red)');
+        }
+    }
+
+    function updateVisualPositions(y1_abs_phys_m, y2_abs_phys_m) {
+        const m1_size = MASS_SIZE_BASE + m1 * MASS_SIZE_FACTOR;
+        const m2_size = MASS_SIZE_BASE + m2 * MASS_SIZE_FACTOR;
+        
+        const y1_svg_center = Y_APERTURE_BOTTOM_SVG + y1_abs_phys_m * PIXELS_PER_METER;
+        const y2_svg_center = Y_APERTURE_BOTTOM_SVG + y2_abs_phys_m * PIXELS_PER_METER; 
+        
+        ui.mass1Rect.setAttribute('width', m1_size); ui.mass1Rect.setAttribute('height', m1_size);
+        ui.mass1Label.setAttribute('x', m1_size/2); ui.mass1Label.setAttribute('y', m1_size/2);
+        ui.mass2Rect.setAttribute('width', m2_size); ui.mass2Rect.setAttribute('height', m2_size);
+        ui.mass2Label.setAttribute('x', m2_size/2); ui.mass2Label.setAttribute('y', m2_size/2);
+
+        ui.mass1Group.setAttribute('transform', `translate(${PULLEY_X - PULLEY_R - m1_size/2}, ${y1_svg_center - m1_size/2})`);
+        ui.mass2Group.setAttribute('transform', `translate(${PULLEY_X + PULLEY_R - m2_size/2}, ${y2_svg_center - m2_size/2})`);
+        
+        const ropePath = `M ${PULLEY_X - PULLEY_R} ${y1_svg_center} V ${PULLEY_Y} A ${PULLEY_R} ${PULLEY_R} 0 0 1 ${PULLEY_X + PULLEY_R} ${PULLEY_Y} V ${y2_svg_center}`;
+        ui.rope.setAttribute('d', ropePath);
+    }
+
+    function drawVectors(y1_abs_phys_m, y2_abs_phys_m) {
+        const show = ui.toggleForceVectors.checked;
+        const showNet = ui.toggleNetForceVector.checked;
+        ui.toggleNetForceVector.disabled = !show;
+
+        [ui.forceG1Vector, ui.forceT1Vector, ui.forceG2Vector, ui.forceT2Vector, ui.frictionArrow, ui.forceNet1Vector, ui.forceNet2Vector].forEach(v => v.style.visibility = 'hidden');
+        if (!show) return;
+
+        [ui.forceG1Vector, ui.forceT1Vector, ui.forceG2Vector, ui.forceT2Vector].forEach(v => v.style.visibility = 'visible');
+        [ui.forceNet1Vector, ui.forceNet2Vector].forEach(v => v.style.visibility = showNet ? 'visible' : 'hidden');
+
+        const y1_svg_center = Y_APERTURE_BOTTOM_SVG + y1_abs_phys_m * PIXELS_PER_METER;
+        const y2_svg_center = Y_APERTURE_BOTTOM_SVG + y2_abs_phys_m * PIXELS_PER_METER;
+        const x1_center = PULLEY_X - PULLEY_R;
+        const x2_center = PULLEY_X + PULLEY_R;
+
+        const Fg1 = m1 * G;
+        const Fg2 = m2 * G;
+        const Fg1_len = Fg1 * PIXELS_PER_NEWTON;
+        const Fg2_len = Fg2 * PIXELS_PER_NEWTON;
+        const T1_len = T1 * PIXELS_PER_NEWTON;
+        const T2_len = T2 * PIXELS_PER_NEWTON;
+
+        ui.forceG1Vector.setAttribute('x1', x1_center); ui.forceG1Vector.setAttribute('y1', y1_svg_center);
+        ui.forceG1Vector.setAttribute('x2', x1_center); ui.forceG1Vector.setAttribute('y2', y1_svg_center + Fg1_len);
+        ui.forceT1Vector.setAttribute('x1', x1_center); ui.forceT1Vector.setAttribute('y1', y1_svg_center);
+        ui.forceT1Vector.setAttribute('x2', x1_center); ui.forceT1Vector.setAttribute('y2', y1_svg_center - T1_len);
+
+        ui.forceG2Vector.setAttribute('x1', x2_center); ui.forceG2Vector.setAttribute('y1', y2_svg_center);
+        ui.forceG2Vector.setAttribute('x2', x2_center); ui.forceG2Vector.setAttribute('y2', y2_svg_center + Fg2_len);
+        ui.forceT2Vector.setAttribute('x1', x2_center); ui.forceT2Vector.setAttribute('y1', y2_svg_center);
+        ui.forceT2Vector.setAttribute('x2', x2_center); ui.forceT2Vector.setAttribute('y2', y2_svg_center - T2_len);
+
+        if (showNet) {
+            const Fnet1 = m1 * a; // Kraft in Richtung der positiven y-Achse (runter)
+            const Fnet2 = m2 * (-a); // Kraft in Richtung der positiven y-Achse (runter)
+            const Fnet1_len = Math.abs(Fnet1) * PIXELS_PER_NEWTON;
+            const Fnet2_len = Math.abs(Fnet2) * PIXELS_PER_NEWTON;
+
+            ui.forceNet1Vector.setAttribute('x1', x1_center); ui.forceNet1Vector.setAttribute('y1', y1_svg_center);
+            ui.forceNet1Vector.setAttribute('x2', x1_center); ui.forceNet1Vector.setAttribute('y2', y1_svg_center + Fnet1_len * Math.sign(Fnet1));
+            ui.forceNet2Vector.setAttribute('x1', x2_center); ui.forceNet2Vector.setAttribute('y1', y2_svg_center);
+            ui.forceNet2Vector.setAttribute('x2', x2_center); ui.forceNet2Vector.setAttribute('y2', y2_svg_center + Fnet2_len * Math.sign(Fnet2));
+        }
+
+        // Reibungspfeil
+        if (frictionForce > 0 && Math.abs(a) > 1e-9) {
+            ui.frictionArrow.style.visibility = 'visible';
+            const arcRadius = PULLEY_R * 0.5;
+            
+            const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+                const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+                return {
+                    x: centerX + (radius * Math.cos(angleInRadians)),
+                    y: centerY + (radius * Math.sin(angleInRadians))
+                };
+            }
+
+            const angle1 = -160; // Linker Punkt des Bogens
+            const angle2 = -20;  // Rechter Punkt des Bogens
+            const point1 = polarToCartesian(PULLEY_X, PULLEY_Y, arcRadius, angle1);
+            const point2 = polarToCartesian(PULLEY_X, PULLEY_Y, arcRadius, angle2);
+            
+            let startPoint, endPoint, sweepFlag;
+
+            if (a < 0) {
+                // m1 bewegt sich runter -> Drehung IM Uhrzeigersinn. Reibung muss GEGEN den Uhrzeigersinn sein.
+                // Pfeil geht von rechts (point2) nach links (point1).
+                startPoint = point2;
+                endPoint = point1;
+                sweepFlag = 0; // 0 für Bogen GEGEN den Uhrzeigersinn
+            } else { // a < 0
+                // m2 bewegt sich runter -> Drehung GEGEN den Uhrzeigersinn. Reibung muss IM Uhrzeigersinn sein.
+                // Pfeil geht von links (point1) nach rechts (point2).
+                startPoint = point1;
+                endPoint = point2;
+                sweepFlag = 1; // 1 für Bogen IM Uhrzeigersinn
+            }
+
+            const d = [
+                "M", startPoint.x, startPoint.y, 
+                "A", arcRadius, arcRadius, 0, 0, sweepFlag, endPoint.x, endPoint.y
+            ].join(" ");
+            
+            ui.frictionArrow.setAttribute("d", d);
+        }
+    }
+    
+    function drawEnergyBars(time) {
+        const container = ui.energyBarsContainer;
+        container.innerHTML = '';
+        if (full_t_data.length < 2) return;
+
+        let i = 0;
+        while (i < full_t_data.length - 1 && full_t_data[i + 1] <= time) i++;
+        const alpha = (full_t_data[i+1] > full_t_data[i]) ? (time - full_t_data[i]) / (full_t_data[i+1] - full_t_data[i]) : 0;
+        const interp = (data) => data[i] + alpha * ((data[i+1] || data[i]) - data[i]);
+
+        const energyData = [
+            // Masse 1
+            { label: 'E_{k,1}', value: interp(full_ek1_data), color: 'var(--energy-kin-color)'},
+            { label: 'E_{p,1}', value: interp(full_ep1_data), color: 'var(--energy-pot-color)'},
+            { label: 'E_{ges,1}', value: interp(full_eges1_data), color: 'var(--energy-tot-color)'},
+            { type: 'separator' },
+            // Masse 2
+            { label: 'E_{k,2}', value: interp(full_ek2_data), color: 'var(--energy-kin-color)'},
+            { label: 'E_{p,2}', value: interp(full_ep2_data), color: 'var(--energy-pot-color)'},
+            { label: 'E_{ges,2}', value: interp(full_eges2_data), color: 'var(--energy-tot-color)'},
+            { type: 'separator' },
+            // Gesamtsystem
+            { label: 'E_{k,ges}', value: interp(full_ek_sum_data), color: 'var(--energy-kin-color)'},
+            { label: 'E_{p,ges}', value: interp(full_ep_sum_data), color: 'var(--energy-pot-color)'},
+            { label: 'E_{ges}', value: interp(full_etot_data), color: 'var(--energy-tot-color)'},
+            { label: 'E_{Verlust}', value: -interp(full_wr_data), color: 'var(--energy-loss-color)'},
+        ];
+        
+        const BAR_W_PX = 100;
+        const BAR_H_PX = 16;
+        const scaleE = (E) => (Math.abs(E) / GLOBAL_MAX_ENERGY_FOR_SCALING) * (BAR_W_PX / 2);
+        const CENTER_X = BAR_W_PX / 2;
+
+        energyData.forEach((data) => {
+            if (data.type === 'separator') {
+                const sepDiv = document.createElement('div');
+                sepDiv.className = 'energy-separator';
+                container.appendChild(sepDiv);
+                return;
+            }
+
+            const w = scaleE(data.value);
+            const x = (data.value >= 0) ? CENTER_X : CENTER_X - w;
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'energy-bar-row';
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'energy-bar-label';
+            labelDiv.innerHTML = `\\(${data.label}\\):`;
+            
+            const svgWrapper = document.createElement('div');
+            svgWrapper.className = 'energy-bar-svg-wrapper';
+            
+            const svgEl = createSVGElement('svg', { class: 'energy-bar-svg', viewBox: `0 0 ${BAR_W_PX} ${BAR_H_PX}`, preserveAspectRatio: 'none' });
+            
+            svgEl.appendChild(createSVGElement('line', { x1: CENTER_X, y1: 0, x2: CENTER_X, y2: BAR_H_PX, class: 'energy-bar-center-line' }));
+            svgEl.appendChild(createSVGElement('rect', { x: x, y: 0, width: w, height: BAR_H_PX, fill: data.color }));
+            svgWrapper.appendChild(svgEl);
+
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'energy-bar-value';
+            valueDiv.textContent = formatNumber(data.value, 2) + ' J';
+
+            rowDiv.appendChild(labelDiv);
+            rowDiv.appendChild(svgWrapper);
+            rowDiv.appendChild(valueDiv);
+            container.appendChild(rowDiv);
+        });
+
+        MathJax.typesetPromise([container]);
+    }
+
+    function getNiceTickStep(range, ticks) { 
+        if(range < 1e-9) return 1;
+        const m = range / ticks, e = Math.floor(Math.log10(m)), p = 10**e;
+        let n = m / p;
+        if(n <= 1) n = 1; else if(n <= 2) n = 2; else if(n <= 5) n = 5; else n = 10;
+        return n * p;
+    }
+
+    function drawRuler() { 
+        ui.rulerGroup.innerHTML = ''; 
+        const RULER_X_START = 80; 
+        const Y_MAX_M = Y_MAX_ABS_CM / CM_PER_METER; 
+
+        for (let cm = 0; cm <= Y_MAX_ABS_CM; cm += 10) { 
+            const m = cm / CM_PER_METER;
+            const y_mid_svg = Y_APERTURE_BOTTOM_SVG + m * PIXELS_PER_METER; 
+            if (y_mid_svg > Y_BOTTOM_SVG - 5) break; 
+
+            const isMajor = (cm % 50 === 0); 
+            const len = isMajor ? 10 : 5; 
+            
+            ui.rulerGroup.appendChild(createSVGElement('line', {x1: RULER_X_START, y1: y_mid_svg, x2: RULER_X_START - len, y2: y_mid_svg, stroke: 'black'})); 
+            
+            if (isMajor) { 
+                const l = createSVGElement('text', {x: RULER_X_START - len - 5, y: y_mid_svg + 4, 'font-size': '10px', 'text-anchor': 'end'}); 
+                l.textContent = `${cm} cm`; 
+                ui.rulerGroup.appendChild(l); 
+            } 
+        } 
+    }
+    
+    function updateGraphs(time) {
+        const isDualMode = graphCfg.mode === 'dual';
+        ui.graphSvgSingle.style.display = isDualMode ? 'none' : 'block';
+        ui.graphSvgTop.style.display = isDualMode ? 'block' : 'none';
+        ui.graphSvgBottom.style.display = isDualMode ? 'block' : 'none';
+
+        if (isDualMode) {
+            drawSingleGraph({ svg: ui.graphSvgTop, time, type: graphCfg.type1, subject: 'm1', isStacked: true });
+            drawSingleGraph({ svg: ui.graphSvgBottom, time, type: graphCfg.type2, subject: 'm2', isStacked: true });
+        } else {
+            drawSingleGraph({ svg: ui.graphSvgSingle, time, type: graphCfg.type1, subject: graphCfg.subject, isStacked: false });
+        }
+    }
+
+    function drawSingleGraph({ svg, time, type, subject, isStacked }) {
+        const title = svg.querySelector('.graph_title');
+        const grid = svg.querySelector('.graph_grid');
+        const line1 = svg.querySelector('.graph_line_1');
+        const line2 = svg.querySelector('.graph_line_2');
+        const point1 = svg.querySelector('.graph_point_1');
+        const point2 = svg.querySelector('.graph_point_2');
+        
+        grid.innerHTML = '';
+        [line1, line2].forEach(l => l && l.setAttribute('points', ''));
+        [point1, point2].forEach(p => p && (p.style.visibility = 'hidden'));
+
+        const G_W = 480, G_H = isStacked ? 250 : 500;
+        const P = { top: 40, right: 50, bottom: 40, left: 60 };
+        const PLOT_W = G_W - P.left - P.right, PLOT_H = G_H - P.top - P.bottom;
+
+        const isBoth = subject === 'both';
+        
+        let key1, key2;
+        if (type === 'ydiff') {
+            key1 = 'ydiff';
+            key2 = null;
+        } else {
+            const massIndex1 = (isStacked && subject === 'm2') ? '2' : '1';
+            const massIndex2 = '2';
+            if (isBoth) {
+                key1 = `${type}${massIndex1}`;
+                key2 = `${type}${massIndex2}`;
+            } else {
+                key1 = `${type}${subject.slice(-1)}`;
+                key2 = null;
+            }
+        }
+
+        const limits1 = axisLimits[key1];
+        if (!limits1) return;
+        
+        let val_min = limits1.min, val_max = limits1.max;
+        if (key2) {
+            const limits2 = axisLimits[key2];
+            if (!limits2) return;
+            val_min = Math.min(val_min, limits2.min);
+            val_max = Math.max(val_max, limits2.max);
+        }
+        
+        const t_max = limits1.t_max;
+        const scaleT = (t_v) => P.left + (t_v / t_max) * PLOT_W;
+        const scaleY = (v) => P.top + PLOT_H - ( (v - val_min) / (val_max - val_min || 1) ) * PLOT_H;
+        
+        const xAxisYPosition = P.top + PLOT_H;
+        const axisAttrs = { stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+        grid.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: xAxisYPosition, x2: P.left + PLOT_W, y2: xAxisYPosition }));
+        grid.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: P.top + PLOT_H, x2: P.left, y2: P.top }));
+
+        const y_tick_step = getNiceTickStep(val_max - val_min, isStacked ? 4 : 8);
+        for (let v = Math.ceil(val_min / y_tick_step) * y_tick_step; v <= val_max + 1e-9; v += y_tick_step) {
+            const y = scaleY(v);
+            const isZeroLine = Math.abs(v) < 1e-9;
+            grid.appendChild(createSVGElement('line', { x1: P.left, y1: y, x2: P.left + PLOT_W, y2: y, stroke: isZeroLine ? '#ccc' : '#eee' }));
+            const tLbl = createSVGElement('text', { x: P.left - 8, y: y + 4, 'font-size': '12px', 'text-anchor': 'end' });
+            tLbl.textContent = formatNumber(v, y_tick_step % 1 === 0 ? 0 : (v.toString().split('.')[1] || '').length > 1 ? 2 : 1);
+            grid.appendChild(tLbl);
+        }
+
+        const t_tick_step = getNiceTickStep(t_max, 10);
+        for (let t_grid = 0; t_grid <= t_max + 1e-9; t_grid += t_tick_step) {
+            const x = scaleT(t_grid);
+            grid.appendChild(createSVGElement('line', { x1: x, y1: P.top, x2: x, y2: P.top + PLOT_H, stroke: '#eee' }));
+            const tLbl = createSVGElement('text', { x: x, y: xAxisYPosition + 15, 'font-size': '12px', 'text-anchor': 'middle' });
+            tLbl.textContent = formatNumber(t_grid, t_tick_step < 1 ? 1 : 0);
+            grid.appendChild(tLbl);
+        }
+        
+        if (type === 'y') {
+            const epZeroMode = ui.epZeroSelect.value;
+            const drawDottedLine = (y_cm, color) => {
+                if (y_cm >= val_min && y_cm <= val_max) {
+                    const y_svg = scaleY(y_cm);
+                    grid.appendChild(createSVGElement('line', {
+                        x1: P.left, y1: y_svg, x2: P.left + PLOT_W, y2: y_svg,
+                        stroke: color, 'stroke-width': 1.5, 'stroke-dasharray': '5,5',
+                    }));
+                }
+            };
+            
+            if (epZeroMode === 'y1_start') {
+                if (subject === 'm1' || subject === 'm2' || subject === 'both') drawDottedLine(y1_phys_start_cm, '#888');
+            } else if (epZeroMode === 'y2_start') {
+                if (subject === 'm1' || subject === 'm2' || subject === 'both') drawDottedLine(y2_phys_start_cm, '#888');
+            } else if (epZeroMode === 'separate') {
+                if (subject === 'm1') drawDottedLine(y1_phys_start_cm, 'var(--fh-blue)');
+                if (subject === 'm2') drawDottedLine(y2_phys_start_cm, 'var(--fh-red)');
+                if (subject === 'both') {
+                    drawDottedLine(y1_phys_start_cm, 'var(--fh-blue)');
+                    drawDottedLine(y2_phys_start_cm, 'var(--fh-red)');
+                }
+            }
+        }
+
+        let titleText = graphOptions[type].label.replace(/\(t\)/, '');
+        if (isBoth) titleText += " (m₁ & m₂)";
+        else if (!isStacked) titleText += ` (m${subject.slice(-1)})`;
+        else if (isStacked) titleText += ` (m${subject.slice(-1)})`;
+        title.innerHTML = titleText + " vs. Zeit";
+        MathJax.typesetPromise([title]);
+
+        const yLabelText = `${graphOptions[type].label.replace(/\(t\)/, '')} / ${graphOptions[type].unit}`;
+        const yLabel = createSVGElement('text', { transform: `rotate(-90, ${P.left - 40}, ${P.top + PLOT_H / 2})`, x: P.left - 40, y: P.top + PLOT_H / 2, 'text-anchor': 'middle', 'font-size': '13px' });
+        createStyledSvgText(yLabel, yLabelText);
+        grid.appendChild(yLabel);
+
+        const tLabel = createSVGElement('text', { x: P.left + PLOT_W / 2, y: xAxisYPosition + 30, 'text-anchor': 'middle', 'font-size': '13px' });
+        createStyledSvgText(tLabel, 'Zeit <i>t</i> / s');
+        grid.appendChild(tLabel);
+
+        let plotIndex = full_t_data.findIndex(t_val => t_val > time);
+        if (plotIndex === -1 && time > 0) plotIndex = full_t_data.length;
+        
+        const drawLine = (lineEl, pointEl, data, color) => {
+            if (!lineEl || !pointEl || !data) return;
+            let path = '';
+            const data_to_plot = data.slice(0, plotIndex);
+            data_to_plot.forEach((val, i) => { path += (i === 0 ? '' : ' ') + `${scaleT(full_t_data[i])},${scaleY(val)}`; });
+            
+            let currentValue = null;
+            if (time <= t_max) {
+                const i = Math.max(0, plotIndex - 1);
+                const t1 = full_t_data[i], t2 = full_t_data[i+1] || t1;
+                const alpha = (t2 > t1) ? (time - t1) / (t2 - t1) : 0;
+                currentValue = data[i] + alpha * ((data[i+1] || data[i]) - data[i]);
+                path += (path ? ' ' : '') + `${scaleT(time)},${scaleY(currentValue)}`;
+            }
+
+            lineEl.setAttribute('points', path);
+            lineEl.style.stroke = color;
+            lineEl.style.visibility = 'visible';
+
+            if (currentValue !== null) {
+                pointEl.setAttribute('cx', scaleT(time));
+                pointEl.setAttribute('cy', scaleY(currentValue));
+                pointEl.style.fill = color;
+                pointEl.style.visibility = 'visible';
+            }
+        };
+
+        let data1 = axisLimits[key1].full_data;
+        let data2 = key2 ? axisLimits[key2].full_data : null;
+        
+        let color1 = isBoth ? 'var(--fh-blue)' : (subject === 'm1' ? 'var(--fh-blue)' : 'var(--fh-red)');
+        let color2 = 'var(--fh-red)';
+        
+        drawLine(line1, point1, data1, color1);
+        if (key2) {
+            drawLine(line2, point2, data2, color2);
+        }
+    }
+
+    function precomputeMotionData() {
+        [full_t_data, full_y1_data, full_y2_data, full_v1_data, full_v2_data, full_a1_data, full_a2_data, full_ydiff_data, full_wr_data].forEach(arr => arr.length = 0);
+        [full_ek1_data, full_ek2_data, full_ep1_data, full_ep2_data, full_eges1_data, full_eges2_data, full_ek_sum_data, full_ep_sum_data, full_etot_data].forEach(arr => arr.length = 0);
+        axisLimits = {};
+        ui.frictionNoteContainer.style.display = 'none';
+
+        const drivingForce = (m1 - m2) * G;
+        
+        if (Math.abs(drivingForce) > frictionForce) {
+            a = (drivingForce - Math.sign(drivingForce) * frictionForce) / (m1 + m2);
+        } else {
+            a = 0;
+            if (frictionForce > 0) {
+                ui.frictionNote.textContent = 'Haftreibung verhindert Bewegung.';
+                ui.frictionNoteContainer.style.display = 'flex';
+            }
+        }
+
+        const y1_start_m = y1_phys_start_cm / CM_PER_METER;
+        const y2_start_m = y2_phys_start_cm / CM_PER_METER;
+        const L_m = L_cm / CM_PER_METER;
+        const Y_MAX_M = Y_MAX_ABS_CM / CM_PER_METER;
+        const m1_half_size_m = (MASS_SIZE_BASE + m1 * MASS_SIZE_FACTOR) / PIXELS_PER_METER / 2;
+        const m2_half_size_m = (MASS_SIZE_BASE + m2 * MASS_SIZE_FACTOR) / PIXELS_PER_METER / 2;
+        
+        let timesToCollision = [];
+        if (Math.abs(a) > 1e-9) {
+            const a_mag = Math.abs(a);
+            if (a > 0) { // m1 moves down
+                const s1 = Y_MAX_M - m1_half_size_m - y1_start_m;
+                if (s1 > 1e-6) timesToCollision.push(Math.sqrt(2 * s1 / a_mag));
+                const s2 = y2_start_m - m2_half_size_m;
+                if (s2 > 1e-6) timesToCollision.push(Math.sqrt(2 * s2 / a_mag));
+            } else { // m1 moves up
+                const s1 = y1_start_m - m1_half_size_m;
+                if (s1 > 1e-6) timesToCollision.push(Math.sqrt(2 * s1 / a_mag));
+                const s2 = Y_MAX_M - m2_half_size_m - y2_start_m;
+                if (s2 > 1e-6) timesToCollision.push(Math.sqrt(2 * s2 / a_mag));
+            }
+        }
+
+        const t_end = (a === 0) ? 10.0 : (timesToCollision.length > 0 ? Math.min(...timesToCollision) : 10.0);
+        const epZeroMode = ui.epZeroSelect.value;
+        let ep1_start = 0, ep2_start = 0;
+        switch(epZeroMode) {
+            case 'y1_start': ep2_start = m2 * G * (y1_start_m - y2_start_m); break;
+            case 'y2_start': ep1_start = m1 * G * (y2_start_m - y1_start_m); break;
+        }
+        const e_tot_start = ep1_start + ep2_start;
+
+        for (let t = 0; t <= t_end; t += TIME_STEP) {
+            const s = 0.5 * a * t * t;
+            const v = a * t;
+            
+            const y1 = y1_start_m + s;
+            const y2 = L_m - y1;
+            const v1 = v;
+            const v2 = -v;
+            const a1 = a;
+            const a2 = -a;
+
+            const ek1 = 0.5 * m1 * v1 * v1;
+            const ek2 = 0.5 * m2 * v2 * v2;
+            
+            let ep1 = 0, ep2 = 0;
+            // Potentielle Energie wird definiert als E_p = - Arbeit der Gewichtskraft
+            // E_p = - F_g * (delta_y) = - (m*g) * (y_end - y_start)
+            // Da y nach unten positiv ist, ist delta_y = y - y_start
+            // E_p = -m*g*(y-y_start) = m*g*(y_start-y)
+            switch(epZeroMode) {
+                case 'y1_start':
+                    ep1 = m1 * G * (y1_start_m - y1);
+                    ep2 = m2 * G * (y1_start_m - y2);
+                    break;
+                case 'y2_start':
+                    ep1 = m1 * G * (y2_start_m - y1);
+                    ep2 = m2 * G * (y2_start_m - y2);
+                    break;
+                case 'separate':
+                default:
+                    ep1 = m1 * G * (y1_start_m - y1);
+                    ep2 = m2 * G * (y2_start_m - y2);
+                    break;
+            }
+            
+            const eges1 = ek1 + ep1;
+            const eges2 = ek2 + ep2;
+            const work_friction = -frictionForce * Math.abs(s);
+            
+            full_t_data.push(t);
+            full_y1_data.push(y1); full_y2_data.push(y2);
+            full_v1_data.push(v1); full_v2_data.push(v2);
+            full_a1_data.push(a1); full_a2_data.push(a2);
+            full_ydiff_data.push(y2 - y1);
+            full_ek1_data.push(ek1); full_ek2_data.push(ek2);
+            full_ep1_data.push(ep1); full_ep2_data.push(ep2);
+            full_eges1_data.push(eges1); full_eges2_data.push(eges2);
+            full_ek_sum_data.push(ek1 + ek2);
+            full_ep_sum_data.push(ep1 + ep2);
+            full_etot_data.push(e_tot_start + work_friction);
+            full_wr_data.push(work_friction);
+        }
+        
+        recalculateAxisLimits();
+    }
+    
+    function recalculateAxisLimits() {
+        const dataSets = { 
+            y1: full_y1_data.map(y => y * 100), 
+            y2: full_y2_data.map(y => y * 100), 
+            v1: full_v1_data, v2: full_v2_data, 
+            a1: full_a1_data, a2: full_a2_data, 
+            ydiff: full_ydiff_data.map(y => y * 100),
+            ek1: full_ek1_data, ek2: full_ek2_data,
+            ep1: full_ep1_data, ep2: full_ep2_data,
+            eges1: full_eges1_data,
+            eges2: full_eges2_data,
+            ek_sum: full_ek_sum_data,
+            ep_sum: full_ep_sum_data,
+            etot: full_etot_data,
+            wr: full_wr_data,
+        };
+        const t_max = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] * 1.05 : 10;
+
+        for (const key in dataSets) {
+            const data = dataSets[key];
+            if (data.length === 0) {
+                axisLimits[key] = { min: -1, max: 1, t_max, full_data: [] };
+                continue;
+            }
+            let min = Math.min(...data);
+            let max = Math.max(...data);
+            const range = max - min;
+            
+            if (range < 1e-9) {
+                min -= Math.abs(min * 0.1) + 0.5;
+                max += Math.abs(max * 0.1) + 0.5;
+            } else {
+                const padding = range * 0.1;
+                min -= padding;
+                max += padding;
+            }
+            
+            if (key.startsWith('e') || key === 'wr') {
+                 const absMax = Math.max(Math.abs(min), Math.abs(max));
+                 min = -absMax;
+                 max = absMax;
+            }
+            
+            if (key.startsWith('y') && key !== 'ydiff' && min < 0) min = 0;
+
+            axisLimits[key] = { min, max, t_max, full_data: data };
+        }
+    }
+
+    function animate(currentTime) {
+        if (lastFrameTime === 0) lastFrameTime = currentTime;
+        const dt = (currentTime - lastFrameTime) / 1000.0;
+        simulatedTimeElapsed += dt * speedFactor;
+        lastFrameTime = currentTime;
+        
+        const t_end = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 0;
+        
+        if (simulatedTimeElapsed >= t_end) {
+            const last = full_t_data.length - 1;
+            if (last >= 0) {
+                const y1_last = full_y1_data[last];
+                const y2_last = full_y2_data[last];
+                updateVisualPositions(y1_last, y2_last);
+                drawVectors(y1_last, y2_last);
+                drawEnergyBars(t_end);
+                updateGraphs(t_end);
+            }
+            stopAnimation();
+            return;
+        }
+
+        let i = 0;
+        while (i < full_t_data.length - 1 && full_t_data[i + 1] <= simulatedTimeElapsed) i++;
+
+        const t1 = full_t_data[i], t2 = full_t_data[i+1];
+        const alpha = (t2 > t1) ? (simulatedTimeElapsed - t1) / (t2 - t1) : 0;
+        const interp = (data) => data[i] + alpha * ((data[i+1] || data[i]) - data[i]);
+
+        const y1 = interp(full_y1_data);
+        const y2 = interp(full_y2_data);
+        
+        updateVisualPositions(y1, y2);
+        drawVectors(y1, y2);
+        drawEnergyBars(simulatedTimeElapsed);
+        updateGraphs(simulatedTimeElapsed);
+
+        const main_angle_deg = (simulatedTimeElapsed * 6);
+        ui.stopwatchMainHand.setAttribute('transform', `rotate(${main_angle_deg})`);
+
+        animFrameId = requestAnimationFrame(animate);
+    }
+
+    function startAnimation() { 
+        if (animFrameId) return;
+        if (simulatedTimeElapsed < 1e-6) {
+            resetScene(true);
+        }
+        ui.playButton.disabled = true; 
+        ui.pauseButton.disabled = false; 
+        [ui.m1Slider, ui.m2Slider, ui.y1Slider, ui.y2Slider, ui.diffSlider, ui.heightModeSelect, ui.epZeroSelect, ui.toggleFriction, ui.frictionSlider].forEach(el => el.disabled = true);
+        lastFrameTime = 0; 
+        animFrameId = requestAnimationFrame(animate); 
+    }
+    function stopAnimation() { 
+        if (!animFrameId) return; 
+        cancelAnimationFrame(animFrameId); 
+        animFrameId = null; 
+        ui.playButton.disabled = false; 
+        ui.pauseButton.disabled = true; 
+        [ui.m1Slider, ui.m2Slider, ui.y1Slider, ui.y2Slider, ui.diffSlider, ui.heightModeSelect, ui.epZeroSelect, ui.toggleFriction, ui.frictionSlider].forEach(el => el.disabled = false);
+    }
+    
+    function exportCSV(exportAll) {
+        const m1_str = formatNumber(m1, 1);
+        const m2_str = formatNumber(m2, 1);
+        const fileName = `atwood_m1-${m1_str.replace(',', '-')}kg_m2-${m2_str.replace(',', '-')}kg.csv`;
+        const separator = ';';
+
+        const dataMap = {
+            t:      { header: 'Zeit t / s',          data: full_t_data },
+            y1:     { header: 'Position y₁ / cm',    data: full_y1_data.map(y => y*100) },
+            y2:     { header: 'Position y₂ / cm',    data: full_y2_data.map(y => y*100) },
+            v1:     { header: 'Geschwindigkeit v₁ / (m/s)', data: full_v1_data },
+            v2:     { header: 'Geschwindigkeit v₂ / (m/s)', data: full_v2_data },
+            a1:     { header: 'Beschleunigung a₁ / (m/s²)', data: full_a1_data },
+            a2:     { header: 'Beschleunigung a₂ / (m/s²)', data: full_a2_data },
+            ydiff:  { header: 'Höhendifferenz Δy / (cm)', data: full_ydiff_data.map(y => y*100) },
+            ek1:    { header: 'E_k,₁ / J', data: full_ek1_data },
+            ek2:    { header: 'E_k,₂ / J', data: full_ek2_data },
+            ep1:    { header: 'E_p,₁ / J', data: full_ep1_data },
+            ep2:    { header: 'E_p,₂ / J', data: full_ep2_data },
+            eges1:  { header: 'E_ges,₁ / J', data: full_eges1_data },
+            eges2:  { header: 'E_ges,₂ / J', data: full_eges2_data },
+            ek_sum: { header: 'E_k,ges / J', data: full_ek_sum_data },
+            ep_sum: { header: 'E_p,ges / J', data: full_ep_sum_data },
+            etot:   { header: 'E_ges / J', data: full_etot_data },
+            wr:     { header: 'Energieverlust W_R / J', data: full_wr_data },
+        };
+
+        let keysToExport = ['t'];
+        
+        if (exportAll) {
+            keysToExport = Object.keys(dataMap);
+        } else {
+            const isDual = graphCfg.mode === 'dual';
+            const type1 = graphCfg.type1;
+            const type2 = graphCfg.type2;
+            const subject = graphCfg.subject;
+            
+            const mapTypeToKey = (type, massIndex) => {
+                if (type === 'ydiff') return 'ydiff';
+                if (type === 'wr') return 'wr';
+                return `${type}${massIndex}`;
+            };
+
+            if (isDual) {
+                keysToExport.push(mapTypeToKey(type1, 1), mapTypeToKey(type2, 2));
+            } else if (subject === 'both') {
+                if (type1 === 'ydiff' || type1 === 'wr') {
+                    keysToExport.push(type1);
+                } else {
+                    keysToExport.push(mapTypeToKey(type1, 1), mapTypeToKey(type1, 2));
+                }
+            } else {
+                keysToExport.push(mapTypeToKey(type1, subject.slice(-1)));
+            }
+        }
+
+        const headers = keysToExport.map(key => dataMap[key].header);
+        let csvContent = headers.join(separator) + '\n';
+
+        const numRows = full_t_data.length;
+        if (numRows === 0) {
+            alert("Keine Daten zum Exportieren vorhanden.");
+            return;
+        }
+
+        for (let i = 0; i < numRows; i++) {
+            const row = keysToExport.map(key => {
+                const dataInfo = dataMap[key];
+                const value = dataInfo.data[i];
+                return formatNumber(value, 4);
+            });
+            csvContent += row.join(separator) + '\n';
+        }
+
+        const blob = new Blob([`sep=${separator}\n` + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function drawStopwatchMarks() {
+        ui.stopwatchMarks.innerHTML = '';
+        const r = 60;
+        for (let s = 0; s < 60; s++) {
+            const angle = (s / 60) * 2 * Math.PI;
+            const r_inner = (s % 5 === 0) ? r - 8 : r - 4;
+            const x1 = r_inner * Math.sin(angle);
+            const y1 = -r_inner * Math.cos(angle);
+            const x2 = r * Math.sin(angle);
+            const y2 = -r * Math.cos(angle);
+            ui.stopwatchMarks.appendChild(createSVGElement('line', { x1, y1, x2, y2, stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 }));
+        }
+    }
+
+    function setupUI() { 
+        const massSpecificTypes = ['y', 'v', 'a', 'ek', 'ep', 'eges'];
+        const systemTypes = ['ydiff', 'wr'];
+
+        const updateGraphSelectors = () => {
+            const subject = ui.subjectSelect.value;
+            const isDual = graphCfg.mode === 'dual';
+            
+            let types = [...massSpecificTypes];
+            if (!isDual && subject !== 'both') {
+                types.push(...systemTypes);
+            }
+            
+            [ui.graphSelect1, ui.graphSelect2].forEach((sel, index) => {
+                const currentVal = sel.value;
+                sel.innerHTML = '';
+                types.forEach(key => {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerHTML = graphOptions[key].label.replace(/\(t\)/, '');
+                    sel.appendChild(opt);
+                });
+                if (types.includes(currentVal)) {
+                    sel.value = currentVal;
+                } else {
+                    sel.value = types[index] || types[0];
+                }
+            });
+            
+            const isDualCompatible = subject !== 'both';
+            ui.graphModeRadios.forEach(r => { r.disabled = !isDualCompatible; });
+            if (!isDualCompatible && isDual) {
+                document.querySelector('input[name="graph_mode"][value="single"]').checked = true;
+                graphCfg.mode = 'single';
+            }
+            ui.graphSelect2.disabled = (graphCfg.mode === 'single');
+            ui.subjectSelect.disabled = (graphCfg.mode === 'dual');
+
+            graphCfg.subject = subject;
+            graphCfg.type1 = ui.graphSelect1.value;
+            graphCfg.type2 = ui.graphSelect2.value;
+            resetScene();
+        };
+
+        ui.subjectSelect.addEventListener('change', updateGraphSelectors);
+        
+        ui.graphModeRadios.forEach(r => r.addEventListener('change', (e) => { 
+            graphCfg.mode = e.target.value; 
+            updateGraphSelectors();
+        })); 
+        [ui.graphSelect1, ui.graphSelect2].forEach(sel => sel.addEventListener('change', () => { 
+            graphCfg.type1 = ui.graphSelect1.value; 
+            graphCfg.type2 = ui.graphSelect2.value; 
+            resetScene(); 
+        })); 
+        
+        ui.copyrightYear.textContent = new Date().getFullYear();
+        updateGraphSelectors();
+    }
+
+    ui.playButton.addEventListener('click', startAnimation);
+    ui.pauseButton.addEventListener('click', stopAnimation);
+    ui.resetButton.addEventListener('click', () => {
+        simulatedTimeElapsed = 0;
+        resetScene();
+    });
+    ui.exportDiagramButton.addEventListener('click', () => exportCSV(false));
+    ui.exportAllDataButton.addEventListener('click', () => exportCSV(true));
+    
+    [ui.m1Slider, ui.m2Slider, ui.frictionSlider].forEach(el => el.addEventListener('input', () => resetScene()));
+    ui.toggleFriction.addEventListener('change', () => {
+        ui.frictionGroup.style.display = ui.toggleFriction.checked ? 'grid' : 'none';
+        resetScene();
+    });
+    ui.speedRadios.forEach(el => el.addEventListener('change', () => {
+        ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+    }));
+    
+    ui.heightModeSelect.addEventListener('change', updatePositionsAndSliders);
+    [ui.y1Slider, ui.y2Slider, ui.diffSlider].forEach(el => el.addEventListener('input', updatePositionsAndSliders));
+    ui.toggleForceVectors.addEventListener('change', () => resetScene());
+    ui.toggleNetForceVector.addEventListener('change', () => resetScene());
+    ui.epZeroSelect.addEventListener('change', () => resetScene());
+    
+    window.onload = () => {
+        setupUI();
+        drawRuler();
+        drawStopwatchMarks();
+        updatePositionsAndSliders(); 
+    };
+</script>
+</body>
+</html>

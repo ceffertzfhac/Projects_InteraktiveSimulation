@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finaler Prototyp: Schräger Wurf mit Auto-Zoom (Korrigiert)</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 60px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #e0e0e0; }
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Standalone Prototyp: Schräger Wurf mit Auto-Zoom</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="currentColor" />
+                </marker>
+                <marker id="yAxisArrowhead" markerWidth="15" markerHeight="10.5" refX="0" refY="5.25" orient="auto">
+                    <polygon points="0 0, 15 5.25, 0 10.5" fill="currentColor" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                <line id="ground_line" x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" />
+                <rect id="building" x="80" width="80" fill="#e0e0e0" z-order="1" />
+                <g id="ruler_group"></g>
+                <g id="stick_figure"></g>
+                <circle id="ball" r="8" fill="var(--fh-red)" z-order="10" />
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <g id="y_axis_display"></g>
+                <g id="stopwatch">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                </g>
+            </g>
+            <g id="graph_group" transform="translate(400, 40)">
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <input type="range" id="h0_slider" min="1.8" max="20" value="10" step="0.1">
+                    <div class="value" id="h0_value">10.0 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Betrag d. Anfangsgeschw. \(|v_0|\):</div>
+                    <input type="range" id="v0_slider" min="0" max="12" value="10" step="1">
+                    <div class="value" id="v0_value">10 m/s</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Abwurfwinkel \(\alpha\):</div>
+                    <input type="range" id="alpha_slider" min="0" max="90" value="45" step="1">
+                    <div class="value" id="alpha_value">45 °</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <div><input type="checkbox" id="toggle_velocity_vector" checked> Geschwindigkeitsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_acceleration_vector" checked> Beschleunigungsvektor anzeigen</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp (vertikale Komponente):</label>
+                <select id="graph_select">
+                    <option value="weg" selected>Höhe y(t)</option>
+                    <option value="geschw">Geschw. v_y(t)</option>
+                    <option value="beschl">Beschl. a_y(t)</option>
+                </select>
+                <div style="margin-top: 15px;">
+                    <label for="y_axis_config">Y-Achsen-Konfiguration:</label>
+                    <select id="y_axis_config">
+                        <option value="up_ground" selected>Y-Achse: hoch (+), Nullpunkt: Boden</option>
+                        <option value="up_start">Y-Achse: hoch (+), Nullpunkt: Start</option>
+                        <option value="down_ground">Y-Achse: runter (+), Nullpunkt: Boden</option>
+                        <option value="down_start">Y-Achse: runter (+), Nullpunkt: Start</option>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        const DEFAULT_PIXELS_PER_METER = 13;
+        let currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+        let zoomFactor = 1.0;
+
+        const PIXELS_PER_VELOCITY_UNIT = 4; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5; 
+
+        let aniFrameId = null;
+        let lastFrameTime = 0;
+        let simulatedTimeElapsed = 0;
+
+        let h0, v0, alpha_deg, v0_x, v0_y, graphType, speedFactor;
+        let t_data = [], y_data = [], v_data = [], a_data = [];
+        let yAxisConfig = { direction: 'up', origin: 'ground' };
+        
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'), h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), alphaSlider: document.getElementById('alpha_slider'),
+            h0Value: document.getElementById('h0_value'), v0Value: document.getElementById('v0_value'),
+            alphaValue: document.getElementById('alpha_value'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+            graphSelect: document.getElementById('graph_select'), playButton: document.getElementById('play_button'),
+            pauseButton: document.getElementById('pause_button'), resetButton: document.getElementById('reset_button'),
+            rulerGroup: document.getElementById('ruler_group'), stopwatchMarks: document.getElementById('stopwatch_marks'), 
+            subdialMarks: document.getElementById('subdial_marks'), velocityVector: document.getElementById('velocity_vector'), 
+            toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            accelerationVector: document.getElementById('acceleration_vector'),
+            toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            yAxisDisplay: document.getElementById('y_axis_display'), yAxisConfigSelect: document.getElementById('y_axis_config'), 
+        };
+        
+        const scaleY = (y_meters) => 440 - y_meters * currentPixelsPerMeter; 
+        const scaleX = (x_meters, x_offset_pixels) => x_offset_pixels + x_meters * currentPixelsPerMeter;
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+        
+        function drawStickFigure(h_building_base, angle_rad) { 
+            ui.stickFigure.innerHTML = '';
+            const feet_y = scaleY(h_building_base); 
+            const head_r = 0.2 * currentPixelsPerMeter, torso_h = 0.8 * currentPixelsPerMeter, leg_h = 1.0 * currentPixelsPerMeter, leg_spread = 0.3 * currentPixelsPerMeter;
+            const crotch_y = feet_y - leg_h, shoulder_y = crotch_y - torso_h, base_x = 120;
+            const arm_start_y_scaled = scaleY(h0);
+            const arm_length = 16 * zoomFactor;
+            const arm_x2 = base_x + arm_length * Math.cos(angle_rad), arm_y2 = arm_start_y_scaled - arm_length * Math.sin(angle_rad);
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x, y2: shoulder_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x - leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: crotch_y, x2: base_x + leg_spread, y2: feet_y, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x, y1: arm_start_y_scaled, x2: arm_x2, y2: arm_y2, stroke: 'black', 'stroke-width': 2})); 
+            ui.stickFigure.appendChild(createSVGElement('circle', {cx: base_x, cy: shoulder_y - head_r, r: head_r, stroke: 'black', 'stroke-width': 2, fill: 'none'}));
+        }
+
+        function getDisplayYValue(y_physics) { let y = (yAxisConfig.origin === 'ground') ? y_physics : y_physics - h0; return (yAxisConfig.direction === 'down') ? -y : y; }
+        function getDisplayVValue(v_physics) { return yAxisConfig.direction === 'up' ? v_physics : -v_physics; }
+        function getDisplayAValue(a_physics) { return yAxisConfig.direction === 'up' ? a_physics : -a_physics; }
+        function drawYAxisDisplay() { /* Unchanged */ }
+
+        function drawRuler() {
+            ui.rulerGroup.innerHTML = ''; 
+            const ruler_x = 45, ruler_width = 15;
+            const max_ruler_height_m = Math.ceil(440 / currentPixelsPerMeter);
+            ui.rulerGroup.appendChild(createSVGElement('rect', { x: ruler_x, y: scaleY(max_ruler_height_m), width: ruler_width, height: max_ruler_height_m * currentPixelsPerMeter, fill: '#f0f0f0', stroke: '#888', 'stroke-width': 1 }));
+            const majorTickInterval = Math.ceil(5/zoomFactor), minorTickInterval = Math.ceil(1/zoomFactor);
+            for (let m = 0; m <= max_ruler_height_m; m++) {
+                if(m % majorTickInterval !== 0 && m % minorTickInterval !== 0) continue;
+                const y_pos = scaleY(m);
+                let isMajorTick = m % majorTickInterval === 0;
+                let line_length = (isMajorTick ? 10 : 5) * zoomFactor, stroke_width = isMajorTick ? 2 : 1;
+                if (isMajorTick) ui.rulerGroup.appendChild(createSVGElement('text', { x: ruler_x - 5, y: y_pos + 4, 'text-anchor': 'end', fill: 'black' })).textContent = `${m}`;
+                ui.rulerGroup.appendChild(createSVGElement('line', { x1: ruler_x + ruler_width, y1: y_pos, x2: ruler_x + ruler_width - line_length, y2: y_pos, stroke: 'black', 'stroke-width': stroke_width }));
+            }
+        }
+        
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; 
+            const cx = 280, cy = 120, r = 72;
+            for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 12 : r - 6; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; 
+            const cx=280, cy=150, r=16;
+            for(let i=0;i<10;i++){const a=(i/10)*2*Math.PI;ui.subdialMarks.appendChild(createSVGElement('line',{x1:cx+(r-3)*Math.sin(a),y1:cy-(r-3)*Math.cos(a),x2:cx+r*Math.sin(a),y2:cy-r*Math.cos(a),stroke:'black','stroke-width':1}))}
+        }
+
+        function getNiceTickStep(range, ticks) { if(range===0)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        
+        function updateGraph() {
+            ui.gridGroup.innerHTML = '';
+            ui.gridGroup.appendChild(createSVGElement('rect', { x: 0, y: 0, width: 480, height: 410, fill: 'white' }));
+            let t_max, val_min, val_max, y_label;
+            let time_to_ground = (v0_y + Math.sqrt(v0_y**2 + 2 * G * h0)) / G;
+            if (time_to_ground <= 0) time_to_ground = 0.1;
+            t_max = Math.max(time_to_ground, 1.0);
+            const scaleXGraph = (t) => (t / t_max) * 460;
+            let min_t, max_t;
+            if (graphType === 'weg') { y_label = "Höhe y(t) /m"; const y_max = h0 + (v0_y > 0 ? (v0_y**2 / (2*G)) : 0); min_t = getDisplayYValue(0); max_t = getDisplayYValue(y_max); }
+            else if (graphType === 'geschw') { y_label = "Geschw. v_y(t) /(m/s)"; const v_min = v0_y - G * t_max; min_t = getDisplayVValue(v_min); max_t = getDisplayVValue(v0_y); }
+            else { y_label = "Beschl. a_y(t) /(m/s²)"; min_t = getDisplayAValue(-G); max_t = getDisplayAValue(-G); }
+            val_min=Math.min(min_t,max_t); val_max=Math.max(min_t,max_t);
+            const range=val_max-val_min;if(range<1e-9){val_min-=1;val_max+=1}else{val_min-=range*.1;val_max+=range*.1}
+            if(val_min>0)val_min=0;if(val_max<0)val_max=0;
+            const y_tick=getNiceTickStep(val_max-val_min,8),y_min=Math.floor(val_min/y_tick)*y_tick,y_max=Math.ceil(val_max/y_tick)*y_tick;
+            const scaleYGraph=(v)=>400-((v-y_min)/(y_max-y_min||1))*380;
+            const x0=scaleXGraph(0),y0=scaleYGraph(0);
+            for(let i=0;i<=10;i++){const t=(t_max/10)*i,x=scaleXGraph(t);ui.gridGroup.appendChild(createSVGElement('line',{x1:x,y1:0,x2:x,y2:410,stroke:'#eee'}));let txt=createSVGElement('text',{x:x,y:y0+15,'text-anchor':'middle',fill:'black'});txt.textContent=t.toFixed(1);ui.gridGroup.appendChild(txt)}
+            for(let v=y_min;v<=y_max;v+=y_tick){if(v===0)continue;const y=scaleYGraph(v);ui.gridGroup.appendChild(createSVGElement('line',{x1:0,y1:y,x2:480,y2:y,stroke:'#eee'}));let txt=createSVGElement('text',{x:x0-10,y:y+4,'text-anchor':'end',fill:'black'});txt.textContent=v.toFixed(y_tick%1===0?0:1);ui.gridGroup.appendChild(txt)}
+            ui.gridGroup.appendChild(createSVGElement('line',{x1:x0,y1:y0,x2:480,y2:y0,stroke:'black','stroke-width':2,'marker-end':'url(#arrowhead)'}));
+            ui.gridGroup.appendChild(createSVGElement('line',{x1:x0,y1:410,x2:x0,y2:0,stroke:'black','stroke-width':2,'marker-end':'url(#arrowhead)'}));
+            let ylbl=createSVGElement('text',{x:x0-45,y:205,transform:`rotate(-90 ${x0-45},205)`,'text-anchor':'middle',fill:'black','font-size':'14px'});ylbl.textContent=y_label;ui.gridGroup.appendChild(ylbl);
+            let d=(graphType==='weg')?y_data:(graphType==='geschw')?v_data:a_data,p="";for(let i=0;i<t_data.length;i++){p+=`${scaleXGraph(t_data[i])},${scaleYGraph(d[i])} `}
+            ui.graphLine.setAttribute('points',p);if(t_data.length>0){ui.graphPoint.setAttribute('cx',scaleXGraph(t_data[t_data.length-1]));ui.graphPoint.setAttribute('cy',scaleYGraph(d[d.length-1]));ui.graphPoint.setAttribute('visibility','visible')}else{ui.graphPoint.setAttribute('visibility','hidden')}
+            ui.graphTitle.textContent=`${ui.graphSelect.options[ui.graphSelect.selectedIndex].text}-Diagramm`;
+        }
+        
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += dt * speedFactor; lastFrameTime = currentTime;
+            const x_phys = v0_x * simulatedTimeElapsed, y_phys = h0 + v0_y * simulatedTimeElapsed - 0.5 * G * simulatedTimeElapsed**2;
+            const vx = v0_x, vy = v0_y - G * simulatedTimeElapsed;
+            if (y_phys >= 0) {
+                t_data.push(simulatedTimeElapsed); y_data.push(getDisplayYValue(y_phys)); v_data.push(getDisplayVValue(vy)); a_data.push(getDisplayAValue(-G));
+                const cx = scaleX(x_phys, 136), cy = scaleY(y_phys);
+                ui.ball.setAttribute('cx', cx); ui.ball.setAttribute('cy', cy);
+                if(ui.toggleAccelerationVector.checked){ui.accelerationVector.setAttribute('visibility','visible');ui.accelerationVector.setAttribute('x1',cx);ui.accelerationVector.setAttribute('y1',cy);ui.accelerationVector.setAttribute('x2',cx);ui.accelerationVector.setAttribute('y2',cy+G*PIXELS_PER_ACCELERATION_UNIT*zoomFactor)}else{ui.accelerationVector.setAttribute('visibility','hidden')}
+                if(ui.toggleVelocityVector.checked){ui.velocityVector.setAttribute('visibility','visible');ui.velocityVector.setAttribute('x1',cx);ui.velocityVector.setAttribute('y1',cy);ui.velocityVector.setAttribute('x2',cx+vx*PIXELS_PER_VELOCITY_UNIT*zoomFactor);ui.velocityVector.setAttribute('y2',cy-vy*PIXELS_PER_VELOCITY_UNIT*zoomFactor)}else{ui.velocityVector.setAttribute('visibility','hidden')}
+                const main_a=(simulatedTimeElapsed%60/60)*2*Math.PI,sub_a=(simulatedTimeElapsed%1)*2*Math.PI;
+                ui.mainHand.setAttribute('x2',280+60*Math.sin(main_a));ui.mainHand.setAttribute('y2',120-60*Math.cos(main_a));
+                ui.subHand.setAttribute('x2',280+15*Math.sin(sub_a));ui.subHand.setAttribute('y2',150-15*Math.cos(sub_a));
+                updateGraph();
+                aniFrameId = requestAnimationFrame(animate);
+            } else { stopAnimation(); }
+        }
+
+        function stopAnimation() { if(aniFrameId){cancelAnimationFrame(aniFrameId);aniFrameId=null}ui.playButton.disabled=false;ui.pauseButton.disabled=true;ui.h0Slider.disabled=false;ui.v0Slider.disabled=false;ui.alphaSlider.disabled=false;}
+
+        function resetScene() {
+            stopAnimation();
+            simulatedTimeElapsed=0;lastFrameTime=0;
+            h0=parseFloat(ui.h0Slider.value);v0=parseFloat(ui.v0Slider.value);alpha_deg=parseFloat(ui.alphaSlider.value);
+            graphType=ui.graphSelect.value;ui.speedRadios.forEach(r=>{if(r.checked)speedFactor=parseFloat(r.value)});
+            const[dir,ori]=ui.yAxisConfigSelect.value.split('_');yAxisConfig={direction:dir,origin:ori};
+            ui.h0Value.textContent=`${h0.toFixed(1)} m`;ui.v0Value.textContent=`${v0} m/s`;ui.alphaValue.textContent=`${alpha_deg} °`;
+            const alpha_rad=alpha_deg*Math.PI/180;v0_x=v0*Math.cos(alpha_rad);v0_y=v0*Math.sin(alpha_rad);
+            const ANIM_W=350,ANIM_H=440,PAD=1.1;
+            const t_g=(v0_y+Math.sqrt(v0_y**2+2*G*h0))/G,x_max=v0_x*t_g,y_max=h0+(v0_y>0?(v0_y**2/(2*G)):0);
+            const scale_x=(x_max>0)?(ANIM_W/(x_max*PAD)):Infinity,scale_y=(y_max>0)?(ANIM_H/(y_max*PAD)):Infinity;
+            currentPixelsPerMeter=Math.min(DEFAULT_PIXELS_PER_METER,scale_x,scale_y);
+            zoomFactor=currentPixelsPerMeter/DEFAULT_PIXELS_PER_METER;
+            t_data=[];y_data=[];v_data=[];a_data=[];
+            const build_h=Math.max(0,h0-1.8);ui.building.setAttribute('height',build_h*currentPixelsPerMeter);ui.building.setAttribute('y',scaleY(build_h));
+            drawStickFigure(build_h,alpha_rad);drawRuler();drawStopwatchMarks();drawSubdialMarks();drawYAxisDisplay();
+            ui.ball.setAttribute('cx',136);ui.ball.setAttribute('cy',scaleY(h0));
+            ui.velocityVector.setAttribute('visibility','hidden');ui.accelerationVector.setAttribute('visibility','hidden');
+            ui.mainHand.setAttribute('x2',280);ui.mainHand.setAttribute('y2',120-60);ui.subHand.setAttribute('x2',280);ui.subHand.setAttribute('y2',150-15);
+            updateGraph();
+        }
+
+        ['input','change'].forEach(e=>{ui.h0Slider.addEventListener(e,resetScene);ui.v0Slider.addEventListener(e,resetScene);ui.alphaSlider.addEventListener(e,resetScene)});
+        ui.graphSelect.addEventListener('change',resetScene);ui.yAxisConfigSelect.addEventListener('change',resetScene);
+        ui.speedRadios.forEach(r=>r.addEventListener('change',resetScene));
+        ui.toggleVelocityVector.addEventListener('change',resetScene);ui.toggleAccelerationVector.addEventListener('change',resetScene);
+        ui.playButton.addEventListener('click',()=>{if(!aniFrameId){resetScene();ui.playButton.disabled=true;ui.pauseButton.disabled=false;ui.h0Slider.disabled=true;ui.v0Slider.disabled=true;ui.alphaSlider.disabled=true;lastFrameTime=0;aniFrameId=requestAnimationFrame(animate)}});
+        ui.pauseButton.addEventListener('click',stopAnimation);
+        ui.resetButton.addEventListener('click',resetScene);
+        window.onload=resetScene;
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rollende Körper – Interaktive Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']] },
+  svg: { fontCache:'global' },
+  startup: { ready: () => { MathJax.startup.defaultReady(); window._mjReady = true; } }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-title">Dynamik rollender Körper <span> FH Aachen - FB 8 - Physik </span></div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="export_btn">Export CSV</button>
+    <button class="btn" id="reset_btn">Reset</button>
+    <button class="btn" id="pause_btn" disabled>Pause</button>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+  </div>
+</header>
+
+<div class="app-layout">
+<aside class="panel left-panel">
+  <div class="panel-section">
+    <div class="panel-label">Hauptkörper (Primär)</div>
+    <div class="obj-grid" id="obj_grid">
+      <label class="obj-btn active"><input type="radio" name="obj" value="solid_cylinder" checked>Vollzylinder <span class="k-badge">k = 1/2</span></label>
+      <label class="obj-btn"><input type="radio" name="obj" value="solid_sphere">Vollkugel <span class="k-badge">k = 2/5</span></label>
+      <label class="obj-btn"><input type="radio" name="obj" value="thin_cylinder">Hohlzyl. (dünn) <span class="k-badge">k = 1</span></label>
+      <label class="obj-btn"><input type="radio" name="obj" value="thin_sphere">Hohlkugel (dünn) <span class="k-badge">k = 2/3</span></label>
+      <label class="obj-btn"><input type="radio" name="obj" value="thick_cylinder">Hohlzyl. (echt) <span class="k-badge" id="kbadge_thickCyl">k = f(β)</span></label>
+      <label class="obj-btn"><input type="radio" name="obj" value="thick_sphere">Hohlkugel (echt) <span class="k-badge" id="kbadge_thickSph">k = f(β)</span></label>
+    </div>
+    <div id="inner_r_group" class="inner-r-group" style="display:none;">
+      <div class="slider-label">Innenradius \(R_i/R_A = \beta\)</div>
+      <div class="slider-row">
+        <input type="range" id="inner_r_slider" min="10" max="85" value="50" step="5">
+        <span class="slider-val" id="inner_r_val">0.50</span>
+      </div>
+      <div style="font-size:.64rem;color:var(--text3);">β → 0: Vollkörper · β → 1: dünne Schale</div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Vergleichskörper (Rennen)</div>
+    <div id="compare_list"></div>
+    <div class="compare-active-info" id="compare_info">– kein Vergleich aktiv –</div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Geometrie &amp; Start</div>
+    <div class="slider-label">Außenradius \(R_A\)</div>
+    <div class="slider-row">
+      <input type="range" id="radius_slider" min="5" max="30" value="15" step="0.5">
+      <span class="slider-val" id="radius_val">15 cm</span>
+    </div>
+    <div class="slider-label">Startgeschwindigkeit \(v_0\) (nur Ebene)</div>
+    <div class="slider-row">
+      <input type="range" id="vel_slider" min="10" max="50" value="25" step="5">
+      <span class="slider-val" id="vel_val">25 cm/s</span>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Modus</div>
+    <label class="radio-row"><input type="radio" name="mode" value="flat" checked id="mode_flat"><span class="custom-radio"></span>Ebene (0°) — mit Anfangsgeschw.</label>
+    <label class="radio-row"><input type="radio" name="mode" value="inclined" id="mode_inclined"><span class="custom-radio"></span>Schiefe Ebene — aus der Ruhe</label>
+    <div id="alpha_group" style="display:none;margin-top:8px;">
+      <div class="slider-label">Neigungswinkel \(\alpha\)</div>
+      <div class="slider-row">
+        <input type="range" id="alpha_slider" min="1" max="30" value="10" step="0.5">
+        <span class="slider-val" id="alpha_val">10.0°</span>
+      </div>
+      <div class="slider-label">Haftreibungskoeffizient \(\mu_s\) (automatisch f. Rollen)</div>
+      <div class="slider-row">
+        <div style="height:3px; background:var(--border2); border-radius:2px; width:100%; opacity:0.5;"></div>
+        <span class="slider-val" id="mu_val">0,40</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Simulationsgeschwindigkeit</div>
+    <div class="speed-pills" id="speed_pills">
+      <label class="speed-pill active"><input type="radio" name="speed" value="1.0" checked>1×</label>
+      <label class="speed-pill"><input type="radio" name="speed" value="0.5">½×</label>
+      <label class="speed-pill"><input type="radio" name="speed" value="0.25">¼×</label>
+    </div>
+  </div>
+</aside>
+
+<main class="center-area">
+  <div class="sim-wrapper">
+    <svg id="main_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <clipPath id="svg-clip">
+          <rect x="0" y="0" width="700" height="320"/>
+        </clipPath>
+        <marker id="arr-v"  markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-vel)"/></marker>
+        <marker id="arr-a"  markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-acc)"/></marker>
+        <marker id="arr-fg" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fg)"/></marker>
+        <marker id="arr-fn" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fn)"/></marker>
+        <marker id="arr-fr" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fr)"/></marker>
+        <radialGradient id="sphereGrad" cx="32%" cy="28%" r="68%">
+          <stop offset="0%"   stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="25%"  stop-color="#b8c8e8" stop-opacity=".9"/>
+          <stop offset="65%"  stop-color="#5070a8" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#1a2540" stop-opacity="1"/>
+        </radialGradient>
+        <radialGradient id="sphereGradL" cx="32%" cy="28%" r="68%">
+          <stop offset="0%"   stop-color="#ffffff" stop-opacity="1"/>
+          <stop offset="30%"  stop-color="#d0d8f0"/>
+          <stop offset="70%"  stop-color="#7088b8"/>
+          <stop offset="100%" stop-color="#3a4878"/>
+        </radialGradient>
+      </defs>
+      <g id="world_g">
+        <g id="bg_g"></g>
+        <g id="obstacle_g"></g>
+        <g id="compare_objs_g"></g>
+        <g id="cylinder_g">
+          <circle id="cyl_body" r="40" fill="#2a2e3a" stroke="#555" stroke-width="1.5"/>
+          <circle id="cyl_inner" r="20" fill="var(--bg)" stroke="#556" stroke-width="1" visibility="hidden"/>
+          <g id="spokes_g" stroke="#444" stroke-width="1" opacity=".6">
+            <line id="sp1" x1="0" y1="0" x2="0"   y2="-40"/>
+            <line id="sp2" x1="0" y1="0" x2="40"  y2="0"/>
+            <line id="sp3" x1="0" y1="0" x2="0"   y2="40"/>
+            <line id="sp4" x1="0" y1="0" x2="-40" y2="0"/>
+          </g>
+          <circle id="pt_sp" r="4"   fill="var(--c-sp)" stroke="#0008" stroke-width=".5"/>
+          <circle id="pt_p1" r="3.5" fill="var(--c-p1)" stroke="#0008" stroke-width=".5"/>
+          <circle id="pt_p2" r="3.5" fill="var(--c-p2)" stroke="#0008" stroke-width=".5"/>
+          <circle id="pt_p3" r="3.5" fill="var(--c-p3)" stroke="#0008" stroke-width=".5"/>
+          <circle id="pt_p4" r="3.5" fill="var(--c-p4)" stroke="#0008" stroke-width=".5"/>
+        </g>
+        <g id="traces_g"></g>
+        <g id="coord_system_g"></g>
+      </g>
+      <g id="vectors_g" clip-path="url(#svg-clip)"></g>
+      <g id="forces_g"  clip-path="url(#svg-clip)"></g>
+      <g id="vec_legend_g" transform="translate(10,220)"></g>
+    </svg>
+    <div class="time-label" id="time_label">t = 0.000 s</div>
+  </div>
+
+  <div class="graph-wrapper">
+    <div class="graph-toolbar">
+      <select class="graph-sel" id="graph_sel"></select>
+      <div class="graph-legend" id="graph_legend"></div>
+    </div>
+    <svg id="graph_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+      <g class="graph-bg-g"></g>
+      <g class="graph-axes-g"></g>
+      <polyline id="gline_sp" fill="none" stroke="var(--c-sp)" stroke-width="1.5" opacity=".85"/>
+      <polyline id="gline_p1" fill="none" stroke="var(--c-p1)" stroke-width="1.5" opacity=".85"/>
+      <polyline id="gline_p2" fill="none" stroke="var(--c-p2)" stroke-width="1.5" opacity=".85"/>
+      <polyline id="gline_p3" fill="none" stroke="var(--c-p3)" stroke-width="1.5" opacity=".85"/>
+      <polyline id="gline_p4" fill="none" stroke="var(--c-p4)" stroke-width="1.5" opacity=".85"/>
+      <polyline id="gcmp_0" fill="none" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <polyline id="gcmp_1" fill="none" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <polyline id="gcmp_2" fill="none" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <polyline id="gcmp_3" fill="none" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <polyline id="gcmp_4" fill="none" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <circle id="gpt_sp" r="4" fill="var(--c-sp)" visibility="hidden"/>
+      <circle id="gpt_p1" r="4" fill="var(--c-p1)" visibility="hidden"/>
+      <circle id="gpt_p2" r="4" fill="var(--c-p2)" visibility="hidden"/>
+      <circle id="gpt_p3" r="4" fill="var(--c-p3)" visibility="hidden"/>
+      <circle id="gpt_p4" r="4" fill="var(--c-p4)" visibility="hidden"/>
+      <line id="graph_cursor" x1="0" y1="0" x2="0" y2="0" stroke-width="1" stroke-dasharray="3,3"/>
+    </svg>
+  </div>
+</main>
+
+<aside class="panel right-panel">
+  <div class="panel-section">
+    <div class="panel-label">Visualisierung</div>
+    <div class="vis-toggle-row"><span class="vis-label">SP-Bahn anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_sp_trace"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Punktspuren anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_traces"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row" id="row_traces_fg" style="opacity:0.4; pointer-events:none;"><span class="vis-label" style="font-size:0.68rem; padding-left:12px;">↳ im Vordergrund</span><label class="toggle-switch"><input type="checkbox" id="tog_traces_fg" disabled><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-vel)">Geschwindigkeitsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_v"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-acc)">Beschleunigungsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_a"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fg)">Gewichtskraft \(F_g\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fg"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fn)">Normalkraft \(F_N\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fn"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fr)">Haftreibungskraft \(F_R\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fr"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Kamera folgt SP</span><label class="toggle-switch"><input type="checkbox" id="tog_follow" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row" style="margin-top:6px;">
+      <span class="vis-label">Kraftvektoren Skalierung</span>
+      <div style="display:flex;gap:4px;">
+        <button type="button" class="vec-scale-btn active" data-scale="1">1×</button>
+        <button type="button" class="vec-scale-btn" data-scale="2">2×</button>
+        <button type="button" class="vec-scale-btn" data-scale="4">4×</button>
+      </div>
+    </div>
+    <div class="force-scale-note">F<sub>g</sub>/F<sub>N</sub>/F<sub>R</sub>: linear skaliert · <strong>v</strong>: proportional · <strong>a</strong>: logarithmisch</div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Analyse-Objekte & Bezugssystem</div>
+    <div style="font-size:0.7rem; color:var(--text2); margin-bottom:8px;">Bezugssystem (Koordinatensystem):</div>
+    <div style="display:flex; gap:10px; margin-bottom:12px;">
+      <label class="radio-row" style="margin-bottom:0;"><input type="radio" name="coord_align" value="plane" checked id="align_plane"><span class="custom-radio"></span>Ebene</label>
+      <label class="radio-row" style="margin-bottom:0;"><input type="radio" name="coord_align" value="ground" id="align_ground"><span class="custom-radio"></span>Boden</label>
+    </div>
+    <div class="subj-pills">
+      <span class="subj-pill active" data-subj="sp"  style="color:var(--c-sp)">SP</span>
+      <span class="subj-pill"        data-subj="p1"  style="color:var(--c-p1)">P1</span>
+      <span class="subj-pill"        data-subj="p2"  style="color:var(--c-p2)">P2</span>
+      <span class="subj-pill"        data-subj="p3"  style="color:var(--c-p3)">P3</span>
+      <span class="subj-pill"        data-subj="p4"  style="color:var(--c-p4)">P4</span>
+    </div>
+    <div id="analysis_area"></div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Rennen – Ankunftszeiten</div>
+    <div id="race_bars"></div>
+    <div class="section-note">Bei gleicher Strecke und gleichen Startbedingungen gewinnt der Körper mit kleinstem k-Faktor.</div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Energiebilanz</div>
+    <div class="energy-display">
+      <div class="energy-row">
+        <span class="energy-label">E<sub>kin,trans</sub></span>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="ebar_trans" style="background:#5b9cf6;width:0%"></div></div>
+        <span class="energy-value" id="eval_trans">0.0000 J</span>
+      </div>
+      <div class="energy-row">
+        <span class="energy-label">E<sub>kin,rot</sub></span>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="ebar_rot" style="background:var(--c-fr);width:0%"></div></div>
+        <span class="energy-value" id="eval_rot">0.0000 J</span>
+      </div>
+      <div class="energy-row">
+        <span class="energy-label">E<sub>pot</sub></span>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="ebar_pot" style="background:var(--c-fn);width:0%"></div></div>
+        <span class="energy-value" id="eval_pot">0.0000 J</span>
+      </div>
+      <div class="energy-row energy-total-row">
+        <span class="energy-label" style="color:var(--accent)">E<sub>ges</sub></span>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="ebar_tot" style="background:var(--accent);width:100%"></div></div>
+        <span class="energy-value" id="eval_tot" style="color:var(--accent)">0.0000 J</span>
+      </div>
+    </div>
+    <div style="font-size:.65rem;color:var(--text3);">m = 1 kg normiert. E<sub>ges</sub> konstant beim reinen Rollen.</div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Physik &amp; Rollbedingung</div>
+    <div class="formula-box">
+      <div>Formfaktor: \(k = I/(mR^2)\) = <span class="k-val" id="kval_display">0.5000</span></div>
+      <div style="margin-top:3px;">Rollbeschleunigung:</div>
+      <div>\[a = \frac{g\sin\alpha}{1+k}\]</div>
+      <div style="margin-top:3px;">Rollbedingung \(\mu_s \geq \frac{\tan\alpha}{1+1/k}\):</div>
+      <div id="rollcond_box" class="roll-condition roll-ok">Rollbedingung erfüllt ✓</div>
+      <div class="mu-note" id="mu_required_note">Benötigtes μ<sub>s,min</sub>: – (Ebene)</div>
+    </div>
+  </div>
+</aside>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

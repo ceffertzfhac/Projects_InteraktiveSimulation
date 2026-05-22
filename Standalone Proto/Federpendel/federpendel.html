@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federpendel v6.2</title>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD; --fh-grey: #7f7f7f;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; position: relative; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 80px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        button:disabled, select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        h3 { font-weight: 500; font-size: 1em; margin: 15px 0 10px 0; color: var(--fh-blue); border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        text { font-size: 12px; }
+        .position-label { color: var(--fh-grey); }
+        .velocity-label { color: var(--fh-orange); }
+        .acceleration-label { color: var(--fh-purple); }
+        #copyright_field { margin-top: 20px; font-size: 0.8em; color: #888; }
+        
+        #start_timing_container div { display: flex; justify-content: center; align-items: center; height: 100%; }
+        #start_timing_button {
+            padding: 6px 10px; font-size: 11px; border-radius: 3px;
+            background-color: var(--fh-blue); color: white; border: none;
+            transition: opacity 0.3s, background-color 0.3s;
+        }
+        #start_timing_button:hover:not(:disabled) { background-color: #004a8c; }
+        #start_timing_button:disabled { background-color: var(--fh-blue); cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Simulation: Feder-Masse-Pendel</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 480">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" /></marker>
+                <marker id="arrowhead-grey" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-grey)" /></marker>
+                <marker id="arrowhead-orange" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-orange)" /></marker>
+                <marker id="arrowhead-purple" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-purple)" /></marker>
+            </defs>
+            
+            <g id="animation_group">
+                <rect x="0" y="0" width="450" height="480" fill="#fdfdfd"></rect>
+                <rect id="anchor_object" fill="#ccc" stroke="#888"></rect> 
+                <line id="unstretched_length_line" stroke-dasharray="2,2" stroke="#aaa" stroke-width="1" visibility="hidden" />
+                <text id="unstretched_length_label" text-anchor="middle" font-size="12px" fill="#aaa"></text>
+                <line id="min_pos_line" stroke-dasharray="2,2" stroke="#777" stroke-width="1" visibility="hidden" />
+                <line id="max_pos_line" stroke-dasharray="2,2" stroke="#777" stroke-width="1" visibility="hidden" />
+                <text id="min_pos_label" text-anchor="middle" font-size="12px" fill="#777"></text>
+                <text id="max_pos_label" text-anchor="middle" font-size="12px" fill="#777"></text>
+                <line id="equilibrium_line" stroke-dasharray="4,4" stroke="black" stroke-width="1.5" />
+                <polyline id="spring" fill="none" stroke="#555" stroke-width="2"/>
+                <rect id="mass" width="60" height="60" fill="var(--fh-red)" stroke="#333" stroke-width="1" />
+                <line id="position_vector" stroke="var(--fh-grey)" stroke-width="2.5" marker-end="url(#arrowhead-grey)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead-orange)" visibility="hidden" />
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                <text id="equilibrium_label" text-anchor="middle" font-size="14px" fill="black"></text>
+                <line id="surface" x1="0" y1="300" x2="450" y2="300" stroke="#333" stroke-width="2" visibility="hidden" />
+
+                <!-- Achsenpfeile und Labels -->
+                <line id="x_axis_arrow" stroke="black" stroke-width="1.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <text id="x_axis_label_text" text-anchor="middle" font-size="14px" fill="black" visibility="hidden"></text>
+                <line id="y_axis_arrow" stroke="black" stroke-width="1.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <text id="y_axis_label_text" text-anchor="middle" font-size="14px" fill="black" visibility="hidden"></text>
+
+                <foreignObject id="start_timing_container" x="0" y="20" width="450" height="40" style="visibility: hidden;">
+                    <div xmlns="http://www.w3.org/1999/xhtml">
+                        <button id="start_timing_button">Zeitmessung starten</button>
+                    </div>
+                </foreignObject>
+
+                <g id="stopwatch" transform="translate(250, 60) scale(0.595)">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" id="stopwatch_circle" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                    <g id="digital_display_group" visibility="hidden"></g>
+                </g>
+            </g>
+            
+            <g id="graph_group" transform="translate(480, 40)">
+                <text id="graph_title" x="210" y="0" text-anchor="middle" font-size="16"></text>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <g id="grid_group"></g>
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <h3>Aufbau</h3>
+                <div class="radio-group">
+                    <div><input type="radio" name="orientation" value="horizontal" checked> Horizontal</div>
+                    <div><input type="radio" name="orientation" value="vertical"> Vertikal</div>
+                </div>
+                <h3>Parameter</h3>
+                <div class="slider-group">
+                    <div class="label">Masse \(m\):</div>
+                    <input type="range" id="mass_slider" min="0.5" max="5.0" value="2.0" step="0.1">
+                    <div class="value" id="mass_value">2.0 kg</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Federkonstante \(k\):</div> <!-- Label auf k geändert -->
+                    <input type="range" id="k_slider" min="5" max="80" value="40" step="1">
+                    <div class="value" id="k_value">40 N/m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label" id="pos0_label">Anfangsauslenkung \(x_0\):</div>
+                    <input type="range" id="pos0_slider" min="-1.5" max="1.5" value="0.8" step="0.05">
+                    <div class="value" id="pos0_value">0.80 m</div>
+                </div>
+                 <div style="margin-top: 15px;">
+                    <h3>Visualisierung</h3>
+                    <div class="position-label"><input type="checkbox" id="toggle_position_vector"> Auslenkungsvektor</div>
+                    <div class="velocity-label"><input type="checkbox" id="toggle_velocity_vector"> Geschwindigkeitsvektor</div>
+                    <div class="acceleration-label"><input type="checkbox" id="toggle_acceleration_vector"> Beschleunigungsvektor</div>
+                    <div><input type="checkbox" id="toggle_manual_timing"> Manuelle Zeitmessung</div>
+                </div>
+            </div>
+            <div class="control-group">
+                <h3>Geschwindigkeit</h3>
+                <div class="radio-group">
+                    <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                    <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                    <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                </div>
+                <h3 style="margin-top: 25px;">Analyse</h3>
+                <select id="graph_select">
+                    <option value="pos_t" selected>Ort-Zeit</option>
+                    <option value="v_t">Geschwindigkeit-Zeit</option>
+                    <option value="a_t">Beschleunigung-Zeit</option>
+                </select>
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                    <button id="export_csv_button">Export CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="copyright_field"> &copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / Fachbereich 8 </div>
+
+    <script>
+        const G = 9.81;
+        const PIXELS_PER_METER = 100;
+        
+        let ANIM_CENTER_X; // Wird dynamisch in resetScene gesetzt
+        let ANIM_CENTER_Y; // Wird dynamisch in resetScene gesetzt
+        
+        const INITIAL_MASS_SIZE = 60; // Max. visuelle Größe der Masse
+        const L0 = 2.2; // Angepasst: Federlänge um 1.2 verlängert (von 1.0 auf 2.2)
+
+        // Neue Konstanten für die Ankerdarstellung
+        const ANCHOR_THICKNESS = 30; // Gewünschte Dicke für Wand (x-Richtung) und Decke (y-Richtung) in Pixeln
+        const ANCHOR_CROSS_DIMENSION = 100; // Breite der Decke / Höhe der Wand, senkrecht zur Schwingungsrichtung
+        const ANCHOR_OFFSET_FROM_EDGE = 10; // Abstand des Ankers vom Rand der Animationsfläche in Pixeln
+
+
+        const TIME_STEP = 1 / 60;
+        const PIXELS_PER_VELOCITY_UNIT = 30;
+        const PIXELS_PER_ACCELERATION_UNIT = 5;
+
+        let aniFrameId = null, lastFrameTime = 0, visualTime = 0, simulatedTimeElapsed = 0;
+        let isTimingStarted = false, isManualTiming = false;
+        let m, k, amplitude, omega, T, graphType, speedFactor, oscillationMode, isDigitalDisplay = false;
+        let current_mass_render_size; // Aktuelle Render-Größe der Masse
+
+        let full_t_data = [], full_displacement_data = [], full_v_data = [], full_a_data = [];
+        let axisLimits = {};
+
+        const ui = {
+            mass: document.getElementById('mass'), spring: document.getElementById('spring'),
+            anchorObject: document.getElementById('anchor_object'), surface: document.getElementById('surface'),
+            equilibriumLine: document.getElementById('equilibrium_line'), equilibriumLabel: document.getElementById('equilibrium_label'),
+            unstretchedLengthLine: document.getElementById('unstretched_length_line'), unstretchedLengthLabel: document.getElementById('unstretched_length_label'),
+            minPosLine: document.getElementById('min_pos_line'), maxPosLine: document.getElementById('max_pos_line'),
+            minPosLabel: document.getElementById('min_pos_label'), maxPosLabel: document.getElementById('max_pos_label'),
+            positionVector: document.getElementById('position_vector'), velocityVector: document.getElementById('velocity_vector'),
+            accelerationVector: document.getElementById('acceleration_vector'),
+            massSlider: document.getElementById('mass_slider'), kSlider: document.getElementById('k_slider'), pos0Slider: document.getElementById('pos0_slider'),
+            massValue: document.getElementById('mass_value'), kValue: document.getElementById('k_value'), pos0Value: document.getElementById('pos0_value'),
+            pos0Label: document.getElementById('pos0_label'),
+            orientationRadios: document.querySelectorAll('input[name="orientation"]'), speedRadios: document.querySelectorAll('input[name="speed"]'),
+            graphSelect: document.getElementById('graph_select'),
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), resetButton: document.getElementById('reset_button'), exportButton: document.getElementById('export_csv_button'),
+            togglePositionVector: document.getElementById('toggle_position_vector'), toggleVelocityVector: document.getElementById('toggle_velocity_vector'),
+            toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'), toggleManualTiming: document.getElementById('toggle_manual_timing'),
+            startTimingButton: document.getElementById('start_timing_button'), startTimingContainer: document.getElementById('start_timing_container'),
+            gridGroup: document.getElementById('grid_group'), graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'), graphPoint: document.getElementById('graph_point'),
+            stopwatch: document.getElementById('stopwatch'), stopwatchCircle: document.getElementById('stopwatch_circle'),
+            mainHand: document.getElementById('stopwatch_main_hand'), subHand: document.getElementById('stopwatch_sub_hand'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), subdial: document.getElementById('subdial'),
+            subdialMarks: document.getElementById('subdial_marks'), digitalDisplayGroup: document.getElementById('digital_display_group'),
+            copyrightYear: document.getElementById('copyright-year'),
+            // Neue UI-Elemente für Achsenpfeile und Labels
+            xAxisArrow: document.getElementById('x_axis_arrow'),
+            xAxisLabelText: document.getElementById('x_axis_label_text'),
+            yAxisArrow: document.getElementById('y_axis_arrow'),
+            yAxisLabelText: document.getElementById('y_axis_label_text')
+        };
+        
+        const scale = (val) => val * PIXELS_PER_METER;
+        
+        function createSVGElement(tag, attributes) { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const key in attributes) el.setAttribute(key, attributes[key]); return el; }
+        function createStyledSvgText(svgElement, textString) { const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g; let match; svgElement.innerHTML = ''; while ((match = regex.exec(textString)) !== null) { if (match[1]) { svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1]; } else if (match[2]) { svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2]; } else if (match[3]) { svgElement.appendChild(document.createTextNode(match[3])); } } }
+        function drawSpring(startX, startY, endX, endY, numSegments = 20) { 
+            let points = `${startX},${startY} `; 
+            const dx = endX - startX, dy = endY - startY;
+            const length = Math.sqrt(dx*dx + dy*dy); 
+            if (length < 5) { // Avoid drawing a spring that is too short
+                ui.spring.setAttribute('points', points + `${endX},${endY}`); 
+                return; 
+            } 
+            const springWidth = 20; // Breite der Schwingungen
+            for (let i = 1; i < numSegments; i++) { 
+                const progress = i / numSegments;
+                const lineX = startX + progress * dx;
+                const lineY = startY + progress * dy;
+                const perpX = -dy / length;
+                const perpY = dx / length;
+                const offset = (i % 2 === 0) ? -springWidth : springWidth;
+                points += `${lineX + offset * perpX},${lineY + offset * perpY} `; 
+            } 
+            points += `${endX},${endY}`; 
+            ui.spring.setAttribute('points', points); 
+        }
+        function drawStopwatchMarks() { ui.stopwatchMarks.innerHTML = ''; const cx = 280, cy = 120, r = 72; for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 8 : r - 5; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); } ui.subdialMarks.innerHTML = ''; const scx=280, scy=150, sr=16; for(let i=0;i<10;i++){ const a=(i/10)*2*Math.PI; ui.subdialMarks.appendChild(createSVGElement('line',{x1:scx+(sr-3)*Math.sin(a),y1:scy-(sr-3)*Math.cos(a),x2:scx+sr*Math.sin(a),y2:scy-sr*Math.cos(a),stroke:'black','stroke-width':1})); } }
+        const DIGITAL_DISPLAY_SCALE_FACTOR = 0.85, SEG_THICK_BASE = 6, SEG_LEN_BASE = 40, DIGIT_SPACING_BASE = 5, COLON_WIDTH_BASE = 10, LCD_FRAME_PADDING_BASE = 10; const SEG_THICK = SEG_THICK_BASE * DIGITAL_DISPLAY_SCALE_FACTOR, SEG_LEN = SEG_LEN_BASE * DIGITAL_DISPLAY_SCALE_FACTOR, DIGIT_SPACING = DIGIT_SPACING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR, COLON_WIDTH = COLON_WIDTH_BASE * DIGITAL_DISPLAY_SCALE_FACTOR, LCD_FRAME_PADDING = LCD_FRAME_PADDING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR; const DIGIT_WIDTH = SEG_LEN + 2 * SEG_THICK, DIGIT_HEIGHT = 2 * SEG_LEN + 3 * SEG_THICK, COLON_DOT_SIZE = SEG_THICK; const DIGITAL_FRAME_WIDTH = (4 * DIGIT_WIDTH) + COLON_WIDTH + (3 * DIGIT_SPACING) + (2 * LCD_FRAME_PADDING), DIGITAL_FRAME_HEIGHT = DIGIT_HEIGHT + (2 * LCD_FRAME_PADDING); const DIGITAL_FRAME_X = 280 - (DIGITAL_FRAME_WIDTH / 2), DIGITAL_FRAME_Y = 120 - (DIGITAL_FRAME_HEIGHT / 2); const DIGIT_SEGMENTS_MAP = { 0: [0,1,2,3,4,5], 1: [1,2], 2: [0,1,6,4,3], 3: [0,1,6,2,3], 4: [5,6,1,2], 5: [0,5,6,2,3], 6: [0,5,4,3,2,6], 7: [0,1,2], 8: [0,1,2,3,4,5,6], 9: [0,1,2,3,5,6] }; function getSegmentRectDefs() { return [ {x:SEG_THICK,y:0,width:SEG_LEN,height:SEG_THICK}, {x:SEG_LEN+SEG_THICK,y:SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_LEN+SEG_THICK,y:SEG_LEN+2*SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_THICK,y:2*SEG_LEN+2*SEG_THICK,width:SEG_LEN,height:SEG_THICK}, {x:0,y:SEG_LEN+2*SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:0,y:SEG_THICK,width:SEG_THICK,height:SEG_LEN}, {x:SEG_THICK,y:SEG_LEN+SEG_THICK,width:SEG_LEN,height:SEG_THICK} ]; } function initDigitalDisplaySegments() { ui.digitalDisplayGroup.innerHTML = ''; ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'digital_display_frame',x:DIGITAL_FRAME_X,y:DIGITAL_FRAME_Y,width:DIGITAL_FRAME_WIDTH,height:DIGITAL_FRAME_HEIGHT,fill:'var(--lcd-bg-color)',stroke:'black','stroke-width':2,rx:8,ry:8})); const startY=DIGITAL_FRAME_Y+LCD_FRAME_PADDING, segs=getSegmentRectDefs(), startX1=DIGITAL_FRAME_X+LCD_FRAME_PADDING, startX2=startX1+DIGIT_WIDTH+DIGIT_SPACING, startX3=startX2+DIGIT_WIDTH+COLON_WIDTH, startX4=startX3+DIGIT_WIDTH+DIGIT_SPACING, xPos=[startX1,startX2,startX3,startX4]; for(let i=0;i<4;i++){segs.forEach((s,j)=>{ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:`digit_seg_${i}_${j}`,x:xPos[i]+s.x,y:startY+s.y,width:s.width,height:s.height,fill:'var(--lcd-segment-off-color)',rx:1,ry:1}))} );} const colonX=startX2+DIGIT_WIDTH+DIGIT_SPACING/2, dotTopY=startY+DIGIT_HEIGHT*.3, dotBottomY=startY+DIGIT_HEIGHT*.7; ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'colon_dot_top',x:colonX,y:dotTopY,width:COLON_DOT_SIZE,height:COLON_DOT_SIZE,fill:'var(--lcd-segment-off-color)',rx:1})); ui.digitalDisplayGroup.appendChild(createSVGElement('rect',{id:'colon_dot_bottom',x:colonX,y:dotBottomY,width:COLON_DOT_SIZE,height:COLON_DOT_SIZE,fill:'var(--lcd-segment-off-color)',rx:1})); } function updateDigitalDisplay(s) { let secs=Math.floor(s%60), hunds=Math.round((s*100)%100), digits=[Math.floor(secs/10),secs%10,Math.floor(hunds/10),hunds%10]; for(let i=0;i<4;i++){const segs_on=DIGIT_SEGMENTS_MAP[digits[i]]; for(let j=0;j<7;j++){document.getElementById(`digit_seg_${i}_${j}`).setAttribute('fill',segs_on.includes(j)?'var(--lcd-segment-on-color)':'var(--lcd-segment-off-color)')}} document.getElementById('colon_dot_top').setAttribute('fill','var(--lcd-segment-on-color)'); document.getElementById('colon_dot_bottom').setAttribute('fill','var(--lcd-segment-on-color)'); }
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        function updateGraph(time, value) { const limits = axisLimits[graphType]; if (!limits) return; ui.gridGroup.innerHTML = ''; const width = 420, height = 400, padL = 45, padB = 35, padT = 25, padR = 10, plotW = width - padL - padR, plotH = height - padT - padB; const t_max = limits.t_max, val_min = limits.min, val_max = limits.max; const scaleX = (t) => padL + (t / t_max) * plotW, scaleY = (v) => padT + plotH - (((v - val_min) / (val_max - val_min || 1)) * plotH); createStyledSvgText(ui.graphTitle, limits.title); ui.gridGroup.appendChild(createSVGElement('line', {x1: padL, y1: scaleY(0), x2: padL + plotW, y2: scaleY(0), stroke: 'black', 'marker-end': 'url(#arrowhead)'})); ui.gridGroup.appendChild(createSVGElement('line', {x1: padL, y1: padT + plotH, x2: padL, y2: padT, stroke: 'black', 'marker-end': 'url(#arrowhead)'})); const xAxisLabel = createSVGElement('text', {x: padL + plotW / 2, y: padT + plotH + 30, 'text-anchor': 'middle'}); createStyledSvgText(xAxisLabel, "Zeit <i>t</i> / s"); ui.gridGroup.appendChild(xAxisLabel); const yAxisLabel = createSVGElement('text', {'text-anchor': 'middle', transform: `rotate(-90, 10, ${padT + plotH/2})`, x: 10, y: padT + plotH/2}); createStyledSvgText(yAxisLabel, limits.y_label); ui.gridGroup.appendChild(yAxisLabel); for (let i = 1; i <= 10; i++) { const t = (t_max / 10) * i, x = scaleX(t); ui.gridGroup.appendChild(createSVGElement('line', {x1: x, y1: padT, x2: x, y2: padT + plotH, stroke: '#eee'})); ui.gridGroup.appendChild(createSVGElement('text', {x: x, y: scaleY(0) + 15, 'text-anchor': 'middle'})).textContent = t.toFixed(1); } const y_step = getNiceTickStep(val_max - val_min, 8); for (let v = Math.ceil(val_min/y_step)*y_step; v <= val_max + 1e-9; v += y_step) { if(Math.abs(v) < 1e-9) continue; const y = scaleY(v); ui.gridGroup.appendChild(createSVGElement('line', {x1: padL, y1: y, x2: padL + plotW, y2: y, stroke: '#eee'})); ui.gridGroup.appendChild(createSVGElement('text', {x: padL - 8, y: y + 4, 'text-anchor': 'end'})).textContent = v.toFixed(v % 1 === 0 ? 0 : 1); } let points = ""; let plotIndex = full_t_data.findIndex(t => t > time); if (plotIndex === -1 && time > 0) plotIndex = full_t_data.length; const data_to_plot = limits.data.slice(0, plotIndex); for(let i=0; i < data_to_plot.length; i++) { points += `${scaleX(full_t_data[i])},${scaleY(data_to_plot[i])} `; } if (value !== null) points += `${scaleX(time)},${scaleY(value)} `; ui.graphLine.setAttribute('points', points); ui.graphPoint.style.visibility = value !== null ? 'visible' : 'hidden'; if (value !== null) { ui.graphPoint.setAttribute('cx', scaleX(time)); ui.graphPoint.setAttribute('cy', scaleY(value)); } }
+        function extendMotionData(duration) { 
+            const last_t = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 0; 
+            for (let t = last_t + TIME_STEP; t <= last_t + duration + TIME_STEP; t += TIME_STEP) { 
+                full_t_data.push(t); 
+                full_displacement_data.push(amplitude * Math.cos(omega * t)); 
+                full_v_data.push(-amplitude * omega * Math.sin(omega * t)); 
+                full_a_data.push(-amplitude * omega * omega * Math.cos(omega * t)); 
+            } 
+        }
+        function precomputeMotionData() { 
+            full_t_data = []; full_displacement_data = []; full_v_data = []; full_a_data = []; 
+            if (Math.abs(amplitude) < 1e-9 || T === Infinity) { 
+                recalculateAxisLimits(); 
+                return; 
+            } 
+            extendMotionData(Math.max(4 * T, 10)); 
+            recalculateAxisLimits(); 
+        }
+        function recalculateAxisLimits() { 
+            const t_max = full_t_data.length > 0 ? full_t_data[full_t_data.length-1] : 10; 
+            const pos_label = oscillationMode === 'horizontal' ? "Auslenkung <i>x</i> / m" : "Auslenkung <i>y</i> / m"; 
+            const datasets = { 
+                pos_t: { data: full_displacement_data, title: "Ort-Zeit-Diagramm", y_label: pos_label}, 
+                v_t: { data: full_v_data, title: "Geschwindigkeit-Zeit-Diagramm", y_label: "Geschw. <i>v</i> / (m/s)"}, 
+                a_t: { data: full_a_data, title: "Beschleunigung-Zeit-Diagramm", y_label: "Beschl. <i>a</i> / (m/s²)"}, 
+            }; 
+            for (const key in datasets) { 
+                const data = datasets[key].data; 
+                const max_abs = data.length > 0 ? Math.max(...data.map(d => Math.abs(d))) : 1; 
+                axisLimits[key] = { min: -max_abs * 1.1, max: max_abs * 1.1, t_max: t_max, ...datasets[key] }; 
+            } 
+        }
+        function exportCsvData() { 
+            let csvContent = "data:text/csv;charset=utf-8,", pos_header = oscillationMode === 'horizontal' ? "Auslenkung x (m)" : "Auslenkung y (m)"; 
+            csvContent += `Zeit t (s),${pos_header},Geschwindigkeit v (m/s),Beschleunigung a (m/s^2)\n`; 
+            for (let i = 0; i < full_t_data.length; i++) { 
+                let row = [full_t_data[i].toFixed(4), full_displacement_data[i].toFixed(4), full_v_data[i].toFixed(4), full_a_data[i].toFixed(4)].join(','); 
+                csvContent += row + "\n"; 
+            } 
+            const link = document.createElement("a"); 
+            link.setAttribute("href", encodeURI(csvContent)); 
+            link.setAttribute("download", "federpendel_daten.csv"); 
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link); 
+        }
+
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const deltaTime = (currentTime - lastFrameTime) / 1000.0;
+            lastFrameTime = currentTime;
+            
+            visualTime += deltaTime * speedFactor;
+            let currentSimulatedTime = 0, currentGraphValue = null;
+
+            if (!isManualTiming || isTimingStarted) {
+                simulatedTimeElapsed += deltaTime * speedFactor;
+                currentSimulatedTime = simulatedTimeElapsed;
+                if (full_t_data.length > 0 && simulatedTimeElapsed >= full_t_data[full_t_data.length - 1]) {
+                    extendMotionData(Math.max(4 * T, 10));
+                    recalculateAxisLimits();
+                }
+            }
+            
+            // Mass position is calculated relative to the current ANIM_CENTER_X/Y
+            const visualDisplacement = amplitude * Math.cos(omega * visualTime);
+            
+            if ((!isManualTiming || isTimingStarted) && full_t_data.length > 1) {
+                let i = 0;
+                while (i < full_t_data.length - 2 && full_t_data[i+1] <= currentSimulatedTime) i++;
+                const t1 = full_t_data[i], t2 = full_t_data[i+1];
+                const alpha = (t2 > t1) ? (currentSimulatedTime - t1) / (t2 - t1) : 0;
+                
+                let dataArray;
+                switch(graphType) {
+                    case 'v_t': dataArray = full_v_data; break;
+                    case 'a_t': dataArray = full_a_data; break;
+                    default: dataArray = full_displacement_data; break;
+                }
+                currentGraphValue = dataArray[i] + alpha * (dataArray[i+1] - dataArray[i]);
+            }
+            
+            let mass_center_x, mass_center_y, spring_start_x, spring_start_y;
+            const vec_offset = 0.5 * current_mass_render_size + 5; // Verwende die aktuelle Render-Größe für Vektoren
+            const v = -amplitude * omega * Math.sin(omega * visualTime);
+            const a = -amplitude * omega**2 * Math.cos(omega * visualTime);
+
+            if (oscillationMode === 'horizontal') {
+                mass_center_x = ANIM_CENTER_X + scale(visualDisplacement); 
+                mass_center_y = ANIM_CENTER_Y; 
+                spring_start_x = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS; 
+                spring_start_y = ANIM_CENTER_Y;
+
+                if(ui.togglePositionVector.checked) { ui.positionVector.setAttribute('x1', ANIM_CENTER_X); ui.positionVector.setAttribute('y1', mass_center_y + vec_offset); ui.positionVector.setAttribute('x2', mass_center_x); ui.positionVector.setAttribute('y2', mass_center_y + vec_offset); }
+                if(ui.toggleVelocityVector.checked) { ui.velocityVector.setAttribute('x1', mass_center_x); ui.velocityVector.setAttribute('y1', mass_center_y); ui.velocityVector.setAttribute('x2', mass_center_x + v * PIXELS_PER_VELOCITY_UNIT); ui.velocityVector.setAttribute('y2', mass_center_y); }
+                if(ui.toggleAccelerationVector.checked) { ui.accelerationVector.setAttribute('x1', mass_center_x); ui.accelerationVector.setAttribute('y1', mass_center_y - vec_offset); ui.accelerationVector.setAttribute('x2', mass_center_x + a * PIXELS_PER_ACCELERATION_UNIT); ui.accelerationVector.setAttribute('y2', mass_center_y - vec_offset); }
+            } else { // Vertikale Ausrichtung (y zeigt nach oben)
+                mass_center_x = ANIM_CENTER_X; 
+                // Wichtig: y zeigt nach oben, daher bedeutet positive Auslenkung eine Verringerung der SVG y-Koordinate
+                mass_center_y = ANIM_CENTER_Y - scale(visualDisplacement); 
+                spring_start_x = ANIM_CENTER_X;
+                spring_start_y = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS;
+
+                if(ui.togglePositionVector.checked) { ui.positionVector.setAttribute('x1', mass_center_x + vec_offset); ui.positionVector.setAttribute('y1', ANIM_CENTER_Y); ui.positionVector.setAttribute('x2', mass_center_x + vec_offset); ui.positionVector.setAttribute('y2', mass_center_y); }
+                if(ui.toggleVelocityVector.checked) { ui.velocityVector.setAttribute('x1', mass_center_x); ui.velocityVector.setAttribute('y1', mass_center_y); ui.velocityVector.setAttribute('x2', mass_center_x); ui.velocityVector.setAttribute('y2', mass_center_y - (v * PIXELS_PER_VELOCITY_UNIT)); } // y-Vektor geht nach oben
+                if(ui.toggleAccelerationVector.checked) { ui.accelerationVector.setAttribute('x1', mass_center_x - vec_offset); ui.accelerationVector.setAttribute('y1', mass_center_y); ui.accelerationVector.setAttribute('x2', mass_center_x - vec_offset); ui.accelerationVector.setAttribute('y2', mass_center_y - (a * PIXELS_PER_ACCELERATION_UNIT)); } // y-Vektor geht nach oben
+            }
+            ui.mass.setAttribute('x', mass_center_x - current_mass_render_size/2); 
+            ui.mass.setAttribute('y', mass_center_y - current_mass_render_size/2);
+            drawSpring(spring_start_x, spring_start_y, mass_center_x, mass_center_y);
+            
+            if (isDigitalDisplay) { updateDigitalDisplay(currentSimulatedTime); } 
+            else { const main_angle = (currentSimulatedTime % 60 / 60) * 2 * Math.PI, sub_angle = (currentSimulatedTime % 1) * 2 * Math.PI; ui.mainHand.setAttribute('x2', 280 + 60 * Math.sin(main_angle)); ui.mainHand.setAttribute('y2', 120 - 60 * Math.cos(main_angle)); ui.subHand.setAttribute('x2', 280 + 15 * Math.sin(sub_angle)); ui.subHand.setAttribute('y2', 150 - 15 * Math.cos(sub_angle)); }
+            
+            updateGraph(currentSimulatedTime, currentGraphValue);
+            aniFrameId = requestAnimationFrame(animate);
+        }
+        
+        function stopAnimation() { if (aniFrameId) cancelAnimationFrame(aniFrameId); aniFrameId = null; ui.playButton.disabled = false; ui.pauseButton.disabled = true; [ui.massSlider, ui.kSlider, ui.pos0Slider, ...ui.orientationRadios, ui.toggleManualTiming].forEach(el => el.disabled = false); }
+
+        function resetScene(isPlayTrigger = false) {
+            stopAnimation();
+            if(!isPlayTrigger) { visualTime = 0; simulatedTimeElapsed = 0; }
+            lastFrameTime = 0; isTimingStarted = false;
+            
+            m = parseFloat(ui.massSlider.value); 
+            k = parseFloat(ui.kSlider.value); 
+            amplitude = parseFloat(ui.pos0Slider.value); // Umbenannt von A zu amplitude
+            graphType = ui.graphSelect.value; 
+            isManualTiming = ui.toggleManualTiming.checked;
+            ui.orientationRadios.forEach(r => { if (r.checked) oscillationMode = r.value; });
+            ui.massValue.textContent = `${m.toFixed(1)} kg`; 
+            ui.kValue.textContent = `${k.toFixed(0)} N/m`; 
+            ui.pos0Value.textContent = `${amplitude.toFixed(2)} m`; // Verwendet amplitude
+            ui.speedRadios.forEach(r => { if(r.checked) speedFactor = parseFloat(r.value); });
+            
+            omega = Math.sqrt(k / m); 
+            T = (omega > 0) ? (2 * Math.PI) / omega : Infinity;
+
+            // Masse skalieren
+            const maxMassValue = parseFloat(ui.massSlider.max); // 5.0
+            const minMassValue = parseFloat(ui.massSlider.min); // 0.5
+            const maxMassRenderSize = INITIAL_MASS_SIZE; // 60
+            const minMassRenderSize = 30; // Min. Größe der Masse in Pixeln
+            current_mass_render_size = minMassRenderSize + 
+                                            ((m - minMassValue) / (maxMassValue - minMassValue)) * 
+                                            (maxMassRenderSize - minMassRenderSize);
+            ui.mass.setAttribute('width', current_mass_render_size);
+            ui.mass.setAttribute('height', current_mass_render_size);
+
+            // Federdicke skalieren
+            const minKValue = parseFloat(ui.kSlider.min); // 5
+            const maxKValue = parseFloat(ui.kSlider.max); // 80
+            const minSpringStroke = 2; // Min. Strichstärke
+            const maxSpringStroke = 4; // Max. Strichstärke
+            const spring_stroke_width = minSpringStroke + 
+                                        ((k - minKValue) / (maxKValue - minKValue)) * 
+                                        (maxSpringStroke - minSpringStroke);
+            ui.spring.setAttribute('stroke-width', spring_stroke_width);
+            
+            ui.positionVector.style.visibility = ui.togglePositionVector.checked ? 'visible' : 'hidden';
+            ui.velocityVector.style.visibility = ui.toggleVelocityVector.checked ? 'visible' : 'hidden';
+            ui.accelerationVector.style.visibility = ui.toggleAccelerationVector.checked ? 'visible' : 'hidden';
+
+            if(isManualTiming) {
+                ui.startTimingContainer.style.visibility = 'visible';
+                ui.startTimingButton.style.opacity = '0.5';
+                ui.startTimingButton.disabled = true;
+            } else {
+                ui.startTimingContainer.style.visibility = 'hidden';
+            }
+
+            // Referenzpunkt für die Zentrierung der Anker in der nicht-schwingenden Achse
+            const animAreaWidth = 450;
+            const animAreaHeight = 480;
+            const initial_center_x_for_cross_dim = animAreaWidth / 2; 
+            const initial_center_y_for_cross_dim = animAreaHeight / 2;
+
+            let mass_center_x, mass_center_y, actual_spring_attach_x, actual_spring_attach_y;
+            
+            // Achsenpfeile und Labels initial ausblenden
+            ui.xAxisArrow.style.visibility = 'hidden';
+            ui.xAxisLabelText.style.visibility = 'hidden';
+            ui.yAxisArrow.style.visibility = 'hidden';
+            ui.yAxisLabelText.style.visibility = 'hidden';
+
+            if (oscillationMode === 'horizontal') {
+                ui.pos0Label.innerHTML = 'Anfangsauslenkung \\(x_0\\):';
+                
+                // Position Ankerobjekt (Wand)
+                ui.anchorObject.setAttribute('x', ANCHOR_OFFSET_FROM_EDGE);
+                ui.anchorObject.setAttribute('y', initial_center_y_for_cross_dim - ANCHOR_CROSS_DIMENSION / 2);
+                ui.anchorObject.setAttribute('width', ANCHOR_THICKNESS);
+                ui.anchorObject.setAttribute('height', ANCHOR_CROSS_DIMENSION);
+
+                // Federansatzpunkt ist die rechte Kante der Wand
+                actual_spring_attach_x = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS;
+                actual_spring_attach_y = initial_center_y_for_cross_dim;
+
+                // Aktualisiere die globale ANIM_CENTER_X auf die neue Gleichgewichtsposition
+                ANIM_CENTER_X = actual_spring_attach_x + scale(L0); // L0 ist die ungedehnte Länge
+                ANIM_CENTER_Y = initial_center_y_for_cross_dim; // Y bleibt für horizontale Schwingung unverändert
+
+                // Anfangsposition der Masse basierend auf dem neuen ANIM_CENTER_X
+                mass_center_x = ANIM_CENTER_X + scale(amplitude);
+                mass_center_y = ANIM_CENTER_Y;
+
+                ui.surface.style.visibility = 'visible'; 
+                ui.surface.setAttribute('y1', ANIM_CENTER_Y + current_mass_render_size/2); // Angepasst an neue Massengröße
+                ui.surface.setAttribute('y2', ANIM_CENTER_Y + current_mass_render_size/2);
+
+                // Aktualisiere alle Elemente, die von ANIM_CENTER_X/Y abhängen
+                ui.equilibriumLine.setAttribute('x1', ANIM_CENTER_X); 
+                ui.equilibriumLine.setAttribute('y1', ANIM_CENTER_Y - 80); 
+                ui.equilibriumLine.setAttribute('x2', ANIM_CENTER_X); 
+                ui.equilibriumLine.setAttribute('y2', ANIM_CENTER_Y + 80);
+                ui.equilibriumLabel.setAttribute('x', ANIM_CENTER_X); 
+                ui.equilibriumLabel.setAttribute('y', ANIM_CENTER_Y - 90); 
+                ui.equilibriumLabel.textContent = "x = 0 (Ruhelage)";
+                
+                ui.minPosLine.setAttribute('x1', ANIM_CENTER_X - scale(Math.abs(amplitude))); 
+                ui.maxPosLine.setAttribute('x1', ANIM_CENTER_X + scale(Math.abs(amplitude))); 
+                ui.minPosLine.setAttribute('y1', ANIM_CENTER_Y - 70); 
+                ui.maxPosLine.setAttribute('y1', ANIM_CENTER_Y - 70); 
+                ui.minPosLine.setAttribute('x2', ANIM_CENTER_X - scale(Math.abs(amplitude))); 
+                ui.maxPosLine.setAttribute('x2', ANIM_CENTER_X + scale(Math.abs(amplitude))); 
+                ui.minPosLine.setAttribute('y2', ANIM_CENTER_Y + 70); 
+                ui.maxPosLine.setAttribute('y2', ANIM_CENTER_Y + 70);
+
+                // Amplituden-Labels anpassen
+                ui.minPosLabel.setAttribute('x', ANIM_CENTER_X - scale(Math.abs(amplitude))); 
+                ui.maxPosLabel.setAttribute('x', ANIM_CENTER_X + scale(Math.abs(amplitude))); 
+                ui.minPosLabel.setAttribute('y', ANIM_CENTER_Y - 80); 
+                ui.maxPosLabel.setAttribute('y', ANIM_CENTER_Y - 80);
+                ui.minPosLabel.textContent = "-x_0"; // Angepasst
+                ui.maxPosLabel.textContent = "+x_0"; // Angepasst
+
+                ui.unstretchedLengthLine.style.visibility = 'hidden'; ui.unstretchedLengthLabel.style.visibility = 'hidden';
+
+                // X-Achsenpfeil anzeigen
+                ui.xAxisArrow.setAttribute('x1', ANIM_CENTER_X);
+                ui.xAxisArrow.setAttribute('y1', ANIM_CENTER_Y + (current_mass_render_size/2) + 20); // Unter der Masse
+                ui.xAxisArrow.setAttribute('x2', ANIM_CENTER_X + scale(1.0)); // 1 Meter nach rechts
+                ui.xAxisArrow.setAttribute('y2', ANIM_CENTER_Y + (current_mass_render_size/2) + 20);
+                ui.xAxisArrow.style.visibility = 'visible';
+                createStyledSvgText(ui.xAxisLabelText, "<i>x</i>"); // Label als x
+                ui.xAxisLabelText.setAttribute('x', ANIM_CENTER_X + scale(1.0) + 15);
+                ui.xAxisLabelText.setAttribute('y', ANIM_CENTER_Y + (current_mass_render_size/2) + 25);
+                ui.xAxisLabelText.style.visibility = 'visible';
+
+
+            } else { // Vertikale Ausrichtung
+                ui.pos0Label.innerHTML = 'Anfangsauslenkung \\(y_0\\):';
+                const delta_L = (m * G) / k; 
+                
+                // Position Ankerobjekt (Decke)
+                ui.anchorObject.setAttribute('x', initial_center_x_for_cross_dim - ANCHOR_CROSS_DIMENSION / 2);
+                ui.anchorObject.setAttribute('y', ANCHOR_OFFSET_FROM_EDGE);
+                ui.anchorObject.setAttribute('width', ANCHOR_CROSS_DIMENSION);
+                ui.anchorObject.setAttribute('height', ANCHOR_THICKNESS);
+
+                // Federansatzpunkt ist die untere Kante der Decke
+                actual_spring_attach_x = initial_center_x_for_cross_dim;
+                actual_spring_attach_y = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS;
+
+                // Aktualisiere die globale ANIM_CENTER_Y auf die neue Gleichgewichtsposition
+                ANIM_CENTER_X = initial_center_x_for_cross_dim; // X bleibt für vertikale Schwingung unverändert
+                ANIM_CENTER_Y = actual_spring_attach_y + scale(L0) + scale(delta_L); // Gleichgewicht ist unterhalb des Ankers + L0 + Dehnung
+
+                // Anfangsposition der Masse basierend auf dem neuen ANIM_CENTER_Y
+                // Da y nach oben positiv ist, wird A (initiale Auslenkung) von ANIM_CENTER_Y abgezogen,
+                // um die Masse bei positivem A nach oben zu verschieben.
+                mass_center_x = ANIM_CENTER_X;
+                mass_center_y = ANIM_CENTER_Y - scale(amplitude); 
+
+                ui.surface.style.visibility = 'hidden';
+
+                ui.equilibriumLine.setAttribute('x1', ANIM_CENTER_X - 80); 
+                ui.equilibriumLine.setAttribute('y1', ANIM_CENTER_Y); 
+                ui.equilibriumLine.setAttribute('x2', ANIM_CENTER_X + 80); 
+                ui.equilibriumLine.setAttribute('y2', ANIM_CENTER_Y);
+                ui.equilibriumLabel.setAttribute('x', ANIM_CENTER_X + 120); 
+                ui.equilibriumLabel.setAttribute('y', ANIM_CENTER_Y + 4); 
+                ui.equilibriumLabel.textContent = "y = 0 (Ruhelage)";
+
+                const unstretched_y_physical = actual_spring_attach_y + scale(L0); // Physikalische Y-Position der entspannten Feder (höherer SVG y-Wert)
+                ui.unstretchedLengthLine.setAttribute('x1', ANIM_CENTER_X-50); 
+                ui.unstretchedLengthLine.setAttribute('y1', unstretched_y_physical); 
+                ui.unstretchedLengthLine.setAttribute('x2', ANIM_CENTER_X+50); 
+                ui.unstretchedLengthLine.setAttribute('y2', unstretched_y_physical);
+                ui.unstretchedLengthLabel.setAttribute('x', ANIM_CENTER_X+100); 
+                ui.unstretchedLengthLabel.setAttribute('y', unstretched_y_physical + 4);  
+                ui.unstretchedLengthLabel.textContent = "Feder entspannt";
+                ui.unstretchedLengthLine.style.visibility = 'visible'; ui.unstretchedLengthLabel.style.visibility = 'visible';
+                
+                // Min/Max Positionslinien anpassen (y zeigt nach oben)
+                // minPosLine zeigt den obersten Punkt (kleinste SVG Y-Koordinate, größte physikalische Y-Auslenkung)
+                ui.minPosLine.setAttribute('y1', ANIM_CENTER_Y - scale(Math.abs(amplitude))); 
+                ui.minPosLine.setAttribute('y2', ANIM_CENTER_Y - scale(Math.abs(amplitude))); 
+                ui.minPosLine.setAttribute('x1', ANIM_CENTER_X - 70); 
+                ui.minPosLine.setAttribute('x2', ANIM_CENTER_X + 70);
+
+                // maxPosLine zeigt den untersten Punkt (größte SVG Y-Koordinate, kleinste physikalische Y-Auslenkung)
+                ui.maxPosLine.setAttribute('y1', ANIM_CENTER_Y + scale(Math.abs(amplitude))); 
+                ui.maxPosLine.setAttribute('y2', ANIM_CENTER_Y + scale(Math.abs(amplitude)));
+                ui.maxPosLine.setAttribute('x1', ANIM_CENTER_X - 70); 
+                ui.maxPosLine.setAttribute('x2', ANIM_CENTER_X + 70);
+                
+                // Amplituden-Labels anpassen (y zeigt nach oben)
+                ui.minPosLabel.setAttribute('y', ANIM_CENTER_Y - scale(Math.abs(amplitude)) - 5); // Oben
+                ui.minPosLabel.setAttribute('x', ANIM_CENTER_X + 80); 
+                ui.minPosLabel.textContent = "+y_0"; // Angepasst
+
+                ui.maxPosLabel.setAttribute('y', ANIM_CENTER_Y + scale(Math.abs(amplitude)) + 15); // Unten
+                ui.maxPosLabel.setAttribute('x', ANIM_CENTER_X + 80);
+                ui.maxPosLabel.textContent = "-y_0"; // Angepasst
+
+                // Y-Achsenpfeil anzeigen
+                ui.yAxisArrow.setAttribute('x1', ANIM_CENTER_X - (current_mass_render_size/2) - 50); // Rechts von der Masse
+                ui.yAxisArrow.setAttribute('y1', ANIM_CENTER_Y);
+                ui.yAxisArrow.setAttribute('x2', ANIM_CENTER_X - (current_mass_render_size/2) - 50);
+                ui.yAxisArrow.setAttribute('y2', ANIM_CENTER_Y - scale(1.0)); // 1 Meter nach oben
+                ui.yAxisArrow.style.visibility = 'visible';
+                createStyledSvgText(ui.yAxisLabelText, "<i>y</i>"); // Label als y
+                ui.yAxisLabelText.setAttribute('x', ANIM_CENTER_X - (current_mass_render_size/2) - 50);
+                ui.yAxisLabelText.setAttribute('y', ANIM_CENTER_Y - scale(1.0) - 15);
+                ui.yAxisLabelText.style.visibility = 'visible';
+            }
+            if (Math.abs(amplitude) > 1e-6) { [ui.minPosLine, ui.maxPosLine, ui.minPosLabel, ui.maxPosLabel].forEach(el => el.style.visibility = 'visible');}
+            else { [ui.minPosLine, ui.maxPosLine, ui.minPosLabel, ui.maxPosLabel].forEach(el => el.style.visibility = 'hidden'); }
+            
+            if (typeof MathJax !== 'undefined') MathJax.typesetPromise([ui.pos0Label]);
+            
+            ui.mass.setAttribute('x', mass_center_x - current_mass_render_size/2); // Hier auch current_mass_render_size verwenden
+            ui.mass.setAttribute('y', mass_center_y - current_mass_render_size/2); // Hier auch current_mass_render_size verwenden
+            drawSpring(actual_spring_attach_x, actual_spring_attach_y, mass_center_x, mass_center_y);
+
+            precomputeMotionData();
+            updateGraph(0, (isManualTiming && !isTimingStarted) ? null : axisLimits[graphType]?.data[0]);
+            
+            if (isDigitalDisplay) { ui.stopwatchCircle.style.visibility = 'hidden'; ui.mainHand.style.visibility = 'hidden'; ui.subHand.style.visibility = 'hidden'; ui.stopwatchMarks.style.visibility = 'hidden'; ui.subdial.style.visibility = 'hidden'; ui.digitalDisplayGroup.style.visibility = 'visible'; updateDigitalDisplay(simulatedTimeElapsed);
+            } else { ui.stopwatchCircle.style.visibility = 'visible'; ui.mainHand.style.visibility = 'visible'; ui.subHand.style.visibility = 'visible'; ui.stopwatchMarks.style.visibility = 'visible'; ui.subdial.style.visibility = 'visible'; ui.digitalDisplayGroup.style.visibility = 'hidden'; ui.mainHand.setAttribute('x2', 280); ui.mainHand.setAttribute('y2', 120 - 60); ui.subHand.setAttribute('x2', 280); ui.subHand.setAttribute('y2', 150 - 15); }
+        }
+        
+        function setupEventListeners() {
+            ['input', 'change'].forEach(evt => { ui.massSlider.addEventListener(evt, () => resetScene(false)); ui.kSlider.addEventListener(evt, () => resetScene(false)); ui.pos0Slider.addEventListener(evt, () => resetScene(false)); });
+            ui.orientationRadios.forEach(r => r.addEventListener('change', () => resetScene(false)));
+            ui.graphSelect.addEventListener('change', () => { graphType = ui.graphSelect.value; resetScene(false); });
+            ui.speedRadios.forEach(r => r.addEventListener('change', () => resetScene(false)));
+            [ui.togglePositionVector, ui.toggleVelocityVector, ui.toggleAccelerationVector, ui.toggleManualTiming].forEach(el => { el.addEventListener('change', () => resetScene(false)); });
+            ui.playButton.addEventListener('click', () => { 
+                if (!aniFrameId) { 
+                    if (visualTime < 1e-9) { resetScene(true); precomputeMotionData(); }
+                    if (isManualTiming && !isTimingStarted) { ui.startTimingButton.style.opacity = '1.0'; ui.startTimingButton.disabled = false; }
+                    ui.playButton.disabled = true; ui.pauseButton.disabled = false; 
+                    [ui.massSlider, ui.kSlider, ui.pos0Slider, ...ui.orientationRadios, ui.toggleManualTiming].forEach(el => el.disabled = true);
+                    lastFrameTime = 0; aniFrameId = requestAnimationFrame(animate); 
+                } 
+            });
+            ui.pauseButton.addEventListener('click', stopAnimation);
+            ui.resetButton.addEventListener('click', () => { visualTime = 0; simulatedTimeElapsed = 0; resetScene(); });
+            ui.startTimingButton.addEventListener('click', () => { isTimingStarted = true; simulatedTimeElapsed = visualTime; ui.startTimingContainer.style.visibility = 'hidden'; });
+            ui.exportButton.addEventListener('click', exportCsvData);
+            ui.stopwatch.addEventListener('click', () => { isDigitalDisplay = !isDigitalDisplay; resetScene(false); });
+        }
+
+        window.onload = () => {
+            ui.copyrightYear.textContent = new Date().getFullYear();
+            initDigitalDisplaySegments(); drawStopwatchMarks();
+            setupEventListeners(); resetScene();
+        };
+    </script>
+</body>
+</html>

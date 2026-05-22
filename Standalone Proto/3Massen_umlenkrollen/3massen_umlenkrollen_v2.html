@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Statisches Kräftegleichgewicht</title>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --force-gravity: #8A2BE2;      /* BlueViolet */
+            --force-tension: #FF0000;      /* Bright Red */
+            --force-vertical: #008B8B;     /* DarkCyan */
+            --force-horizontal: #FF8C00;   /* DarkOrange */
+            --label-text-color: #1a1a1a;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { 
+            display: flex; flex-direction: column; align-items: center; padding: 20px; 
+            border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            position: relative; 
+        }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 500px; position: relative; }
+        #labels_overlay { 
+            position: absolute;
+            top: 20px; 
+            left: 20px; 
+            width: 900px;
+            height: 500px;
+            pointer-events: none; 
+            z-index: 10; 
+        }
+        .math-label, .component-label-span {
+            position: absolute;
+            white-space: nowrap; 
+            pointer-events: none; 
+            text-shadow: 
+                -1.5px -1.5px 0 #fff,  
+                 1.5px -1.5px 0 #fff,
+                -1.5px  1.5px 0 #fff,
+                 1.5px  1.5px 0 #fff;
+            transform: translateY(-50%); 
+            line-height: 1; 
+        }
+        .component-label-span {
+            white-space: pre-wrap; 
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.2; 
+            text-align: left;
+        }
+        .math-label { 
+            font-size: 15px; 
+        }
+        .coordinate-axis {
+            stroke: #555;
+            stroke-width: 1.5;
+            marker-end: url(#arrowhead_coords);
+        }
+        .coordinate-label {
+            fill: #555;
+            font-family: system-ui, sans-serif;
+            font-size: 14px;
+            dominant-baseline: middle;
+            text-anchor: middle;
+        }
+
+        #controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px 40px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); font-size: 0.9em; }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 80px; font-family: monospace; text-align: left; }
+        .checkbox-group label { margin-left: 8px; user-select: none; }
+        h3 { font-weight: 500; font-size: 1.1em; margin: 15px 0 10px 0; color: var(--fh-blue); border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        text { font-size: 14px; }
+        .info-group .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
+        .info-group .info-label { color: var(--label-color); }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        .note { font-size: 0.8em; color: #777; margin-top: 10px; line-height: 1.5; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
+        .legend-color-box { width: 15px; height: 15px; border: 1px solid #999; margin-right: 10px; flex-shrink: 0; }
+        .legend-label { color: var(--label-color); }
+        .value-stepper { display: flex; align-items: center; gap: 8px; flex-grow: 1; }
+        .stepper-btn {
+            width: 28px; height: 28px; border: 1px solid var(--border-color); background-color: #f7f7f7;
+            font-size: 18px; font-weight: bold; color: var(--label-color); cursor: pointer;
+            border-radius: 4px; padding: 0; line-height: 26px;
+        }
+        .stepper-btn:hover { background-color: #e9e9e9; }
+        .stepper-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        #m2_value { flex-basis: auto; }
+    </style>
+</head>
+<body>
+    <h1>Interaktive Simulation: Statisches Kräftegleichgewicht</h1>
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead_gravity" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-gravity)" /></marker>
+                <marker id="arrowhead_tension" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-tension)" /></marker>
+                <marker id="arrowhead_vertical" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-vertical)" /></marker>
+                <marker id="arrowhead_horizontal" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--force-horizontal)" /></marker>
+                <marker id="arrowhead_coords" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="#555" /></marker>
+            </defs>
+            <g id="grid_group" style="visibility: hidden;"></g>
+            <rect id="ceiling" x="0" y="20" width="900" height="20" fill="#e0e0e0" stroke="#b0b0b0" />
+            <polygon id="pulley_mount_left" fill="#c0c0c0" stroke="#999" />
+            <polygon id="pulley_mount_right" fill="#c0c0c0" stroke="#999" />
+            <circle id="pulley_left" cx="250" cy="40" r="15" fill="#b3b3b3" stroke="#888" />
+            <circle id="pulley_right" cx="650" cy="40" r="15" fill="#b3b3b3" stroke="#888" />
+            <circle id="pulley_left_center" cx="250" cy="40" r="3" fill="#555" />
+            <circle id="pulley_right_center" cx="650" cy="40" r="3" fill="#555" />
+            <path id="rope" fill="none" stroke="black" stroke-width="1.5" />
+            <g id="mass_left_group"><rect id="mass_left" width="50" height="50" fill="#0000ff" ry="4" /><text id="mass_left_label" x="25" y="25" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₁</text></g>
+            <g id="mass_right_group"><rect id="mass_right" width="50" height="50" fill="#000080" ry="4" /><text id="mass_right_label" x="25" y="25" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₃</text></g>
+            <g id="mass_middle_group"><rect id="mass_middle" width="50" height="50" fill="#ff0000" ry="4" /><text id="mass_middle_label" x="25" y="25" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="16px">m₂</text></g>
+            <g id="force_vectors_group"></g>
+            <!-- Koordinatensystem -->
+            <g id="coordinate_system_group">
+                <line x1="50" y1="450" x2="100" y2="450" class="coordinate-axis" />
+                <line x1="50" y1="450" x2="50" y2="400" class="coordinate-axis" />
+                <text x="110" y="450" class="coordinate-label">X</text>
+                <text x="50" y="390" class="coordinate-label">Y</text>
+            </g>
+        </svg>
+        <!-- HTML-Div für MathJax-Labels, absolut über dem SVG positioniert -->
+        <div id="labels_overlay"></div>
+
+        <div id="controls">
+             <div class="control-group">
+                <h3>Parameter</h3>
+                <div class="slider-group">
+                    <div class="label">Masse Links \(m_1\):</div>
+                    <input type="range" id="m1_slider" min="1" max="3" value="1.9" step="0.01">
+                    <div class="value" id="m1_value">1.9 kg</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Masse Rechts \(m_3\):</div>
+                    <input type="range" id="m3_slider" min="1" max="3" value="1.1" step="0.01">
+                    <div class="value" id="m3_value">2.1 kg</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Masse Mitte \(m_2\):</div>
+                    <div class="value-stepper">
+                        <button id="m2_minus_btn" class="stepper-btn">-</button>
+                        <div class="value" id="m2_value">2.00 kg</div>
+                        <button id="m2_plus_btn" class="stepper-btn">+</button>
+                    </div>
+                </div>
+                 <div class="slider-group">
+                    <div class="label">Abstand Rollen:</div>
+                    <input type="range" id="pulley_dist_slider" min="20" max="60" value="40" step="1">
+                    <div class="value" id="pulley_dist_value">40.0 cm</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Länge der Seilsegmente:</div>
+                    <input type="range" id="rope_len_slider" min="24" max="64" value="50" step="1">
+                    <div class="value" id="rope_len_value">50.0 cm</div>
+                </div>
+                <div class="note">
+                    Annahmen: Ideales Seil (masselos), reibungsfreie Rollen.
+                </div>
+            </div>
+            
+            <div class="control-group info-group">
+                 <h3>Gleichgewichtsanalyse</h3>
+                 <div class="info-row"><span class="info-label">Seilkraft / Winkel (Links):</span><span class="info-value" id="left_values">...</span></div>
+                 <div class="info-row"><span class="info-label">Seilkraft / Winkel (Rechts):</span><span class="info-value" id="right_values">...</span></div>
+                 <div class="info-row"><span class="info-label" style="color: var(--force-vertical);">Vertikalkräfte (auf \(m_2\)):</span><span class="info-value" id="vertical_forces_value" style="color: var(--force-vertical);">...</span></div>
+                 <div class="info-row"><span class="info-label" style="color: var(--force-horizontal);">Horizontalkräfte (auf \(m_2\)):</span><span class="info-value" id="horizontal_forces_value" style="color: var(--force-horizontal);">...</span></div>
+                 <div id="equilibrium_warning" style="color: var(--fh-red); text-align: center; font-weight: bold; margin-top: 10px; visibility: hidden;">Kein statisches Gleichgewicht möglich!</div>
+            </div>
+
+            <div class="control-group">
+                <h3>Anzeigeoptionen</h3>
+                <div class="checkbox-group"><input type="checkbox" id="show_gravity_vectors" checked><label for="show_gravity_vectors">Gewichtskräfte</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show_tension_vectors" checked><label for="show_tension_vectors">Seilkräfte (Gesamt)</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show_component_vectors" checked><label for="show_component_vectors">Komponentenzerlegung</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show_grid"><label for="show_grid">Hintergrundraster anzeigen</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="show_component_values"><label for="show_component_values">Vektorkomponenten anzeigen</label></div>
+            </div>
+
+            <div class="control-group">
+                <h3>Legende</h3>
+                <div class="legend-item"><span class="legend-color-box" style="background-color: var(--force-gravity);"></span><span class="legend-label">Gewichtskraft (F<sub>g</sub>)</span></div>
+                <div class="legend-item"><span class="legend-color-box" style="background-color: var(--force-tension);"></span><span class="legend-label">Seilkraft (T)</span></div>
+                <div class="legend-item"><span class="legend-color-box" style="background-color: var(--force-horizontal);"></span><span class="legend-label">Horizontalkomponente</span></div>
+                <div class="legend-item"><span class="legend-color-box" style="background-color: var(--force-vertical);"></span><span class="legend-label">Vertikalkomponente</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() { // --- Start of IIFE for code encapsulation ---
+
+        const G = 9.81; 
+        const SVG_CENTER_X = 450;
+        const PIXELS_PER_CM = 10;
+        const FORCE_SCALE_FACTOR = 5;
+        const SIZE_PER_KG = 20;
+        const CEILING_Y = 40;
+        const PULLEY_RADIUS = 15;
+        const TRIANGLE_SIDE_LENGTH = 1.2 * (PULLEY_RADIUS * 2);
+        const TRIANGLE_HEIGHT = (TRIANGLE_SIDE_LENGTH * Math.sqrt(3)) / 2;
+        const PULLEY_Y = CEILING_Y + TRIANGLE_HEIGHT;
+        let m2_mass = 2.0;
+        const M2_MIN = 1.0;
+        const M2_MAX = 4.0;
+        const M2_STEP = 0.1;
+
+        const ui = {
+            m1Slider: document.getElementById('m1_slider'), m3Slider: document.getElementById('m3_slider'),
+            pulleyDistSlider: document.getElementById('pulley_dist_slider'), ropeLenSlider: document.getElementById('rope_len_slider'),
+            m1Value: document.getElementById('m1_value'), m3Value: document.getElementById('m3_value'),
+            m2Value: document.getElementById('m2_value'), m2PlusBtn: document.getElementById('m2_plus_btn'), m2MinusBtn: document.getElementById('m2_minus_btn'),
+            pulleyDistValue: document.getElementById('pulley_dist_value'), ropeLenValue: document.getElementById('rope_len_value'),
+            rope: document.getElementById('rope'), pulleyLeft: document.getElementById('pulley_left'), pulleyRight: document.getElementById('pulley_right'),
+            pulleyLeftCenter: document.getElementById('pulley_left_center'), pulleyRightCenter: document.getElementById('pulley_right_center'),
+            pulleyMountLeft: document.getElementById('pulley_mount_left'), pulleyMountRight: document.getElementById('pulley_mount_right'),
+            massLeftGroup: document.getElementById('mass_left_group'), massMiddleGroup: document.getElementById('mass_middle_group'),
+            massRightGroup: document.getElementById('mass_right_group'), forceVectorsGroup: document.getElementById('force_vectors_group'),
+            labelsOverlay: document.getElementById('labels_overlay'), 
+            massLeftRect: document.getElementById('mass_left'), massMiddleRect: document.getElementById('mass_middle'), massRightRect: document.getElementById('mass_right'),
+            massLeftLabel: document.getElementById('mass_left_label'), massMiddleLabel: document.getElementById('mass_middle_label'), massRightLabel: document.getElementById('mass_right_label'),
+            leftValues: document.getElementById('left_values'), rightValues: document.getElementById('right_values'),
+            verticalForcesValue: document.getElementById('vertical_forces_value'), horizontalForcesValue: document.getElementById('horizontal_forces_value'),
+            equilibriumWarning: document.getElementById('equilibrium_warning'), showGravityVectors: document.getElementById('show_gravity_vectors'),
+            showTensionVectors: document.getElementById('show_tension_vectors'), showComponentVectors: document.getElementById('show_component_vectors'),
+            showGrid: document.getElementById('show_grid'), gridGroup: document.getElementById('grid_group'),
+            showComponentValues: document.getElementById('show_component_values'),
+        };
+
+        function getForceColor(type) {
+            const root = document.documentElement;
+            return getComputedStyle(root).getPropertyValue(`--force-${type}`).trim();
+        }
+
+        function createForceVector(id, x1, y1, x2, y2, type, dashed = false) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('id', id); line.setAttribute('x1', x1); line.setAttribute('y1', y1); line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+            line.setAttribute('stroke', `var(--force-${type})`);
+            line.setAttribute('stroke-width', 3.0);
+            line.setAttribute('marker-end', `url(#arrowhead_${type})`);
+            if (dashed) line.setAttribute('stroke-dasharray', '5 5');
+            return line;
+        }
+
+        function addLabel(base, sub, x, y, colorType) {
+            const span = document.createElement('span');
+            span.setAttribute('class', 'math-label');
+            span.style.left = `${x}px`;
+            span.style.top = `${y}px`;
+            
+            const mathColor = getForceColor(colorType);
+            span.textContent = `\\( \\color{${mathColor}} \\vec{${base}}_{\\mathrm{${sub}}} \\)`;
+            ui.labelsOverlay.appendChild(span);
+        }
+
+        function addComponentDisplay(vec_x, vec_y_internal, x, y, colorType) {
+            const span = document.createElement('span');
+            span.setAttribute('class', 'component-label-span');
+            span.style.left = `${x}px`;
+            span.style.top = `${y}px`;
+            span.style.color = getForceColor(colorType); 
+            
+            // Y-Komponente umkehren für Anzeige (Y positiv nach oben)
+            const display_y = -vec_y_internal; 
+            
+            const xComp = vec_x.toFixed(1);
+            const yComp = display_y.toFixed(1);
+            
+            span.innerHTML = `(${xComp},<br>${yComp})`; 
+            ui.labelsOverlay.appendChild(span);
+        }
+        
+        function solveForAngles(m1, m2, m3) {
+            const T1 = m1 * G; const T3 = m3 * G; const Fg2 = m2 * G;
+            if (T1 + T3 <= Fg2 || T1 + Fg2 <= T3 || T3 + Fg2 <= T1) { return null; }
+            const cos_gamma1 = (T1**2 + Fg2**2 - T3**2) / (2 * T1 * Fg2);
+            const cos_gamma3 = (T3**2 + Fg2**2 - T1**2) / (2 * T3 * Fg2);
+            if (Math.abs(cos_gamma1) > 1 || Math.abs(cos_gamma3) > 1) { return null; }
+            const gamma1 = Math.acos(cos_gamma1); const gamma3 = Math.acos(cos_gamma3);
+            const angle1 = Math.PI / 2 + gamma1; const angle3 = Math.PI / 2 - gamma3;
+            return { angle1, angle3 };
+        }
+
+        function calculateAnalyticalEquilibrium(m1, m2, m3, pulleyLeftX, pulleyRightX) {
+            const angles = solveForAngles(m1, m2, m3);
+            if (!angles) return null;
+            const { angle1, angle3 } = angles;
+            const phi_L = angle1 - Math.PI / 2; const phi_R = angle3 + Math.PI / 2;
+            const tp_L = { x: pulleyLeftX + PULLEY_RADIUS * Math.cos(phi_L), y: PULLEY_Y - PULLEY_RADIUS * Math.sin(phi_L) };
+            const tp_R = { x: pulleyRightX + PULLEY_RADIUS * Math.cos(phi_R), y: PULLEY_Y - PULLEY_RADIUS * Math.sin(phi_R) };
+            const m1_screen = -Math.tan(angle1); const m3_screen = -Math.tan(angle3);
+            const c1_screen = tp_L.y - m1_screen * tp_L.x; const c3_screen = tp_R.y - m3_screen * tp_R.x;
+            if (Math.abs(m1_screen - m3_screen) < 1e-9) return null;
+            const m2_x = (c3_screen - c1_screen) / (m1_screen - m3_screen);
+            const m2_y = m1_screen * m2_x + c1_screen;
+            const m2_pos = { x: m2_x, y: m2_y };
+            return { m2_pos, tp_L, tp_R, angle1, angle3, phi_L, phi_R };
+        }
+
+        function update() {
+            const m1 = parseFloat(ui.m1Slider.value);
+            const m3 = parseFloat(ui.m3Slider.value);
+            let pulleyDistCm = parseFloat(ui.pulleyDistSlider.value);
+            
+            const newMinRopeLen = pulleyDistCm * 0.8;
+            const newMaxRopeLen = pulleyDistCm * 1.6;
+            ui.ropeLenSlider.min = newMinRopeLen;
+            ui.ropeLenSlider.max = newMaxRopeLen;
+            if (ui.ropeLenSlider.value < newMinRopeLen) ui.ropeLenSlider.value = newMinRopeLen;
+            if (ui.ropeLenSlider.value > newMaxRopeLen) ui.ropeLenSlider.value = newMaxRopeLen;
+            let segmentRopeLengthCm = parseFloat(ui.ropeLenSlider.value);
+
+            const m1_size = m1 * SIZE_PER_KG;
+            const m2_size = m2_mass * SIZE_PER_KG;
+            const m3_size = m3 * SIZE_PER_KG;
+
+            ui.m1Value.textContent = `${m1.toFixed(2)} kg`;
+            ui.m3Value.textContent = `${m3.toFixed(2)} kg`;
+            ui.m2Value.textContent = `${m2_mass.toFixed(2)} kg`;
+            ui.pulleyDistValue.textContent = `${pulleyDistCm.toFixed(1)} cm`;
+            ui.ropeLenValue.textContent = `${segmentRopeLengthCm.toFixed(1)} cm`;
+            
+            ui.m2PlusBtn.disabled = m2_mass >= M2_MAX;
+            ui.m2MinusBtn.disabled = m2_mass <= M2_MIN;
+            
+            const pulleyDist = pulleyDistCm * PIXELS_PER_CM;
+            const segmentRopeLength = segmentRopeLengthCm * PIXELS_PER_CM;
+            const pulleyLeftX = SVG_CENTER_X - pulleyDist / 2;
+            const pulleyRightX = SVG_CENTER_X + pulleyDist / 2;
+
+            const l_v1 = `${pulleyLeftX - TRIANGLE_SIDE_LENGTH / 2},${CEILING_Y}`;
+            const l_v2 = `${pulleyLeftX + TRIANGLE_SIDE_LENGTH / 2},${CEILING_Y}`;
+            const l_v3 = `${pulleyLeftX},${PULLEY_Y}`;
+            ui.pulleyMountLeft.setAttribute('points', `${l_v1} ${l_v2} ${l_v3}`);
+            const r_v1 = `${pulleyRightX - TRIANGLE_SIDE_LENGTH / 2},${CEILING_Y}`;
+            const r_v2 = `${pulleyRightX + TRIANGLE_SIDE_LENGTH / 2},${CEILING_Y}`;
+            const r_v3 = `${pulleyRightX},${PULLEY_Y}`;
+            ui.pulleyMountRight.setAttribute('points', `${r_v1} ${r_v2} ${r_v3}`);
+
+            ui.pulleyLeft.setAttribute('cx', pulleyLeftX); ui.pulleyLeft.setAttribute('cy', PULLEY_Y);
+            ui.pulleyRight.setAttribute('cx', pulleyRightX); ui.pulleyRight.setAttribute('cy', PULLEY_Y);
+            ui.pulleyLeftCenter.setAttribute('cx', pulleyLeftX); ui.pulleyLeftCenter.setAttribute('cy', PULLEY_Y);
+            ui.pulleyRightCenter.setAttribute('cx', pulleyRightX); ui.pulleyRightCenter.setAttribute('cy', PULLEY_Y);
+
+            const equilibrium = calculateAnalyticalEquilibrium(m1, m2_mass, m3, pulleyLeftX, pulleyRightX);
+            
+            ui.forceVectorsGroup.innerHTML = '';
+            ui.labelsOverlay.innerHTML = ''; 
+
+            if (!equilibrium || equilibrium.m2_pos.y < PULLEY_Y) {
+                ui.equilibriumWarning.textContent = "Kein statisches Gleichgewicht möglich!";
+                ui.equilibriumWarning.style.visibility = 'visible';
+                ui.rope.setAttribute('d', '');
+                ui.massLeftGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                ui.massMiddleGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                ui.massRightGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                ui.leftValues.textContent = "--- N / ---°";
+                ui.rightValues.textContent = "--- N / ---°";
+                ui.verticalForcesValue.textContent = "---";
+                ui.horizontalForcesValue.textContent = "---";
+                return;
+            }
+
+            const { m2_pos, tp_L, tp_R, angle1, angle3, phi_L, phi_R } = equilibrium;
+            const exit_point_left = { x: pulleyLeftX - PULLEY_RADIUS, y: PULLEY_Y };
+            const exit_point_right = { x: pulleyRightX + PULLEY_RADIUS, y: PULLEY_Y };
+            
+            const len_L_diag = Math.hypot(m2_pos.x - tp_L.x, m2_pos.y - tp_L.y);
+            const arc_len_L = (Math.PI - phi_L) * PULLEY_RADIUS;
+            const len_hang1 = segmentRopeLength - (len_L_diag + arc_len_L);
+            const len_R_diag = Math.hypot(m2_pos.x - tp_R.x, m2_pos.y - tp_R.y);
+            const arc_len_R = (phi_R - 0) * PULLEY_RADIUS;
+            const len_hang3 = segmentRopeLength - (len_R_diag + arc_len_R);
+            
+            if (len_hang1 < 0 || len_hang3 < 0) {
+                 ui.equilibriumWarning.textContent = "Kollision: Seillänge zu kurz!";
+                 ui.equilibriumWarning.style.visibility = 'visible';
+                 ui.rope.setAttribute('d', '');
+                 ui.massLeftGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                 ui.massMiddleGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                 ui.massRightGroup.setAttribute('transform', 'translate(-1000, -1000)');
+                 ui.leftValues.textContent = "--- N / ---°";
+                 ui.rightValues.textContent = "--- N / ---°";
+                 ui.verticalForcesValue.textContent = "---";
+                 ui.horizontalForcesValue.textContent = "---";
+                 return;
+            }
+
+            const m1_attach_point = { x: exit_point_left.x, y: exit_point_left.y + len_hang1 };
+            const m3_attach_point = { x: exit_point_right.x, y: exit_point_right.y + len_hang3 };
+
+            ui.equilibriumWarning.style.visibility = 'hidden';
+            
+            const path_d = `M ${m1_attach_point.x} ${m1_attach_point.y} L ${exit_point_left.x} ${exit_point_left.y} A ${PULLEY_RADIUS} ${PULLEY_RADIUS} 0 0 1 ${tp_L.x} ${tp_L.y} L ${m2_pos.x} ${m2_pos.y} L ${tp_R.x} ${tp_R.y} A ${PULLEY_RADIUS} ${PULLEY_RADIUS} 0 0 1 ${exit_point_right.x} ${exit_point_right.y} L ${m3_attach_point.x} ${m3_attach_point.y}`;
+            ui.rope.setAttribute('d', path_d);
+
+            ui.massLeftRect.setAttribute('width', m1_size); ui.massLeftRect.setAttribute('height', m1_size);
+            ui.massLeftLabel.setAttribute('x', m1_size/2); ui.massLeftLabel.setAttribute('y', m1_size/2);
+            ui.massLeftGroup.setAttribute('transform', `translate(${m1_attach_point.x - m1_size/2}, ${m1_attach_point.y})`);
+            ui.massRightRect.setAttribute('width', m3_size); ui.massRightRect.setAttribute('height', m3_size);
+            ui.massRightLabel.setAttribute('x', m3_size/2); ui.massRightLabel.setAttribute('y', m3_size/2);
+            ui.massRightGroup.setAttribute('transform', `translate(${m3_attach_point.x - m3_size/2}, ${m3_attach_point.y})`);
+            ui.massMiddleRect.setAttribute('width', m2_size); ui.massMiddleRect.setAttribute('height', m2_size);
+            ui.massMiddleLabel.setAttribute('x', m2_size/2); ui.massMiddleLabel.setAttribute('y', m2_size/2);
+            ui.massMiddleGroup.setAttribute('transform', `translate(${m2_pos.x - m2_size/2}, ${m2_pos.y})`);
+            
+            const T1 = m1 * G; const T3 = m3 * G; const Fg2 = m2_mass * G;
+            
+            const m1_center = { x: m1_attach_point.x, y: m1_attach_point.y + m1_size/2 };
+            const m3_center = { x: m3_attach_point.x, y: m3_attach_point.y + m3_size/2 };
+            const m2_center = { x: m2_pos.x, y: m2_pos.y + m2_size/2 };
+            const m2_attach = { x: m2_pos.x, y: m2_pos.y }; 
+            
+            // T_vec_unscaled sind in Bildschirmkoordinaten (Y nach unten)
+            const T1_vec_unscaled = { x: T1 * Math.cos(angle1), y: -T1 * Math.sin(angle1) };
+            const T3_vec_unscaled = { x: T3 * Math.cos(angle3), y: -T3 * Math.sin(angle3) };
+            const showComps = ui.showComponentValues.checked;
+
+            if (ui.showGravityVectors.checked) {
+                const Fg1_len = T1 * FORCE_SCALE_FACTOR;
+                const Fg2_len = Fg2 * FORCE_SCALE_FACTOR;
+                const Fg3_len = T3 * FORCE_SCALE_FACTOR;
+                
+                ui.forceVectorsGroup.appendChild(createForceVector('fg1', m1_center.x, m1_center.y, m1_center.x, m1_center.y + Fg1_len, 'gravity'));
+                ui.forceVectorsGroup.appendChild(createForceVector('fg2', m2_center.x, m2_center.y, m2_center.x, m2_center.y + Fg2_len, 'gravity'));
+                ui.forceVectorsGroup.appendChild(createForceVector('fg3', m3_center.x, m3_center.y, m3_center.x, m3_center.y + Fg3_len, 'gravity'));
+                
+                // Positionen angepasst für Kollisionsvermeidung
+                addLabel('F', 'G,1', m1_center.x + m1_size/2 + 5, m1_center.y + Fg1_len/2, 'gravity'); 
+                addLabel('F', 'G,2', m2_center.x - m2_size/2 - 5, m2_center.y + Fg2_len/2, 'gravity'); 
+                addLabel('F', 'G,3', m3_center.x - m3_size/2 - 5, m3_center.y + Fg3_len/2, 'gravity'); 
+                
+                if(showComps) {
+                    // Gravity forces are purely vertical (x=0, y=magnitude downwards)
+                    addComponentDisplay(0, T1, m1_center.x + m1_size/2 + 35, m1_center.y + Fg1_len/2 - 10, 'gravity');
+                    addComponentDisplay(0, Fg2, m2_center.x - m2_size/2 - 50, m2_center.y + Fg2_len/2 - 10, 'gravity');
+                    addComponentDisplay(0, T3, m3_center.x - m3_size/2 - 50, m3_center.y + Fg3_len/2 - 10, 'gravity');
+                }
+            }
+            if (ui.showTensionVectors.checked) {
+                const T1_len = T1 * FORCE_SCALE_FACTOR;
+                const T3_len = T3 * FORCE_SCALE_FACTOR;
+                
+                ui.forceVectorsGroup.appendChild(createForceVector('t1', m1_center.x, m1_center.y, m1_center.x, m1_center.y - T1_len, 'tension'));
+                ui.forceVectorsGroup.appendChild(createForceVector('t3', m3_center.x, m3_center.y, m3_center.x, m3_center.y - T3_len, 'tension'));
+
+                const T1_at_m2_end = { x: m2_attach.x + T1_vec_unscaled.x * FORCE_SCALE_FACTOR, y: m2_attach.y + T1_vec_unscaled.y * FORCE_SCALE_FACTOR };
+                const T3_at_m2_end = { x: m2_attach.x + T3_vec_unscaled.x * FORCE_SCALE_FACTOR, y: m2_attach.y + T3_vec_unscaled.y * FORCE_SCALE_FACTOR };
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left', m2_attach.x, m2_attach.y, T1_at_m2_end.x, T1_at_m2_end.y, 'tension'));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right', m2_attach.x, m2_attach.y, T3_at_m2_end.x, T3_at_m2_end.y, 'tension'));
+                
+                // Positionen angepasst für Kollisionsvermeidung
+                addLabel('F', 'S,1', m1_center.x + m1_size/2 + 5, m1_center.y - T1_len/2, 'tension'); 
+                addLabel('F', 'S,3', m3_center.x - m3_size/2 - 5, m3_center.y - T3_len/2, 'tension'); 
+                
+                const label_offset_magnitude = 35; 
+                const norm_x_li = -T1_vec_unscaled.y / T1; // Normalenvektor zur Seilkraft
+                const norm_y_li = T1_vec_unscaled.x / T1;
+                const label_offset_li = { x: norm_x_li * label_offset_magnitude, y: norm_y_li * label_offset_magnitude };
+
+                const norm_x_re = -T3_vec_unscaled.y / T3;
+                const norm_y_re = T3_vec_unscaled.x / T3;
+                const label_offset_re = { x: norm_x_re * label_offset_magnitude, y: norm_y_re * label_offset_magnitude };
+                
+                addLabel('F', 'S,li', m2_attach.x + T1_vec_unscaled.x * FORCE_SCALE_FACTOR / 2 + label_offset_li.x, m2_attach.y + T1_vec_unscaled.y * FORCE_SCALE_FACTOR / 2 + label_offset_li.y, 'tension');
+                addLabel('F', 'S,re', m2_attach.x + T3_vec_unscaled.x * FORCE_SCALE_FACTOR / 2 + label_offset_re.x, m2_attach.y + T3_vec_unscaled.y * FORCE_SCALE_FACTOR / 2 + label_offset_re.y, 'tension');
+
+                if (showComps) {
+                    // Purely vertical tension forces (x=0, y=magnitude upwards)
+                    addComponentDisplay(0, -T1, m1_center.x + m1_size/2 + 35, m1_center.y - T1_len/2 - 10, 'tension');
+                    addComponentDisplay(0, -T3, m3_center.x - m3_size/2 - 50, m3_center.y - T3_len/2 - 10, 'tension');
+                    
+                    const comp_offset_magnitude = 50; 
+                    const comp_label_offset_li = { x: norm_x_li * comp_offset_magnitude, y: norm_y_li * comp_offset_magnitude };
+                    const comp_label_offset_re = { x: norm_x_re * comp_offset_magnitude, y: norm_y_re * comp_offset_magnitude };
+
+                    addComponentDisplay(T1_vec_unscaled.x, T1_vec_unscaled.y, m2_attach.x + T1_vec_unscaled.x * FORCE_SCALE_FACTOR * 0.7 + comp_label_offset_li.x, m2_attach.y + T1_vec_unscaled.y * FORCE_SCALE_FACTOR * 0.7 + comp_label_offset_li.y, 'tension');
+                    addComponentDisplay(T3_vec_unscaled.x, T3_vec_unscaled.y, m2_attach.x + T3_vec_unscaled.x * FORCE_SCALE_FACTOR * 0.7 + comp_label_offset_re.x, m2_attach.y + T3_vec_unscaled.y * FORCE_SCALE_FACTOR * 0.7 + comp_label_offset_re.y, 'tension');
+                }
+            }
+            if (ui.showComponentVectors.checked) {
+                const start_x = m2_attach.x; const start_y = m2_attach.y;
+                const T1_end_x = start_x + T1_vec_unscaled.x * FORCE_SCALE_FACTOR; const T1_end_y = start_y + T1_vec_unscaled.y * FORCE_SCALE_FACTOR;
+                const T3_end_x = start_x + T3_vec_unscaled.x * FORCE_SCALE_FACTOR; const T3_end_y = start_y + T3_vec_unscaled.y * FORCE_SCALE_FACTOR;
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left_x', start_x, start_y, T1_end_x, start_y, 'horizontal', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_left_y', T1_end_x, start_y, T1_end_x, T1_end_y, 'vertical', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right_x', start_x, start_y, T3_end_x, start_y, 'horizontal', true));
+                ui.forceVectorsGroup.appendChild(createForceVector('t2_right_y', T3_end_x, start_y, T3_end_x, T3_end_y, 'vertical', true));
+            }
+            
+            const angle1_deg_display = 180 - (angle1 * 180 / Math.PI);
+            const angle3_deg_display = angle3 * 180 / Math.PI;
+            
+            ui.leftValues.textContent = `${T1.toFixed(2)} N / ${angle1_deg_display.toFixed(1)}°`;
+            ui.rightValues.textContent = `${T3.toFixed(2)} N / ${angle3_deg_display.toFixed(1)}°`;
+            ui.verticalForcesValue.textContent = `↑ ${(-T1_vec_unscaled.y - T3_vec_unscaled.y).toFixed(2)}N vs ↓ ${Fg2.toFixed(2)}N`;
+            ui.horizontalForcesValue.textContent = `← ${(-T1_vec_unscaled.x).toFixed(2)}N vs → ${T3_vec_unscaled.x.toFixed(2)}N`;
+            
+            MathJax.typesetPromise([ui.labelsOverlay]);
+
+            const parent = ui.massLeftGroup.parentNode;
+            parent.appendChild(ui.massLeftGroup);
+            parent.appendChild(ui.massRightGroup);
+            parent.appendChild(ui.massMiddleGroup);
+        }
+        
+        function drawGrid() {
+            const gridSpacing = 5 * PIXELS_PER_CM; 
+            const svgWidth = 900;
+            const svgHeight = 500;
+            let path_d = '';
+            for (let x = 0; x < svgWidth; x += gridSpacing) { path_d += `M ${x} 0 L ${x} ${svgHeight} `; }
+            for (let y = 0; y < svgHeight; y += gridSpacing) { path_d += `M 0 ${y} L ${svgWidth} ${y} `; }
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', path_d);
+            path.setAttribute('stroke', '#e0e0e0');
+            path.setAttribute('stroke-width', '1');
+            ui.gridGroup.appendChild(path);
+        }
+
+        function debounce(func, delay) {
+            let timeout; return function(...args) { const context = this; clearTimeout(timeout); timeout = setTimeout(() => func.apply(context, args), delay); };
+        }
+
+        function setupEventListeners() {
+            const debouncedUpdate = debounce(update, 15); 
+            const sliders = [ui.m1Slider, ui.m3Slider, ui.pulleyDistSlider, ui.ropeLenSlider];
+            const checkboxes = [ui.showGravityVectors, ui.showTensionVectors, ui.showComponentVectors, ui.showComponentValues];
+            sliders.forEach(slider => slider.addEventListener('input', debouncedUpdate));
+            checkboxes.forEach(checkbox => checkbox.addEventListener('change', update));
+
+            ui.m2PlusBtn.addEventListener('click', () => {
+                if (m2_mass < M2_MAX) {
+                    m2_mass = parseFloat((m2_mass + M2_STEP).toPrecision(12));
+                    if (m2_mass > M2_MAX) m2_mass = M2_MAX;
+                    update();
+                }
+            });
+            ui.m2MinusBtn.addEventListener('click', () => {
+                if (m2_mass > M2_MIN) {
+                    m2_mass = parseFloat((m2_mass - M2_STEP).toPrecision(12));
+                    if (m2_mass < M2_MIN) m2_mass = M2_MIN;
+                    update();
+                }
+            });
+            ui.showGrid.addEventListener('change', () => {
+                ui.gridGroup.style.visibility = ui.showGrid.checked ? 'visible' : 'hidden';
+            });
+        }
+
+        window.onload = () => {
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) { MathJax.typesetPromise(); }
+            drawGrid();
+            setupEventListeners();
+            update();
+        };
+
+    })(); // --- End of IIFE ---
+    </script>
+</body>
+</html>

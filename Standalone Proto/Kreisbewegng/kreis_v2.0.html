@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototyp: Ebene Kreisbewegung mit Analyse</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD; --fh-grey: #7f7f7f;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 60px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:hover { background-color: #e0e0e0; }
+        button:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Simulation: Ebene Kreisbewegung</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                    <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                <g id="animation_coord_system"></g>
+                <circle id="disk" fill="#e0e0e0" stroke="#ccc" stroke-width="1" />
+                <path id="trajectory_path" d="" fill="none" stroke="rgba(0,0,0,0.2)" stroke-dasharray="3,3" />
+                <circle id="point" r="8" fill="var(--fh-red)" z-order="10" />
+                
+                <line id="position_vector" stroke="var(--fh-grey)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                
+                <g id="stopwatch" transform="translate(10, 20) scale(0.7)">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                </g>
+            </g>
+            
+            <g id="graph_group" transform="translate(400, 40)">
+                <text id="graph_title" x="240" y="-10" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Radius \(R\):</div>
+                    <input type="range" id="radius_slider" min="0.5" max="2.0" value="1.5" step="0.1">
+                    <div class="value" id="radius_value">1.5 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangswinkel \(\varphi_0\):</div>
+                    <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+                    <div class="value" id="phi0_value">0 °</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Winkelgeschw. \(\omega\):</div>
+                    <input type="range" id="omega_slider" min="-180" max="180" value="60" step="5">
+                    <div class="value" id="omega_value">60 °/s</div>
+                </div>
+                 <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <div><input type="checkbox" id="toggle_position_vector"> Ortsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_velocity_vector"> Geschwindigkeitsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_acceleration_vector"> Beschleunigungsvektor anzeigen</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                    <optgroup label="Positions-Komponenten">
+                        <option value="xt" selected>Position x(t)</option>
+                        <option value="yt">Position y(t)</option>
+                    </optgroup>
+                    <optgroup label="Geschwindigkeits-Komponenten">
+                        <option value="vxt">Geschw. v_x(t)</option>
+                        <option value="vyt">Geschw. v_y(t)</option>
+                    </optgroup>
+                    <optgroup label="Beschleunigungs-Komponenten">
+                        <option value="axt">Beschl. a_x(t)</option>
+                        <option value="ayt">Beschl. a_y(t)</option>
+                    </optgroup>
+                    <optgroup label="Beträge & Winkel">
+                         <option value="thetat">Winkel θ(t)</option>
+                        <option value="vabs">Betrag der Geschw. |v(t)|</option>
+                        <option value="aabs">Betrag der Beschl. |a(t)|</option>
+                    </optgroup>
+                </select>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PIXELS_PER_VELOCITY_UNIT = 20; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5;
+        const ANIM_CX = 175, ANIM_CY = 240;
+        const PIXELS_PER_METER = 75;
+
+        let aniFrameId = null; let lastFrameTime = 0; let simulatedTimeElapsed = 0;
+        let R, omega_deg, phi0_deg, omega_rad, phi0_rad, graphType, speedFactor;
+        let t_data = [], x_data = [], y_data = [], vx_data = [], vy_data = [], ax_data = [], ay_data = [], vabs_data = [], aabs_data = [], theta_data = [];
+        
+        const ui = {
+            disk: document.getElementById('disk'), point: document.getElementById('point'),
+            mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'),
+            gridGroup: document.getElementById('grid_group'), graphTitle: document.getElementById('graph_title'),
+            graphLine: document.getElementById('graph_line'), graphPoint: document.getElementById('graph_point'),
+            radiusSlider: document.getElementById('radius_slider'), omegaSlider: document.getElementById('omega_slider'),
+            phi0Slider: document.getElementById('phi0_slider'), radiusValue: document.getElementById('radius_value'),
+            omegaValue: document.getElementById('omega_value'), phi0Value: document.getElementById('phi0_value'),
+            speedRadios: document.querySelectorAll('input[name="speed"]'), graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), 
+            resetButton: document.getElementById('reset_button'), animationCoordSystem: document.getElementById('animation_coord_system'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), 
+            subdialMarks: document.getElementById('subdial_marks'),
+            positionVector: document.getElementById('position_vector'), togglePositionVector: document.getElementById('toggle_position_vector'),
+            velocityVector: document.getElementById('velocity_vector'), toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            accelerationVector: document.getElementById('acceleration_vector'), toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            trajectoryPath: document.getElementById('trajectory_path'),
+        };
+        
+        const scaleX = (x_meters) => ANIM_CX + x_meters * PIXELS_PER_METER; 
+        const scaleY = (y_meters) => ANIM_CY - y_meters * PIXELS_PER_METER;
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        function drawAnimationCoordinateSystem() {
+            ui.animationCoordSystem.innerHTML = '';
+            const axis_length = 150;
+            const attrs = { stroke: 'rgba(0,0,0,0.4)', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX - axis_length, y1: ANIM_CY, x2: ANIM_CX + axis_length, y2: ANIM_CY }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: ANIM_CX + axis_length + 5, y: ANIM_CY + 4, fill: 'grey' })).textContent = 'x';
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX, y1: ANIM_CY + axis_length, x2: ANIM_CX, y2: ANIM_CY - axis_length }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: ANIM_CX - 10, y: ANIM_CY - axis_length - 5, fill: 'grey' })).textContent = 'y';
+        }
+
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; 
+            const cx = 280, cy = 120, r = 72;
+            for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 12 : r - 6; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; 
+            const cx=280, cy=150, r=16;
+            for(let i=0;i<10;i++){const a=(i/10)*2*Math.PI;ui.subdialMarks.appendChild(createSVGElement('line',{x1:cx+(r-3)*Math.sin(a),y1:cy-(r-3)*Math.cos(a),x2:cx+r*Math.sin(a),y2:cy-r*Math.cos(a),stroke:'black','stroke-width':1}))}
+        }
+        
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        
+        function updateGraph() {
+            ui.gridGroup.innerHTML = '';
+            ui.gridGroup.appendChild(createSVGElement('rect', { x: 0, y: 0, width: 480, height: 410, fill: 'white' }));
+            let val_min, val_max, y_label, data_to_plot;
+            let t_max = (omega_rad !== 0) ? 2 * (2 * Math.PI / Math.abs(omega_rad)) : 10;
+            if (t_max < 2) t_max = 2;
+            
+            const v_abs = Math.abs(omega_rad * R);
+            const a_abs = Math.abs(omega_rad**2 * R);
+
+            switch(graphType) {
+                case 'xt': y_label = "Position x(t) /m"; data_to_plot = x_data; val_min = -R; val_max = R; break;
+                case 'yt': y_label = "Position y(t) /m"; data_to_plot = y_data; val_min = -R; val_max = R; break;
+                case 'vxt': y_label = "Geschw. v_x(t) /(m/s)"; data_to_plot = vx_data; val_min = -v_abs; val_max = v_abs; break;
+                case 'vyt': y_label = "Geschw. v_y(t) /(m/s)"; data_to_plot = vy_data; val_min = -v_abs; val_max = v_abs; break;
+                case 'axt': y_label = "Beschl. a_x(t) /(m/s²)"; data_to_plot = ax_data; val_min = -a_abs; val_max = a_abs; break;
+                case 'ayt': y_label = "Beschl. a_y(t) /(m/s²)"; data_to_plot = ay_data; val_min = -a_abs; val_max = a_abs; break;
+                case 'thetat': y_label = "Winkel θ(t) /°"; data_to_plot = theta_data.map(r => r * 180 / Math.PI); const final_theta = phi0_deg + omega_deg*t_max; val_min = Math.min(phi0_deg, final_theta); val_max = Math.max(phi0_deg, final_theta); break;
+                case 'vabs': y_label = "Betrag der Geschw. |v(t)| /(m/s)"; data_to_plot = vabs_data; val_min = v_abs; val_max = v_abs; break;
+                case 'aabs': y_label = "Betrag der Beschl. |a(t)| /(m/s²)"; data_to_plot = aabs_data; val_min = a_abs; val_max = a_abs; break;
+            }
+
+            const range = val_max - val_min;
+            if (range < 1e-9) { val_min -= 1; val_max += 1; } else { val_min -= range * .1; val_max += range * .1; }
+            if (val_min > 0 && graphType !== 'thetat' && val_min<1e-9) val_min = 0;
+            if (val_max < 0 && val_max > -1e-9) val_max = 0;
+            
+            const scaleXGraph = (t) => (t / t_max) * 460;
+            const y_tick_step = getNiceTickStep(val_max - val_min, 8);
+            let y_axis_min = Math.floor(val_min / y_tick_step) * y_tick_step;
+            let y_axis_max = Math.ceil(val_max / y_tick_step) * y_tick_step;
+            if (Math.abs(y_axis_min - y_axis_max) < 1e-9) { y_axis_min -= y_tick_step; y_axis_max += y_tick_step; }
+            const scaleYGraph = (v) => 400 - ((v - y_axis_min) / (y_axis_max - y_axis_min || 1)) * 380;
+            const x0 = scaleXGraph(0), y0 = scaleYGraph(0);
+            
+            for (let i = 0; i <= 10; i++) {
+                const t = (t_max / 10) * i, x = scaleXGraph(t);
+                ui.gridGroup.appendChild(createSVGElement('line', { x1: x, y1: 0, x2: x, y2: 410, stroke: '#eee' }));
+                let txt = createSVGElement('text', { x: x, y: y0 + 15, 'text-anchor': 'middle', fill: 'black' });
+                txt.textContent = t.toFixed(1);
+                ui.gridGroup.appendChild(txt);
+            }
+            for (let v = y_axis_min; v <= y_axis_max; v += y_tick_step) {
+                if (Math.abs(v-0) < 1e-9 && Math.abs(y0 - scaleYGraph(v)) < 1) continue;
+                const y = scaleYGraph(v);
+                ui.gridGroup.appendChild(createSVGElement('line', { x1: 0, y1: y, x2: 480, y2: y, stroke: '#eee' }));
+                let txt = createSVGElement('text', { x: x0 - 10, y: y + 4, 'text-anchor': 'end', fill: 'black' });
+                txt.textContent = v.toFixed(y_tick_step % 1 === 0 ? 0 : 2);
+                ui.gridGroup.appendChild(txt);
+            }
+            
+            ui.gridGroup.appendChild(createSVGElement('line', { x1: x0, y1: y0, x2: 480, y2: y0, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            ui.gridGroup.appendChild(createSVGElement('line', { x1: x0, y1: 410, x2: x0, y2: 0, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            let ylbl = createSVGElement('text', { x: x0 - 45, y: 205, transform: `rotate(-90 ${x0-45},205)`, 'text-anchor': 'middle', fill: 'black', 'font-size': '14px' });
+            ylbl.textContent = y_label;
+            ui.gridGroup.appendChild(ylbl);
+            let p = "";
+            for (let i = 0; i < t_data.length; i++) { p += `${scaleXGraph(t_data[i])},${scaleYGraph(data_to_plot[i])} `; }
+            ui.graphLine.setAttribute('points', p);
+            if (t_data.length > 0) {
+                ui.graphPoint.setAttribute('cx', scaleXGraph(t_data[t_data.length - 1]));
+                ui.graphPoint.setAttribute('cy', scaleYGraph(data_to_plot[data_to_plot.length - 1]));
+                ui.graphPoint.setAttribute('visibility', 'visible');
+            } else {
+                ui.graphPoint.setAttribute('visibility', 'hidden');
+            }
+            ui.graphTitle.textContent = ui.graphSelect.querySelector(`option[value="${graphType}"]`).textContent + "-Diagramm";
+        }
+        
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += dt * speedFactor;
+            lastFrameTime = currentTime;
+
+            const current_theta = phi0_rad + omega_rad * simulatedTimeElapsed;
+            const x_pos = R * Math.cos(current_theta);
+            const y_pos = R * Math.sin(current_theta);
+            const vx = -R * omega_rad * Math.sin(current_theta);
+            const vy = R * omega_rad * Math.cos(current_theta);
+            const ax = -R * omega_rad**2 * Math.cos(current_theta);
+            const ay = -R * omega_rad**2 * Math.sin(current_theta);
+            
+            t_data.push(simulatedTimeElapsed);
+            x_data.push(x_pos); y_data.push(y_pos);
+            vx_data.push(vx); vy_data.push(vy);
+            ax_data.push(ax); ay_data.push(ay);
+            theta_data.push(current_theta);
+            vabs_data.push(Math.sqrt(vx**2 + vy**2));
+            aabs_data.push(Math.sqrt(ax**2 + ay**2));
+            
+            const cx = scaleX(x_pos), cy = scaleY(y_pos);
+            ui.point.setAttribute('cx', cx); ui.point.setAttribute('cy', cy);
+            
+            ui.disk.style.transform = `rotate(${-omega_deg * simulatedTimeElapsed}deg)`;
+
+            // Update vectors
+            ui.positionVector.setAttribute('x1', ANIM_CX); ui.positionVector.setAttribute('y1', ANIM_CY);
+            ui.positionVector.setAttribute('x2', cx); ui.positionVector.setAttribute('y2', cy);
+            ui.velocityVector.setAttribute('x1', cx); ui.velocityVector.setAttribute('y1', cy);
+            ui.velocityVector.setAttribute('x2', cx + vx * PIXELS_PER_VELOCITY_UNIT);
+            ui.velocityVector.setAttribute('y2', cy - vy * PIXELS_PER_VELOCITY_UNIT);
+            ui.accelerationVector.setAttribute('x1', cx); ui.accelerationVector.setAttribute('y1', cy);
+            ui.accelerationVector.setAttribute('x2', cx + ax * PIXELS_PER_ACCELERATION_UNIT);
+            ui.accelerationVector.setAttribute('y2', cy - ay * PIXELS_PER_ACCELERATION_UNIT);
+            
+            // Update stopwatch hands
+            const main_a = (simulatedTimeElapsed % 60 / 60) * 2 * Math.PI;
+            const sub_a = (simulatedTimeElapsed % 1) * 2 * Math.PI;
+            ui.mainHand.setAttribute('x2', 280 + 68 * Math.sin(main_a));
+            ui.mainHand.setAttribute('y2', 120 - 68 * Math.cos(main_a));
+            ui.subHand.setAttribute('x2', 280 + 15 * Math.sin(sub_a));
+            ui.subHand.setAttribute('y2', 150 - 15 * Math.cos(sub_a));
+
+            updateGraph();
+            aniFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() {
+            if (aniFrameId) { cancelAnimationFrame(aniFrameId); aniFrameId = null; }
+            ui.playButton.disabled = false;
+            ui.pauseButton.disabled = true;
+            ui.radiusSlider.disabled = false;
+            ui.omegaSlider.disabled = false;
+            ui.phi0Slider.disabled = false;
+        }
+
+        function resetScene() {
+            stopAnimation();
+            simulatedTimeElapsed = 0; lastFrameTime = 0;
+            
+            R = parseFloat(ui.radiusSlider.value);
+            omega_deg = parseFloat(ui.omegaSlider.value);
+            phi0_deg = parseFloat(ui.phi0Slider.value);
+            graphType = ui.graphSelect.value;
+            ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value) });
+            
+            ui.radiusValue.textContent = `${R.toFixed(1)} m`;
+            ui.omegaValue.textContent = `${omega_deg} °/s`;
+            ui.phi0Value.textContent = `${phi0_deg} °`;
+
+            omega_rad = omega_deg * Math.PI / 180;
+            phi0_rad = phi0_deg * Math.PI / 180;
+            
+            t_data = []; x_data = []; y_data = []; vx_data = []; vy_data = [];
+            ax_data = []; ay_data = []; vabs_data = []; aabs_data = []; theta_data = [];
+
+            ui.disk.setAttribute('cx', ANIM_CX);
+            ui.disk.setAttribute('cy', ANIM_CY);
+            ui.disk.setAttribute('r', (R * 1.1) * PIXELS_PER_METER);
+            ui.disk.style.transformOrigin = `${ANIM_CX}px ${ANIM_CY}px`;
+            ui.disk.style.transform = `rotate(0deg)`;
+
+            const pathRadius = R * PIXELS_PER_METER;
+            ui.trajectoryPath.setAttribute('d', `M ${ANIM_CX + pathRadius},${ANIM_CY} A ${pathRadius},${pathRadius} 0 1,1 ${ANIM_CX-pathRadius},${ANIM_CY} A ${pathRadius},${pathRadius} 0 1,1 ${ANIM_CX+pathRadius},${ANIM_CY}`);
+            
+            drawAnimationCoordinateSystem();
+            drawStopwatchMarks();
+            drawSubdialMarks();
+
+            const initial_x = R * Math.cos(phi0_rad);
+            const initial_y = R * Math.sin(phi0_rad);
+            ui.point.setAttribute('cx', scaleX(initial_x));
+            ui.point.setAttribute('cy', scaleY(initial_y));
+
+            ui.positionVector.style.visibility = ui.togglePositionVector.checked ? 'visible' : 'hidden';
+            ui.velocityVector.style.visibility = ui.toggleVelocityVector.checked ? 'visible' : 'hidden';
+            ui.accelerationVector.style.visibility = ui.toggleAccelerationVector.checked ? 'visible' : 'hidden';
+            
+            // Reset stopwatch hands to 12 o'clock position
+            ui.mainHand.setAttribute('x2', 280); ui.mainHand.setAttribute('y2', 120 - 68);
+            ui.subHand.setAttribute('x2', 280); ui.subHand.setAttribute('y2', 150 - 15);
+            
+            updateGraph();
+        }
+        
+        function setupEventListeners() {
+            ['input','change'].forEach(e => {
+                ui.radiusSlider.addEventListener(e, resetScene);
+                ui.omegaSlider.addEventListener(e, resetScene);
+                ui.phi0Slider.addEventListener(e, resetScene);
+            });
+            ui.graphSelect.addEventListener('change', resetScene);
+            ui.speedRadios.forEach(r => r.addEventListener('change', resetScene));
+            [ui.togglePositionVector, ui.toggleVelocityVector, ui.toggleAccelerationVector].forEach(cb => {
+                cb.addEventListener('change', () => {
+                    ui.positionVector.style.visibility = ui.togglePositionVector.checked ? 'visible' : 'hidden';
+                    ui.velocityVector.style.visibility = ui.toggleVelocityVector.checked ? 'visible' : 'hidden';
+                    ui.accelerationVector.style.visibility = ui.toggleAccelerationVector.checked ? 'visible' : 'hidden';
+                });
+            });
+
+            ui.playButton.addEventListener('click', () => {
+                if (!aniFrameId) {
+                    // Do not reset the whole scene, just continue the animation
+                    if (simulatedTimeElapsed === 0) { // only reset if it's a fresh start
+                         resetScene();
+                    }
+                    ui.playButton.disabled = true;
+                    ui.pauseButton.disabled = false;
+                    ui.radiusSlider.disabled = true;
+                    ui.omegaSlider.disabled = true;
+                    ui.phi0Slider.disabled = true;
+                    lastFrameTime = 0; 
+                    aniFrameId = requestAnimationFrame(animate);
+                }
+            });
+            ui.pauseButton.addEventListener('click', stopAnimation);
+            ui.resetButton.addEventListener('click', () => {
+                simulatedTimeElapsed = 0; // Force a full reset
+                resetScene();
+            });
+        }
+
+        window.onload = () => {
+            setupEventListeners();
+            resetScene();
+        };
+    </script>
+
+</body>
+</html>

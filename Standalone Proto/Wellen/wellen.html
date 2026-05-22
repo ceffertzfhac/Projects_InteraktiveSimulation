@@ -1,0 +1,891 @@
+<!-- START OF FILE Paste January 14, 2026 - Extended Version -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Interferenz zweier Punktquellen (2D)</title>
+    <!-- MathJax -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; 
+            --fh-red: #d1002d; 
+            --fh-orange: #FF7F0E;
+            --bg-color: #f0f2f5; 
+            --border-color: #ccc; 
+            --text-color: #333; 
+            --control-bg: #fff; 
+            --label-color: #555;
+            --constructive: #28a745;
+            --destructive: #dc3545;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 1000px; width: 100%; }
+        
+        /* Layout: Oben Visualisierung + Graph, Unten Controls */
+        #main-content { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
+        
+        /* Linke Seite: Wellenfeld */
+        .vis-wrapper { position: relative; width: 400px; height: 400px; border: 1px solid var(--border-color); background: #000; cursor: crosshair; }
+        canvas { display: block; width: 100%; height: 100%; }
+        svg.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* Rechte Seite: Graph */
+        #graph_container { width: 400px; height: 400px; border: 1px solid var(--border-color); position: relative; background: #fff; }
+        #graph_svg { width: 100%; height: 100%; }
+
+        /* Controls Bereich */
+        #controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 20px; align-items: start; }
+        
+        fieldset { border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-top: 0; height: 100%; box-sizing: border-box; }
+        legend { font-weight: bold; color: var(--label-color); padding: 0 5px; font-size: 0.9em; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        
+        .slider-group { display: grid; grid-template-columns: 120px 1fr 60px; gap: 10px; align-items: center; margin-bottom: 5px; }
+        .slider-group .label { text-align: right; color: var(--label-color); font-size: 0.9em; }
+        .slider-group .value { font-family: monospace; font-size: 0.9em; }
+        
+        button { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #e0e0e0; }
+        button:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa; }
+        
+        .radio-group div, .checkbox-group div { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.9em; }
+        .radio-group input, .checkbox-group input { margin-right: 8px; }
+        
+        /* Analyse Tabelle */
+        .info-group .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .info-group .info-label { color: var(--label-color); }
+        .info-group .info-value { font-family: monospace; font-weight: bold; }
+
+        footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #888; }
+        
+        /* Draggable Detector Style */
+        .draggable { cursor: grab; pointer-events: all; transition: fill 0.2s; }
+        .draggable:active { cursor: grabbing; }
+
+        @media (max-width: 850px) {
+            #controls { grid-template-columns: 1fr; }
+            .vis-wrapper, #graph_container { width: 100%; max-width: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Simulation: Interferenz zweier Punktquellen</h1>
+    
+    <div id="container">
+        <div id="main-content">
+            <!-- Visualisierung -->
+            <div class="vis-wrapper" id="vis_container">
+                <canvas id="wave_canvas"></canvas>
+                <svg id="overlay_svg" class="overlay" viewBox="0 0 400 400">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+                            <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" />
+                        </marker>
+                    </defs>
+                    <g id="geometry_layer"></g>
+                    
+                    <!-- NEU: Schirm Linie (Standardmäßig unsichtbar) -->
+                    <line id="screen_line" x1="0" y1="10" x2="400" y2="10" stroke="white" stroke-width="3" stroke-dasharray="5,3" visibility="hidden" />
+
+                    <!-- Quellen -->
+                    <circle id="source1" r="5" fill="#fff" stroke="var(--fh-blue)" stroke-width="2" />
+                    <circle id="source2" r="5" fill="#fff" stroke="var(--fh-blue)" stroke-width="2" />
+                    <text id="lbl_s1" fill="white" font-size="12" dx="-15" dy="-8" style="text-shadow: 0 0 2px black;">S₁</text>
+                    <text id="lbl_s2" fill="white" font-size="12" dx="10" dy="-8" style="text-shadow: 0 0 2px black;">S₂</text>
+                    
+                    <!-- Detektor P -->
+                    <g id="detector_group" class="draggable">
+                        <circle r="12" fill="rgba(255, 127, 14, 0.2)" stroke="var(--fh-orange)" stroke-width="1" stroke-dasharray="2,2"/>
+                        <circle r="5" fill="var(--fh-orange)" stroke="#fff" stroke-width="1"/>
+                        <text x="8" y="-8" fill="var(--fh-orange)" font-weight="bold" font-size="14px">P</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Graph -->
+            <div id="graph_container">
+                <svg id="graph_svg" viewBox="0 0 400 400">
+                    <text id="graph_title" x="200" y="25" text-anchor="middle" font-size="16px" font-weight="bold" fill="#333">Elongation am Punkt P</text>
+                    <g class="graph_grid"></g>
+                    
+                    <!-- Pfade für Zeit-Graph -->
+                    <g id="time_graph_paths">
+                        <path id="path_u1" fill="none" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6" />
+                        <path id="path_u2" fill="none" stroke="var(--fh-red)" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6" />
+                        <path id="path_sum" fill="none" stroke="var(--fh-orange)" stroke-width="2.5" />
+                    </g>
+
+                    <!-- Pfad für Intensitäts-Graph (NEU) -->
+                    <path id="path_intensity" fill="rgba(255, 127, 14, 0.2)" stroke="var(--fh-orange)" stroke-width="2" visibility="hidden" />
+                    
+                    <!-- Legende im Graph -->
+                    <g id="legend_time" transform="translate(60, 370)" font-size="12px">
+                        <line x1="0" y1="0" x2="20" y2="0" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <text x="25" y="4" fill="#333">\(u_1\) (S₁)</text>
+                        
+                        <line x1="100" y1="0" x2="120" y2="0" stroke="var(--fh-red)" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <text x="125" y="4" fill="#333">\(u_2\) (S₂)</text>
+                        
+                        <line x1="200" y1="0" x2="220" y2="0" stroke="var(--fh-orange)" stroke-width="2.5"/>
+                        <text x="225" y="4" fill="#333">\(u_{ges}\)</text>
+                    </g>
+                    
+                    <!-- Legende für Intensität (NEU) -->
+                    <g id="legend_intensity" transform="translate(120, 370)" font-size="12px" visibility="hidden">
+                         <rect x="0" y="-6" width="20" height="12" fill="rgba(255, 127, 14, 0.2)" stroke="var(--fh-orange)" stroke-width="2"/>
+                         <text x="30" y="4" fill="#333">Intensität \(I(x)\) am Schirm</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div id="controls">
+            <div class="control-group">
+                <fieldset>
+                    <legend>Systemparameter</legend>
+                    <div class="slider-group">
+                        <span class="label">Abstand \(d\):</span>
+                        <input type="range" id="sl_dist" min="0.5" max="8" step="0.1" value="3.0">
+                        <span class="value" id="val_dist">3.0 cm</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="label">Wellenlänge \(\lambda\):</span>
+                        <input type="range" id="sl_lambda" min="0.5" max="4" step="0.1" value="1.5">
+                        <span class="value" id="val_lambda">1.5 cm</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="label">Phase \(\delta_0\) (S₂):</span>
+                        <input type="range" id="sl_phase" min="0" max="360" step="15" value="0">
+                        <span class="value" id="val_phase">0°</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button id="btn_play">Start</button>
+                        <button id="btn_pause" disabled>Pause</button>
+                        <button id="btn_reset">Reset</button>
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Visualisierung</legend>
+                    <div class="radio-group">
+                        <label style="margin-right: 10px; font-weight:bold; font-size:0.9em;">Modus:</label>
+                        <div><input type="radio" name="mode" value="wave" checked> Wellenfeld (Momentan)</div>
+                        <div><input type="radio" name="mode" value="intensity"> Intensität (Mittelwert)</div>
+                    </div>
+                    <div class="checkbox-group" style="margin-top:10px;">
+                        <div><input type="checkbox" id="chk_nodal"> Minima-Linien (Hyperbeln) zeigen</div>
+                        <!-- NEU: Checkbox für Leinwand -->
+                        <div style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 5px;">
+                            <input type="checkbox" id="chk_screen"> <b>Leinwand (Schirm) anzeigen</b>
+                        </div>
+                    </div>
+                    <div class="slider-group" style="margin-top:10px;">
+                        <span class="label">Tempo:</span>
+                        <input type="range" id="sl_speed" min="0" max="200" step="10" value="100">
+                        <span class="value"></span>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="control-group">
+                <fieldset>
+                    <legend>Analyse am Punkt P</legend>
+                    <div class="info-group">
+                        <div class="info-row"><span class="info-label">Weg \(r_1\) (von S₁):</span> <span class="info-value" id="out_r1">-</span></div>
+                        <div class="info-row"><span class="info-label">Weg \(r_2\) (von S₂):</span> <span class="info-value" id="out_r2">-</span></div>
+                        <div class="info-row"><span class="info-label">Wegunterschied \(\Delta s\):</span> <span class="info-value" id="out_ds">-</span></div>
+                        <div class="info-row"><span class="info-label">Verhältnis \(\Delta s / \lambda\):</span> <span class="info-value" id="out_ratio" style="color:var(--fh-blue)">-</span></div>
+                        <div class="info-row"><span class="info-label">Phasendiff. \(\Delta \varphi\):</span> <span class="info-value" id="out_dphi">-</span></div>
+                        <div class="info-row" style="margin-top:10px; border:none;">
+                            <span class="info-label">Interferenz:</span> 
+                            <span class="info-value" id="out_type">-</span>
+                        </div>
+                        <div class="info-row" style="border:none;">
+                            <span class="info-label">Resultierende Ampl.:</span> 
+                            <span class="info-value" id="out_amp" style="color:var(--fh-orange)">-</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8em; color: #777; margin-top: 10px; line-height: 1.4;">
+                        Hinweis: Die Amplitude nimmt physikalisch korrekt mit \(1/\sqrt{r}\) ab.
+                    </p>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> Physik-Simulation | FH Aachen Style</small></p>
+    </footer>
+
+<script>
+/**
+ * KONFIGURATION & KONSTANTEN
+ */
+const CONFIG = {
+    pxPerCm: 40,        // Maßstab: 40px = 1cm
+    canvasSize: 400,    // Logische Größe
+    freq: 1.0,          // Hz
+    minDist: 0.2,       // cm, Cutoff für Singularität bei r=0
+    screenY_cm: -4.8    // Position des Schirms in cm (nahe oberer Rand)
+};
+const OMEGA = 2 * Math.PI * CONFIG.freq;
+
+/**
+ * STATE MANAGEMENT
+ */
+const state = {
+    d: 3.0,             // cm
+    lambda: 1.5,        // cm
+    phaseDeg: 0,        // Grad
+    time: 0,            // Sekunden
+    running: false,
+    speed: 1.0,
+    mode: 'wave',       // 'wave' | 'intensity'
+    detector: { x: 0, y: -4 }, // cm, relativ zur Mitte
+    showNodal: false,
+    showScreen: false   // NEU: Status für Leinwand
+};
+
+/**
+ * UI REFERENZEN
+ */
+const ui = {
+    canvas: document.getElementById('wave_canvas'),
+    ctx: document.getElementById('wave_canvas').getContext('2d', { alpha: false }),
+    svg: document.getElementById('overlay_svg'),
+    detectorGrp: document.getElementById('detector_group'),
+    screenLine: document.getElementById('screen_line'), // NEU
+    
+    // Controls
+    slDist: document.getElementById('sl_dist'),
+    slLambda: document.getElementById('sl_lambda'),
+    slPhase: document.getElementById('sl_phase'),
+    slSpeed: document.getElementById('sl_speed'),
+    btnPlay: document.getElementById('btn_play'),
+    btnPause: document.getElementById('btn_pause'),
+    btnReset: document.getElementById('btn_reset'),
+    radMode: document.querySelectorAll('input[name="mode"]'),
+    chkNodal: document.getElementById('chk_nodal'),
+    chkScreen: document.getElementById('chk_screen'), // NEU
+    
+    // Displays
+    valDist: document.getElementById('val_dist'),
+    valLambda: document.getElementById('val_lambda'),
+    valPhase: document.getElementById('val_phase'),
+    
+    // Analysis
+    outR1: document.getElementById('out_r1'),
+    outR2: document.getElementById('out_r2'),
+    outDs: document.getElementById('out_ds'),
+    outRatio: document.getElementById('out_ratio'),
+    outDphi: document.getElementById('out_dphi'),
+    outType: document.getElementById('out_type'),
+    outAmp: document.getElementById('out_amp'),
+    
+    // Graph
+    graphSvg: document.getElementById('graph_svg'),
+    graphGrid: document.querySelector('.graph_grid'),
+    graphTitle: document.getElementById('graph_title'),
+    timeGraphPaths: document.getElementById('time_graph_paths'),
+    pathU1: document.getElementById('path_u1'),
+    pathU2: document.getElementById('path_u2'),
+    pathSum: document.getElementById('path_sum'),
+    pathIntensity: document.getElementById('path_intensity'), // NEU
+    legendTime: document.getElementById('legend_time'),
+    legendIntensity: document.getElementById('legend_intensity'), // NEU
+    
+    // Geometry
+    src1: document.getElementById('source1'),
+    src2: document.getElementById('source2'),
+    lblS1: document.getElementById('lbl_s1'),
+    lblS2: document.getElementById('lbl_s2'),
+    geoLayer: document.getElementById('geometry_layer')
+};
+
+let imgData = null;
+let animId = null;
+let lastTime = 0;
+
+/**
+ * INITIALISIERUNG
+ */
+function init() {
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    
+    // High-DPI Canvas Setup
+    const dpr = window.devicePixelRatio || 1;
+    ui.canvas.width = CONFIG.canvasSize * dpr;
+    ui.canvas.height = CONFIG.canvasSize * dpr;
+    // Buffer erstellen
+    imgData = ui.ctx.createImageData(ui.canvas.width, ui.canvas.height);
+    
+    setupListeners();
+    updateUIValues();
+    drawGraphGrid(); // Initial Grid
+    resizeOverlay();
+    
+    // Initial Draw (Canvas wird schwarz sein, da time=0)
+    drawField();
+    drawGraph();
+    updateAnalysis();
+    
+    // Start Loop
+    lastTime = performance.now();
+    loop();
+}
+
+function setupListeners() {
+    const update = () => {
+        state.d = parseFloat(ui.slDist.value);
+        state.lambda = parseFloat(ui.slLambda.value);
+        state.phaseDeg = parseFloat(ui.slPhase.value);
+        updateUIValues();
+        drawOverlay(); 
+        updateAnalysis();
+        if(!state.running) {
+            drawField();
+            drawGraph();
+        }
+    };
+    
+    ui.slDist.addEventListener('input', update);
+    ui.slLambda.addEventListener('input', update);
+    ui.slPhase.addEventListener('input', update);
+    
+    ui.slSpeed.addEventListener('input', () => state.speed = parseFloat(ui.slSpeed.value) / 100);
+    
+    ui.btnPlay.addEventListener('click', () => { 
+        state.running = true; 
+        ui.btnPlay.disabled = true; 
+        ui.btnPause.disabled = false; 
+        ui.slDist.disabled = true; 
+        ui.slLambda.disabled = true;
+        ui.slPhase.disabled = true;
+    });
+    
+    ui.btnPause.addEventListener('click', () => { 
+        state.running = false; 
+        ui.btnPlay.disabled = false; 
+        ui.btnPause.disabled = true;
+        ui.slDist.disabled = false;
+        ui.slLambda.disabled = false;
+        ui.slPhase.disabled = false;
+    });
+    
+    ui.btnReset.addEventListener('click', () => {
+        state.time = 0;
+        state.running = false;
+        ui.btnPlay.disabled = false;
+        ui.btnPause.disabled = true;
+        ui.slDist.disabled = false;
+        ui.slLambda.disabled = false;
+        ui.slPhase.disabled = false;
+        drawField();
+        drawGraph();
+    });
+    
+    ui.radMode.forEach(r => r.addEventListener('change', (e) => { 
+        state.mode = e.target.value; 
+        if(!state.running) drawField(); 
+    }));
+    
+    ui.chkNodal.addEventListener('change', (e) => { 
+        state.showNodal = e.target.checked; 
+        drawOverlay(); 
+    });
+
+    // NEU: Listener für Leinwand
+    ui.chkScreen.addEventListener('change', (e) => {
+        state.showScreen = e.target.checked;
+        
+        // UI Updates
+        ui.screenLine.setAttribute('visibility', state.showScreen ? 'visible' : 'hidden');
+        ui.timeGraphPaths.setAttribute('visibility', state.showScreen ? 'hidden' : 'visible');
+        ui.pathIntensity.setAttribute('visibility', state.showScreen ? 'visible' : 'hidden');
+        ui.legendTime.setAttribute('visibility', state.showScreen ? 'hidden' : 'visible');
+        ui.legendIntensity.setAttribute('visibility', state.showScreen ? 'visible' : 'hidden');
+        
+        ui.graphTitle.textContent = state.showScreen ? "Intensität am Schirm I(x)" : "Elongation am Punkt P";
+        
+        // Grid neu zeichnen (Achsenbeschriftung ändert sich)
+        drawGraphGrid();
+        
+        if(!state.running) drawGraph();
+    });
+    
+    // Draggable Detector Logic (Original)
+    const container = document.getElementById('vis_container');
+    let isDragging = false;
+    
+    const getPos = (e) => {
+        const rect = container.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = (clientX - rect.left) / rect.width * CONFIG.canvasSize;
+        const y = (clientY - rect.top) / rect.height * CONFIG.canvasSize;
+        return {
+            x: (x - CONFIG.canvasSize/2) / CONFIG.pxPerCm,
+            y: (y - CONFIG.canvasSize/2) / CONFIG.pxPerCm
+        };
+    };
+    
+    const startDrag = (e) => {
+        const p = getPos(e);
+        const dx = p.x - state.detector.x;
+        const dy = p.y - state.detector.y;
+        if (Math.sqrt(dx*dx + dy*dy) < 1.0) isDragging = true;
+        else {
+            state.detector = p;
+            clampDetector();
+            drawOverlay();
+            updateAnalysis();
+            if(!state.running) drawGraph();
+        }
+    };
+    
+    const moveDrag = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        state.detector = getPos(e);
+        clampDetector();
+        drawOverlay();
+        updateAnalysis();
+        if(!state.running) drawGraph();
+    };
+    
+    container.addEventListener('mousedown', startDrag);
+    container.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', () => isDragging = false);
+    
+    container.addEventListener('touchstart', startDrag, {passive: false});
+    container.addEventListener('touchmove', moveDrag, {passive: false});
+    window.addEventListener('touchend', () => isDragging = false);
+}
+
+function clampDetector() {
+    const max = (CONFIG.canvasSize/2 - 10) / CONFIG.pxPerCm;
+    state.detector.x = Math.max(-max, Math.min(max, state.detector.x));
+    state.detector.y = Math.max(-max, Math.min(max, state.detector.y));
+}
+
+function updateUIValues() {
+    ui.valDist.textContent = state.d.toFixed(1) + " cm";
+    ui.valLambda.textContent = state.lambda.toFixed(1) + " cm";
+    ui.valPhase.textContent = state.phaseDeg.toFixed(0) + "°";
+}
+
+function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const dt = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+    
+    if (state.running) {
+        state.time += dt * state.speed;
+        drawField();
+        drawGraph();
+    }
+    
+    animId = requestAnimationFrame(loop);
+}
+
+/**
+ * VISUALISIERUNG (CANVAS) - Original
+ */
+function drawField() {
+    const w = ui.canvas.width;
+    const h = ui.canvas.height;
+    const data = imgData.data;
+    
+    const k = 2 * Math.PI / state.lambda;
+    const phaseRad = state.phaseDeg * Math.PI / 180;
+    const omegaT = OMEGA * state.time;
+    
+    const waveSpeed = state.lambda * CONFIG.freq; 
+    const maxDist = waveSpeed * state.time; 
+    
+    const scale = (CONFIG.canvasSize / CONFIG.pxPerCm) / w; 
+    const cx = w / 2;
+    const cy = h / 2;
+    
+    const s1x = -state.d / 2;
+    const s2x = state.d / 2;
+    
+    let idx = 0;
+    let x_cm, y_cm, r1, r2, A1, A2, val, u1, u2;
+    
+    for (let y = 0; y < h; y++) {
+        y_cm = (y - cy) * scale;
+        const y_sq = y_cm * y_cm;
+        
+        for (let x = 0; x < w; x++) {
+            x_cm = (x - cx) * scale;
+            
+            r1 = Math.sqrt((x_cm - s1x)**2 + y_sq);
+            r2 = Math.sqrt((x_cm - s2x)**2 + y_sq);
+            
+            const r1s = Math.max(CONFIG.minDist, r1);
+            const r2s = Math.max(CONFIG.minDist, r2);
+            
+            A1 = 1.0 / Math.sqrt(r1s);
+            A2 = 1.0 / Math.sqrt(r2s);
+            
+            if (state.mode === 'wave') {
+                if (r1 > maxDist) u1 = 0;
+                else u1 = A1 * Math.sin(k * r1 - omegaT);
+                
+                if (r2 > maxDist) u2 = 0;
+                else u2 = A2 * Math.sin(k * r2 - omegaT + phaseRad);
+                
+                val = Math.tanh((u1 + u2) * 1.5); 
+                const v = Math.abs(val);
+                
+                if (val > 0) {
+                    data[idx] = 255 * (1-v);     
+                    data[idx+1] = 255 - (161*v); 
+                    data[idx+2] = 255 - (78*v);  
+                } else {
+                    data[idx] = 255 - (46*v);    
+                    data[idx+1] = 255 * (1-v);   
+                    data[idx+2] = 255 - (210*v); 
+                }
+            } else {
+                let I_val = 0;
+                const w1_active = r1 <= maxDist;
+                const w2_active = r2 <= maxDist;
+                
+                if (w1_active && w2_active) {
+                    const delta = k * (r2 - r1) + phaseRad;
+                    I_val = (A1*A1) + (A2*A2) + 2*A1*A2*Math.cos(delta);
+                } else if (w1_active) {
+                    I_val = A1*A1;
+                } else if (w2_active) {
+                    I_val = A2*A2;
+                }
+                
+                val = Math.sqrt(I_val) * 0.6;
+                val = Math.min(1, val);
+                
+                const intensity = Math.floor(val * 255);
+                data[idx] = intensity * 0.1; 
+                data[idx+1] = intensity * 0.5;
+                data[idx+2] = intensity; 
+            }
+            
+            data[idx+3] = 255; 
+            idx += 4;
+        }
+    }
+    
+    ui.ctx.putImageData(imgData, 0, 0);
+}
+
+/**
+ * OVERLAY (SVG)
+ */
+function resizeOverlay() {
+    drawOverlay();
+}
+
+function drawOverlay() {
+    const cx = 200; 
+    const cy = 200;
+    const scale = CONFIG.pxPerCm;
+    
+    const s1_px = cx - (state.d/2) * scale;
+    const s2_px = cx + (state.d/2) * scale;
+    
+    ui.src1.setAttribute('cx', s1_px); ui.src1.setAttribute('cy', cy);
+    ui.src2.setAttribute('cx', s2_px); ui.src2.setAttribute('cy', cy);
+    ui.lblS1.setAttribute('x', s1_px); ui.lblS1.setAttribute('y', cy);
+    ui.lblS2.setAttribute('x', s2_px); ui.lblS2.setAttribute('y', cy);
+    
+    // NEU: Schirm Position aktualisieren (visuell)
+    const screenYPx = cy + CONFIG.screenY_cm * scale;
+    ui.screenLine.setAttribute('y1', screenYPx);
+    ui.screenLine.setAttribute('y2', screenYPx);
+
+    const detX = cx + state.detector.x * scale;
+    const detY = cy + state.detector.y * scale;
+    ui.detectorGrp.setAttribute('transform', `translate(${detX}, ${detY})`);
+    
+    ui.geoLayer.innerHTML = '';
+    
+    // Verbindungslinien
+    const line = (x1,y1,x2,y2) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        el.setAttribute('x1', x1); el.setAttribute('y1', y1);
+        el.setAttribute('x2', x2); el.setAttribute('y2', y2);
+        el.setAttribute('stroke', 'rgba(255,255,255,0.5)');
+        el.setAttribute('stroke-dasharray', '3,3');
+        return el;
+    };
+    ui.geoLayer.appendChild(line(s1_px, cy, detX, detY));
+    ui.geoLayer.appendChild(line(s2_px, cy, detX, detY));
+    
+    if (state.showNodal) {
+        const phaseShiftLen = (state.phaseDeg / 360) * state.lambda;
+        const maxN = Math.floor(state.d / state.lambda + 1);
+        
+        for (let n = -maxN; n <= maxN; n++) {
+            const targetDs = (n + 0.5) * state.lambda - phaseShiftLen;
+            if (Math.abs(targetDs) >= state.d * 0.99) continue;
+            
+            const a = targetDs / 2;
+            const c = state.d / 2;
+            const b = Math.sqrt(c*c - a*a);
+            
+            let dPath = "";
+            for (let yPx = -200; yPx <= 200; yPx += 5) {
+                const yCm = yPx / scale;
+                const term = 1 + (yCm*yCm)/(b*b);
+                let xCm = -1 * Math.sign(targetDs) * Math.abs(a) * Math.sqrt(term);
+                
+                const px = cx + xCm * scale;
+                const py = cy + yCm * scale;
+                dPath += (yPx === -200 ? "M" : "L") + `${px.toFixed(1)},${(cy+yPx).toFixed(1)} `;
+            }
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', dPath);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', 'rgba(0,0,0,0.4)');
+            path.setAttribute('stroke-width', '2');
+            ui.geoLayer.appendChild(path);
+        }
+    }
+}
+
+/**
+ * GRAPH (SVG) - Erweitert
+ */
+function createSVGElement(tag, attributes) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const key in attributes) el.setAttribute(key, attributes[key]);
+    return el;
+}
+
+function drawGraphGrid() {
+    const grid = ui.graphGrid;
+    grid.innerHTML = '';
+    
+    const P = { top: 40, right: 20, bottom: 40, left: 50 };
+    const W = 400 - P.left - P.right;
+    const H = 400 - P.top - P.bottom;
+    
+    // Achsen
+    const xAxisY = P.top + H/2; // Mitte für Zeitgraph
+    const yAxisX = P.left;
+    
+    // Box
+    grid.appendChild(createSVGElement('rect', {x: P.left, y: P.top, width: W, height: H, fill: 'none', stroke: '#eee'}));
+    
+    // Y-Achse
+    grid.appendChild(createSVGElement('line', {x1: yAxisX, y1: P.top, x2: yAxisX, y2: P.top + H, stroke: '#ccc'}));
+    
+    if (!state.showScreen) {
+        // --- ZEIT GRAPH GRID ---
+        // X-Achse (Mitte)
+        grid.appendChild(createSVGElement('line', {x1: P.left, y1: xAxisY, x2: P.left + W, y2: xAxisY, stroke: '#ccc'}));
+        
+        // Labels
+        const tLabel = createSVGElement('text', {x: P.left + W/2, y: P.top + H + 30, 'text-anchor': 'middle', fill: '#666', 'font-size': '12px'});
+        tLabel.textContent = "Zeit t";
+        grid.appendChild(tLabel);
+        
+        const yLabel = createSVGElement('text', {x: 15, y: P.top + H/2, 'text-anchor': 'middle', fill: '#666', 'font-size': '12px', transform: `rotate(-90, 15, ${P.top + H/2})`});
+        yLabel.textContent = "Auslenkung u";
+        grid.appendChild(yLabel);
+        
+        // Current Time Marker Line
+        const timeLine = createSVGElement('line', {id: 'time_marker', x1: P.left + W - 10, y1: P.top, x2: P.left + W - 10, y2: P.top + H, stroke: '#333', 'stroke-dasharray': '2,2'});
+        grid.appendChild(timeLine);
+        
+    } else {
+        // --- INTENSITÄTS GRAPH GRID ---
+        // X-Achse (Unten)
+        grid.appendChild(createSVGElement('line', {x1: P.left, y1: P.top + H, x2: P.left + W, y2: P.top + H, stroke: '#ccc'}));
+        
+        // Labels
+        const xLabel = createSVGElement('text', {x: P.left + W/2, y: P.top + H + 30, 'text-anchor': 'middle', fill: '#666', 'font-size': '12px'});
+        xLabel.textContent = "Position x auf Schirm";
+        grid.appendChild(xLabel);
+        
+        const yLabel = createSVGElement('text', {x: 15, y: P.top + H/2, 'text-anchor': 'middle', fill: '#666', 'font-size': '12px', transform: `rotate(-90, 15, ${P.top + H/2})`});
+        yLabel.textContent = "Intensität I";
+        grid.appendChild(yLabel);
+    }
+}
+
+function drawGraph() {
+    if (state.showScreen) {
+        drawScreenGraph();
+    } else {
+        drawTimeGraph();
+    }
+}
+
+// Original Graph Logic
+function drawTimeGraph() {
+    const P = { top: 40, right: 20, bottom: 40, left: 50 };
+    const W = 400 - P.left - P.right;
+    const H = 400 - P.top - P.bottom;
+    const centerY = P.top + H/2;
+    
+    const tWindow = 2.0; 
+    const tEnd = state.time;
+    const tStart = tEnd - tWindow;
+    
+    const steps = 100;
+    const yScale = 60; 
+    
+    const r1 = Math.hypot(state.detector.x - (-state.d/2), state.detector.y);
+    const r2 = Math.hypot(state.detector.x - (state.d/2), state.detector.y);
+    const r1s = Math.max(CONFIG.minDist, r1);
+    const r2s = Math.max(CONFIG.minDist, r2);
+    
+    const A1 = 1.0 / Math.sqrt(r1s);
+    const A2 = 1.0 / Math.sqrt(r2s);
+    
+    const k = 2 * Math.PI / state.lambda;
+    const phaseRad = state.phaseDeg * Math.PI / 180;
+    const waveSpeed = state.lambda * CONFIG.freq;
+    
+    let dU1 = "", dU2 = "", dSum = "";
+    
+    for (let i = 0; i <= steps; i++) {
+        const rel = i / steps; 
+        const px = P.left + rel * (W - 10); 
+        const t = tStart + rel * tWindow;
+        
+        const maxDistAtT = waveSpeed * t;
+        
+        let val1 = 0;
+        if (r1 <= maxDistAtT) {
+            val1 = A1 * Math.sin(k * r1 - OMEGA * t);
+        }
+        
+        let val2 = 0;
+        if (r2 <= maxDistAtT) {
+            val2 = A2 * Math.sin(k * r2 - OMEGA * t + phaseRad);
+        }
+        
+        const valSum = val1 + val2;
+        
+        const y1 = centerY - val1 * yScale;
+        const y2 = centerY - val2 * yScale;
+        const ySum = centerY - valSum * yScale;
+        
+        const cmd = (i===0 ? "M" : "L");
+        dU1 += `${cmd}${px.toFixed(1)},${y1.toFixed(1)} `;
+        dU2 += `${cmd}${px.toFixed(1)},${y2.toFixed(1)} `;
+        dSum += `${cmd}${px.toFixed(1)},${ySum.toFixed(1)} `;
+    }
+    
+    ui.pathU1.setAttribute('d', dU1);
+    ui.pathU2.setAttribute('d', dU2);
+    ui.pathSum.setAttribute('d', dSum);
+}
+
+// Neue Graph Logic (Intensität vs x)
+function drawScreenGraph() {
+    const P = { top: 40, right: 20, bottom: 40, left: 50 };
+    const W = 400 - P.left - P.right;
+    const H = 400 - P.top - P.bottom;
+    const bottomY = P.top + H;
+    
+    const steps = 150;
+    const xMin = -5; // cm (Bereich des Schirms)
+    const xMax = 5;  // cm
+    const range = xMax - xMin;
+    
+    const k = 2 * Math.PI / state.lambda;
+    const phaseRad = state.phaseDeg * Math.PI / 180;
+    const screenY = CONFIG.screenY_cm;
+    
+    // Skalierung für Intensität
+    const yScale = 120; 
+    
+    let dPath = `M ${P.left},${bottomY} `;
+    
+    for (let i = 0; i <= steps; i++) {
+        const rel = i / steps;
+        const px = P.left + rel * W;
+        const xCm = xMin + rel * range;
+        
+        // Abstand zu Quellen
+        const r1 = Math.sqrt((xCm - (-state.d/2))**2 + screenY**2);
+        const r2 = Math.sqrt((xCm - (state.d/2))**2 + screenY**2);
+        
+        const A1 = 1.0 / Math.sqrt(Math.max(CONFIG.minDist, r1));
+        const A2 = 1.0 / Math.sqrt(Math.max(CONFIG.minDist, r2));
+        
+        const delta = k * (r2 - r1) + phaseRad;
+        const I = (A1*A1) + (A2*A2) + 2*A1*A2*Math.cos(delta);
+        
+        const py = bottomY - I * yScale;
+        dPath += `L ${px.toFixed(1)},${py.toFixed(1)} `;
+    }
+    
+    dPath += `L ${P.left + W},${bottomY} Z`;
+    ui.pathIntensity.setAttribute('d', dPath);
+}
+
+/**
+ * ANALYSE
+ */
+function updateAnalysis() {
+    const r1 = Math.hypot(state.detector.x - (-state.d/2), state.detector.y);
+    const r2 = Math.hypot(state.detector.x - (state.d/2), state.detector.y);
+    const ds = r2 - r1; 
+    
+    const k = 2 * Math.PI / state.lambda;
+    const phi0 = state.phaseDeg * Math.PI / 180;
+    let dPhi = k * ds + phi0;
+    
+    let dPhiDeg = (dPhi * 180 / Math.PI) % 360;
+    if (dPhiDeg < 0) dPhiDeg += 360;
+    
+    const cosVal = Math.cos(dPhi);
+    let type = "Intermediär";
+    let typeColor = "#555";
+    
+    if (cosVal > 0.9) { type = "Konstruktiv (Max)"; typeColor = "var(--constructive)"; }
+    else if (cosVal < -0.9) { type = "Destruktiv (Min)"; typeColor = "var(--destructive)"; }
+    
+    const A1 = 1.0 / Math.sqrt(Math.max(CONFIG.minDist, r1));
+    const A2 = 1.0 / Math.sqrt(Math.max(CONFIG.minDist, r2));
+    const A_res = Math.sqrt(A1*A1 + A2*A2 + 2*A1*A2*cosVal);
+    
+    ui.outR1.textContent = r1.toFixed(2) + " cm";
+    ui.outR2.textContent = r2.toFixed(2) + " cm";
+    ui.outDs.textContent = Math.abs(ds).toFixed(2) + " cm";
+    ui.outRatio.textContent = (Math.abs(ds) / state.lambda).toFixed(2);
+    
+    ui.outDphi.textContent = dPhiDeg.toFixed(0) + "°";
+    ui.outType.textContent = type;
+    ui.outType.style.color = typeColor;
+    ui.outType.style.fontWeight = "bold";
+    
+    ui.outAmp.textContent = A_res.toFixed(2);
+}
+
+// Start
+init();
+
+</script>
+</body>
+</html>^

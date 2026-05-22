@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Simulation: Drehbewegungen</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD; --fh-grey: #7f7f7f;
+            --fh-omega-color: #005eb1; /* fh-blue */
+            --fh-alpha-color: #d1002d; /* fh-red */
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 80px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        button:disabled, select:disabled, input[type="checkbox"]:disabled + span { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+        .position-label { color: var(--fh-grey); }
+        .velocity-label { color: var(--fh-orange); }
+        .acceleration-label { color: var(--fh-purple); }
+        .omega-label { color: var(--fh-omega-color); }
+        .alpha-label { color: var(--fh-alpha-color); }
+        footer { margin-top: 30px; text-align: center; font-size: 0.8em; color: #888; }
+        marker#arrowhead-omega polygon { fill: var(--fh-omega-color); }
+        marker#arrowhead-alpha polygon { fill: var(--fh-alpha-color); }
+    </style>
+</head>
+<body>
+
+    <h1>Interaktive Simulation: Drehbewegungen</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor" /></marker>
+                <marker id="arrowhead-grey" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-grey)" /></marker>
+                <marker id="arrowhead-orange" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-orange)" /></marker>
+                <marker id="arrowhead-purple" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="var(--fh-purple)" /></marker>
+                <marker id="arrowhead-omega" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" /></marker>
+                <marker id="arrowhead-alpha" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" /></marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                
+                <g id="iso_view_elements" style="visibility: hidden;">
+                    <line id="iso_axis_z" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" marker-end="url(#arrowhead)" />
+                    <line id="iso_axis_x" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" marker-end="url(#arrowhead)" />
+                    <line id="iso_axis_y" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" marker-end="url(#arrowhead)" />
+                    <text id="iso_label_z" fill="grey">z</text>
+                    <text id="iso_label_x" fill="grey">x</text>
+                    <text id="iso_label_y" fill="grey">y</text>
+                    <path id="iso_circle_path" fill="#e0e0e0" stroke="#ccc" stroke-width="1" fill-opacity="0.4" />
+                </g>
+                
+                <g id="2d_view_elements">
+                    <g id="animation_coord_system_2d"></g>
+                    <circle id="disk" fill="#e0e0e0" stroke="#ccc" stroke-width="1" fill-opacity="0.4" />
+                </g>
+
+                <path id="trajectory_path" d="" fill="none" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4" />
+                
+                <line id="omega_vector" stroke="var(--fh-omega-color)" stroke-width="2.5" marker-end="url(#arrowhead-omega)" visibility="hidden" />
+                <line id="alpha_vector" stroke="var(--fh-alpha-color)" stroke-width="2.5" marker-end="url(#arrowhead-alpha)" visibility="hidden" />
+                
+                <line id="position_vector" stroke="var(--fh-grey)" stroke-width="2.5" marker-end="url(#arrowhead-grey)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead-orange)" visibility="hidden" />
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="3" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                <line id="acceleration_vector_r" stroke="var(--fh-purple)" stroke-width="2" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                <line id="acceleration_vector_t" stroke="var(--fh-purple)" stroke-width="2" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                
+                <circle id="point" r="8" fill="var(--fh-red)" />
+
+                <g id="stopwatch" transform="translate(84, -24) scale(0.595)">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" />
+                    <g id="stopwatch_marks"></g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                </g>
+                <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" font-family="monospace" font-size="14px" fill="#555"></text>
+            </g>
+            
+            <g id="graph_group" transform="translate(400, 40)">
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" visibility="hidden" />
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <h3>Bewegungsparameter</h3>
+                <div class="slider-group">
+                    <div class="label">Radius \(R\):</div>
+                    <input type="range" id="radius_slider" min="0.5" max="2.0" value="1.5" step="0.1">
+                    <div class="value" id="radius_value">1.5 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangswinkel \(\varphi_0\):</div>
+                    <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+                    <div class="value" id="phi0_value">0 °</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Anfangswinkelgeschw. \(\omega_0\):</div>
+                    <input type="range" id="omega0_slider" min="-180" max="180" value="60" step="5">
+                    <div class="value" id="omega0_value">60 °/s</div>
+                </div>
+                 <div class="slider-group">
+                    <div class="label">Winkelbeschl. \(\alpha\):</div>
+                    <input type="range" id="alpha_slider" min="-90" max="90" value="0" step="5">
+                    <div class="value" id="alpha_value">0 °/s²</div>
+                </div>
+            </div>
+            <div class="control-group">
+                <h3>Visualisierung</h3>
+                <div style="margin-bottom: 10px;">
+                    <label for="view_select">Ansicht:</label>
+                    <select id="view_select">
+                        <option value="2D" selected>2D (Draufsicht)</option>
+                        <option value="ISO">3D (ISO-Ansicht)</option>
+                    </select>
+                </div>
+                <div style="margin-top: 5px;">
+                    <div class="position-label"><span><input type="checkbox" id="toggle_position_vector"> Ortsvektor \(\vec{r}\)</span></div>
+                    <div class="velocity-label"><span><input type="checkbox" id="toggle_velocity_vector"> Geschwindigkeitsvektor \(\vec{v}\)</span></div>
+                    <div class="acceleration-label"><span><input type="checkbox" id="toggle_acceleration_vector"> Beschleunigungsvektor \(\vec{a}\)</span></div>
+                    <div style="padding-left: 25px;">
+                         <span><input type="checkbox" id="toggle_acceleration_components"> in \(\vec{a}_r\) und \(\vec{a}_t\) zerlegen</span>
+                    </div>
+                    <div style="padding-left: 50px;">
+                        <span><input type="checkbox" id="toggle_at_scaling" disabled> \(\vec{a}_t\) 10x vergrößern</span>
+                    </div>
+                    <div class="omega-label"><span><input type="checkbox" id="toggle_omega_vector" disabled> Winkelgeschw. \(\vec{\omega}\)</span></div>
+                    <div class="alpha-label"><span><input type="checkbox" id="toggle_alpha_vector" disabled> Winkelbeschl. \(\vec{\alpha}\)</span></div>
+                    <div><span><input type="checkbox" id="toggle_trajectory"> Bahnverlauf zeichnen</span></div>
+                </div>
+            </div>
+            <div class="control-group">
+                 <div class="radio-group">
+                    <label>Geschwindigkeit:</label>
+                    <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                    <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                    <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label for="graph_select">Diagrammtyp:</label>
+                    <select id="graph_select"></select>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><small>&copy; <span id="copyright-year"></span> C. Effertz / FH Aachen University of Applied Sciences / FB 8</small></p>
+    </footer>
+
+    <script>
+        const ANIM_CX = 175, ANIM_CY = 240;
+        const DEFAULT_PIXELS_PER_METER = 75;
+        const PIXELS_PER_VELOCITY_UNIT = 20; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5;
+        const TIME_STEP = 1 / 60; 
+
+        let currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+        let zoomFactor = 1.0;
+        let aniFrameId = null; let lastFrameTime = 0; let simulatedTimeElapsed = 0;
+        let R, omega0_deg, phi0_deg, alpha_deg, omega0_rad, phi0_rad, alpha_rad, graphType, speedFactor;
+        
+        let currentView = '2D'; // '2D' oder 'ISO'
+        let scaleAtFactor = 1.0;
+
+        let full_t_data = [], full_xt_data = [], full_yt_data = [], 
+            full_vxt_data = [], full_vyt_data = [], full_axt_data = [], full_ayt_data = [], 
+            full_phit_data = [], full_omegat_data = [], full_alphat_data = [],
+            full_ar_data = [], full_at_data = [];
+        
+        let axisLimits = {};
+
+        const ui = {
+            viewSelect: document.getElementById('view_select'),
+            toggleOmegaVector: document.getElementById('toggle_omega_vector'),
+            toggleAlphaVector: document.getElementById('toggle_alpha_vector'),
+            omegaVector: document.getElementById('omega_vector'),
+            alphaVector: document.getElementById('alpha_vector'),
+            isoViewElements: document.getElementById('iso_view_elements'),
+            isoCirclePath: document.getElementById('iso_circle_path'),
+            isoAxisX: document.getElementById('iso_axis_x'), isoAxisY: document.getElementById('iso_axis_y'), isoAxisZ: document.getElementById('iso_axis_z'),
+            isoLabelX: document.getElementById('iso_label_x'), isoLabelY: document.getElementById('iso_label_y'), isoLabelZ: document.getElementById('iso_label_z'),
+            "2dViewElements": document.getElementById('2d_view_elements'),
+            animationCoordSystem2D: document.getElementById('animation_coord_system_2d'),
+            
+            disk: document.getElementById('disk'), point: document.getElementById('point'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), mainHand: document.getElementById('stopwatch_main_hand'), 
+            zoomTextDisplay: document.getElementById('zoom_text_display'),
+            radiusSlider: document.getElementById('radius_slider'), radiusValue: document.getElementById('radius_value'),
+            omega0Slider: document.getElementById('omega0_slider'), omega0Value: document.getElementById('omega0_value'),
+            phi0Slider: document.getElementById('phi0_slider'), phi0Value: document.getElementById('phi0_value'),
+            alphaSlider: document.getElementById('alpha_slider'), alphaValue: document.getElementById('alpha_value'),
+            speedRadios: document.querySelectorAll('input[name="speed"]'), graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), 
+            resetButton: document.getElementById('reset_button'),
+            positionVector: document.getElementById('position_vector'), togglePositionVector: document.getElementById('toggle_position_vector'),
+            velocityVector: document.getElementById('velocity_vector'), toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            accelerationVector: document.getElementById('acceleration_vector'), toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            accelerationVectorR: document.getElementById('acceleration_vector_r'),
+            accelerationVectorT: document.getElementById('acceleration_vector_t'),
+            toggleAccelerationComponents: document.getElementById('toggle_acceleration_components'),
+            toggleAtScaling: document.getElementById('toggle_at_scaling'),
+            trajectoryPath: document.getElementById('trajectory_path'), toggleTrajectory: document.getElementById('toggle_trajectory'),
+            graphGroup: document.getElementById('graph_group'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'), copyrightYear: document.getElementById('copyright-year'),
+        };
+        
+        const graphOptions = {
+            "Winkelgrößen": { "phit": "Winkel <i>φ(t)</i>", "omegat": "Winkelgeschw. <i>ω(t)</i>", "alphat": "Winkelbeschl. <i>α(t)</i>" },
+            "Orts-Komponenten": { "xt": "Ort <i>x(t)</i>", "yt": "Ort <i>y(t)</i>" },
+            "Geschwindigkeits-Komponenten": { "vxt": "Geschw. <i>v</i><sub>x</sub><i>(t)</i>", "vyt": "Geschw. <i>v</i><sub>y</sub><i>(t)</i>" },
+            "Beschleunigungs-Komponenten": { "axt": "Beschl. <i>a</i><sub>x</sub><i>(t)</i>", "ayt": "Beschl. <i>a</i><sub>y</sub><i>(t)</i>" },
+            "Beschleunigungs-Beträge": { "ar": "|<i>a</i><sub>r</sub><i>(t)</i>|", "at": "|<i>a</i><sub>t</sub><i>(t)</i>|" }
+        };
+
+        function projectISO(x_phys, y_phys, z_phys) {
+            const scale = currentPixelsPerMeter;
+            const ISO_ANGLE = 30 * Math.PI / 180;
+            const x_screen = ANIM_CX - x_phys * scale * Math.cos(ISO_ANGLE) + y_phys * scale * Math.cos(ISO_ANGLE);
+            const y_screen = ANIM_CY + x_phys * scale * Math.sin(ISO_ANGLE) + y_phys * scale * Math.sin(ISO_ANGLE) - z_phys * scale;
+            return { x: x_screen, y: y_screen };
+        }
+
+        function projectCurrentView(x_phys, y_phys, z_phys) {
+            if (currentView === '2D') {
+                return { x: ANIM_CX + x_phys * currentPixelsPerMeter, y: ANIM_CY - y_phys * currentPixelsPerMeter };
+            } else { // ISO
+                return projectISO(x_phys, y_phys, z_phys);
+            }
+        }
+        
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        function createStyledSvgText(svgElement, textString) {
+            const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+            let match;
+            svgElement.innerHTML = '';
+            while ((match = regex.exec(textString)) !== null) {
+                if (match[1]) { svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1];
+                } else if (match[2]) { svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2];
+                } else if (match[3]) { svgElement.appendChild(document.createTextNode(match[3])); }
+            }
+        }
+        
+        function toUnicodeSubscript(text) {
+             const map = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', 'a': 'ₐ', 'e': 'ₑ', 'h': 'ₕ', 'i': 'ᵢ', 'j': 'ⱼ', 'k': 'ₖ', 'l': 'ₗ', 'm': 'ₘ', 'n': 'ₙ', 'o': 'ₒ', 'p': 'ₚ', 'r': 'ᵣ', 's': 'ₛ', 't': 'ₜ', 'u': 'ᵤ', 'v': 'ᵥ', 'x': 'ₓ', 'y': 'ᵧ', 'z': 'ᵶ' };
+            return text.replace(/<sub>(.)<\/sub>/g, (match, char) => map[char.toLowerCase()] || char)
+                       .replace(/<i>/g, '').replace(/<\/i>/g, '');
+        }
+
+        function drawAnimationCoordinateSystem() {
+            const isISO = currentView === 'ISO';
+            ui.isoViewElements.style.visibility = isISO ? 'visible' : 'hidden';
+            ui['2dViewElements'].style.visibility = isISO ? 'hidden' : 'visible';
+            
+            if (isISO) {
+                const AXIS_LEN = 1.8; // in Metern
+                const P_ORIGIN = projectISO(0, 0, 0);
+                const P_X_END = projectISO(AXIS_LEN, 0, 0);
+                const P_Y_END = projectISO(0, AXIS_LEN, 0);
+                const P_Z_END = projectISO(0, 0, AXIS_LEN);
+
+                ui.isoAxisZ.setAttribute('x1', P_ORIGIN.x); ui.isoAxisZ.setAttribute('y1', P_ORIGIN.y);
+                ui.isoAxisZ.setAttribute('x2', P_Z_END.x); ui.isoAxisZ.setAttribute('y2', P_Z_END.y);
+                ui.isoLabelZ.setAttribute('x', P_Z_END.x - 10); ui.isoLabelZ.setAttribute('y', P_Z_END.y - 5);
+                
+                ui.isoAxisX.setAttribute('x1', P_ORIGIN.x); ui.isoAxisX.setAttribute('y1', P_ORIGIN.y);
+                ui.isoAxisX.setAttribute('x2', P_X_END.x); ui.isoAxisX.setAttribute('y2', P_X_END.y);
+                ui.isoLabelX.setAttribute('x', P_X_END.x - 15); ui.isoLabelX.setAttribute('y', P_X_END.y + 10);
+                
+                ui.isoAxisY.setAttribute('x1', P_ORIGIN.x); ui.isoAxisY.setAttribute('y1', P_ORIGIN.y);
+                ui.isoAxisY.setAttribute('x2', P_Y_END.x); ui.isoAxisY.setAttribute('y2', P_Y_END.y);
+                ui.isoLabelY.setAttribute('x', P_Y_END.x + 10); ui.isoLabelY.setAttribute('y', P_Y_END.y + 10);
+
+                let pathData = '';
+                const segments = 100;
+                for (let i = 0; i <= segments; i++) {
+                    const angle = (i / segments) * 2 * Math.PI;
+                    const x = R * Math.cos(angle);
+                    const y = R * Math.sin(angle);
+                    const p = projectISO(x, y, 0);
+                    if (i === 0) pathData += `M ${p.x} ${p.y}`;
+                    else pathData += ` L ${p.x} ${p.y}`;
+                }
+                ui.isoCirclePath.setAttribute('d', pathData);
+
+            } else { 
+                ui.animationCoordSystem2D.innerHTML = '';
+                const axis_length = 150;
+                const attrs = { stroke: 'rgba(0,0,0,0.4)', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+                
+                ui.animationCoordSystem2D.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX - axis_length, y1: ANIM_CY, x2: ANIM_CX + axis_length, y2: ANIM_CY }));
+                const xLabel = createSVGElement('text', { x: ANIM_CX + axis_length + 10, y: ANIM_CY + 4, fill: 'grey' });
+                createStyledSvgText(xLabel, '<i>x</i>');
+                ui.animationCoordSystem2D.appendChild(xLabel);
+                
+                ui.animationCoordSystem2D.appendChild(createSVGElement('line', { ...attrs, x1: ANIM_CX, y1: ANIM_CY + axis_length, x2: ANIM_CX, y2: ANIM_CY - axis_length }));
+                const yLabel = createSVGElement('text', { x: ANIM_CX - 10, y: ANIM_CY - axis_length - 5, fill: 'grey' });
+                createStyledSvgText(yLabel, '<i>y</i>');
+                ui.animationCoordSystem2D.appendChild(yLabel);
+            }
+        }
+        
+        function drawStopwatchMarks() { ui.stopwatchMarks.innerHTML = ''; const cx = 280, cy = 120, r = 72; for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 8 : r - 5; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); } }
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        function updateGraph(plotCurrentTime, plotCurrentValue) {
+            const limits = axisLimits[graphType];
+            if (!limits) { ui.graphLine.setAttribute('points', ''); return; }
+            ui.gridGroup.innerHTML = '';
+            const graphWidth = 480, graphHeight = 410;
+            const plotPaddingLeft = 50, plotPaddingBottom = 35, plotPaddingTop = 10, plotPaddingRight = 25;
+            const plotWidth = graphWidth - plotPaddingLeft - plotPaddingRight;
+            const plotHeight = graphHeight - plotPaddingTop - plotPaddingBottom;
+            const t_max = limits.t_max, val_min = limits.min, val_max = limits.max;
+            const scaleXGraph = (t) => plotPaddingLeft + (t / t_max) * plotWidth;
+            const scaleYGraph = (v) => plotPaddingTop + plotHeight - (((v - val_min) / (val_max - val_min || 1)) * plotHeight);
+            let titleText = '';
+            for (const group in graphOptions) { if (graphOptions[group][graphType]) { titleText = graphOptions[group][graphType]; } }
+            createStyledSvgText(ui.graphTitle, `${titleText} vs. Zeit`);
+            const y0_px = scaleYGraph(0);
+            ui.gridGroup.appendChild(createSVGElement('line', { x1: plotPaddingLeft, y1: y0_px, x2: plotPaddingLeft + plotWidth, y2: y0_px, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            ui.gridGroup.appendChild(createSVGElement('line', { x1: plotPaddingLeft, y1: plotPaddingTop + plotHeight, x2: plotPaddingLeft, y2: plotPaddingTop, stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
+            const y_tick_step = getNiceTickStep(val_max - val_min, 8);
+            for (let v = Math.ceil(val_min / y_tick_step) * y_tick_step; v <= val_max + 1e-9; v += y_tick_step) {
+                const y_px = scaleYGraph(v);
+                ui.gridGroup.appendChild(createSVGElement('line', { x1: plotPaddingLeft, y1: y_px, x2: plotPaddingLeft + plotWidth, y2: y_px, stroke: '#eee' }));
+                let txt = createSVGElement('text', { x: plotPaddingLeft - 8, y: y_px + 4, 'text-anchor': 'end', fill: 'black' });
+                txt.textContent = v.toFixed(y_tick_step % 1 === 0 ? 0 : (y_tick_step < 0.1 ? 2 : 1));
+                ui.gridGroup.appendChild(txt);
+            }
+            const x_tick_step = getNiceTickStep(t_max, 10);
+            for (let v = 0; v <= t_max + 1e-9; v += x_tick_step) {
+                const x_px = scaleXGraph(v);
+                ui.gridGroup.appendChild(createSVGElement('line', { x1: x_px, y1: plotPaddingTop, x2: x_px, y2: plotPaddingTop + plotHeight, stroke: '#eee' }));
+                let txt = createSVGElement('text', { x: x_px, y: y0_px + 15, 'text-anchor': 'middle', fill: 'black' });
+                txt.textContent = v.toFixed(1);
+                ui.gridGroup.appendChild(txt);
+            }
+            const xAxisLabel = createSVGElement('text', {x: plotPaddingLeft + plotWidth / 2, y: y0_px + 30, 'text-anchor': 'middle'});
+            createStyledSvgText(xAxisLabel, 'Zeit <i>t</i> / s');
+            ui.gridGroup.appendChild(xAxisLabel);
+            const yAxisLabel = createSVGElement('text', {'text-anchor': 'middle', transform: `rotate(-90, -15, ${plotPaddingTop + plotHeight / 2})`, x: -15, y: plotPaddingTop + plotHeight / 2});
+            createStyledSvgText(yAxisLabel, titleText);
+            ui.gridGroup.appendChild(yAxisLabel);
+            let p = "";
+            let linePlotIndex = full_t_data.findIndex(t => t > plotCurrentTime);
+            if (linePlotIndex === -1 && full_t_data.length > 0) linePlotIndex = full_t_data.length;
+            const data_for_line = limits.full_data.slice(0, linePlotIndex);
+            for (let i = 0; i < data_for_line.length; i++) { p += `${scaleXGraph(full_t_data[i])},${scaleYGraph(data_for_line[i])} `; }
+            if (plotCurrentValue !== null && linePlotIndex < full_t_data.length) { p += `${scaleXGraph(plotCurrentTime)},${scaleYGraph(plotCurrentValue)} `; }
+            ui.graphLine.setAttribute('points', p);
+            if (plotCurrentValue !== null) {
+                ui.graphPoint.setAttribute('cx', scaleXGraph(plotCurrentTime));
+                ui.graphPoint.setAttribute('cy', scaleYGraph(plotCurrentValue));
+                ui.graphPoint.style.visibility = 'visible';
+            } else {
+                 ui.graphPoint.style.visibility = 'hidden';
+            }
+        }
+        function recalculateAxisLimits() {
+            axisLimits = {}; 
+            const t_max_calc = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 10;
+            const dataSets = {
+                phit: { data: full_phit_data, label: "Winkel <i>φ(t)</i>" },
+                omegat: { data: full_omegat_data, label: "Winkelgeschw. <i>ω(t)</i>" },
+                alphat: { data: full_alphat_data, label: "Winkelbeschl. <i>α(t)</i>" },
+                xt: { data: full_xt_data, label: "Ort <i>x(t)</i>" },
+                yt: { data: full_yt_data, label: "Ort <i>y(t)</i>" },
+                vxt: { data: full_vxt_data, label: "Geschw. <i>v</i><sub>x</sub><i>(t)</i>" },
+                vyt: { data: full_vyt_data, label: "Geschw. <i>v</i><sub>y</sub><i>(t)</i>" },
+                axt: { data: full_axt_data, label: "Beschl. <i>a</i><sub>x</sub><i>(t)</i>" },
+                ayt: { data: full_ayt_data, label: "Beschl. <i>a</i><sub>y</sub><i>(t)</i>" },
+                ar: { data: full_ar_data, label: "|<i>a</i><sub>r</sub><i>(t)</i>|" },
+                at: { data: full_at_data, label: "|<i>a</i><sub>t</sub><i>(t)</i>|" }
+            };
+            for (const key in dataSets) {
+                if (dataSets[key].data.length === 0) continue;
+                let min = Math.min(...dataSets[key].data);
+                let max = Math.max(...dataSets[key].data);
+                const range = max - min;
+                const pad = (range < 1e-9) ? 1 : range * 0.1;
+                min -= pad; max += pad; 
+                axisLimits[key] = { min, max, t_max: t_max_calc, y_label_text_full: dataSets[key].label, full_data: dataSets[key].data };
+            }
+        }
+        function extendMotionData(extend_duration_s) {
+            const last_t = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 0;
+            const new_t_max = last_t + extend_duration_s;
+            for (let t = last_t + TIME_STEP; t <= new_t_max; t += TIME_STEP) {
+                const omega_t = omega0_rad + alpha_rad * t;
+                const phi_t = phi0_rad + omega0_rad * t + 0.5 * alpha_rad * t**2;
+                full_t_data.push(t);
+                const cos_phi = Math.cos(phi_t);
+                const sin_phi = Math.sin(phi_t);
+                full_xt_data.push(R * cos_phi);
+                full_yt_data.push(R * sin_phi);
+                full_vxt_data.push(-R * omega_t * sin_phi);
+                full_vyt_data.push(R * omega_t * cos_phi);
+                full_axt_data.push(-R * alpha_rad * sin_phi - R * omega_t**2 * cos_phi);
+                full_ayt_data.push(R * alpha_rad * cos_phi - R * omega_t**2 * sin_phi);
+                full_phit_data.push(phi_t * 180 / Math.PI);
+                full_omegat_data.push(omega_t * 180 / Math.PI);
+                full_alphat_data.push(alpha_rad * 180 / Math.PI);
+                full_ar_data.push(R * omega_t**2);
+                full_at_data.push(Math.abs(R * alpha_rad));
+            }
+            recalculateAxisLimits(); 
+        }
+        function precomputeMotionData() {
+            full_t_data = []; full_xt_data = []; full_yt_data = []; full_vxt_data = []; 
+            full_vyt_data = []; full_axt_data = []; full_ayt_data = []; 
+            full_phit_data = []; full_omegat_data = []; full_alphat_data = [];
+            full_ar_data = []; full_at_data = [];
+            extendMotionData(10);
+        }
+
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt_real = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += dt_real * speedFactor;
+            lastFrameTime = currentTime;
+            
+            if (full_t_data.length > 0 && simulatedTimeElapsed >= full_t_data[full_t_data.length - 1]) { extendMotionData(10); }
+
+            let i = 0;
+            while (i < full_t_data.length - 1 && full_t_data[i + 1] <= simulatedTimeElapsed) i++;
+            if (i >= full_t_data.length - 1) { i = Math.max(0, full_t_data.length - 2); }
+
+            const t1 = full_t_data[i], t2 = full_t_data[i+1];
+            const alpha_interp = (t2 > t1) ? (simulatedTimeElapsed - t1) / (t2 - t1) : 0;
+            const interp = (data) => data[i] + alpha_interp * (data[i+1] - data[i]);
+
+            const x_pos = interp(full_xt_data), y_pos = interp(full_yt_data);
+            const z_pos = 0;
+            const omega_t_deg = interp(full_omegat_data);
+            const phi_t_deg = interp(full_phit_data);
+
+            const P_POINT = projectCurrentView(x_pos, y_pos, z_pos);
+            const cx = P_POINT.x, cy = P_POINT.y;
+            ui.point.setAttribute('cx', cx); ui.point.setAttribute('cy', cy);
+            
+            if (currentView === '2D') { ui.disk.style.transform = `rotate(${(-phi_t_deg)}deg)`; }
+
+            if (ui.toggleTrajectory.checked) {
+                let d_str = `M ${projectCurrentView(full_xt_data[0], full_yt_data[0], z_pos).x},${projectCurrentView(full_xt_data[0], full_yt_data[0], z_pos).y}`;
+                for (let k = 1; k <= i; k++) {
+                    const P_TRAJ = projectCurrentView(full_xt_data[k], full_yt_data[k], z_pos);
+                    d_str += ` L ${P_TRAJ.x},${P_TRAJ.y}`;
+                }
+                d_str += ` L ${cx},${cy}`;
+                ui.trajectoryPath.setAttribute('d', d_str);
+            }
+
+            // Winkelvektoren
+            if (currentView === 'ISO') {
+                const P_ORIGIN = projectISO(0, 0, 0);
+                ui.omegaVector.style.visibility = ui.toggleOmegaVector.checked ? 'visible' : 'hidden';
+                if(ui.toggleOmegaVector.checked) {
+                    const OMEGA_LEN_PHYS = Math.sign(omega_t_deg) * Math.abs(omega_t_deg) * 0.02;
+                    const P_OMEGA_END = projectISO(0, 0, OMEGA_LEN_PHYS);
+                    ui.omegaVector.setAttribute('x1', P_ORIGIN.x); ui.omegaVector.setAttribute('y1', P_ORIGIN.y);
+                    ui.omegaVector.setAttribute('x2', P_OMEGA_END.x); ui.omegaVector.setAttribute('y2', P_OMEGA_END.y);
+                }
+                ui.alphaVector.style.visibility = ui.toggleAlphaVector.checked ? 'visible' : 'hidden';
+                if(ui.toggleAlphaVector.checked && alpha_rad !== 0) {
+                    const ALPHA_LEN_PHYS = Math.sign(alpha_rad) * Math.abs(alpha_deg) * 0.04;
+                    const P_ALPHA_END = projectISO(0, 0, ALPHA_LEN_PHYS);
+                    ui.alphaVector.setAttribute('x1', P_ORIGIN.x); ui.alphaVector.setAttribute('y1', P_ORIGIN.y);
+                    ui.alphaVector.setAttribute('x2', P_ALPHA_END.x); ui.alphaVector.setAttribute('y2', P_ALPHA_END.y);
+                }
+            }
+            
+            // =================================================================
+            // KORRIGIERTE VEKTOR-VISUALISIERUNG
+            // =================================================================
+            const P_ORIGIN_PROJ = projectCurrentView(0, 0, 0);
+
+            // Ortsvektor
+            ui.positionVector.style.visibility = ui.togglePositionVector.checked ? 'visible' : 'hidden';
+            if(ui.togglePositionVector.checked) {
+                const vec_x_diff_px = cx - P_ORIGIN_PROJ.x, vec_y_diff_px = cy - P_ORIGIN_PROJ.y;
+                const len = Math.sqrt(vec_x_diff_px**2 + vec_y_diff_px**2);
+                const ratio = (len > 2.5) ? (len - 2.5) / len : 0; // Verkürzt den Vektor, damit die Pfeilspitze nicht im Punkt liegt
+                ui.positionVector.setAttribute('x1', P_ORIGIN_PROJ.x); ui.positionVector.setAttribute('y1', P_ORIGIN_PROJ.y);
+                ui.positionVector.setAttribute('x2', P_ORIGIN_PROJ.x + vec_x_diff_px * ratio);
+                ui.positionVector.setAttribute('y2', P_ORIGIN_PROJ.y + vec_y_diff_px * ratio);
+            }
+
+            // Umrechnungsfaktoren von physikalischen Einheiten in darzustellende Vektorlängen (in Metern)
+            const VEL_PHYS_SCALE = 0.15 * zoomFactor; 
+            const ACC_PHYS_SCALE = 0.05 * zoomFactor;
+
+            // Geschwindigkeitsvektor
+            const vx = interp(full_vxt_data), vy = interp(full_vyt_data);
+            ui.velocityVector.style.visibility = ui.toggleVelocityVector.checked ? 'visible' : 'hidden';
+            if(ui.toggleVelocityVector.checked) {
+                const P_V_END = projectCurrentView(x_pos + vx * VEL_PHYS_SCALE, y_pos + vy * VEL_PHYS_SCALE, 0);
+                ui.velocityVector.setAttribute('x1', cx); ui.velocityVector.setAttribute('y1', cy);
+                ui.velocityVector.setAttribute('x2', P_V_END.x); ui.velocityVector.setAttribute('y2', P_V_END.y);
+            }
+            
+            // Beschleunigungsvektoren
+            const ax = interp(full_axt_data), ay = interp(full_ayt_data);
+            ui.accelerationVector.style.visibility = 'hidden';
+            ui.accelerationVectorR.style.visibility = 'hidden';
+            ui.accelerationVectorT.style.visibility = 'hidden';
+
+            if (ui.toggleAccelerationVector.checked) {
+                if (ui.toggleAccelerationComponents.checked) {
+                    const ar_mag = interp(full_ar_data);
+                    const ar_vec_x = -x_pos, ar_vec_y = -y_pos;
+                    const ar_len = Math.sqrt(ar_vec_x**2 + ar_vec_y**2);
+                    const ar_unit_x = ar_len > 0 ? ar_vec_x / ar_len : 0;
+                    const ar_unit_y = ar_len > 0 ? ar_vec_y / ar_len : 0;
+                    
+                    const P_AR_END = projectCurrentView(x_pos + ar_unit_x * ar_mag * ACC_PHYS_SCALE, y_pos + ar_unit_y * ar_mag * ACC_PHYS_SCALE, 0);
+                    ui.accelerationVectorR.setAttribute('x1', cx); ui.accelerationVectorR.setAttribute('y1', cy);
+                    ui.accelerationVectorR.setAttribute('x2', P_AR_END.x); ui.accelerationVectorR.setAttribute('y2', P_AR_END.y);
+                    ui.accelerationVectorR.style.visibility = 'visible';
+                    
+                    const at_mag = interp(full_at_data);
+                    if (Math.abs(at_mag) > 1e-6) {
+                        const at_vec_x = -y_pos, at_vec_y = x_pos;
+                        const at_len = Math.sqrt(at_vec_x**2 + at_vec_y**2);
+                        const at_unit_x = at_len > 0 ? at_vec_x / at_len : 0;
+                        const at_unit_y = at_len > 0 ? at_vec_y / at_len : 0;
+                        const at_sign = Math.sign(alpha_rad);
+                        
+                        const P_AT_END = projectCurrentView(x_pos + at_sign * at_unit_x * at_mag * ACC_PHYS_SCALE * scaleAtFactor, y_pos + at_sign * at_unit_y * at_mag * ACC_PHYS_SCALE * scaleAtFactor, 0);
+                        ui.accelerationVectorT.setAttribute('x1', cx); ui.accelerationVectorT.setAttribute('y1', cy);
+                        ui.accelerationVectorT.setAttribute('x2', P_AT_END.x); ui.accelerationVectorT.setAttribute('y2', P_AT_END.y);
+                        ui.accelerationVectorT.style.visibility = 'visible';
+                    }
+
+                } else { 
+                    const P_A_END = projectCurrentView(x_pos + ax * ACC_PHYS_SCALE, y_pos + ay * ACC_PHYS_SCALE, 0);
+                    ui.accelerationVector.setAttribute('x1', cx); ui.accelerationVector.setAttribute('y1', cy);
+                    ui.accelerationVector.setAttribute('x2', P_A_END.x); ui.accelerationVector.setAttribute('y2', P_A_END.y);
+                    ui.accelerationVector.style.visibility = 'visible';
+                }
+            }
+            // =================================================================
+            // ENDE KORREKTUR
+            // =================================================================
+            
+            const main_a = (simulatedTimeElapsed % 60 / 60) * 2 * Math.PI;
+            ui.mainHand.setAttribute('x2', 280 + 60 * Math.sin(main_a)); 
+            ui.mainHand.setAttribute('y2', 120 - 60 * Math.cos(main_a));
+            
+            let currentGraphValue = null;
+            if (axisLimits[graphType]) { currentGraphValue = interp(axisLimits[graphType].full_data); }
+            updateGraph(simulatedTimeElapsed, currentGraphValue);
+
+            aniFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() {
+            if (aniFrameId) cancelAnimationFrame(aniFrameId);
+            aniFrameId = null;
+            ui.playButton.disabled = false; ui.pauseButton.disabled = true;
+            [ui.radiusSlider, ui.omega0Slider, ui.phi0Slider, ui.alphaSlider, ui.viewSelect].forEach(el => el.disabled = false);
+        }
+        
+        function updateDropdownOptions() {
+            ui.graphSelect.innerHTML = '';
+            for (const groupLabel in graphOptions) {
+                const group = document.createElement('optgroup'); group.label = groupLabel;
+                for (const value in graphOptions[groupLabel]) {
+                    const option = document.createElement('option'); option.value = value;
+                    let dropdownText = graphOptions[groupLabel][value];
+                    dropdownText = toUnicodeSubscript(dropdownText.replace(/\|/g, ''));
+                    option.textContent = dropdownText;
+                    group.appendChild(option);
+                }
+                ui.graphSelect.appendChild(group);
+            }
+            ui.graphSelect.value = graphType || 'phit';
+        }
+
+        function resetScene(isPlayTrigger = false) {
+            stopAnimation();
+            simulatedTimeElapsed = 0; lastFrameTime = 0;
+            
+            if (!isPlayTrigger) {
+                currentView = ui.viewSelect.value;
+                R = parseFloat(ui.radiusSlider.value);
+                omega0_deg = parseFloat(ui.omega0Slider.value);
+                phi0_deg = parseFloat(ui.phi0Slider.value);
+                alpha_deg = parseFloat(ui.alphaSlider.value);
+                ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value) });
+                graphType = ui.graphSelect.value;
+            }
+            
+            ui.radiusValue.textContent = `${R.toFixed(1)} m`;
+            ui.omega0Value.textContent = `${omega0_deg} °/s`;
+            ui.phi0Value.textContent = `${phi0_deg} °`;
+            ui.alphaValue.textContent = `${alpha_deg} °/s²`;
+
+            omega0_rad = omega0_deg * Math.PI / 180;
+            phi0_rad = phi0_deg * Math.PI / 180;
+            alpha_rad = alpha_deg * Math.PI / 180;
+
+            currentPixelsPerMeter = Math.min(DEFAULT_PIXELS_PER_METER, (Math.min(ANIM_CX, ANIM_CY) * 0.9) / R);
+            zoomFactor = currentPixelsPerMeter / DEFAULT_PIXELS_PER_METER;
+            createStyledSvgText(ui.zoomTextDisplay, `Zoom: ${zoomFactor.toFixed(2)}<i>x</i>`);
+            
+            ui.disk.setAttribute('cx', ANIM_CX); ui.disk.setAttribute('cy', ANIM_CY);
+            ui.disk.setAttribute('r', R * currentPixelsPerMeter);
+            ui.disk.style.transformOrigin = `${ANIM_CX}px ${ANIM_CY}px`;
+            
+            ui.trajectoryPath.setAttribute('d', ''); 
+            drawAnimationCoordinateSystem();
+            drawStopwatchMarks();
+
+            const isISO = currentView === 'ISO';
+            ui.toggleOmegaVector.disabled = !isISO;
+            ui.toggleAlphaVector.disabled = !isISO;
+            if(!isISO) { ui.toggleOmegaVector.checked = false; ui.toggleAlphaVector.checked = false; }
+            
+            ui.toggleAccelerationComponents.disabled = !ui.toggleAccelerationVector.checked;
+            if(!ui.toggleAccelerationVector.checked) ui.toggleAccelerationComponents.checked = false;
+
+            ui.toggleAtScaling.disabled = !ui.toggleAccelerationComponents.checked;
+            if(!ui.toggleAccelerationComponents.checked) ui.toggleAtScaling.checked = false;
+
+            scaleAtFactor = ui.toggleAtScaling.checked ? 10.0 : 1.0;
+
+            precomputeMotionData();
+            
+            const initialGraphValue = axisLimits[graphType]?.full_data[0];
+            updateGraph(0, initialGraphValue);
+
+            ui.mainHand.setAttribute('x2', 280); ui.mainHand.setAttribute('y2', 120 - 60);
+            
+            // Initial render of the first frame
+            const initial_t = performance.now();
+            lastFrameTime = initial_t;
+            animate(initial_t);
+            stopAnimation(); // Stop immediately to wait for play button
+        }
+        
+        function setupEventListeners() {
+            [ui.radiusSlider, ui.omega0Slider, ui.phi0Slider, ui.alphaSlider].forEach(slider => {
+                slider.addEventListener('input', ()=>resetScene(false));
+            });
+            ui.graphSelect.addEventListener('change', ()=> { 
+                graphType = ui.graphSelect.value;
+                resetScene(false);
+            });
+            ui.viewSelect.addEventListener('change', ()=>resetScene(false));
+            ui.speedRadios.forEach(r => r.addEventListener('change', ()=>resetScene(false)));
+            
+            [ui.togglePositionVector, ui.toggleVelocityVector, ui.toggleTrajectory,
+             ui.toggleAccelerationVector, ui.toggleAccelerationComponents, ui.toggleAtScaling,
+             ui.toggleOmegaVector, ui.toggleAlphaVector].forEach(cb => {
+                cb.addEventListener('change', () => resetScene(false));
+            });
+            
+            ui.playButton.addEventListener('click', () => {
+                if (!aniFrameId) {
+                    if (simulatedTimeElapsed < 1e-6) resetScene(true); // reset if at the beginning
+                    ui.playButton.disabled = true; ui.pauseButton.disabled = false;
+                    [ui.radiusSlider, ui.omega0Slider, ui.phi0Slider, ui.alphaSlider, ui.viewSelect].forEach(el => el.disabled = true);
+                    lastFrameTime = 0; 
+                    aniFrameId = requestAnimationFrame(animate);
+                }
+            });
+            ui.pauseButton.addEventListener('click', stopAnimation);
+            ui.resetButton.addEventListener('click', () => {
+                ui.radiusSlider.value = 1.5;
+                ui.phi0Slider.value = 0;
+                ui.omega0Slider.value = 60;
+                ui.alphaSlider.value = 0;
+                simulatedTimeElapsed = 0;
+                resetScene(false);
+            });
+        }
+
+        window.onload = () => {
+            ui.copyrightYear.textContent = new Date().getFullYear();
+            graphType = 'phit';
+            updateDropdownOptions();
+            setupEventListeners();
+            resetScene(false);
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Verhindert, dass unerwünschte Dateien committed werden.
+
+blocked=()
+
+while IFS= read -r file; do
+  blocked+=("$file")
+done < <(git diff --cached --name-status | grep -E '^(A|M)\s' | awk '{print $2}' | grep -E '(\.DS_Store|/test\.txt|^test\.txt|\.AppleDouble)$')
+
+if [ ${#blocked[@]} -gt 0 ]; then
+  echo ""
+  echo "FEHLER: Folgende Dateien gehören nicht ins Repository:"
+  for f in "${blocked[@]}"; do
+    echo "   $f"
+  done
+  echo ""
+  echo "  Entfernen mit: git restore --staged <datei>"
+  echo ""
+  exit 1
+fi
+
+exit 0

@@ -1,0 +1,1264 @@
+--- START OF FILE proto_standalone_schräger_wurf_v35.html ---
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototyp V6.2: Schräger Wurf mit Analyse</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD;
+            /* NEU: LCD Farben für das Easter Egg */
+            --lcd-bg-color: #c0c4cc; /* Helleres Grau für den Hintergrund des LCD */
+            --lcd-segment-off-color: #a8afb8; /* Etwas dunkleres Grau für die inaktiven Segmente */
+            --lcd-segment-on-color: #333; /* Dunkles Grau für die aktiven Segmente */
+            /* NEU: Farben für Geschwindigkeitsvektor-Komponenten */
+            --fh-velocity-x-color: #E6B800; /* Dunkelgelb für Vx */
+            --fh-velocity-y-color: var(--fh-red); /* Rot für Vy (nutzt bestehendes FH-Rot) */
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 60px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+
+        /* NEU: Textfarben für Vektor-Labels */
+        .velocity-label { color: var(--fh-orange); }
+        .acceleration-label { color: var(--fh-purple); }
+        /* Spezifische Farben für X- und Y-Komponenten-Text */
+        .vx-text { color: var(--fh-velocity-x-color); }
+        .vy-text { color: var(--fh-velocity-y-color); }
+    </style>
+</head>
+<body>
+
+    <h1>Prototyp V6.2: Schräger Wurf mit Analyse</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <!-- Original arrowhead (could be removed if not used) -->
+                <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="currentColor" />
+                </marker>
+                <!-- Farbspezifische Arrowheads für Vektoren -->
+                <marker id="arrowhead-orange" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="var(--fh-orange)" />
+                </marker>
+                <marker id="arrowhead-purple" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="var(--fh-purple)" />
+                </marker>
+                <!-- NEU: Arrowheads für X- und Y-Geschwindigkeitskomponenten -->
+                <marker id="arrowhead-velocity-x" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="var(--fh-velocity-x-color)" />
+                </marker>
+                <marker id="arrowhead-velocity-y" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="var(--fh-velocity-y-color)" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                <line id="ground_line" x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" />
+                
+                <!-- SVG-Elemente in Z-Ordnung von hinten nach vorne -->
+                <rect id="building" x="80" width="80" fill="#e0e0e0" /> <!-- Gebäude als Hintergrund -->
+                <g id="horizontal_ruler_group"></g> <!-- Horizontal Lineal über dem Gebäude -->
+                <g id="ruler_group"></g> <!-- Vertikales Lineal -->
+                <g id="stick_figure">
+                    <!-- Die Strichmännchen-Komponenten werden durch JS hinzugefügt und aktualisiert -->
+                </g>
+                <polyline id="trajectory_line" fill="none" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
+                <circle id="ball" r="8" fill="var(--fh-red)" />
+                
+                <g id="animation_coord_system"></g>
+
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead-purple)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead-orange)" visibility="hidden" />
+                <!-- NEU: Farben und Marker für X- und Y-Komponenten des Geschwindigkeitsvektors -->
+                <line id="velocity_vector_x" stroke="var(--fh-velocity-x-color)" stroke-width="2" marker-end="url(#arrowhead-velocity-x)" visibility="hidden" stroke-dasharray="4,4" />
+                <line id="velocity_vector_y" stroke="var(--fh-velocity-y-color)" stroke-width="2" marker-end="url(#arrowhead-velocity-y)" visibility="hidden" stroke-dasharray="4,4" />
+                
+                <!-- NEU: Angepasster Skalierungsfaktor für die gesamte Uhr -->
+                <g id="stopwatch" transform="translate(84, -24) scale(0.595)">
+                    <!-- Analoge Uhr Elemente -->
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" id="stopwatch_circle" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                    
+                    <!-- Digitale Uhr Elemente (initial versteckt) -->
+                    <g id="digital_display_group" visibility="hidden">
+                        <!-- Segmente und Hintergrund werden via JavaScript hinzugefügt -->
+                    </g>
+                </g>
+                <!-- Position der Zoom-Anzeige angepasst -->
+                <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" font-family="monospace" font-size="14px" fill="#555">Zoom: 1.00x</text>
+            </g>
+            <g id="graph_group_single" transform="translate(400, 40)" visibility="visible">
+                <text id="graph_title" x="257.5" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+
+            <g id="graph_group_stacked_top" transform="translate(400, 20)" visibility="hidden">
+                 <text id="graph_title_top" x="257.5" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_top"></g>
+                 <polyline id="graph_line_top" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_top" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+             <g id="graph_group_stacked_bottom" transform="translate(400, 255)" visibility="hidden">
+                 <text id="graph_title_bottom" x="257.5" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_bottom"></g>
+                 <polyline id="graph_line_bottom" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_bottom" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <input type="range" id="h0_slider" min="1.8" max="20" value="10" step="0.1">
+                    <div class="value" id="h0_value">10.0 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Betrag d. Anfangsgeschw. \(|v_0|\):</div>
+                    <input type="range" id="v0_slider" min="0" max="12" value="10" step="1">
+                    <div class="value" id="v0_value">10 m/s</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Abwurfwinkel \(\alpha\):</div>
+                    <input type="range" id="alpha_slider" min="0" max="90" value="45" step="1">
+                    <div class="value" id="alpha_value">45 °</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <!-- Klassen für Textfarben hinzugefügt -->
+                    <div class="velocity-label"><input type="checkbox" id="toggle_velocity_vector" checked> Geschwindigkeitsvektor anzeigen</div>
+                    <!-- NEU: Span-Tags für individuelle Farbgebung von 'x' und 'y' -->
+                    <div style="padding-left: 25px;"><input type="checkbox" id="toggle_velocity_components"> in <span class="vx-text">x</span>-<span class="vy-text">y</span> Komponenten zerlegen</div>
+                    <div class="acceleration-label"><input type="checkbox" id="toggle_acceleration_vector" checked> Beschleunigungsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_trajectory"> Bahn anzeigen</div>
+                    <div><input type="checkbox" id="toggle_xy_stacked"> x-y untereinander</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                </select>
+                <div style="margin-top: 15px;">
+                    <label for="y_axis_config">Y-Achsen-Konfiguration:</label>
+                    <select id="y_axis_config">
+                        <option value="up_ground" selected>Y-Achse: hoch (+), Nullpunkt: Boden</option>
+                        <option value="up_start">Y-Achse: hoch (+), Nullpunkt: Start</option>
+                        <option value="down_ground">Y-Achse: runter (+), Nullpunkt: Boden</option>
+                        <option value="down_start">Y-Achse: runter (+), Nullpunkt: Start</option>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                    <button id="export_csv_button">Export CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        // NEU: DEFAULT_PIXELS_PER_METER basiert auf der initialen Flugbahn (h0=10, v0=10, alpha=45)
+        // Berechnet für x_max=16.406m und y_max=12.548m mit 10% Padding
+        // (350 - 136) / (16.406 * 1.1) = 11.8576 px/m
+        // 440 / (12.548 * 1.1) = 31.8765 px/m
+        // Min davon ist 11.8576, gerundet 11.86
+        const DEFAULT_PIXELS_PER_METER = 11.86; 
+        let currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+        let zoomFactor = 1.0;
+        const PIXELS_PER_VELOCITY_UNIT = 4; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5; 
+        const BALL_START_X_PIXELS = 136;
+        const TIME_STEP = 1 / 60; // Physics simulation time step (60 Hz)
+
+        let aniFrameId = null; let lastFrameTime = 0; let simulatedTimeElapsed = 0;
+        let h0, v0, alpha_deg, v0_x, v0_y, speedFactor;
+        
+        let full_t_data = [], full_yt_data = [], full_vyt_data = [], full_ayt_data = [], 
+            full_xt_data = [], full_vxt_data = [], full_axt_data = [], full_vabs_data = [];
+        
+        let axisLimits = {};
+        let yAxisConfig = { direction: 'up', origin: 'ground' };
+        
+        // NEU: Digitaluhr Status
+        let isDigitalDisplay = false; 
+
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), 
+            stopwatch: document.getElementById('stopwatch'), // Referenz zur gesamten Stoppuhr-Gruppe
+            stopwatchCircle: document.getElementById('stopwatch_circle'), // Referenz zum Analogkreis
+            mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'), 
+            stopwatchMarks: document.getElementById('stopwatch_marks'), 
+            subdial: document.getElementById('subdial'), // Referenz zum Subdial (für Sichtbarkeit)
+            subdialMarks: document.getElementById('subdial_marks'), 
+            digitalDisplayGroup: document.getElementById('digital_display_group'), // NEU
+            h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), alphaSlider: document.getElementById('alpha_slider'),
+            h0Value: document.getElementById('h0_value'), v0Value: document.getElementById('v0_value'),
+            alphaValue: document.getElementById('alpha_value'), zoomTextDisplay: document.getElementById('zoom_text_display'),
+            speedRadios: document.querySelectorAll('input[name="speed"]'), graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), 
+            resetButton: document.getElementById('reset_button'), 
+            exportButton: document.getElementById('export_csv_button'),
+            rulerGroup: document.getElementById('ruler_group'), 
+            horizontalRulerGroup: document.getElementById('horizontal_ruler_group'),
+            animationCoordSystem: document.getElementById('animation_coord_system'),
+            velocityVector: document.getElementById('velocity_vector'), 
+            velocityVectorX: document.getElementById('velocity_vector_x'),
+            velocityVectorY: document.getElementById('velocity_vector_y'),
+            toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            toggleVelocityComponents: document.getElementById('toggle_velocity_components'),
+            accelerationVector: document.getElementById('acceleration_vector'), 
+            toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            trajectoryLine: document.getElementById('trajectory_line'),
+            toggleTrajectory: document.getElementById('toggle_trajectory'),
+            yAxisConfigSelect: document.getElementById('y_axis_config'), toggleXYStacked: document.getElementById('toggle_xy_stacked'), 
+            graphGroupSingle: document.getElementById('graph_group_single'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'),
+            graphGroupStackedTop: document.getElementById('graph_group_stacked_top'), graphTitleTop: document.getElementById('graph_title_top'),
+            gridGroupTop: document.getElementById('grid_group_top'), graphLineTop: document.getElementById('graph_line_top'),
+            graphPointTop: document.getElementById('graph_point_top'),
+            graphGroupStackedBottom: document.getElementById('graph_group_stacked_bottom'), graphTitleBottom: document.getElementById('graph_title_bottom'),
+            gridGroupBottom: document.getElementById('grid_group_bottom'), graphLineBottom: document.getElementById('graph_line_bottom'),
+            graphPointBottom: document.getElementById('graph_point_bottom'),
+        };
+        
+        const singleGraphOptions = {
+            "Vertikale Bewegung": { "yt": "Höhe y(t) / m", "vyt": "Geschw. v_y(t) / (m/s)", "ayt": "Beschl. a_y(t) / (m/s²)" },
+            "Horizontale Bewegung": { "xt": "Wurfweite x(t) / m", "vxt": "Geschw. v_x(t) / (m/s)", "axt": "Beschl. a_x(t) / (m/s²)" },
+            "Beträge": { "vabs": "Betrag der Geschw. |v(t)| / (m/s)" }
+        };
+        const stackedGraphOptions = { "Analyse": { "pos": "Ort (x/y)", "vel": "Geschwindigkeit (v_x/v_y)", "acc": "Beschleunigung (a_x/a_y)" } };
+
+        const scaleY = (y_meters) => 440 - y_meters * currentPixelsPerMeter; 
+        const scaleX = (x_meters) => BALL_START_X_PIXELS + x_meters * currentPixelsPerMeter;
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        // Neue Konstanten für Strichmännchen-Proportionen (in Metern)
+        const SF_HEAD_RADIUS_M = 0.15;
+        const SF_TORSO_HEIGHT_M = 0.7; // Vom Schritt bis zur Schulter
+        const SF_LEG_HEIGHT_M = 0.9;   // Vom Fuß bis zum Schritt
+        const SF_ARM_LENGTH_M = 0.8;   // Physikalische Länge des Arms
+        const SF_SHOULDER_TO_FEET_M = SF_TORSO_HEIGHT_M + SF_LEG_HEIGHT_M; // Distanz Schulter zu Füßen
+
+        function drawStickFigure(shoulder_x_px, shoulder_y_px, arm_target_x_px, arm_target_y_px) {
+            ui.stickFigure.innerHTML = ''; // Vorherige Zeichnung löschen
+
+            const feet_y_px = shoulder_y_px + SF_SHOULDER_TO_FEET_M * currentPixelsPerMeter;
+            const base_x_px = shoulder_x_px; // Die Basis des Torsos ist an der X-Position der Schulter
+
+            const crotch_y_px = feet_y_px - SF_LEG_HEIGHT_M * currentPixelsPerMeter;
+            const head_center_y_px = shoulder_y_px - SF_HEAD_RADIUS_M * currentPixelsPerMeter;
+
+            // Beine
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px - SF_HEAD_RADIUS_M * currentPixelsPerMeter, y2: feet_y_px, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px + SF_HEAD_RADIUS_M * currentPixelsPerMeter, y2: feet_y_px, stroke: 'black', 'stroke-width': 2}));
+            // Torso
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px, y2: shoulder_y_px, stroke: 'black', 'stroke-width': 2}));
+            // Kopf
+            ui.stickFigure.appendChild(createSVGElement('circle', {cx: base_x_px, cy: head_center_y_px, r: SF_HEAD_RADIUS_M * currentPixelsPerMeter, stroke: 'black', 'stroke-width': 2, fill: 'none'}));
+            // Arm (Zeigt von der Schulter zum Ball)
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: shoulder_x_px, y1: shoulder_y_px, x2: arm_target_x_px, y2: arm_target_y_px, stroke: 'black', 'stroke-width': 2}));
+
+            // Rückgabe der berechneten Fuß-Y-Position für die Anpassung des Gebäudes
+            return feet_y_px;
+        }
+
+        function getDisplayYValue(y_physics) { let y = (yAxisConfig.origin === 'ground') ? y_physics : y_physics - h0; return (yAxisConfig.direction === 'down') ? -y : y; }
+        function getDisplayVValue(v_physics) { return yAxisConfig.direction === 'up' ? v_physics : -v_physics; }
+        function getDisplayAValue(a_physics) { return yAxisConfig.direction === 'up' ? a_physics : -a_physics; }
+
+        function drawAnimationCoordinateSystem() {
+            ui.animationCoordSystem.innerHTML = '';
+            const axis_length = 60 * zoomFactor; const origin_x = BALL_START_X_PIXELS;
+            const origin_y = (yAxisConfig.origin === 'start') ? scaleY(h0) : scaleY(0);
+            const y_direction_factor = (yAxisConfig.direction === 'up') ? -1 : 1;
+            const attrs = { stroke: 'var(--fh-blue)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)', 'stroke-dasharray': '2,2' };
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: origin_x, y1: origin_y, x2: origin_x + axis_length, y2: origin_y }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: origin_x + axis_length + 5, y: origin_y + 14, fill: 'var(--fh-blue)'})).textContent = 'x / m';
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: origin_x, y1: origin_y, x2: origin_x, y2: origin_y + (axis_length * y_direction_factor) }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: origin_x - 20, y: origin_y + (axis_length * y_direction_factor) - (5 * y_direction_factor), fill: 'var(--fh-blue)' })).textContent = 'y / m';
+        }
+        
+        function drawRuler() {
+            ui.rulerGroup.innerHTML = ''; const ruler_x = 45, ruler_width = 15;
+            const max_ruler_height_m = Math.ceil(440 / currentPixelsPerMeter);
+            ui.rulerGroup.appendChild(createSVGElement('rect', { x: ruler_x, y: scaleY(max_ruler_height_m), width: ruler_width, height: max_ruler_height_m * currentPixelsPerMeter, fill: '#f0f0f0', stroke: '#888', 'stroke-width': 1 }));
+            const majorTickInterval = Math.max(1, Math.round(5/zoomFactor)), minorTickInterval = Math.max(1, Math.round(1/zoomFactor));
+            for (let m = 0; m <= max_ruler_height_m; m+=0.5) {
+                 if(Math.abs(m % majorTickInterval) > 0.1 && Math.abs(m % minorTickInterval) > 0.1) continue;
+                const y_pos = scaleY(m);
+                let isMajorTick = Math.abs(m % majorTickInterval) < 0.1;
+                let line_length = (isMajorTick ? 10 : 5) * zoomFactor, stroke_width = isMajorTick ? 2 : 1;
+                if (isMajorTick) ui.rulerGroup.appendChild(createSVGElement('text', { x: ruler_x - 5, y: y_pos + 4, 'text-anchor': 'end', fill: 'black' })).textContent = `${Math.round(m)}`;
+                ui.rulerGroup.appendChild(createSVGElement('line', { x1: ruler_x + ruler_width, y1: y_pos, x2: ruler_x + ruler_width - line_length, y2: y_pos, stroke: 'black', 'stroke-width': stroke_width }));
+            }
+        }
+
+        function drawHorizontalRuler() {
+            ui.horizontalRulerGroup.innerHTML = '';
+            const majorTickInterval = Math.max(1, Math.round(5/zoomFactor)), minorTickInterval = Math.max(1, Math.round(1/zoomFactor));
+            const ground_y = 440; const max_dist = (350 - BALL_START_X_PIXELS) / currentPixelsPerMeter;
+            for(let m = 0; m <= max_dist; m += 0.5) {
+                const x_px = scaleX(m); if (x_px > 350) break;
+                let isMajorTick = Math.abs(m % majorTickInterval) < 0.1; let isMinorTick = Math.abs(m % minorTickInterval) < 0.1;
+                if (isMajorTick || isMinorTick) {
+                    let tick_height = (isMajorTick ? 10 : 5) * zoomFactor;
+                    ui.horizontalRulerGroup.appendChild(createSVGElement('line', { x1: x_px, y1: ground_y, x2: x_px, y2: ground_y - tick_height, stroke: 'black', 'stroke-width': isMajorTick ? 2 : 1 }));
+                    if (isMajorTick) {
+                        let text = createSVGElement('text', { x: x_px, y: ground_y - tick_height - 5, 'text-anchor': 'middle', fill: 'black' });
+                        text.textContent = Math.round(m); ui.horizontalRulerGroup.appendChild(text);
+                    }
+                }
+            }
+        }
+
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; const cx = 280, cy = 120, r = 72;
+            for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 12 : r - 6; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; const cx=280, cy=150, r=16;
+            for(let i=0;i<10;i++){const a=(i/10)*2*Math.PI;ui.subdialMarks.appendChild(createSVGElement('line',{x1:cx+(r-3)*Math.sin(a),y1:cy-(r-3)*Math.cos(a),x2:cx+r*Math.sin(a),y2:cy-r*Math.cos(a),stroke:'black','stroke-width':1}))}
+        }
+
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        
+        function getGraphTitleText(type, isStacked) {
+            if (isStacked) {
+                if (type === 'pos') return "Ort (x/y) vs. Zeit";
+                if (type === 'vel') return "Geschwindigkeit (v_x/v_y) vs. Zeit";
+                if (type === 'acc') return "Beschleunigung (a_x/a_y) vs. Zeit";
+            } else {
+                const options = singleGraphOptions;
+                for (const groupLabel in options) {
+                    for (const val in options[groupLabel]) {
+                        if (val === type) {
+                            // Remove unit part from the label for the main title
+                            return options[groupLabel][val].replace(/\s\/\s\(?m.*$/,'').replace(/\s\/\s\(?kg.*$/,'') + " vs. Zeit";
+                        }
+                    }
+                }
+            }
+            return ""; // Standardmäßig leer, um "Diagramm" zu vermeiden
+        }
+
+        function updateDropdownOptions(isModeChange) {
+            const isStacked = ui.toggleXYStacked.checked;
+            const options = isStacked ? stackedGraphOptions : singleGraphOptions;
+            let finalSelection = ui.graphSelect.value;
+
+            if (isModeChange) {
+                const singleToStackedMap = { yt: 'pos', xt: 'pos', vyt: 'vel', vxt: 'vel', vabs: 'vel', ayt: 'acc', axt: 'acc' };
+                const stackedToSingleMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' };
+                finalSelection = isStacked ? (singleToStackedMap[finalSelection] || 'pos') : (stackedToSingleMap[finalSelection] || finalSelection || 'yt');
+            }
+
+            ui.graphSelect.innerHTML = '';
+            for (const groupLabel in options) {
+                const group = document.createElement('optgroup'); group.label = groupLabel;
+                for (const value in options[groupLabel]) {
+                    const option = document.createElement('option'); option.value = value;
+                    option.textContent = options[groupLabel][value]; group.appendChild(option);
+                }
+                ui.graphSelect.appendChild(group);
+            }
+            
+            if (!finalSelection || !Array.from(ui.graphSelect.options).some(opt => opt.value === finalSelection)) {
+                finalSelection = isStacked ? 'pos' : 'yt';
+            }
+            ui.graphSelect.value = finalSelection;
+        }
+        
+        function updateGraphs(plotCurrentTime, plotCurrentValue, plotCurrentValueTop = null, plotCurrentValueBottom = null) {
+            const isStacked = ui.toggleXYStacked.checked;
+            ui.graphGroupSingle.style.visibility = isStacked ? 'hidden' : 'visible';
+            ui.graphGroupStackedTop.style.visibility = isStacked ? 'visible' : 'hidden';
+            ui.graphGroupStackedBottom.style.visibility = isStacked ? 'visible' : 'hidden';
+
+            // Titel des Einzeldiagramms explizit leeren, wenn gestapelte Ansicht aktiv ist
+            if (isStacked) {
+                ui.graphTitle.textContent = ""; 
+            }
+
+            const currentSelection = ui.graphSelect.value;
+
+            if (isStacked) {
+                drawSingleGraph({ elements: { title: ui.graphTitleTop, grid: ui.gridGroupTop, line: ui.graphLineTop, point: ui.graphPointTop }, type: `x-${currentSelection}`, plotCurrentTime, plotCurrentValue: plotCurrentValueTop, useYAxisConfig: false });
+                drawSingleGraph({ elements: { title: ui.graphTitleBottom, grid: ui.gridGroupBottom, line: ui.graphLineBottom, point: ui.graphPointBottom }, type: `y-${currentSelection}`, plotCurrentTime, plotCurrentValue: plotCurrentValueBottom, useYAxisConfig: true });
+            } else {
+                 drawSingleGraph({ elements: { title: ui.graphTitle, grid: ui.gridGroup, line: ui.graphLine, point: ui.graphPoint }, type: currentSelection, plotCurrentTime, plotCurrentValue, useYAxisConfig: true });
+            }
+        }
+
+        function drawSingleGraph({ elements, type, plotCurrentTime, plotCurrentValue, useYAxisConfig }) {
+            const { titleEl, gridEl, lineEl, pointEl } = { titleEl: elements.title, gridEl: elements.grid, lineEl: elements.line, pointEl: elements.point };
+            const isStacked = ui.toggleXYStacked.checked;
+            
+            // Define total dimensions of the graph area (matching SVG group dimensions)
+            const graphWidth = 480; 
+            const graphHeight = isStacked ? 210 : 410; // Original dimensions from initial prompt
+
+            // Define padding within the graph area for axes, labels, etc.
+            const plotPaddingLeft = 45;   // Space for Y-axis labels and ticks
+            const plotPaddingBottom = 35; // Space for X-axis labels and ticks
+            const plotPaddingTop = 10;    // Space above plot for top grid line extension
+            const plotPaddingRight = 10;  // Space to the right
+
+            // Calculate dimensions of the actual data plotting area
+            const plotWidth = graphWidth - plotPaddingLeft - plotPaddingRight;
+            const plotHeight = graphHeight - plotPaddingTop - plotPaddingBottom;
+
+            pointEl.style.visibility = 'hidden'; // Hide dot by default
+            pointEl.setAttribute('cx', -100); // Move off-screen
+
+            gridEl.innerHTML = '';
+            // Background rectangle for the plotting area
+            gridEl.appendChild(createSVGElement('rect', { 
+                x: plotPaddingLeft, y: plotPaddingTop, 
+                width: plotWidth, height: plotHeight, 
+                fill: 'white', stroke: '#eee', 'stroke-width': 0.5 
+            })); 
+
+            const typeMap = { 'y-pos': 'yt', 'y-vel': 'vyt', 'y-acc': 'ayt', 'x-pos': 'xt', 'x-vel': 'vxt', 'x-acc': 'axt' };
+            const effectiveType = typeMap[type] || type;
+            
+            const isYComponent = ['yt', 'vyt', 'ayt'].includes(effectiveType);
+            const keySuffix = useYAxisConfig && isYComponent ? '_display' : '';
+            const limits = axisLimits[effectiveType + keySuffix];
+
+            if (!limits) { 
+                lineEl.setAttribute('points','');
+                return;
+            } 
+
+            let { y_label_text, full_data, min, max, t_max } = limits;
+            
+            const y_tick_step = getNiceTickStep(max - min, isStacked ? 4 : 8); 
+            let y_axis_min = Math.floor(min / y_tick_step) * y_tick_step; 
+            let y_axis_max = Math.ceil(max / y_tick_step) * y_tick_step;
+            if(Math.abs(y_axis_min - y_axis_max) < 1e-9) { y_axis_min -= y_tick_step; y_axis_max += y_tick_step; }
+            
+            // Scaling functions map physics values to pixel coordinates within the plotting area
+            const scaleXGraph = (t) => plotPaddingLeft + (t / t_max) * plotWidth;
+            const scaleYGraph = (v) => plotPaddingTop + plotHeight - (((v - y_axis_min) / (y_axis_max - y_axis_min || 1)) * plotHeight);
+            
+            const y0 = scaleYGraph(0); // Pixel Y-coordinate of the X-axis (where Y=0 physics value is)
+            
+            // Draw vertical grid lines and X-axis tick labels
+            for(let i=0; i <= 10; i++) {
+                const t = (t_max / 10) * i;
+                const x_px = scaleXGraph(t);
+                gridEl.appendChild(createSVGElement('line',{x1:x_px,y1:plotPaddingTop,x2:x_px,y2:plotPaddingTop + plotHeight,stroke:'#eee'}));
+                // X-axis tick labels positioned relative to y0
+                let txt = createSVGElement('text',{x:x_px,y: y0 + 15,'text-anchor':'middle',fill:'black'});
+                txt.textContent = t.toFixed(1);
+                gridEl.appendChild(txt);
+            }
+
+            // Draw horizontal grid lines and Y-axis tick labels
+            for(let v = y_axis_min; v <= y_axis_max + 1e-9; v += y_tick_step){
+                const y_px = scaleYGraph(v);
+                gridEl.appendChild(createSVGElement('line',{x1:plotPaddingLeft,y1:y_px,x2:plotPaddingLeft + plotWidth,y2:y_px,stroke:'#eee'}));
+                let txt = createSVGElement('text',{x:plotPaddingLeft-8,y:y_px+4,'text-anchor':'end',fill:'black'});
+                txt.textContent = v.toFixed(y_tick_step%1===0?0:1);
+                gridEl.appendChild(txt);
+            }
+
+            // Draw X-axis line (from left padding to right boundary of plot)
+            gridEl.appendChild(createSVGElement('line',{
+                x1: plotPaddingLeft, y1: y0, 
+                x2: plotPaddingLeft + plotWidth, y2: y0, 
+                stroke:'black','stroke-width':1.5,'marker-end':'url(#arrowhead)'
+            }));
+            
+            // Draw Y-axis line (from bottom of plot to top of plot)
+            gridEl.appendChild(createSVGElement('line',{
+                x1: plotPaddingLeft, y1: plotPaddingTop + plotHeight, 
+                x2: plotPaddingLeft, y2: plotPaddingTop, 
+                stroke:'black','stroke-width':1.5,'marker-end':'url(#arrowhead)'
+            }));
+            
+            // X-axis label, positioned relative to y0
+            const xAxisLabel = createSVGElement('text', { 
+                x: plotPaddingLeft + plotWidth / 2, 
+                y: y0 + 30, // Position relative to y0 + some offset
+                'text-anchor': 'middle', fill: 'black', 'font-size': '13px' 
+            });
+            xAxisLabel.textContent = 'Zeit t / s';
+            gridEl.appendChild(xAxisLabel);
+
+            // Y-axis label
+            // yAxisLabelX angepasst
+            const yAxisLabelX = -10; // Fixed x for rotated text (left of plotPaddingLeft)
+            const yAxisLabelY = plotPaddingTop + plotHeight / 2; // Middle of the plotting area
+            const yAxisLabel = createSVGElement('text', { 
+                'text-anchor': 'middle', fill: 'black', 'font-size': '13px', 
+                transform: `rotate(-90, ${yAxisLabelX}, ${yAxisLabelY})`, 
+                x: yAxisLabelX, y: yAxisLabelY 
+            });
+            
+            let finalLabel = y_label_text;
+            if (isStacked) {
+                 const typeMapLabels = { 
+                    'x-pos': "Wurfweite x(t) / m", 'y-pos': "Höhe y(t) / m", 
+                    'x-vel': "Geschw. v_x(t) / (m/s)", 'y-vel': "Geschw. v_y(t) / (m/s)", 
+                    'x-acc': "Beschl. a_x(t) / (m/s²)", 'y-acc': "Beschl. a_y(t) / (m/s²)"
+                 };
+                 finalLabel = typeMapLabels[type] || y_label_text;
+            }
+            yAxisLabel.textContent = finalLabel;
+            gridEl.appendChild(yAxisLabel);
+            
+            // Set the main graph title
+            titleEl.textContent = getGraphTitleText(type, isStacked);
+
+            // Draw the data line (polyline up to current time)
+            let p="";
+            // Find the index that corresponds to plotCurrentTime. Use last index if plotCurrentTime is beyond max t.
+            let linePlotIndex = full_t_data.findIndex(t => t > plotCurrentTime);
+            if (linePlotIndex === -1 && full_t_data.length > 0) { // If plotCurrentTime is past or at the end
+                linePlotIndex = full_t_data.length; // Include all points
+            } else if (full_t_data.length === 0) {
+                linePlotIndex = 0; // No points if no data
+            }
+
+            const time_data_for_line = full_t_data.slice(0, linePlotIndex);
+            const data_for_line = full_data.slice(0, linePlotIndex);
+
+            for(let i=0;i<data_for_line.length;i++){p+=`${scaleXGraph(time_data_for_line[i])},${scaleYGraph(data_for_line[i])} `}
+            
+            // Add the current interpolated point to the polyline if it's not the last precomputed point
+            if (plotCurrentTime !== null && plotCurrentValue !== null && linePlotIndex < full_t_data.length) {
+                p += `${scaleXGraph(plotCurrentTime)},${scaleYGraph(plotCurrentValue)} `;
+            }
+
+            lineEl.setAttribute('points',p);
+
+            // Draw the current data point (red dot) using interpolated value
+            if (plotCurrentTime !== null && plotCurrentValue !== null) {
+                pointEl.setAttribute('cx', scaleXGraph(plotCurrentTime));
+                pointEl.setAttribute('cy', scaleYGraph(plotCurrentValue));
+                pointEl.style.visibility = 'visible';
+            }
+        }
+        
+        // NEU: Konstanten und Funktionen für Digitaluhr (Angepasst an die neuen Anforderungen)
+        const DIGITAL_DISPLAY_SCALE_FACTOR = 0.85; // Skalierungsfaktor für die Segmente
+
+        const SEG_THICK_BASE = 6; // Dicke eines Segments (basis)
+        const SEG_LEN_BASE = 40; // Länge eines langen Segments (horizontal/vertikal - basis)
+        const DIGIT_SPACING_BASE = 5; // Basis-Abstand zwischen Ziffernpaaren
+        const COLON_WIDTH_BASE = 10; // Basis-Breite des Doppelpunkts
+        const COLON_DOT_SIZE_BASE = SEG_THICK_BASE * 1.5; // Größe der Punkte im Doppelpunkt
+        // NEU: LCD_FRAME_PADDING_BASE auf 10 gesetzt
+        const LCD_FRAME_PADDING_BASE = 10; // Polsterung um den Inhalt im Rahmen (Basiswert)
+
+        // Skalierte Basissegment-Dimensionen
+        const SEG_THICK = SEG_THICK_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const SEG_LEN = SEG_LEN_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        const COLON_DOT_SIZE = COLON_DOT_SIZE_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+        // NEU: Skaliertes Padding
+        const LCD_FRAME_PADDING = LCD_FRAME_PADDING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR;
+
+        // Berechne die Ziffern-Dimensionen basierend auf den SKALIERTEN Basis-Segmenten
+        const DIGIT_WIDTH = SEG_LEN + 2 * SEG_THICK;
+        const DIGIT_HEIGHT = 2 * SEG_LEN + 3 * SEG_THICK;
+
+        // Gesamtbreite des Inhalts VOR der 1.2x Verbreiterung, aber NACH der 0.85x Segment-Skalierung
+        const INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN = 
+            (4 * DIGIT_WIDTH) + 
+            (COLON_WIDTH_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + 
+            (3 * DIGIT_SPACING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR); 
+
+        // NEU: WIDENING_FACTOR auf 1.0 gesetzt
+        const WIDENING_FACTOR = 1.0; 
+
+        // Neu berechnete Gesamtbreite nach der Verbreiterung
+        const WIDENED_TOTAL_CONTENT_WIDTH_FINAL = INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN * WIDENING_FACTOR;
+        const ADDED_SPACE_FOR_WIDENING = WIDENED_TOTAL_CONTENT_WIDTH_FINAL - INITIAL_TOTAL_CONTENT_WIDTH_PRE_WIDEN;
+
+        // Endgültige Abstände und Doppelpunktbreite (Basisskalierung + zusätzlicher Platz durch Verbreiterung)
+        // Wenn ADDED_SPACE_FOR_WIDENING 0 ist, ist dies einfach die Basisskalierung
+        const DIGIT_SPACING = (DIGIT_SPACING_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + (ADDED_SPACE_FOR_WIDENING / 4); 
+        const COLON_WIDTH = (COLON_WIDTH_BASE * DIGITAL_DISPLAY_SCALE_FACTOR) + (ADDED_SPACE_FOR_WIDENING / 4);
+
+        // Abmessungen des äußeren Rahmens, basierend auf den ENDGÜLTIGEN Inhaltsbreiten und Höhen
+        const DIGITAL_FRAME_WIDTH = WIDENED_TOTAL_CONTENT_WIDTH_FINAL + (2 * LCD_FRAME_PADDING);
+        const DIGITAL_FRAME_HEIGHT = DIGIT_HEIGHT + (2 * LCD_FRAME_PADDING); 
+
+        // Position des Digitaldisplay-Rahmens innerhalb der Stoppuhrgruppe (cx=280, cy=120 ist Zentrum des Kreises)
+        const DIGITAL_FRAME_X = 280 - (DIGITAL_FRAME_WIDTH / 2);
+        const DIGITAL_FRAME_Y = 120 - (DIGITAL_FRAME_HEIGHT / 2);
+
+
+        // Kartierung von Ziffern zu aktiven Segment-Indizes (0:a, 1:b, ..., 6:g)
+        const DIGIT_SEGMENTS_MAP = {
+            0: [0, 1, 2, 3, 4, 5],
+            1: [1, 2],
+            2: [0, 1, 6, 4, 3],
+            3: [0, 1, 6, 2, 3],
+            4: [5, 6, 1, 2],
+            5: [0, 5, 6, 2, 3],
+            6: [0, 5, 4, 3, 2, 6],
+            7: [0, 1, 2],
+            8: [0, 1, 2, 3, 4, 5, 6],
+            9: [0, 1, 2, 3, 5, 6]
+        };
+
+        // Funktion zur Definition der Segmente einer einzelnen Ziffer relativ zu (0,0)
+        function getSegmentRectDefs() {
+            // Verwendet die bereits skalierten SEG_THICK und SEG_LEN Konstanten
+            return [
+                // 0: a (oben horizontal)
+                { x: SEG_THICK, y: 0, width: SEG_LEN, height: SEG_THICK },
+                // 1: b (oben rechts vertikal)
+                { x: SEG_LEN + SEG_THICK, y: SEG_THICK, width: SEG_THICK, height: SEG_LEN },
+                // 2: c (unten rechts vertikal)
+                { x: SEG_LEN + SEG_THICK, y: SEG_LEN + 2 * SEG_THICK, width: SEG_THICK, height: SEG_LEN },
+                // 3: d (unten horizontal)
+                { x: SEG_THICK, y: 2 * SEG_LEN + 2 * SEG_THICK, width: SEG_LEN, height: SEG_THICK },
+                // 4: e (unten links vertikal)
+                { x: 0, y: SEG_LEN + 2 * SEG_THICK, width: SEG_THICK, height: SEG_LEN },
+                // 5: f (oben links vertikal)
+                { x: 0, y: SEG_THICK, width: SEG_THICK, height: SEG_LEN },
+                // 6: g (Mitte horizontal)
+                { x: SEG_THICK, y: SEG_LEN + SEG_THICK, width: SEG_LEN, height: SEG_THICK }
+            ];
+        }
+        
+        // Initialisiert alle SVG-Segmente für die Digitaluhr
+        function initDigitalDisplaySegments() {
+            ui.digitalDisplayGroup.innerHTML = ''; // Vorherige Segmente löschen
+
+            // Digital Display Outer Frame (the new rounded rectangle)
+            ui.digitalDisplayGroup.appendChild(createSVGElement('rect', {
+                id: 'digital_display_frame',
+                x: DIGITAL_FRAME_X,
+                y: DIGITAL_FRAME_Y,
+                width: DIGITAL_FRAME_WIDTH,
+                height: DIGITAL_FRAME_HEIGHT,
+                fill: 'var(--lcd-bg-color)', // Use LCD background color for the frame
+                stroke: 'black', // Border of the frame
+                'stroke-width': 2,
+                rx: 8, ry: 8 // Rounded corners
+            }));
+
+            const content_start_y = DIGITAL_FRAME_Y + LCD_FRAME_PADDING;
+            const segmentRectDefs = getSegmentRectDefs();
+
+            // Explizite X-Positionen für jede Ziffer und den Doppelpunkt-Bereich
+            // Verwendet die ENDGÜLTIGEN, skalierten und verbreiterten DIGIT_WIDTH und DIGIT_SPACING/COLON_WIDTH
+            const x_d0 = DIGITAL_FRAME_X + LCD_FRAME_PADDING;
+            const x_d1 = x_d0 + DIGIT_WIDTH + DIGIT_SPACING;
+            const x_colon_group_start = x_d1 + DIGIT_WIDTH + DIGIT_SPACING;
+            const x_d2 = x_colon_group_start + COLON_WIDTH + DIGIT_SPACING;
+            const x_d3 = x_d2 + DIGIT_WIDTH + DIGIT_SPACING;
+
+            const digit_x_positions = [x_d0, x_d1, x_d2, x_d3];
+
+            // Generiere Segmente für 4 Ziffern (SS.HH)
+            for (let i = 0; i < 4; i++) {
+                segmentRectDefs.forEach((segDef, segIndex) => {
+                    ui.digitalDisplayGroup.appendChild(createSVGElement('rect', {
+                        id: `digit_seg_${i}_${segIndex}`, // z.B. digit_seg_0_0 (erste Ziffer, Segment 'a')
+                        x: digit_x_positions[i] + segDef.x, 
+                        y: content_start_y + segDef.y, 
+                        width: segDef.width, 
+                        height: segDef.height,
+                        fill: 'var(--lcd-segment-off-color)', // Initial aus
+                        rx: 1, ry: 1
+                    }));
+                });
+            }
+
+            // Doppelpunkt-Punkte
+            // Doppelpunkt zentriert im vorgesehenen Bereich
+            const colon_x_center = x_colon_group_start + (COLON_WIDTH / 2);
+            // Verwendet die skalierten DIGIT_HEIGHT für die Y-Position der Punkte
+            const colon_y_top = content_start_y + DIGIT_HEIGHT * 0.3;
+            const colon_y_bottom = content_start_y + DIGIT_HEIGHT * 0.7;
+
+            ui.digitalDisplayGroup.appendChild(createSVGElement('rect', {
+                id: 'colon_dot_top',
+                x: colon_x_center - COLON_DOT_SIZE / 2, y: colon_y_top - COLON_DOT_SIZE / 2,
+                width: COLON_DOT_SIZE, height: COLON_DOT_SIZE,
+                fill: 'var(--lcd-segment-off-color)', rx: COLON_DOT_SIZE/2, ry: COLON_DOT_SIZE/2
+            }));
+            ui.digitalDisplayGroup.appendChild(createSVGElement('rect', {
+                id: 'colon_dot_bottom',
+                x: colon_x_center - COLON_DOT_SIZE / 2, y: colon_y_bottom - COLON_DOT_SIZE / 2,
+                width: COLON_DOT_SIZE, height: COLON_DOT_SIZE,
+                fill: 'var(--lcd-segment-off-color)', rx: COLON_DOT_SIZE/2, ry: COLON_DOT_SIZE/2
+            }));
+        }
+
+        // Aktualisiert die Digitalanzeige basierend auf der Zeit
+        function updateDigitalDisplay(totalSeconds) {
+            let seconds = Math.floor(totalSeconds % 100); // 0-99 Sekunden
+            let hundredths = Math.floor((totalSeconds * 100) % 100); // 0-99 Hundertstel
+
+            // Sicherstellen, dass die Werte zweistellig sind
+            let s1 = Math.floor(seconds / 10);
+            let s2 = seconds % 10;
+            let h1 = Math.floor(hundredths / 10);
+            let h2 = hundredths % 10;
+
+            const digits = [s1, s2, h1, h2];
+
+            for (let i = 0; i < 4; i++) {
+                const digitValue = digits[i];
+                const activeSegments = DIGIT_SEGMENTS_MAP[digitValue];
+
+                for (let segIndex = 0; segIndex < 7; segIndex++) { // 7 Segmente pro Ziffer
+                    const segmentElement = document.getElementById(`digit_seg_${i}_${segIndex}`);
+                    if (segmentElement) {
+                        if (activeSegments.includes(segIndex)) {
+                            segmentElement.setAttribute('fill', 'var(--lcd-segment-on-color)');
+                        } else {
+                            segmentElement.setAttribute('fill', 'var(--lcd-segment-off-color)');
+                        }
+                    }
+                }
+            }
+
+            // Doppelpunkt immer an (wenn Digitaluhr aktiv)
+            document.getElementById('colon_dot_top').setAttribute('fill', 'var(--lcd-segment-on-color)');
+            document.getElementById('colon_dot_bottom').setAttribute('fill', 'var(--lcd-segment-on-color)');
+        }
+
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt_real = (currentTime - lastFrameTime) / 1000.0; // Real time elapsed since last frame
+            simulatedTimeElapsed += dt_real * speedFactor; // Advance simulated time
+            lastFrameTime = currentTime;
+            
+            // Find the segment of precomputed data for interpolation
+            let i = 0;
+            while (i < full_t_data.length - 1 && full_t_data[i + 1] <= simulatedTimeElapsed) {
+                i++;
+            }
+
+            let x_phys, y_phys, vx, vy;
+            let currentGraphValue, currentGraphValueTop, currentGraphValueBottom; // For interpolated graph points
+
+            // Check if we are at or past the end of the precomputed data
+            if (full_t_data.length === 0) { // Case: No data at all (e.g., v0=0)
+                stopAnimation();
+                return;
+            } else if (simulatedTimeElapsed >= full_t_data[full_t_data.length - 1]) {
+                const lastIndex = full_t_data.length - 1;
+                x_phys = full_xt_data[lastIndex];
+                y_phys = full_yt_data[lastIndex];
+                vx = full_vxt_data[lastIndex];
+                vy = full_vyt_data[lastIndex];
+
+                // Interpolated graph values (at the very end, it's just the last value)
+                const currentSelection = ui.graphSelect.value;
+                const isStacked = ui.toggleXYStacked.checked;
+
+                if (isStacked) {
+                    const topTypeMap = { 'pos': 'xt', 'vel': 'vxt', 'acc': 'axt' };
+                    const bottomTypeMap = { 'pos': 'yt', 'vel': 'vyt', 'acc': 'ayt' };
+                    currentGraphValueTop = axisLimits[topTypeMap[currentSelection]].full_data[lastIndex];
+                    currentGraphValueBottom = axisLimits[bottomTypeMap[currentSelection] + '_display'].full_data[lastIndex];
+                } else {
+                    const isYComponent = ['yt', 'vyt', 'ayt'].includes(currentSelection);
+                    const keySuffix = isYComponent ? '_display' : '';
+                    currentGraphValue = axisLimits[currentSelection + keySuffix].full_data[lastIndex];
+                }
+                
+                ui.ball.setAttribute('cx', scaleX(x_phys));
+                ui.ball.setAttribute('cy', scaleY(y_phys));
+
+                // Final update to graphs and stop animation
+                updateGraphs(simulatedTimeElapsed, currentGraphValue, currentGraphValueTop, currentGraphValueBottom);
+                stopAnimation();
+                return;
+            } else {
+                // Interpolate values between full_t_data[i] and full_t_data[i+1]
+                const t1 = full_t_data[i];
+                const t2 = full_t_data[i + 1];
+                const alpha_interp = (simulatedTimeElapsed - t1) / (t2 - t1);
+
+                x_phys = full_xt_data[i] + alpha_interp * (full_xt_data[i+1] - full_xt_data[i]);
+                y_phys = full_yt_data[i] + alpha_interp * (full_yt_data[i+1] - full_yt_data[i]);
+                vx = full_vxt_data[i] + alpha_interp * (full_vxt_data[i+1] - full_vxt_data[i]);
+                vy = full_vyt_data[i] + alpha_interp * (full_vyt_data[i+1] - full_vyt_data[i]);
+
+                // Interpolate graph values for the red dot
+                const currentSelection = ui.graphSelect.value;
+                const isStacked = ui.toggleXYStacked.checked;
+
+                if (isStacked) {
+                    const topTypeMap = { 'pos': 'xt', 'vel': 'vxt', 'acc': 'axt' };
+                    const bottomTypeMap = { 'pos': 'yt', 'vel': 'vyt', 'acc': 'ayt' };
+                    const topData = axisLimits[topTypeMap[currentSelection]].full_data;
+                    const bottomData = axisLimits[bottomTypeMap[currentSelection] + '_display'].full_data;
+                    currentGraphValueTop = topData[i] + alpha_interp * (topData[i+1] - topData[i]);
+                    currentGraphValueBottom = bottomData[i] + alpha_interp * (bottomData[i+1] - bottomData[i]);
+                } else {
+                    const isYComponent = ['yt', 'vyt', 'ayt'].includes(currentSelection);
+                    const keySuffix = isYComponent ? '_display' : '';
+                    const data = axisLimits[currentSelection + keySuffix].full_data;
+                    currentGraphValue = data[i] + alpha_interp * (data[i+1] - data[i]);
+                }
+            }
+            
+            const cx = scaleX(x_phys), cy = scaleY(y_phys);
+            ui.ball.setAttribute('cx', cx); ui.ball.setAttribute('cy', cy);
+            
+            // Update trajectory line with current interpolated point
+            if (ui.toggleTrajectory.checked) {
+                let pathPoints = "";
+                // Add all precomputed points up to index i
+                for (let k = 0; k <= i; k++) {
+                    pathPoints += `${scaleX(full_xt_data[k])},${scaleY(full_yt_data[k])} `;
+                }
+                // Add the current interpolated point
+                pathPoints += `${cx},${cy} `;
+                ui.trajectoryLine.setAttribute('points', pathPoints);
+                ui.trajectoryLine.style.visibility = 'visible';
+            } else {
+                ui.trajectoryLine.style.visibility = 'hidden';
+            }
+
+
+            if(ui.toggleAccelerationVector.checked){ui.accelerationVector.setAttribute('visibility','visible');ui.accelerationVector.setAttribute('x1',cx);ui.accelerationVector.setAttribute('y1',cy);ui.accelerationVector.setAttribute('x2',cx);ui.accelerationVector.setAttribute('y2',cy+G*PIXELS_PER_ACCELERATION_UNIT*zoomFactor)}else{ui.accelerationVector.setAttribute('visibility','hidden')}
+            
+            ui.velocityVector.setAttribute('visibility', 'hidden');
+            ui.velocityVectorX.setAttribute('visibility', 'hidden');
+            ui.velocityVectorY.setAttribute('visibility', 'hidden');
+
+            if(ui.toggleVelocityVector.checked){
+                const showComponents = ui.toggleVelocityComponents.checked;
+                const end_vx = cx + vx * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                const end_vy = cy - vy * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+
+                if (showComponents) {
+                    ui.velocityVectorX.setAttribute('visibility','visible');
+                    ui.velocityVectorX.setAttribute('x1',cx); ui.velocityVectorX.setAttribute('y1',cy);
+                    ui.velocityVectorX.setAttribute('x2',end_vx); ui.velocityVectorX.setAttribute('y2',cy);
+                    
+                    ui.velocityVectorY.setAttribute('visibility','visible');
+                    ui.velocityVectorY.setAttribute('x1',cx); ui.velocityVectorY.setAttribute('y1',cy);
+                    ui.velocityVectorY.setAttribute('x2',cx); ui.velocityVectorY.setAttribute('y2',end_vy);
+                } else {
+                    ui.velocityVector.setAttribute('visibility','visible');
+                    ui.velocityVector.setAttribute('x1',cx); ui.velocityVector.setAttribute('y1',cy);
+                    ui.velocityVector.setAttribute('x2',end_vx); ui.velocityVector.setAttribute('y2',end_vy);
+                }
+            }
+
+            // NEU: Uhr-Update-Logik basierend auf isDigitalDisplay
+            if (isDigitalDisplay) {
+                updateDigitalDisplay(simulatedTimeElapsed);
+            } else {
+                const main_a=(simulatedTimeElapsed%60/60)*2*Math.PI,sub_a=(simulatedTimeElapsed%1)*2*Math.PI;
+                ui.mainHand.setAttribute('x2',280+60*Math.sin(main_a));ui.mainHand.setAttribute('y2',120-60*Math.cos(main_a));
+                ui.subHand.setAttribute('x2',280+15*Math.sin(sub_a));ui.subHand.setAttribute('y2',150-15*Math.cos(sub_a));
+            }
+            
+            updateGraphs(simulatedTimeElapsed, currentGraphValue, currentGraphValueTop, currentGraphValueBottom);
+            aniFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() { if(aniFrameId){cancelAnimationFrame(aniFrameId);aniFrameId=null}ui.playButton.disabled=false;ui.pauseButton.disabled=true;ui.h0Slider.disabled=false;ui.v0Slider.disabled=false;ui.alphaSlider.disabled=false;}
+
+        function precomputeFlightData() {
+            full_t_data = []; full_xt_data = []; full_yt_data = []; full_vxt_data = []; 
+            full_vyt_data = []; full_axt_data = []; full_ayt_data = []; full_vabs_data = [];
+            axisLimits = {};
+            
+            const time_to_ground_formula = (v0_y + Math.sqrt(v0_y**2 + 2 * G * h0)) / G;
+            const t_end_approx = time_to_ground_formula; 
+
+            for (let t = 0; t <= t_end_approx + TIME_STEP; t += TIME_STEP) { // Loop slightly beyond theoretical impact
+                const x = v0_x * t;
+                const y = h0 + v0_y * t - 0.5 * G * t**2;
+                
+                const vx = v0_x;
+                const vy = v0_y - G * t;
+
+                // Stop precisely at ground impact (y=0) or slightly below due to floating point for visual smoothness
+                if (y < -0.01 && full_t_data.length > 0) { // If slightly below ground and not first point
+                    // Interpolate back to find exact impact time and add that as last point
+                    const last_t = full_t_data[full_t_data.length - 1];
+                    const last_y = full_yt_data[full_yt_data.length - 1];
+
+                    // Avoid division by zero if last_y and current y are too close
+                    if (y - last_y < -1e-9) { // Ensure y is actually decreasing
+                        const t_impact = last_t + (0 - last_y) * (t - last_t) / (y - last_y);
+                        if (t_impact > last_t) { // Ensure time is moving forward
+                             full_t_data.push(t_impact);
+                             full_xt_data.push(v0_x * t_impact);
+                             full_yt_data.push(0); // Force y to be 0 at impact
+                             full_vxt_data.push(v0_x);
+                             full_vyt_data.push(v0_y - G * t_impact);
+                             full_axt_data.push(0);
+                             full_ayt_data.push(-G);
+                             full_vabs_data.push(Math.sqrt((v0_x)**2 + (v0_y - G * t_impact)**2));
+                        }
+                    }
+                    break; // Stop precomputation
+                }
+                // Add current point if it's not below ground or is the first point
+                if (y >= -0.01 || full_t_data.length === 0) {
+                    full_t_data.push(t); full_xt_data.push(x); full_yt_data.push(y);
+                    full_vxt_data.push(vx); full_vyt_data.push(vy); full_axt_data.push(0);
+                    full_ayt_data.push(-G); full_vabs_data.push(Math.sqrt(vx**2 + vy**2));
+                }
+            }
+
+            // Ensure y-values are never slightly negative due to floating point inaccuracies for display
+            for (let i = 0; i < full_yt_data.length; i++) {
+                if (full_yt_data[i] < 0) full_yt_data[i] = 0;
+            }
+
+
+            // Recalculate t_max based on actual precomputed data length
+            const actual_t_max = full_t_data.length > 0 ? full_t_data[full_t_data.length - 1] : 1.0;
+
+
+            const dataSets = {
+                xt: { data: full_xt_data, label: "Wurfweite x(t) / m" },
+                yt: { data: full_yt_data, label: "Höhe y(t) / m" },
+                vxt: { data: full_vxt_data, label: "Geschw. v_x(t) / (m/s)" },
+                vyt: { data: full_vyt_data, label: "Geschw. v_y(t) / (m/s)" },
+                axt: { data: full_axt_data, label: "Beschl. a_x(t) / (m/s²)" },
+                ayt: { data: full_ayt_data, label: "Beschl. a_y(t) / (m/s²)" },
+                vabs: { data: full_vabs_data, label: "Betrag der Geschw. |v(t)| / (m/s)" }
+            };
+
+            for (const key in dataSets) {
+                const addPadding = (min, max) => {
+                    if (Math.abs(max - min) < 1e-9) { min -= 1; max += 1; } 
+                    else { const p = (max-min)*0.1; min -= p; max += p; }
+                    return {min, max};
+                };
+                
+                let raw_min = Math.min(...dataSets[key].data); let raw_max = Math.max(...dataSets[key].data);
+                let padded = addPadding(raw_min, raw_max);
+                
+                if (padded.max < 0) padded.max = 0;
+                if (padded.min > 0) padded.min = 0;
+                
+                axisLimits[key] = { min: padded.min, max: padded.max, t_max: actual_t_max, y_label_text: dataSets[key].label, full_data: dataSets[key].data };
+
+                if (['yt', 'vyt', 'ayt'].includes(key)) {
+                    let display_data;
+                    if (key === 'yt') display_data = dataSets[key].data.map(getDisplayYValue);
+                    else if (key === 'vyt') display_data = dataSets[key].data.map(getDisplayVValue);
+                    else display_data = dataSets[key].data.map(getDisplayAValue);
+                    
+                    let d_min = Math.min(...display_data); let d_max = Math.max(...display_data);
+                    let d_padded = addPadding(d_min, d_max);
+
+                    if (d_padded.max < 0) d_padded.max = 0;
+                    if (d_padded.min > 0) d_padded.min = 0;
+
+                    axisLimits[key + '_display'] = { min: d_padded.min, max: d_padded.max, t_max: actual_t_max, y_label_text: dataSets[key].label, full_data: display_data };
+                }
+            }
+        }
+
+        function exportCsvData() {
+            const isStacked = ui.toggleXYStacked.checked;
+            const currentSelection = ui.graphSelect.value;
+            let csvContent = "";
+            let fileName = "wurf_daten.csv";
+            
+            let headers = ['Zeit / s'];
+            let dataArrays = [full_t_data];
+
+            if (isStacked) {
+                const topTypeMap = { 'pos': 'xt', 'vel': 'vxt', 'acc': 'axt' };
+                const bottomTypeMap = { 'pos': 'yt', 'vel': 'vyt', 'acc': 'ayt' };
+                
+                const topDataKey = topTypeMap[currentSelection];
+                const bottomDataKey = bottomTypeMap[currentSelection];
+
+                const topLimits = axisLimits[topDataKey];
+                const bottomLimits = axisLimits[bottomDataKey + '_display']; // Use display values for y-component
+
+                headers.push(topLimits.y_label_text);
+                dataArrays.push(topLimits.full_data);
+                headers.push(bottomLimits.y_label_text);
+                dataArrays.push(bottomLimits.full_data);
+
+                fileName = `${currentSelection}_stacked_wurf_daten.csv`;
+
+            } else {
+                const isYComponent = ['yt', 'vyt', 'ayt'].includes(currentSelection);
+                const keySuffix = isYComponent ? '_display' : '';
+                const limits = axisLimits[currentSelection + keySuffix];
+
+                headers.push(limits.y_label_text);
+                dataArrays.push(limits.full_data);
+
+                fileName = `${currentSelection}_wurf_daten.csv`;
+            }
+
+            csvContent += headers.join(',') + '\n';
+
+            for (let i = 0; i < full_t_data.length; i++) {
+                const row = dataArrays.map(arr => arr[i].toFixed(4)); // Format numbers for CSV
+                csvContent += row.join(',') + '\n';
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection for download attribute
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', fileName);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } else {
+                alert('Dein Browser unterstützt den CSV-Export nicht direkt. Kopiere die Daten manuell.');
+            }
+        }
+
+
+        function resetScene(isModeChange = false, isPlayTrigger = false) {
+            stopAnimation();
+            simulatedTimeElapsed = 0; // WICHTIG: Simulation Time zurücksetzen
+
+            [ui.graphPoint, ui.graphPointTop, ui.graphPointBottom].forEach(p => {
+                p.style.visibility = 'hidden';
+                p.setAttribute('cx', -100);
+            });
+            
+            // Trajektorien-Linie beim Reset leeren
+            ui.trajectoryLine.setAttribute('points', '');
+            ui.trajectoryLine.style.visibility = ui.toggleTrajectory.checked ? 'visible' : 'hidden'; // Initial visibility based on checkbox
+
+
+            if (!isPlayTrigger) { 
+                h0=parseFloat(ui.h0Slider.value); v0=parseFloat(ui.v0Slider.value); alpha_deg=parseFloat(ui.alphaSlider.value);
+                const[dir,ori]=ui.yAxisConfigSelect.value.split('_');yAxisConfig={direction:dir,origin:ori};
+                ui.h0Value.textContent=`${h0.toFixed(1)} m`; ui.v0Value.textContent=`${v0} m/s`; ui.alphaValue.textContent=`${alpha_deg} °`;
+                updateDropdownOptions(isModeChange);
+            }
+            
+            const alpha_rad=alpha_deg*Math.PI/180;v0_x=v0*Math.cos(alpha_rad);v0_y=v0*Math.sin(alpha_rad);
+            
+            const t_g=(v0_y+Math.sqrt(v0_y**2+2*G*h0))/G,x_max=v0_x*t_g,y_max=h0+(v0_y>0?(v0_y**2/(2*G)):0);
+            
+            // Berechnung von scale_x und scale_y mit 10% Padding
+            const scale_x=(x_max>0)?((350-BALL_START_X_PIXELS)/(x_max*1.1)):Infinity;
+            const scale_y=(y_max>0)?(440/(y_max*1.1)):Infinity;
+
+            // Dynamische Zoom-Anpassung
+            // currentPixelsPerMeter ist der kleinere Wert, der nötig ist, um die Flugbahn einzupassen
+            // und wird auf maximal DEFAULT_PIXELS_PER_METER * 2.0 (2.00x Zoom) begrenzt.
+            currentPixelsPerMeter = Math.min(Math.min(scale_x, scale_y), DEFAULT_PIXELS_PER_METER * 2.0);
+            
+            zoomFactor=currentPixelsPerMeter/DEFAULT_PIXELS_PER_METER;
+            ui.zoomTextDisplay.textContent = `Zoom: ${zoomFactor.toFixed(2)}x`;
+            
+            // Berechne die Position des Strichmännchens und des Gebäudes
+            const ball_cx_px = BALL_START_X_PIXELS;
+            const ball_cy_px = scaleY(h0); // Y-Pixelposition des Balls
+
+            const arm_length_px = SF_ARM_LENGTH_M * currentPixelsPerMeter;
+
+            // Schulterposition, so dass der Arm mit alpha_rad am Ball endet
+            const shoulder_px_x = ball_cx_px - arm_length_px * Math.cos(alpha_rad);
+            const shoulder_px_y = ball_cy_px + arm_length_px * Math.sin(alpha_rad); // +sin wegen invertierter SVG Y-Achse
+
+            // Zeichne das Strichmännchen und erhalte die berechnete Fuß-Y-Position
+            const sf_feet_px_y = drawStickFigure(shoulder_px_x, shoulder_px_y, ball_cx_px, ball_cy_px);
+
+            // Gebäude an die Fußposition des Männchens anpassen
+            const building_height_px = 440 - sf_feet_px_y;
+            ui.building.setAttribute('y', sf_feet_px_y);
+            ui.building.setAttribute('height', Math.max(0, building_height_px)); // Sicherstellen, dass die Höhe nicht negativ wird
+
+            drawRuler(); drawHorizontalRuler(); drawStopwatchMarks(); drawSubdialMarks();
+            drawAnimationCoordinateSystem();
+
+            ui.ball.setAttribute('cx',BALL_START_X_PIXELS); ui.ball.setAttribute('cy',scaleY(h0));
+            
+            ui.toggleVelocityComponents.disabled = !ui.toggleVelocityVector.checked;
+            if (!ui.toggleVelocityVector.checked) {
+                ui.toggleVelocityComponents.checked = false;
+            }
+            const cx_initial = BALL_START_X_PIXELS;
+            const cy_initial = scaleY(h0);
+            if(ui.toggleAccelerationVector.checked){ui.accelerationVector.setAttribute('visibility','visible');ui.accelerationVector.setAttribute('x1',cx_initial);ui.accelerationVector.setAttribute('y1',cy_initial);ui.accelerationVector.setAttribute('x2',cx_initial);ui.accelerationVector.setAttribute('y2',cy_initial + G * PIXELS_PER_ACCELERATION_UNIT * zoomFactor);}else{ui.accelerationVector.setAttribute('visibility','hidden');}
+            ui.velocityVector.setAttribute('visibility', 'hidden');
+            ui.velocityVectorX.setAttribute('visibility', 'hidden');
+            ui.velocityVectorY.setAttribute('visibility', 'hidden');
+            if(ui.toggleVelocityVector.checked){
+                const showComponents = ui.toggleVelocityComponents.checked;
+                const end_vx = cx_initial + v0_x * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                const end_vy = cy_initial - v0_y * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                if (showComponents) {
+                    ui.velocityVectorX.setAttribute('visibility','visible');
+                    ui.velocityVectorX.setAttribute('x1',cx_initial); ui.velocityVectorX.setAttribute('y1',cy_initial);
+                    ui.velocityVectorX.setAttribute('x2',end_vx); ui.velocityVectorX.setAttribute('y2',cy_initial);
+                    
+                    ui.velocityVectorY.setAttribute('visibility','visible');
+                    ui.velocityVectorY.setAttribute('x1',cx_initial); ui.velocityVectorY.setAttribute('y1',cy_initial);
+                    ui.velocityVectorY.setAttribute('x2',cx_initial); ui.velocityVectorY.setAttribute('y2',end_vy);
+                } else {
+                    ui.velocityVector.setAttribute('visibility','visible');
+                    ui.velocityVector.setAttribute('x1',cx_initial); ui.velocityVector.setAttribute('y1',cy_initial);
+                    ui.velocityVector.setAttribute('x2',end_vx); ui.velocityVector.setAttribute('y2',end_vy);
+                }
+            }
+
+            // NEU: Sichtbarkeit der Uhr-Elemente beim Reset
+            if (isDigitalDisplay) {
+                ui.stopwatchCircle.style.visibility = 'hidden';
+                ui.mainHand.style.visibility = 'hidden';
+                ui.subHand.style.visibility = 'hidden';
+                ui.stopwatchMarks.style.visibility = 'hidden';
+                ui.subdial.style.visibility = 'hidden';
+                ui.digitalDisplayGroup.style.visibility = 'visible';
+                updateDigitalDisplay(simulatedTimeElapsed); // Setze Digitaluhr auf aktuelle (resettete) Zeit
+            } else {
+                ui.stopwatchCircle.style.visibility = 'visible';
+                ui.mainHand.style.visibility = 'visible';
+                ui.subHand.style.visibility = 'visible';
+                ui.stopwatchMarks.style.visibility = 'visible';
+                ui.subdial.style.visibility = 'visible';
+                ui.digitalDisplayGroup.style.visibility = 'hidden';
+                ui.mainHand.setAttribute('x2',280); ui.mainHand.setAttribute('y2',120-60); 
+                ui.subHand.setAttribute('x2',280); ui.subHand.setAttribute('y2',150-15);
+            }
+            
+            const isYGraphRelevant = !ui.toggleXYStacked.checked && ['yt', 'vyt', 'ayt'].includes(ui.graphSelect.value);
+            ui.yAxisConfigSelect.disabled = !isYGraphRelevant;
+            
+            precomputeFlightData();
+
+            // Initial graph update with first point (simulatedTimeElapsed is now 0)
+            const currentSelection = ui.graphSelect.value;
+            const isStacked = ui.toggleXYStacked.checked;
+
+            let initialGraphValue, initialGraphValueTop, initialGraphValueBottom;
+            if (full_t_data.length > 0) {
+                if (isStacked) {
+                    const topTypeMap = { 'pos': 'xt', 'vel': 'vxt', 'acc': 'axt' };
+                    const bottomTypeMap = { 'pos': 'yt', 'vel': 'vyt', 'acc': 'ayt' };
+                    initialGraphValueTop = axisLimits[topTypeMap[currentSelection]].full_data[0];
+                    initialGraphValueBottom = axisLimits[bottomTypeMap[currentSelection] + '_display'].full_data[0];
+                } else {
+                    const isYComponent = ['yt', 'vyt', 'ayt'].includes(currentSelection);
+                    const keySuffix = isYComponent ? '_display' : '';
+                    initialGraphValue = axisLimits[currentSelection + keySuffix].full_data[0];
+                }
+            } else {
+                // If no data (e.g., v0=0), ensure graph point is hidden
+                initialGraphValue = initialGraphValueTop = initialGraphValueBottom = null;
+            }
+
+            updateGraphs(simulatedTimeElapsed, initialGraphValue, initialGraphValueTop, initialGraphValueBottom);
+        }
+        
+        // --- Event Listener Setup ---
+        ['input','change'].forEach(e=>{ui.h0Slider.addEventListener(e, ()=>resetScene(false));ui.v0Slider.addEventListener(e,()=>resetScene(false));ui.alphaSlider.addEventListener(e,()=>resetScene(false))});
+        ui.graphSelect.addEventListener('change',()=>resetScene(false));
+        ui.yAxisConfigSelect.addEventListener('change',()=>resetScene(false));
+        ui.speedRadios.forEach(r=>r.addEventListener('change',()=>resetScene(false)));
+        
+        ui.toggleVelocityVector.addEventListener('change',()=> {
+            ui.toggleVelocityComponents.disabled = !ui.toggleVelocityVector.checked;
+            if (!ui.toggleVelocityVector.checked) {
+                ui.toggleVelocityComponents.checked = false;
+            }
+            resetScene(false);
+        });
+        ui.toggleVelocityComponents.addEventListener('change', () => resetScene(false));
+        ui.toggleAccelerationVector.addEventListener('change',()=>resetScene(false));
+        ui.toggleTrajectory.addEventListener('change', () => resetScene(false));
+        ui.toggleXYStacked.addEventListener('change', () => resetScene(true));
+        ui.resetButton.addEventListener('click',()=>resetScene(false));
+        ui.exportButton.addEventListener('click', exportCsvData);
+
+        // NEU: Easter Egg Klick auf die Uhr
+        ui.stopwatch.addEventListener('click', () => {
+            isDigitalDisplay = !isDigitalDisplay; // Zustand umschalten
+            resetScene(false); // Szene neu initialisieren, um Uhr zu wechseln
+        });
+        
+        ui.playButton.addEventListener('click',()=>{
+            if(!aniFrameId){
+                resetScene(false, true); // Reset scene, but mark it as triggered by play
+                
+                // On play, if trajectory is checked, ensure it starts from beginning
+                if (ui.toggleTrajectory.checked && full_t_data.length > 0) {
+                    ui.trajectoryLine.setAttribute('points', `${scaleX(full_xt_data[0])},${scaleY(full_yt_data[0])} `);
+                    ui.trajectoryLine.style.visibility = 'visible';
+                }
+
+                ui.playButton.disabled=true;ui.pauseButton.disabled=false;
+                ui.h0Slider.disabled=true;ui.v0Slider.disabled=true;ui.alphaSlider.disabled=true;
+                lastFrameTime=0;simulatedTimeElapsed = 0; 
+                ui.speedRadios.forEach(r=>{if(r.checked)speedFactor=parseFloat(r.value)});
+                aniFrameId=requestAnimationFrame(animate)
+            }
+        });
+        ui.pauseButton.addEventListener('click',stopAnimation);
+        window.onload=() => {
+            initDigitalDisplaySegments(); // Initialisiere Digitalanzeige beim Laden
+            resetScene(false);
+        };
+    </script>
+
+</body>
+</html>

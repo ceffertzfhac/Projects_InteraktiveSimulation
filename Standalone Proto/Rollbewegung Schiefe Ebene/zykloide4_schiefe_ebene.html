@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Simulation: Rollende Körper (Hybrid: Y-Zoom & X-Scroll)</title>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js?packages=base,ams,color"></script>
+
+  <style>
+    :root{
+      --bg-color:#f0f2f5;--border-color:#ccc;--text-color:#333;--control-bg:#fff;--label-color:#555;
+      --p1-color:#ffae42;--p2-color:#485fc7;--p3-color:#48c78e;--p4-color:#f14668;
+      --sp-color:#363636;--vector-v-color:#3273dc;--vector-a-color:#ff3860;
+      --force-g-color:#8b5cf6; /* Gewichtskraft */
+      --force-n-color:#10b981; /* Normalkraft */
+      --force-r-color:#f59e0b; /* Reibkraft */
+      --obstacle-color:#9a3412;
+    }
+    body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;flex-direction:column;background-color:var(--bg-color);color:var(--text-color);margin:0;padding:1em}
+    h1{font-weight:300;font-size:1.6em;margin-bottom:.5em}
+    #container{display:flex;flex-direction:column;align-items:center;padding:20px;border:1px solid var(--border-color);border-radius:8px;background-color:var(--control-bg);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+    #main-content{display:flex;gap:20px;align-items:flex-start}
+    #main_svg{border:1px solid var(--border-color);width:600px;height:400px;background:#fff;overflow:hidden;user-select:none}
+    #graph_container{border:1px solid var(--border-color);width:600px;height:400px;position:relative}
+    #graph_svg_single{position:absolute;inset:0;width:100%;height:100%}
+    #controls{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:1220px;padding:20px 0;margin-top:10px;align-items:start}
+    fieldset{border:1px solid var(--border-color);border-radius:6px;padding:10px 15px;margin-top:0;height:100%;box-sizing:border-box}
+    legend{font-weight:bold;color:var(--label-color);padding:0 5px;font-size:.9em}
+    .slider-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:10px}
+    .slider-group .label{text-align:right;color:var(--label-color)}
+    .slider-group .value{font-family:monospace}
+    button,select{padding:8px 12px;border:1px solid var(--border-color);border-radius:4px;background:#f0f0f0;cursor:pointer;font-size:14px}
+    button:hover,select:not(:disabled):hover{background:#e0e0e0}
+    button:disabled,input:disabled,select:disabled{background:#f8f8f8;cursor:not-allowed;color:#aaa}
+    .radio-group div,.checkbox-group div{display:flex;align-items:center;margin-bottom:5px}
+    .radio-group input,.checkbox-group input{margin-right:8px}
+    .select-group{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+    .select-group label{color:var(--label-color);font-size:.9em}
+    footer{margin-top:20px;text-align:center;font-size:.8em;color:#888}
+    #subject_checkboxes{display:grid;grid-template-columns:1fr 1fr}
+    #analysis_panel_container{width:1220px;margin-top:10px}
+    #analysis_panel_header{display:flex;justify-content:space-between;align-items:center;padding:8px 15px;background:#f7f7f7;border:1px solid var(--border-color);border-radius:6px;cursor:pointer}
+    #analysis_panel_header h3{margin:0;font-weight:bold;color:var(--label-color);font-size:.9em}
+    #analysis_panel_toggle{font-family:monospace;font-size:1.2em}
+    #analysis_panel_content{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;padding:15px;border:1px solid var(--border-color);border-top:none;border-radius:0 0 6px 6px}
+    .info-group h4{margin:0 0 8px 0;padding-bottom:4px;border-bottom:1px solid #eee;font-size:.9em}
+    .info-group .info-row{display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:2px;font-size:.9em}
+    .info-group .info-label{color:var(--label-color);text-align:right}
+    .info-group .info-value{font-family:monospace;font-weight:bold}
+    #analysis_panel_container.collapsed #analysis_panel_content{display:none}
+    .object-selection-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid #eee}
+    .object-selection-grid div{display:flex;align-items:center;font-size:.9em}
+  </style>
+</head>
+
+<body>
+  <h1>Interaktive Simulation: Rollende Körper (Schiefe Ebene)</h1>
+  <div id="container">
+    <div id="main-content">
+      <svg id="main_svg" viewBox="0 0 600 400">
+        <defs>
+          <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="currentColor"></polygon>
+          </marker>
+          <marker id="arrowhead-v" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--vector-v-color)"></polygon>
+          </marker>
+          <marker id="arrowhead-a" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--vector-a-color)"></polygon>
+          </marker>
+          <marker id="arrowhead-fg" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--force-g-color)"></polygon>
+          </marker>
+          <marker id="arrowhead-fn" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--force-n-color)"></polygon>
+          </marker>
+          <marker id="arrowhead-fr" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0, 6 2, 0 4" fill="var(--force-r-color)"></polygon>
+          </marker>
+          <radialGradient id="sphereGradient" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#fff"></stop>
+            <stop offset="20%" stop-color="#e0e0e0"></stop>
+            <stop offset="100%" stop-color="#666"></stop>
+          </radialGradient>
+        </defs>
+
+        <g id="ui_layer_fixed">
+        </g>
+
+        <!-- World Group: Wird für das Scrolling transformiert -->
+        <g id="world_group">
+          <g id="background_group">
+            <polygon id="ground_polygon" fill="rgba(0,0,0,0.05)" stroke="none"></polygon>
+            <g id="grid_group"></g>
+          </g>
+
+          <g id="obstacle_group"></g>
+          <g id="traces_group"></g>
+
+          <g id="cylinder_group">
+            <circle id="cylinder_body" r="50" fill="#e0e0e0" stroke="#888" stroke-width="1.5"></circle>
+            <g id="spokes_group" stroke="#999" stroke-width="1" opacity="0.5">
+              <line x1="0" y1="0" x2="0" y2="-50" id="spoke_1"></line>
+              <line x1="0" y1="0" x2="50" y2="0" id="spoke_2"></line>
+              <line x1="0" y1="0" x2="0" y2="50" id="spoke_3"></line>
+              <line x1="0" y1="0" x2="-50" y2="0" id="spoke_4"></line>
+            </g>
+            <circle id="sp_point" r="5" fill="var(--sp-color)"></circle>
+            <circle id="p1_point" r="5" fill="var(--p1-color)" stroke="black" stroke-width="0.5"></circle>
+            <circle id="p2_point" r="5" fill="var(--p2-color)" stroke="black" stroke-width="0.5"></circle>
+            <circle id="p3_point" r="5" fill="var(--p3-color)" stroke="black" stroke-width="0.5"></circle>
+            <circle id="p4_point" r="5" fill="var(--p4-color)" stroke="black" stroke-width="0.5"></circle>
+          </g>
+
+          <g id="vectors_group"></g>
+          <g id="forces_group"></g>
+        </g>
+
+        <g id="vector_legend_group" visibility="hidden" style="font-size:13px" transform="translate(10, 330)">
+          <rect id="vector_legend_rect" x="0" y="0" width="160" height="60" rx="5" fill="white" stroke="#ccc" opacity="0.9"></rect>
+          <g id="legend_v_entry" transform="translate(0, 10)">
+            <line x1="20" y1="15" x2="50" y2="15" stroke="var(--vector-v-color)" stroke-width="2" marker-end="url(#arrowhead-v)"></line>
+            <text x="60" y="20" fill="#333">Geschwindigkeit</text>
+          </g>
+          <g id="legend_a_entry" transform="translate(0, 10)">
+            <line x1="20" y1="15" x2="50" y2="15" stroke="var(--vector-a-color)" stroke-width="2" marker-end="url(#arrowhead-a)"></line>
+            <text x="60" y="20" fill="#333">Beschleunigung</text>
+          </g>
+        </g>
+
+        <g id="force_legend_group" visibility="hidden" style="font-size:13px" transform="translate(10, 250)">
+          <rect id="force_legend_rect" x="0" y="0" width="160" height="85" rx="5" fill="white" stroke="#ccc" opacity="0.9"></rect>
+          <g id="legend_fg_entry" transform="translate(0, 10)">
+            <line x1="20" y1="15" x2="50" y2="15" stroke="var(--force-g-color)" stroke-width="2" marker-end="url(#arrowhead-fg)"></line>
+            <text x="60" y="20" fill="#333">Gewichtskraft</text>
+          </g>
+          <g id="legend_fn_entry" transform="translate(0, 10)">
+            <line x1="20" y1="15" x2="50" y2="15" stroke="var(--force-n-color)" stroke-width="2" marker-end="url(#arrowhead-fn)"></line>
+            <text x="60" y="20" fill="#333">Normalkraft</text>
+          </g>
+          <g id="legend_fr_entry" transform="translate(0, 10)">
+            <line x1="20" y1="15" x2="50" y2="15" stroke="var(--force-r-color)" stroke-width="2" marker-end="url(#arrowhead-fr)"></line>
+            <text x="60" y="20" fill="#333">Reibkraft</text>
+          </g>
+        </g>
+      </svg>
+
+      <div id="graph_container">
+        <svg id="graph_svg_single" viewBox="0 0 600 400">
+          <text class="graph_title" x="300" y="25" text-anchor="middle" font-size="16px"></text>
+          <g class="graph_grid"></g>
+          <g class="graph_axes"></g>
+          <polyline id="graph_line_sp" fill="none" stroke="var(--sp-color)" stroke-width="2"></polyline>
+          <polyline id="graph_line_p1" fill="none" stroke="var(--p1-color)" stroke-width="2"></polyline>
+          <polyline id="graph_line_p2" fill="none" stroke="var(--p2-color)" stroke-width="2"></polyline>
+          <polyline id="graph_line_p3" fill="none" stroke="var(--p3-color)" stroke-width="2"></polyline>
+          <polyline id="graph_line_p4" fill="none" stroke="var(--p4-color)" stroke-width="2"></polyline>
+          <circle id="graph_point_sp" r="4" fill="var(--sp-color)" visibility="hidden"></circle>
+          <circle id="graph_point_p1" r="4" fill="var(--p1-color)" visibility="hidden"></circle>
+          <circle id="graph_point_p2" r="4" fill="var(--p2-color)" visibility="hidden"></circle>
+          <circle id="graph_point_p3" r="4" fill="var(--p3-color)" visibility="hidden"></circle>
+          <circle id="graph_point_p4" r="4" fill="var(--p4-color)" visibility="hidden"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <div id="controls">
+      <fieldset>
+        <legend>Körper & Geometrie</legend>
+
+        <div class="radio-group object-selection-grid">
+          <div><input type="radio" name="object_type" value="solid_cylinder" checked> Vollzylinder</div>
+          <div><input type="radio" name="object_type" value="solid_sphere"> Vollkugel</div>
+          <div><input type="radio" name="object_type" value="thin_cylinder"> Dünnw. Hohlzyl.</div>
+          <div><input type="radio" name="object_type" value="thin_sphere"> Dünnw. Hohlkugel</div>
+          <div><input type="radio" name="object_type" value="thick_cylinder"> Echter Hohlzyl.</div>
+          <div><input type="radio" name="object_type" value="thick_sphere"> Echte Hohlkugel</div>
+        </div>
+
+        <div id="inner_radius_slider_group" class="slider-group"
+          style="display:none;background:#fcfcfc;padding:5px;border-radius:4px;border:1px dashed #ccc;">
+          <span class="label">Innenradius \(R_i/R_A\):</span>
+          <input type="range" id="inner_radius_slider" min="10" max="90" value="50" step="10">
+          <span class="value" id="inner_radius_value">0,50</span>
+        </div>
+
+        <div class="slider-group">
+          <span class="label">Außenradius \(R_A\):</span>
+          <input type="range" id="radius_slider" min="5" max="30" value="15" step="0.5">
+          <span class="value" id="radius_value">15,0 cm</span>
+        </div>
+
+        <div class="slider-group">
+          <span class="label">Startgeschw. \(v_c\):</span>
+          <input type="range" id="velocity_slider" min="10" max="50" value="25" step="5">
+          <span class="value" id="velocity_value">25 cm/s</span>
+        </div>
+
+        <div class="checkbox-group" style="margin-top:15px;">
+          <div>
+            <input type="checkbox" id="point_radius_factor_checkbox">
+            <label for="point_radius_factor_checkbox">Punkte auf Außenrand (\(r = R_A\))</label>
+          </div>
+          <div>
+            <input type="checkbox" id="toggle_follow_sp" checked>
+            <label for="toggle_follow_sp">Kamera folgt SP (Auto-Scroll X)</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Umgebung & Simulation</legend>
+        <div class="radio-group">
+          <label style="font-weight:bold;color:var(--label-color);font-size:.9em;">Modus:</label>
+          <div><input type="radio" name="inclination_mode" value="0" checked> Ebene (0°)</div>
+          <div><input type="radio" name="inclination_mode" value="inclined"> Schräge Ebene (aus Ruhe)</div>
+        </div>
+
+        <div id="inclination_slider_group" class="slider-group" style="display:none;margin-top:5px;">
+          <span class="label">Neigung \(\alpha\):</span>
+          <input type="range" id="inclination_slider" min="5" max="25" value="10" step="0.5">
+          <span class="value" id="inclination_value">10°</span>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:15px;">
+          <button id="play_button">Play</button>
+          <button id="pause_button" disabled>Pause</button>
+          <button id="reset_button">Reset</button>
+          <button id="export_button">Export (CSV)</button>
+        </div>
+
+        <div class="radio-group" style="margin-top:10px;">
+          <label>Simulationsgeschwindigkeit:</label>
+          <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+          <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+          <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+        </div>
+      </fieldset>
+
+      <fieldset style="grid-column:1/-1;">
+        <legend>Visualisierung & Analyse</legend>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="checkbox-group">
+            <div><input type="checkbox" id="toggle_sp_trace"> Bahn Schwerpunkt anzeigen</div>
+            <div><input type="checkbox" id="toggle_traces"> Spuren der Punkte anzeigen</div>
+            <div><input type="checkbox" id="toggle_trace_z_order"> Spuren im Vordergrund</div>
+            <div><input type="checkbox" id="toggle_v_vectors"> Geschwindigkeitsvektoren anzeigen</div>
+            <div><input type="checkbox" id="toggle_a_vectors"> Beschleunigungsvektoren anzeigen</div>
+            <div style="margin-top:8px;"></div>
+            <div><input type="checkbox" id="toggle_f_g"> Gewichtskraft anzeigen</div>
+            <div><input type="checkbox" id="toggle_f_n"> Normalkraft anzeigen</div>
+            <div><input type="checkbox" id="toggle_f_r"> Reibkraft anzeigen</div>
+            <div style="margin-top:6px;color:#666;font-size:.85em;line-height:1.2;">
+              (v/a-Vektoren: Punkte rechts wählbar. Kräfte: aktuell am Schwerpunkt (SP).)
+            </div>
+          </div>
+          <div>
+            <div class="select-group">
+              <label for="graph_select">Diagramm-Anzeige (Lokales KOS):</label>
+              <select id="graph_select"></select>
+            </div>
+            <div class="select-group">
+              <label>Analyse- & Vektor-Objekte:</label>
+              <div id="subject_checkboxes" class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;">
+                <div><input type="checkbox" name="subjects" id="subject_sp" value="sp" checked> SP</div>
+                <div><input type="checkbox" name="subjects" id="subject_p1" value="p1"> P1 (Gelb)</div>
+                <div><input type="checkbox" name="subjects" id="subject_p2" value="p2"> P2 (Blau)</div>
+                <div><input type="checkbox" name="subjects" id="subject_p3" value="p3"> P3 (Grün)</div>
+                <div><input type="checkbox" name="subjects" id="subject_p4" value="p4"> P4 (Rot)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div id="analysis_panel_container">
+      <div id="analysis_panel_header">
+        <h3>Analyse-Daten</h3>
+        <span id="analysis_panel_toggle">[-]</span>
+      </div>
+      <div id="analysis_panel_content"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p><small>&copy; <span id="copyright-year"></span> Physik-Simulationstool</small></p>
+  </footer>
+
+<script>
+  // ---------------- UI ----------------
+  const ui = {
+    radiusSlider: document.getElementById('radius_slider'),
+    velocitySlider: document.getElementById('velocity_slider'),
+    innerRadiusSlider: document.getElementById('inner_radius_slider'),
+    innerRadiusSliderGroup: document.getElementById('inner_radius_slider_group'),
+    innerRadiusValue: document.getElementById('inner_radius_value'),
+    pointRadiusFactorCheckbox: document.getElementById('point_radius_factor_checkbox'),
+    followSpCheckbox: document.getElementById('toggle_follow_sp'),
+
+    inclinationModeRadios: document.querySelectorAll('input[name="inclination_mode"]'),
+    objectTypeRadios: document.querySelectorAll('input[name="object_type"]'),
+    inclinationSliderGroup: document.getElementById('inclination_slider_group'),
+    inclinationSlider: document.getElementById('inclination_slider'),
+    inclinationValue: document.getElementById('inclination_value'),
+
+    radiusValue: document.getElementById('radius_value'),
+    velocityValue: document.getElementById('velocity_value'),
+
+    playButton: document.getElementById('play_button'),
+    pauseButton: document.getElementById('pause_button'),
+    resetButton: document.getElementById('reset_button'),
+    exportButton: document.getElementById('export_button'),
+    speedRadios: document.querySelectorAll('input[name="speed"]'),
+
+    subjectCheckboxes: {
+      sp: document.getElementById('subject_sp'),
+      p1: document.getElementById('subject_p1'),
+      p2: document.getElementById('subject_p2'),
+      p3: document.getElementById('subject_p3'),
+      p4: document.getElementById('subject_p4'),
+    },
+    graphSelect: document.getElementById('graph_select'),
+
+    toggleSpTrace: document.getElementById('toggle_sp_trace'),
+    toggleTraces: document.getElementById('toggle_traces'),
+    toggleTraceZOrder: document.getElementById('toggle_trace_z_order'),
+    toggleVvectors: document.getElementById('toggle_v_vectors'),
+    toggleAvectors: document.getElementById('toggle_a_vectors'),
+
+    toggleFg: document.getElementById('toggle_f_g'),
+    toggleFn: document.getElementById('toggle_f_n'),
+    toggleFr: document.getElementById('toggle_f_r'),
+
+    worldGroup: document.getElementById('world_group'),
+    groundPolygon: document.getElementById('ground_polygon'),
+    gridGroup: document.getElementById('grid_group'),
+    
+    obstacleGroup: document.getElementById('obstacle_group'),
+
+    cylinderGroup: document.getElementById('cylinder_group'),
+    cylinderBody: document.getElementById('cylinder_body'),
+    spokesGroup: document.getElementById('spokes_group'),
+
+    points: {
+      sp: document.getElementById('sp_point'),
+      p1: document.getElementById('p1_point'),
+      p2: document.getElementById('p2_point'),
+      p3: document.getElementById('p3_point'),
+      p4: document.getElementById('p4_point'),
+    },
+
+    tracesGroup: document.getElementById('traces_group'),
+    vectorsGroup: document.getElementById('vectors_group'),
+    forcesGroup: document.getElementById('forces_group'),
+
+    analysisPanelContent: document.getElementById('analysis_panel_content'),
+    analysisPanelHeaderTitle: document.querySelector('#analysis_panel_header h3'),
+    analysisPanelContainer: document.getElementById('analysis_panel_container'),
+    analysisPanelToggle: document.getElementById('analysis_panel_toggle'),
+
+    graphSvgSingle: document.getElementById('graph_svg_single'),
+    copyrightYear: document.getElementById('copyright-year'),
+
+    vectorLegend: document.getElementById('vector_legend_group'),
+    vectorLegendRect: document.getElementById('vector_legend_rect'),
+    legendVEntry: document.getElementById('legend_v_entry'),
+    legendAEntry: document.getElementById('legend_a_entry'),
+
+    forceLegend: document.getElementById('force_legend_group'),
+    forceLegendRect: document.getElementById('force_legend_rect'),
+    legendFgEntry: document.getElementById('legend_fg_entry'),
+    legendFnEntry: document.getElementById('legend_fn_entry'),
+    legendFrEntry: document.getElementById('legend_fr_entry'),
+  };
+
+  // ---------------- Constants & Globals ----------------
+  const SVG_W = 600, SVG_H = 400;
+  let currentPPM = 160; 
+  
+  // -- SCREEN TARGETS --
+  let visStartX = 0;
+  let visEndX = 0;
+  let visStartY = 0; // Fix, kein Scroll
+  
+  // -- RAMP ORIGIN --
+  let currentRampStartX = 0; 
+  let currentRampStartY = 0; 
+
+  const TIME_STEP = 1 / 600;
+  const G_ACCEL = 9.81;
+
+  const DRAW_LEN_M = 50.0; // Draw long ramp for scrolling
+  const STOP_CM_X_M = 5.0; 
+
+  // ---------------- State ----------------
+  let R_m = 0.15;
+  let Vc_m_s = 0.25;
+  let speedFactor = 1.0;
+
+  let animFrameId = null;
+  let lastFrameTime = 0;
+  let simulatedTimeElapsed = 0;
+
+  let currentKFactor = 0.5;
+  let currentAlphaRad = 0;
+  let effectiveSimDuration = 6.0;
+
+  let fullData = {};
+  const subjects = ['sp', 'p1', 'p2', 'p3', 'p4'];
+  const subjectDetails = {
+    sp: { label: 'Schwerpunkt (SP)' },
+    p1: { label: 'Punkt 1 (Gelb)' },
+    p2: { label: 'Punkt 2 (Blau)' },
+    p3: { label: 'Punkt 3 (Grün)' },
+    p4: { label: 'Punkt 4 (Rot)' },
+  };
+  const quantities = ['x', 'y', 'vx', 'vy', 'vabs', 'ax', 'ay', 'aabs'];
+
+  const graphOptions = {
+    x: { label: "Pos. Hangabwärts x(t)", unit: "m" },
+    y: { label: "Pos. Normalenrichtg. y(t)", unit: "m" },
+    vx: { label: "Geschw. Hangabwärts v<sub>x</sub>(t)", unit: "m/s" },
+    vy: { label: "Geschw. Normalenrichtg. v<sub>y</sub>(t)", unit: "m/s" },
+    vabs: { label: "Geschwindigkeitsbetrag |v|(t)", unit: "m/s" },
+    ax: { label: "Beschl. Hangabwärts a<sub>x</sub>(t)", unit: "m/s²" },
+    ay: { label: "Beschl. Normalenrichtg. a<sub>y</sub>(t)", unit: "m/s²" },
+    aabs: { label: "Beschleunigungsbetrag |a|(t)", unit: "m/s²" },
+    omega: { label: "Winkelgeschwindigkeit ω(t)", unit: "rad/s" },
+    alpha: { label: "Winkelbeschleunigung α(t)", unit: "rad/s²" },
+  };
+
+  const subjectColors = {
+    sp: 'var(--sp-color)',
+    p1: 'var(--p1-color)', p2: 'var(--p2-color)', p3: 'var(--p3-color)', p4: 'var(--p4-color)'
+  };
+
+  // ---------------- Helpers ----------------
+  function formatNumber(num, digits = 3) {
+    if (typeof num !== 'number' || isNaN(num)) return '...';
+    return num.toFixed(digits).replace('.', ',');
+  }
+  function createSVGElement(tag, attributes) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const key in attributes) el.setAttribute(key, attributes[key]);
+    return el;
+  }
+  function createStyledSvgText(svgElement, textString) {
+    const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g;
+    let match;
+    svgElement.innerHTML = '';
+    while ((match = regex.exec(textString)) !== null) {
+      if (match[1]) svgElement.appendChild(createSVGElement('tspan', { 'font-style': 'italic' })).textContent = match[1];
+      else if (match[2]) svgElement.appendChild(createSVGElement('tspan', { 'baseline-shift': 'sub', 'font-size': '70%' })).textContent = match[2];
+      else if (match[3]) svgElement.appendChild(document.createTextNode(match[3]));
+    }
+  }
+  function getNiceTickStep(range, ticks) {
+    if (range < 1e-12) return 1;
+    const m = range / ticks;
+    const e = Math.floor(Math.log10(m));
+    const p = 10 ** e;
+    let n = m / p;
+    if (n <= 1) n = 1; else if (n <= 2) n = 2; else if (n <= 5) n = 5; else n = 10;
+    return n * p;
+  }
+
+  // ---------------- Transform ----------------
+  // Berechnet die "absolute" Bildschirmposition eines Punktes (ohne Scrolling)
+  function physToScreen(x_local, y_local) {
+    const ca = Math.cos(currentAlphaRad);
+    const sa = Math.sin(currentAlphaRad);
+    const px_m = currentPPM;
+    const sx = currentRampStartX + (x_local * px_m) * ca + (y_local * px_m) * sa;
+    const sy = currentRampStartY + (x_local * px_m) * sa - (y_local * px_m) * ca;
+    return { x: sx, y: sy };
+  }
+
+  function localVecToScreen(vx, vy) {
+    const ca = Math.cos(currentAlphaRad);
+    const sa = Math.sin(currentAlphaRad);
+    return { x: vx * ca + vy * sa, y: vx * sa - vy * ca };
+  }
+
+  // ---------------- Physics ----------------
+  function inertiaKFactor() {
+    const type = document.querySelector('input[name="object_type"]:checked').value;
+    const beta = parseInt(ui.innerRadiusSlider.value, 10) / 100.0;
+    if (type === 'solid_cylinder') return 0.5;
+    if (type === 'solid_sphere') return 0.4;
+    if (type === 'thin_cylinder') return 1.0;
+    if (type === 'thin_sphere') return 2 / 3;
+    if (type === 'thick_cylinder') return 0.5 * (1 + beta ** 2);
+    if (type === 'thick_sphere') return 0.4 * (1 - beta ** 5) / (1 - beta ** 3);
+    return 0.5;
+  }
+
+  function updateObjectVisuals() {
+    const type = document.querySelector('input[name="object_type"]:checked').value;
+    const body = ui.cylinderBody;
+    const spokes = ui.spokesGroup;
+
+    body.setAttribute('fill', '#e0e0e0');
+    body.setAttribute('fill-opacity', '1');
+    body.setAttribute('stroke', '#888');
+    body.setAttribute('stroke-width', '1.5');
+    spokes.setAttribute('opacity', '0.5');
+
+    if (type === 'solid_sphere') {
+      body.setAttribute('fill', 'url(#sphereGradient)');
+      body.setAttribute('stroke-width', '0');
+      spokes.setAttribute('opacity', '0.3');
+    } else if (type === 'thin_cylinder' || type === 'thin_sphere') {
+      body.setAttribute('fill', 'none');
+      body.setAttribute('stroke', '#666');
+      body.setAttribute('stroke-width', '5');
+    } else if (type === 'thick_cylinder' || type === 'thick_sphere') {
+      body.setAttribute('fill', 'none');
+      body.setAttribute('stroke', '#777');
+    }
+  }
+
+  function precomputeMotionData() {
+    fullData = { t: [], omega: [], alpha: [] };
+    subjects.forEach(s => quantities.forEach(q => { fullData[`${s}_${q}`] = []; }));
+
+    const pointRadiusFactor = ui.pointRadiusFactorCheckbox.checked ? 1.0 : 0.9;
+    const r_m = R_m * pointRadiusFactor;
+
+    const k = inertiaKFactor();
+    currentKFactor = k;
+
+    const initialAngles = { p1: Math.PI / 2, p2: Math.PI, p3: 3 * Math.PI / 2, p4: 0 };
+
+    const mode = document.querySelector('input[name="inclination_mode"]:checked').value;
+    const isInclined = (mode === 'inclined');
+
+    const v0 = isInclined ? 0 : Vc_m_s;
+    const a_cm = isInclined ? (G_ACCEL * Math.sin(currentAlphaRad)) / (1 + k) : 0;
+    const alpha_ang = a_cm / R_m;
+
+    if (Math.abs(a_cm) < 1e-12) {
+      effectiveSimDuration = (v0 > 1e-9) ? (STOP_CM_X_M / v0) : 10.0;
+    } else {
+      effectiveSimDuration = Math.sqrt(2 * STOP_CM_X_M / a_cm);
+    }
+    effectiveSimDuration = Math.min(Math.max(effectiveSimDuration, 0.5), 120);
+
+    for (let t = 0; t <= effectiveSimDuration + 1e-2; t += TIME_STEP) {
+      fullData.t.push(t);
+
+      const x_c = v0 * t + 0.5 * a_cm * t * t;
+      const v_c = v0 + a_cm * t;
+
+      const phi = x_c / R_m;
+      const omega = v_c / R_m;
+
+      fullData.omega.push(omega);
+      fullData.alpha.push(alpha_ang);
+
+      fullData.sp_x.push(x_c);
+      fullData.sp_y.push(R_m);
+      fullData.sp_vx.push(v_c);
+      fullData.sp_vy.push(0);
+      fullData.sp_vabs.push(Math.abs(v_c));
+      fullData.sp_ax.push(a_cm);
+      fullData.sp_ay.push(0);
+      fullData.sp_aabs.push(Math.abs(a_cm));
+
+      for (const p in initialAngles) {
+        const angle = initialAngles[p] - phi;
+        const ca = Math.cos(angle);
+        const sa = Math.sin(angle);
+
+        const dx = r_m * ca;
+        const dy = r_m * sa;
+
+        fullData[`${p}_x`].push(x_c + dx);
+        fullData[`${p}_y`].push(R_m + dy);
+
+        const v_rot_x = omega * r_m * sa;
+        const v_rot_y = -omega * r_m * ca;
+        const vx = v_c + v_rot_x;
+        const vy = v_rot_y;
+
+        fullData[`${p}_vx`].push(vx);
+        fullData[`${p}_vy`].push(vy);
+        fullData[`${p}_vabs`].push(Math.hypot(vx, vy));
+
+        const atan_x = alpha_ang * r_m * sa;
+        const atan_y = -alpha_ang * r_m * ca;
+
+        const arad_x = -omega * omega * r_m * ca;
+        const arad_y = -omega * omega * r_m * sa;
+
+        const ax = a_cm + atan_x + arad_x;
+        const ay = atan_y + arad_y;
+
+        fullData[`${p}_ax`].push(ax);
+        fullData[`${p}_ay`].push(ay);
+        fullData[`${p}_aabs`].push(Math.hypot(ax, ay));
+      }
+    }
+  }
+
+  // ---------------- Drawing ----------------
+  function drawObstacleAtCmStop() {
+    ui.obstacleGroup.innerHTML = '';
+    
+    let cylStrokePx = 1.5;
+    const objType = document.querySelector('input[name="object_type"]:checked').value;
+    if (objType.includes('thin')) cylStrokePx = 5;
+    
+    const wallStrokePx = 1.0; 
+    const totalGapPx = (cylStrokePx / 2) + (wallStrokePx / 2);
+    const gapM = totalGapPx / currentPPM;
+    
+    const x_wall_start = STOP_CM_X_M + R_m + gapM;
+    
+    const h = 25; 
+    const w = 15; 
+    
+    const p0 = physToScreen(x_wall_start, 0);
+    const p1 = physToScreen(x_wall_start + (w/currentPPM), 0);
+    const p2 = physToScreen(x_wall_start + (w/currentPPM), h/currentPPM);
+    const p3 = physToScreen(x_wall_start, h/currentPPM);
+
+    ui.obstacleGroup.appendChild(createSVGElement('polygon', {
+      points: `${p0.x},${p0.y} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`,
+      fill: 'var(--obstacle-color)',
+      opacity: '0.9',
+      stroke: '#5a1a00',
+      'stroke-width': wallStrokePx
+    }));
+  }
+
+  function drawBackground() {
+    ui.gridGroup.innerHTML = '';
+
+    const start = physToScreen(-5, 0); 
+    const end = physToScreen(DRAW_LEN_M, 0);
+    const polyPts = [
+      start.x, start.y,
+      end.x, end.y,
+      end.x + 200*Math.sin(currentAlphaRad), end.y + 1200, 
+      start.x - 200, start.y + 1200
+    ];
+    ui.groundPolygon.setAttribute('points', polyPts.join(','));
+
+    // Rampenlinie (X-Achse)
+    const rampEnd = physToScreen(DRAW_LEN_M, 0);
+    ui.gridGroup.appendChild(createSVGElement('line', {
+      x1: start.x, y1: start.y, x2: rampEnd.x, y2: rampEnd.y,
+      stroke: '#333', 'stroke-width': 2
+    }));
+
+    // Y-Achse bei x=0
+    const origin = physToScreen(0, 0);
+    const yAxisVis = physToScreen(0, 2.0); 
+    ui.gridGroup.appendChild(createSVGElement('line', {
+      x1: origin.x, y1: origin.y, x2: yAxisVis.x, y2: yAxisVis.y,
+      stroke: '#bbb', 
+      'stroke-width': 1.5, 
+      'stroke-dasharray': '6,4',
+      'marker-end': 'url(#arrowhead)'
+    }));
+    
+    const yLabelPos = physToScreen(-0.1, 1.9);
+    const yText = createSVGElement('text', {
+        x: yLabelPos.x, y: yLabelPos.y, 'font-size':'14px', 'font-style':'italic', fill:'#888'
+    });
+    yText.textContent = "y";
+    ui.gridGroup.appendChild(yText);
+    
+    const xLabelPos = physToScreen(DRAW_LEN_M + 0.1, 0);
+    const xText = createSVGElement('text', {
+        x: xLabelPos.x, y: xLabelPos.y, 'font-size':'14px', 'font-style':'italic'
+    });
+    xText.textContent = "x";
+    ui.gridGroup.appendChild(xText);
+
+    const labelRotDeg = currentAlphaRad * 180 / Math.PI;
+    const drawMaxX = STOP_CM_X_M + 2.0; 
+
+    for (let x_m = 0; x_m <= drawMaxX; x_m += 0.5) {
+      const isLabel = (Math.abs(x_m % 1) < 0.01);
+      
+      const tickStart = physToScreen(x_m, 0);
+      const tickLen = isLabel ? 10 : 5;
+      
+      const tx = tickStart.x + tickLen * Math.sin(currentAlphaRad);
+      const ty = tickStart.y - tickLen * Math.cos(currentAlphaRad);
+
+      ui.gridGroup.appendChild(createSVGElement('line', {
+        x1: tickStart.x, y1: tickStart.y, x2: tx, y2: ty,
+        stroke: '#333', 'stroke-width': isLabel ? 2 : 1
+      }));
+
+      if (isLabel) {
+        const textDist = 25;
+        const lx = tickStart.x + textDist * Math.sin(currentAlphaRad);
+        const ly = tickStart.y - textDist * Math.cos(currentAlphaRad);
+        
+        const text = createSVGElement('text', {
+          x: lx, y: ly,
+          'text-anchor': 'middle', 'dominant-baseline': 'middle',
+          'font-size': '13px', 'font-weight': 'normal', fill: '#444',
+          transform: `rotate(${labelRotDeg}, ${lx}, ${ly})`
+        });
+        text.textContent = `${formatNumber(x_m, 2)} m`;
+        ui.gridGroup.appendChild(text);
+      }
+    }
+  }
+
+  function updateTraceZOrder() {
+    if (ui.toggleTraceZOrder.checked) ui.worldGroup.appendChild(ui.tracesGroup);
+    else ui.worldGroup.insertBefore(ui.tracesGroup, ui.cylinderGroup);
+  }
+
+  function drawTraces(time) {
+    ui.tracesGroup.innerHTML = '';
+    const numPoints = Math.min(fullData.t.length - 1, Math.floor(time / TIME_STEP));
+
+    const drawTrace = (subjectKey, color) => {
+      let path = '';
+      const step = 2; 
+      for (let i = 0; i <= numPoints; i += step) {
+        const pt = physToScreen(fullData[`${subjectKey}_x`][i], fullData[`${subjectKey}_y`][i]);
+        path += (i === 0 ? 'M' : 'L') + `${pt.x},${pt.y}`;
+      }
+      ui.tracesGroup.appendChild(createSVGElement('path', { d: path, fill: 'none', stroke: color, 'stroke-width': 1.5, opacity: 0.5 }));
+    };
+
+    if (ui.toggleSpTrace.checked) drawTrace('sp', subjectColors.sp);
+    if (ui.toggleTraces.checked) ['p1', 'p2', 'p3', 'p4'].forEach(p => drawTrace(p, subjectColors[p]));
+  }
+
+  function drawVectors(interp) {
+    const showV = ui.toggleVvectors.checked;
+    const showA = ui.toggleAvectors.checked;
+    const activeSubjects = subjects.filter(s => ui.subjectCheckboxes[s].checked);
+    const showLegend = (showV || showA) && activeSubjects.length > 0;
+
+    ui.vectorLegend.setAttribute('visibility', showLegend ? 'visible' : 'hidden');
+    if (!showLegend) { ui.vectorsGroup.innerHTML = ''; return; }
+
+    ui.legendVEntry.setAttribute('visibility', showV ? 'visible' : 'hidden');
+    ui.legendAEntry.setAttribute('visibility', showA ? 'visible' : 'hidden');
+
+    // Legend layout: keep a stable baseline even if only A is shown
+    const LEGEND_Y = 10;
+    ui.legendVEntry.setAttribute('transform', `translate(0, ${LEGEND_Y})`);
+    ui.legendAEntry.setAttribute('transform', `translate(0, ${showV ? 24 : LEGEND_Y})`);
+    ui.vectorLegendRect.setAttribute('height', (showV && showA) ? '60' : '35');
+
+    ui.vectorsGroup.innerHTML = '';
+
+    const V_SCALE = 45;
+    const A_SCALE = 12;
+
+    for (const s of activeSubjects) {
+      const pos = physToScreen(interp(fullData[`${s}_x`]), interp(fullData[`${s}_y`]));
+
+      if (showV) {
+        const vx = interp(fullData[`${s}_vx`]);
+        const vy = interp(fullData[`${s}_vy`]);
+        const vScr = localVecToScreen(vx, vy);
+        ui.vectorsGroup.appendChild(createSVGElement('line', {
+          x1: pos.x, y1: pos.y,
+          x2: pos.x + vScr.x * V_SCALE,
+          y2: pos.y + vScr.y * V_SCALE,
+          stroke: 'var(--vector-v-color)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-v)'
+        }));
+      }
+      if (showA) {
+        const ax = interp(fullData[`${s}_ax`]);
+        const ay = interp(fullData[`${s}_ay`]);
+        const aScr = localVecToScreen(ax, ay);
+        ui.vectorsGroup.appendChild(createSVGElement('line', {
+          x1: pos.x, y1: pos.y,
+          x2: pos.x + aScr.x * A_SCALE,
+          y2: pos.y + aScr.y * A_SCALE,
+          stroke: 'var(--vector-a-color)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-a)'
+        }));
+      }
+    }
+  }
+
+  function drawForces(spPosAbsScreen) {
+    const showFg = ui.toggleFg.checked;
+    const showFn = ui.toggleFn.checked;
+    const showFr = ui.toggleFr.checked;
+    const spSelected = ui.subjectCheckboxes.sp.checked;
+    const showLegend = (showFg || showFn || showFr) && spSelected;
+
+    ui.forceLegend.setAttribute('visibility', showLegend ? 'visible' : 'hidden');
+    if (!showLegend) { ui.forcesGroup.innerHTML = ''; return; }
+
+    // Legend layout (stack visible entries)
+    const entries = [
+      { el: ui.legendFgEntry, show: showFg },
+      { el: ui.legendFnEntry, show: showFn },
+      { el: ui.legendFrEntry, show: showFr },
+    ];
+    const LEGEND_Y = 10;
+    const DY = 24;
+    let idx = 0;
+    for (const e of entries) {
+      e.el.setAttribute('visibility', e.show ? 'visible' : 'hidden');
+      if (e.show) {
+        e.el.setAttribute('transform', `translate(0, ${LEGEND_Y + idx * DY})`);
+        idx++;
+      }
+    }
+    ui.forceLegendRect.setAttribute('height', String(idx > 0 ? (idx === 1 ? 35 : (idx === 2 ? 60 : 85)) : 0));
+
+    ui.forcesGroup.innerHTML = '';
+
+    // Kräfte werden am Schwerpunkt (SP) gezeichnet.
+    // Für die Visualisierung setzen wir m = 1 kg (Skalierung rein optisch).
+    const m = 1.0;
+    const ca = Math.cos(currentAlphaRad);
+    const sa = Math.sin(currentAlphaRad);
+
+    // Zerlegung der Gewichtskraft in lokales Koordinatensystem (x entlang der Ebene, y normal nach außen)
+    const Fg = { x: m * G_ACCEL * sa, y: -m * G_ACCEL * ca };
+    // Normalkraft (bei reinem Rollen ohne Abheben: N = m g cos(alpha))
+    const Fn = { x: 0, y: m * G_ACCEL * ca };
+    // Reibkraft (statisch, liefert Drehmoment): Betrag aus F = m a = m g sin(alpha) - F_r
+    // => F_r = m g sin(alpha) * k/(1+k), Richtung hangaufwärts (negatives x)
+    const k = currentKFactor;
+    const FrMag = Math.abs(sa) < 1e-12 ? 0 : (m * G_ACCEL * sa) * (k / (1 + k));
+    const Fr = { x: -FrMag, y: 0 };
+
+    const FORCE_SCALE = 6; // px pro Newton (rein visuell)
+
+    const drawForce = (F_local, stroke, marker) => {
+      const fScr = localVecToScreen(F_local.x, F_local.y);
+      ui.forcesGroup.appendChild(createSVGElement('line', {
+        x1: spPosAbsScreen.x,
+        y1: spPosAbsScreen.y,
+        x2: spPosAbsScreen.x + fScr.x * FORCE_SCALE,
+        y2: spPosAbsScreen.y + fScr.y * FORCE_SCALE,
+        stroke,
+        'stroke-width': 2,
+        'marker-end': marker
+      }));
+    };
+
+    if (showFg) drawForce(Fg, 'var(--force-g-color)', 'url(#arrowhead-fg)');
+    if (showFn) drawForce(Fn, 'var(--force-n-color)', 'url(#arrowhead-fn)');
+    if (showFr) drawForce(Fr, 'var(--force-r-color)', 'url(#arrowhead-fr)');
+  }
+
+  function rebuildAnalysisPanel() {
+    ui.analysisPanelContent.innerHTML = '';
+    const activeSubjects = subjects.filter(s => ui.subjectCheckboxes[s].checked);
+
+    activeSubjects.forEach(s => {
+      const group = document.createElement('div');
+      group.className = 'info-group';
+      group.innerHTML = `
+        <h4 style="color:${subjectColors[s]}">${subjectDetails[s].label}</h4>
+        <div class="info-row"><span class="info-label">\\(x'\\) (Hang):</span><span class="info-value" id="info_x_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(y'\\) (Norm):</span><span class="info-value" id="info_y_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(v_x'\\):</span><span class="info-value" id="info_vx_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(v_y'\\):</span><span class="info-value" id="info_vy_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(|\\vec{v}|\\):</span><span class="info-value" id="info_vabs_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(a_x'\\):</span><span class="info-value" id="info_ax_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(a_y'\\):</span><span class="info-value" id="info_ay_${s}">...</span></div>
+        <div class="info-row"><span class="info-label">\\(|\\vec{a}|\\):</span><span class="info-value" id="info_aabs_${s}">...</span></div>
+      `;
+      ui.analysisPanelContent.appendChild(group);
+    });
+
+    if (window.MathJax) MathJax.typesetPromise([ui.analysisPanelContent]);
+  }
+
+  function updateAnalysisPanel(interp) {
+    const activeSubjects = subjects.filter(s => ui.subjectCheckboxes[s].checked);
+    activeSubjects.forEach(s => {
+      document.getElementById(`info_x_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_x`]))} m`;
+      document.getElementById(`info_y_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_y`]))} m`;
+      document.getElementById(`info_vx_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_vx`]))} m/s`;
+      document.getElementById(`info_vy_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_vy`]))} m/s`;
+      document.getElementById(`info_vabs_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_vabs`]))} m/s`;
+      document.getElementById(`info_ax_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_ax`]))} m/s²`;
+      document.getElementById(`info_ay_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_ay`]))} m/s²`;
+      document.getElementById(`info_aabs_${s}`).textContent = `${formatNumber(interp(fullData[`${s}_aabs`]))} m/s²`;
+    });
+  }
+
+  function updateGraph(time) {
+    const svg = ui.graphSvgSingle;
+    const title = svg.querySelector('.graph_title');
+    const grid = svg.querySelector('.graph_grid');
+    const axesGrp = svg.querySelector('.graph_axes');
+
+    subjects.forEach(s => {
+      document.getElementById(`graph_line_${s}`).setAttribute('points', '');
+      document.getElementById(`graph_point_${s}`).style.visibility = 'hidden';
+    });
+    grid.innerHTML = '';
+    axesGrp.innerHTML = '';
+
+    const G_W = 600, G_H = 400;
+    const P = { top: 40, right: 50, bottom: 40, left: 60 };
+    const PLOT_W = G_W - P.left - P.right, PLOT_H = G_H - P.top - P.bottom;
+
+    const activeSubjects = subjects.filter(s => ui.subjectCheckboxes[s].checked);
+    const quantity = ui.graphSelect.value;
+    const isBodyQuantity = (quantity === 'omega' || quantity === 'alpha');
+
+    if (!isBodyQuantity && activeSubjects.length === 0) return;
+
+    const t_max_display = Math.max(effectiveSimDuration, 0.1);
+    const t_min_display = 0;
+    const time_range_display = t_max_display;
+
+    let endIndex = fullData.t.findIndex(tVal => tVal > t_max_display);
+    if (endIndex === -1) endIndex = fullData.t.length;
+
+    let val_min = Infinity, val_max = -Infinity;
+    if (isBodyQuantity) {
+      const w = (fullData[quantity] || []).slice(0, endIndex);
+      if (!w.length) return;
+      val_min = Math.min(...w); val_max = Math.max(...w);
+    } else {
+      activeSubjects.forEach(s => {
+        const w = fullData[`${s}_${quantity}`].slice(0, endIndex);
+        val_min = Math.min(val_min, ...w);
+        val_max = Math.max(val_max, ...w);
+      });
+    }
+
+    if (Math.abs(val_max - val_min) < 1e-12) { val_min -= 1; val_max += 1; }
+    else { const pad = (val_max - val_min) * 0.1; val_min -= pad; val_max += pad; }
+
+    const scaleT = (t_v) => P.left + ((t_v - t_min_display) / time_range_display) * PLOT_W;
+    const scaleY = (v) => P.top + PLOT_H - ((v - val_min) / (val_max - val_min)) * PLOT_H;
+
+    const axisAttrs = { stroke: 'black', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' };
+    
+    axesGrp.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: P.top + PLOT_H, x2: G_W - P.right, y2: P.top + PLOT_H }));
+    axesGrp.appendChild(createSVGElement('line', { ...axisAttrs, x1: P.left, y1: P.top + PLOT_H, x2: P.left, y2: P.top }));
+
+    const y_tick_step = getNiceTickStep(val_max - val_min, 8);
+    for (let v = Math.ceil(val_min / y_tick_step) * y_tick_step; v <= val_max + 1e-12; v += y_tick_step) {
+      const y = scaleY(v);
+      if (y < P.top || y > P.top + PLOT_H) continue;
+      grid.appendChild(createSVGElement('line', { x1: P.left, y1: y, x2: P.left + PLOT_W, y2: y, stroke: '#eee' }));
+      axesGrp.appendChild(createSVGElement('line', { x1: P.left, y1: y, x2: P.left - 5, y2: y, stroke: 'black', 'stroke-width': 1 }));
+      
+      const lbl = createSVGElement('text', { x: P.left - 8, y: y + 4, 'font-size': '12px', 'text-anchor': 'end' });
+      lbl.textContent = formatNumber(v, y_tick_step % 1 === 0 ? 0 : 2);
+      axesGrp.appendChild(lbl);
+    }
+
+    const t_tick_step = getNiceTickStep(time_range_display, 10);
+    for (let tg = Math.ceil(t_min_display / t_tick_step) * t_tick_step; tg <= t_max_display + 1e-12; tg += t_tick_step) {
+      const x = scaleT(tg);
+      grid.appendChild(createSVGElement('line', { x1: x, y1: P.top, x2: x, y2: P.top + PLOT_H, stroke: '#eee' }));
+      axesGrp.appendChild(createSVGElement('line', { x1: x, y1: P.top + PLOT_H, x2: x, y2: P.top + PLOT_H + 5, stroke: 'black', 'stroke-width': 1 }));
+
+      const lbl = createSVGElement('text', { x: x, y: P.top + PLOT_H + 15, 'font-size': '12px', 'text-anchor': 'middle' });
+      lbl.textContent = formatNumber(tg, t_tick_step < 1 ? 1 : 0);
+      axesGrp.appendChild(lbl);
+    }
+
+    title.innerHTML = `${graphOptions[quantity].label.replace(/\(t\)/, '')} vs. Zeit`;
+    if (window.MathJax) MathJax.typesetPromise([title]);
+
+    const yLabel = createSVGElement('text', {
+      transform: `rotate(-90, ${P.left - 45}, ${P.top + PLOT_H / 2})`,
+      x: P.left - 45, y: P.top + PLOT_H / 2, 'text-anchor': 'middle', 'font-size': '13px'
+    });
+    createStyledSvgText(yLabel, `${graphOptions[quantity].label.replace(/\(t\)/, '')} / ${graphOptions[quantity].unit}`);
+    axesGrp.appendChild(yLabel);
+
+    const tLabel = createSVGElement('text', { x: P.left + PLOT_W / 2, y: P.top + PLOT_H + 30, 'text-anchor': 'middle', 'font-size': '13px' });
+    createStyledSvgText(tLabel, 'Zeit <i>t</i> / s');
+    axesGrp.appendChild(tLabel);
+
+    let plotIndex = fullData.t.findIndex(tVal => tVal > time);
+    if (plotIndex === -1 && time > 0) plotIndex = fullData.t.length;
+
+    const plotSingleTrace = (data, lineEl, pointEl) => {
+      const pts = [];
+      data.slice(0, plotIndex).forEach((val, i) => pts.push(`${scaleT(fullData.t[i])},${scaleY(val)}`));
+
+      let currentValue = null;
+      if (time <= effectiveSimDuration + 1e-9) {
+        const i = Math.max(0, plotIndex - 1);
+        const t1 = fullData.t[i], t2 = fullData.t[i + 1] ?? t1;
+        const a = (t2 > t1) ? (time - t1) / (t2 - t1) : 0;
+        currentValue = data[i] + a * ((data[i + 1] ?? data[i]) - data[i]);
+        pts.push(`${scaleT(time)},${scaleY(currentValue)}`);
+      }
+
+      lineEl.setAttribute('points', pts.join(' '));
+      if (currentValue !== null) {
+        pointEl.setAttribute('cx', scaleT(time));
+        pointEl.setAttribute('cy', scaleY(currentValue));
+        pointEl.style.visibility = 'visible';
+      }
+    };
+
+    if (isBodyQuantity) {
+      plotSingleTrace(fullData[quantity], document.getElementById('graph_line_sp'), document.getElementById('graph_point_sp'));
+    } else {
+      activeSubjects.forEach(s => plotSingleTrace(
+        fullData[`${s}_${quantity}`],
+        document.getElementById(`graph_line_${s}`),
+        document.getElementById(`graph_point_${s}`)
+      ));
+    }
+  }
+
+  function updateScene(time) {
+    let i = 0;
+    while (i < fullData.t.length - 2 && fullData.t[i + 1] <= time) i++;
+    const t1 = fullData.t[i];
+    const t2 = fullData.t[i + 1] ?? t1;
+    const a = (t2 > t1) ? (time - t1) / (t2 - t1) : 0;
+    const interp = (arr) => arr[i] + a * ((arr[i + 1] ?? arr[i]) - arr[i]);
+
+    const sp_x_local = interp(fullData.sp_x);
+    const sp_y_local = interp(fullData.sp_y);
+    const sp_screen_abs = physToScreen(sp_x_local, sp_y_local);
+    
+    // ---- SCROLLING LOGIC (NUR X) ----
+    let scroll_x_px = 0;
+    let scroll_y_px = 0; // Immer 0, da wir den Y-Fit über den Zoom (PPM) machen
+
+    if (ui.followSpCheckbox.checked) {
+        // Linear Interpolation des Scroll-Ziels
+        const progress = Math.min(1.0, sp_x_local / STOP_CM_X_M);
+        const targetScreenX = visStartX + progress * (visEndX - visStartX);
+        
+        // Verschiebung, damit Kugel bei targetScreenX landet
+        scroll_x_px = targetScreenX - sp_screen_abs.x;
+    }
+
+    ui.worldGroup.setAttribute('transform', `translate(${scroll_x_px}, ${scroll_y_px})`);
+    ui.cylinderGroup.setAttribute('transform', `translate(${sp_screen_abs.x}, ${sp_screen_abs.y})`);
+
+    const R_px = R_m * currentPPM;
+    const objType = document.querySelector('input[name="object_type"]:checked').value;
+    let strokeWidth = 0;
+    if (objType === 'solid_cylinder') strokeWidth = 1.5;
+    else if (objType === 'solid_sphere') strokeWidth = 0;
+    else if (objType === 'thin_cylinder' || objType === 'thin_sphere') strokeWidth = 5;
+    else {
+      const beta = parseInt(ui.innerRadiusSlider.value, 10) / 100.0;
+      strokeWidth = Math.max(1, R_px - R_px * beta);
+    }
+    ui.cylinderBody.setAttribute('r', Math.max(1, R_px - strokeWidth / 2));
+    if (strokeWidth > 0) ui.cylinderBody.setAttribute('stroke-width', strokeWidth);
+
+    const p1_scr = physToScreen(interp(fullData.p1_x), interp(fullData.p1_y));
+    const dx = p1_scr.x - sp_screen_abs.x;
+    const dy = p1_scr.y - sp_screen_abs.y;
+    const screen_rot_rad = Math.atan2(dy, dx);
+    ui.spokesGroup.setAttribute('transform', `rotate(${(screen_rot_rad * 180 / Math.PI) + 90})`);
+
+    [1,2,3,4].forEach(idx => {
+      const line = document.getElementById(`spoke_${idx}`);
+      if (idx === 1) line.setAttribute('y2', -R_px);
+      if (idx === 2) line.setAttribute('x2', R_px);
+      if (idx === 3) line.setAttribute('y2', R_px);
+      if (idx === 4) line.setAttribute('x2', -R_px);
+    });
+
+    ['p1','p2','p3','p4'].forEach(p => {
+      const pos = physToScreen(interp(fullData[`${p}_x`]), interp(fullData[`${p}_y`]));
+      ui.points[p].setAttribute('cx', pos.x - sp_screen_abs.x);
+      ui.points[p].setAttribute('cy', pos.y - sp_screen_abs.y);
+    });
+    ui.points.sp.setAttribute('cx', 0);
+    ui.points.sp.setAttribute('cy', 0);
+
+    drawTraces(time);
+    drawVectors(interp);
+    drawForces(sp_screen_abs);
+    updateAnalysisPanel(interp);
+    updateGraph(time);
+  }
+
+  function updateInclinationControls() {
+    const mode = document.querySelector('input[name="inclination_mode"]:checked').value;
+    const inclined = (mode === 'inclined');
+    ui.inclinationSliderGroup.style.display = inclined ? 'grid' : 'none';
+    ui.velocitySlider.disabled = inclined;
+    ui.velocityValue.style.opacity = inclined ? 0.5 : 1.0;
+  }
+
+  function resetScene(isPlayTrigger = false) {
+    stopAnimation();
+    if (!isPlayTrigger) { simulatedTimeElapsed = 0; lastFrameTime = 0; }
+
+    R_m = parseFloat(ui.radiusSlider.value) / 100;
+    Vc_m_s = parseFloat(ui.velocitySlider.value) / 100;
+
+    const mode = document.querySelector('input[name="inclination_mode"]:checked').value;
+    const angle_deg = (mode === 'inclined') ? parseFloat(ui.inclinationSlider.value) : 0;
+    currentAlphaRad = angle_deg * (Math.PI / 180);
+
+    ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+
+    ui.radiusValue.textContent = `${formatNumber(R_m * 100, 1)} cm`;
+    ui.velocityValue.textContent = `${formatNumber(Vc_m_s * 100, 0)} cm/s`;
+
+    const objType = document.querySelector('input[name="object_type"]:checked').value;
+    const needsInnerRadius = (objType === 'thick_cylinder' || objType === 'thick_sphere');
+    ui.innerRadiusSliderGroup.style.display = needsInnerRadius ? 'grid' : 'none';
+    ui.innerRadiusValue.textContent = formatNumber(parseInt(ui.innerRadiusSlider.value, 10) / 100, 2);
+
+    updateObjectVisuals();
+    precomputeMotionData();
+
+    // ---- DYNAMISCHER ZOOM (Y-Fit) ----
+    
+    // Berechne die vertikale Höhe der Bewegung inkl. Radius (Oben/Unten)
+    const verticalDropM = STOP_CM_X_M * Math.sin(currentAlphaRad);
+    const totalHeightM = verticalDropM + 2.5 * R_m; // 2.5 als Sicherheitsfaktor (Radius oben + unten + bissl Luft)
+
+    const SAFE_PADDING_Y_PX = 40; 
+    const availableHeightPx = SVG_H - 2 * SAFE_PADDING_Y_PX;
+
+    // PPM so berechnen, dass die Höhe exakt passt
+    if (totalHeightM > 0.1) {
+        currentPPM = availableHeightPx / totalHeightM;
+    } else {
+        currentPPM = 160; 
+    }
+    
+    // Max-Limit für PPM bei sehr flachen Winkeln
+    currentPPM = Math.min(currentPPM, 280); 
+
+    const R_px = R_m * currentPPM;
+
+    // ---- FESTE START/END PUNKTE (X-Scroll Ziele) ----
+    // Start X: Links mit fixem Padding + Radius
+    visStartX = 30 + R_px;
+    // Ende X: Rechts mit fixem Padding + Radius
+    visEndX = SVG_W - (30 + R_px);
+
+    // ---- FESTE Y-POSITION (Kein Scroll) ----
+    // Start immer oben, so dass bei maximalem Drop das Ende noch im Bild ist.
+    // Oben = Padding + Radius
+    visStartY = SAFE_PADDING_Y_PX + R_px;
+
+    // Berechnung der Rampen-Startposition im Welt-Koordinatensystem
+    const sa = Math.sin(currentAlphaRad);
+    const ca = Math.cos(currentAlphaRad);
+    
+    // Rampen-Start so legen, dass t=0 visuell bei (visStartX, visStartY) liegt (wenn Scroll=0 wäre)
+    // Da wir aber scrollen, ist die RELATIVE Position entscheidend.
+    // physToScreen(0, R) soll (irgendwas, visStartY) ergeben.
+    // sy = RY + 0 - R*PPM*ca = visStartY => RY = visStartY + R*PPM*ca
+    currentRampStartY = visStartY + (R_m * currentPPM * ca);
+    
+    // Für X nehmen wir einfach visStartX als Anker für t=0
+    currentRampStartX = visStartX - (R_m * currentPPM * sa);
+
+    drawBackground();
+    drawObstacleAtCmStop();
+    updateTraceZOrder();
+    rebuildAnalysisPanel();
+
+    ui.playButton.disabled = false;
+    ui.pauseButton.disabled = true;
+
+    [
+      ui.radiusSlider, ui.velocitySlider, ui.graphSelect, ui.inclinationSlider,
+      ...ui.inclinationModeRadios, ui.pointRadiusFactorCheckbox, ...ui.objectTypeRadios,
+      ui.innerRadiusSlider, ui.followSpCheckbox
+    ].forEach(el => el.disabled = false);
+
+    updateInclinationControls();
+    Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = false);
+
+    updateScene(0);
+
+    ui.analysisPanelHeaderTitle.innerHTML = `Analyse-Daten (Formfaktor \\(k = ${formatNumber(currentKFactor, 4)}\\))`;
+    if (window.MathJax) MathJax.typesetPromise([ui.analysisPanelHeaderTitle]);
+  }
+
+  function animate(now) {
+    if (lastFrameTime === 0) lastFrameTime = now;
+    const dt = (now - lastFrameTime) / 1000;
+    simulatedTimeElapsed += dt * speedFactor;
+    lastFrameTime = now;
+
+    if (simulatedTimeElapsed >= effectiveSimDuration) {
+      simulatedTimeElapsed = effectiveSimDuration;
+      updateScene(simulatedTimeElapsed);
+      stopAnimation();
+      return;
+    }
+    updateScene(simulatedTimeElapsed);
+    animFrameId = requestAnimationFrame(animate);
+  }
+
+  function startAnimation() {
+    if (animFrameId) return;
+    if (simulatedTimeElapsed >= effectiveSimDuration - 1e-6) resetScene(true);
+
+    ui.playButton.disabled = true;
+    ui.pauseButton.disabled = false;
+
+    [
+      ui.radiusSlider, ui.velocitySlider, ui.inclinationSlider,
+      ...ui.inclinationModeRadios, ui.pointRadiusFactorCheckbox, ...ui.objectTypeRadios,
+      ui.innerRadiusSlider, ui.followSpCheckbox
+    ].forEach(el => el.disabled = true);
+    Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = true);
+
+    lastFrameTime = 0;
+    animFrameId = requestAnimationFrame(animate);
+  }
+
+  function stopAnimation() {
+    if (!animFrameId) return;
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+
+    ui.playButton.disabled = false;
+    ui.pauseButton.disabled = true;
+
+    [
+      ui.radiusSlider, ui.velocitySlider, ui.inclinationSlider,
+      ...ui.inclinationModeRadios, ui.pointRadiusFactorCheckbox, ...ui.objectTypeRadios,
+      ui.innerRadiusSlider, ui.followSpCheckbox
+    ].forEach(el => el.disabled = false);
+
+    updateInclinationControls();
+    Object.values(ui.subjectCheckboxes).forEach(cb => cb.disabled = false);
+  }
+
+  function exportData() {
+    const angle_deg = (document.querySelector('input[name="inclination_mode"]:checked').value === 'inclined')
+      ? parseFloat(ui.inclinationSlider.value) : 0;
+    const objectType = document.querySelector('input[name="object_type"]:checked').value;
+
+    const headers = ['Zeit / s'];
+    subjects.forEach(s => quantities.forEach(q => headers.push(`${s}_${q} / ${graphOptions[q].unit.replace(/<\/?sub>/g, '')}`)));
+    headers.push('omega / rad/s', 'alpha / rad/s²');
+
+    const rows = [headers.join(';')];
+    for (let i = 0; i < fullData.t.length; i++) {
+      const row = [fullData.t[i].toFixed(4).replace('.', ',')];
+      subjects.forEach(s => quantities.forEach(q => row.push(fullData[`${s}_${q}`][i].toFixed(6).replace('.', ','))));
+      row.push(fullData.omega[i].toFixed(6).replace('.', ','));
+      row.push(fullData.alpha[i].toFixed(6).replace('.', ','));
+      rows.push(row.join(';'));
+    }
+
+    const csvContent = '\uFEFF' + rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `dynamik_${objectType}_${angle_deg}deg_lokal.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function setupUI() {
+    for (const key in graphOptions) {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.innerHTML = graphOptions[key].label.replace(/\(t\)/, '');
+      ui.graphSelect.appendChild(opt);
+    }
+    ui.graphSelect.value = 'x';
+
+    ui.copyrightYear.textContent = new Date().getFullYear();
+    ui.inclinationValue.textContent = `${formatNumber(parseFloat(ui.inclinationSlider.value), 1)}°`;
+
+    [ui.radiusSlider, ui.velocitySlider, ui.pointRadiusFactorCheckbox, ui.innerRadiusSlider, ui.followSpCheckbox]
+      .forEach(el => el.addEventListener('input', () => resetScene()));
+
+    ui.inclinationModeRadios.forEach(r => r.addEventListener('change', () => { updateInclinationControls(); resetScene(); }));
+    ui.objectTypeRadios.forEach(r => r.addEventListener('change', () => resetScene()));
+
+    ui.inclinationSlider.addEventListener('input', () => {
+      ui.inclinationValue.textContent = `${formatNumber(parseFloat(ui.inclinationSlider.value), 1)}°`;
+      resetScene();
+    });
+
+    [ui.toggleSpTrace, ui.toggleTraces, ui.toggleTraceZOrder, ui.toggleVvectors, ui.toggleAvectors, ui.toggleFg, ui.toggleFn, ui.toggleFr]
+      .forEach(el => el.addEventListener('input', () => {
+        if (el.id === 'toggle_trace_z_order') updateTraceZOrder();
+        updateScene(simulatedTimeElapsed);
+      }));
+
+    Object.values(ui.subjectCheckboxes).forEach(cb => cb.addEventListener('input', () => {
+      rebuildAnalysisPanel();
+      updateGraph(simulatedTimeElapsed);
+      updateScene(simulatedTimeElapsed);
+    }));
+
+    ui.graphSelect.addEventListener('input', () => updateGraph(simulatedTimeElapsed));
+
+    ui.playButton.addEventListener('click', startAnimation);
+    ui.pauseButton.addEventListener('click', stopAnimation);
+    ui.resetButton.addEventListener('click', () => { simulatedTimeElapsed = 0; resetScene(); });
+    ui.exportButton.addEventListener('click', exportData);
+
+    ui.speedRadios.forEach(el => el.addEventListener('change', () => {
+      ui.speedRadios.forEach(r => { if (r.checked) speedFactor = parseFloat(r.value); });
+    }));
+
+    ui.analysisPanelToggle.addEventListener('click', () => {
+      ui.analysisPanelContainer.classList.toggle('collapsed');
+      ui.analysisPanelToggle.textContent = ui.analysisPanelContainer.classList.contains('collapsed') ? '[+]' : '[-]';
+    });
+
+    updateInclinationControls();
+  }
+
+  window.onload = () => { setupUI(); resetScene(); };
+</script>
+</body>
+</html>
