@@ -4,9 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Atwood-Maschine – FH Aachen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
@@ -15,6 +12,7 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
@@ -25,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.1.10</span>
+    <span class="version">v2.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -37,7 +35,7 @@ window.MathJax = {
   </div>
 </header>
 
-<div class="app-layout">
+<div class="app-layout analysis-collapsed">
 
   <!-- ── LEFT PANEL ────────────────────────────────────────────────────── -->
   <aside class="panel left-panel">
@@ -270,7 +268,19 @@ window.MathJax = {
   </main>
 
   <!-- ── RIGHT PANEL ───────────────────────────────────────────────────── -->
-  <aside class="panel right-panel">
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
 
     <div class="panel-section">
       <div class="panel-label">Physik (konstant)</div>
@@ -358,6 +368,8 @@ window.MathJax = {
         <div>\[v_1(t) = a\,t\]</div>
       </div>
     </div>
+
+    </div><!-- /.panel-body -->
 
   </aside>
 </div>

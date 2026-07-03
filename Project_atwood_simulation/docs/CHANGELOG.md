@@ -1,5 +1,12 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.0 — 2026-07-03
+### Hinzugefügt (Feature)
+- **Einklappbare Live-Analyse-Sidebar:** Rechte Sidebar (Physik konstant, Live-Analyse, Diagramm, Datenexport, Physik) jetzt ein-/ausklappbar. Steuerung sitzt als Header direkt am Panel (Double-Chevron, rotiert beim Zustandswechsel). Default eingeklappt (44-px-Schiene mit vertikalem „Analyse"-Label) — die Sim-/Diagrammfläche hat beim Laden maximal Platz. Body eingeklappt off-screen (`position:fixed; left:-10000px`) statt `display:none`, damit MathJax die Formeln im Hintergrund typesetzt. `aria-expanded`/`aria-controls` + Fokus-Ring. Umgesetzt nach Best-Practice-Blueprint `global_docs/simulation_instruction.md` § „Einklappbare Analyse-Sidebar".
+
+### Geändert (Refactor)
+- **Shared Design-CSS eingebunden:** `../shared/css/design-system.css` vor der per-Sim `css/styles.css` verlinkt (DRY). Base-Tokens, Layout-Grid, Klapp-Sidebar-CSS und UI-Komponenten (Topbar, Panel, Slider, Toggle, Buttons, Legende, Formel-Box) nun zentral aus shared; per-Sim `styles.css` bereinigt auf Atwood-spezifische Tokens (`--sim-bg`/`--pulley-*`/`--c-m1`/`--c-m2`) + SVG-Target-Regeln + Radio-Group + Center-Layout (Sim links | Graph rechts). Google-Fonts-Link entfernt (shared `@import`et sie).
+
 ## v2.1.10 — 2026-07-03
 ### Behoben (Fixed)
 - **Back-Button:** Übersicht-Link nach Move des Übersichtsordners an den Repo-Root korrigiert (`../Standalone%20Proto/AllAnimations/…` → `../AllAnimations/…`).

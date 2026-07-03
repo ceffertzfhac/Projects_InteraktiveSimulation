@@ -164,6 +164,14 @@ function setupTheme() {
   });
 }
 
+// ── Einklappbare Analyse-Sidebar ───────────────────────────────────────────
+function setupAnalysisToggle() {
+  DOM.analysisToggle.addEventListener('click', () => {
+    const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed');
+    DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  });
+}
+
 // ── CSV export ────────────────────────────────────────────────────────────────
 function exportCSV(all) {
   const { t_data, y1_data, y2_data, v1_data, v2_data,
@@ -220,6 +228,7 @@ function exportCSV(all) {
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 initDOM();
 setupTheme();
+setupAnalysisToggle();
 drawRuler();
 drawStopwatchMarks();
 updateGraphSelectors();

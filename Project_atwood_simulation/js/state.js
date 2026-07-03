@@ -54,6 +54,8 @@ export function initDOM() {
   DOM.pauseBtn   = document.getElementById('pause_btn');
   DOM.themeToggle = document.getElementById('theme_toggle');
   DOM.timeLabel   = document.getElementById('time_label');
+  DOM.analysisToggle = document.getElementById('analysis_toggle');
+  DOM.appLayout       = document.querySelector('.app-layout');
 
   DOM.exportDiagram = document.getElementById('export_diagram_btn');
   DOM.exportAll     = document.getElementById('export_all_btn');
