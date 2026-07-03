@@ -4,35 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interaktive Physik-Simulationen – FH Aachen FB 8</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/css/design-system.css">
   <style>
     :root {
-      --fh-mint:    #00B1AC;
-      --fh-mint-25: #008581;
+      --fh-mint-25: var(--fh-mint-dark);
       --fh-mint-75: #003F3E;
-      --bg:         #f0f2f5;
-      --surface:    #ffffff;
-      --surface2:   #f5f7fa;
-      --border:     #d8dce8;
-      --text:       #111418;
-      --text2:      #445060;
-      --text3:      #8890a8;
-      --r:          8px;
-      --font-ui:    'DM Sans', 'Verdana', system-ui, sans-serif;
-      --font-mono:  'JetBrains Mono', monospace;
-    }
-
-    body.dark {
-      --bg:       #0d1117;
-      --surface:  #161b22;
-      --surface2: #1e2530;
-      --border:   #2d3748;
-      --text:     #e6eaf5;
-      --text2:    #a0abc7;
-      --text3:    #6b799e;
-      --fh-mint:  #00CEC9;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -530,12 +506,12 @@
     const toggle = document.getElementById('theme-toggle');
     const body = document.body;
 
-    const saved = localStorage.getItem('fh-theme');
+    const saved = localStorage.getItem('fh_theme');
     if (saved === 'dark') body.classList.add('dark');
 
     toggle.addEventListener('click', () => {
       body.classList.toggle('dark');
-      localStorage.setItem('fh-theme', body.classList.contains('dark') ? 'dark' : 'light');
+      localStorage.setItem('fh_theme', body.classList.contains('dark') ? 'dark' : 'light');
     });
   </script>
 
