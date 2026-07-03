@@ -64,7 +64,8 @@ Klick führt zur `AllAnimations/index.html`. Beim Taschenrechner analog.
 **S2.2** Theme-Toggle im Header funktioniert, Mint-Akzent im Header-Balken.
 **S2.3** Karten-Vorschaubilder laden; Platzhalter-Gradient (Mint) bei
 Karten ohne Bild korrekt.
-**S2.4** Alle Sim-Links öffnen (target=_blank); keine 404.
+**S2.4** Alle Sim-Links öffnen im selben Tab (kein `target="_blank"`
+mehr — Ein-Tab-Fluss Übersicht↔Sim); keine 404.
 
 ---
 
