@@ -1,5 +1,9 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.4.1] - 2026-07-03
+### Geändert (Style)
+- **Schriftart:** Syne → DM Sans (FH-Aachen-Design-System); `JetBrains Mono` auf Gewicht 400/500 reduziert. Google-Fonts-Link inkl. `preconnect` für `fonts.gstatic.com`.
+
 ## [1.0.0] - 2026-02-25
 ### Hinzugefügt
 - Initiale Version der Lorentz-Kraft-Simulation.

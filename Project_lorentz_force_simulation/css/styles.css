@@ -5,7 +5,7 @@
   --surface3:  #eceef5;
   --border:    #d8dce8;
   --border2:   #c2c8d8;
-  --accent:    #c49b10;
+  --accent:    #00B1AC;
   --text:      #1a1e2e;
   --text2:     #4a5068;
   --text3:     #8890a8;
@@ -39,8 +39,8 @@ body.dark {
   --surface3:  #262c42;
   --border:    #2d344d;
   --border2:   #3d4766;
-  --accent:    #e8c547;
-  --accent2:   #f0a050;
+  --accent:    #00CEC9;
+  --accent2:   #00B1AC;
   --text:      #e6eaf5;
   --text2:     #a0abc7;
   --text3:     #6b799e;
@@ -73,7 +73,7 @@ body.dark {
 
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
+body { font-family: 'DM Sans', 'Verdana', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
 
 /* ── TOPBAR ─────────────────────────────────────── */
 .topbar {
@@ -163,7 +163,7 @@ input[type=range]:disabled { opacity: .3; pointer-events: none; }
 .speed-pill.active { background:rgba(232,197,71,.1); border-color:var(--accent); color:var(--accent); }
 
 /* ── BUTTONS ─────────────────────────────────────── */
-.btn { padding:6px 13px; border-radius:var(--r); border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-family:'Syne',sans-serif; font-size:.76rem; font-weight:600; cursor:pointer; transition:all .15s; }
+.btn { padding:6px 13px; border-radius:var(--r); border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-family:'DM Sans','Verdana',sans-serif; font-size:.76rem; font-weight:600; cursor:pointer; transition:all .15s; }
 .btn:hover { background:var(--surface3); }
 .btn.primary { background:var(--accent); color:#000; border-color:var(--accent); }
 .btn.primary:hover { background:#d4b33e; }
@@ -238,7 +238,7 @@ input[type=range]:disabled { opacity: .3; pointer-events: none; }
 .section-note { font-size:.65rem; color:var(--text3); line-height:1.55; margin-top:5px; }
 .vec-scale-btn {
   padding:2px 8px; border-radius:4px; border:1px solid var(--border2);
-  background:var(--surface2); color:var(--text2); font-family:'Syne',sans-serif;
+  background:var(--surface2); color:var(--text2); font-family:'DM Sans','Verdana',sans-serif;
   font-size:.68rem; cursor:pointer; transition:all .15s;
 }
 .vec-scale-btn.active { background:rgba(232,197,71,.12); border-color:var(--accent); color:var(--accent); font-weight:700; }

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Lorentzkraft – Interaktive Simulation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']] },
@@ -19,7 +20,7 @@ window.MathJax = {
 <body class="light">
 
 <header class="topbar">
-  <div class="topbar-title">Lorentzkraft: Parallele Leiter <span style="opacity:0.4; font-weight:300; font-size:0.7rem; margin-left:5px;">v1.4.0</span> <span> FH Aachen - FB 8 - Physik </span></div>
+  <div class="topbar-title">Lorentzkraft: Parallele Leiter <span style="opacity:0.4; font-weight:300; font-size:0.7rem; margin-left:5px;">v1.4.1</span> <span> FH Aachen - FB 8 - Physik </span></div>
   <div class="topbar-right">
     <div class="theme-toggle-wrap">
       <span style="font-size:.82rem">🌙</span>
@@ -162,10 +163,10 @@ window.MathJax = {
       <g id="springs_g"></g>
       <g id="conductors_g">
         <rect id="cond1" x="150" y="426" width="400" height="8" rx="4" fill="url(#condGrad)" stroke="#8b4513" stroke-width="0.5" />
-        <text id="label_cond1" x="350" y="455" font-size="11" font-family="Syne" fill="var(--text3)" text-anchor="middle">Kupferleitung 1 (fixiert)</text>
+        <text id="label_cond1" x="350" y="455" font-size="11" font-family="DM Sans" fill="var(--text3)" text-anchor="middle">Kupferleitung 1 (fixiert)</text>
         <g id="cond2_group">
            <rect id="cond2" x="150" y="196" width="400" height="8" rx="4" fill="url(#condGrad)" stroke="#8b4513" stroke-width="0.5" />
-           <text id="label_cond2" x="350" y="190" font-size="11" font-family="Syne" fill="var(--text3)" text-anchor="middle">Kupferleitung 2 (beweglich)</text>
+           <text id="label_cond2" x="350" y="190" font-size="11" font-family="DM Sans" fill="var(--text3)" text-anchor="middle">Kupferleitung 2 (beweglich)</text>
         </g>
       </g>
       <g id="vectors_g"></g>
