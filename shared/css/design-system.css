@@ -1,0 +1,145 @@
+/*
+ * FH Aachen – Physik-Simulationen
+ * Shared Design System
+ * Primärfarbe: FH Aachen Mint #00B1AC (Pantone 326C)
+ * Typografie:  DM Sans (UI) + JetBrains Mono (Zahlen)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── TOKENS ─────────────────────────────────────────────────── */
+:root {
+  /* FH Aachen Corporate Colors */
+  --fh-mint:     #00B1AC;
+  --fh-mint-10:  #00A09B;
+  --fh-mint-25:  #008581;
+  --fh-mint-50:  #006260;
+  --fh-mint-75:  #003F3E;
+  --fh-black:    #000000;
+  --fh-white:    #FFFFFF;
+
+  /* Light Mode Surfaces */
+  --bg:          #f0f2f5;
+  --surface:     #ffffff;
+  --surface2:    #f5f7fa;
+  --surface3:    #eceef3;
+  --border:      #d8dce8;
+  --border2:     #c2c8d8;
+
+  /* Text */
+  --text:        #111418;
+  --text2:       #445060;
+  --text3:       #8890a8;
+
+  /* Semantic Accent = FH Mint */
+  --accent:      var(--fh-mint);
+  --accent-dark: var(--fh-mint-25);
+
+  /* Physik-Vektoren (standardisiert für alle Sims) */
+  --c-vel:   #2060d0;   /* Geschwindigkeit v  – Blau   */
+  --c-acc:   #c03030;   /* Beschleunigung a   – Rot    */
+  --c-fg:    #7030cc;   /* Gewichtskraft Fg   – Violett */
+  --c-fn:    #1a8a50;   /* Normalkraft FN     – Grün   */
+  --c-fr:    #c06010;   /* Reibkraft FR       – Orange  */
+
+  /* Punkt-Farben für Zykloiden-Analyse */
+  --c-sp:    #222222;
+  --c-p1:    #b08010;
+  --c-p2:    #2060d0;
+  --c-p3:    #1a8a50;
+  --c-p4:    #c03030;
+
+  /* Border-Radius */
+  --r:       6px;
+  --r-lg:    10px;
+
+  /* Typografie */
+  --font-ui:   'DM Sans', 'Verdana', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* ── DARK MODE ───────────────────────────────────────────────── */
+body.dark {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1e2530;
+  --surface3:  #262e3d;
+  --border:    #2d3748;
+  --border2:   #3d4f66;
+
+  --text:      #e6eaf5;
+  --text2:     #a0abc7;
+  --text3:     #6b799e;
+
+  --accent:      #00CEC9;   /* Mint etwas heller im Dark Mode */
+  --accent-dark: var(--fh-mint);
+
+  --c-sp:    #ffffff;
+  --c-p1:    #ffcc33;
+  --c-p2:    #66aaff;
+  --c-p3:    #55ee99;
+  --c-p4:    #ff7777;
+  --c-vel:   #66aaff;
+  --c-acc:   #ff7777;
+  --c-fg:    #bd8aff;
+  --c-fn:    #55ee99;
+  --c-fr:    #ffaa55;
+}
+
+/* ── BASE RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 52px;
+  background: var(--surface); border-bottom: 2px solid var(--accent);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title {
+  font-size: 1rem; font-weight: 700; letter-spacing: .04em; color: var(--accent);
+}
+.topbar-title span { color: var(--text2); font-weight: 400; font-size: .8rem; margin-left: 10px; }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+
+/* ── THEME TOGGLE ────────────────────────────────────────────── */
+.theme-toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--text3); }
+.theme-toggle {
+  width: 34px; height: 18px; border-radius: 9px;
+  border: 1.5px solid var(--border2); background: var(--surface2);
+  cursor: pointer; position: relative; flex-shrink: 0; transition: background .2s;
+}
+.theme-toggle::before {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--text3); transition: transform .2s, background .2s;
+}
+body.dark .theme-toggle { background: var(--accent); border-color: var(--accent); }
+body.dark .theme-toggle::before { transform: translateX(16px); background: #fff; }
+
+/* ── STANDARD 3-SPALTEN-LAYOUT ──────────────────────────────── */
+.app-layout {
+  display: grid;
+  grid-template-columns: 255px 1fr 295px;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+.panel { background: var(--surface); overflow-y: auto; overflow-x: hidden; transition: background 0.3s; }
+.panel::-webkit-scrollbar { width: 3px; }
+.panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.panel-section-title {
+  font-size: .65rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+}
+
+/* ── MONO-ZAHLEN ─────────────────────────────────────────────── */
+.mono, .value { font-family: var(--font-mono); }
