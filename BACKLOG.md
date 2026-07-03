@@ -83,7 +83,7 @@ Stand: 2026-07-03 | Priorisierung: MoSCoW (ausstehend)
 | I1 | GitHub Pages Deployment | Automatische Veröffentlichung der Simulationen bei Push auf `main` (GitHub Actions). Studenten könnten direkt über eine URL darauf zugreifen. |
 | I2 | ✅ Shared Design-System | **Erledigt (Sprint 3, R0/R7):** `shared/css/design-system.css` an CLAUDE.md/FF-Referenz angleichen (Tokens, Okabe-Ito-Kraftfarben, Grid 280/1fr/270, Klapp-Sidebar-CSS). Alle modularen Sims (Atwood/Rolling/Lorentz) und die Übersicht linken shared; Standalones via `<link>` vor Inline-`<style>`. `shared/js/` (fmt/Math/SVG-Helper) weiterhin offen (siehe I3-Kontext). |
 | I3 | Unit-Tests für Physik-Module | Vitest-Setup für `physics.js` beider Projekte. Kernformeln (k-Faktor, Gleichgewicht, Precompute) testbar machen. |
-| I4 | global_docs/simulation_instruction.md erweitern | Aktueller Blueprint beschreibt nur den modularen Aufbau. Fehlend: Umgang mit Standalone-Sims, Migrations-Workflow, Qualitätscheckliste. |
+| I4 | ✅ Blueprint um Werkzeug-Schale + Migrations-Workflow erweitern | **Erledigt (Sprint 4a):** `global_docs/simulation_instruction.md` um §7 „Werkzeug-Schale" (diagrammatische Werkzeuge, keine Sim-Controls) und §8 „Migrations-Workflow: Standalone → Modular" (Schritt-für-Schritt incl. Konsolidierungs-Prüfung) ergänzt. |
 
 ---
 
@@ -91,7 +91,21 @@ Stand: 2026-07-03 | Priorisierung: MoSCoW (ausstehend)
 
 | ID | Titel | Versionen | Beschreibung |
 |----|-------|-----------|--------------|
-| M1 | Schräger Wurf migrieren | 47 | Kandidat Nr. 1: Sehr reife Simulation (v47), didaktisch zentral, hoher Entwicklungsaufwand war da. Sauber in `Project_schraeger_wurf_simulation/` überführen. |
+| M1 | Schräger Wurf migrieren | 47 | Kandidat Nr. 1: Sehr reife Simulation (v47), didaktisch zentral, hoher Entwicklungsaufwand war da. Sauber in `Project_schraeger_wurf_simulation/` überführen. Zusammen mit M4 migrieren (gemeinsamer Scaffold). |
+| M4 | Zykloide migrieren | zykloide3 | Teilt den Scaffold mit `schräger_wurf` (gleiche Controls/Graph-Helper). Gemeinsam mit M1 migrieren → `Project_zykloide_simulation/`, um Divergenz-Schulden zu vermeiden. |
+| M5 | Federpendel migrieren | federpendel | Hat schon `precompute` + Stoppuhr + CSV → `Project_federpendel_simulation/`. Layout-Schale, Graph-Helper, statisches MathJax, einklappbare Sidebar. |
+| M6 | Kreisbewegung migrieren | kreisbewegung (+kreiskinematik_v5) | → `Project_kreisbewegung_simulation/`. **Vorher prüfen**, ob `kreiskinematik_v5` darin aufgeht (thematisch nah, größte Datei) — Konsolidierung statt Doppelmigration. |
+| M7 | Atwood-Energie migrieren | atwood_energy | Entweder eigene `Project_atwood_energy_simulation/` *oder* Energie-Graphen als Diagrammtyp-Option in `Project_atwood_simulation/` aufnehmen (Produktentscheidung bei Umsetzung). |
+| M8 | Elastischer Stoß migrieren | elastischerStoß | → `Project_stoss_simulation/`. **Größter Physik-Eingriff:** Per-Frame-Physik → `precompute()` umstellen. |
+| M9 | 3-Massen-Umlenkrollen migrieren | 3massen_umlenkrollen_v2 | Statisches Gleichgewicht (keine Zeit-Animation) → leichteste echte Sim. → `Project_3massen_umlenkrollen/`. Grenzfall zur Werkzeug-Schale — prüfen, ob Sim- oder Werkzeug-Shell passender. |
+
+## WERKZEUG-SCHALE (Diagrammatische Werkzeuge, in-place)
+
+| ID | Titel | Datei | Beschreibung |
+|----|-------|------|--------------|
+| W1 | Ableitung → Werkzeug-Schale | ableitung.html | Keine Animation → Werkzeug-Schale (§7 Blueprint): Topbar + Back + Theme + Tokens, keine Play/Pause/Reset/Stoppuhr/CSV. Legende + Graph-Konventionen (`setAxisLabel`). Statisches MathJax. |
+| W2 | Geschwindigkeit → Werkzeug-Schale | geschwindigkeit.html | Wie W1. Step-Button-Widgets bleiben; Achsenbeschriftung kanonisch. |
+| W3 | Grundbegriffe Kinematik → Werkzeug-Schale | grundbegriffe_kin.html | Wie W1. Viele Toggles bleiben; kein Sim-Loop. |
 
 ---
 
@@ -148,15 +162,44 @@ Vollständiger Plan: `.claude/plans/crystalline-giggling-flamingo.md`. Referenz:
 
 ---
 
+## SPRINT 4: Vereinheitlichung aller Sims auf den modularen Soll-Zustand
+
+**Ziel:** Alle in `AllAnimations/index.html` verlinkten Simulationen auf
+**EINEN** einheitlichen Standard bringen (Technik, Design, UX/UI), von dem
+nur in gut begründeten Ausnahmefällen leicht abgewichen wird. Maßstab:
+**echte Best-Practice = wartbar, verwaltbar, übersichtlich.**
+
+**Sprint-3-Klarstellung:** R0–R9 haben die Standalone-Prototypen nur
+**token- und chrome-seitig** vereinheitlicht (Farben/Schrift/Back-Button/
+Theme-Toggle via R4/R5). Layout, UX-Struktur und Architektur wurden *nicht*
+angefasst — die Prototypen bleiben Einzel-HTML mit je eigenem Layout.
+Sprint 4 schließt diese Lücke.
+
+**Strategische Entscheidungen (Sprint 4a):**
+1. **Dubletten stilllegen:** `atwood.html` und `freier_fall_senkrechter_wurf.html`
+   waren verwaiste Dubletten der modularen Projects (ungelinkt) — gelöscht.
+2. **Hybrid als Standard:** Echte (animierte) Simulationen → volle 6-Modul-
+   Architektur als neues `Project_<name>/` (Migrations-Workflow §8 Blueprint).
+   Diagrammatische Werkzeuge → eigene leichte Werkzeug-Schale (§7 Blueprint),
+   in-place, keine Sim-Controls.
+3. **Konsolidierung prüfen** statt Doppelmigration (schräger_wurf↔zykloide3,
+   kreisbewegung↔kreiskinematik_v5, atwood_energy↔Project_atwood).
+
+**Sprint 4a (erledigt):** Dubletten gelöscht; Blueprint §7 + §8 ergänzt
+(I4 erledigt); Roadmap als M4–M9 + W1–W3 ins Backlog eingetragen.
+Die einzelnen Migrationen (M1, M4–M9) und Werkzeug-Umstellungen (W1–W3)
+sind je eigene Folge-Iterationen mit eigenem Plan/Commit.
+
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 43
+- **Gesamt-Items (offen):** 41
 - **Bugs:** 3
 - **Technische Schulden:** 6
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
-- **Infrastruktur:** 4 (davon I2 erledigt)
-- **Migrationen:** 1
+- **Infrastruktur:** 4 (davon I2, I4 erledigt)
+- **Migrationen:** 7 (M1, M4–M9)
+- **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 15 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3)
+- **Erledigt:** 16 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a)

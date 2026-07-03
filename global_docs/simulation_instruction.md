@@ -150,3 +150,117 @@ function physToScreen(xLoc, yLoc) {
 - [ ] Werden im CSV-Export Kommas als Dezimaltrenner und Semicolons als Spaltentrenner genutzt?
 - [ ] Sind alle Formeln via MathJax korrekt gerendert?
 - [ ] Ist die schiefe Ebene/Umgebung im Dark Mode gut sichtbar?
+
+## 7. Werkzeug-Schale (Diagrammatische Werkzeuge)
+
+Nicht jeder verlinkte Eintrag in `AllAnimations/index.html` ist eine
+*Animationssimulation*. Einige sind **interaktive diagrammatische Werkzeuge**:
+die SVG-Grafik *ist* die Darstellung (z. B. „Ableitung als Grenzwert",
+„Geschwindigkeit als Steigung", „Grundbegriffe der Kinematik"). Für diese
+gilt die Sim-Schale aus §3 *nicht* — es gibt keine Zeit-Animation, also
+keine `▶ Play / ⏸ Pause / ↺ Reset`, keine Stoppuhr und keinen CSV-Export.
+Solche Controls wären nicht-funktional und verwirrend.
+
+Best-Practice: die Architektur **passt zur Interaktionsart**. Werkzeuge
+bekommen eine **eigene leichte, einheitliche Schale** — ebenfalls
+Token-gebunden, aber ohne Sim-Controls.
+
+**Kriterium „Werkzeug, keine Sim":** Es gibt keine zeitliche Animation
+(entweder rein statisch oder nur durch Slider-Tritt veränderlich, ohne
+`requestAnimationFrame`-Loop). Beispiele im Repo: `ableitung`,
+`geschwindigkeit`, `grundbegriffe_kin`.
+
+**Aufbau (Werkzeug-Schale):**
+```html
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<style> /* nur werkzeugspezifische Ergänzungen, Tokens aus shared */ </style>
+
+<header class="tool-topbar">
+  <a class="back-btn" href="../AllAnimations/index.html">← Übersicht</a>
+  <span class="tool-title">Titel <span class="version">v…</span></span>
+  <button class="theme-toggle" id="theme_toggle" …></button>
+</header>
+
+<main class="tool-layout">
+  <aside class="tool-controls">… Slider, Radio, Toggles …</aside>
+  <section class="tool-canvas"><svg …>… die diagrammatische Darstellung …</svg></section>
+</main>
+```
+
+**Verbindlich für die Werkzeug-Schale:**
+- **Topbar** mit Back-Button, Titel+Version, Theme-Toggle (gleiche Tokens wie
+  die Sim-Schale, einheitlicher localStorage-Key `fh_theme`).
+- **Tokens** aus `shared/css/design-system.css`; Dark Mode via `body.dark`-Kaskade
+  (kein separater `body.dark`-Block). UI-Text in *DM Sans*, Zahlen in
+  *JetBrains Mono*.
+- **Keine** Play/Pause/Reset-`.btn-row`, **keine** Stoppuhr, **kein** CSV-Export.
+- **Kein** `requestAnimationFrame`-Loop; die Darstellung ändert sich nur als
+  Reaktion auf Slider/Toggle-Eingaben.
+- **Graph-Konventionen** wo Achsen auftreten: `setAxisLabel` / `setGraphTitle`
+  (italic Größe, upright Einheit), Titel als letztes SVG-Kind, `tAxisStep` nur
+  bei Zeit-Achsen (bei Werkzeugen meist N/A).
+- **MathJax statisch:** Formeln als statisches HTML, kein Laufzeit-
+  `typesetPromise`.
+- Darf eine **Legende** (`.legend-grid`) haben, wenn farbcodierte Elemente
+  vorkommen.
+
+Werkzeuge bleiben **Einzeldatei** (kein 6-Modul-Split) — ihr Umfang ist klein
+und der modulare Split würde die Übersichtlichkeit verringern statt erhöhen.
+Die Schale wird *in-place* aufgezogen (Tokens + Topbar + Token-gebundene
+Controls), nicht als neues `Project_/` migriert.
+
+## 8. Migrations-Workflow: Standalone → Modular
+
+Echte Animationssimulationen werden aus der Einzel-HTML in die kanonische
+modulare Architektur (§2) überführt. Referenzimplementierung:
+`Project_freier_fall_simulation/` und `Project_atwood_simulation/`.
+
+**Schritt-für-Schritt:**
+
+1. **Scaffold anlegen:** Neues `Project_<name>_simulation/` mit
+   `index.html`, `js/{constants,state,physics,render,ui}.js`,
+   `css/styles.css`, `docs/{CHANGELOG,FEATURE_BACKLOG,issues}.md`.
+   Kein `main.js` (neuere Sims: `js/ui.js` ist der ES-Module-Einstieg via
+   `<script type="module" src="js/ui.js">`).
+2. **`shared/css/design-system.css` einbinden** vor der per-Sim `css/styles.css`
+   (DRY). Per-Sim nur noch simspezifische Tokens + SVG-Target-Regeln.
+3. **Layout-Schale aufbauen** nach §3: 3-Spalten-App `280px 1fr 270px`,
+   Topbar (Back-Button, Titel+Version, Theme-Toggle), linke Sidebar
+   (Parameter, Visualisierungs-Toggles, **Legende** `.legend-grid`),
+   `.btn-row` mit `▶ Play / ⏸ Pause / ↺ Reset`, einklappbare rechte
+   Analyse-Sidebar (Default eingeklappt).
+4. **State extrahieren:** Alle mutablen Variablen aus dem Einzel-`<script>`
+   in `state.js` → `store` + DOM-Cache (`initDOM()`).
+5. **Physik auf `precompute()` umstellen:** Per-Frame-Berechnung
+   (`requestAnimationFrame` mit Live-Physik) → `precompute()` füllt Arrays
+   für den gesamten Zeitverlauf; die Animations-Loop indiziert nur noch in
+   diese Arrays. *(Größter Eingriff bei sims mit Per-Frame-Physik, z. B.
+   `elastischerStoß`.)*
+6. **Render aufspalten:** `drawBackground()` (statisch) +
+   `updateScene(t)` (animiert, indiziert in precompute-Arrays); zentrale
+   `physToScreen(x,y)`-Transformation.
+7. **Graph-Helper übernehmen:** `setAxisLabel` / `setGraphTitle` /
+   `tAxisStep` (statt lokalem `getNiceTickStep` und direktem `textContent`).
+   Titel als **letztes** SVG-Kind; Hintergrund-Rechteck 10px über Pfeilspitzen.
+8. **MathJax statisch machen:** Laufzeit-`MathJax.typesetPromise([...])`-
+   Aufrufe entfernen; alle Formeln als statisches HTML in `index.html`,
+   konfigurationsabhängige Varianten als separate `<div>` mit
+   `style="display:none"` (JS macht nur show/hide).
+9. **Karten-Link umhängen:** In `AllAnimations/index.html` die Karte von der
+   Einzel-HTML auf `../Project_<name>_simulation/index.html` umstellen;
+   Vorschaubild (`Vorschaubilder/<name>.png`) bleibt erhalten.
+10. **Einzel-HTML entsorgen:** Nach erfolgreicher Migration die
+    Standalone-Datei aus `AllAnimations/` löschen (oder — bei noch laufender
+    Abnahme — vorübergehend ins `legacy_archive/` der neuen Sim verschieben).
+11. **Versions-/Changelog-Pflege:** Versionsnummer in `index.html` und
+    `docs/CHANGELOG.md` synchron; Conventional-Commit
+    `feat(<scope>): … migriert (vX.Y.Z)`.
+
+**Vor der Migration prüfen (Konsolidierung statt Doppelmigration):**
+- Besteht inhaltliche Überschneidung mit einer anderen Standalone oder einem
+  bestehenden modularen Project? (Beispiele: `schräger_wurf`↔`zykloide3`
+  teilen den Scaffold; `kreisbewegung`↔`kreiskinematik_v5` thematisch
+  nah; `atwood_energy` ist eine Variante von `Project_atwood_simulation`.)
+  Ggf. zusammenführen oder Energie-/Zusatz-Ansichten als Diagrammtyp-Option
+  in die bestehende modulare Sim aufnehmen statt eine zweite Sim anzulegen.
+- Ist es überhaupt eine Sim oder ein diagrammatisches Werkzeug (§7)?
