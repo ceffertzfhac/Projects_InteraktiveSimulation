@@ -1,5 +1,9 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.2 — 2026-07-03
+### Geändert (UX)
+- **Default eingeklappt:** Die rechte Live-Analyse startet nun eingeklappt (44-px-Schiene); die Simulations-/Diagrammfläche hat beim Laden maximal Platz. Aufklappen per Klick auf den Panel-Header. Body ist eingeklappt off-screen positioniert (`position:fixed; left:-10000px`) statt `display:none`, damit MathJax die Formeln im Hintergrund trotzdem typesetten kann.
+
 ## v2.2.1 — 2026-07-03
 ### Geändert (UX)
 - **Klapp-Button überarbeitet:** Topbar-Toggle mit irreführendem Einzelpfeil entfernt. Steuerung sitzt jetzt als Header direkt am rechten Panel (Nähe → klarer Bezug). Double-Chevron-Icon (»/«) statt Navigationspfeil, rotiert beim Zustandswechsel. Eingeklappt bleibt ein 44-px-Schienen-Streifen mit vertikalem „Analyse"-Label sichtbar — offensichtlich, dass das Panel existiert und wieder aufklappbar ist. `aria-expanded`/`aria-controls`, Fokus-Ring.
