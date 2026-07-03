@@ -6,22 +6,23 @@
     <title> Geschwindigkeit als Steigung im Weg/Ort-Zeit-Diagramm</title>
     <!-- MathJax für professionellen Formelsatz -->
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1;
+            --fh-blue: var(--fh-mint);
             --fh-red: #d1002d;
-            --bg-color: #f0f2f5;
-            --border-color: #ccc;
-            --text-color: #333;
-            --control-bg: #fff;
-            --label-color: #555;
+            --bg-color: var(--bg);
+            --border-color: var(--border);
+            --text-color: var(--text);
+            --control-bg: var(--surface);
+            --label-color: var(--text2);
             --fh-green: #2ca02c; /* Farbe für Sekante und Steigungsdreieck */
             --fh-purple: #9467BD; /* Farbe für Tangente */
             --fh-lightgray: lightgray; /* Farbe für die Funktionskurve */
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: var(--font-ui);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -88,7 +89,7 @@
         }
 
         .slider-group .value {
-            font-family: monospace;
+            font-family: var(--font-mono);
             text-align: right;
             font-size: 0.9em;
         }
@@ -173,6 +174,12 @@
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
     <h1>Geschwindigkeit als Steigung der Ort-Zeit-Kurve</h1>
     <div id="container">
         <svg id="main_svg" viewBox="0 0 650 500">
@@ -573,6 +580,16 @@
             setupEventListeners();
             changeFunction(func_labels[0]);
         };
+    </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
     </script>
 </body>
 </html>

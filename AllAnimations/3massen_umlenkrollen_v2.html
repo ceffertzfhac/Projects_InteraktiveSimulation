@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interaktive Simulation: Statisches Kräftegleichgewicht</title>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
-            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-blue: var(--fh-mint); --fh-red: #d1002d; --bg-color: var(--bg);
+            --border-color: var(--border); --text-color: var(--text); --control-bg: var(--surface); --label-color: var(--text2);
             --force-gravity: #8A2BE2;      /* BlueViolet */
             --force-tension: #FF0000;      /* Bright Red */
             --force-vertical: #008B8B;     /* DarkCyan */
             --force-horizontal: #FF8C00;   /* DarkOrange */
-            --label-text-color: #1a1a1a;
+            --label-text-color: var(--text);
         }
-        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
         #container { 
             display: flex; flex-direction: column; align-items: center; padding: 20px; 
@@ -46,8 +47,8 @@
             line-height: 1; 
         }
         .component-label-span {
-            white-space: pre-wrap; 
-            font-family: monospace;
+            white-space: pre-wrap;
+            font-family: var(--font-mono);
             font-size: 12px;
             line-height: 1.2; 
             text-align: left;
@@ -62,7 +63,7 @@
         }
         .coordinate-label {
             fill: #555;
-            font-family: system-ui, sans-serif;
+            font-family: var(--font-ui);
             font-size: 14px;
             dominant-baseline: middle;
             text-anchor: middle;
@@ -73,13 +74,13 @@
         .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
         .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); font-size: 0.9em; }
         .slider-group input[type="range"] { flex-grow: 1; }
-        .slider-group .value { flex-basis: 80px; font-family: monospace; text-align: left; }
+        .slider-group .value { flex-basis: 80px; font-family: var(--font-mono); text-align: left; }
         .checkbox-group label { margin-left: 8px; user-select: none; }
         h3 { font-weight: 500; font-size: 1.1em; margin: 15px 0 10px 0; color: var(--fh-blue); border-bottom: 1px solid #eee; padding-bottom: 5px;}
         text { font-size: 14px; }
         .info-group .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
         .info-group .info-label { color: var(--label-color); }
-        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        .info-group .info-value { font-family: var(--font-mono); font-weight: bold; }
         .note { font-size: 0.8em; color: #777; margin-top: 10px; line-height: 1.5; }
         .legend-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
         .legend-color-box { width: 15px; height: 15px; border: 1px solid #999; margin-right: 10px; flex-shrink: 0; }
@@ -104,6 +105,12 @@
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
     <h1>Interaktive Simulation: Statisches Kräftegleichgewicht</h1>
     <div id="container">
         <svg id="main_svg" viewBox="0 0 900 500">
@@ -575,6 +582,16 @@
         };
 
     })(); // --- End of IIFE ---
+    </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
     </script>
 </body>
 </html>

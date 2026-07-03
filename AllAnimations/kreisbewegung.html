@@ -6,10 +6,11 @@
     <title>Interaktive Simulation: Ebene Kreisbewegung (Vektoraddition)</title>
     <!-- MathJax für professionellen Formelsatz -->
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
-            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-blue: var(--fh-mint); --fh-red: #d1002d; --bg-color: var(--bg);
+            --border-color: var(--border); --text-color: var(--text); --control-bg: var(--surface); --label-color: var(--text2);
             --fh-orange: #FF7F0E; --fh-purple: #9467BD; --fh-grey: #7f7f7f;
             --lcd-bg-color: #c0c4cc;
             --lcd-segment-off-color: #a8afb8;
@@ -23,7 +24,7 @@
             --fh-acceleration-x-color: #17becf; /* Türkis für Ax */
             --fh-acceleration-y-color: #FF7F0E; /* Orange für Ay */ /* Geändert, um vom Rot von Vy abzuweichen */
         }
-        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
@@ -32,7 +33,7 @@
         .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
         .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
         .slider-group input[type="range"] { flex-grow: 1; }
-        .slider-group .value { flex-basis: 70px; font-family: monospace; text-align: left; }
+        .slider-group .value { flex-basis: 70px; font-family: var(--font-mono); text-align: left; }
         button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
         button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
         button:disabled, select:disabled, input[type="checkbox"]:disabled + * { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
@@ -61,6 +62,13 @@
     </style>
 </head>
 <body>
+
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
 
     <h1>Interaktive Simulation: Ebene Kreisbewegung</h1>
     
@@ -138,7 +146,7 @@
                     <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
                     <g id="digital_display_group" visibility="hidden"></g>
                 </g>
-                <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" font-family="monospace" font-size="14px" fill="#555"></text>
+                <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" font-family="var(--font-mono)" font-size="14px" fill="#555"></text>
             </g>
             
             <g id="graph_group_single" transform="translate(400, 40)" visibility="visible">
@@ -1047,6 +1055,17 @@
             a.setAttribute('target', '_blank');
             a.setAttribute('rel', 'noopener noreferrer');
         });
+    </script>
+
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
     </script>
 
 </body>

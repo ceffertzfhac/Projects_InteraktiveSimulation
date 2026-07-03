@@ -14,18 +14,19 @@
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
     </script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1; 
-            --fh-red: #d1002d; 
+            --fh-blue: var(--fh-mint);
+            --fh-red: #d1002d;
             --fh-orange: #FF7F0E;
-            --bg-color: #f0f2f5; 
-            --border-color: #ccc; 
-            --text-color: #333; 
-            --control-bg: #fff; 
-            --label-color: #555;
+            --bg-color: var(--bg);
+            --border-color: var(--border);
+            --text-color: var(--text);
+            --control-bg: var(--surface);
+            --label-color: var(--text2);
         }
-        body { font-family: system-ui, -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; text-align: center; }
         
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 1000px; width: 100%; }
@@ -61,7 +62,7 @@
         
         .slider-group { display: grid; grid-template-columns: 110px 1fr 70px; gap: 10px; align-items: center; margin-bottom: 5px; }
         .slider-group .label { text-align: right; color: var(--label-color); font-size: 0.9em; }
-        .slider-group .value { font-family: monospace; font-size: 0.9em; text-align: right; color: #333; }
+        .slider-group .value { font-family: var(--font-mono); font-size: 0.9em; text-align: right; color: #333; }
         
         button { padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; background: linear-gradient(to bottom, #fff, #f0f0f0); cursor: pointer; font-size: 14px; color: #333; transition: all 0.2s; }
         button:hover { background: linear-gradient(to bottom, #f8f8f8, #e0e0e0); border-color: #999; }
@@ -70,7 +71,7 @@
         
         .info-group .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
         .info-group .info-label { color: var(--label-color); }
-        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        .info-group .info-value { font-family: var(--font-mono); font-weight: bold; }
 
         footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #888; }
         input[type=range] { cursor: pointer; }
@@ -79,6 +80,12 @@
 </head>
 <body>
 
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
     <h1>Elastischer Stoß auf der Luftkissenbahn</h1>
     
     <div id="container">
@@ -359,7 +366,7 @@ function toPx(x_m, camPPM, camOffset) {
 }
 
 function adjustColor(col, amount) {
-    if (col.includes("blue") || col.includes("005eb1")) return amount > 0 ? "#4a9eff" : "#003f7a";
+    if (col.includes("blue") || col.includes("00B1AC")) return amount > 0 ? "#4a9eff" : "#003f7a";
     if (col.includes("red") || col.includes("d1002d")) return amount > 0 ? "#ff5c7c" : "#8a001e";
     return col;
 }
@@ -668,7 +675,7 @@ function drawScene() {
         ctx.fillRect(s2Start - bumperW,  hoverY - gHeightPx/1.5, bumperW, gHeightPx/3);
     }
 
-    drawGlider3D(ctx, px1, hoverY, gWidthPx, gHeightPx, "#005eb1", state.m1, state.m1_inf);
+    drawGlider3D(ctx, px1, hoverY, gWidthPx, gHeightPx, "#00B1AC", state.m1, state.m1_inf);
     drawGlider3D(ctx, px2, hoverY, gWidthPx, gHeightPx, "#d1002d", state.m2, state.m2_inf);
 
     // Overlays
@@ -1159,5 +1166,15 @@ function drawGraph() {
 
 init();
 </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
+    </script>
 </body>
 </html>

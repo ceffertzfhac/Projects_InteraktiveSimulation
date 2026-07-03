@@ -6,22 +6,23 @@
     <title>Interaktive Graphik: Grundbegriffe der Kinetmatik</title>
     <!-- MathJax für professionellen Formelsatz -->
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1; 
+            --fh-blue: var(--fh-mint);
             --fh-red: #d1002d;
             --fh-orange: #FF7F0E;
             --color-main: var(--fh-blue);      /* Bahnsegment */
             --color-accent1: var(--fh-orange); /* Ortsvektoren s_A, s_B */
             --color-accent2: #2ca02c;         /* Verschiebung Delta_s (Grün für Unterscheidung) */
             --color-accent3: #d62728;         /* Verschiebung Delta_s (Rot für zweiten Vektor) */
-            --color-path-bg: #AAAAAA;   
-            --color-text-primary: #333;
-            --bg-color: #f0f2f5;
-            --control-bg: #fff;
-            --border-color: #ccc;
+            --color-path-bg: #AAAAAA;
+            --color-text-primary: var(--text);
+            --bg-color: var(--bg);
+            --control-bg: var(--surface);
+            --border-color: var(--border);
         }
-        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em; }
+        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
@@ -39,7 +40,7 @@
         }
         .vis-control:hover { background-color: #f0f0f0; }
         .vis-control-label { font-size: 1.1em; }
-        .vis-control-value { font-family: monospace; font-weight: bold; font-size: 1.1em; justify-self: end; display: flex; align-items: center; gap: 0.3em; }
+        .vis-control-value { font-family: var(--font-mono); font-weight: bold; font-size: 1.1em; justify-self: end; display: flex; align-items: center; gap: 0.3em; }
         
         .vector-display {
             display: inline-flex;
@@ -53,7 +54,7 @@
 
         .slider-control { display: grid; grid-template-columns: 120px 1fr 60px; gap: 10px; align-items: center; padding: 0 10px; }
         .slider-control label { text-align: right; }
-        .slider-control .value { font-family: monospace; }
+        .slider-control .value { font-family: var(--font-mono); }
         
         #analysis-box { padding: 15px; background-color: #f9f9f9; border-radius: 6px; min-height: 400px; box-sizing: border-box; }
         #analysis-box h3 { margin-top: 0; color: var(--fh-blue); }
@@ -81,7 +82,14 @@
         }
     </style>
 </head>
-<body>    
+<body>
+
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
 
     <h1>Interaktive Graphik: Grundbegriffe der Kinetmatik</h1>
     
@@ -441,6 +449,16 @@
             ui.tASlider.addEventListener('input', handleTimeSliderInput);
             ui.tBSlider.addEventListener('input', handleTimeSliderInput);
         };
+    </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
     </script>
 </body>
 </html>
