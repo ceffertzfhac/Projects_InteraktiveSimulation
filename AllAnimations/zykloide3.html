@@ -18,17 +18,18 @@
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js?packages=base,ams,color">
     </script>
+    <link rel="stylesheet" href="../shared/css/design-system.css">
     <style>
         :root {
-            --bg-color: #f0f2f5; --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
-            --p1-color: #ffae42; /* Gelb-Orange */ --p2-color: #485fc7; /* Blau */
-            --p3-color: #48c78e; /* Grün */ --p4-color: #f14668; /* Rot */
-            --sp-color: #363636; /* Grau */
-            --trace-color: #dbdbdb;
-            --vector-v-color: #3273dc;
-            --vector-a-color: #ff3860;
+            --bg-color: var(--bg); --border-color: var(--border); --text-color: var(--text); --control-bg: var(--surface); --label-color: var(--text2);
+            --p1-color: var(--c-p1); --p2-color: var(--c-p2);
+            --p3-color: var(--c-p3); --p4-color: var(--c-p4);
+            --sp-color: var(--c-sp);
+            --trace-color: var(--border2);
+            --vector-v-color: var(--c-vel);
+            --vector-a-color: var(--c-acc);
         }
-        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         #main-content { display: flex; gap: 20px; align-items: flex-start; }
@@ -40,7 +41,7 @@
         legend { font-weight: bold; color: var(--label-color); padding: 0 5px; font-size: 0.9em; }
         .slider-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: center; }
         .slider-group .label { text-align: right; color: var(--label-color); }
-        .slider-group .value { font-family: monospace; }
+        .slider-group .value { font-family: var(--font-mono); }
         button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
         button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
         button:disabled, input:disabled, select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa; }
@@ -55,7 +56,7 @@
         #analysis_panel_container { width: 1220px; margin-top: 10px; }
         #analysis_panel_header { display: flex; justify-content: space-between; align-items: center; padding: 8px 15px; background-color: #f7f7f7; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; }
         #analysis_panel_header h3 { margin: 0; font-weight: bold; color: var(--label-color); font-size: 0.9em; }
-        #analysis_panel_toggle { font-family: monospace; font-size: 1.2em; }
+        #analysis_panel_toggle { font-family: var(--font-mono); font-size: 1.2em; }
         #analysis_panel_content { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr);
@@ -74,11 +75,17 @@
             font-size: 0.9em; 
         }
         .info-group .info-label { color: var(--label-color); text-align: right; }
-        .info-group .info-value { font-family: monospace; font-weight: bold; }
+        .info-group .info-value { font-family: var(--font-mono); font-weight: bold; }
         #analysis_panel_container.collapsed #analysis_panel_content { display: none; }
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
     <h1>Interaktive Simulation: Kinematik des Rollenden Zylinders</h1>
     <div id="container">
         <div id="main-content">
@@ -843,5 +850,15 @@
         resetScene();
     };
 </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
+    </script>
 </body>
 </html>
