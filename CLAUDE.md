@@ -2,128 +2,149 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Overview
+## Project Overview
 
-Collection of interactive physics simulations for FH Aachen (FB 8 – Physik) courses. All UI text and code comments are in **German**. The architectural standard for every simulation is defined in `global_docs/simulation_instruction.md` — read it first when starting a new project.
+A mono-repo of interactive physics simulations for FH Aachen FB 8 Physik courses. All simulations are pure client-side web apps (no build step, no npm) using Vanilla JS ES Modules, SVG for graphics, and MathJax 3 for formula rendering.
 
-### Active Projects
+**Current simulations:**
+- `Project_rolling_bodies_simulation/` — rolling bodies on inclined planes, comparing body shapes via moment of inertia
+- `Project_lorentz_force_simulation/` — Lorentz force between parallel current-carrying conductors on springs
+- `Project_freier_fall_simulation/` — free fall / vertical throw (migrated from Standalone v2.1.9)
+- `Project_atwood_simulation/` — Atwood machine with coordinate-system fix, stopwatch, multi-graph types
+- `Standalone Proto/` — experimental single-file HTML prototypes (historical; not the canonical versions)
 
-| Directory | Description | Current Version |
-|---|---|---|
-| `Project_rolling_bodies_simulation/` | Rolling dynamics on inclined planes (cylinders, spheres, k-factor comparison) | v1.9.4 |
-| `Project_lorentz_force_simulation/` | Lorentz force between two parallel conductors (spring equilibrium) | v1.0.0 |
-
-`Standalone Proto/` contains historical prototypes. `legacy_archive/` folders hold superseded single-file versions.
+**Cross-project tracking:** `BACKLOG.md` (repo root) is the single MoSCoW-prioritized backlog across all sims — bugs, tech debt, features, standalone migrations, and new-simulation ideas. Check it before starting work to find known issues (e.g. T2: remove the duplicate `Standalone Proto/rolling_bodies_simulation/` copy) and after finishing to record follow-ups. `README.md` and `AGENTS.md` are stale (they reference pre-migration folder names) — prefer this file and `BACKLOG.md`.
 
 ## Running a Simulation
 
-No build step, no npm. ES Modules require a local HTTP server — `file://` will fail with CORS errors.
+ES Modules require an HTTP server — `file://` protocol will fail due to CORS restrictions.
 
 ```bash
-# From inside a project directory (e.g. Project_rolling_bodies_simulation/)
+# From the project subfolder (e.g., Project_rolling_bodies_simulation/)
 python3 -m http.server 8000
-# open http://localhost:8000
-
 # or
 npx serve .
-# open http://localhost:3000
 ```
 
-There are no automated tests. Manual browser testing covers: slider live-updates, energy conservation, vector toggles, CSV export (verify comma decimal separators and semicolon column separators in the exported file).
-
-## Shared Architecture
-
-Every project follows this exact module split:
-
-```
-index.html          ← UI structure: sidebar | simulation SVG | analysis panel
-js/
-  main.js           ← bootstrap + requestAnimationFrame loop + error handling
-  constants.js      ← physical constants (G, MU0, …) + UI config (colors, scale)
-  state.js          ← single store object (all mutable state) + DOM cache object
-  physics.js        ← pure/stateless computation; precompute() fills full-path arrays
-  render.js         ← SVG-only mutation; physToScreen() coordinate transform
-  ui.js             ← event handlers; wires sliders → resetSim() or computePhysics()
-css/styles.css      ← CSS custom properties for full color system; .dark class on body
-docs/
-  CHANGELOG.md      ← updated after every change (newest entry first)
-  FEATURE_BACKLOG.md / issues.md  ← planned work and known issues
-```
-
-**Data flow:** User input → `ui.js` handler → mutate `store` in `state.js` → call physics → call render. Physics is event-driven (recalculated on parameter change); the animation loop only advances the frame index.
-
-## Code Conventions
-
-### JavaScript
-- `'use strict'` at the top of every module
-- ES6+: `const`/`let`, arrow functions, template literals — **no semicolons**
-- Constants: `UPPER_SNAKE_CASE` | Variables/functions: `camelCase` | DOM IDs: `snake_case`
-- Private/internal variables: leading underscore (`_mjDebounceTimer`)
-- `precompute()` in `physics.js` calculates the entire trajectory into arrays before animation starts; never compute per-frame if the result depends only on parameters
-
-### Numerics & Notation
-- **Decimal separator:** Comma (`,`) in all UI-visible strings; dot (`.`) inside SVG path data and attribute values
-- **Axis labels:** `Physikalische Größe / Einheit` format, e.g. `t / s` or `a / (m/s²)`
-- Coordinate transform from physical metres to screen pixels must go through a central `physToScreen()` function
-
-### CSS
-- All colors via CSS custom properties in `:root`
-- Dark mode: toggle `.dark` class on `<body>` (not `.light` — light is the default)
-- Semantic color names in use: `--c-vel` (blue), `--c-acc` (red), `--c-force-l` (purple), `--c-force-s` (green), `--c-current` (gold), `--c-current-phys` (orange)
-- Fonts: `Syne` for headlines/UI; `JetBrains Mono` for numeric values
+Then open `http://localhost:8000`. No build, no install.
 
 ## Git Workflow
 
-### Commit-Format (Conventional Commits — automatisch erzwungen)
+Git hooks are active via `core.hooksPath = .githooks` (already configured in this repo):
+
+- **`commit-msg`** enforces **Conventional Commits** format on the first line:
+  `<typ>(<scope>): <kurzbeschreibung>` — e.g. `feat(rolling): Ghosting-Snapshots alle 0,5 s hinzugefügt`.
+  - Types: `feat | fix | docs | style | refactor | chore | test | perf | ci | build | revert`
+  - Scopes (optional): `lorentz | rolling | standalone | global | repo`
+  - `Merge`/`Revert`/`fixup!`/`squash!` commits are skipped automatically.
+- **`pre-commit`** blocks `.DS_Store`, `.AppleDouble`, and any `test.txt` from being committed. These are also in `.gitignore`. If a commit is rejected, unstage the file (`git restore --staged <datei>`) and retry.
+
+There are no automated tests or linters — verification is manual (open in browser, check physics visually, exercise all sliders/toggles/buttons, test CSV export).
+
+## Architecture
+
+Every simulation follows the same module structure (`global_docs/simulation_instruction.md` is the canonical blueprint):
 
 ```
-<typ>(<scope>): <kurzbeschreibung in Deutsch>
+index.html          ← UI layout: sidebar (controls) | main (SVG sim + graphs) | panel (analysis)
+js/
+  constants.js      ← physical constants (G, DT, etc.) and UI config (colors, scale)
+  state.js          ← single store object for all mutable state; DOM element cache
+  physics.js        ← stateless computation; precompute() fills result arrays for the full timeline
+  render.js         ← pure SVG mutation; physToScreen() converts physics coords → pixels
+  ui.js             ← event handlers; owns the requestAnimationFrame animation loop
+css/styles.css      ← CSS custom properties for theming; .dark / .light on <body>
+docs/
+  CHANGELOG.md
+  FEATURE_BACKLOG.md
+  issues.md
 ```
 
-| Typ | Wann |
+**Data flow:** User input → `ui.js` event handler → mutate `store` in `state.js` → `physics.js` → `render.js` (`updateScene()`).
+
+**Physics is precomputed** before animation starts (`precompute()` in `physics.js` fills arrays for the entire run). Animation frames only index into those arrays — no per-frame physics.
+
+**Initialization sequence:** Older sims (rolling, lorentz) use a `js/main.js` entry that calls `state.initDOMCache()` → `ui.setupUI()` → `ui.resetSim()` (via setTimeout for MathJax). Newer sims (atwood, freier_fall) have **no `main.js`** — `js/ui.js` is the ES-module entry (loaded via `<script type="module" src="js/ui.js">` in `index.html`) and calls `state.initDOM()` + `resetSim()` at the bottom of the file. The DOM-cache initializer is named `initDOMCache()` in older sims and `initDOM()` in newer ones.
+
+## Design System (FH Aachen Corporate Design)
+
+Alle Simulationen und die Übersichtsseite verwenden einheitlich:
+
+| Element | Wert |
 |---|---|
-| `feat` | Neue Funktion / neue Simulation |
-| `fix` | Bugfix |
-| `docs` | Nur Dokumentation (CHANGELOG, README, …) |
-| `style` | CSS, Formatierung — keine Logikänderung |
-| `refactor` | Umbau ohne Verhaltensänderung |
-| `chore` | Tooling, .gitignore, Hooks, Build |
-| `perf` | Performance-Verbesserung |
+| **Primärfarbe / Accent** | FH Aachen Mint `#00B1AC` (Pantone 326C) |
+| **Accent Dark Mode** | `#00CEC9` |
+| **UI-Font** | `DM Sans` (Google Fonts) — Verdana als Fallback |
+| **Mono-Font** | `JetBrains Mono` (Google Fonts) — für Zahlenwerte |
+| **Abgelöste Fonts** | Syne (nicht mehr verwenden) |
+| **Falsche Farben** | Gold `#c49b10`, Blau `#005eb1` — nicht verwenden |
 
-| Scope | Bedeutung |
-|---|---|
-| `lorentz` | `Project_lorentz_force_simulation/` |
-| `rolling` | `Project_rolling_bodies_simulation/` |
-| `standalone` | `Standalone Proto/` |
-| `global` | `global_docs/` |
-| `repo` | Root-Dateien (CLAUDE.md, .gitignore, …) |
+Shared CSS-Tokens: `shared/css/design-system.css` (für neue Sims und Übersichtsseite einbinden).
 
-**Beispiele:**
-```
-feat(rolling): Ghosting-Snapshots alle 0,5 s hinzugefügt
-fix(lorentz): Federlängen-Fallback bei d < 5 px korrigiert
-docs(rolling): CHANGELOG für v1.9.5 aktualisiert
-chore(repo): .gitignore um *.bak ergänzt
-```
+## Key Conventions
 
-### Hooks (automatisch aktiv)
+- **Language:** All UI text, comments, and documentation are in German.
+- **Decimal separators:** Comma `,` in all UI-facing text/labels; dot `.` in SVG coordinate attributes.
+- **Axis labels:** Format `Physikalische Größe / Einheit` (e.g., `t / s`, `a / (m/s²)`). Use `setAxisLabel(el, text)` to render with italic quantity and upright unit via tspan.
+- **Physical quantity typography (applies everywhere — axes, titles, labels, HTML):** Variable symbols are always italic, units and descriptive words are always upright. Implementation:
+  - SVG axis labels → `setAxisLabel(el, 'y₁ / cm')` — splits at ` / `, left part italic tspan, right part upright
+  - SVG graph titles → `setGraphTitle(el, 'Position y₁(t)')` — splits at last space, trailing symbol expression italic tspan
+  - SVG simulation labels (mass, force) → tspan with `font-style="italic"` for the symbol, upright tspan for `=value unit`
+  - HTML time/value labels → `innerHTML` with `<i>t</i> = 0,00 s` — never plain `textContent` for labels with variable names
+- **Coordinate transform:** Always use a central `physToScreen(x, y)` function in `render.js`. Never scatter raw pixel math.
+- **State:** All mutable variables live exclusively in `state.js` → `store`. No module-level globals elsewhere.
+- **Theming:** Colors via CSS custom properties (`--bg`, `--surface`, `--accent`). Vector colors are standardized: velocity = `#66aaff`, acceleration = `#ff7777`.
+- **Documentation:** After every code change, update `docs/CHANGELOG.md` and either `docs/FEATURE_BACKLOG.md` or `docs/issues.md`.
+- **Graph background rect:** Extend 10px past axis arrow tips. With `refX=0` and `markerWidth * strokeWidth ≈ 10px`: use `y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15`. Never let the white area end before the arrowheads.
+- **Graph title z-order:** `<text class/id="graph_title">` must be the **last child** inside the graph SVG — after `<g class="graph_grid">`, after all `<polyline>` and `<circle>` elements. This ensures the title is rendered on top of data lines and the white background rect. Never place it before polylines/circles.
+- **Graph title position:** The title must sit **clearly above** the white graph background rect, not inside it. The graph bg rect starts at `y=-15` (group-relative in FF) and `y=P.top-15` (in Atwood). Title `y` must be at least 5px above the rect top edge. Use `y="-22"` for FF (group-relative), `y="10"` for Atwood (SVG-relative with P.top=30).
+- **t-axis ticks:** The time axis must show **at least 3 tick marks** besides the origin (0). Use `tAxisStep(t_max)` (defined in render.js) instead of `getNiceTick(t_max, 6)` for the x-axis step — it guarantees ≥3 divisions by picking the largest nice step ≤ t_max/3.
+- **Display values — sign convention:** Never use `Math.abs()` on directional quantities (velocity, position, acceleration). Always apply `getDisplayV()` / `getDisplayY()` / `getDisplayA()` so displayed values match the configured axis direction.
+- **MathJax subscripts:** Subscripts that are text abbreviations (words or acronyms like "fall", "imp", "res", "max") must use `\text{}`: e.g. `t_{\text{fall}}`, `v_{\text{imp}}`, `F_{\text{res}}`. Numeric indices or single letters need no `\text{}` (e.g. `y_1`, `y_{1,0}`).
+- **SVG background:** Never add a `<rect>` background fill inside the simulation SVG. The SVG is transparent and inherits the page background (`--bg`). No `--sim-bg` token needed.
+- **Play/Pause/Reset:** These three buttons always appear together in one `.btn-row` (no `flex-wrap`) in this order: `▶ Play` (primary), `⏸ Pause`, `↺ Reset`. Never place Reset in the header.
+- **Sidebar widths:** All simulations use `grid-template-columns: 280px 1fr 270px`. Left panel 280px ensures Play/Pause/Reset fit on one row without wrapping.
+- **Preview images (AllAnimations):** When migrating a simulation to modular architecture, keep the existing `Vorschaubilder/<name>.png` — never replace it with an emoji placeholder. Only swap when the Product Owner delivers a new image explicitly.
+- **Versioning:** Every code change to a simulation must bump the version in `docs/CHANGELOG.md` (patch = bugfix/style, minor = new feature). The version string in `index.html` (e.g. `v2.0.1`) must match.
+- **Force vector colors (colorblind-safe, Okabe-Ito):** Use `--c-fg: #0072b2` (gravity, blue), `--c-fn: #e69f00` (tension, orange), `--c-fr: #cc79a7` (net force, mauve). Dark mode: `#56b4e9` / `#f0e442` / `#e078c3`. Never use purple+green+orange together — indistinguishable for red-green colorblind users.
+- **Force naming conventions (FH Aachen FB 8):** Seilkraft = `F_S`, Resultierende/Gesamtkraft = `F_{\text{ges}}`, Schwerkraft = `F_G`. Do not use `F_T` or `F_{\text{res}}`.
+- **Stopwatch design (canonical reference: Atwood v2.0.x):** Two-hand design. Main face `r=60`, 60 tick marks, main hand rotates 1 rev/60s (color: `--text`). Subdial at `cy=25` r=13`, 10 tick marks, sub hand rotates 1 rev/s (color: `--accent`). Group transform: `translate(340, 55) scale(0.7)`. Sub hand resets to 12 o'clock (`x2=0, y2=13`). Apply this design to all future simulations.
+- **Datenexport-Position:** Die Export-Buttons (Diagramm CSV / Alle Daten CSV) stehen immer in der **rechten Sidebar**, nach den Diagramm-Einstellungen und vor dem Physik-Formelblock. Nicht in der linken Sidebar platzieren.
+- **Koordinatensystem-Konsistenz:** Lineal/Messinstument, Diagramm, Regler-Anzeigewert und Live-Panel müssen alle **dieselbe physikalische Koordinate** zeigen. Interne Berechnungskoordinaten dürfen abweichen, aber alle nutzersetig sichtbaren Werte müssen einheitlich umgerechnet sein. Beispiel Atwood: Überall „Höhe vom Boden in cm" — niemals intern „Abstand von Apertur" mischen.
+- **Lineal / Messgeräte-Nullpunkt:** Der Nullpunkt eines Lineals oder Messgeräts liegt am **physikalisch natürlichen Null** — bei Höhen immer unten (Boden = 0). Skala wächst in Richtung des physikalisch Positiven (oben = mehr Höhe).
+- **Regler-Richtung:** Schieberegler für physikalische Größen müssen **intuitiv orientiert** sein: rechts schieben = größerer Wert im physikalischen Sinne (mehr Höhe, mehr Masse, mehr Geschwindigkeit). Slider-`min`/`max` und der intern gespeicherte Wert müssen ggf. umgerechnet werden, damit die Anzeigerichtung stimmt.
+- **Diagrammtyp-Beschriftungen:** Dropdown-Optionen werden aus der **Nutzerperspektive** benannt, nicht aus der mathematisch-internen Perspektive. Beschreibend und konkret: „Abstand der Massen" statt „Positionsdifferenz", „Verschiebung ab Start" statt „yrel". Subscript-Symbole (Δy, v₁) ergänzen den Klartext, ersetzen ihn aber nicht.
+- **Legende:** Jede Simulation mit farbig codierten Objekten oder Vektoren besitzt eine **Legende** in der linken Sidebar (nach den Visualisierungs-Toggles). Format: `.legend-grid` mit `.legend-swatch` (farbiger Kreis) + `.legend-label` (MathJax-Label). Gilt für Massen, Kräftevektoren, Bewegungsvektoren.
+- **Vektoren standardmäßig sichtbar:** Visualisierungs-Toggles für Vektoren sind **beim Start aktiviert** (`checked`-Attribut im HTML). Vektoren werden auch im Ruhezustand (t=0) gezeichnet — `updateScene(0, ...)` in `resetSim()` aufrufen statt explizit zu verstecken.
+- **MathJax — statisch statt dynamisch:** Formeln immer als statisches HTML in `index.html` schreiben, nicht per JS-`innerHTML` einfügen. MathJax rendert beim Seitenstart alle DOM-Elemente zuverlässig. Für konfigurationsabhängige Varianten (z. B. unterschiedliche Vorzeichen je nach Achsenrichtung): alle Varianten als separate `<div id="pf_...">` in die Seite schreiben, Standard-Variante sichtbar, alle anderen `style="display:none"`. JS macht nur `el.style.display` show/hide — kein `typesetPromise`-Aufruf zur Laufzeit.
 
-Die Hooks liegen in `.githooks/` und sind versioniert. Sie werden automatisch angewendet, weil `core.hooksPath = .githooks` in der lokalen Git-Konfiguration gesetzt ist.
+## Code Style
 
-> **Neuer Klon:** Nach dem Klonen einmalig ausführen:
-> ```bash
-> git config core.hooksPath .githooks
-> ```
+- ES6+: `const`/`let`, arrow functions, template literals, no semicolons
+- `'use strict'` at the top of each module
+- Naming: `UPPER_SNAKE_CASE` for constants, `camelCase` for variables/functions, `snake_case` for DOM IDs, `_prefix` for module-private variables
+- Max line length ~100 characters
 
-- **`commit-msg`** — lehnt Commits ab, die nicht dem Conventional-Commits-Format entsprechen.
-- **`pre-commit`** — blockiert das Einchecken von `.DS_Store`, `test.txt` und ähnlichen Junk-Dateien.
+## Adding a New Simulation
 
-## After Every Code Change
+Follow the blueprint in `global_docs/simulation_instruction.md`. Scaffold the six-module structure above, then:
+1. Define inputs/outputs in `constants.js`
+2. Register all mutable state in `state.js`
+3. Implement `precompute()` in `physics.js`
+4. Implement `drawBackground()` (static SVG) and `updateScene(t)` (animated) in `render.js`
+5. Wire sliders to `resetSim()` in `ui.js`
 
-Update `docs/CHANGELOG.md` (add entry at top) and, if relevant, `docs/FEATURE_BACKLOG.md` or `docs/issues.md`.
-
-## Adding a New Simulation Project
-
-1. Copy the module structure above into a new `Project_<name>/` directory
-2. Follow the design checklist in `global_docs/simulation_instruction.md` §6
-3. Register the project in this file's table above
+Checklist before shipping:
+- [ ] Live-Slider-Updates (Reset bei jeder Parameteränderung)
+- [ ] Koordinatensystem-Konsistenz: Lineal = Diagramm = Regler-Label = Live-Panel
+- [ ] Regler-Richtung intuitiv (rechts = physikalisch größer)
+- [ ] Vektoren beim Start sichtbar (Toggles `checked`, `updateScene(0,…)` in `resetSim`)
+- [ ] Legende vorhanden für alle farbigen Objekte/Vektoren
+- [ ] Diagrammtitel: letztes SVG-Element, klar über weißem Hintergrund
+- [ ] t-Achse: ≥3 Tick-Marken außer Ursprung (`tAxisStep`)
+- [ ] Dropdown-Labels aus Nutzerperspektive benannt
+- [ ] CSV-Export: `;` Trenner, `,` Dezimal, alle anzeigbaren Typen abgedeckt
+- [ ] MathJax-Formeln rendern (statisch, kein dynamic typesetPromise)
+- [ ] Dark Mode lesbar (alle Farben via CSS Custom Properties)
+- [ ] Physikalische Größen kursiv überall (setAxisLabel, setGraphTitle, `<i>`)
+- [ ] Versionsnummer in `index.html` und `docs/CHANGELOG.md` synchron
