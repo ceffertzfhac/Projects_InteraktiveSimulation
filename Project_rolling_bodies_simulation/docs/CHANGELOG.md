@@ -2,6 +2,11 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [1.9.5] - 2026-07-03
+
+### Geändert (Style)
+- **Schriftart:** Syne → DM Sans (FH-Aachen-Design-System); `JetBrains Mono` auf Gewicht 400/500 reduziert. Google-Fonts-Link inkl. `preconnect` für `fonts.gstatic.com`.
+
 ## [1.9.4] - 2026-02-25
 
 ### Behoben (Fixed)
