@@ -37,6 +37,8 @@ function initDOM() {
   DOM.tog_flow = document.getElementById('tog_flow')
   DOM.theme_toggle = document.getElementById('theme_toggle')
   DOM.reset_btn = document.getElementById('reset_btn')
+  DOM.analysis_toggle = document.getElementById('analysis_toggle')
+  DOM.app_layout = document.querySelector('.app-layout')
 
   // SVG groups
   DOM.main_svg = document.getElementById('main_svg')

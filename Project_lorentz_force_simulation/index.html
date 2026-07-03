@@ -4,9 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Lorentzkraft – Interaktive Simulation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']] },
@@ -15,12 +12,20 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
 
 <header class="topbar">
-  <div class="topbar-title">Lorentzkraft: Parallele Leiter <span style="opacity:0.4; font-weight:300; font-size:0.7rem; margin-left:5px;">v1.4.1</span> <span> FH Aachen - FB 8 - Physik </span></div>
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Lorentzkraft: Parallele Leiter
+    <span class="version">v1.5.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
   <div class="topbar-right">
     <div class="theme-toggle-wrap">
       <span style="font-size:.82rem">🌙</span>
@@ -31,7 +36,7 @@ window.MathJax = {
   </div>
 </header>
 
-<div class="app-layout">
+<div class="app-layout analysis-collapsed">
 <aside class="panel left-panel">
   <div class="panel-section">
     <div class="panel-label">Eingabemodus</div>
@@ -120,9 +125,23 @@ window.MathJax = {
     <div class="vis-toggle-row"><span class="vis-label">Stromfluss visualisieren</span><label class="toggle-switch"><input type="checkbox" id="tog_flow"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
     <div class="vis-toggle-row"><span class="vis-label">Stromrichtung anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_current" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
   </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Legende</div>
+    <div class="legend-grid">
+      <div class="legend-swatch" style="background:var(--c-current)"></div>
+      <div class="legend-label">Strom (technisch) \(I\)</div>
+      <div class="legend-swatch" style="background:var(--c-current-phys)"></div>
+      <div class="legend-label">Strom (physikalisch)</div>
+      <div class="legend-swatch" style="background:var(--c-force-l)"></div>
+      <div class="legend-label">Lorentzkraft \(F_L\)</div>
+      <div class="legend-swatch" style="background:var(--c-force-s)"></div>
+      <div class="legend-label">Federkraft \(F_S\)</div>
+    </div>
+  </div>
 </aside>
 
-<main class="center-area" style="grid-template-rows: 1fr;">
+<main class="center-area">
   <div class="sim-wrapper">
     <svg id="main_svg" viewBox="0 0 700 500" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -175,7 +194,20 @@ window.MathJax = {
   </div>
 </main>
 
-<aside class="panel right-panel">
+<aside class="panel right-panel" id="right_panel">
+
+  <button class="panel-header" id="analysis_toggle" type="button"
+          title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+    <span class="ph-label">Analyse</span>
+    <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 4 L8 8 L3 12"/>
+      <path d="M8 4 L13 8 L8 12"/>
+    </svg>
+  </button>
+
+  <div class="panel-body">
+
   <div class="panel-section">
     <div class="panel-label">Live-Analyse</div>
     <div class="analysis-subject">
@@ -207,6 +239,9 @@ window.MathJax = {
       <div>Gleichgewicht: \(F_L = F_s\)</div>
     </div>
   </div>
+
+  </div><!-- /.panel-body -->
+
 </aside>
 </div>
 

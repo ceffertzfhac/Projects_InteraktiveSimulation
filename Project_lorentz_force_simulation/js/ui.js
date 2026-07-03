@@ -96,6 +96,12 @@ export function initUI() {
     document.body.classList.toggle('light')
     store.isDarkMode = document.body.classList.contains('dark')
   })
+
+  // Einklappbare Analyse-Sidebar
+  DOM.analysis_toggle.addEventListener('click', () => {
+    const collapsed = DOM.app_layout.classList.toggle('analysis-collapsed')
+    DOM.analysis_toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+  })
   
   DOM.reset_btn.addEventListener('click', () => {
     DOM.mode_u.checked = true
