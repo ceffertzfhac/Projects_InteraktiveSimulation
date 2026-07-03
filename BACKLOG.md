@@ -1,6 +1,6 @@
 # Projekt-Backlog: Interaktive Physik-Simulationen
 
-Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
+Stand: 2026-07-03 | Priorisierung: MoSCoW (ausstehend)
 
 ---
 
@@ -57,7 +57,7 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 | ID | Titel | Simulation | Beschreibung |
 |----|-------|-----------|--------------|
 | S1 | Wellen-Simulation einpflegen | Interferenz zweier Punktquellen | Ist fertig implementiert (890 Zeilen), aber in keiner Index-Seite verlinkt. Kapitel "Wellen" fehlt in `AllAnimations/index.html` komplett. |
-| S2 | Dark Mode für alle Standalone-Sims | Alle | Standalone-Simulationen nutzen ein eigenes, älteres Design-System (kein Dark Mode, andere Fonts). Angleichen an den FH-Standard aus `global_docs/simulation_instruction.md`. |
+| S2 | ✅ Dark Mode für alle Standalone-Sims | Alle | **Erledigt (Sprint 3, R4–R6):** Alle 14 Standalone-Prototypen + Taschenrechner auf FH-Design-System umgestellt (shared-CSS-Link, Token-Mapping, Dark Mode via `body.dark`-Kaskade, Theme-Toggle mit einheitlichem `fh_theme`-localStorage-Key, Back-Button). |
 | S3 | Vorschaubilder vervollständigen | AllAnimations | Einige Karten haben noch kein Vorschaubild (Platzhalter "Vorschau"). |
 | S4 | Taschenrechner einordnen | Taschenrechner | Ist kein Physik-Thema im eigentlichen Sinne. Entweder als Hilfsmittel in Index aufnehmen oder aus Standalone herauslösen. |
 
@@ -81,7 +81,7 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 | ID | Titel | Beschreibung |
 |----|-------|--------------|
 | I1 | GitHub Pages Deployment | Automatische Veröffentlichung der Simulationen bei Push auf `main` (GitHub Actions). Studenten könnten direkt über eine URL darauf zugreifen. |
-| I2 | Shared Design-System | Gemeinsame `shared/css/` und `shared/js/`-Bibliothek für beide Projekte (Design, `fmt()`, Math-Utils, SVG-Helpers). Reduziert Duplizierung. `shared/css/design-system.css` existiert bereits (145 Zeilen, nicht committed), Simulationen linken noch nicht drauf. |
+| I2 | ✅ Shared Design-System | **Erledigt (Sprint 3, R0/R7):** `shared/css/design-system.css` an CLAUDE.md/FF-Referenz angleichen (Tokens, Okabe-Ito-Kraftfarben, Grid 280/1fr/270, Klapp-Sidebar-CSS). Alle modularen Sims (Atwood/Rolling/Lorentz) und die Übersicht linken shared; Standalones via `<link>` vor Inline-`<style>`. `shared/js/` (fmt/Math/SVG-Helper) weiterhin offen (siehe I3-Kontext). |
 | I3 | Unit-Tests für Physik-Module | Vitest-Setup für `physics.js` beider Projekte. Kernformeln (k-Faktor, Gleichgewicht, Precompute) testbar machen. |
 | I4 | global_docs/simulation_instruction.md erweitern | Aktueller Blueprint beschreibt nur den modularen Aufbau. Fehlend: Umgang mit Standalone-Sims, Migrations-Workflow, Qualitätscheckliste. |
 
@@ -100,7 +100,9 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 Vollständiger Plan: `.claude/plans/crystalline-giggling-flamingo.md`.
 Referenzimplementierung: `Project_freier_fall_simulation/` v2.2.x (einklappbare Sidebar, `--fh-mint`-Tokens, Dark Mode, Grid 280/1fr/270, Back-Button).
 Blueprint: `global_docs/simulation_instruction.md` § „Einklappbare Analyse-Sidebar".
-Adressiert bestehende Items **I2** (Shared Design-System linken) und **S2** (Dark Mode für Standalone-Sims) — werden mit R0/R4/R5/R6 geschlossen.
+Adressiert bestehende Items **I2** (Shared Design-System linken) und **S2** (Dark Mode für Standalone-Sims) — **beide mit R0/R4/R5/R6/R7 geschlossen (Sprint 3).**
+
+**Status (Sprint 3):** R0–R8 erledigt (R8 bewusst nicht umgesetzt — siehe unten); R9 = dieser Abschluss.
 
 | ID | Prio | Titel | Abhängigkeit | Beschreibung |
 |----|------|-------|--------------|--------------|
@@ -112,7 +114,7 @@ Adressiert bestehende Items **I2** (Shared Design-System linken) und **S2** (Dar
 | R5 | Could | 2 Bulma-Outlier umstellen | R0 | `schräger_wurf.html`, `zykloide3.html`: Bulma-Palette vollständig durch FH-Tokens ersetzen (größerer Eingriff, Layout/Funktion bleibt). |
 | R6 | Could | Taschenrechner umstellen | R0 | `Standalone Proto/Taschenrechner/taschenrechner.html`: FH-blau-alt → FH-Design-System, Dark Mode, Back-Button. |
 | R7 | Could | Übersicht linkt shared Design-CSS | R0 | `AllAnimations/index.html` nutzt aktuell inline duplizierte Tokens — auf `<link>` shared umstellen. |
-| R8 | Could | Freier Fall linkt shared | R0 | `Project_freier_fall_simulation/` optional shared `@import`en lassen (Token-Drift auflösen); Referenz nicht riskieren — erst nach R0 stabil. |
+| R8 | Could | ~~Freier Fall linkt shared~~ (bewusst nicht umgesetzt) | R0 | `Project_freier_fall_simulation/` ist die kanonische Referenz, aus der `shared` abgeleitet wurde — bereits voll konform. Ein `@import` würde eine Cleanup der per-Sim `styles.css` (Base-Tokens + Klapp-CSS) erfordern und die Referenz riskieren, für marginalen DRY-Nutzen. Entscheidung: FF bleibt selbstständig. |
 | R9 | Must | Rollout abschließen: Doku & Backlog aktualisieren | R1–R8 | CLAUDE.md/BACKLOG: I2, S2 als erledigt markieren; Statistik; ggf. Konventionen um neu gewonnene Erkenntnisse ergänzen. Commit `docs(repo)`/`docs(global)`. |
 
 ---
@@ -127,15 +129,34 @@ Adressiert bestehende Items **I2** (Shared Design-System linken) und **S2** (Dar
 
 ---
 
+## ERLEDIGT (Sprint 3 — 2026-07-03): Rollout UI/UX & Design-System
+
+Vollständiger Plan: `.claude/plans/crystalline-giggling-flamingo.md`. Referenz: `Project_freier_fall_simulation/` v2.2.x.
+
+| ID | Titel | Commit / Version | Anmerkung |
+|----|-------|------------------|-----------|
+| R0 | `shared/css/design-system.css` an CLAUDE.md angleichen + Klapp-CSS | `refactor(repo)` 8a6614b | Tokens, Okabe-Ito-Kraftfarben, Grid 280/1fr/270, Klapp-Sidebar-CSS (off-screen Body). |
+| R1 | Atwood: einklappbare Sidebar + shared import | `feat(atwood)` 9ad770d · v2.2.0 | Hat schon Grid/Back-Button/Stopwatch/Legende/Okabe-Ito. |
+| R2 | Rolling: Design-System + Sidebar + Legende + Stopwatch | `feat(rolling)` 1116404 · v2.0.0 | Grid 255/295 → 280/270; kanonische Stopwatch (precompute-basiert); Legende SP/P1–P4. |
+| R3 | Lorentz: Gold-Reste & `:root`-Bugfix + Sidebar + Legende | `fix(lorentz)` 1674c7b · v1.5.0 | Stale Gold → Mint; doppeltes `:root`/`body.dark` entfernt; Okabe-Ito F_L/F_S. Keine Stopwatch (statisches Gleichgewicht). |
+| R4 | 11 FH-blau-alt Standalone-Prototypen umstellen | `style(standalone)` f432622 | `--fh-blue`/`#005eb1` → `var(--fh-mint)`/`#00B1AC`; Token-Mapping (auto Dark Mode); Font-Stacks → `--font-ui`/`--font-mono`; Back-Button + Theme-Toggle. |
+| R5 | 2 Bulma-Outlier umstellen | `style(standalone)` a76292c | `schräger_wurf` & `zykloide3`: Bulma-Kategorialpalette → FH-Tokens `--c-p1..p4`/`--c-sp`/`--c-vel`/`--c-acc`. |
+| R6 | Taschenrechner umstellen | `style(standalone)` 0517442 | `../../shared/`-Pfad; Equals-Button → Mint; Back-Button → `../AllAnimations/index.html`. |
+| R7 | Übersicht linkt shared Design-CSS | `refactor(standalone)` fe5b098 | Token-DRY; `fh-theme` → `fh_theme` (Dark Mode persistiert übersicht↔sim). |
+| R8 | Freier Fall linkt shared | — (bewusst nicht umgesetzt) | Siehe R8-Zeile oben; FF bleibt selbstständige Referenz. |
+| R9 | Rollout abschließen: Doku & Backlog | `docs(repo)`/`docs(global)` (this) | I2/S2 als erledigt markiert; CLAUDE.md um Standalone-Konvertierungs-Konventionen ergänzt; Statistik aktualisiert. |
+
+---
+
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 45
+- **Gesamt-Items (offen):** 43
 - **Bugs:** 3
 - **Technische Schulden:** 6
 - **Features (bestehende Projekte):** 11
-- **Standalone-Verbesserungen:** 4
+- **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
-- **Infrastruktur:** 4
+- **Infrastruktur:** 4 (davon I2 erledigt)
 - **Migrationen:** 1
-- **Rollout UI/UX (Sprint 3):** 10 (R0–R9; R0 Must-Gate, R1–R3 modular, R4–R8 standalone, R9 Abschluss)
-- **Erledigt:** 3 (M2, M3 — Sprint 2; T5 — Sprint 3)
+- **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
+- **Erledigt:** 15 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3)
