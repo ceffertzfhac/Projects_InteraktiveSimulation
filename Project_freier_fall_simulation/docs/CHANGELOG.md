@@ -1,5 +1,9 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.1 — 2026-07-03
+### Geändert (UX)
+- **Klapp-Button überarbeitet:** Topbar-Toggle mit irreführendem Einzelpfeil entfernt. Steuerung sitzt jetzt als Header direkt am rechten Panel (Nähe → klarer Bezug). Double-Chevron-Icon (»/«) statt Navigationspfeil, rotiert beim Zustandswechsel. Eingeklappt bleibt ein 44-px-Schienen-Streifen mit vertikalem „Analyse"-Label sichtbar — offensichtlich, dass das Panel existiert und wieder aufklappbar ist. `aria-expanded`/`aria-controls`, Fokus-Ring.
+
 ## v2.2.0 — 2026-07-03
 ### Hinzugefügt (Feature)
 - **Einklappbare Live-Analyse:** Toggle-Button „Analyse" in der Topbar blendet die komplette rechte Sidebar (Live-Analyse, Fallkennwerte, Datenexport, Physik) ein/aus. Eingeklappt gibt das Panel seine Grid-Spalte frei, die Simulation/das Diagramm wird breiter. Chevron-Indikator wechselt zwischen ► (eingeklappt möglich) und ◄ (ausgeklappt möglich), plus `aria-expanded`/`aria-controls` für Barrierefreiheit.
