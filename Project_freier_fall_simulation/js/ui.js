@@ -162,6 +162,10 @@ DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
 
 DOM.playBtn.addEventListener('click', startAnimation);
 DOM.pauseBtn.addEventListener('click', () => { if (store.aniFrameId) stopAnimation(); });
+DOM.analysisToggle.addEventListener('click', () => {
+  const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed');
+  DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+});
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false));
 DOM.exportAll.addEventListener('click',     () => exportCSV(true));
 document.getElementById('reset_btn').addEventListener('click', () => {

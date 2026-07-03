@@ -135,13 +135,22 @@ body {
 body.dark .theme-toggle { background: var(--accent); border-color: var(--accent); }
 body.dark .theme-toggle::before { transform: translateX(16px); background: #fff; }
 
+/* Analysis panel toggle (topbar) */
+.analysis-toggle { display: flex; align-items: center; gap: 5px; }
+.analysis-toggle .at-chevron::before { content: '►'; font-size: .7rem; line-height: 1; }
+.analysis-toggle[aria-expanded="false"] .at-chevron::before { content: '◄'; }
+.analysis-toggle[aria-expanded="false"] { border-color: var(--accent); color: var(--accent); }
+
 /* ── LAYOUT ──────────────────────────────────────────────────────────────── */
 .app-layout {
   display: grid;
   grid-template-columns: 280px 1fr 270px;
   height: calc(100vh - 52px);
   overflow: hidden;
+  transition: grid-template-columns .25s ease;
 }
+.app-layout.analysis-collapsed { grid-template-columns: 280px 1fr 0; }
+.app-layout.analysis-collapsed .right-panel { display: none; }
 .panel { background: var(--surface); overflow-y: auto; overflow-x: hidden; transition: background 0.3s; }
 .panel::-webkit-scrollbar { width: 3px; }
 .panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }

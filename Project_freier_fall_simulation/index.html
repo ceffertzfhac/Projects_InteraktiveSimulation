@@ -25,10 +25,13 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Freier Fall / Senkrechter Wurf
-    <span class="version">v2.1.10</span>
+    <span class="version">v2.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
+    <button class="btn small analysis-toggle" id="analysis_toggle" title="Live-Analyse ein-/ausblenden" aria-expanded="true" aria-controls="right_panel">
+      <span class="at-chevron" aria-hidden="true"></span> Analyse
+    </button>
     <div class="theme-toggle-wrap">
       <span style="font-size:.82rem">🌙</span>
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
@@ -181,7 +184,7 @@ window.MathJax = {
   </main>
 
   <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
-  <aside class="panel right-panel">
+  <aside class="panel right-panel" id="right_panel">
 
     <div class="panel-section">
       <div class="panel-label">Live-Analyse</div>

@@ -41,6 +41,8 @@ export function initDOM() {
   DOM.togAcc        = q('tog_acc');
   DOM.yAxisDisplay  = q('y_axis_display');
   DOM.themeToggle   = q('theme_toggle');
+  DOM.analysisToggle = q('analysis_toggle');
+  DOM.appLayout     = document.querySelector('.app-layout');
   DOM.timeLabel     = q('time_label');
   DOM.liveT         = q('live_t');
   DOM.liveY         = q('live_y');

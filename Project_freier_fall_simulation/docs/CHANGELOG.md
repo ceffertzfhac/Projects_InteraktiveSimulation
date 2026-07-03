@@ -1,5 +1,9 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.0 — 2026-07-03
+### Hinzugefügt (Feature)
+- **Einklappbare Live-Analyse:** Toggle-Button „Analyse" in der Topbar blendet die komplette rechte Sidebar (Live-Analyse, Fallkennwerte, Datenexport, Physik) ein/aus. Eingeklappt gibt das Panel seine Grid-Spalte frei, die Simulation/das Diagramm wird breiter. Chevron-Indikator wechselt zwischen ► (eingeklappt möglich) und ◄ (ausgeklappt möglich), plus `aria-expanded`/`aria-controls` für Barrierefreiheit.
+
 ## v2.1.10 — 2026-07-03
 ### Behoben (Fixed)
 - **Back-Button:** Übersicht-Link nach Move des Übersichtsordners an den Repo-Root korrigiert (`../Standalone%20Proto/AllAnimations/…` → `../AllAnimations/…`).
