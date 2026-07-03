@@ -22,7 +22,6 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 | T2 | Redundante Projektkopie entfernen | Repo | `Standalone Proto/rolling_bodies_simulation/` ist eine vollständige Kopie von `Project_rolling_bodies_simulation/` — Überbleibsel der Migration. Entfernen. |
 | T3 | AGENTS.md und README.md aktualisieren | Repo | Beide Dateien referenzieren noch die alten Verzeichnisnamen (`zykloide_schiefe_ebene/`, `lorentz_force_simulation/`). |
 | T4 | GEMINI.md aufräumen | Repo | `global_docs/GEMINI.md` ist inhaltlich nahezu identisch mit `CLAUDE.md`. Entweder konsolidieren oder klar abgrenzen. |
-| T5 | Zwei index.html konsolidieren | Standalone | `Standalone Proto/index.html` und `Standalone Proto/AllAnimations/index.html` sind zwei unterschiedliche, inkonsistente Index-Seiten. Eine davon ist veraltet. |
 | T6 | Einheitliche `fmt()`-Funktion | Beide | Projekt 1 nutzt `toLocaleString('de-DE')`, Projekt 2 `toFixed().replace()`. Projekt 2 ist robuster (NaN-Check). Angleichen. |
 | T7 | Magic Numbers in render.js | Lorentzkraft | Feder-Parameter (14 Windungen, Radius 7, Drahtbreite 2,6, 12 Helix-Schritte) sind hardcodiert. Zu Konstanten machen. |
 
@@ -102,17 +101,18 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 |----|-------|---------|-----------|
 | M2 | Freier Fall / Senkrechter Wurf migrieren | v2.1.9 | `Project_freier_fall_simulation/` — modular, Dark Mode, Precompute, CSV-Export |
 | M3 | Atwood migrieren | v2.1.9 | `Project_atwood_simulation/` — inkl. Koordinatensystem-Fix, tAxisStep, yrel-Diagrammtyp |
+| T5 | Zwei index.html konsolidieren | Sprint 3 | Veraltete `Standalone Proto/index.html` entfernt; `AllAnimations/` an Repo-Root gehoben — `AllAnimations/index.html` ist die einzige Übersichtsseite. Back-Buttons in Atwood/Freier Fall und Projekt-Links korrigiert. |
 
 ---
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 36
+- **Gesamt-Items (offen):** 35
 - **Bugs:** 3
-- **Technische Schulden:** 7
+- **Technische Schulden:** 6
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4
 - **Migrationen:** 1
-- **Erledigt:** 2 (M2, M3 — Sprint 2)
+- **Erledigt:** 3 (M2, M3 — Sprint 2; T5 — Sprint 3)

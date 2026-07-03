@@ -1,5 +1,9 @@
 # Changelog – Atwood-Maschine
 
+## v2.1.10 — 2026-07-03
+### Behoben (Fixed)
+- **Back-Button:** Übersicht-Link nach Move des Übersichtsordners an den Repo-Root korrigiert (`../Standalone%20Proto/AllAnimations/…` → `../AllAnimations/…`).
+
 ## v2.1.9 — 2026-06-15
 **Feature: Diagrammtyp „Verschiebung ab Start" + Umbenennung**
 

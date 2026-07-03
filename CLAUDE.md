@@ -11,7 +11,8 @@ A mono-repo of interactive physics simulations for FH Aachen FB 8 Physik courses
 - `Project_lorentz_force_simulation/` — Lorentz force between parallel current-carrying conductors on springs
 - `Project_freier_fall_simulation/` — free fall / vertical throw (migrated from Standalone v2.1.9)
 - `Project_atwood_simulation/` — Atwood machine with coordinate-system fix, stopwatch, multi-graph types
-- `Standalone Proto/` — experimental single-file HTML prototypes (historical; not the canonical versions)
+- `AllAnimations/` — **global overview page** (`index.html`) listing every simulation as a card, plus the standalone prototype HTML files and their `Vorschaubilder/` preview images. Lives at repo root (moved out of `Standalone Proto/`). Modular projects link back here via `../AllAnimations/index.html`.
+- `Standalone Proto/` — versioned source folders of experimental single-file HTML prototypes (historical; not the canonical versions). The runnable prototype copies live in `AllAnimations/`.
 
 **Cross-project tracking:** `BACKLOG.md` (repo root) is the single MoSCoW-prioritized backlog across all sims — bugs, tech debt, features, standalone migrations, and new-simulation ideas. Check it before starting work to find known issues (e.g. T2: remove the duplicate `Standalone Proto/rolling_bodies_simulation/` copy) and after finishing to record follow-ups. `README.md` and `AGENTS.md` are stale (they reference pre-migration folder names) — prefer this file and `BACKLOG.md`.
 
