@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototyp V3.0: Schräger Wurf mit Analyse</title>
+    <!-- MathJax für professionellen Formelsatz -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        :root {
+            --fh-blue: #005eb1; --fh-red: #d1002d; --bg-color: #f0f2f5;
+            --border-color: #ccc; --text-color: #333; --control-bg: #fff; --label-color: #555;
+            --fh-orange: #FF7F0E; --fh-purple: #9467BD;
+        }
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
+        h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
+        #controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
+        .control-group { display: flex; flex-direction: column; }
+        .slider-group { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .slider-group .label { flex-basis: 150px; text-align: right; color: var(--label-color); }
+        .slider-group input[type="range"] { flex-grow: 1; }
+        .slider-group .value { flex-basis: 60px; font-family: monospace; text-align: left; }
+        button, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f0f0f0; cursor: pointer; font-size: 14px; }
+        button:hover, select:not(:disabled):hover { background-color: #e0e0e0; }
+        select:disabled { background-color: #f8f8f8; cursor: not-allowed; color: #aaa;}
+        .radio-group div { display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input { margin-right: 8px; }
+        text { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Prototyp V3.0: Schräger Wurf mit Analyse</h1>
+    
+    <div id="container">
+        <svg id="main_svg" viewBox="0 0 900 500">
+            <defs>
+                <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+                    <polygon points="0 0, 4.95 1.7325, 0 3.465" fill="currentColor" />
+                </marker>
+            </defs>
+
+            <g id="animation_group">
+                <rect x="0" y="0" width="350" height="480" fill="#fdfdfd"></rect>
+                <line id="ground_line" x1="0" y1="440" x2="350" y2="440" stroke="#333" stroke-width="2" />
+                
+                <!-- SVG-Elemente in Z-Ordnung von hinten nach vorne -->
+                <rect id="building" x="80" width="80" fill="#e0e0e0" /> <!-- Gebäude als Hintergrund -->
+                <g id="horizontal_ruler_group"></g> <!-- Horizontal Lineal über dem Gebäude -->
+                <g id="ruler_group"></g> <!-- Vertikales Lineal -->
+                <g id="stick_figure">
+                    <!-- Die Strichmännchen-Komponenten werden durch JS hinzugefügt und aktualisiert -->
+                </g>
+                <polyline id="trajectory_line" fill="none" stroke="var(--fh-blue)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
+                <circle id="ball" r="8" fill="var(--fh-red)" />
+                
+                <g id="animation_coord_system"></g>
+
+                <line id="acceleration_vector" stroke="var(--fh-purple)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <line id="velocity_vector" stroke="var(--fh-orange)" stroke-width="2.5" marker-end="url(#arrowhead)" visibility="hidden" />
+                <line id="velocity_vector_x" stroke="var(--fh-orange)" stroke-width="2" marker-end="url(#arrowhead)" visibility="hidden" stroke-dasharray="4,4" />
+                <line id="velocity_vector_y" stroke="var(--fh-orange)" stroke-width="2" marker-end="url(#arrowhead)" visibility="hidden" stroke-dasharray="4,4" />
+                
+                <g id="stopwatch" transform="translate(84, -24) scale(0.7)">
+                    <circle cx="280" cy="120" r="72" fill="white" stroke="black" stroke-width="2" />
+                    <g id="stopwatch_marks"></g>
+                    <g id="subdial">
+                        <circle cx="280" cy="150" r="16" fill="white" stroke="black" stroke-width="1" />
+                        <g id="subdial_marks"></g>
+                        <line id="stopwatch_sub_hand" x1="280" y1="150" stroke="var(--fh-red)" stroke-width="1.5" />
+                    </g>
+                    <line id="stopwatch_main_hand" x1="280" y1="120" stroke="black" stroke-width="3" />
+                </g>
+                <text id="zoom_text_display" x="280" y="125" text-anchor="middle" font-family="monospace" font-size="14px" fill="#555">Zoom: 1.00x</text>
+            </g>
+            <g id="graph_group_single" transform="translate(400, 40)" visibility="visible">
+                <text id="graph_title" x="240" y="20" text-anchor="middle" font-size="16"></text>
+                <g id="grid_group"></g>
+                <polyline id="graph_line" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                <circle id="graph_point" r="5" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+
+            <g id="graph_group_stacked_top" transform="translate(400, 20)" visibility="hidden">
+                 <text id="graph_title_top" x="240" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_top"></g>
+                 <polyline id="graph_line_top" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_top" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+             <g id="graph_group_stacked_bottom" transform="translate(400, 255)" visibility="hidden">
+                 <text id="graph_title_bottom" x="240" y="15" text-anchor="middle" font-size="14"></text>
+                 <g id="grid_group_bottom"></g>
+                 <polyline id="graph_line_bottom" fill="none" stroke="var(--fh-blue)" stroke-width="2" />
+                 <circle id="graph_point_bottom" r="4" fill="var(--fh-red)" style="visibility: hidden;"></circle>
+            </g>
+        </svg>
+
+        <div id="controls">
+            <div class="control-group">
+                <div class="slider-group">
+                    <div class="label">Anfangshöhe \(h_0\):</div>
+                    <input type="range" id="h0_slider" min="1.8" max="20" value="10" step="0.1">
+                    <div class="value" id="h0_value">10.0 m</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Betrag d. Anfangsgeschw. \(|v_0|\):</div>
+                    <input type="range" id="v0_slider" min="0" max="12" value="10" step="1">
+                    <div class="value" id="v0_value">10 m/s</div>
+                </div>
+                <div class="slider-group">
+                    <div class="label">Abwurfwinkel \(\alpha\):</div>
+                    <input type="range" id="alpha_slider" min="0" max="90" value="45" step="1">
+                    <div class="value" id="alpha_value">45 °</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <label>Visualisierung:</label>
+                    <div><input type="checkbox" id="toggle_velocity_vector" checked> Geschwindigkeitsvektor anzeigen</div>
+                    <div style="padding-left: 25px;"><input type="checkbox" id="toggle_velocity_components"> in x-y Komponenten zerlegen</div>
+                    <div><input type="checkbox" id="toggle_acceleration_vector" checked> Beschleunigungsvektor anzeigen</div>
+                    <div><input type="checkbox" id="toggle_trajectory"> Bahn anzeigen</div> <!-- NEU: Checkbox für Bahn -->
+                    <div><input type="checkbox" id="toggle_xy_stacked"> x-y untereinander</div>
+                </div>
+            </div>
+            <div class="control-group radio-group">
+                <label>Geschwindigkeit:</label>
+                <div><input type="radio" name="speed" value="1.0" checked> Echtzeit</div>
+                <div><input type="radio" name="speed" value="0.5"> 2x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.25"> 4x Slow-Mo</div>
+                <div><input type="radio" name="speed" value="0.125"> 8x Slow-Mo</div>
+            </div>
+            <div class="control-group">
+                <label for="graph_select">Diagrammtyp:</label>
+                <select id="graph_select">
+                </select>
+                <div style="margin-top: 15px;">
+                    <label for="y_axis_config">Y-Achsen-Konfiguration:</label>
+                    <select id="y_axis_config">
+                        <option value="up_ground" selected>Y-Achse: hoch (+), Nullpunkt: Boden</option>
+                        <option value="up_start">Y-Achse: hoch (+), Nullpunkt: Start</option>
+                        <option value="down_ground">Y-Achse: runter (+), Nullpunkt: Boden</option>
+                        <option value="down_start">Y-Achse: runter (+), Nullpunkt: Start</option>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="play_button">Play</button>
+                    <button id="pause_button" disabled>Pause</button>
+                    <button id="reset_button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = 9.81;
+        const DEFAULT_PIXELS_PER_METER = 13;
+        let currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+        let zoomFactor = 1.0;
+        const PIXELS_PER_VELOCITY_UNIT = 4; 
+        const PIXELS_PER_ACCELERATION_UNIT = 5; 
+        const BALL_START_X_PIXELS = 136;
+        const TIME_STEP = 1 / 60; 
+
+        let aniFrameId = null; let lastFrameTime = 0; let simulatedTimeElapsed = 0;
+        let h0, v0, alpha_deg, v0_x, v0_y, speedFactor;
+        
+        let full_t_data = [], full_yt_data = [], full_vyt_data = [], full_ayt_data = [], 
+            full_xt_data = [], full_vxt_data = [], full_axt_data = [], full_vabs_data = [];
+        
+        let axisLimits = {};
+        let yAxisConfig = { direction: 'up', origin: 'ground' };
+        
+        const ui = {
+            building: document.getElementById('building'), stickFigure: document.getElementById('stick_figure'),
+            ball: document.getElementById('ball'), mainHand: document.getElementById('stopwatch_main_hand'), 
+            subHand: document.getElementById('stopwatch_sub_hand'), h0Slider: document.getElementById('h0_slider'),
+            v0Slider: document.getElementById('v0_slider'), alphaSlider: document.getElementById('alpha_slider'),
+            h0Value: document.getElementById('h0_value'), v0Value: document.getElementById('v0_value'),
+            alphaValue: document.getElementById('alpha_value'), zoomTextDisplay: document.getElementById('zoom_text_display'),
+            speedRadios: document.querySelectorAll('input[name="speed"]'), graphSelect: document.getElementById('graph_select'), 
+            playButton: document.getElementById('play_button'), pauseButton: document.getElementById('pause_button'), 
+            resetButton: document.getElementById('reset_button'), rulerGroup: document.getElementById('ruler_group'), 
+            horizontalRulerGroup: document.getElementById('horizontal_ruler_group'),
+            animationCoordSystem: document.getElementById('animation_coord_system'),
+            stopwatchMarks: document.getElementById('stopwatch_marks'), subdialMarks: document.getElementById('subdial_marks'), 
+            velocityVector: document.getElementById('velocity_vector'), 
+            velocityVectorX: document.getElementById('velocity_vector_x'),
+            velocityVectorY: document.getElementById('velocity_vector_y'),
+            toggleVelocityVector: document.getElementById('toggle_velocity_vector'), 
+            toggleVelocityComponents: document.getElementById('toggle_velocity_components'),
+            accelerationVector: document.getElementById('acceleration_vector'), 
+            toggleAccelerationVector: document.getElementById('toggle_acceleration_vector'),
+            trajectoryLine: document.getElementById('trajectory_line'), // NEU
+            toggleTrajectory: document.getElementById('toggle_trajectory'), // NEU
+            yAxisConfigSelect: document.getElementById('y_axis_config'), toggleXYStacked: document.getElementById('toggle_xy_stacked'), 
+            graphGroupSingle: document.getElementById('graph_group_single'), gridGroup: document.getElementById('grid_group'),
+            graphTitle: document.getElementById('graph_title'), graphLine: document.getElementById('graph_line'),
+            graphPoint: document.getElementById('graph_point'),
+            graphGroupStackedTop: document.getElementById('graph_group_stacked_top'), graphTitleTop: document.getElementById('graph_title_top'),
+            gridGroupTop: document.getElementById('grid_group_top'), graphLineTop: document.getElementById('graph_line_top'),
+            graphPointTop: document.getElementById('graph_point_top'),
+            graphGroupStackedBottom: document.getElementById('graph_group_stacked_bottom'), graphTitleBottom: document.getElementById('graph_title_bottom'),
+            gridGroupBottom: document.getElementById('grid_group_bottom'), graphLineBottom: document.getElementById('graph_line_bottom'),
+            graphPointBottom: document.getElementById('graph_point_bottom'),
+        };
+        
+        const singleGraphOptions = {
+            "Vertikale Bewegung": { "yt": "Höhe y(t) / m", "vyt": "Geschw. v_y(t) / (m/s)", "ayt": "Beschl. a_y(t) / (m/s²)" },
+            "Horizontale Bewegung": { "xt": "Wurfweite x(t) / m", "vxt": "Geschw. v_x(t) / (m/s)", "axt": "Beschl. a_x(t) / (m/s²)" },
+            "Beträge": { "vabs": "Betrag der Geschw. |v(t)| / (m/s)" }
+        };
+        const stackedGraphOptions = { "Analyse": { "pos": "Ort (x/y)", "vel": "Geschwindigkeit (v_x/v_y)", "acc": "Beschleunigung (a_x/a_y)" } };
+
+        const scaleY = (y_meters) => 440 - y_meters * currentPixelsPerMeter; 
+        const scaleX = (x_meters) => BALL_START_X_PIXELS + x_meters * currentPixelsPerMeter;
+
+        function createSVGElement(tag, attributes) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for (const key in attributes) el.setAttribute(key, attributes[key]);
+            return el;
+        }
+
+        // Neue Konstanten für Strichmännchen-Proportionen (in Metern)
+        const SF_HEAD_RADIUS_M = 0.15;
+        const SF_TORSO_HEIGHT_M = 0.7; // Vom Schritt bis zur Schulter
+        const SF_LEG_HEIGHT_M = 0.9;   // Vom Fuß bis zum Schritt
+        const SF_ARM_LENGTH_M = 0.8;   // Physikalische Länge des Arms
+        const SF_SHOULDER_TO_FEET_M = SF_TORSO_HEIGHT_M + SF_LEG_HEIGHT_M; // Distanz Schulter zu Füßen
+
+        function drawStickFigure(shoulder_x_px, shoulder_y_px, arm_target_x_px, arm_target_y_px) {
+            ui.stickFigure.innerHTML = ''; // Vorherige Zeichnung löschen
+
+            const feet_y_px = shoulder_y_px + SF_SHOULDER_TO_FEET_M * currentPixelsPerMeter;
+            const base_x_px = shoulder_x_px; // Die Basis des Torsos ist an der X-Position der Schulter
+
+            const crotch_y_px = feet_y_px - SF_LEG_HEIGHT_M * currentPixelsPerMeter;
+            const head_center_y_px = shoulder_y_px - SF_HEAD_RADIUS_M * currentPixelsPerMeter;
+
+            // Beine
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px - SF_HEAD_RADIUS_M * currentPixelsPerMeter, y2: feet_y_px, stroke: 'black', 'stroke-width': 2}));
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px + SF_HEAD_RADIUS_M * currentPixelsPerMeter, y2: feet_y_px, stroke: 'black', 'stroke-width': 2}));
+            // Torso
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: base_x_px, y1: crotch_y_px, x2: base_x_px, y2: shoulder_y_px, stroke: 'black', 'stroke-width': 2}));
+            // Kopf
+            ui.stickFigure.appendChild(createSVGElement('circle', {cx: base_x_px, cy: head_center_y_px, r: SF_HEAD_RADIUS_M * currentPixelsPerMeter, stroke: 'black', 'stroke-width': 2, fill: 'none'}));
+            // Arm (Zeigt von der Schulter zum Ball)
+            ui.stickFigure.appendChild(createSVGElement('line', {x1: shoulder_x_px, y1: shoulder_y_px, x2: arm_target_x_px, y2: arm_target_y_px, stroke: 'black', 'stroke-width': 2}));
+
+            // Rückgabe der berechneten Fuß-Y-Position für die Anpassung des Gebäudes
+            return feet_y_px;
+        }
+
+        function getDisplayYValue(y_physics) { let y = (yAxisConfig.origin === 'ground') ? y_physics : y_physics - h0; return (yAxisConfig.direction === 'down') ? -y : y; }
+        function getDisplayVValue(v_physics) { return yAxisConfig.direction === 'up' ? v_physics : -v_physics; }
+        function getDisplayAValue(a_physics) { return yAxisConfig.direction === 'up' ? a_physics : -a_physics; }
+
+        function drawAnimationCoordinateSystem() {
+            ui.animationCoordSystem.innerHTML = '';
+            const axis_length = 60 * zoomFactor; const origin_x = BALL_START_X_PIXELS;
+            const origin_y = (yAxisConfig.origin === 'start') ? scaleY(h0) : scaleY(0);
+            const y_direction_factor = (yAxisConfig.direction === 'up') ? -1 : 1;
+            const attrs = { stroke: 'var(--fh-blue)', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)', 'stroke-dasharray': '2,2' };
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: origin_x, y1: origin_y, x2: origin_x + axis_length, y2: origin_y }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: origin_x + axis_length + 5, y: origin_y + 14, fill: 'var(--fh-blue)'})).textContent = 'x / m';
+            
+            ui.animationCoordSystem.appendChild(createSVGElement('line', { ...attrs, x1: origin_x, y1: origin_y, x2: origin_x, y2: origin_y + (axis_length * y_direction_factor) }));
+            ui.animationCoordSystem.appendChild(createSVGElement('text', { x: origin_x - 20, y: origin_y + (axis_length * y_direction_factor) - (5 * y_direction_factor), fill: 'var(--fh-blue)' })).textContent = 'y / m';
+        }
+        
+        function drawRuler() {
+            ui.rulerGroup.innerHTML = ''; const ruler_x = 45, ruler_width = 15;
+            const max_ruler_height_m = Math.ceil(440 / currentPixelsPerMeter);
+            ui.rulerGroup.appendChild(createSVGElement('rect', { x: ruler_x, y: scaleY(max_ruler_height_m), width: ruler_width, height: max_ruler_height_m * currentPixelsPerMeter, fill: '#f0f0f0', stroke: '#888', 'stroke-width': 1 }));
+            const majorTickInterval = Math.max(1, Math.round(5/zoomFactor)), minorTickInterval = Math.max(1, Math.round(1/zoomFactor));
+            for (let m = 0; m <= max_ruler_height_m; m+=0.5) {
+                 if(Math.abs(m % majorTickInterval) > 0.1 && Math.abs(m % minorTickInterval) > 0.1) continue;
+                const y_pos = scaleY(m);
+                let isMajorTick = Math.abs(m % majorTickInterval) < 0.1;
+                let line_length = (isMajorTick ? 10 : 5) * zoomFactor, stroke_width = isMajorTick ? 2 : 1;
+                if (isMajorTick) ui.rulerGroup.appendChild(createSVGElement('text', { x: ruler_x - 5, y: y_pos + 4, 'text-anchor': 'end', fill: 'black' })).textContent = `${Math.round(m)}`;
+                ui.rulerGroup.appendChild(createSVGElement('line', { x1: ruler_x + ruler_width, y1: y_pos, x2: ruler_x + ruler_width - line_length, y2: y_pos, stroke: 'black', 'stroke-width': stroke_width }));
+            }
+        }
+
+        function drawHorizontalRuler() {
+            ui.horizontalRulerGroup.innerHTML = '';
+            const majorTickInterval = Math.max(1, Math.round(5/zoomFactor)), minorTickInterval = Math.max(1, Math.round(1/zoomFactor));
+            const ground_y = 440; const max_dist = (350 - BALL_START_X_PIXELS) / currentPixelsPerMeter;
+            for(let m = 0; m <= max_dist; m += 0.5) {
+                const x_px = scaleX(m); if (x_px > 350) break;
+                let isMajorTick = Math.abs(m % majorTickInterval) < 0.1; let isMinorTick = Math.abs(m % minorTickInterval) < 0.1;
+                if (isMajorTick || isMinorTick) {
+                    let tick_height = (isMajorTick ? 10 : 5) * zoomFactor;
+                    ui.horizontalRulerGroup.appendChild(createSVGElement('line', { x1: x_px, y1: ground_y, x2: x_px, y2: ground_y - tick_height, stroke: 'black', 'stroke-width': isMajorTick ? 2 : 1 }));
+                    if (isMajorTick) {
+                        let text = createSVGElement('text', { x: x_px, y: ground_y - tick_height - 5, 'text-anchor': 'middle', fill: 'black' });
+                        text.textContent = Math.round(m); ui.horizontalRulerGroup.appendChild(text);
+                    }
+                }
+            }
+        }
+
+        function drawStopwatchMarks() {
+            ui.stopwatchMarks.innerHTML = ''; const cx = 280, cy = 120, r = 72;
+            for (let s = 0; s < 60; s++) { const angle = (s / 60) * 2 * Math.PI, r_inner = (s % 5 === 0) ? r - 12 : r - 6; ui.stopwatchMarks.appendChild(createSVGElement('line', { x1: cx + r_inner * Math.sin(angle), y1: cy - r_inner * Math.cos(angle), x2: cx + r * Math.sin(angle), y2: cy - r * Math.cos(angle), stroke: 'black', 'stroke-width': (s % 5 === 0) ? 2 : 1 })); }
+        }
+
+        function drawSubdialMarks() {
+            ui.subdialMarks.innerHTML = ''; const cx=280, cy=150, r=16;
+            for(let i=0;i<10;i++){const a=(i/10)*2*Math.PI;ui.subdialMarks.appendChild(createSVGElement('line',{x1:cx+(r-3)*Math.sin(a),y1:cy-(r-3)*Math.cos(a),x2:cx+r*Math.sin(a),y2:cy-r*Math.cos(a),stroke:'black','stroke-width':1}))}
+        }
+
+        function getNiceTickStep(range, ticks) { if(range<1e-9)return 1;const m=range/ticks,e=Math.floor(Math.log10(m)),p=10**e;let n=m/p;if(n<=1)n=1;else if(n<=2)n=2;else if(n<=5)n=5;else n=10;return n*p}
+        
+        function updateDropdownOptions(isModeChange) {
+            const isStacked = ui.toggleXYStacked.checked;
+            const options = isStacked ? stackedGraphOptions : singleGraphOptions;
+            let finalSelection = ui.graphSelect.value;
+
+            if (isModeChange) {
+                const singleToStackedMap = { yt: 'pos', xt: 'pos', vyt: 'vel', vxt: 'vel', vabs: 'vel', ayt: 'acc', axt: 'acc' };
+                const stackedToSingleMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' };
+                finalSelection = isStacked ? (singleToStackedMap[finalSelection] || 'pos') : (stackedToSingleMap[finalSelection] || finalSelection || 'yt');
+            }
+
+            ui.graphSelect.innerHTML = '';
+            for (const groupLabel in options) {
+                const group = document.createElement('optgroup'); group.label = groupLabel;
+                for (const value in options[groupLabel]) {
+                    const option = document.createElement('option'); option.value = value;
+                    option.textContent = options[groupLabel][value]; group.appendChild(option);
+                }
+                ui.graphSelect.appendChild(group);
+            }
+            
+            if (!finalSelection || !Array.from(ui.graphSelect.options).some(opt => opt.value === finalSelection)) {
+                finalSelection = isStacked ? 'pos' : 'yt';
+            }
+            ui.graphSelect.value = finalSelection;
+        }
+        
+        function updateGraphs(plotIndex) {
+            const isStacked = ui.toggleXYStacked.checked;
+            ui.graphGroupSingle.style.visibility = isStacked ? 'hidden' : 'visible';
+            ui.graphGroupStackedTop.style.visibility = isStacked ? 'visible' : 'hidden';
+            ui.graphGroupStackedBottom.style.visibility = isStacked ? 'visible' : 'hidden';
+
+            const currentSelection = ui.graphSelect.value;
+
+            if (isStacked) {
+                drawSingleGraph({ elements: { title: ui.graphTitleTop, grid: ui.gridGroupTop, line: ui.graphLineTop, point: ui.graphPointTop }, type: `x-${currentSelection}`, plotIndex, useYAxisConfig: false });
+                drawSingleGraph({ elements: { title: ui.graphTitleBottom, grid: ui.gridGroupBottom, line: ui.graphLineBottom, point: ui.graphPointBottom }, type: `y-${currentSelection}`, plotIndex, useYAxisConfig: true });
+            } else {
+                 drawSingleGraph({ elements: { title: ui.graphTitle, grid: ui.gridGroup, line: ui.graphLine, point: ui.graphPoint }, type: currentSelection, plotIndex, useYAxisConfig: true });
+            }
+        }
+
+        function drawSingleGraph({ elements, type, plotIndex, useYAxisConfig }) {
+            const { titleEl, gridEl, lineEl, pointEl } = { titleEl: elements.title, gridEl: elements.grid, lineEl: elements.line, pointEl: elements.point };
+            const isStacked = ui.toggleXYStacked.checked;
+            
+            // Define total dimensions of the graph area (matching SVG group dimensions)
+            const graphWidth = 480; 
+            const graphHeight = isStacked ? 210 : 410; // Original dimensions from initial prompt
+
+            // Define padding within the graph area for axes, labels, etc.
+            const plotPaddingLeft = 45;   // Space for Y-axis labels and ticks
+            const plotPaddingBottom = 35; // Space for X-axis labels and ticks
+            const plotPaddingTop = 10;    // Space above plot for top grid line extension
+            const plotPaddingRight = 10;  // Space to the right
+
+            // Calculate dimensions of the actual data plotting area
+            const plotWidth = graphWidth - plotPaddingLeft - plotPaddingRight;
+            const plotHeight = graphHeight - plotPaddingTop - plotPaddingBottom;
+
+            pointEl.style.visibility = 'hidden';
+            pointEl.setAttribute('cx', -100);
+
+            gridEl.innerHTML = '';
+            // Background rectangle for the plotting area
+            gridEl.appendChild(createSVGElement('rect', { 
+                x: plotPaddingLeft, y: plotPaddingTop, 
+                width: plotWidth, height: plotHeight, 
+                fill: 'white', stroke: '#eee', 'stroke-width': 0.5 
+            })); 
+
+            const typeMap = { 'y-pos': 'yt', 'y-vel': 'vyt', 'y-acc': 'ayt', 'x-pos': 'xt', 'x-vel': 'vxt', 'x-acc': 'axt' };
+            const effectiveType = typeMap[type] || type;
+            
+            const isYComponent = ['yt', 'vyt', 'ayt'].includes(effectiveType);
+            const keySuffix = useYAxisConfig && isYComponent ? '_display' : '';
+            const limits = axisLimits[effectiveType + keySuffix];
+
+            if (!limits) { 
+                lineEl.setAttribute('points','');
+                return;
+            } 
+
+            let { y_label_text, full_data, min, max, t_max } = limits;
+            
+            const y_tick_step = getNiceTickStep(max - min, isStacked ? 4 : 8); 
+            let y_axis_min = Math.floor(min / y_tick_step) * y_tick_step; 
+            let y_axis_max = Math.ceil(max / y_tick_step) * y_tick_step;
+            if(Math.abs(y_axis_min - y_axis_max) < 1e-9) { y_axis_min -= y_tick_step; y_axis_max += y_tick_step; }
+            
+            // Scaling functions map physics values to pixel coordinates within the plotting area
+            const scaleXGraph = (t) => plotPaddingLeft + (t / t_max) * plotWidth;
+            const scaleYGraph = (v) => plotPaddingTop + plotHeight - (((v - y_axis_min) / (y_axis_max - y_axis_min || 1)) * plotHeight);
+            
+            const y0 = scaleYGraph(0); // Pixel Y-coordinate of the X-axis (where Y=0 physics value is)
+            
+            // Draw vertical grid lines and X-axis tick labels
+            for(let i=0; i <= 10; i++) {
+                const t = (t_max / 10) * i;
+                const x_px = scaleXGraph(t);
+                gridEl.appendChild(createSVGElement('line',{x1:x_px,y1:plotPaddingTop,x2:x_px,y2:plotPaddingTop + plotHeight,stroke:'#eee'}));
+                // X-axis tick labels positioned relative to y0
+                let txt = createSVGElement('text',{x:x_px,y: y0 + 15,'text-anchor':'middle',fill:'black'});
+                txt.textContent = t.toFixed(1);
+                gridEl.appendChild(txt);
+            }
+
+            // Draw horizontal grid lines and Y-axis tick labels
+            for(let v = y_axis_min; v <= y_axis_max + 1e-9; v += y_tick_step){
+                const y_px = scaleYGraph(v);
+                gridEl.appendChild(createSVGElement('line',{x1:plotPaddingLeft,y1:y_px,x2:plotPaddingLeft + plotWidth,y2:y_px,stroke:'#eee'}));
+                let txt = createSVGElement('text',{x:plotPaddingLeft-8,y:y_px+4,'text-anchor':'end',fill:'black'});
+                txt.textContent = v.toFixed(y_tick_step%1===0?0:1);
+                gridEl.appendChild(txt);
+            }
+
+            // Draw X-axis line (from left padding to right boundary of plot)
+            gridEl.appendChild(createSVGElement('line',{
+                x1: plotPaddingLeft, y1: y0, 
+                x2: plotPaddingLeft + plotWidth, y2: y0, 
+                stroke:'black','stroke-width':1.5,'marker-end':'url(#arrowhead)'
+            }));
+            
+            // Draw Y-axis line (from bottom of plot to top of plot)
+            gridEl.appendChild(createSVGElement('line',{
+                x1: plotPaddingLeft, y1: plotPaddingTop + plotHeight, 
+                x2: plotPaddingLeft, y2: plotPaddingTop, 
+                stroke:'black','stroke-width':1.5,'marker-end':'url(#arrowhead)'
+            }));
+            
+            // X-axis label, positioned relative to y0
+            const xAxisLabel = createSVGElement('text', { 
+                x: plotPaddingLeft + plotWidth / 2, 
+                y: y0 + 30, // Position relative to y0 + some offset
+                'text-anchor': 'middle', fill: 'black', 'font-size': '13px' 
+            });
+            xAxisLabel.textContent = 'Zeit t / s';
+            gridEl.appendChild(xAxisLabel);
+
+            // Y-axis label
+            const yAxisLabelX = 10; // Fixed x for rotated text (left of plotPaddingLeft)
+            const yAxisLabelY = plotPaddingTop + plotHeight / 2; // Middle of the plotting area
+            const yAxisLabel = createSVGElement('text', { 
+                'text-anchor': 'middle', fill: 'black', 'font-size': '13px', 
+                transform: `rotate(-90, ${yAxisLabelX}, ${yAxisLabelY})`, 
+                x: yAxisLabelX, y: yAxisLabelY 
+            });
+            
+            let finalLabel = y_label_text;
+            if (isStacked) {
+                 const typeMap = { 
+                    'x-pos': "Wurfweite x(t) / m", 'y-pos': "Höhe y(t) / m", 
+                    'x-vel': "Geschw. v_x(t) / (m/s)", 'y-vel': "Geschw. v_y(t) / (m/s)", 
+                    'x-acc': "Beschl. a_x(t) / (m/s²)", 'y-acc': "Beschl. a_y(t) / (m/s²)"
+                 };
+                 finalLabel = typeMap[type] || y_label_text;
+            }
+            yAxisLabel.textContent = finalLabel;
+            gridEl.appendChild(yAxisLabel);
+            
+            titleEl.textContent = "";
+
+            // Draw the data line
+            const data_to_plot = full_data.slice(0, plotIndex);
+            const time_data_to_plot = full_t_data.slice(0, plotIndex);
+
+            let p="";
+            for(let i=0;i<data_to_plot.length;i++){p+=`${scaleXGraph(time_data_to_plot[i])},${scaleYGraph(data_to_plot[i])} `}
+            lineEl.setAttribute('points',p);
+
+            // Draw the current data point
+            if(data_to_plot.length > 0){
+                pointEl.setAttribute('cx', scaleXGraph(time_data_to_plot[time_data_to_plot.length - 1]));
+                pointEl.setAttribute('cy', scaleYGraph(data_to_plot[data_to_plot.length - 1]));
+                pointEl.style.visibility = 'visible';
+            }
+        }
+        
+        function animate(currentTime) {
+            if (!lastFrameTime) lastFrameTime = currentTime;
+            const dt = (currentTime - lastFrameTime) / 1000.0;
+            simulatedTimeElapsed += dt * speedFactor; lastFrameTime = currentTime;
+            
+            const dataIndex = full_t_data.findIndex(t => t > simulatedTimeElapsed);
+            
+            if (dataIndex === -1 && full_t_data.length > 0) {
+                const lastIndex = full_t_data.length - 1;
+                ui.ball.setAttribute('cx', scaleX(full_xt_data[lastIndex]));
+                ui.ball.setAttribute('cy', scaleY(full_yt_data[lastIndex]));
+                
+                // Ensure full trajectory is drawn at end if checked
+                if (ui.toggleTrajectory.checked) {
+                    let pathPoints = "";
+                    for (let i = 0; i < full_t_data.length; i++) {
+                        pathPoints += `${scaleX(full_xt_data[i])},${scaleY(full_yt_data[i])} `;
+                    }
+                    ui.trajectoryLine.setAttribute('points', pathPoints);
+                    ui.trajectoryLine.style.visibility = 'visible';
+                }
+
+                updateGraphs(full_t_data.length); 
+                stopAnimation();
+                return;
+            }
+
+            const x_phys = full_xt_data[dataIndex], y_phys = full_yt_data[dataIndex];
+            const vx = full_vxt_data[dataIndex], vy = full_vyt_data[dataIndex];
+            
+            const cx = scaleX(x_phys), cy = scaleY(y_phys);
+            ui.ball.setAttribute('cx', cx); ui.ball.setAttribute('cy', cy);
+            
+            // NEU: Trajektorien-Linie aktualisieren
+            if (ui.toggleTrajectory.checked) {
+                let pathPoints = "";
+                for (let i = 0; i <= dataIndex; i++) {
+                    pathPoints += `${scaleX(full_xt_data[i])},${scaleY(full_yt_data[i])} `;
+                }
+                ui.trajectoryLine.setAttribute('points', pathPoints);
+                ui.trajectoryLine.style.visibility = 'visible';
+            } else {
+                ui.trajectoryLine.style.visibility = 'hidden';
+            }
+
+            if(ui.toggleAccelerationVector.checked){ui.accelerationVector.setAttribute('visibility','visible');ui.accelerationVector.setAttribute('x1',cx);ui.accelerationVector.setAttribute('y1',cy);ui.accelerationVector.setAttribute('x2',cx);ui.accelerationVector.setAttribute('y2',cy+G*PIXELS_PER_ACCELERATION_UNIT*zoomFactor)}else{ui.accelerationVector.setAttribute('visibility','hidden')}
+            
+            ui.velocityVector.setAttribute('visibility', 'hidden');
+            ui.velocityVectorX.setAttribute('visibility', 'hidden');
+            ui.velocityVectorY.setAttribute('visibility', 'hidden');
+
+            if(ui.toggleVelocityVector.checked){
+                const showComponents = ui.toggleVelocityComponents.checked;
+                const end_vx = cx + vx * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                const end_vy = cy - vy * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+
+                if (showComponents) {
+                    ui.velocityVectorX.setAttribute('visibility','visible');
+                    ui.velocityVectorX.setAttribute('x1',cx); ui.velocityVectorX.setAttribute('y1',cy);
+                    ui.velocityVectorX.setAttribute('x2',end_vx); ui.velocityVectorX.setAttribute('y2',cy);
+                    
+                    ui.velocityVectorY.setAttribute('visibility','visible');
+                    ui.velocityVectorY.setAttribute('x1',cx); ui.velocityVectorY.setAttribute('y1',cy);
+                    ui.velocityVectorY.setAttribute('x2',cx); ui.velocityVectorY.setAttribute('y2',end_vy);
+                } else {
+                    ui.velocityVector.setAttribute('visibility','visible');
+                    ui.velocityVector.setAttribute('x1',cx); ui.velocityVector.setAttribute('y1',cy);
+                    ui.velocityVector.setAttribute('x2',end_vx); ui.velocityVector.setAttribute('y2',end_vy);
+                }
+            }
+
+            const main_a=(simulatedTimeElapsed%60/60)*2*Math.PI,sub_a=(simulatedTimeElapsed%1)*2*Math.PI;
+            ui.mainHand.setAttribute('x2',280+60*Math.sin(main_a));ui.mainHand.setAttribute('y2',120-60*Math.cos(main_a));
+            ui.subHand.setAttribute('x2',280+15*Math.sin(sub_a));ui.subHand.setAttribute('y2',150-15*Math.cos(sub_a));
+            
+            updateGraphs(dataIndex);
+            aniFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() { if(aniFrameId){cancelAnimationFrame(aniFrameId);aniFrameId=null}ui.playButton.disabled=false;ui.pauseButton.disabled=true;ui.h0Slider.disabled=false;ui.v0Slider.disabled=false;ui.alphaSlider.disabled=false;}
+
+        function precomputeFlightData() {
+            full_t_data = []; full_xt_data = []; full_yt_data = []; full_vxt_data = []; 
+            full_vyt_data = []; full_axt_data = []; full_ayt_data = []; full_vabs_data = [];
+            axisLimits = {};
+            
+            const time_to_ground = (v0_y + Math.sqrt(v0_y**2 + 2 * G * h0)) / G;
+            const t_max = Math.max(time_to_ground, 1.0);
+
+            for (let t = 0; t <= t_max + TIME_STEP; t += TIME_STEP) {
+                const x = v0_x * t, y = h0 + v0_y * t - 0.5 * G * t**2;
+                if (y < -0.1) break; // Stoppen, wenn der Ball unter den Boden fällt
+                const vx = v0_x, vy = v0_y - G * t;
+                full_t_data.push(t); full_xt_data.push(x); full_yt_data.push(Math.max(0,y));
+                full_vxt_data.push(vx); full_vyt_data.push(vy); full_axt_data.push(0);
+                full_ayt_data.push(-G); full_vabs_data.push(Math.sqrt(vx**2 + vy**2));
+            }
+
+            const dataSets = {
+                xt: { data: full_xt_data, label: "Wurfweite x(t) / m" },
+                yt: { data: full_yt_data, label: "Höhe y(t) / m" },
+                vxt: { data: full_vxt_data, label: "Geschw. v_x(t) / (m/s)" },
+                vyt: { data: full_vyt_data, label: "Geschw. v_y(t) / (m/s)" },
+                axt: { data: full_axt_data, label: "Beschl. a_x(t) / (m/s²)" },
+                ayt: { data: full_ayt_data, label: "Beschl. a_y(t) / (m/s²)" },
+                vabs: { data: full_vabs_data, label: "Betrag der Geschw. |v(t)| / (m/s)" }
+            };
+
+            for (const key in dataSets) {
+                const addPadding = (min, max) => {
+                    if (Math.abs(max - min) < 1e-9) { min -= 1; max += 1; } 
+                    else { const p = (max-min)*0.1; min -= p; max += p; }
+                    return {min, max};
+                };
+                
+                let raw_min = Math.min(...dataSets[key].data); let raw_max = Math.max(...dataSets[key].data);
+                let padded = addPadding(raw_min, raw_max);
+                
+                if (padded.max < 0) padded.max = 0;
+                if (padded.min > 0) padded.min = 0;
+                
+                axisLimits[key] = { min: padded.min, max: padded.max, t_max, y_label_text: dataSets[key].label, full_data: dataSets[key].data };
+
+                if (['yt', 'vyt', 'ayt'].includes(key)) {
+                    let display_data;
+                    if (key === 'yt') display_data = dataSets[key].data.map(getDisplayYValue);
+                    else if (key === 'vyt') display_data = dataSets[key].data.map(getDisplayVValue);
+                    else display_data = dataSets[key].data.map(getDisplayAValue);
+                    
+                    let d_min = Math.min(...display_data); let d_max = Math.max(...display_data);
+                    let d_padded = addPadding(d_min, d_max);
+
+                    if (d_padded.max < 0) d_padded.max = 0;
+                    if (d_padded.min > 0) d_padded.min = 0;
+
+                    axisLimits[key + '_display'] = { min: d_padded.min, max: d_padded.max, t_max, y_label_text: dataSets[key].label, full_data: display_data };
+                }
+            }
+        }
+
+        function resetScene(isModeChange = false, isPlayTrigger = false) {
+            stopAnimation();
+            
+            [ui.graphPoint, ui.graphPointTop, ui.graphPointBottom].forEach(p => {
+                p.style.visibility = 'hidden';
+                p.setAttribute('cx', -100);
+            });
+            
+            // NEU: Trajektorien-Linie beim Reset leeren
+            ui.trajectoryLine.setAttribute('points', '');
+            ui.trajectoryLine.style.visibility = ui.toggleTrajectory.checked ? 'visible' : 'hidden'; // Initial visibility based on checkbox
+
+
+            if (!isPlayTrigger) { 
+                h0=parseFloat(ui.h0Slider.value); v0=parseFloat(ui.v0Slider.value); alpha_deg=parseFloat(ui.alphaSlider.value);
+                const[dir,ori]=ui.yAxisConfigSelect.value.split('_');yAxisConfig={direction:dir,origin:ori};
+                ui.h0Value.textContent=`${h0.toFixed(1)} m`; ui.v0Value.textContent=`${v0} m/s`; ui.alphaValue.textContent=`${alpha_deg} °`;
+                updateDropdownOptions(isModeChange);
+            }
+            
+            const alpha_rad=alpha_deg*Math.PI/180;v0_x=v0*Math.cos(alpha_rad);v0_y=v0*Math.sin(alpha_rad);
+            
+            const t_g=(v0_y+Math.sqrt(v0_y**2+2*G*h0))/G,x_max=v0_x*t_g,y_max=h0+(v0_y>0?(v0_y**2/(2*G)):0);
+            const scale_x=(x_max>0)?((350-BALL_START_X_PIXELS)/(x_max*1.1)):Infinity;
+            const scale_y=(y_max>0)?(440/(y_max*1.1)):Infinity;
+            currentPixelsPerMeter=Math.min(DEFAULT_PIXELS_PER_METER,scale_x,scale_y);
+            zoomFactor=currentPixelsPerMeter/DEFAULT_PIXELS_PER_METER;
+            ui.zoomTextDisplay.textContent = `Zoom: ${zoomFactor.toFixed(2)}x`;
+            
+            // Berechne die Position des Strichmännchens und des Gebäudes
+            const ball_cx_px = BALL_START_X_PIXELS;
+            const ball_cy_px = scaleY(h0); // Y-Pixelposition des Balls
+
+            const arm_length_px = SF_ARM_LENGTH_M * currentPixelsPerMeter;
+
+            // Schulterposition, so dass der Arm mit alpha_rad am Ball endet
+            const shoulder_px_x = ball_cx_px - arm_length_px * Math.cos(alpha_rad);
+            const shoulder_px_y = ball_cy_px + arm_length_px * Math.sin(alpha_rad); // +sin wegen invertierter SVG Y-Achse
+
+            // Zeichne das Strichmännchen und erhalte die berechnete Fuß-Y-Position
+            const sf_feet_px_y = drawStickFigure(shoulder_px_x, shoulder_px_y, ball_cx_px, ball_cy_px);
+
+            // Gebäude an die Fußposition des Männchens anpassen
+            const building_height_px = 440 - sf_feet_px_y;
+            ui.building.setAttribute('y', sf_feet_px_y);
+            ui.building.setAttribute('height', Math.max(0, building_height_px)); // Sicherstellen, dass die Höhe nicht negativ wird
+
+            drawRuler(); drawHorizontalRuler(); drawStopwatchMarks(); drawSubdialMarks();
+            drawAnimationCoordinateSystem();
+
+            ui.ball.setAttribute('cx',BALL_START_X_PIXELS); ui.ball.setAttribute('cy',scaleY(h0));
+            
+            ui.toggleVelocityComponents.disabled = !ui.toggleVelocityVector.checked;
+            if (!ui.toggleVelocityVector.checked) {
+                ui.toggleVelocityComponents.checked = false;
+            }
+            const cx_initial = BALL_START_X_PIXELS;
+            const cy_initial = scaleY(h0);
+            if(ui.toggleAccelerationVector.checked){ui.accelerationVector.setAttribute('visibility','visible');ui.accelerationVector.setAttribute('x1',cx_initial);ui.accelerationVector.setAttribute('y1',cy_initial);ui.accelerationVector.setAttribute('x2',cx_initial);ui.accelerationVector.setAttribute('y2',cy_initial + G * PIXELS_PER_ACCELERATION_UNIT * zoomFactor);}else{ui.accelerationVector.setAttribute('visibility','hidden');}
+            ui.velocityVector.setAttribute('visibility', 'hidden');
+            ui.velocityVectorX.setAttribute('visibility', 'hidden');
+            ui.velocityVectorY.setAttribute('visibility', 'hidden');
+            if(ui.toggleVelocityVector.checked){
+                const showComponents = ui.toggleVelocityComponents.checked;
+                const end_vx = cx_initial + v0_x * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                const end_vy = cy_initial - v0_y * PIXELS_PER_VELOCITY_UNIT * zoomFactor;
+                if (showComponents) {
+                    ui.velocityVectorX.setAttribute('visibility','visible');
+                    ui.velocityVectorX.setAttribute('x1',cx_initial); ui.velocityVectorX.setAttribute('y1',cy_initial);
+                    ui.velocityVectorX.setAttribute('x2',end_vx); ui.velocityVectorX.setAttribute('y2',cy_initial);
+                    ui.velocityVectorY.setAttribute('visibility','visible');
+                    ui.velocityVectorY.setAttribute('x1',cx_initial); ui.velocityVectorY.setAttribute('y1',cy_initial);
+                    ui.velocityVectorY.setAttribute('x2',cx_initial); ui.velocityVectorY.setAttribute('y2',end_vy);
+                } else {
+                    ui.velocityVector.setAttribute('visibility','visible');
+                    ui.velocityVector.setAttribute('x1',cx_initial); ui.velocityVector.setAttribute('y1',cy_initial);
+                    ui.velocityVector.setAttribute('x2',end_vx); ui.velocityVector.setAttribute('y2',end_vy);
+                }
+            }
+
+            ui.mainHand.setAttribute('x2',280); ui.mainHand.setAttribute('y2',120-60); ui.subHand.setAttribute('x2',280); ui.subHand.setAttribute('y2',150-15);
+            
+            const isYGraphRelevant = !ui.toggleXYStacked.checked && ['yt', 'vyt', 'ayt'].includes(ui.graphSelect.value);
+            ui.yAxisConfigSelect.disabled = !isYGraphRelevant;
+            
+            precomputeFlightData();
+            updateGraphs(0);
+        }
+        
+        // --- Event Listener Setup ---
+        ['input','change'].forEach(e=>{ui.h0Slider.addEventListener(e, ()=>resetScene(false));ui.v0Slider.addEventListener(e,()=>resetScene(false));ui.alphaSlider.addEventListener(e,()=>resetScene(false))});
+        ui.graphSelect.addEventListener('change',()=>resetScene(false));
+        ui.yAxisConfigSelect.addEventListener('change',()=>resetScene(false));
+        ui.speedRadios.forEach(r=>r.addEventListener('change',()=>resetScene(false)));
+        
+        ui.toggleVelocityVector.addEventListener('change',()=> {
+            ui.toggleVelocityComponents.disabled = !ui.toggleVelocityVector.checked;
+            if (!ui.toggleVelocityVector.checked) {
+                ui.toggleVelocityComponents.checked = false;
+            }
+            resetScene(false);
+        });
+        ui.toggleVelocityComponents.addEventListener('change', () => resetScene(false));
+        ui.toggleAccelerationVector.addEventListener('change',()=>resetScene(false));
+        ui.toggleTrajectory.addEventListener('change', () => resetScene(false)); // NEU: Event-Listener für Bahn anzeigen
+        ui.toggleXYStacked.addEventListener('change', () => resetScene(true));
+        ui.resetButton.addEventListener('click',()=>resetScene(false));
+        
+        ui.playButton.addEventListener('click',()=>{
+            if(!aniFrameId){
+                resetScene(false, true); 
+                ui.playButton.disabled=true;ui.pauseButton.disabled=false;
+                ui.h0Slider.disabled=true;ui.v0Slider.disabled=true;ui.alphaSlider.disabled=true;
+                lastFrameTime=0;simulatedTimeElapsed = 0; 
+                ui.speedRadios.forEach(r=>{if(r.checked)speedFactor=parseFloat(r.value)});
+                aniFrameId=requestAnimationFrame(animate)
+            }
+        });
+        ui.pauseButton.addEventListener('click',stopAnimation);
+        window.onload=()=>resetScene(false);
+    </script>
+
+</body>
+</html>
