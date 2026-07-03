@@ -76,6 +76,10 @@ function onToggleChange() {
  * Event listeners.
  */
 export function initUI() {
+  // Theme aus lokalem Speicher laden (einheitlicher Key fh_theme, siehe CLAUDE.md)
+  document.body.className = localStorage.getItem('fh_theme') === 'dark' ? 'dark' : 'light'
+  store.isDarkMode = document.body.classList.contains('dark')
+
   // Input Sliders
   [DOM.voltage_slider, DOM.current_slider, DOM.length_slider, DOM.cross_section_slider, DOM.spring_k_slider, DOM.distance_slider].forEach(el => {
     el.addEventListener('input', onParamChange)
@@ -92,9 +96,10 @@ export function initUI() {
   });
   
   DOM.theme_toggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark')
-    document.body.classList.toggle('light')
-    store.isDarkMode = document.body.classList.contains('dark')
+    const dark = document.body.classList.toggle('dark')
+    document.body.classList.toggle('light', !dark)
+    store.isDarkMode = dark
+    localStorage.setItem('fh_theme', dark ? 'dark' : 'light')
   })
 
   // Einklappbare Analyse-Sidebar

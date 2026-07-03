@@ -1,5 +1,9 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.1 — 2026-07-03
+### Behoben (Fixed)
+- **Dark-Mode-Persistenz vereinheitlicht:** Theme-Key `atw_theme` → `fh_theme` (CLAUDE.md-Konvention). Der Dark Mode bleibt jetzt beim Navigieren Übersicht↔Sim erhalten und startet in jeder Sim im zuletzt gewählten Modus.
+
 ## v2.2.0 — 2026-07-03
 ### Hinzugefügt (Feature)
 - **Einklappbare Live-Analyse-Sidebar:** Rechte Sidebar (Physik konstant, Live-Analyse, Diagramm, Datenexport, Physik) jetzt ein-/ausklappbar. Steuerung sitzt als Header direkt am Panel (Double-Chevron, rotiert beim Zustandswechsel). Default eingeklappt (44-px-Schiene mit vertikalem „Analyse"-Label) — die Sim-/Diagrammfläche hat beim Laden maximal Platz. Body eingeklappt off-screen (`position:fixed; left:-10000px`) statt `display:none`, damit MathJax die Formeln im Hintergrund typesetzt. `aria-expanded`/`aria-controls` + Fokus-Ring. Umgesetzt nach Best-Practice-Blueprint `global_docs/simulation_instruction.md` § „Einklappbare Analyse-Sidebar".

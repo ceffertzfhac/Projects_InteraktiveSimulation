@@ -2,6 +2,10 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.1] - 2026-07-03
+### Behoben (Fixed)
+- **Dark-Mode-Persistenz:** Theme wird jetzt beim Start aus `fh_theme` (localStorage) geladen und beim Toggeln gespeichert — zuvor gar nicht persistiert. Toggle schaltet `dark`/`light` synchron (vorher blieb `light` kleben, wenn `dark` dazukam). Einheitlicher Key `fh_theme` gemäß CLAUDE.md-Konvention.
+
 ## [2.0.0] - 2026-07-03
 
 ### Hinzugefügt (Feature)

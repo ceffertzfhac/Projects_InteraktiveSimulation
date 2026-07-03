@@ -99,12 +99,12 @@ function updateSpeedPills() {
 }
 
 function setupTheme() {
-  const saved = localStorage.getItem('ff_theme') || 'light';
+  const saved = localStorage.getItem('fh_theme') || 'light';
   document.body.className = saved;
   DOM.themeToggle.addEventListener('click', () => {
     const dark = document.body.classList.toggle('dark');
     document.body.classList.toggle('light', !dark);
-    localStorage.setItem('ff_theme', dark ? 'dark' : 'light');
+    localStorage.setItem('fh_theme', dark ? 'dark' : 'light');
     drawRuler();
     drawStopwatchMarks();
     drawSubdialMarks();

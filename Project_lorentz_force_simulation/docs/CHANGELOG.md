@@ -1,5 +1,9 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.1] - 2026-07-03
+### Behoben (Fixed)
+- **Dark-Mode-Persistenz:** Theme wird jetzt beim Start aus `fh_theme` (localStorage) geladen und beim Toggeln gespeichert — zuvor gar nicht persistiert. Toggle schaltet `dark`/`light` synchron. Einheitlicher Key `fh_theme` gemäß CLAUDE.md-Konvention.
+
 ## [1.5.0] - 2026-07-03
 
 ### Hinzugefügt (Feature)

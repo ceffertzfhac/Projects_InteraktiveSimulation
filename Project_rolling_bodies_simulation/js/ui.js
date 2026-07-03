@@ -12,6 +12,9 @@ import {
 import { computeK, rollConditionMuMin, precompute } from './physics.js';
 
 export function setupUI() {
+  // Theme aus lokalem Speicher laden (einheitlicher Key fh_theme, siehe CLAUDE.md)
+  document.body.className = localStorage.getItem('fh_theme') === 'dark' ? 'dark' : 'light'
+
   // Graph select options
   const gSel = state.DOM.graphSel;
   for (const k in GRAPH_OPTIONS) {
@@ -100,7 +103,9 @@ export function setupUI() {
 
   // Theme toggle
   state.DOM.themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
+    const dark = document.body.classList.toggle('dark');
+    document.body.classList.toggle('light', !dark);
+    localStorage.setItem('fh_theme', dark ? 'dark' : 'light');
     render.drawBackground();
     render.drawObstacle();
     render.drawStopwatchMarks();

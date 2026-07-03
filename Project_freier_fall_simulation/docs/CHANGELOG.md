@@ -1,5 +1,9 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.3 — 2026-07-03
+### Behoben (Fixed)
+- **Dark-Mode-Persistenz vereinheitlicht:** Theme-Key `ff_theme` → `fh_theme` (CLAUDE.md-Konvention). Der Dark Mode bleibt jetzt beim Navigieren Übersicht↔Sim erhalten und startet in jeder Sim im zuletzt gewählten Modus.
+
 ## v2.2.2 — 2026-07-03
 ### Geändert (UX)
 - **Default eingeklappt:** Die rechte Live-Analyse startet nun eingeklappt (44-px-Schiene); die Simulations-/Diagrammfläche hat beim Laden maximal Platz. Aufklappen per Klick auf den Panel-Header. Body ist eingeklappt off-screen positioniert (`position:fixed; left:-10000px`) statt `display:none`, damit MathJax die Formeln im Hintergrund trotzdem typesetten kann.
