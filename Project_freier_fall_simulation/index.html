@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Freier Fall / Senkrechter Wurf – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../Standalone%20Proto/AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Freier Fall / Senkrechter Wurf
+    <span class="version">v2.1.9</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Parameter</div>
+      <div class="slider-label">Anfangshöhe \(h_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="h0_slider" min="1.8" max="25" value="10" step="0.1">
+        <span class="slider-val" id="h0_value">10,0 m</span>
+      </div>
+      <div class="slider-label">Anfangsgeschw. \(v_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="v0_slider" min="-10" max="10" value="0" step="1">
+        <span class="slider-val" id="v0_value">0 m/s</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Diagramm</div>
+      <div class="slider-label">Diagrammtyp</div>
+      <select id="graph_select" class="select-field">
+        <option value="weg" selected>Weg-Zeit</option>
+        <option value="geschw">Geschwindigkeit-Zeit</option>
+        <option value="beschl">Beschleunigung-Zeit</option>
+      </select>
+      <div class="slider-label">Y-Achsen-Konfiguration</div>
+      <select id="y_axis_config" class="select-field">
+        <option value="up_ground" selected>↑ positiv, Nullpunkt: Boden</option>
+        <option value="up_start">↑ positiv, Nullpunkt: Start</option>
+        <option value="down_ground">↓ positiv, Nullpunkt: Boden</option>
+        <option value="down_start">↓ positiv, Nullpunkt: Start</option>
+      </select>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Visualisierung</div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschw.-Vektor \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_vel" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschl.-Vektor \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_acc" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Legende Vektoren</div>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Abspielgeschwindigkeit</div>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="btn-row">
+        <button class="btn primary" id="play_btn">▶ Play</button>
+        <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+        <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation SVG ───────────────────────────────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- Axis arrowheads (color via CSS: --text) -->
+          <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <!-- Larger arrow for Y-axis display -->
+          <marker id="arrow-y" markerWidth="15" markerHeight="10.5" refX="0" refY="5.25" orient="auto">
+            <polygon points="0 0, 15 5.25, 0 10.5"/>
+          </marker>
+          <!-- Velocity vector (color via CSS: --c-vel) -->
+          <marker id="arrow-vel" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <!-- Acceleration vector (color via CSS: --c-acc) -->
+          <marker id="arrow-acc" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+
+        <!-- Animation area (x: 0–350, y: 0–500) -->
+        <g id="animation_group">
+          <rect id="building" x="80" width="80"/>
+          <line id="ground-line" x1="0" y1="440" x2="350" y2="440" stroke-width="2"/>
+          <g id="ruler_group"></g>
+          <g id="stick_figure"></g>
+          <circle id="ball" r="8" cx="136"/>
+          <line id="acc_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
+          <line id="vel_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <g id="y_axis_display"></g>
+          <g id="stopwatch">
+            <circle id="sw-face" cx="280" cy="120" r="72" stroke-width="2"/>
+            <g id="sw_marks"></g>
+            <g id="subdial">
+              <circle id="sd-face" cx="280" cy="150" r="16" stroke-width="1"/>
+              <g id="sd_marks"></g>
+              <line id="sw_sub_hand" x1="280" y1="150" x2="280" y2="135" stroke-width="1.5"/>
+            </g>
+            <line id="sw_main_hand" x1="280" y1="120" x2="280" y2="60" stroke-width="3"/>
+          </g>
+        </g>
+
+        <!-- Graph area (x: 400–880, y: 40–450) -->
+        <g id="graph_group" transform="translate(400, 40)">
+          <g id="grid_group"></g>
+          <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point" r="5" visibility="hidden"/>
+          <text id="graph_title" x="240" y="-22" text-anchor="middle" class="graph-title-text"></text>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label">t = 0,00 s</div>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Zeit \(t\)</div>
+          <div class="analysis-cell val" id="live_t">0,00 s</div>
+          <div class="analysis-cell key">Höhe / Weg</div>
+          <div class="analysis-cell val" id="live_y">10,00 m</div>
+          <div class="analysis-cell key">Geschw. \(v(t)\)</div>
+          <div class="analysis-cell val" id="live_v">0,00 m/s</div>
+          <div class="analysis-cell key">Beschl. \(a\)</div>
+          <div class="analysis-cell val" id="live_a">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Fallkennwerte</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Fallzeit \(t_{\text{fall}}\)</div>
+          <div class="analysis-cell val" id="live_tfall">— s</div>
+          <div class="analysis-cell key">Max. Höhe \(y_{\text{max}}\)</div>
+          <div class="analysis-cell val" id="live_ymax">— m</div>
+          <div class="analysis-cell key">Auftreffgeschw.</div>
+          <div class="analysis-cell val" id="live_vimpact">— m/s</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Datenexport</div>
+      <div class="btn-row">
+        <button class="btn small" id="export_diagram_btn">Diagramm (CSV)</button>
+        <button class="btn small" id="export_all_btn">Alle Daten (CSV)</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div id="pf_up_ground">
+          <div>Senkrechter Wurf:</div>
+          <div>\[y(t) = h_0 + v_0\,t - \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v(t) = v_0 - g\,t\]</div>
+          <div>\[a = -g = -9{,}81\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_up_start" style="display:none">
+          <div>Senkrechter Wurf:</div>
+          <div>\[s(t) = v_0\,t - \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v(t) = v_0 - g\,t\]</div>
+          <div>\[a = -g = -9{,}81\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_down_ground" style="display:none">
+          <div>Senkrechter Wurf:</div>
+          <div>\[y(t) = -h_0 - v_0\,t + \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v(t) = -v_0 + g\,t\]</div>
+          <div>\[a = +g = +9{,}81\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_down_start" style="display:none">
+          <div>Senkrechter Wurf:</div>
+          <div>\[s(t) = -v_0\,t + \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v(t) = -v_0 + g\,t\]</div>
+          <div>\[a = +g = +9{,}81\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div style="margin-top:8px">Fallzeit (allgemein):</div>
+        <div>\[t_{\text{fall}} = \frac{v_0 + \sqrt{v_0^2 + 2g\,h_0}}{g}\]</div>
+        <div style="margin-top:8px">Auftreffgeschwindigkeit:</div>
+        <div>\[\left|v_{\text{imp}}\right| = \sqrt{v_0^2 + 2g\,h_0}\]</div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
