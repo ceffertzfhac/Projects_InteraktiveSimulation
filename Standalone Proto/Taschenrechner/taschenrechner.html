@@ -4,27 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signifikante Stellen Rechner</title>
+    <link rel="stylesheet" href="../../shared/css/design-system.css">
     <style>
         :root {
-            --fh-blue: #005eb1;
+            --fh-blue: var(--fh-mint);
             --fh-red: #d1002d;
-            --bg-color: #f0f2f5;
-            --border-color: #ccc;
-            --text-color: #333;
-            --control-bg: #fff;
-            --label-color: #555;
-            --button-bg: #e0e0e0;
-            --button-hover-bg: #d0d0d0;
+            --bg-color: var(--bg);
+            --border-color: var(--border);
+            --text-color: var(--text);
+            --control-bg: var(--surface);
+            --label-color: var(--text2);
+            --button-bg: var(--surface3);
+            --button-hover-bg: var(--border2);
             --operator-bg: #f0a04b;
             --operator-hover-bg: #e0903a;
             --clear-bg: #d1002d;
             --clear-hover-bg: #c10020;
-            --equals-bg: #005eb1;
-            --equals-hover-bg: #004e90;
+            --equals-bg: var(--fh-mint);
+            --equals-hover-bg: var(--fh-mint-dark);
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: var(--font-ui);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,7 +58,7 @@
             border-radius: 4px;
             padding: 10px 15px;
             margin-bottom: 20px;
-            font-family: monospace;
+            font-family: var(--font-mono);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
@@ -140,6 +141,12 @@
     </style>
 </head>
 <body>
+    <a href="../AllAnimations/index.html" class="back-btn" style="position:fixed;top:12px;left:12px;z-index:1000;">← Übersicht</a>
+    <div class="theme-toggle-wrap" style="position:fixed;top:10px;right:12px;z-index:1000;">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
 
     <h1>Signifikante Stellen Rechner (Intervall-Arithmetik)</h1>
 
@@ -470,6 +477,16 @@
 
         // Setzt automatisch das aktuelle Jahr im Copyright-Hinweis
         document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
+    <script>
+    (function(){
+      var t = document.getElementById('theme_toggle');
+      if (localStorage.getItem('fh_theme') === 'dark') document.body.classList.add('dark');
+      if (t) t.addEventListener('click', function(){
+        var d = document.body.classList.toggle('dark');
+        localStorage.setItem('fh_theme', d ? 'dark' : 'light');
+      });
+    })();
     </script>
 </body>
 </html>
