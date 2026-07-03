@@ -103,8 +103,15 @@ export function setupUI() {
     document.body.classList.toggle('dark');
     render.drawBackground();
     render.drawObstacle();
+    render.drawStopwatchMarks();
     render.updateCylinderStyle();
     render.updateScene(state.store.simTime);
+  });
+
+  // Einklappbare Analyse-Sidebar
+  state.DOM.analysisToggle.addEventListener('click', () => {
+    const collapsed = state.DOM.appLayout.classList.toggle('analysis-collapsed');
+    state.DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   });
 
   updateUIInteractivity();
@@ -180,6 +187,7 @@ export function resetSim(preserveTime = false) {
   render.updateCylinderStyle();
   render.drawBackground();
   render.drawObstacle();
+  render.drawStopwatchMarks();
   render.rebuildAnalysis();
   render.updateScene(state.store.simTime);
 }

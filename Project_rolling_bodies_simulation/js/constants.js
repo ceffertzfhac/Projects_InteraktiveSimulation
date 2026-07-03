@@ -66,6 +66,13 @@ export const INIT_DELAY_MS = 80;
 // ══════════════════════════════════════════════════════════════════
 //  RAMP GEOMETRY
 // ══════════════════════════════════════════════════════════════════
+
+// ── STOPWATCH (kanonisches Design, Ref: Atwood v2.2.x / CLAUDE.md) ────────
+export const SW_RADIUS    = 60;   // Hauptzifferblatt r
+export const SW_HAND_LEN  = 50;   // Hauptzeiger-Länge
+export const SW_SUB_R     = 13;   // Hilfszifferblatt r
+export const SW_SUB_CY    = 25;   // Hilfszifferblatt y-Offset (12-Uhr-Reset)
+
 export const RAMP_TICK_INTERVAL = 0.5;
 export const RAMP_TICK_MAIN = 1.0;
 export const RAMP_GRID_INTERVAL = 0.3;

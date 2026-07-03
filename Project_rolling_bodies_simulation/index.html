@@ -4,9 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Rollende Körper – Interaktive Simulation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']] },
@@ -15,12 +12,20 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
 
 <header class="topbar">
-  <div class="topbar-title">Dynamik rollender Körper <span style="opacity:0.4; font-weight:300; font-size:0.7rem; margin-left:5px;">v1.9.5</span> <span> FH Aachen - FB 8 - Physik </span></div>
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Dynamik rollender Körper
+    <span class="version">v2.0.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
   <div class="topbar-right">
     <div class="theme-toggle-wrap">
       <span style="font-size:.82rem">🌙</span>
@@ -34,7 +39,7 @@ window.MathJax = {
   </div>
 </header>
 
-<div class="app-layout">
+<div class="app-layout analysis-collapsed">
 <aside class="panel left-panel">
   <div class="panel-section">
     <div class="panel-label">Hauptkörper (Primär)</div>
@@ -102,6 +107,22 @@ window.MathJax = {
       <label class="speed-pill"><input type="radio" name="speed" value="0.25">¼×</label>
     </div>
   </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Legende Punkte</div>
+    <div class="legend-grid">
+      <div class="legend-swatch" style="background:var(--c-sp)"></div>
+      <div class="legend-label">Schwerpunkt SP</div>
+      <div class="legend-swatch" style="background:var(--c-p1)"></div>
+      <div class="legend-label">Punkt P1</div>
+      <div class="legend-swatch" style="background:var(--c-p2)"></div>
+      <div class="legend-label">Punkt P2</div>
+      <div class="legend-swatch" style="background:var(--c-p3)"></div>
+      <div class="legend-label">Punkt P3</div>
+      <div class="legend-swatch" style="background:var(--c-p4)"></div>
+      <div class="legend-label">Punkt P4</div>
+    </div>
+  </div>
 </aside>
 
 <main class="center-area">
@@ -154,6 +175,18 @@ window.MathJax = {
       <g id="vectors_g" clip-path="url(#svg-clip)"></g>
       <g id="forces_g"  clip-path="url(#svg-clip)"></g>
       <g id="vec_legend_g" transform="translate(10,220)"></g>
+      <!-- Stopwatch – kanonisches Design (Ref: Atwood v2.2.x / CLAUDE.md) -->
+      <g id="stopwatch_group" transform="translate(640, 72) scale(0.7)">
+        <circle id="sw-face" cx="0" cy="0" r="60" stroke-width="2.5"/>
+        <g id="stopwatch_marks"></g>
+        <circle id="sw-subdial-face" cx="0" cy="25" r="13" stroke-width="1.5"/>
+        <g id="stopwatch_subdial_marks"></g>
+        <line id="stopwatch_sub_hand" x1="0" y1="25" x2="0" y2="13"
+              stroke-width="1.5" stroke-linecap="round"/>
+        <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50"
+              stroke-width="3" stroke-linecap="round"/>
+        <circle id="sw-axle" cx="0" cy="0" r="4" class="sw-mark"/>
+      </g>
     </svg>
     <div class="time-label" id="time_label">t = 0.000 s</div>
   </div>
@@ -186,7 +219,20 @@ window.MathJax = {
   </div>
 </main>
 
-<aside class="panel right-panel">
+<aside class="panel right-panel" id="right_panel">
+
+  <button class="panel-header" id="analysis_toggle" type="button"
+          title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+    <span class="ph-label">Analyse</span>
+    <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 4 L8 8 L3 12"/>
+      <path d="M8 4 L13 8 L8 12"/>
+    </svg>
+  </button>
+
+  <div class="panel-body">
+
   <div class="panel-section">
     <div class="panel-label">Visualisierung</div>
     <div class="vis-toggle-row"><span class="vis-label">SP-Bahn anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_sp_trace"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
@@ -270,6 +316,9 @@ window.MathJax = {
       <div class="mu-note" id="mu_required_note">Benötigtes μ<sub>s,min</sub>: – (Ebene)</div>
     </div>
   </div>
+
+  </div><!-- /.panel-body -->
+
 </aside>
 </div>
 

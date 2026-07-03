@@ -81,6 +81,16 @@ export function initDOMCache() {
   
   // Time display
   DOM.timeLabel = document.getElementById('time_label');
+
+  // Stopwatch (kanonisches Design, Ref: Atwood v2.2.x)
+  DOM.swMarks    = document.getElementById('stopwatch_marks');
+  DOM.swMainHand = document.getElementById('stopwatch_main_hand');
+  DOM.swSubMarks = document.getElementById('stopwatch_subdial_marks');
+  DOM.swSubHand  = document.getElementById('stopwatch_sub_hand');
+
+  // Einklappbare Analyse-Sidebar
+  DOM.analysisToggle = document.getElementById('analysis_toggle');
+  DOM.appLayout       = document.querySelector('.app-layout');
   
   // Panels
   DOM.analysisArea = document.getElementById('analysis_area');

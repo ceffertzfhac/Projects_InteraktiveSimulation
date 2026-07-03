@@ -11,7 +11,8 @@ import {
   VEC_REF_PX, VEC_V_REF_PX, VEC_A_REF, VEC_A_MAX_PX, VEC_MIN_LEN, VEC_MAX_V_PX,
   TRACE_EPSILON, MASS, G,
   SUBJECTS, SUBJ_COLORS, SUBJ_LABELS, GRAPH_OPTIONS, CMP_KEYS, ALL_TYPES,
-  X_STOP, DRAW_X, GRAPH_Y_LABEL_OFFSET, DT
+  X_STOP, DRAW_X, GRAPH_Y_LABEL_OFFSET, DT,
+  SW_RADIUS, SW_HAND_LEN, SW_SUB_R, SW_SUB_CY
 } from './constants.js';
 
 import { computeK } from './physics.js';
@@ -46,6 +47,47 @@ export function svgEl(tag, attrs = {}) {
   const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (const k in attrs) el.setAttribute(k, attrs[k]);
   return el;
+}
+
+// ── Stopwatch (kanonisches Design, Ref: Atwood v2.2.x / CLAUDE.md) ──────────
+// Hauptzifferblatt r=60, 60 Marken; Hauptzeiger 1 U/60s.
+// Hilfszifferblatt (cy=25, r=13), 10 Marken; Hilfszeiger 1 U/s.
+export function drawStopwatchMarks() {
+  const { swMarks, swSubMarks } = state.DOM;
+  swMarks.innerHTML = '';
+  for (let i = 0; i < 60; i++) {
+    const angle = (i / 60) * 2 * Math.PI - Math.PI / 2;
+    const isMaj = i % 5 === 0;
+    const rIn   = isMaj ? SW_RADIUS - 8 : SW_RADIUS - 3;
+    swMarks.appendChild(svgEl('line', {
+      x1: rIn * Math.cos(angle), y1: rIn * Math.sin(angle),
+      x2: SW_RADIUS * Math.cos(angle), y2: SW_RADIUS * Math.sin(angle),
+      'stroke-width': isMaj ? 2 : 1, class: 'sw-mark',
+    }));
+  }
+  swSubMarks.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
+    const rIn = SW_SUB_R - 3;
+    swSubMarks.appendChild(svgEl('line', {
+      x1: rIn * Math.cos(angle), y1: SW_SUB_CY + rIn * Math.sin(angle),
+      x2: SW_SUB_R * Math.cos(angle), y2: SW_SUB_CY + SW_SUB_R * Math.sin(angle),
+      'stroke-width': 1, class: 'sw-mark',
+    }));
+  }
+}
+
+export function updateStopwatch(t) {
+  const { swMainHand, swSubHand } = state.DOM;
+  if (!swMainHand) return;
+  // Hauptzeiger: 1 Umdrehung / 60 s
+  const ma = (t % 60) / 60 * 2 * Math.PI - Math.PI / 2;
+  swMainHand.setAttribute('x2', String(SW_HAND_LEN * Math.cos(ma)));
+  swMainHand.setAttribute('y2', String(SW_HAND_LEN * Math.sin(ma)));
+  // Hilfszeiger: 1 Umdrehung / s (Zehntelsekunden), Reset auf 12 Uhr
+  const sa = (t % 1) * 2 * Math.PI - Math.PI / 2;
+  swSubHand.setAttribute('x2', String(SW_SUB_R * Math.cos(sa)));
+  swSubHand.setAttribute('y2', String(SW_SUB_CY + SW_SUB_R * Math.sin(sa)));
 }
 
 /**
@@ -967,6 +1009,7 @@ export function updateScene(t) {
   updateAnalysis(interp);
   updateGraph(t);
   state.DOM.timeLabel.textContent = `t = ${fmt(t, 3)} s`;
+  updateStopwatch(t);
 
   // ── TRACES (drawn last to be on top of everything) ────────────────
   const { tracesG, worldG } = state.DOM;

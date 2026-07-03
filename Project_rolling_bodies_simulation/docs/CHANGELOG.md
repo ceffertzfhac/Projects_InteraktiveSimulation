@@ -2,6 +2,20 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.0] - 2026-07-03
+
+### Hinzugefügt (Feature)
+- **Einklappbare Analyse-Sidebar:** Rechte Sidebar (Visualisierung, Analyse-Objekte, Rennen, Energiebilanz, Physik) jetzt ein-/ausklappbar. Steuerung als Panel-Header mit Double-Chevron (rotiert beim Zustandswechsel). Default eingeklappt (44-px-Schiene, vertikales „Analyse"-Label). Body eingeklappt off-screen (`position:fixed; left:-10000px`) statt `display:none`, damit MathJax die Formeln im Hintergrund typesetzt. `aria-expanded`/`aria-controls` + Fokus-Ring. Blueprint: `global_docs/simulation_instruction.md` § „Einklappbare Analyse-Sidebar".
+- **Kanonische Stopwatch:** Hauptzifferblatt (r=60, 60 Marken, Hauptzeiger 1 U/60s) + Hilfszifferblatt (cy=25, r=13, 10 Marken, Hilfszeiger 1 U/s, Reset auf 12 Uhr). `translate(640,72) scale(0.7)` im Sim-SVG (statisches Overlay, nicht von Kamera bewegt). Zeigt `simTime`; precompute-basiert. Ref: Atwood v2.2.x / CLAUDE.md.
+- **Legende Punkte:** `.legend-grid` in linker Sidebar für SP/P1–P4 (Schwerpunkt + vier Zykloiden-Punkte) mit Farb-Swatches.
+- **Back-Button:** `← Übersicht` in Topbar-left (`../AllAnimations/index.html`).
+
+### Geändert (Refactor / Style)
+- **Shared Design-CSS eingebunden:** `../shared/css/design-system.css` vor per-Sim `css/styles.css` (DRY). Base-Tokens, Layout-Grid, Klapp-Sidebar-CSS und UI-Komponenten zentral aus shared. per-Sim `styles.css` bereinigt auf Rolling-spezifische Komponenten (Obj-Buttons, Compare, Subj-Pills, Energiebalken, Race-Bars) + SVG-Targets. Google-Fonts-Link entfernt (shared `@import`et sie).
+- **Grid:** `255px 1fr 295px` → `280px 1fr 270px` (FH-Standard).
+- **Kraft-Vektorfarben auf Okabe-Ito** (colorblind-safe): `F_g`/`F_N`/`F_R` jetzt Blau/Orange/Mauve (`#0072b2`/`#e69f00`/`#cc79a7`, dark `#56b4e9`/`#f0e442`/`#e078c3`) — ersetzt das alte purple/green/orange. Geerbt aus shared.
+- **Topbar:** Title-Struktur an FF/Atwood angeglichen (`.version`/`.inst`-Spans).
+
 ## [1.9.5] - 2026-07-03
 
 ### Geändert (Style)
