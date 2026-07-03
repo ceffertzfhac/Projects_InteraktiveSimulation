@@ -1,8 +1,12 @@
 /*
  * FH Aachen – Physik-Simulationen
- * Shared Design System
+ * Shared Design System (kanonisch für alle modularen Sims + Übersichtsseite)
  * Primärfarbe: FH Aachen Mint #00B1AC (Pantone 326C)
  * Typografie:  DM Sans (UI) + JetBrains Mono (Zahlen)
+ *
+ * Konform zu CLAUDE.md: Grid 280px 1fr 270px, Okabe-Ito-Kraftfarben,
+ * einklappbare Analyse-Sidebar (Default eingeklappt, off-screen Body).
+ * Referenzimplementierung: Project_freier_fall_simulation/ v2.2.x
  */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -10,37 +14,38 @@
 /* ── TOKENS ─────────────────────────────────────────────────── */
 :root {
   /* FH Aachen Corporate Colors */
-  --fh-mint:     #00B1AC;
-  --fh-mint-10:  #00A09B;
-  --fh-mint-25:  #008581;
-  --fh-mint-50:  #006260;
-  --fh-mint-75:  #003F3E;
-  --fh-black:    #000000;
-  --fh-white:    #FFFFFF;
+  --fh-mint:      #00B1AC;
+  --fh-mint-10:   #00A09B;
+  --fh-mint-25:   #008581;
+  --fh-mint-50:   #006260;
+  --fh-mint-75:   #003F3E;
+  --fh-mint-dark: #008581;   /* Alias (FF nutzt diesen Namen) */
+  --fh-black:     #000000;
+  --fh-white:     #FFFFFF;
 
-  /* Light Mode Surfaces */
-  --bg:          #f0f2f5;
-  --surface:     #ffffff;
-  --surface2:    #f5f7fa;
-  --surface3:    #eceef3;
-  --border:      #d8dce8;
-  --border2:     #c2c8d8;
+  /* Light Mode Surfaces (an FF-Referenz angeglichen) */
+  --bg:       #f0f2f7;
+  --surface:  #ffffff;
+  --surface2: #f5f6fa;
+  --surface3: #eceef5;
+  --border:   #d8dce8;
+  --border2:  #c2c8d8;
 
   /* Text */
-  --text:        #111418;
-  --text2:       #445060;
-  --text3:       #8890a8;
+  --text:     #1a1e2e;
+  --text2:    #4a5068;
+  --text3:    #8890a8;
 
   /* Semantic Accent = FH Mint */
   --accent:      var(--fh-mint);
-  --accent-dark: var(--fh-mint-25);
+  --accent-dark: var(--fh-mint-dark);
 
-  /* Physik-Vektoren (standardisiert für alle Sims) */
-  --c-vel:   #2060d0;   /* Geschwindigkeit v  – Blau   */
-  --c-acc:   #c03030;   /* Beschleunigung a   – Rot    */
-  --c-fg:    #7030cc;   /* Gewichtskraft Fg   – Violett */
-  --c-fn:    #1a8a50;   /* Normalkraft FN     – Grün   */
-  --c-fr:    #c06010;   /* Reibkraft FR       – Orange  */
+  /* Physik-Vektoren — Okabe-Ito (colorblind-safe, CLAUDE.md) */
+  --c-vel:   #2060d0;   /* Geschwindigkeit v  – Blau    */
+  --c-acc:   #c03030;   /* Beschleunigung a   – Rot     */
+  --c-fg:    #0072b2;   /* Gewichtskraft F_G  – Blau    */
+  --c-fn:    #e69f00;   /* Seilkraft/Normalkraft – Orange */
+  --c-fr:    #cc79a7;   /* Resultierende F_ges – Mauve  */
 
   /* Punkt-Farben für Zykloiden-Analyse */
   --c-sp:    #222222;
@@ -60,18 +65,18 @@
 
 /* ── DARK MODE ───────────────────────────────────────────────── */
 body.dark {
-  --bg:        #0d1117;
-  --surface:   #161b22;
-  --surface2:  #1e2530;
-  --surface3:  #262e3d;
-  --border:    #2d3748;
-  --border2:   #3d4f66;
+  --bg:        #0f111a;
+  --surface:   #161925;
+  --surface2:  #1e2233;
+  --surface3:  #262c42;
+  --border:    #2d344d;
+  --border2:   #3d4766;
 
   --text:      #e6eaf5;
   --text2:     #a0abc7;
   --text3:     #6b799e;
 
-  --accent:      #00CEC9;   /* Mint etwas heller im Dark Mode */
+  --accent:      #00CEC9;
   --accent-dark: var(--fh-mint);
 
   --c-sp:    #ffffff;
@@ -81,9 +86,9 @@ body.dark {
   --c-p4:    #ff7777;
   --c-vel:   #66aaff;
   --c-acc:   #ff7777;
-  --c-fg:    #bd8aff;
-  --c-fn:    #55ee99;
-  --c-fr:    #ffaa55;
+  --c-fg:    #56b4e9;
+  --c-fn:    #f0e442;
+  --c-fr:    #e078c3;
 }
 
 /* ── BASE RESET ──────────────────────────────────────────────── */
@@ -94,20 +99,30 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
   transition: background 0.3s, color 0.3s;
 }
 
 /* ── TOPBAR ──────────────────────────────────────────────────── */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 52px;
-  background: var(--surface); border-bottom: 2px solid var(--accent);
+  padding: 0 16px; height: 52px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 100;
 }
-.topbar-title {
-  font-size: 1rem; font-weight: 700; letter-spacing: .04em; color: var(--accent);
+.topbar-left { display: flex; align-items: center; }
+.back-btn {
+  font-size: .75rem; color: var(--text2); text-decoration: none;
+  padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--r);
+  background: var(--surface2); transition: all .15s; white-space: nowrap;
 }
-.topbar-title span { color: var(--text2); font-weight: 400; font-size: .8rem; margin-left: 10px; }
+.back-btn:hover { border-color: var(--border2); color: var(--text); }
+.topbar-title {
+  font-size: .95rem; font-weight: 700; letter-spacing: .04em; color: var(--accent);
+  text-align: center; flex: 1; padding: 0 12px;
+}
+.topbar-title .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
+.topbar-title .inst    { color: var(--text2); font-weight: 400; font-size: .75rem; margin-left: 8px; }
 .topbar-right { display: flex; gap: 8px; align-items: center; }
 
 /* ── THEME TOGGLE ────────────────────────────────────────────── */
@@ -125,20 +140,130 @@ body {
 body.dark .theme-toggle { background: var(--accent); border-color: var(--accent); }
 body.dark .theme-toggle::before { transform: translateX(16px); background: #fff; }
 
-/* ── STANDARD 3-SPALTEN-LAYOUT ──────────────────────────────── */
+/* ── STANDARD 3-SPALTEN-LAYOUT + EINKLAPPBARE ANALYSE-SIDEBAR ── */
 .app-layout {
   display: grid;
-  grid-template-columns: 255px 1fr 295px;
+  grid-template-columns: 280px 1fr 270px;
   height: calc(100vh - 52px);
   overflow: hidden;
+  transition: grid-template-columns .25s ease;
 }
+.app-layout.analysis-collapsed { grid-template-columns: 280px 1fr 44px; }
+/* Off-screen statt display:none, damit MathJax die Formeln im Hintergrund typesetten kann. */
+.app-layout.analysis-collapsed .right-panel .panel-body {
+  position: fixed; left: -10000px; top: 0; width: 270px; pointer-events: none;
+}
+
 .panel { background: var(--surface); overflow-y: auto; overflow-x: hidden; transition: background 0.3s; }
 .panel::-webkit-scrollbar { width: 3px; }
 .panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 .panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-.panel-section-title {
-  font-size: .65rem; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+.panel-label {
+  font-size: .62rem; font-weight: 700; letter-spacing: .14em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 11px;
+}
+.left-panel  { border-right: 1px solid var(--border); }
+.right-panel { border-left:  1px solid var(--border); }
+
+/* Klapp-Header (Best Practice, siehe global_docs/simulation_instruction.md) */
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 12px 16px;
+  background: var(--surface2); border: none; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s, color .15s;
+  font-family: var(--font-ui); color: var(--text2);
+}
+.panel-header:hover { background: var(--surface3); color: var(--text); }
+.panel-header:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ph-label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; color: var(--text3); text-transform: uppercase; }
+.ph-chevron { width: 15px; height: 15px; flex-shrink: 0; transition: transform .2s ease; }
+/* Eingeklappt: vertikale 44-px-Schiene */
+.app-layout.analysis-collapsed .panel-header {
+  flex-direction: column; justify-content: center; align-items: center;
+  height: 100%; padding: 14px 0; gap: 10px; border-bottom: none;
+}
+.app-layout.analysis-collapsed .ph-label { writing-mode: vertical-rl; transform: rotate(180deg); }
+.app-layout.analysis-collapsed .ph-chevron { transform: rotate(180deg); }
+
+/* ── CENTER ──────────────────────────────────────────────────── */
+.center-area { overflow: hidden; background: var(--bg); transition: background 0.3s; display: flex; flex-direction: column; }
+.sim-wrapper { position: relative; overflow: hidden; flex: 1; min-height: 0; }
+#main_svg { width: 100%; height: 100%; display: block; }
+.time-label {
+  position: absolute; bottom: 7px; right: 12px;
+  font-family: var(--font-mono); font-size: .73rem;
+  color: var(--text3); pointer-events: none;
+}
+
+/* ── SLIDERS ─────────────────────────────────────────────────── */
+.slider-label { font-size: .73rem; color: var(--text2); margin-bottom: 3px; }
+.slider-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; margin-bottom: 10px; }
+.slider-val { font-family: var(--font-mono); font-size: .76rem; color: var(--accent); text-align: right; min-width: 58px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 3px; background: var(--border2); border-radius: 2px; outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; transition: transform .1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+/* ── SELECT ──────────────────────────────────────────────────── */
+.select-field {
+  width: 100%; padding: 6px 8px; margin-bottom: 8px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text);
+  font-family: var(--font-ui); font-size: .75rem;
+  cursor: pointer; outline: none;
+}
+
+/* ── TOGGLE SWITCHES ─────────────────────────────────────────── */
+.vis-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.vis-label { font-size: .73rem; color: var(--text2); }
+.toggle-switch { position: relative; width: 28px; height: 15px; cursor: pointer; flex-shrink: 0; }
+.toggle-switch input { display: none; }
+.toggle-track { position: absolute; inset: 0; background: var(--border2); border-radius: 8px; transition: background .15s; }
+.toggle-thumb { position: absolute; left: 2px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--text3); transition: all .15s; }
+.toggle-switch input:checked + .toggle-track { background: var(--accent); }
+.toggle-switch input:checked + .toggle-track + .toggle-thumb { left: 15px; background: #000; }
+
+/* ── SPEED PILLS ─────────────────────────────────────────────── */
+.speed-pills { display: flex; gap: 5px; }
+.speed-pill {
+  flex: 1; padding: 5px 0; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface2); text-align: center; font-size: .72rem; color: var(--text2);
+  cursor: pointer; transition: all .15s; position: relative; user-select: none;
+}
+.speed-pill input { position: absolute; opacity: 0; inset: 0; pointer-events: none; }
+.speed-pill.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ── BUTTONS ─────────────────────────────────────────────────── */
+.btn {
+  padding: 6px 13px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text);
+  font-family: var(--font-ui); font-size: .76rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { background: var(--surface3); }
+.btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn.primary:hover { background: var(--fh-mint-dark); }
+.btn.small { padding: 4px 9px; font-size: .7rem; }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn-row { display: flex; gap: 8px; margin-top: 4px; }
+.btn-icon { font-size: 1.8em; line-height: 1; vertical-align: middle; }
+
+/* ── ANALYSIS GRID ───────────────────────────────────────────── */
+.analysis-subject { margin-bottom: 8px; background: var(--surface2); border-radius: var(--r); overflow: hidden; border: 1px solid var(--border); }
+.analysis-grid { display: grid; grid-template-columns: auto 1fr; gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+.analysis-cell { background: var(--surface2); padding: 4px 8px; font-size: .68rem; }
+.analysis-cell.key { color: var(--text3); }
+.analysis-cell.val { font-family: var(--font-mono); color: var(--text); text-align: right; }
+
+/* ── LEGEND ──────────────────────────────────────────────────── */
+.legend-grid { display: grid; grid-template-columns: 14px 1fr; gap: 4px 7px; align-items: center; }
+.legend-swatch { width: 14px; height: 10px; border-radius: 2px; }
+.legend-label { font-size: .7rem; color: var(--text2); }
+
+/* ── FORMULA BOX ─────────────────────────────────────────────── */
+.formula-box {
+  background: rgba(0,177,172,.04); border: 1px solid rgba(0,177,172,.18);
+  border-radius: var(--r); padding: 10px 12px; font-size: .75rem;
+  color: var(--text2); line-height: 1.8;
 }
 
 /* ── MONO-ZAHLEN ─────────────────────────────────────────────── */
