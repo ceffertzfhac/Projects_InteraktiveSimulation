@@ -95,6 +95,28 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 
 ---
 
+## ROLLOUT: Neue UI/UX & Design-System (Sprint 3)
+
+Vollständiger Plan: `.claude/plans/crystalline-giggling-flamingo.md`.
+Referenzimplementierung: `Project_freier_fall_simulation/` v2.2.x (einklappbare Sidebar, `--fh-mint`-Tokens, Dark Mode, Grid 280/1fr/270, Back-Button).
+Blueprint: `global_docs/simulation_instruction.md` § „Einklappbare Analyse-Sidebar".
+Adressiert bestehende Items **I2** (Shared Design-System linken) und **S2** (Dark Mode für Standalone-Sims) — werden mit R0/R4/R5/R6 geschlossen.
+
+| ID | Prio | Titel | Abhängigkeit | Beschreibung |
+|----|------|-------|--------------|--------------|
+| R0 | Must | `shared/css/design-system.css` an CLAUDE.md angleichen | — | Tokens an FF-Referenz (Surface/Text/Border, `--fh-mint-dark`-Alias), Kraft-Vektorfarben auf Okabe-Ito (`#0072b2`/`#e69f00`/`#cc79a7`), Grid `280px 1fr 270px`, Klapp-Sidebar-CSS einlagern (off-screen Body, MathJax-Gotcha). Gate für R1–R3. Commit `refactor(repo)`. |
+| R1 | Must | Atwood: einklappbare Sidebar + shared import | R0 | `<link>` shared; per-Sim Tokens bereinigen; Kollaps-HTML/JS laut Blueprint. v2.1.10 → v2.2.0. Hat schon Grid/Back-Button/Stopwatch/Legende/Okabe-Ito. Commit `feat(atwood)`. |
+| R2 | Must | Rolling: Design-System + Sidebar + Legende + Stopwatch | R0 | `<link>` shared; Grid 255/295 → 280/270; Back-Button; `.legend-grid` für SP/P1–P4; kanonische Stopwatch (precompute-basiert); einklappbare Sidebar; Okabe-Ito-Kraftfarben. v1.9.5 → v2.0.0. Commit `feat(rolling)`. |
+| R3 | Must | Lorentz: Gold-Reste & :root-Bugfix + Sidebar + Legende | R0 | Stale Gold-`rgba(232,197,71,…)` → Mint; doppeltes `:root`/`body.dark` am EOF entfernen; Grid → 280/270; Back-Button; `.legend-grid` (Strom + F_L/F_s); einklappbare Sidebar. **Keine Stopwatch** (statisches Gleichgewicht, keine Zeitanimation — bewusst). v1.4.1 → v1.5.0. Commit `fix(lorentz)`. |
+| R4 | Should | 11 FH-blau-alt Standalone-Prototypen umstellen | R0 | `3massen_umlenkrollen_v2`, `ableitung`, `atwood`, `atwood_energy`, `elastischerStoß`, `federpendel`, `freier_fall_senkrechter_wurf`, `geschwindigkeit`, `grundbegriffe_kin`, `kreisbewegung`, `kreiskinematik_v5`: `<link>` shared, `--fh-blue`/`#005eb1` → Tokens, Font-Stacks → `--font-ui`/`--font-mono`, Dark Mode + Theme-Toggle, Back-Button. Pro Datei `style(standalone)`. |
+| R5 | Could | 2 Bulma-Outlier umstellen | R0 | `schräger_wurf.html`, `zykloide3.html`: Bulma-Palette vollständig durch FH-Tokens ersetzen (größerer Eingriff, Layout/Funktion bleibt). |
+| R6 | Could | Taschenrechner umstellen | R0 | `Standalone Proto/Taschenrechner/taschenrechner.html`: FH-blau-alt → FH-Design-System, Dark Mode, Back-Button. |
+| R7 | Could | Übersicht linkt shared Design-CSS | R0 | `AllAnimations/index.html` nutzt aktuell inline duplizierte Tokens — auf `<link>` shared umstellen. |
+| R8 | Could | Freier Fall linkt shared | R0 | `Project_freier_fall_simulation/` optional shared `@import`en lassen (Token-Drift auflösen); Referenz nicht riskieren — erst nach R0 stabil. |
+| R9 | Must | Rollout abschließen: Doku & Backlog aktualisieren | R1–R8 | CLAUDE.md/BACKLOG: I2, S2 als erledigt markieren; Statistik; ggf. Konventionen um neu gewonnene Erkenntnisse ergänzen. Commit `docs(repo)`/`docs(global)`. |
+
+---
+
 ## ERLEDIGT (Sprint 2 — 2026-06-15)
 
 | ID | Titel | Version | Anmerkung |
@@ -107,7 +129,7 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 35
+- **Gesamt-Items (offen):** 45
 - **Bugs:** 3
 - **Technische Schulden:** 6
 - **Features (bestehende Projekte):** 11
@@ -115,4 +137,5 @@ Stand: 2026-06-15 | Priorisierung: MoSCoW (ausstehend)
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4
 - **Migrationen:** 1
+- **Rollout UI/UX (Sprint 3):** 10 (R0–R9; R0 Must-Gate, R1–R3 modular, R4–R8 standalone, R9 Abschluss)
 - **Erledigt:** 3 (M2, M3 — Sprint 2; T5 — Sprint 3)
