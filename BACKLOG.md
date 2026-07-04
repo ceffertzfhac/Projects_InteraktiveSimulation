@@ -1,6 +1,6 @@
 # Projekt-Backlog: Interaktive Physik-Simulationen
 
-Stand: 2026-07-03 | Priorisierung: MoSCoW (ausstehend)
+Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 
 ---
 
@@ -91,8 +91,8 @@ Stand: 2026-07-03 | Priorisierung: MoSCoW (ausstehend)
 
 | ID | Titel | Versionen | Beschreibung |
 |----|-------|-----------|--------------|
-| M1 | Schräger Wurf migrieren | 47 | Kandidat Nr. 1: Sehr reife Simulation (v47), didaktisch zentral, hoher Entwicklungsaufwand war da. Sauber in `Project_schraeger_wurf_simulation/` überführen. Zusammen mit M4 migrieren (gemeinsamer Scaffold). |
-| M4 | Zykloide migrieren | zykloide3 | Teilt den Scaffold mit `schräger_wurf` (gleiche Controls/Graph-Helper). Gemeinsam mit M1 migrieren → `Project_zykloide_simulation/`, um Divergenz-Schulden zu vermeiden. |
+| M1 | ✅ Schräger Wurf migrieren | 47 | **Erledigt (Sprint 4b):** `Project_schraeger_wurf_simulation/` v1.0.0 — precompute + interpolateAt, volle Feature-Parität zum v47-Prototyp. Fehlabgelegtes `AllAnimations/schräger_wurf.html` (Rollender-Zylinder-Dup) gelöscht. Commit `8880539`. |
+| M4 | ✅ Zykloide migrieren | zykloide3 | **Erledigt (Sprint 4b):** `Project_zykloide_simulation/` v1.0.0 — gleicher Scaffold wie M1, Trochoiden-Physik (ω=Vc/R, r=0,9·R), Kamera-Follow, 5 Subjekte × 8 Größen, CSV. `AllAnimations/zykloide3.html` gelöscht. Commit `2378737`. |
 | M5 | Federpendel migrieren | federpendel | Hat schon `precompute` + Stoppuhr + CSV → `Project_federpendel_simulation/`. Layout-Schale, Graph-Helper, statisches MathJax, einklappbare Sidebar. |
 | M6 | Kreisbewegung migrieren | kreisbewegung (+kreiskinematik_v5) | → `Project_kreisbewegung_simulation/`. **Vorher prüfen**, ob `kreiskinematik_v5` darin aufgeht (thematisch nah, größte Datei) — Konsolidierung statt Doppelmigration. |
 | M7 | Atwood-Energie migrieren | atwood_energy | Entweder eigene `Project_atwood_energy_simulation/` *oder* Energie-Graphen als Diagrammtyp-Option in `Project_atwood_simulation/` aufnehmen (Produktentscheidung bei Umsetzung). |
@@ -190,16 +190,36 @@ Sprint 4 schließt diese Lücke.
 Die einzelnen Migrationen (M1, M4–M9) und Werkzeug-Umstellungen (W1–W3)
 sind je eigene Folge-Iterationen mit eigenem Plan/Commit.
 
+**Sprint 4b (erledigt):** M1 (Schräger Wurf) + M4 (Zykloide) als gepaarte
+modulare Migration auf gemeinsamem Scaffold überführt (beide v1.0.0).
+Beide Prototypen (`schräger_wurf.html`, `zykloide3.html`) aus `AllAnimations/`
+entfernt, Karten auf die neuen `Project_*` geleitet. Plan:
+`.claude/plans/jazzy-mixing-newell.md`. Offen: M5–M9, W1–W3.
+
+---
+
+## ERLEDIGT (Sprint 4b — 2026-07-04): M1 + M4 gepaarte Migration
+
+Gemeinsamer Scaffold (Atwood-Muster: `precompute()` + `interpolateAt(t)`,
+6-Modul-Architektur, shared Design-System, 3-Spalten-Layout, einklappbare
+Analyse-Sidebar, Dark Mode via `fh_theme`). Plan:
+`.claude/plans/jazzy-mixing-newell.md`.
+
+| ID | Titel | Commit / Version | Anmerkung |
+|----|-------|------------------|-----------|
+| M1 | Schräger Wurf migrieren | `feat(standalone)` 8880539 · v1.0.0 | Aus `Standalone Proto/Schräger_Wurf/…v47.html` (1049 Zeilen). Volle Feature-Parität: Vektoren + Komponenten, Y-Achsen-Konfig, Strichmännchen, Stoppuhr + LCD-Easteregg, Zoom-Auto-Fit, Single/Stacked-Graph, CSV. Fehlabgelegtes `AllAnimations/schräger_wurf.html` (Rollender-Zylinder-Dup) gelöscht. |
+| M4 | Zykloide / Rollender Zylinder migrieren | `feat(standalone)` 2378737 · v1.0.0 | Aus `AllAnimations/zykloide3.html` (863 Zeilen). Trochoiden-Physik (ω=Vc/R, r=0,9·R hardcoded), 5 Subjekte × 8 Größen, Kamera-Follow, Traces + Z-Order, Subjekt-Checkboxen (statisches HTML), CSV 5×8. `zykloide3.html` gelöscht. |
+
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 41
+- **Gesamt-Items (offen):** 39
 - **Bugs:** 3
 - **Technische Schulden:** 6
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4 (davon I2, I4 erledigt)
-- **Migrationen:** 7 (M1, M4–M9)
+- **Migrationen:** 5 offen (M5–M9) — M1, M2, M3, M4 erledigt
 - **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 16 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a)
+- **Erledigt:** 18 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b)
