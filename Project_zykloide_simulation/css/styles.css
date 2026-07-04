@@ -1,0 +1,75 @@
+/* ── SIM-SPEZIFISCHE TOKENS (ergänzen shared/css/design-system.css) ────────── */
+:root {
+  --graph-bg:      #ffffff;
+  --grid-line:     #e8eaf0;
+  --bg-grid:       #f0f0f0;
+  --cylinder-fill: #e0e0e0;
+  --cylinder-stroke: #888888;
+}
+
+body.dark {
+  --graph-bg:      #161925;
+  --grid-line:     #262c42;
+  --bg-grid:       #1e2233;
+  --cylinder-fill: #2a3148;
+  --cylinder-stroke: #3d4766;
+}
+
+/* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */
+#arrowhead polygon { fill: var(--text); }
+#arrow-vel polygon  { fill: var(--c-vel); }
+#arrow-acc polygon  { fill: var(--c-acc); }
+
+#ground_line   { stroke: var(--text); }
+#cylinder_body { fill: var(--cylinder-fill); stroke: var(--cylinder-stroke); stroke-width: 1.5; }
+
+#sp_point { fill: var(--c-sp); }
+#p1_point { fill: var(--c-p1); stroke: var(--text); stroke-width: 0.5; }
+#p2_point { fill: var(--c-p2); stroke: var(--text); stroke-width: 0.5; }
+#p3_point { fill: var(--c-p3); stroke: var(--text); stroke-width: 0.5; }
+#p4_point { fill: var(--c-p4); stroke: var(--text); stroke-width: 0.5; }
+
+/* Spuren (Bahnkurven) */
+.trace-sp { stroke: var(--c-sp); }
+.trace-p1 { stroke: var(--c-p1); }
+.trace-p2 { stroke: var(--c-p2); }
+.trace-p3 { stroke: var(--c-p3); }
+.trace-p4 { stroke: var(--c-p4); }
+
+/* Vektoren */
+.vec-vel { stroke: var(--c-vel); }
+.vec-acc { stroke: var(--c-acc); }
+
+/* Diagramm-Linien / Punkte je Subjekt */
+#graph_line_sp  { stroke: var(--c-sp); }
+#graph_line_p1  { stroke: var(--c-p1); }
+#graph_line_p2  { stroke: var(--c-p2); }
+#graph_line_p3  { stroke: var(--c-p3); }
+#graph_line_p4  { stroke: var(--c-p4); }
+#graph_point_sp { fill: var(--c-sp); }
+#graph_point_p1 { fill: var(--c-p1); }
+#graph_point_p2 { fill: var(--c-p2); }
+#graph_point_p3 { fill: var(--c-p3); }
+#graph_point_p4 { fill: var(--c-p4); }
+
+/* Klassen (SVG-Elemente aus render.js) */
+.bg-grid     { stroke: var(--bg-grid); }
+.ruler-tick  { stroke: var(--text); }
+.ruler-text  { fill: var(--text2); font-size: 12px; font-family: var(--font-ui); }
+.graph-bg    { fill: var(--graph-bg); }
+.grid-line   { stroke: var(--grid-line); }
+.axis-line   { stroke: var(--text); }
+.axis-label  { fill: var(--text); font-size: 13px; font-family: var(--font-ui); }
+.tick-label  { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
+
+/* Analyse-Subjekt-Titel */
+.analysis-subject-title {
+  font-weight: 600;
+  font-size: .85rem;
+  margin: 4px 0 6px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border);
+}
+.analysis-subject + .analysis-subject { margin-top: 10px; }
+.subject-note { font-size: .78rem; color: var(--text2); line-height: 1.45; }
