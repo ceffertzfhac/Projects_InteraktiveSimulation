@@ -31,7 +31,6 @@ function initDOM() {
   DOM.distance_val = document.getElementById('distance_val')
 
   // UI elements
-  DOM.tog_bfield = document.getElementById('tog_bfield')
   DOM.tog_forces = document.getElementById('tog_forces')
   DOM.tog_current = document.getElementById('tog_current')
   DOM.tog_flow = document.getElementById('tog_flow')

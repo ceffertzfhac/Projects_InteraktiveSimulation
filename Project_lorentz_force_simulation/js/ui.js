@@ -81,17 +81,17 @@ export function initUI() {
   store.isDarkMode = document.body.classList.contains('dark')
 
   // Input Sliders
-  [DOM.voltage_slider, DOM.current_slider, DOM.length_slider, DOM.cross_section_slider, DOM.spring_k_slider, DOM.distance_slider].forEach(el => {
+  ;[DOM.voltage_slider, DOM.current_slider, DOM.length_slider, DOM.cross_section_slider, DOM.spring_k_slider, DOM.distance_slider].forEach(el => {
     el.addEventListener('input', onParamChange)
   });
-  
+
   // Radio Buttons
-  [DOM.mode_u, DOM.mode_i, DOM.dir_tech, DOM.dir_phys, DOM.flow_par, DOM.flow_antipar].forEach(el => {
+  ;[DOM.mode_u, DOM.mode_i, DOM.dir_tech, DOM.dir_phys, DOM.flow_par, DOM.flow_antipar].forEach(el => {
     el.addEventListener('change', onParamChange)
   });
-  
+
   // Toggles
-  [DOM.tog_forces, DOM.tog_flow, DOM.tog_current].forEach(el => {
+  ;[DOM.tog_forces, DOM.tog_flow, DOM.tog_current].forEach(el => {
     el.addEventListener('change', onToggleChange)
   });
   

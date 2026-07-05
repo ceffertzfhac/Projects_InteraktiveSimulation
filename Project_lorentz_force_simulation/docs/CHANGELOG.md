@@ -1,5 +1,20 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.2] - 2026-07-05
+### Behoben (Fixed)
+- **Kritischer ASI-Bug (Simulation ladete nicht):** In `ui.js` schloss die
+  Zuweisung `store.isDarkMode = …` (Zeile 81) ohne Semikolon ab; die darauffolgende
+  `[DOM.voltage_slider, …].forEach(...)`-Zeile wurde von JS als Index-Zugriff
+  `…contains('dark')[DOM.voltage_slider, …]` gelesen — `contains('dark')` gibt
+  `boolean` zurück, `boolean[…]` → `undefined`, `.forEach` auf `undefined` →
+  `TypeError: Cannot read properties of undefined`. `initUI()` scheiterte, damit
+  der gesamte `main()`-Bootstrap → Simulation nicht funktionsfähig. Drei
+  `[DOM....].forEach`-Blöcke (Sliders/Radios/Toggles) betroffen.
+  Fix: `;`-Präfix vor zeilen-startende `[…].forEach` (no-semicolon-Stil,
+  ASI-Hazard bei `[`/`(` am Zeilenanfang).
+- **Tote Referenz entfernt:** `DOM.tog_bfield` in `main.js` referenzierte ein
+  nicht existierendes Element (kein B-Feld-Toggle in der UI).
+
 ## [1.5.1] - 2026-07-03
 ### Behoben (Fixed)
 - **Dark-Mode-Persistenz:** Theme wird jetzt beim Start aus `fh_theme` (localStorage) geladen und beim Toggeln gespeichert — zuvor gar nicht persistiert. Toggle schaltet `dark`/`light` synchron. Einheitlicher Key `fh_theme` gemäß CLAUDE.md-Konvention.
