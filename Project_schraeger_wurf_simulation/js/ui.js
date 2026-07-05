@@ -68,6 +68,7 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   })
   DOM.trajectoryLine.setAttribute('points', '')
   DOM.trajectoryLine.style.visibility = DOM.togTrajectory.checked ? 'visible' : 'hidden'
+  updateCompareToggleState()
 
   if (!isPlayTrigger) {
     store.h0 = parseFloat(DOM.h0Slider.value)
@@ -179,15 +180,6 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   if (isTraj) DOM.togStacked.checked = false
 
   precompute()
-
-  // Vergleichsbahn: vormerkte Aktivierung nachlösen, sobald eine Bahn existiert
-  // und „Bahn anzeigen" aktiv ist.
-  if (store.pendingFreeze && DOM.togTrajectory.checked && store.tData.length > 0) {
-    store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
-    store.pendingFreeze = false
-    // Zoom bereits oben mit frozenTraj berechnet; hier nicht nötig.
-  }
-
   drawFrozenTrajectory()
 
   // Initialer Graph-Wert
@@ -347,6 +339,18 @@ function setupTheme() {
   })
 }
 
+// Vergleichsbahn-Toggle nur bedienbar, wenn „Bahn anzeigen" aktiv ist
+// (ausgegraut sonst). Wird Bahn ausgeschaltet, wird eine aktive
+// Vergleichsbahn zwangsdeaktiviert (und gelöscht).
+function updateCompareToggleState() {
+  const bahnOn = DOM.togTrajectory.checked
+  DOM.togCompare.disabled = !bahnOn
+  if (!bahnOn && DOM.togCompare.checked) {
+    DOM.togCompare.checked = false
+    store.frozenTraj = null
+  }
+}
+
 function updateSpeedPills() {
   document.querySelectorAll('.speed-pill').forEach(pill => {
     pill.classList.toggle('active', pill.querySelector('input').checked)
@@ -381,21 +385,17 @@ DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)
 DOM.togCompare.addEventListener('change', () => {
   if (DOM.togCompare.checked) {
-    // Aktivieren: aktuelle Bahn einfrieren, falls sichtbar & vorhanden;
-    // sonst nächste erzeugte/sichtbare Bahn vormerken (resetSim löst aus).
-    if (DOM.togTrajectory.checked && store.tData.length > 0) {
+    // Aktivieren: aktuelle Bahn einfrieren (Toggle ist nur bedienbar, wenn
+    // „Bahn anzeigen" aktiv und eine Bahn vorhanden ist).
+    if (store.tData.length > 0) {
       store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
-      store.pendingFreeze = false
       resetSim(false) // Zoom neu fitten (beide Bahnen)
     } else {
-      store.frozenTraj = null
-      store.pendingFreeze = true
-      drawFrozenTrajectory()
+      DOM.togCompare.checked = false
     }
   } else {
     // Deaktivieren: gespeicherte Bahn löschen.
     store.frozenTraj = null
-    store.pendingFreeze = false
     resetSim(false) // Zoom neu fitten (nur noch aktuelle Bahn)
   }
 })

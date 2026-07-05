@@ -5,17 +5,15 @@
 ### Features
 - **Vergleichsbahn als Umschalter in Visualisierung:** Statt zweier Buttons gibt
   es nun einen Toggle „Vergleichsbahn" direkt bei den Visualisierungs-Optionen.
-  - **Aktivieren** friert die aktuell angezeigte Bahn ein — ist noch keine Bahn
-    sichtbar (`Bahn anzeigen` aus oder leer), wird die **nächst** erzeugte/sichtbare
-    Bahn eingefroren (`store.pendingFreeze`, eingelöst in `resetSim` nach
-    `precompute()`).
+  - **Aktivieren** friert die aktuell angezeigte Bahn ein.
   - **Deaktivieren** löscht die gespeicherte Bahn wieder.
   - Die eingefrorene Bahn wird in **derselben Farbe wie die Flugbahn** (`--c-traj`,
     blau), **70 % transparent** (`opacity: 0.3`) und **gestrichelt** gezeichnet —
     sobald eine zweite Bahn entsteht, sind beide klar unterscheidbar.
-  - Anzeige ist an `Bahn anzeigen` gekoppelt: ist der Bahn-Toggle aus, wird die
-    Vergleichsbahn ausgeblendet (aber gespeichert) und erscheint wieder beim
-    erneuten Einschalten.
+  - **Gating:** Der Toggle ist nur bedienbar, wenn „Bahn anzeigen" aktiv ist;
+    sonst ist er **ausgegraut** (`disabled` + `.vis-toggle-row:has(input:disabled)`).
+    Wird „Bahn anzeigen" ausgeschaltet, wird eine aktive Vergleichsbahn
+    zwangsdeaktiviert und gelöscht.
   - Speicherung in **physikalischen Koordinaten** (`store.frozenTraj =
     {x:[…], y:[…]}`), nicht in Pixeln → die eingefrorene Bahn wird bei jedem
     Parameterwechsel durch den **aktuellen** Zoom neu projiziert; beide Bahnen
@@ -23,7 +21,13 @@
   - **Zoom passt auf beide Bahnen** (Fit berücksichtigt aktuelle + eingefrorene
     Extents), damit nichts abgeschnitten wird.
   - `drawFrozenTrajectory()` in `render.js` (gate auf `togTrajectory.checked`);
+    `updateCompareToggleState()` in `ui.js` für das Ausgrau-Gating;
     Legendeintrag für Vergleichsbahn (durchscheinende Bahn-Farbe).
+
+### UX
+- **„\(x\)/\(y\) gestapelt"-Toggle in den Diagramm-Block verschoben** — die
+  Option betrifft die Diagrammdarstellung und gehört dorthin, nicht zu den
+  Visualisierungs-Vektoren.
 
 ## v1.1.0 — 2026-07-05
 

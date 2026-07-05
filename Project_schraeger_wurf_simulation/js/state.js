@@ -15,9 +15,6 @@ export const store = {
 
   // Vergleichsbahn (eingefrorene Referenz): { x: [...m], y: [...m] } oder null
   frozenTraj: null,
-  // true = Vergleichsbahn aktiviert, aber noch keine einfrierbare Bahn sichtbar;
-  // friert die nächste erzeugte/sichtbare Bahn ein (resetSim löst aus).
-  pendingFreeze: false,
 
   // Skalierung
   currentPixelsPerMeter: 11.86,

@@ -81,3 +81,10 @@ body.dark {
 .lcd-frame    { fill: var(--lcd-bg); stroke: var(--text); }
 .lcd-seg-off  { fill: var(--lcd-seg-off); }
 .lcd-seg-on   { fill: var(--lcd-seg-on); }
+
+/* Ausgegraute Visualisierungs-Toggles (z. B. Vergleichsbahn ohne „Bahn anzeigen") */
+.vis-toggle-row:has(input:disabled) { cursor: not-allowed; }
+.vis-toggle-row:has(input:disabled) .vis-label { opacity: .45; }
+.vis-toggle-row:has(input:disabled) .toggle-switch { cursor: not-allowed; }
+.vis-toggle-row:has(input:disabled) .toggle-track { opacity: .45; }
+.vis-toggle-row:has(input:disabled) .toggle-thumb { opacity: .45; }
