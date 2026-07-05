@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.6 — 2026-07-05
+
+### Fix
+- **Diagramm in gestapelter Ansicht abgeschnitten**: `#graph_svg` hatte keine
+  `width/height:100%`-Regel (nur `#main_svg` ist in shared definiert). Das SVG
+  fiel auf seine intrinsische Größe zurück (breit, Höhe = Breite/Aspect ≫
+  Zellenhöhe) und wurde von `overflow:hidden` der `graph-wrapper` unten
+  beschnitten → nur die obere Hälfte sichtbar. `#graph_svg` jetzt explizit auf
+  `100%/100%` gesetzt, wie `#main_svg`.
+
 ## v1.0.5 — 2026-07-05
 
 ### Feature

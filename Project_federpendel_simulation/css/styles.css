@@ -53,6 +53,7 @@ body.dark {
 .lcd-seg-off       { fill: var(--lcd-off); }
 
 /* ── Diagramm ───────────────────────────────────────────────────────────────── */
+#graph_svg   { width: 100%; height: 100%; display: block; }
 #graph_line  { stroke: var(--accent); }
 #graph_point { fill:   var(--accent); }
 .graph-bg   { fill: var(--graph-bg); }
