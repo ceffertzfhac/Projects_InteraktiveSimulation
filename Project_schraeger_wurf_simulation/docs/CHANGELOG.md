@@ -1,5 +1,15 @@
 # Changelog — Schräger Wurf
 
+## v1.1.0 — 2026-07-05
+
+### Features
+- **Auftreffwinkel \(\alpha_{\text{imp}}\)** als zusätzlicher Wurfkennwert
+  (gemessen von der Horizontalen, positiv unterhalb). Geometrische Größe,
+  unabhängig von der Y-Achsen-Konfiguration. Neue Funktion `impactAngle()`
+  in `physics.js`; Zeile im Wurfkennwerte-Panel + Formel im Physik-Block.
+  Verifiziert: h₀=0 → Abwurfwinkel = Auftreffwinkel (Symmetrie); h₀>0 →
+  Auftreff steiler als Abwurf; α=90° → 90°.
+
 ## v1.0.0 — 2026-07-04
 
 Migration des reifen Standalone-Prototyps (`Standalone Proto/Schräger_Wurf/proto_standalone_schräger_wurf_v47.html`, 1049 Zeilen) in die modulare 6-Modul-Architektur gemäß `global_docs/simulation_instruction.md` (Sprint 4b, Backlog M1).

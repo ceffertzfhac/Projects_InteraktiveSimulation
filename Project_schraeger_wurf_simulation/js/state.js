@@ -108,6 +108,7 @@ export function initDOM() {
   DOM.liveXmax = q('live_xmax')
   DOM.liveYmax = q('live_ymax')
   DOM.liveVimpact = q('live_vimpact')
+  DOM.liveAimpact = q('live_aimpact')
 
   // Export
   DOM.exportDiagram = q('export_diagram_btn')

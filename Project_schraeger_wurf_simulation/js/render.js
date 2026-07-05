@@ -14,7 +14,7 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
-         flightTime, maxHeight, range, getNiceTickStep, linePlotIndex } from './physics.js'
+         flightTime, maxHeight, range, impactAngle, getNiceTickStep, linePlotIndex } from './physics.js'
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -485,6 +485,7 @@ export function updateKennwerte() {
   DOM.liveXmax.textContent = `${fmt(range())} m`
   DOM.liveYmax.textContent = `${fmt(maxHeight())} m`
   DOM.liveVimpact.textContent = `${fmt(vImpact)} m/s`
+  DOM.liveAimpact.textContent = `${fmt(impactAngle(), 1)} °`
 }
 
 // ── Physik-Formeln (achsenkonfigurationsabhängig, statisch) ───────────────────

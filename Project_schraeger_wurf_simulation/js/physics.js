@@ -33,6 +33,15 @@ export function range() {
   return store.v0x * flightTime()
 }
 
+// Auftreffwinkel (gemessen von der Horizontalen, positiv unterhalb).
+// Geometrische Größe — unabhängig von der Y-Achsen-Konfiguration.
+export function impactAngle() {
+  const tf = flightTime()
+  const vyImpact = store.v0y - G * tf
+  if (Math.abs(store.v0x) < 1e-9) return 90 // Senkrechter Wurf: Auftreff vertikal
+  return Math.atan(Math.abs(vyImpact) / store.v0x) * 180 / Math.PI
+}
+
 // ── Nice-Tick (1-2-5-Serie) ──────────────────────────────────────────────────
 export function getNiceTickStep(range, ticks = 8) {
   if (range < 1e-9) return 1

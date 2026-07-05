@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Schräger Wurf
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -274,6 +274,8 @@ window.MathJax = {
           <div class="analysis-cell val" id="live_ymax">— m</div>
           <div class="analysis-cell key">Auftreffgeschw.</div>
           <div class="analysis-cell val" id="live_vimpact">— m/s</div>
+          <div class="analysis-cell key">Auftreffwinkel \(\alpha_{\text{imp}}\)</div>
+          <div class="analysis-cell val" id="live_aimpact">— °</div>
         </div>
       </div>
     </div>
@@ -317,6 +319,8 @@ window.MathJax = {
         <div>\[t_{\text{fall}} = \frac{v_0\sin(\alpha) + \sqrt{(v_0\sin\alpha)^2 + 2g\,h_0}}{g}\]</div>
         <div>\[x_{\text{max}} = v_0\cos(\alpha)\,t_{\text{fall}}\]</div>
         <div>\[y_{\text{max}} = h_0 + \frac{(v_0\sin\alpha)^2}{2g}\]</div>
+        <div style="margin-top:8px">Auftreffwinkel (von der Horizontalen):</div>
+        <div>\[\alpha_{\text{imp}} = \arctan\!\left(\frac{|v_0\sin(\alpha) - g\,t_{\text{fall}}|}{v_0\cos(\alpha)}\right)\]</div>
       </div>
     </div>
 
