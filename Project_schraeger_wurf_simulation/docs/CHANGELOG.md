@@ -1,5 +1,17 @@
 # Changelog — Schräger Wurf
 
+## v1.2.1 — 2026-07-05
+
+### Geändert (UI-Konsistenz)
+- **Topbar-Buttonleiste (kanonisch):** Play/Pause/Reset aus der linken Sidebar
+  in die Topbar (`topbar-right`) verschoben — immer erreichbar (vorher am unteren
+  Bildschirmrand bei schmalem Viewport verschüttet). Reihenfolge: Theme-Toggle ·
+  ▶ Play · ⏸ Pause · ↺ Reset · Diagramm (CSV) · Alle Daten (CSV). Alte
+  `btn-row`-Sektion links entfernt.
+- **Datenexport in Topbar:** Beide Export-Buttons aus rechter Sidebar in Topbar
+  verschoben. Rechte „Datenexport"-Sektion entfernt. Wiring unverändert
+  (DOM-IDs beibehalten).
+
 ## v1.2.0 — 2026-07-05
 
 ### Features
