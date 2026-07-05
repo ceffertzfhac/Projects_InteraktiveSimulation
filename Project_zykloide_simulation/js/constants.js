@@ -19,7 +19,6 @@ export const START_OFFSET_PX = 50        // Start-x des Schwerpunkts
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
 export const GRAPH_W = 440
 export const GRAPH_H = 410
-export const GRAPH_TRANSLATE = { x: 440, y: 40 }
 
 // ── Subjekte & Größen ────────────────────────────────────────────────────────
 export const subjects = ['sp', 'p1', 'p2', 'p3', 'p4']

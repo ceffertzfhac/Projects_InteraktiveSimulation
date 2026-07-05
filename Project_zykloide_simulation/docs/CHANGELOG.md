@@ -1,5 +1,23 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.3 — 2026-07-05
+
+### Geändert (UI-Konsistenz mit Rollenden Körpern)
+- **Diagramm-Placement an Rollende Körper angeglichen:** Bisher waren Animation
+  und Diagramm in einer gemeinsamen SVG (900×500) nebeneinander platziert und
+  der Diagramm-Typ-Selektor steckte in der linken Sidebar. Jetzt ist das
+  Diagramm — wie bei den Rollenden Körpern — in einem separaten `graph-wrapper`
+  unter der Simulation gestapelt (`center-area` als `grid 1fr 1fr`), mit eigener
+  `graph-toolbar` (Diagramm-Typ-Dropdown + Legende der aktiven Subjekte) oberhalb
+  des `graph_svg`. `main_svg` zeigt nur noch die Animation (viewBox 400×500).
+  Studierende finden sich so in beiden Sims sofort zurecht.
+- **Graph-Legende:** Aktive Subjekte werden jetzt als Farbpunkte + Label im
+  Graph-Toolbar angezeigt (Klassen `graph-leg-item`/`graph-leg-dot`, einheitlich
+  mit Rollenden Körpern).
+- **Aufgeräumt:** Unbenutzte Konstante `GRAPH_TRANSLATE` entfernt (Diagramm ist
+  nicht mehr translatiert, sondern eigenes SVG). Diagramm-Sektion aus linker
+  Sidebar entfernt.
+
 ## v1.0.2 — 2026-07-05
 
 ### Geändert (UI-Konsistenz)

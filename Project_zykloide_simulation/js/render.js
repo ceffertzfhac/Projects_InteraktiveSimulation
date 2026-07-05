@@ -5,7 +5,7 @@ import {
   PIXELS_PER_METER, GROUND_PX, START_OFFSET_PX, ANIM_W,
   V_VECTOR_SCALE, A_VECTOR_SCALE,
   GRAPH_W, GRAPH_H,
-  subjects, quantities, quantityUnits, graphOptions, graphTitles,
+  subjects, quantities, quantityUnits, graphOptions, graphTitles, subjectLabels,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { physToScreenX, physToScreenY, getNiceTickStep, tAxisStep,
@@ -147,12 +147,16 @@ function drawGraph(time) {
   })
   grid.innerHTML = ''
 
-  const padL = 55, padR = 15, padT = 15, padB = 40
+  const padL = 55, padR = 15, padT = 30, padB = 40
   const plotW = GRAPH_W - padL - padR
   const plotH = GRAPH_H - padT - padB
 
   const active = subjects.filter(s => DOM.subjectCheckboxes[s].checked)
-  if (active.length === 0) { title.textContent = ''; return }
+  // Legende im Graph-Toolbar (aktive Subjekte)
+  DOM.graphLegend.innerHTML = active.map(s =>
+    `<div class="graph-leg-item"><div class="graph-leg-dot" style="background:var(--c-${s})"></div>${subjectLabels[s]}</div>`
+  ).join('')
+  if (active.length === 0) { title.textContent = ''; DOM.graphLegend.innerHTML = ''; return }
 
   const quantity = store.graphType
   const t_max_display = Math.max(DIAGRAM_WINDOW_S, time)

@@ -55,6 +55,7 @@ export function initDOM() {
   DOM.radiusValue = q('radius_value')
   DOM.velocityValue = q('velocity_value')
   DOM.graphSelect = q('graph_select')
+  DOM.graphLegend = q('graph_legend')
   DOM.speedRadios = document.querySelectorAll('input[name="speed"]')
   DOM.togSpTrace = q('toggle_sp_trace')
   DOM.togTraces = q('toggle_traces')
