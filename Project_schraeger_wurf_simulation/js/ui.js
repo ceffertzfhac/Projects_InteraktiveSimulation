@@ -365,7 +365,10 @@ initDigitalDisplaySegments()
 DOM.h0Slider.addEventListener('input', () => resetSim(false))
 DOM.v0Slider.addEventListener('input', () => resetSim(false))
 DOM.alphaSlider.addEventListener('input', () => resetSim(false))
-DOM.graphSelect.addEventListener('change', () => resetSim(false))
+DOM.graphSelect.addEventListener('change', () => {
+  store.graphType = DOM.graphSelect.value
+  resetSim(false)
+})
 DOM.yAxisSelect.addEventListener('change', () => resetSim(false))
 DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
   DOM.speedRadios.forEach(rad => { if (rad.checked) store.speedFactor = parseFloat(rad.value) })

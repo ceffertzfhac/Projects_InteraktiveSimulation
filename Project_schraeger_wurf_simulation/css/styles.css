@@ -58,6 +58,18 @@ body.dark {
 
 #graph_line  { stroke: var(--accent); }
 #graph_point { fill:   var(--accent); }
+/* Stacked-Modus (x/y gestapelt) — fehlte seit Einführung des Stapel-Features:
+   ohne stroke-Regel ist die Polyline unsichtbar (SVG-Default stroke:none),
+   ohne fill-Regel erscheint der Punkt als schwarzer Default-Circle. */
+#graph_line_top, #graph_line_bottom { stroke: var(--accent); }
+#graph_point_top, #graph_point_bottom { fill:   var(--accent); }
+/* Graph-Titel (Single + Stacked) — war ebenfalls ungestylt (Default schwarz,
+   im Dark Mode unsichtbar). An Freier Fall styles.css angelehnt. */
+.graph-title-text {
+  fill: var(--text); font-size: 15px;
+  font-family: var(--font-ui); font-weight: 600;
+}
+.graph-title-text.small { font-size: 13px; }
 
 /* Klassen (SVG-Elemente aus render.js) */
 .sf-line    { stroke: var(--text); fill: none; }

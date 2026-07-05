@@ -1,5 +1,21 @@
 # Changelog — Schräger Wurf
 
+## v1.2.2 — 2026-07-05
+
+### Fix
+- **Gestapeltes Diagramm zeichnete keine Kurven (nur Punkt bewegte sich):** Die
+  Stacked-Graph-Elemente `#graph_line_top`/`#graph_line_bottom`/
+  `#graph_point_top`/`#graph_point_bottom` hatten keine CSS-Regeln — die Polyline
+  war unsichtbar (SVG-Default `stroke:none`), der Punkt erschien als schwarzer
+  Default-Circle. CSS-Regeln (Stroke/Fill in Mint) ergänzt; zudem
+  `.graph-title-text` (Single + Stacked) nachstyliert, das bisher ungestylt war
+  (Default schwarz, im Dark Mode unsichtbar). Single-Modus war nicht betroffen.
+- **Diagrammtyp-Auswahl im Dropdown funktionierte nicht:** Der `change`-Handler
+  an `#graph_select` rief `resetSim(false)` ohne die neue Auswahl in
+  `store.graphType` zu persistieren; `updateDropdownOptions` las den alten Wert,
+  baute das Dropdown neu auf und resettete auf den alten Typ. Fix: neue Auswahl
+  vor `resetSim` in `store.graphType` schreiben (Pattern wie Atwood/Zykloide).
+
 ## v1.2.1 — 2026-07-05
 
 ### Geändert (UI-Konsistenz)
