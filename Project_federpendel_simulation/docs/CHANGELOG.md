@@ -5,6 +5,14 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.1 — 2026-07-05
+
+### Fix
+- **Sim-Anzeige vergrößert**: Center-Layout von `1fr 1fr` auf
+  `1.5fr 1fr` geändert — die fast quadratische Sim-SVG (450×480) wirkt
+  in der breiten Center-Zelle höhenlimitiert sonst klein; Sim-Zelle
+  bekommt jetzt ≈60 %, Diagramm ≈40 % der Höhe.
+
 ## v1.0.0 — 2026-07-04
 
 Erste modulare Version. Migration des bisherigen Standalone-Prototypen
