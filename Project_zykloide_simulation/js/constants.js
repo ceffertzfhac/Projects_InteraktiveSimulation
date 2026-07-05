@@ -17,7 +17,7 @@ export const GROUND_PX = 350             // Bodenlinie (y-Koordinate)
 export const START_OFFSET_PX = 50        // Start-x des Schwerpunkts
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
-export const GRAPH_W = 440
+export const GRAPH_W = 700
 export const GRAPH_H = 410
 
 // ── Subjekte & Größen ────────────────────────────────────────────────────────

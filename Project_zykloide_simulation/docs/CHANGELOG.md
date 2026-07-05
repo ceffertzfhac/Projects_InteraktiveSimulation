@@ -1,5 +1,9 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.4 — 2026-07-05
+### Geändert (Style)
+- **Diagramm breiter:** `GRAPH_W` 440 → 700 (Diagramm-SVG viewBox 700×410, Seitenverhältnis wie Rollende Körper). Das Diagramm füllt jetzt die volle Breite des `graph-wrapper` statt mit breiten Rändern zentriert zu bleiben. Titel x zentriert auf 350.
+
 ## v1.0.3 — 2026-07-05
 
 ### Geändert (UI-Konsistenz mit Rollenden Körpern)
