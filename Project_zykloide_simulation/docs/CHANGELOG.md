@@ -7,8 +7,9 @@
   in die Topbar (`topbar-right`) verschoben — einheitlich mit Rollenden Körpern,
   immer erreichbar (vorher am unteren Bildschirmrand bei schmalem Viewport
   verschüttet). Reihenfolge: Theme-Toggle · ▶ Play · ⏸ Pause · ↺ Reset ·
-  Diagramm (CSV) · Alle Daten (CSV). Play primär, Exporte rechts als
-  `.btn.small`. Alte `btn-row`-Sektion links entfernt.
+  Diagramm (CSV) · Alle Daten (CSV). Play primär (`.btn.primary`), alle
+  weiteren Buttons einheitlich als `.btn` (gleiche Höhe). Alte
+  `btn-row`-Sektion links entfernt.
 - **Datenexport in Topbar:** „Alle Daten (CSV)" aus rechter Sidebar in Topbar
   verschoben; zusätzlich neuer Button „Diagramm (CSV)". Rechte
   „Datenexport"-Sektion entfernt.
