@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.5 — 2026-07-05
+
+### Feature
+- **Aufbauabhängiges Layout**: horizontales Pendel → gestapelt (Sim oben,
+  Diagramm unten; breites Sim-SVG paßt in die breite Zelle). Vertikales
+  Pendel → nebeneinander (Sim links, Diagramm rechts; hohes Sim-SVG
+  paßt in die hohe, schmale Zelle). Umschaltung per `.layout-side`-Klasse
+  in `setupScene`. Media-Query (<1100px) fällt immer auf gestapelt zurück.
+
 ## v1.0.4 — 2026-07-05
 
 ### Fix

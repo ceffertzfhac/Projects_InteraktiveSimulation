@@ -43,6 +43,7 @@ const q = id => document.getElementById(id)
 export function initDOM() {
   // SVG-Container
   DOM.mainSvg = q('main_svg')
+  DOM.centerArea = q('center_area')
 
   // Anker & Referenzlinien
   DOM.anchorObject = q('anchor_object')
