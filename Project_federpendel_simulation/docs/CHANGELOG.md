@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.8 — 2026-07-05
+
+### Feature
+- **Achsen vergrößert**: horizontale x-Achse (Abszisse) von 1,5 m auf 1,8 m
+  verlängert, vertikale y-Achse (Ordinate) von 1,0 m auf 1,8 m. Die Ordinate
+  überdeckt jetzt die volle Schwingungsamplitude (Slider-Max 1,5 m) mit Margin;
+  vorher endete sie bei 1,0 m, so daß bei A>1,0 m die Masse über die Achsspitze
+  hinausschwang. Sim-Größe und Layout unverändert.
+
 ## v1.0.7 — 2026-07-05
 
 ### Feature

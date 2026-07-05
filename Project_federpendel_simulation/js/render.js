@@ -255,11 +255,11 @@ export function setupScene() {
 
     DOM.xAxisArrow.setAttribute('x1', animCenterX)
     DOM.xAxisArrow.setAttribute('y1', animCenterY + massSize / 2 + 20)
-    DOM.xAxisArrow.setAttribute('x2', animCenterX + scale(1.5))
+    DOM.xAxisArrow.setAttribute('x2', animCenterX + scale(1.8))
     DOM.xAxisArrow.setAttribute('y2', animCenterY + massSize / 2 + 20)
     DOM.xAxisArrow.style.visibility = 'visible'
     createStyledSvgText(DOM.xAxisLabelText, '<i>x</i>')
-    DOM.xAxisLabelText.setAttribute('x', animCenterX + scale(1.5) + 15)
+    DOM.xAxisLabelText.setAttribute('x', animCenterX + scale(1.8) + 15)
     DOM.xAxisLabelText.setAttribute('y', animCenterY + massSize / 2 + 25)
     DOM.xAxisLabelText.style.visibility = 'visible'
   } else {
@@ -320,11 +320,11 @@ export function setupScene() {
     DOM.yAxisArrow.setAttribute('x1', animCenterX - massSize / 2 - 50)
     DOM.yAxisArrow.setAttribute('y1', animCenterY)
     DOM.yAxisArrow.setAttribute('x2', animCenterX - massSize / 2 - 50)
-    DOM.yAxisArrow.setAttribute('y2', animCenterY - scale(1.0))
+    DOM.yAxisArrow.setAttribute('y2', animCenterY - scale(1.8))
     DOM.yAxisArrow.style.visibility = 'visible'
     createStyledSvgText(DOM.yAxisLabelText, '<i>y</i>')
     DOM.yAxisLabelText.setAttribute('x', animCenterX - massSize / 2 - 50)
-    DOM.yAxisLabelText.setAttribute('y', animCenterY - scale(1.0) - 15)
+    DOM.yAxisLabelText.setAttribute('y', animCenterY - scale(1.8) - 15)
     DOM.yAxisLabelText.style.visibility = 'visible'
   }
 
