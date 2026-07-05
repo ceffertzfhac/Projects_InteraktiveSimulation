@@ -5,6 +5,17 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.4 — 2026-07-05
+
+### Fix
+- **Diagramm vollständig sichtbar**: `updateGraph` auf gepaddetes Plot-
+  Gebiet umgestellt (padL 60 / padR 18 / padT 30 / padB 42, wie Zykloide).
+  Zuvor lagen y-Ticks (x = −5) und y-Achsenlabel (x = −40) links außerhalb
+  des viewBox und wurden beschnitten. Jetzt sind Achsen, Ticks und Labels
+  komplett innerhalb 700×410. Plot-Bereich 622×338, Titel oberhalb.
+- **Diagramm +5 % Höhe**: Center-Layout `1.5fr 1fr` → `1.25fr 1fr`
+  (Sim ≈55 %, Diagramm ≈45 %).
+
 ## v1.0.3 — 2026-07-05
 
 ### Fix

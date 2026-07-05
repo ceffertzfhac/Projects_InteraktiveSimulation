@@ -422,63 +422,67 @@ export function updateKennwerte() {
 export function updateGraph(time, value) {
   const limits = store.axisLimits[store.graphType]
   DOM.gridGroup.innerHTML = ''
-  if (!limits) { DOM.graphLine.setAttribute('points', ''); return }
-  DOM.gridGroup.appendChild(el('rect', { x: 0, y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15, class: 'graph-bg' }))
+  DOM.graphLine.setAttribute('points', '')
+  DOM.graphPoint.style.visibility = 'hidden'
+  if (!limits) return
+
+  // Gepaddetes Plot-Gebiet (wie Zykloide): links Platz für y-Ticks + y-Achsenlabel,
+  // unten Platz für t-Ticks + t-Achsenlabel, oben Platz für Titel. So ist das
+  // gesamte Diagramm (inkl. Achsenbeschriftung) sichtbar — nichts wird am
+  // viewBox-Rand beschnitten.
+  const padL = 60, padR = 18, padT = 30, padB = 42
+  const plotW = GRAPH_W - padL - padR
+  const plotH = GRAPH_H - padT - padB
+  const xAxisY = padT + plotH
 
   const tMax = limits.tMax
   const valMin = limits.min, valMax = limits.max
-  const gw = GRAPH_W - 20
-  const scX = t => (t / (tMax || 1)) * gw
-  const rng = valMax - valMin
-  const step = getNiceTick(rng || 1)
-  let axMin = Math.floor(valMin / step) * step
-  let axMax = Math.ceil(valMax / step) * step
-  if (axMin === axMax) { axMin -= step; axMax += step }
-  const axRng = axMax - axMin || 1
-  const scY = v => GRAPH_H - 10 - ((v - axMin) / axRng) * (GRAPH_H - 30)
+  const valRng = (valMax - valMin) || 1
+  const scX = tv => padL + (tv / (tMax || 1)) * plotW
+  const scY = v => padT + plotH - ((v - valMin) / valRng) * plotH
   const x0 = scX(0), y0 = scY(0)
 
-  // Senkrechte Gitterlinien + t-Ticks (≥3 außer Ursprung)
+  // Hintergrund-Rect (Plot-Bereich)
+  DOM.gridGroup.appendChild(el('rect', { x: padL, y: padT, width: plotW, height: plotH, class: 'graph-bg' }))
+
+  // Achsen (mit Pfeilspitzen)
+  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: xAxisY, x2: padL + plotW, y2: xAxisY, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
+  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: xAxisY, x2: x0, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
+
+  // Y-Ticks (Nice-Step, waagerechte Gitterlinien + Labels)
+  const yStep = getNiceTick(valRng)
+  const yDec = yStep % 1 === 0 ? 0 : (yStep >= 0.1 ? 1 : 2)
+  for (let v = Math.ceil(valMin / yStep) * yStep; v <= valMax + 1e-9; v = Math.round((v + yStep) * 1e9) / 1e9) {
+    const yp = scY(v)
+    if (Math.abs(yp - y0) > 1.5)
+      DOM.gridGroup.appendChild(el('line', { x1: padL, y1: yp, x2: padL + plotW, y2: yp, class: 'grid-line' }))
+    const tv = el('text', { x: padL - 8, y: yp + 4, 'text-anchor': 'end', class: 'tick-label' })
+    tv.textContent = fmt(v, yDec)
+    DOM.gridGroup.appendChild(tv)
+  }
+
+  // t-Ticks (≥3 neben Ursprung, tAxisStep)
   const tStep = tAxisStep(tMax)
-  const tDec = tStep >= 1 ? 1 : tStep >= 0.1 ? 2 : 3
-  let tc = 0
-  while (tc <= tMax + tStep * 0.01) {
+  const tDec = tStep >= 1 ? 1 : (tStep >= 0.1 ? 2 : 3)
+  for (let tc = 0; tc <= tMax + tStep * 0.01; tc = Math.round((tc + tStep) * 1e6) / 1e6) {
     const xp = scX(Math.min(tc, tMax))
     if (Math.abs(xp - x0) > 2)
-      DOM.gridGroup.appendChild(el('line', { x1: xp, y1: 5, x2: xp, y2: GRAPH_H - 5, class: 'grid-line' }))
-    const tv = el('text', { x: xp, y: y0 + 16, 'text-anchor': 'middle', class: 'tick-label' })
+      DOM.gridGroup.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: xAxisY, class: 'grid-line' }))
+    const tv = el('text', { x: xp, y: xAxisY + 16, 'text-anchor': 'middle', class: 'tick-label' })
     tv.textContent = fmt(tc, tDec)
     DOM.gridGroup.appendChild(tv)
-    tc = Math.round((tc + tStep) * 1e6) / 1e6
   }
 
-  // Waagerechte Gitterlinien + y-Ticks
-  const nTicks = Math.round((axMax - axMin) / step) + 1
-  const dec = step % 1 === 0 ? 0 : 2
-  for (let i = 0; i < nTicks; i++) {
-    const v = axMin + i * step
-    const yp = scY(v)
-    if (Math.abs(yp - y0) > 2 || Math.abs(v) > 0.001)
-      DOM.gridGroup.appendChild(el('line', { x1: 0, y1: yp, x2: GRAPH_W, y2: yp, class: 'grid-line' }))
-    const tv = el('text', { x: x0 - 5, y: yp + 4, 'text-anchor': 'end', class: 'tick-label' })
-    tv.textContent = fmt(v, dec)
-    DOM.gridGroup.appendChild(tv)
-  }
-
-  // Achsen
-  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: y0, x2: GRAPH_W - 5, y2: y0, class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }))
-  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: GRAPH_H - 5, x2: x0, y2: 5, class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }))
-
-  // Achsenlabels
-  const tlX = el('text', { x: GRAPH_W / 2, y: y0 + 32, 'text-anchor': 'middle', class: 'axis-label' })
-  setAxisLabel(tlX, 't / s')
-  DOM.gridGroup.appendChild(tlX)
+  // Achsenbeschriftungen
   const yLabel = graphAxisLabels[store.oscillationMode][store.graphType]
-  const tlY = el('text', { x: x0 - 40, y: GRAPH_H / 2, transform: `rotate(-90 ${x0 - 40} ${GRAPH_H / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
+  const tlY = el('text', { x: padL - 42, y: padT + plotH / 2, transform: `rotate(-90 ${padL - 42} ${padT + plotH / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(tlY, yLabel)
   DOM.gridGroup.appendChild(tlY)
+  const tlX = el('text', { x: padL + plotW / 2, y: xAxisY + 32, 'text-anchor': 'middle', class: 'axis-label' })
+  setAxisLabel(tlX, 't / s')
+  DOM.gridGroup.appendChild(tlX)
 
-  // Titel (als letztes SVG-Kind, oberhalb bg-rect)
+  // Titel (als letztes SVG-Kind, oberhalb Plot-Bereich)
   setGraphTitle(DOM.graphTitle, graphTitles[store.graphType])
 
   // Daten-Polyline bis zum aktuellen Zeitpunkt
@@ -488,7 +492,7 @@ export function updateGraph(time, value) {
   for (let i = 0; i < idx && i < data.length; i++) {
     pts += `${scX(store.tData[i])},${scY(data[i])} `
   }
-  if (value !== null && idx < data.length) {
+  if (value !== null && idx <= data.length) {
     pts += `${scX(time)},${scY(value)} `
   }
   DOM.graphLine.setAttribute('points', pts)
@@ -498,8 +502,6 @@ export function updateGraph(time, value) {
     DOM.graphPoint.setAttribute('cx', scX(time))
     DOM.graphPoint.setAttribute('cy', scY(value))
     DOM.graphPoint.style.visibility = 'visible'
-  } else {
-    DOM.graphPoint.style.visibility = 'hidden'
   }
 }
 

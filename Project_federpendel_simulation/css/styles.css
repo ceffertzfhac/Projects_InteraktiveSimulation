@@ -63,11 +63,10 @@ body.dark {
 .graph-title-text { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
 
 /* ── Center-Layout: Simulation + Diagramm gestapelt (wie Rollende Körper) ───
-   Sim-Zelle ≈60 % der Höhe, Diagramm ≈40 %. Das fast quadratische Sim-SVG
+   Sim-Zelle ≈55 % der Höhe, Diagramm ≈45 %. Das fast quadratische Sim-SVG
    (450×480) wird pro Aufbau per JS auf den tatsächlichen Inhalt gestraft
-   (setupScene → viewBox), damit der Simulationsinhalt die SVG-Fläche ausfüllt
-   statt viel Leerraum im viewBox zu lassen. */
-.center-area  { display: grid; grid-template-rows: 1.5fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+   (setupScene → viewBox), damit der Simulationsinhalt die SVG-Fläche ausfüllt. */
+.center-area  { display: grid; grid-template-rows: 1.25fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
 .sim-wrapper  { position: relative; overflow: hidden; border-bottom: 3px solid var(--border2); background: var(--bg); }
 .graph-wrapper{ position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 .graph-toolbar{ position: absolute; top: 8px; left: 12px; z-index: 10; display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
