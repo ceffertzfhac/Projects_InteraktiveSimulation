@@ -5,6 +5,17 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.2 — 2026-07-05
+
+### Fix
+- **Sim-Anzeige nutzt verfügbare Fläche**: Center-Layout von gestapelt
+  (rows) auf **side-by-side** (columns `1.5fr 1fr`) umgestellt. Das fast
+  quadratische Sim-SVG (450×480) blieb in der breiten Center-Zelle bei
+  gestapeltem Layout immer höhenlimitiert (leere Fläche links/rechts).
+  Side-by-side macht die Sim-Zelle hoch und quadratisch → das SVG füllt
+  sie aus. Media-Query (`max-width: 1100px`) fällt auf gestapeltes
+  Layout zurück.
+
 ## v1.0.1 — 2026-07-05
 
 ### Fix
