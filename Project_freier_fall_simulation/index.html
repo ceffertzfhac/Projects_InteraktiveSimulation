@@ -25,7 +25,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Freier Fall / Senkrechter Wurf
-    <span class="version">v2.2.3</span>
+    <span class="version">v2.2.4</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -34,6 +34,11 @@ window.MathJax = {
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
       <span style="font-size:.82rem">☀️</span>
     </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn small" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn small" id="export_all_btn">Alle Daten (CSV)</button>
   </div>
 </header>
 
@@ -110,14 +115,6 @@ window.MathJax = {
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="btn-row">
-        <button class="btn primary" id="play_btn">▶ Play</button>
-        <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
-        <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
       </div>
     </div>
 
@@ -222,14 +219,6 @@ window.MathJax = {
           <div class="analysis-cell key">Auftreffgeschw.</div>
           <div class="analysis-cell val" id="live_vimpact">— m/s</div>
         </div>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Datenexport</div>
-      <div class="btn-row">
-        <button class="btn small" id="export_diagram_btn">Diagramm (CSV)</button>
-        <button class="btn small" id="export_all_btn">Alle Daten (CSV)</button>
       </div>
     </div>
 
