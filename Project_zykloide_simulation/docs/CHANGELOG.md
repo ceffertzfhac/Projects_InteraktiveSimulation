@@ -1,5 +1,19 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.1 — 2026-07-05
+
+### Fix
+- **Kritischer ASI-Bug (Simulation ladete nicht):** In `ui.js` schloss die
+  `DOM.speedRadios.forEach(...)`-Anweisung ohne Semikolon ab; die darauffolgende
+  Zeile begann mit `[DOM.togSpTrace, …].forEach(...)`. JavaScript fasste beides
+  als Index-Zugriff `speedRadios.forEach(...)[…]` auf — `forEach` gibt `undefined`
+  zurück, also `undefined[…]` → `TypeError: Cannot read properties of undefined`.
+  Die gesamte `ui.js` scheiterte beim Laden → Simulation war nicht funktionsfähig.
+  Fix: `;`-Präfix vor der zeilen-startendenen `[…].forEach` (no-semicolon-Stil,
+  ASI-Hazard bei `[`/`(` am Zeilenanfang). Vollständiger End-to-End-Test mit
+  jsdom (precompute 3601 Samples, SP linear, Punkte/Trochoiden, Kamera-Follow,
+  Diagramm, Vektoren) ok.
+
 ## v1.0.0 — 2026-07-04
 
 Migration des Standalone-Prototyps (`AllAnimations/zykloide3.html`, v2.8, 863 Zeilen) in die modulare 6-Modul-Architektur gemäß `global_docs/simulation_instruction.md` (Sprint 4b, Backlog M4). Inhalt und Name bewusst belassen („Rollender Zylinder / Zykloide", `r = 0{,}9\,R` hardcoded).

@@ -154,7 +154,7 @@ DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
 }))
 
 // Display-Only-Toggles (kein Reset, nur Szene neu zeichnen)
-[DOM.togSpTrace, DOM.togTraces, DOM.togV, DOM.togA].forEach(t => {
+;[DOM.togSpTrace, DOM.togTraces, DOM.togV, DOM.togA].forEach(t => {
   t.addEventListener('change', () => updateScene(store.simulatedTime))
 })
 DOM.togTraceZOrder.addEventListener('change', () => {
