@@ -119,6 +119,36 @@ function exportCSV() {
   URL.revokeObjectURL(url)
 }
 
+// ── CSV-Export: aktuelles Diagramm (t + aktive Subjekte × gewählte Größe) ────
+function exportDiagramCSV() {
+  const fd = store.fullData
+  if (!fd.t || !fd.t.length) return
+
+  const active = subjects.filter(s => DOM.subjectCheckboxes[s].checked)
+  if (!active.length) return
+
+  const q = store.graphType
+  const headerCols = ['t / s']
+  active.forEach(s => headerCols.push(`${s}_${q} / ${quantityUnits[q]}`))
+  const header = `sep=;\n${headerCols.join(';')}`
+  const rows = fd.t.map((_, i) => {
+    const r = [fmt(fd.t[i], 4)]
+    active.forEach(s => r.push(fmt(fd[`${s}_${q}`][i], 4)))
+    return r.join(';')
+  })
+
+  const csv = [header, ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `zykloide_${q}_daten.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 // ── Theme ────────────────────────────────────────────────────────────────────
 function setupTheme() {
   const saved = localStorage.getItem('fh_theme') || 'light'
@@ -171,6 +201,7 @@ DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)
 DOM.resetBtn.addEventListener('click', resetSim)
 DOM.exportAll.addEventListener('click', exportCSV)
+DOM.exportDiagram.addEventListener('click', exportDiagramCSV)
 DOM.analysisToggle.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
   DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')

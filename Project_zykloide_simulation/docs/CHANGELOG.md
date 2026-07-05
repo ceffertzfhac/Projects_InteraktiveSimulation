@@ -1,5 +1,24 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.2 — 2026-07-05
+
+### Geändert (UI-Konsistenz)
+- **Topbar-Buttonleiste (kanonisch):** Play/Pause/Reset aus der linken Sidebar
+  in die Topbar (`topbar-right`) verschoben — einheitlich mit Rollenden Körpern,
+  immer erreichbar (vorher am unteren Bildschirmrand bei schmalem Viewport
+  verschüttet). Reihenfolge: Theme-Toggle · ▶ Play · ⏸ Pause · ↺ Reset ·
+  Diagramm (CSV) · Alle Daten (CSV). Play primär, Exporte rechts als
+  `.btn.small`. Alte `btn-row`-Sektion links entfernt.
+- **Datenexport in Topbar:** „Alle Daten (CSV)" aus rechter Sidebar in Topbar
+  verschoben; zusätzlich neuer Button „Diagramm (CSV)". Rechte
+  „Datenexport"-Sektion entfernt.
+
+### Hinzugefügt (Feature)
+- **Diagramm-CSV-Export:** `exportDiagramCSV()` exportiert nur die aktuell
+  gewählte Größe (`store.graphType`) für die aktivierten Subjekte
+  (`subject_*`-Checkboxen) — Dateiname `zykloide_<größe>_daten.csv`. Format
+  konsistent zum Alle-Daten-Export (`;` Trenner, `,` Dezimal, `sep=;`-Header).
+
 ## v1.0.1 — 2026-07-05
 
 ### Fix

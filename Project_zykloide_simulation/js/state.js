@@ -84,4 +84,5 @@ export function initDOM() {
 
   // Export
   DOM.exportAll = q('export_all_btn')
+  DOM.exportDiagram = q('export_diagram_btn')
 }
