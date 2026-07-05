@@ -717,6 +717,57 @@ export function drawCompareObjects(t) {
   }
 }
 
+// Transformiert eine Subjekt-/Körpergröße ins angezeigte Koordinatensystem
+// (Boden- vs. Ebenen-Align). Wird von updateGraph UND dem Diagramm-CSV-Export
+// genutzt — keine Logikduplikation.
+export function getTransformedData(key, subject) {
+  const isBodyProp = GRAPH_OPTIONS[key] && GRAPH_OPTIONS[key].body
+  const dataKey = isBodyProp ? key : (subject ? `${subject}_${key}` : key)
+
+  const isGround = state.store.coordSystemAlignment === 'ground'
+  if (!isGround || !['x', 'y', 'vx', 'vy', 'ax', 'ay'].includes(key)) {
+    return state.store.fullData[dataKey] || []
+  }
+
+  const srcArr = state.store.fullData[dataKey]
+  if (!srcArr || srcArr.length === 0) return []
+
+  const alpha = state.store.alpha_rad
+  const ca = Math.cos(alpha), sa = Math.sin(alpha)
+  const subjPrefix = isBodyProp ? 'sp' : (subject || 'sp')
+  const xArr = state.store.fullData[`${subjPrefix}_x`]
+  const yArr = state.store.fullData[`${subjPrefix}_y`]
+  const vxArr = state.store.fullData[`${subjPrefix}_vx`]
+  const vyArr = state.store.fullData[`${subjPrefix}_vy`]
+  const axArr = state.store.fullData[`${subjPrefix}_ax`]
+  const ayArr = state.store.fullData[`${subjPrefix}_ay`]
+
+  const transformed = new Float32Array(srcArr.length)
+  for (let i = 0; i < srcArr.length; i++) {
+    const curX = xArr ? xArr[i] : 0
+    const curY = yArr ? yArr[i] : state.store.R_m
+    const curVX = vxArr ? vxArr[i] : 0
+    const curVY = vyArr ? vyArr[i] : 0
+    const curAX = axArr ? axArr[i] : 0
+    const curAY = ayArr ? ayArr[i] : 0
+
+    if (key === 'x') {
+      transformed[i] = curX * ca + curY * sa
+    } else if (key === 'y') {
+      transformed[i] = -curX * sa + curY * ca
+    } else if (key === 'vx') {
+      transformed[i] = curVX * ca + curVY * sa
+    } else if (key === 'vy') {
+      transformed[i] = -curVX * sa + curVY * ca
+    } else if (key === 'ax') {
+      transformed[i] = curAX * ca + curAY * sa
+    } else if (key === 'ay') {
+      transformed[i] = -curAX * sa + curAY * ca
+    }
+  }
+  return transformed
+}
+
 export function updateGraph(t) {
   const { graphSvg, graphBgG, graphAxesG, graphSel, graphLegend, graphCursor } = state.DOM;
   graphBgG.innerHTML = '';
@@ -742,52 +793,6 @@ export function updateGraph(t) {
   const transformVec = (vx, vy) => {
     if (!isGround) return { vx, vy };
     return { vx: vx * ca + vy * sa, vy: vx * sa - vy * ca };
-  };
-
-  const getTransformedData = (key, subject) => {
-    // Wenn es eine Körper-Eigenschaft ist (omega, alpha_w), gibt es kein Subjekt-Präfix
-    const isBodyProp = GRAPH_OPTIONS[key] && GRAPH_OPTIONS[key].body;
-    const dataKey = isBodyProp ? key : (subject ? `${subject}_${key}` : key);
-    
-    if (!isGround || !['x', 'y', 'vx', 'vy', 'ax', 'ay'].includes(key)) {
-      return state.store.fullData[dataKey] || [];
-    }
-    
-    const srcArr = state.store.fullData[dataKey];
-    if (!srcArr || srcArr.length === 0) return [];
-    
-    const subjPrefix = isBodyProp ? 'sp' : (subject || 'sp');
-    const xArr = state.store.fullData[`${subjPrefix}_x`];
-    const yArr = state.store.fullData[`${subjPrefix}_y`];
-    const vxArr = state.store.fullData[`${subjPrefix}_vx`];
-    const vyArr = state.store.fullData[`${subjPrefix}_vy`];
-    const axArr = state.store.fullData[`${subjPrefix}_ax`];
-    const ayArr = state.store.fullData[`${subjPrefix}_ay`];
-    
-    const transformed = new Float32Array(srcArr.length);
-    for (let i = 0; i < srcArr.length; i++) {
-      const curX = xArr ? xArr[i] : 0;
-      const curY = yArr ? yArr[i] : state.store.R_m;
-      const curVX = vxArr ? vxArr[i] : 0;
-      const curVY = vyArr ? vyArr[i] : 0;
-      const curAX = axArr ? axArr[i] : 0;
-      const curAY = ayArr ? ayArr[i] : 0;
-
-      if (key === 'x') {
-        transformed[i] = curX * ca + curY * sa;
-      } else if (key === 'y') {
-        transformed[i] = -curX * sa + curY * ca;
-      } else if (key === 'vx') {
-        transformed[i] = curVX * ca + curVY * sa;
-      } else if (key === 'vy') {
-        transformed[i] = -curVX * sa + curVY * ca;
-      } else if (key === 'ax') {
-        transformed[i] = curAX * ca + curAY * sa;
-      } else if (key === 'ay') {
-        transformed[i] = -curAX * sa + curAY * ca;
-      }
-    }
-    return transformed;
   };
 
   let vMin = Infinity, vMax = -Infinity;

@@ -2,6 +2,26 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.2] - 2026-07-05
+### Geändert (UI-Konsistenz)
+- **Topbar-Buttonleiste kanonisch geordnet:** Reihenfolge jetzt Theme-Toggle ·
+  ▶ Play · Pause · Reset · Diagramm (CSV) · Alle Daten (CSV) (zuvor Export·Reset·
+  Pause·Play). Play primär links, Exporte rechts. Einheitlich mit Zykloide,
+  Schräger Wurf, Atwood, Freier Fall.
+- **Zwei Export-Buttons:** Bisheriger einzelner „Export CSV"-Button heißt jetzt
+  „Alle Daten (CSV)" (`export_all_btn`) und exportiert weiterhin alle Subjekte ×
+  alle Größen. Neuer „Diagramm (CSV)"-Button (`export_diagram_btn`) exportiert
+  nur die aktuell gewählte Größe für die aktiven Subjekte (Körper-Eigenschaften
+  ω/α_w → nur SP). Vergleichslinien werden im Diagramm-Export bewusst nicht
+  aufgenommen (andere Körper-Typen → Verwechslungsgefahr), nur im Alle-Daten-
+  Export. Boden-Transform via exportiertem `render.getTransformedData` (keine
+  Logikduplikation zur Diagramm-Anzeige).
+- **Haftreibungskoeffizient μ_s in rechte Analyse-Sidebar verschoben:** μ_s ist
+  nicht nutzersteuerbar (wird automatisch ausreichend für reines Rollen gewählt),
+  gehört daher nicht in die linke Sidebar mit den Parametern. Display jetzt in
+  der Sektion „Physik & Rollbedingung" neben der Rollbedingung. DOM-ID `mu_val`
+  beibehalten → nur DOM-Verschiebung, kein JS-Change.
+
 ## [2.0.1] - 2026-07-03
 ### Behoben (Fixed)
 - **Dark-Mode-Persistenz:** Theme wird jetzt beim Start aus `fh_theme` (localStorage) geladen und beim Toggeln gespeichert — zuvor gar nicht persistiert. Toggle schaltet `dark`/`light` synchron (vorher blieb `light` kleben, wenn `dark` dazukam). Einheitlicher Key `fh_theme` gemäß CLAUDE.md-Konvention.

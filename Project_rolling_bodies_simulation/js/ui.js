@@ -7,7 +7,7 @@ import * as state from './state.js';
 import * as render from './render.js';
 import {
   G, DEFAULT_DURATION, MIN_DURATION, MAX_SIM_DURATION,
-  ALL_TYPES, GRAPH_OPTIONS
+  ALL_TYPES, GRAPH_OPTIONS, SUBJECTS, SUBJ_LABELS
 } from './constants.js';
 import { computeK, rollConditionMuMin, precompute } from './physics.js';
 
@@ -96,7 +96,8 @@ export function setupUI() {
   state.DOM.playBtn.addEventListener('click', startAnim);
   state.DOM.pauseBtn.addEventListener('click', stopAnim);
   state.DOM.resetBtn.addEventListener('click', () => { state.store.simTime = 0; resetSim(); });
-  state.DOM.exportBtn.addEventListener('click', exportCSV);
+  state.DOM.exportAll.addEventListener('click', exportCSV);
+  state.DOM.exportDiagram.addEventListener('click', exportGraphCSV);
 
   // Global event for resetting sim (to avoid circular dependencies)
   document.addEventListener('sim-reset-request', () => resetSim(true));
@@ -198,7 +199,7 @@ export function resetSim(preserveTime = false) {
 }
 
 export function exportCSV() {
-  const btn = state.DOM.exportBtn;
+  const btn = state.DOM.exportAll;
   const isGround = state.store.coordSystemAlignment === 'ground';
   const alpha = state.store.alpha_rad;
   const ca = Math.cos(alpha), sa = Math.sin(alpha);
@@ -268,7 +269,55 @@ export function exportCSV() {
 
   btn.textContent = '✓ Gespeichert';
   btn.classList.add('success');
-  setTimeout(() => { btn.textContent = 'Export CSV'; btn.classList.remove('success'); }, 2000);
+  setTimeout(() => { btn.textContent = 'Alle Daten (CSV)'; btn.classList.remove('success'); }, 2000);
+}
+
+// Diagramm-CSV-Export: nur die aktuell gewählte Größe für die aktiven Subjekte
+// (Körper-Eigenschaften wie ω/α_w → nur SP). Vergleichslinien werden nicht
+// exportiert (andere Körper-Typen → Verwechslungsgefahr); diese sind im
+// Alle-Daten-Export enthalten. Boden-Transform via render.getTransformedData
+// (keine Logikduplikation zur Diagramm-Anzeige).
+export function exportGraphCSV() {
+  const btn = state.DOM.exportDiagram;
+  const key = state.DOM.graphSel.value;
+  const opt = GRAPH_OPTIONS[key];
+  if (!opt) return;
+  const isBody = !!opt.body;
+  const subjs = isBody ? ['sp'] : SUBJECTS.filter(s => state.store.activeSubjects.has(s));
+  if (!subjs.length) return;
+
+  const fd = state.store.fullData;
+  if (!fd.t || !fd.t.length) return;
+
+  const type = document.querySelector('input[name="obj"]:checked').value;
+  const isGround = state.store.coordSystemAlignment === 'ground';
+  const sysLabel = isGround ? 'Boden' : 'Ebene';
+
+  const headers = ['t / s'];
+  subjs.forEach(s => headers.push(`${SUBJ_LABELS[s]}: ${opt.label}`));
+  const head = headers.join(';');
+
+  const rows = fd.t.map((_, i) => {
+    const line = [render.fmt(fd.t[i], 6)];
+    subjs.forEach(s => {
+      const arr = render.getTransformedData(key, isBody ? null : s);
+      line.push(render.fmt(arr[i], 6));
+    });
+    return line.join(';');
+  });
+
+  const filename = `Sim_${type}_${key}_${sysLabel}_diagram.csv`;
+  const blob = new Blob(['﻿' + head + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  btn.textContent = '✓ Gespeichert';
+  btn.classList.add('success');
+  setTimeout(() => { btn.textContent = 'Diagramm (CSV)'; btn.classList.remove('success'); }, 2000);
 }
 
 export function startAnim() {

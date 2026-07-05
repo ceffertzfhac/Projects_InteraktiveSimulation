@@ -140,7 +140,8 @@ export function initDOMCache() {
   DOM.playBtn = document.getElementById('play_btn');
   DOM.pauseBtn = document.getElementById('pause_btn');
   DOM.resetBtn = document.getElementById('reset_btn');
-  DOM.exportBtn = document.getElementById('export_btn');
+  DOM.exportAll = document.getElementById('export_all_btn');
+  DOM.exportDiagram = document.getElementById('export_diagram_btn');
   DOM.themeToggle = document.getElementById('theme_toggle');
   
   // Toggles
