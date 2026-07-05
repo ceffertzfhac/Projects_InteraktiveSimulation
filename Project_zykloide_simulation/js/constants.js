@@ -14,7 +14,7 @@ export const A_VECTOR_SCALE = 50         // px pro (m/s²) für Beschl.-Vektoren
 // ── Animations-Layout (SVG-Koordinaten) ──────────────────────────────────────
 export const ANIM_W = 400                // Animationsfeldbreite
 export const GROUND_PX = 350             // Bodenlinie (y-Koordinate)
-export const START_OFFSET_PX = 50        // Start-x des Schwerpunkts
+export const START_OFFSET_PX = 30        // Start-x des Schwerpunkts
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
 export const GRAPH_W = 700

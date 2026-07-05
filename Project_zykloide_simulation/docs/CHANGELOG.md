@@ -1,5 +1,9 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.5 — 2026-07-05
+### Geändert (Style)
+- **Zylinder-Startposition weiter links:** `START_OFFSET_PX` 50 → 30 — der Zylinder startet näher an der linken Viewbox-Kante. Kamera-Follow-Trigger unverändert.
+
 ## v1.0.4 — 2026-07-05
 ### Geändert (Style)
 - **Diagramm breiter:** `GRAPH_W` 440 → 700 (Diagramm-SVG viewBox 700×410, Seitenverhältnis wie Rollende Körper). Das Diagramm füllt jetzt die volle Breite des `graph-wrapper` statt mit breiten Rändern zentriert zu bleiben. Titel x zentriert auf 350.
