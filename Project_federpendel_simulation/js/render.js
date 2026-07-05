@@ -205,6 +205,10 @@ export function setupScene() {
   DOM.surface.style.visibility = 'hidden'
 
   if (store.oscillationMode === 'horizontal') {
+    // Horizontaler Aufbau: Inhalt y ≈ 88–320 (Stoppuhr oben, Oszillator Mitte).
+    // viewBox straffen (Höhe 260 statt 480), damit der Inhalt die SVG-Fläche
+    // ausfüllt und nicht höhenlimitiert klein wirkt. (Amplitude ändert nur x.)
+    DOM.mainSvg.setAttribute('viewBox', '0 75 450 260')
     DOM.pos0Label.innerHTML = 'Anfangsauslenkung <i>x</i>₀:'
     DOM.anchorObject.setAttribute('x', ANCHOR_OFFSET_FROM_EDGE)
     DOM.anchorObject.setAttribute('y', cy0 - ANCHOR_CROSS_DIMENSION / 2)
@@ -254,6 +258,10 @@ export function setupScene() {
     DOM.xAxisLabelText.setAttribute('y', animCenterY + massSize / 2 + 25)
     DOM.xAxisLabelText.style.visibility = 'visible'
   } else {
+    // Vertikaler Aufbau: Masse hängt nach unten, Auslenkung ±A·scale in y →
+    // Inhaltshöhe hängt von der Amplitude ab. Daher volle viewBox (480) nutzen,
+    // damit auch bei A=1,5 m nichts abgeschnitten wird.
+    DOM.mainSvg.setAttribute('viewBox', '0 0 450 480')
     DOM.pos0Label.innerHTML = 'Anfangsauslenkung <i>y</i>₀:'
     const deltaL = (store.m * G) / store.k
     DOM.anchorObject.setAttribute('x', cx0 - ANCHOR_CROSS_DIMENSION / 2)

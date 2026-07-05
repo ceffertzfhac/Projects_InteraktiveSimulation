@@ -41,6 +41,9 @@ export const DOM = {}
 const q = id => document.getElementById(id)
 
 export function initDOM() {
+  // SVG-Container
+  DOM.mainSvg = q('main_svg')
+
   // Anker & Referenzlinien
   DOM.anchorObject = q('anchor_object')
   DOM.surface = q('surface')

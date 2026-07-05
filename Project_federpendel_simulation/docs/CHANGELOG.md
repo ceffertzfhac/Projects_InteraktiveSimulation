@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.3 — 2026-07-05
+
+### Fix
+- **Sim nutzt SVG-Fläche effizienter**: Layout zurück auf gestapelt
+  (rows `1.5fr 1fr`). Der Simulationsinhalt füllte das 450×480-viewBox
+  nicht aus (horizontaler Aufbau: Inhalt y ≈ 88–320, 56 % Leerraum).
+  `setupScene` setzt den viewBox jetzt pro Aufbau: horizontal
+  `0 75 450 260` (Inhalt ~88–320, aspect 1,73 statt 0,94 → Inhalt
+  ~1,8× größer auf der Zelle), vertikal `0 0 450 480` (volle Höhe, da
+  Auslenkung amplitudeabhängig nach unten reicht).
+- **Stoppuhr-Verschiebung**: Gruppen-Transform `translate(250,60)` →
+  `translate(220,60)`, damit analoger Kreis (x bis 459) und LCD-Rahmen
+  (x bis 481) nicht über den 450-breiten viewBox hinausragen (waren im
+  Prototyp mit 900-breitem viewBox ok, bei der Migration beschnitten).
+
 ## v1.0.2 — 2026-07-05
 
 ### Fix
