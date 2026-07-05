@@ -5,6 +5,23 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.7 — 2026-07-05
+
+### Feature
+- **Horizontaler Aufbau vergrößert**: Stoppuhr nach rechts auf Oszillator-Höhe
+  verschoben (`translate(340,180)`), damit der obere Bereich frei wird. viewBox
+  weiter (`0 125 600 225`, Aspect 2,67) — das Sim-SVG füllt die breite Zelle
+  jetzt in der Breite (vorher höhenlimitiert mit Seitenrändern → zu schmal,
+  Schrift zu klein). x-Achse (Abszisse) erweitert von 1,0 m auf 1,5 m
+  (`scale(1.5)`), passend zum Amplituden-Slider.
+- **Trennlinie nach oben**: Sim-/Diagramm-Reihen von `1fr/1fr` auf
+  `0,9fr/1,1fr` — Diagramm bekommt ≈55 %, Sim ≈45 % der Höhe.
+- **Vertikaler Aufbau korrekt skaliert**: viewBox von `0 0 450 480` auf den
+  tatsächlichen Inhaltsbereich gestrafft (`135 5 300 475`, Aspect 0,63). Der
+  Oszillator (y-Achse bei x≈145, Equilibrium-Label bis x≈405) plus Stoppuhr
+  oben-rechts füllen die hohe, schmale Zelle — vorher skalierte der Inhalt im
+  450-breiten viewBox mit großem linken Leerraum winzig.
+
 ## v1.0.6 — 2026-07-05
 
 ### Fix

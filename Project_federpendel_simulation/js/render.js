@@ -207,9 +207,13 @@ export function setupScene() {
   if (store.oscillationMode === 'horizontal') {
     // Horizontaler Aufbau: breites SVG → gestapelt (Sim oben, Diagramm unten).
     DOM.centerArea.classList.remove('layout-side')
-    // Inhalt y ≈ 88–320 (Stoppuhr oben, Oszillator Mitte). viewBox straffen
-    // (Höhe 260 statt 480), damit der Inhalt die SVG-Fläche ausfüllt.
-    DOM.mainSvg.setAttribute('viewBox', '0 75 450 260')
+    // Stoppuhr nach rechts (auf Oszillator-Höhe), Oszillator nutzt die Breite.
+    // viewBox weiter (600) + nach oben gestraft (y ab 125, Höhe 225, Aspect
+    // 2,67) → SVG füllt die breite Zelle statt höhenlimitiert mit Seitenrändern
+    // zu sein; Schrift skaliert hoch. Sim-Reihe schmaler (CSS 1fr/1fr) → der
+    // frei werdende Raum ans Diagramm.
+    DOM.mainSvg.setAttribute('viewBox', '0 125 600 225')
+    DOM.stopwatch.setAttribute('transform', 'translate(340, 180) scale(0.595)')
     DOM.pos0Label.innerHTML = 'Anfangsauslenkung <i>x</i>₀:'
     DOM.anchorObject.setAttribute('x', ANCHOR_OFFSET_FROM_EDGE)
     DOM.anchorObject.setAttribute('y', cy0 - ANCHOR_CROSS_DIMENSION / 2)
@@ -251,19 +255,23 @@ export function setupScene() {
 
     DOM.xAxisArrow.setAttribute('x1', animCenterX)
     DOM.xAxisArrow.setAttribute('y1', animCenterY + massSize / 2 + 20)
-    DOM.xAxisArrow.setAttribute('x2', animCenterX + scale(1.0))
+    DOM.xAxisArrow.setAttribute('x2', animCenterX + scale(1.5))
     DOM.xAxisArrow.setAttribute('y2', animCenterY + massSize / 2 + 20)
     DOM.xAxisArrow.style.visibility = 'visible'
     createStyledSvgText(DOM.xAxisLabelText, '<i>x</i>')
-    DOM.xAxisLabelText.setAttribute('x', animCenterX + scale(1.0) + 15)
+    DOM.xAxisLabelText.setAttribute('x', animCenterX + scale(1.5) + 15)
     DOM.xAxisLabelText.setAttribute('y', animCenterY + massSize / 2 + 25)
     DOM.xAxisLabelText.style.visibility = 'visible'
   } else {
     // Vertikaler Aufbau: hohes SVG → nebeneinander (Sim links, Diagramm rechts).
     DOM.centerArea.classList.add('layout-side')
-    // Masse hängt nach unten, Auslenkung ±A·scale in y → Inhaltshöhe hängt von
-    // der Amplitude ab. Volle viewBox (480), damit bei A=1,5 m nichts abgeschnitten wird.
-    DOM.mainSvg.setAttribute('viewBox', '0 0 450 480')
+    // Masse hängt nach unten, Auslenkung ±A·scale in y. viewBox auf den
+    // tatsächlichen Inhaltsbereich gestrafft (x 135..435, y 5..480): der
+    // Oszillator (y-Achse bei x≈145, Equilibrium-Label bis x≈405) plus Stoppuhr
+    // oben-rechts (bis x≈429) füllen so die hohe, schmale Zelle aus, statt im
+    // 450-breiten viewBox mit großem linken Leerraum winzig zu skalieren.
+    DOM.mainSvg.setAttribute('viewBox', '135 5 300 475')
+    DOM.stopwatch.setAttribute('transform', 'translate(220, 60) scale(0.595)')
     DOM.pos0Label.innerHTML = 'Anfangsauslenkung <i>y</i>₀:'
     const deltaL = (store.m * G) / store.k
     DOM.anchorObject.setAttribute('x', cx0 - ANCHOR_CROSS_DIMENSION / 2)
