@@ -93,7 +93,7 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 |----|-------|-----------|--------------|
 | M1 | ✅ Schräger Wurf migrieren | 47 | **Erledigt (Sprint 4b):** `Project_schraeger_wurf_simulation/` v1.0.0 — precompute + interpolateAt, volle Feature-Parität zum v47-Prototyp. Fehlabgelegtes `AllAnimations/schräger_wurf.html` (Rollender-Zylinder-Dup) gelöscht. Commit `8880539`. |
 | M4 | ✅ Zykloide migrieren | zykloide3 | **Erledigt (Sprint 4b):** `Project_zykloide_simulation/` v1.0.0 — gleicher Scaffold wie M1, Trochoiden-Physik (ω=Vc/R, r=0,9·R), Kamera-Follow, 5 Subjekte × 8 Größen, CSV. `AllAnimations/zykloide3.html` gelöscht. Commit `2378737`. |
-| M5 | Federpendel migrieren | federpendel | Hat schon `precompute` + Stoppuhr + CSV → `Project_federpendel_simulation/`. Layout-Schale, Graph-Helper, statisches MathJax, einklappbare Sidebar. |
+| M5 | ✅ Federpendel migrieren | federpendel | **Erledigt (Sprint 4e):** `Project_federpendel_simulation/` v1.0.0 — 6-Modul, precompute + interpolateAt, kanonische Topbar-Buttonleiste, einklappbare Sidebar, gestapeltes Center-Layout, statisches MathJax, CSV (sep=;). `AllAnimations/federpendel.html` + `Standalone Proto/Federpendel/` stillgelegt. |
 | M6 | Kreisbewegung migrieren | kreisbewegung (+kreiskinematik_v5) | → `Project_kreisbewegung_simulation/`. **Vorher prüfen**, ob `kreiskinematik_v5` darin aufgeht (thematisch nah, größte Datei) — Konsolidierung statt Doppelmigration. |
 | M7 | Atwood-Energie migrieren | atwood_energy | Entweder eigene `Project_atwood_energy_simulation/` *oder* Energie-Graphen als Diagrammtyp-Option in `Project_atwood_simulation/` aufnehmen (Produktentscheidung bei Umsetzung). |
 | M8 | Elastischer Stoß migrieren | elastischerStoß | → `Project_stoss_simulation/`. **Größter Physik-Eingriff:** Per-Frame-Physik → `precompute()` umstellen. |
@@ -219,7 +219,7 @@ Analyse-Sidebar, Dark Mode via `fh_theme`). Plan:
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4 (davon I2, I4 erledigt)
-- **Migrationen:** 5 offen (M5–M9) — M1, M2, M3, M4 erledigt
+- **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
 - **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 18 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b)
+- **Erledigt:** 19 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e)
