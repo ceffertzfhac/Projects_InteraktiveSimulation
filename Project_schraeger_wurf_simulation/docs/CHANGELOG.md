@@ -1,5 +1,23 @@
 # Changelog — Schräger Wurf
 
+## v1.2.0 — 2026-07-05
+
+### Features
+- **Vergleichsbahn-Modus (Bahn speichern):** Aktuelle Flugbahn lässt sich als
+  graue Referenzspur einfrieren (`◈ Aktuelle speichern`) und löschen
+  (`✕ Löschen`). Beim Ändern der Parameter bleibt die gespeicherte Bahn stehen;
+  die neue Bahn wird live daneben gezeigt — so lassen sich zwei Bahnen visuell
+  vergleichen (z. B. verschiedener Abwurfwinkel bei gleichem \(v_0\)).
+  - Speicherung in **physikalischen Koordinaten** (`store.frozenTraj =
+    {x:[…], y:[…]}`), nicht in Pixeln → die eingefrorene Bahn wird bei jedem
+    Parameterwechsel durch den **aktuellen** Zoom neu projiziert; beide Bahnen
+    teilen dasselbe Koordinatensystem.
+  - **Zoom passt auf beide Bahnen** (Fit berücksichtigt aktuelle + eingefrorene
+    Extents), damit nichts abgeschnitten wird.
+  - `drawFrozenTrajectory()` in `render.js`; Sektion „Vergleichsbahn" mit
+    Speichern/Löschen-Buttons + Legendeintrag (`--c-traj-frozen`). Löschen ist
+    deaktiviert, solange keine Bahn gespeichert ist.
+
 ## v1.1.0 — 2026-07-05
 
 ### Features

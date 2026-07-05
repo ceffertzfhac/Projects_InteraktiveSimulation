@@ -12,7 +12,7 @@ import { fmt, drawRuler, drawHorizontalRuler, drawStickFigure,
          drawAnimationCoordSystem, drawStopwatchMarks, drawSubdialMarks,
          initDigitalDisplaySegments, updateDigitalDisplay,
          updateGraphs, updateScene, updateKennwerte, updatePhysicsFormulas,
-         updateZoomDisplay } from './render.js'
+         updateZoomDisplay, drawFrozenTrajectory } from './render.js'
 
 // ── Dropdown-Optionen (Single/Stacked) ───────────────────────────────────────
 function updateDropdownOptions(isModeChange) {
@@ -86,10 +86,14 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   store.v0x = store.v0 * Math.cos(alphaRad)
   store.v0y = store.v0 * Math.sin(alphaRad)
 
-  // Zoom: so dass Wurf ins Animationsfeld passt, max. 2× Standard
+  // Zoom: so dass Wurf (und ggf. gespeicherte Vergleichsbahn) ins Animationsfeld passt
   const tg = flightTime()
-  const xMax = store.v0x * tg
-  const yMax = store.h0 + (store.v0y > 0 ? store.v0y * store.v0y / (2 * G) : 0)
+  let xMax = store.v0x * tg
+  let yMax = store.h0 + (store.v0y > 0 ? store.v0y * store.v0y / (2 * G) : 0)
+  if (store.frozenTraj) {
+    xMax = Math.max(xMax, Math.max(...store.frozenTraj.x))
+    yMax = Math.max(yMax, Math.max(...store.frozenTraj.y))
+  }
   const sx = xMax > 0 ? (ANIM_W - BALL_START_X_PX) / (xMax * 1.1) : Infinity
   const sy = yMax > 0 ? GROUND_PX / (yMax * 1.1) : Infinity
   store.currentPixelsPerMeter = Math.min(Math.min(sx, sy), DEFAULT_PIXELS_PER_METER * 2.0)
@@ -175,6 +179,7 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   if (isTraj) DOM.togStacked.checked = false
 
   precompute()
+  drawFrozenTrajectory()
 
   // Initialer Graph-Wert
   let initVal, initValTop, initValBottom
@@ -365,6 +370,17 @@ DOM.togStacked.addEventListener('change', () => { store.isStacked = DOM.togStack
 DOM.resetBtn.addEventListener('click', () => resetSim(false))
 DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)
+DOM.saveTrajBtn.addEventListener('click', () => {
+  if (store.tData.length === 0) return
+  store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
+  drawFrozenTrajectory()
+  DOM.deleteTrajBtn.disabled = false
+})
+DOM.deleteTrajBtn.addEventListener('click', () => {
+  store.frozenTraj = null
+  DOM.deleteTrajBtn.disabled = true
+  resetSim(false) // Zoom neu fitten (nur noch aktuelle Bahn)
+})
 DOM.stopwatch.addEventListener('click', () => {
   store.isDigitalDisplay = !store.isDigitalDisplay
   resetSim(false)

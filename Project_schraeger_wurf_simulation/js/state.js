@@ -13,6 +13,9 @@ export const store = {
   isStacked: false,
   isDigitalDisplay: false,
 
+  // Vergleichsbahn (eingefrorene Referenz): { x: [...m], y: [...m] } oder null
+  frozenTraj: null,
+
   // Skalierung
   currentPixelsPerMeter: 11.86,
   zoomFactor: 1.0,
@@ -39,6 +42,7 @@ export function initDOM() {
   DOM.horizontalRulerGroup = q('horizontal_ruler_group')
   DOM.animationCoordSystem = q('animation_coord_system')
   DOM.trajectoryLine = q('trajectory_line')
+  DOM.frozenTrajLine = q('frozen_trajectory_line')
   DOM.velVector = q('velocity_vector')
   DOM.velVectorX = q('velocity_vector_x')
   DOM.velVectorY = q('velocity_vector_y')
@@ -70,6 +74,8 @@ export function initDOM() {
   DOM.playBtn = q('play_btn')
   DOM.pauseBtn = q('pause_btn')
   DOM.resetBtn = q('reset_btn')
+  DOM.saveTrajBtn = q('save_traj_btn')
+  DOM.deleteTrajBtn = q('delete_traj_btn')
 
   // Diagramm-Gruppen
   DOM.graphGroupSingle = q('graph_group_single')

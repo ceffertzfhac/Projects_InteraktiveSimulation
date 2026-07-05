@@ -402,6 +402,21 @@ export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValue
   }
 }
 
+// ── Vergleichsbahn (eingefrorene Referenz, durch aktuellen Zoom projiziert) ──
+export function drawFrozenTrajectory() {
+  if (!store.frozenTraj) {
+    DOM.frozenTrajLine.setAttribute('points', '')
+    DOM.frozenTrajLine.style.visibility = 'hidden'
+    return
+  }
+  let pts = ''
+  for (let i = 0; i < store.frozenTraj.x.length; i++) {
+    pts += `${scaleX(store.frozenTraj.x[i])},${scaleY(store.frozenTraj.y[i])} `
+  }
+  DOM.frozenTrajLine.setAttribute('points', pts)
+  DOM.frozenTrajLine.style.visibility = 'visible'
+}
+
 // ── Szene aktualisieren (Ball, Bahn, Vektoren, Stoppuhr, Live-Panel) ─────────
 export function updateScene(t, x, y, vx, vy) {
   const zoom = store.zoomFactor
