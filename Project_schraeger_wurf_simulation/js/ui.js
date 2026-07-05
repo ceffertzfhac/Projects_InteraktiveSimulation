@@ -179,6 +179,15 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   if (isTraj) DOM.togStacked.checked = false
 
   precompute()
+
+  // Vergleichsbahn: vormerkte Aktivierung nachlösen, sobald eine Bahn existiert
+  // und „Bahn anzeigen" aktiv ist.
+  if (store.pendingFreeze && DOM.togTrajectory.checked && store.tData.length > 0) {
+    store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
+    store.pendingFreeze = false
+    // Zoom bereits oben mit frozenTraj berechnet; hier nicht nötig.
+  }
+
   drawFrozenTrajectory()
 
   // Initialer Graph-Wert
@@ -370,16 +379,25 @@ DOM.togStacked.addEventListener('change', () => { store.isStacked = DOM.togStack
 DOM.resetBtn.addEventListener('click', () => resetSim(false))
 DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)
-DOM.saveTrajBtn.addEventListener('click', () => {
-  if (store.tData.length === 0) return
-  store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
-  drawFrozenTrajectory()
-  DOM.deleteTrajBtn.disabled = false
-})
-DOM.deleteTrajBtn.addEventListener('click', () => {
-  store.frozenTraj = null
-  DOM.deleteTrajBtn.disabled = true
-  resetSim(false) // Zoom neu fitten (nur noch aktuelle Bahn)
+DOM.togCompare.addEventListener('change', () => {
+  if (DOM.togCompare.checked) {
+    // Aktivieren: aktuelle Bahn einfrieren, falls sichtbar & vorhanden;
+    // sonst nächste erzeugte/sichtbare Bahn vormerken (resetSim löst aus).
+    if (DOM.togTrajectory.checked && store.tData.length > 0) {
+      store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
+      store.pendingFreeze = false
+      resetSim(false) // Zoom neu fitten (beide Bahnen)
+    } else {
+      store.frozenTraj = null
+      store.pendingFreeze = true
+      drawFrozenTrajectory()
+    }
+  } else {
+    // Deaktivieren: gespeicherte Bahn löschen.
+    store.frozenTraj = null
+    store.pendingFreeze = false
+    resetSim(false) // Zoom neu fitten (nur noch aktuelle Bahn)
+  }
 })
 DOM.stopwatch.addEventListener('click', () => {
   store.isDigitalDisplay = !store.isDigitalDisplay

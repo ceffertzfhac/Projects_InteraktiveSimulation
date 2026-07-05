@@ -9,8 +9,7 @@
   /* Geschwindigkeitskomponenten + Bahn (sim-spezifisch) */
   --c-vx:    #b8860b;   /* Dunkelgelb für v_x */
   --c-vy:    #c03030;   /* Rot für v_y */
-  --c-traj:  #0072b2;   /* Blau für Flugbahn */
-  --c-traj-frozen: #8a91a0;  /* Grau für eingefrorene Vergleichsbahn */
+  --c-traj:  #0072b2;   /* Blau für Flugbahn (auch Vergleichsbahn) */
 
   /* LCD-Digitaluhr (Easteregg) */
   --lcd-bg:        #c0c4cc;
@@ -28,7 +27,6 @@ body.dark {
   --c-vx:    #ffcc33;
   --c-vy:    #ff7777;
   --c-traj:  #56b4e9;
-  --c-traj-frozen: #6b7280;
 
   --lcd-bg:        #2a3148;
   --lcd-seg-off:   #3d4766;
@@ -55,7 +53,8 @@ body.dark {
 #velocity_vector_y   { stroke: var(--c-vy); }
 #acceleration_vector { stroke: var(--c-acc); }
 #trajectory_line     { stroke: var(--c-traj); }
-#frozen_trajectory_line { stroke: var(--c-traj-frozen); }
+/* Vergleichsbahn: gleiche Farbe wie Flugbahn, 70 % transparent, gestrichelt */
+#frozen_trajectory_line { stroke: var(--c-traj); stroke-dasharray: 5,4; opacity: 0.3; }
 
 #graph_line  { stroke: var(--accent); }
 #graph_point { fill:   var(--accent); }
@@ -82,6 +81,3 @@ body.dark {
 .lcd-frame    { fill: var(--lcd-bg); stroke: var(--text); }
 .lcd-seg-off  { fill: var(--lcd-seg-off); }
 .lcd-seg-on   { fill: var(--lcd-seg-on); }
-
-/* Hinweistext (z. B. Vergleichsbahn) */
-.subject-note { font-size: .78rem; color: var(--text2); line-height: 1.45; margin-top: 6px; }

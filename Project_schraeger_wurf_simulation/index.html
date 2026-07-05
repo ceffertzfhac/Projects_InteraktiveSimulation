@@ -103,21 +103,19 @@ window.MathJax = {
         </label>
       </div>
       <div class="vis-toggle-row">
+        <span class="vis-label">Vergleichsbahn</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_compare_traj">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
         <span class="vis-label">\(x\)/\(y\) gestapelt</span>
         <label class="toggle-switch">
           <input type="checkbox" id="toggle_xy_stacked">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Vergleichsbahn</div>
-      <div class="btn-row">
-        <button class="btn small" id="save_traj_btn">◈ Aktuelle speichern</button>
-        <button class="btn small" id="delete_traj_btn" disabled>✕ Löschen</button>
-      </div>
-      <p class="subject-note">Friert die aktuelle Bahn als graue Referenz ein. Parameter ändern → neue Bahn wird live daneben gezeigt; Zoom passt auf beide.</p>
     </div>
 
     <div class="panel-section">
@@ -133,7 +131,7 @@ window.MathJax = {
         <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
         <div class="legend-swatch" style="background:var(--c-traj)"></div>
         <div class="legend-label">Flugbahn</div>
-        <div class="legend-swatch" style="background:var(--c-traj-frozen)"></div>
+        <div class="legend-swatch" style="background:var(--c-traj);opacity:.35"></div>
         <div class="legend-label">Vergleichsbahn (gespeichert)</div>
       </div>
     </div>

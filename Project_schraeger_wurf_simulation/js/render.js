@@ -403,8 +403,10 @@ export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValue
 }
 
 // ── Vergleichsbahn (eingefrorene Referenz, durch aktuellen Zoom projiziert) ──
+// Wird nur gezeichnet, wenn „Bahn anzeigen" aktiv ist (sonst ausgeblendet, aber
+// gespeichert). Stil: gleiche Farbe wie Bahn, 70 % transparent, gestrichelt.
 export function drawFrozenTrajectory() {
-  if (!store.frozenTraj) {
+  if (!store.frozenTraj || !DOM.togTrajectory.checked) {
     DOM.frozenTrajLine.setAttribute('points', '')
     DOM.frozenTrajLine.style.visibility = 'hidden'
     return

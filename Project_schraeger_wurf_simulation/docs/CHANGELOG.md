@@ -3,20 +3,27 @@
 ## v1.2.0 — 2026-07-05
 
 ### Features
-- **Vergleichsbahn-Modus (Bahn speichern):** Aktuelle Flugbahn lässt sich als
-  graue Referenzspur einfrieren (`◈ Aktuelle speichern`) und löschen
-  (`✕ Löschen`). Beim Ändern der Parameter bleibt die gespeicherte Bahn stehen;
-  die neue Bahn wird live daneben gezeigt — so lassen sich zwei Bahnen visuell
-  vergleichen (z. B. verschiedener Abwurfwinkel bei gleichem \(v_0\)).
+- **Vergleichsbahn als Umschalter in Visualisierung:** Statt zweier Buttons gibt
+  es nun einen Toggle „Vergleichsbahn" direkt bei den Visualisierungs-Optionen.
+  - **Aktivieren** friert die aktuell angezeigte Bahn ein — ist noch keine Bahn
+    sichtbar (`Bahn anzeigen` aus oder leer), wird die **nächst** erzeugte/sichtbare
+    Bahn eingefroren (`store.pendingFreeze`, eingelöst in `resetSim` nach
+    `precompute()`).
+  - **Deaktivieren** löscht die gespeicherte Bahn wieder.
+  - Die eingefrorene Bahn wird in **derselben Farbe wie die Flugbahn** (`--c-traj`,
+    blau), **70 % transparent** (`opacity: 0.3`) und **gestrichelt** gezeichnet —
+    sobald eine zweite Bahn entsteht, sind beide klar unterscheidbar.
+  - Anzeige ist an `Bahn anzeigen` gekoppelt: ist der Bahn-Toggle aus, wird die
+    Vergleichsbahn ausgeblendet (aber gespeichert) und erscheint wieder beim
+    erneuten Einschalten.
   - Speicherung in **physikalischen Koordinaten** (`store.frozenTraj =
     {x:[…], y:[…]}`), nicht in Pixeln → die eingefrorene Bahn wird bei jedem
     Parameterwechsel durch den **aktuellen** Zoom neu projiziert; beide Bahnen
     teilen dasselbe Koordinatensystem.
   - **Zoom passt auf beide Bahnen** (Fit berücksichtigt aktuelle + eingefrorene
     Extents), damit nichts abgeschnitten wird.
-  - `drawFrozenTrajectory()` in `render.js`; Sektion „Vergleichsbahn" mit
-    Speichern/Löschen-Buttons + Legendeintrag (`--c-traj-frozen`). Löschen ist
-    deaktiviert, solange keine Bahn gespeichert ist.
+  - `drawFrozenTrajectory()` in `render.js` (gate auf `togTrajectory.checked`);
+    Legendeintrag für Vergleichsbahn (durchscheinende Bahn-Farbe).
 
 ## v1.1.0 — 2026-07-05
 

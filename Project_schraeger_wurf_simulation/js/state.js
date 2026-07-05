@@ -15,6 +15,9 @@ export const store = {
 
   // Vergleichsbahn (eingefrorene Referenz): { x: [...m], y: [...m] } oder null
   frozenTraj: null,
+  // true = Vergleichsbahn aktiviert, aber noch keine einfrierbare Bahn sichtbar;
+  // friert die nächste erzeugte/sichtbare Bahn ein (resetSim löst aus).
+  pendingFreeze: false,
 
   // Skalierung
   currentPixelsPerMeter: 11.86,
@@ -70,12 +73,11 @@ export function initDOM() {
   DOM.togVelComp = q('toggle_velocity_components')
   DOM.togAcc = q('toggle_acceleration_vector')
   DOM.togTrajectory = q('toggle_trajectory')
+  DOM.togCompare = q('toggle_compare_traj')
   DOM.togStacked = q('toggle_xy_stacked')
   DOM.playBtn = q('play_btn')
   DOM.pauseBtn = q('pause_btn')
   DOM.resetBtn = q('reset_btn')
-  DOM.saveTrajBtn = q('save_traj_btn')
-  DOM.deleteTrajBtn = q('delete_traj_btn')
 
   // Diagramm-Gruppen
   DOM.graphGroupSingle = q('graph_group_single')
