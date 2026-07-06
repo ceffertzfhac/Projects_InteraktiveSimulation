@@ -2,6 +2,18 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.3] - 2026-07-06
+### Behoben (Vektor-Pfeilspitzen — kanonische Geometrie)
+- **Pfeilspitzen sitzen jetzt exakt auf dem Zielpunkt statt ~1·strokeWidth
+  darüber hinaus.** Alle Vektor-Marker (`arr-v/a/fg/fn/fr` + dynamische
+  Koordinatensystem-Marker `arr-cs-*`) von `refX = markerWidth − 1` auf
+  `refX = 0` umgestellt (Dreieck-Basis am Linien-Ende) und den Schaft in
+  `drawArrow`/`drawAxis`/`addLeg` (Legende) via neuem `shortenEnd()`-Helfer
+  um die Marker-Länge (`markerWidth · strokeWidth`) gekürzt. Ergebnis: Spitze
+  exakt auf dem Endpunkt, Schaft an der Dreieck-Basis überdeckt — konsistent
+  mit der korrigierten kanonischen Regel in `CLAUDE.md` (vgl. Kreisbewegung
+  v1.0.8). Rein visuelle Korrektur, keine Physikänderung.
+
 ## [2.0.2] - 2026-07-05
 ### Geändert (UI-Konsistenz)
 - **Topbar-Buttonleiste kanonisch geordnet:** Reihenfolge jetzt Theme-Toggle ·

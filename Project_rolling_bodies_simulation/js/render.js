@@ -49,6 +49,19 @@ export function svgEl(tag, attrs = {}) {
   return el;
 }
 
+// Kanonische Pfeilspitzen-Geometrie (siehe CLAUDE.md): alle Vektor-Marker nutzen
+// refX=0 (Dreieck-Basis am Linien-Ende), der Schaft wird um die Marker-Länge
+// `by = markerWidth · strokeWidth` gekürzt → Spitze landet exakt auf dem
+// Zielpunkt, Schaft an der Basis vom deckenden Dreieck überdeckt. Kürzt (x2,y2)
+// entlang (x2−x1, y2−y1); behält einen 2px-Stub, damit orient="auto" auch bei
+// sehr kurzen Vektoren eine Richtung hat.
+function shortenEnd(x1, y1, x2, y2, by) {
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  if (len < 1e-6) return { x2, y2 };
+  const shaft = Math.max(len - by, 2);
+  return { x2: x1 + dx / len * shaft, y2: y1 + dy / len * shaft };
+}
+
 // ── Stopwatch (kanonisches Design, Ref: Atwood v2.2.x / CLAUDE.md) ──────────
 // Hauptzifferblatt r=60, 60 Marken; Hauptzeiger 1 U/60s.
 // Hilfszifferblatt (cy=25, r=13), 10 Marken; Hilfszeiger 1 U/s.
@@ -257,8 +270,10 @@ export function drawCoordinateSystem() {
   
   const drawAxis = (ang, label, col, mid) => {
     const x2 = len * Math.cos(ang), y2 = len * Math.sin(ang);
+    // Schaft um Marker-Länge (markerWidth 6 · strokeWidth 2) kürzen → Spitze auf (x2,y2).
+    const end = shortenEnd(0, 0, x2, y2, 6 * 2);
     g.appendChild(svgEl('line', {
-      x1: 0, y1: 0, x2: fmtTech(x2), y2: fmtTech(y2),
+      x1: 0, y1: 0, x2: fmtTech(end.x2), y2: fmtTech(end.y2),
       stroke: col, 'stroke-width': 2, 'marker-end': `url(#${mid})`
     }));
     const lx = (len + 14) * Math.cos(ang), ly = (len + 14) * Math.sin(ang);
@@ -273,7 +288,7 @@ export function drawCoordinateSystem() {
   const markerId = isDark ? 'arr-cs-dark' : 'arr-cs-light';
   if (!document.getElementById(markerId)) {
     const defs = state.DOM.mainSvg.querySelector('defs');
-    const m = svgEl('marker', { id: markerId, markerWidth: 6, markerHeight: 6, refX: 5, refY: 3, orient: 'auto' });
+    const m = svgEl('marker', { id: markerId, markerWidth: 6, markerHeight: 6, refX: 0, refY: 3, orient: 'auto' });
     m.appendChild(svgEl('polygon', { points: '0 0, 6 3, 0 6', fill: color }));
     defs.appendChild(m);
   }
@@ -373,9 +388,12 @@ export function updateCylinderStyle() {
 function drawArrow(parent, x1, y1, vx, vy, color, markerId, minLen = VEC_MIN_LEN) {
   const len = Math.hypot(vx, vy);
   if (len < minLen) return;
+  // Schaft um Marker-Länge (markerWidth 7 · strokeWidth 2,2) kürzen → Spitze
+  // (refX=0-Marker) landet exakt auf (x1+vx, y1+vy).
+  const end = shortenEnd(x1, y1, x1 + vx, y1 + vy, 7 * 2.2);
   const el = svgEl('line', {
     x1: fmtTech(x1), y1: fmtTech(y1),
-    x2: fmtTech(x1 + vx), y2: fmtTech(y1 + vy),
+    x2: fmtTech(end.x2), y2: fmtTech(end.y2),
     stroke: color, 'stroke-width': 2.2,
     'marker-end': `url(#${markerId})`
   });
@@ -509,8 +527,9 @@ export function updateVectorsAndForces(interp, screenSP, camDX) {
   let ly2 = 0;
   const addLeg = (color, label, markerId) => {
     const g2 = svgEl('g', { transform: `translate(0,${ly2})` });
+    // Legenden-Pfeil: Schaft um Marker-Länge (7·2) kürzen, damit die refX=0-Spitze bei x=22 endet.
     g2.appendChild(svgEl('line', {
-      x1: 0, y1: 8, x2: 22, y2: 8,
+      x1: 0, y1: 8, x2: shortenEnd(0, 8, 22, 8, 7 * 2).x2, y2: 8,
       stroke: color, 'stroke-width': 2, 'marker-end': `url(#${markerId})`
     }));
     const tx = svgEl('text', {
