@@ -134,6 +134,28 @@ function physToScreen(xLoc, yLoc) {
 }
 ```
 
+### Graph-Achsen (Ticks, Nulldurchgang, Format)
+- **Mindestens 4 beschriftete Ticks inkl. 0 pro Achse** (Abszisse **und**
+  Ordinate); mehr ist OK, solange es nicht gequetscht wirkt, **maximal 12**
+  sinnvoll. Bei symmetrischem Wertebereich um 0 (Schwingungsgrößen x/v/a) ist
+  die Ordinate mindestens 5 (gerade Anzahlen unmöglich bei Symmetrie).
+- **Nice-Step-Folge 1-2-4-5** (nicht nur 1-2-5): die 4er-Stufe schließt die
+  Lücke zwischen 2 und 5, sodaß nicht nur 3 oder 9 Ticks herauskommen,
+  sondern saubere 5–9. Hilfsfunktion `niceStepLE(range, minDivs)` (größter
+  Nice-Step ≤ `range/minDivs`, garantiert ≥ `minDivs` Teilstriche) mit
+  `minDivs=4` für die Ordinate. Zeit-Achse: `tAxisStep(t_max)` (≥3 Divisionen
+  → ≥4 Ticks inkl. 0). Beide in `render.js`, auf alle Sims übertragen.
+- **Abszisse am Nulldurchgang:** Hat ein Graph einen Nulldurchgang (Wert-
+  bereich umfaßt 0), wird die Abszisse **bei y=0** gezeichnet, nicht am
+  unteren Plot-Rand. Die Ordinate läuft **volle Plot-Höhe**, beide Achsen
+  kreuzen am Ursprung (links, Mitte). t-Tick-Labels bleiben am unteren
+  Plot-Rand (unabhängig von der Abszissen-Position), Gitterlinien spannen
+  volle Plot-Höhe/-Breite. Rein positiv/negativ → Achse am unteren/oberen Rand.
+- **Diagramm-Format pro Layout:** Nebeneinander angeordnetes Sim+Diagramm →
+  **Portrait-Graph** (z. B. 410×700), sodaß er die hohe, schmale Zelle füllt
+  statt als flacher Streifen winzig zu skalieren. `plotW`/`plotH` und der
+  `graph_svg`-viewBox aus der Orientierung/Layout berechnen. Gestapelt → Landscape.
+
 ## 5. Implementierungs-Workflow
 
 1.  **Definitionsphase:** Festlegen der Eingabeparameter und der gesuchten physikalischen Größen.
@@ -148,6 +170,9 @@ function physToScreen(xLoc, yLoc) {
 - [ ] Reagiert die Simulation auf alle Slider-Eingaben sofort (Live-Update)?
 - [ ] Ist die Energiebilanz zu jedem Zeitpunkt konsistent?
 - [ ] Werden im CSV-Export Kommas als Dezimaltrenner und Semicolons als Spaltentrenner genutzt?
+- [ ] Beide Achsen: ≥4 beschriftete Ticks inkl. 0 (`niceStepLE`/`tAxisStep`, 1-2-4-5-Folge)?
+- [ ] Abszisse am Nulldurchgang bei Werten um 0 (z. B. Schwingungsgrößen)?
+- [ ] Diagramm-Format paßt zum Layout (Portrait bei nebeneinander, Landscape bei gestapelt)?
 - [ ] Sind alle Formeln via MathJax korrekt gerendert?
 - [ ] Ist die schiefe Ebene/Umgebung im Dark Mode gut sichtbar?
 
@@ -240,8 +265,10 @@ modulare Architektur (§2) überführt. Referenzimplementierung:
    `updateScene(t)` (animiert, indiziert in precompute-Arrays); zentrale
    `physToScreen(x,y)`-Transformation.
 7. **Graph-Helper übernehmen:** `setAxisLabel` / `setGraphTitle` /
-   `tAxisStep` (statt lokalem `getNiceTickStep` und direktem `textContent`).
-   Titel als **letztes** SVG-Kind; Hintergrund-Rechteck 10px über Pfeilspitzen.
+   `tAxisStep` / `niceStepLE` (statt lokalem `getNiceTickStep` und direktem
+   `textContent`). Titel als **letztes** SVG-Kind; Hintergrund-Rechteck 10px
+   über Pfeilspitzen. **Beide Achsen ≥4 Ticks inkl. 0** (1-2-4-5-Folge),
+   **Abszisse am Nulldurchgang** bei Werten um 0, **Diagramm-Format pro Layout**.
 8. **MathJax statisch machen:** Laufzeit-`MathJax.typesetPromise([...])`-
    Aufrufe entfernen; alle Formeln als statisches HTML in `index.html`,
    konfigurationsabhängige Varianten als separate `<div>` mit
