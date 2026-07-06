@@ -49,8 +49,8 @@ body.dark {
 .vec-comp-v   { stroke: var(--c-comp-v); }
 
 /* Kraft-Label (SVG-<text>): F⃗_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe.
-   Schrift 11 px (Mitte zwischen 9 = zu klein und 13 = zu dick), font-weight 400. */
-.force-label  { font-family: var(--font-ui); font-size: 11px; font-weight: 400; }
+   Schrift 13 px (mit dünnen 0,7×-Vektorpfeilen nicht mehr „fett"), font-weight 400. */
+.force-label  { font-family: var(--font-ui); font-size: 13px; font-weight: 400; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
@@ -63,7 +63,7 @@ body.dark {
 .force-label.vec-comp-v  .vec-arrow { stroke: var(--c-comp-v); }
 
 /* Komponenten-Wert (x, y) in JetBrains Mono */
-.comp-val     { font-family: var(--font-mono); font-size: 8px; }
+.comp-val     { font-family: var(--font-mono); font-size: 9px; }
 .comp-val.vec-gravity { fill: var(--c-fg); }
 .comp-val.vec-tension { fill: var(--c-fn); }
 .comp-val.vec-comp-h  { fill: var(--c-comp-h); }

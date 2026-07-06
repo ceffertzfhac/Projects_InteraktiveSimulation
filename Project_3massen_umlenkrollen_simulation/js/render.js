@@ -98,9 +98,9 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
 }
 
 // ── SVG-Kraft-Label: <i>F</i>⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil darüber,
-//    Subscript upright). Pfeil als kleiner Pfad über dem F — positioniert via
-//    text-anchor, Breite ≈ 0,62·fontSize (Typische F-Glyphenbreite).
-const LABEL_FS = 11       // px — muß mit .force-label font-size in CSS übereinstimmen
+//    Subscript upright). Pfeil-Breite/Lage aus der F-tspan-BBox -> sitzt immer
+//    über dem F, nie über dem Subscript (unabhängig vom text-anchor).
+const LABEL_FS = 13       // px — muß mit .force-label font-size in CSS übereinstimmen
 function addForceLabel(x, y, sub, type, anchor = 'start') {
   const g = document.createElementNS(SVGNS, 'g')
   g.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
@@ -115,14 +115,22 @@ function addForceLabel(x, y, sub, type, anchor = 'start') {
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
   g.appendChild(text)
+  DOM.forceVectorsGroup.appendChild(g)
 
-  // Vektor-Pfeil über dem F: kurze Linie mit kleiner Spitze (Chevron) rechts.
-  const fW = LABEL_FS * 0.62
-  let ax0 = x
-  if (anchor === 'end') ax0 = x - fW
-  else if (anchor === 'middle') ax0 = x - fW / 2
-  const ax1 = ax0 + fW
-  const ay = y - LABEL_FS * 1.02
+  // Vektor-Pfeil über dem F: Linie + Chevron-Spitze, positioniert über der
+  // tatsächlichen F-Glyphen-BBox (robust gegenüber text-anchor).
+  let ax0, ax1, ay
+  try {
+    const fBox = sym.getBBox()
+    if (fBox.width > 0) {
+      ax0 = fBox.x; ax1 = fBox.x + fBox.width; ay = fBox.y - 1.5
+    } else { throw new Error('empty bbox') }
+  } catch {
+    // Fallback (F am Text-Anfang): nur für anchor='start' exakt.
+    const fW = LABEL_FS * 0.62
+    ax0 = anchor === 'end' ? x - fW : anchor === 'middle' ? x - fW / 2 : x
+    ax1 = ax0 + fW; ay = y - LABEL_FS * 1.02
+  }
   const arrow = document.createElementNS(SVGNS, 'path')
   arrow.setAttribute('class', 'vec-arrow')
   arrow.setAttribute('d',
@@ -130,7 +138,6 @@ function addForceLabel(x, y, sub, type, anchor = 'start') {
     `M ${ax1} ${ay} L ${ax1 - 2} ${ay - 1.4} ` +
     `M ${ax1} ${ay} L ${ax1 - 2} ${ay + 1.4}`)
   g.appendChild(arrow)
-  DOM.forceVectorsGroup.appendChild(g)
 }
 
 // ── Komponenten-Wert-Anzeige (x, y) in JetBrains Mono ─────────────────────────

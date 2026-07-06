@@ -1,5 +1,11 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.4] — 2026-07-06
+### Behoben (Abnahme-Feedback)
+- **Vektor-Pfeil sitzt über dem F (nicht über dem Subscript):** Pfeil-Lage/Breite wird jetzt aus der tatsächlichen F-Glyphen-BBox (`getBBox()` auf dem F-tspan) gemessen → robust gegenüber `text-anchor`; previously landete der Pfeil bei `end`/`middle`-Ankern über dem Subscript (Mitte von F_{xyz}).
+- **Label-Schrift 13 px:** 11 px war noch schwer lesbar → 13 px (mit den dünnen 0,7×-Vektorpfeilen nicht mehr „fett"). Komponenten-Werte 8→9 px.
+- **1. Newton richtig herum:** „Ist m₂ in Ruhe, so ist die Summe aller Kräfte auf m₂ null" (Ruhe → ΣF=0) — vorher verdreht (ΣF=0 → Ruhe).
+
 ## [1.0.3] — 2026-07-06
 ### Behoben (Abnahme-Feedback)
 - **Vektor-Pfeil über dem F:** Kraft-Labels zeigen jetzt die Vektor-Notation F⃗ (kleiner Pfeil-Pfad über dem kursiven F, in Vektorfarbe gestrichelt ausgeführt als Linie + Chevron-Spitze). Bisher fehlte der Pfeil, es stand nur „F".
