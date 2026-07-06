@@ -97,51 +97,22 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   return line
 }
 
-// ── SVG-Kraft-Label: <i>F</i>⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil darüber,
-//    Subscript upright). Pfeil-Länge/Lage aus Char-Positionen des F (Index 0)
-//    -> sitzt immer exakt über dem F (nicht über dem Subscript), unabhängig vom
-//    text-anchor. getBBox() auf tspan liefert in einigen Browsern die BBox des
-//    Gesamttextes und wäre zu lang; getStartPositionOfChar/getEndPositionOfChar
-//    sind char-genau.
-const LABEL_FS = 13       // px — muß mit .force-label font-size in CSS übereinstimmen
+// ── SVG-Kraft-Label: F⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil via Combining-
+//    Arrow U+20D7 darüber — von der Schrift selbst plaziert, wie in LaTeX/MathJax;
+//    kein hand-positionierter Pfad, der mit dem F-Glyphen verschmilzt).
 function addForceLabel(x, y, sub, type, anchor = 'start') {
-  const g = document.createElementNS(SVGNS, 'g')
-  g.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
+  text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   text.setAttribute('text-anchor', anchor)
   const sym = document.createElementNS(SVGNS, 'tspan')
   sym.setAttribute('font-style', 'italic')
-  sym.textContent = 'F'
+  sym.textContent = 'F⃗'   // F + COMBINING RIGHT ARROW ABOVE → F⃗
   const subT = document.createElementNS(SVGNS, 'tspan')
   subT.setAttribute('dy', '0.25em'); subT.setAttribute('font-size', '0.7em')
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
-  g.appendChild(text)
-  DOM.forceVectorsGroup.appendChild(g)
-
-  // Vektor-Pfeil über dem F (am oberen Balken): Linie + Chevron-Spitze.
-  let ax0, ax1, ay
-  try {
-    const sp = text.getStartPositionOfChar(0)
-    const ep = text.getEndPositionOfChar(0)
-    if (!Number.isFinite(sp.x) || ep.x <= sp.x) throw new Error('char pos failed')
-    const fAdv = ep.x - sp.x
-    ax0 = sp.x                 // am F-Stamm (links)
-    ax1 = sp.x + fAdv * 0.82   // ~oberer Balken des F (etwas kürzer als Advance)
-    ay = sp.y - LABEL_FS * 0.8 // knapp über dem Cap-Top (oberer Balken)
-  } catch {
-    const fW = LABEL_FS * 0.55
-    ax0 = anchor === 'end' ? x - fW : anchor === 'middle' ? x - fW / 2 : x
-    ax1 = ax0 + fW; ay = y - LABEL_FS * 1.0
-  }
-  const arrow = document.createElementNS(SVGNS, 'path')
-  arrow.setAttribute('class', 'vec-arrow')
-  arrow.setAttribute('d',
-    `M ${ax0} ${ay} L ${ax1} ${ay} ` +
-    `M ${ax1} ${ay} L ${ax1 - 1.8} ${ay - 1.3} ` +
-    `M ${ax1} ${ay} L ${ax1 - 1.8} ${ay + 1.3}`)
-  g.appendChild(arrow)
+  DOM.forceVectorsGroup.appendChild(text)
 }
 
 // ── Komponenten-Wert-Anzeige (x, y) in JetBrains Mono ─────────────────────────

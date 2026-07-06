@@ -57,12 +57,6 @@ body.dark {
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
-/* Vektor-Pfeil über dem F (Pfad in der .force-label-Gruppe) */
-.force-label .vec-arrow { fill: none; stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; }
-.force-label.vec-gravity .vec-arrow { stroke: var(--c-fg); }
-.force-label.vec-tension .vec-arrow { stroke: var(--c-fn); }
-.force-label.vec-comp-h  .vec-arrow { stroke: var(--c-comp-h); }
-.force-label.vec-comp-v  .vec-arrow { stroke: var(--c-comp-v); }
 
 /* Komponenten-Wert (x, y) in JetBrains Mono */
 .comp-val     { font-family: var(--font-mono); font-size: 9px; }

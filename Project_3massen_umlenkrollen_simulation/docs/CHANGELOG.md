@@ -1,5 +1,9 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.6] — 2026-07-06
+### Behoben (Abnahme-Feedback: „Buchstabe doppelt gezeichnet")
+- **Vektor-Pfeil via Unicode statt Pfad:** Der hand-positionierte Pfeil-Pfad lag so nah am F-Glyphen, daß er mit diesem verschmolz und wie ein gedoppeltes F aussah. Jetzt wird der Vektor-Pfeil als **Combining Arrow U+20D7** (`F⃗`) direkt in den Text eingesetzt — die Serifenschrift plaziert ihn selbst korrekt über dem F (wie in LaTeX/MathJax). Manuelles Positioning (`getStartPositionOfChar`/BBox) und die `.vec-arrow`-CSS-Regeln entfallen.
+
 ## [1.0.5] — 2026-07-06
 ### Geändert (Abnahme-Feedback: Schrift + Label-Platzierung)
 - **Serifenschrift für Variablensymbole:** Kraft-Labels (F⃗) und Massen-Labels (m₁/m₂/m₃) verwenden jetzt eine Serif-Italic (`--font-serif`: Times New Roman/STIX/Cambria …) statt DM Sans. Grund: DM Sans italic ist nur in Weight 400 verfügbar und wirkt schwer („dick"); Serif-Italic ist die math-Konvention (wie LaTeX/MathJax in der Analyse-Sidebar) und naturally leichter. Kraft-Label 13 px, Massen-Label 12 px.
