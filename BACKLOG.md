@@ -210,6 +210,46 @@ Analyse-Sidebar, Dark Mode via `fh_theme`). Plan:
 | M1 | Schräger Wurf migrieren | `feat(standalone)` 8880539 · v1.0.0 | Aus `Standalone Proto/Schräger_Wurf/…v47.html` (1049 Zeilen). Volle Feature-Parität: Vektoren + Komponenten, Y-Achsen-Konfig, Strichmännchen, Stoppuhr + LCD-Easteregg, Zoom-Auto-Fit, Single/Stacked-Graph, CSV. Fehlabgelegtes `AllAnimations/schräger_wurf.html` (Rollender-Zylinder-Dup) gelöscht. |
 | M4 | Zykloide / Rollender Zylinder migrieren | `feat(standalone)` 2378737 · v1.0.0 | Aus `AllAnimations/zykloide3.html` (863 Zeilen). Trochoiden-Physik (ω=Vc/R, r=0,9·R hardcoded), 5 Subjekte × 8 Größen, Kamera-Follow, Traces + Z-Order, Subjekt-Checkboxen (statisches HTML), CSV 5×8. `zykloide3.html` gelöscht. |
 
+## ERLEDIGT (Session 2026-07-06): Vektor-Pfeilspitzen — kanonische Geometrie repo-weit
+
+**Problem (vom PO gemeldet, Kreisbewegung):** Vektor-Pfeilspitze soll exakt auf
+dem Zielpunkt sitzen (nicht zu lang/kurz), Schaft nicht aus der Spitze gucken.
+
+**Ursachenanalyse (deterministisch, nicht per Augenmaß):** Die bisherige
+CLAUDE.md-Regel „`refX = markerWidth` **und** Schaft kürzen" war **intern
+widersprüchlich** = Doppelkompensation. `refX = markerWidth` setzt die Spitze
+bereits ans Linien-Ende; die zusätzliche Schaft-Kürzung zog sie um eine
+Marker-Länge **dahinter** → Pfeil endete zu kurz. Genau deshalb wurde der Bug in
+mehreren Sims über Monate nur „halb" gefixt.
+
+**Kanonische Lösung (eine konsistente Kombination):** Marker `refX = 0`
+(Dreieck-**Basis** am Linien-Ende) **+** Schaft um Marker-Länge
+`markerWidth · strokeWidth` kürzen (Helfer `shortenEnd()`). → Spitze exakt auf
+dem Zielpunkt, Schaft an der Basis vom deckenden Dreieck überdeckt.
+
+**Geänderte Dateien:**
+
+| Bereich | Änderung |
+|---|---|
+| `CLAUDE.md` + `global_docs/simulation_instruction.md` | Widersprüchliche Pfeilspitzen-Regel durch die deterministische `refX=0`+Kürzungs-Regel ersetzt (inkl. „FALSCH"-Beispiel). Ausnahme Graph-Achsenpfeile (`#graph-arrowhead`, `refX=0` ohne Kürzung) unverändert. |
+| Kreisbewegung → **v1.0.8** | 10 Animations-Marker `refX 5→0`; Kommentar in `render.js` korrigiert. `shortenEnd()` existierte bereits. Commit `08eafdb`. |
+| Rollende Körper → **v2.0.3** | 5 Marker + dyn. Koordinatensystem-Marker `refX 6/5→0`; `shortenEnd()` neu; angewandt in `drawArrow` (sw 2,2), `drawAxis` (sw 2, mw 6) und Legende `addLeg`. |
+| Lorentzkraft → **v1.5.3** | 4 Marker `refX 6→0`; `shortenEnd()` neu; angewandt auf Strom-Pfeile (`<path>`, sw 2) und Kraft-Pfeile `F_L`/`F_s` (Linien mit **dynamischer** Strichbreite → `by = 7 · dynamicWidth`). |
+
+**Verifikation:** Alle drei Sims per Headless-Chrome-Screenshot geprüft (Server
+**muss im Repo-Root** wurzeln, sonst 404 auf `../shared/css/design-system.css` →
+kollabiertes Layout). Spitzen sitzen auf dem Endpunkt, kein Schaft-Überstand.
+
+**Edge case in `shortenEnd()`:** Bei Vektoren kürzer als die Marker-Länge bleibt
+ein 2px-Stub (damit `orient="auto"` eine Richtung hat); die Spitze überschießt
+dann minimal — akzeptierter Grenzfall, betrifft nur sehr kurze Vektoren.
+
+**Noch offen:** Weitere Sims mit Vektoren (Freier Fall, Atwood, Zykloide,
+Schräger Wurf) wurden in **dieser** Session **nicht** geprüft — bei nächster
+Berührung gegen die kanonische Regel abgleichen.
+
+---
+
 ## STATISTIK
 
 - **Gesamt-Items (offen):** 39
