@@ -195,21 +195,25 @@ function drawFontTest() {
   }
   g.innerHTML = ''
 
+  // Kleines semitransparentes Panel NUR hinter dem Textblock (deckt nicht die Sim)
+  const panelX = 12, panelY = 8, panelW = 360, panelH = 92
   const bg = document.createElementNS(SVGNS, 'rect')
-  bg.setAttribute('x', 0); bg.setAttribute('y', 0)
-  bg.setAttribute('width', SVG_W); bg.setAttribute('height', SVG_H)
+  bg.setAttribute('x', panelX); bg.setAttribute('y', panelY)
+  bg.setAttribute('width', panelW); bg.setAttribute('height', panelH)
+  bg.setAttribute('rx', 8)
   bg.style.fill = 'var(--bg)'
+  bg.style.opacity = '0.82'
   g.appendChild(bg)
 
   const header = document.createElementNS(SVGNS, 'text')
   header.setAttribute('x', 20); header.setAttribute('y', 26)
   header.style.fill = 'var(--text)'
-  header.style.font = "600 15px 'DM Sans', sans-serif"
-  header.textContent = 'Schrift-Test — bitte Nummer(n) nennen, die gut aussehen'
+  header.style.font = "600 13px 'DM Sans', sans-serif"
+  header.textContent = 'Schrift-Test 23 + 24'
   g.appendChild(header)
 
-  const colX = [20, 320, 620]
-  const rowY0 = 56, dY = 52
+  const colX = [20, 190]
+  const rowY0 = 56, dY = 28
   FONT_VARIANTS.filter(v => v.n === 23 || v.n === 24).forEach((v, i) => {
     const c = i % 3, r = Math.floor(i / 3)
     const x = colX[c], y = rowY0 + r * dY
@@ -235,7 +239,6 @@ function drawFontTest() {
 
 // ── Szene aktualisieren ───────────────────────────────────────────────────────
 export function updateScene() {
-  if (FONT_TEST) { drawFontTest(); return }
   const pulleyDist = store.pulleyDistCm * PIXELS_PER_CM
   const pulleyLeftX = SVG_CENTER_X - pulleyDist / 2
   const pulleyRightX = SVG_CENTER_X + pulleyDist / 2
@@ -333,6 +336,8 @@ export function updateScene() {
   parent.appendChild(DOM.massLeftGroup)
   parent.appendChild(DOM.massRightGroup)
   parent.appendChild(DOM.massMiddleGroup)
+
+  if (FONT_TEST) drawFontTest() // Overlay obendrauf, Sim bleibt sichtbar
 }
 
 // ── Analyse-Panel (HTML, statisches MathJax — nur textContent aktualisieren) ─
