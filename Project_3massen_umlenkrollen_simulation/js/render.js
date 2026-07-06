@@ -210,7 +210,7 @@ function drawFontTest() {
 
   const colX = [20, 320, 620]
   const rowY0 = 56, dY = 52
-  FONT_VARIANTS.forEach((v, i) => {
+  FONT_VARIANTS.filter(v => v.n === 23 || v.n === 24).forEach((v, i) => {
     const c = i % 3, r = Math.floor(i / 3)
     const x = colX[c], y = rowY0 + r * dY
 
