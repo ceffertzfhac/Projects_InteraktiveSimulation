@@ -1,5 +1,42 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.1.0] — 2026-07-06
+Sammel-Release: Seillängen-Regler repariert & erweitert, Auto-Zoom, Einheiten, Raster,
+Koordinaten-Feinschliff, Default-Toggles. Verifiziert per headless-Chrome-Screenshots
+(CDP-Harness) über den Parameterraum.
+
+### Behoben
+- **Seillängen-Regler wirkte nie (Reihenfolge-Bug in `readInputs`):** `applyRopeLenBounds()`
+  wurde *vor* dem Auslesen des Reglers aufgerufen und schrieb dabei `slider.value =
+  store.ropeLenCm` (den **alten** Wert) zurück; danach las `readInputs` genau diesen
+  alten Wert wieder ein → jede Reglerbewegung wurde verworfen. Fix: erst den aktuellen
+  Reglerwert lesen, **dann** klemmen. Die Seilsegmentlänge verändert jetzt sichtbar, wie
+  tief m₁/m₃ hängen.
+- **Reset zoomte heraus:** Der Auto-Zoom-Rand-Puffer schob den Inhalt im Default knapp
+  über die Standardhöhe → 0,97× statt 1,00×. Der Puffer greift jetzt nur, wenn der Inhalt
+  den Standardrahmen **wirklich** verlässt; sonst exakt 1,00×.
+
+### Geändert / Neu
+- **Seillänge sinnvoll verlängerbar:** Obergrenze der Kopplung von Rollenabstand·1,6 auf
+  **·3,0** angehoben (`ROPE_LEN_MAX_FACTOR`, `ROPE_LEN_MIN_FACTOR` in `constants.js`).
+- **Auto-Zoom (viewBox-basiert, smooth):** Die Ansicht zoomt automatisch heraus, sobald
+  gezeichneter Inhalt — inkl. Vektor-Pfeilspitzen (Rand-Puffer 16 > Marker-Länge 10,5) —
+  den Rand erreicht, und wieder herein, wenn Platz frei wird. Oben verankert
+  (`preserveAspectRatio="xMidYMin"`), horizontal zentriert, easeInOutQuad über 220 ms
+  (`applyAutoZoom`/`targetViewBox` in `ui.js`). Kein manueller Regler (bewusst verworfen).
+- **Zoomfaktor-Anzeige:** schlichter Mono-Text „Zoom: x,xx×" oben links im Sim-Feld
+  (HTML-Overlay `#zoom_readout`, skaliert nicht mit; Analogie zum schrägen Wurf). <1 =
+  herausgezoomt.
+- **Komponentenwerte mit Einheit:** Anzeige jetzt physikalisch korrekt `(x, y) N`.
+- **Hintergrundraster:** doppelte Dichte (2,5-cm-Raster statt 5 cm) und deckt beim
+  Herauszoomen die **ganze** sichtbare Fläche ab (`drawGrid` bekommt die aktuelle
+  viewBox-Ausdehnung; wird bei jedem Auto-Zoom neu gezeichnet).
+- **Koordinatensystem-Labels:** 10 px Abstand zwischen Achsenpfeilspitze und Beschriftung
+  (x rechts der Abszissen-Spitze, y über der Ordinaten-Spitze).
+- **Default: alle Visualisierungs-Toggles aus** (Gewichts-, Seilkräfte, Komponenten­zerlegung,
+  Vektorkomponenten, Raster) — sauberer Start, Nutzer schaltet gezielt zu. (Ersetzt die
+  in 1.0.9 eingeführten „Komponenten standardmäßig an".)
+
 ## [1.0.9] — 2026-07-06
 ### Behoben (Kollisionsfreiheit im „alles an"-Modus, über den ganzen Parameterraum)
 - **Label + Komponentenwert = eine Einheit:** Kraft-Label (`F⃗_…`) und zugehöriger Komponentenwert `(x, y)` werden jetzt als ein gemeinsames `<text>` (zwei Zeilen) gerendert statt als zwei unabhängig platzierte Elemente. Damit können Label und sein Wert prinzipiell nie mehr aufeinanderfallen (behob die Überlappungen bei F_G,1/F_S,li/F_S,re/F_G,3).

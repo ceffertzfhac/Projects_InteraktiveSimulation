@@ -54,12 +54,16 @@ export function drawBackground() {
   drawGrid()
 }
 
-// Hintergrundraster (5-cm-Spacing), via Toggle sichtbar/versteckt.
-export function drawGrid() {
-  const spacing = 5 * PIXELS_PER_CM
+// Hintergrundraster (2,5-cm-Spacing = doppelte Dichte), via Toggle sichtbar/versteckt.
+// Deckt den übergebenen Bereich ab (bei Auto-Zoom die aktuelle viewBox-Ausdehnung),
+// damit das Raster auch beim Herauszoomen die ganze sichtbare Fläche füllt.
+export function drawGrid(x0 = 0, y0 = 0, x1 = SVG_W, y1 = SVG_H) {
+  const spacing = 2.5 * PIXELS_PER_CM
+  const sx = Math.floor(x0 / spacing) * spacing
+  const sy = Math.floor(y0 / spacing) * spacing
   let d = ''
-  for (let x = 0; x < SVG_W; x += spacing) d += `M ${x} 0 L ${x} ${SVG_H} `
-  for (let y = 0; y < SVG_H; y += spacing) d += `M 0 ${y} L ${SVG_W} ${y} `
+  for (let x = sx; x <= x1; x += spacing) d += `M ${x} ${y0} L ${x} ${y1} `
+  for (let y = sy; y <= y1; y += spacing) d += `M ${x0} ${y} L ${x1} ${y} `
   const path = document.createElementNS(SVGNS, 'path')
   path.setAttribute('d', d)
   DOM.gridGroup.innerHTML = ''
@@ -120,7 +124,7 @@ function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
     const val = document.createElementNS(SVGNS, 'tspan')
     val.setAttribute('x', x); val.setAttribute('dy', '1.2em')
     val.setAttribute('class', 'comp-val-line')
-    val.textContent = `(${comp.vx.toFixed(1)}, ${(-comp.vyInternal).toFixed(1)})`
+    val.textContent = `(${comp.vx.toFixed(1)}, ${(-comp.vyInternal).toFixed(1)}) N`
     text.appendChild(val)
   }
   DOM.forceVectorsGroup.appendChild(text)

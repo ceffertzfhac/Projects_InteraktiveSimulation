@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Statisches Kräftegleichgewicht
-    <span class="version">v1.0.9</span>
+    <span class="version">v1.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -72,7 +72,8 @@ window.MathJax = {
         <span class="slider-val" id="rope_len_value">50,0 cm</span>
       </div>
       <div class="note" style="font-size:.7rem;color:var(--text3);margin-top:6px;line-height:1.5">
-        Annahmen: ideales (masseloses) Seil, reibungsfreie Rollen.
+        Annahmen: ideales (masseloses) Seil, reibungsfreie Rollen. Die Ansicht zoomt
+        automatisch heraus, sobald etwas (auch ein Vektorpfeil) den Rand erreicht.
       </div>
     </div>
 
@@ -81,28 +82,28 @@ window.MathJax = {
       <div class="vis-toggle-row">
         <span class="vis-label">Gewichtskräfte \(\vec{F}_G\)</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="show_gravity_vectors" checked>
+          <input type="checkbox" id="show_gravity_vectors">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
       <div class="vis-toggle-row">
         <span class="vis-label">Seilkräfte \(\vec{F}_S\) (gesamt)</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="show_tension_vectors" checked>
+          <input type="checkbox" id="show_tension_vectors">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
       <div class="vis-toggle-row">
         <span class="vis-label">Komponentenzerlegung</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="show_component_vectors" checked>
+          <input type="checkbox" id="show_component_vectors">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
       <div class="vis-toggle-row">
         <span class="vis-label">Vektorkomponenten anzeigen</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="show_component_values" checked>
+          <input type="checkbox" id="show_component_values">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
@@ -134,7 +135,8 @@ window.MathJax = {
   <!-- ── MITTE: Simulation ─────────────────────────────────────────────── -->
   <main class="center-area" id="center_area">
     <div class="sim-wrapper">
-      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+      <div id="zoom_readout" class="zoom-readout">Zoom: 1,00×</div>
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMin meet">
         <defs>
           <marker id="arrowhead-gravity" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrowhead-tension" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
@@ -163,8 +165,10 @@ window.MathJax = {
         <g id="coordinate_system_group">
           <line x1="50" y1="450" x2="100" y2="450" class="coordinate-axis"/>
           <line x1="50" y1="450" x2="50" y2="400" class="coordinate-axis"/>
-          <text x="110" y="450" class="coordinate-label">x</text>
-          <text x="50" y="388" class="coordinate-label">y</text>
+          <!-- Achsenpfeilspitze ragt Marker-Länge (5·1,5=7,5px) über das Linienende;
+               Labels 10px Abstand dahinter (x: rechts der Spitze, y: über der Spitze). -->
+          <text x="117.5" y="450" class="coordinate-label" style="text-anchor:start">x</text>
+          <text x="50" y="382.5" class="coordinate-label" style="dominant-baseline:auto">y</text>
         </g>
       </svg>
     </div>

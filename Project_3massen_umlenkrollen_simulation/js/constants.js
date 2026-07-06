@@ -33,7 +33,15 @@ export const PULLEY_DIST_MIN_CM = 20, PULLEY_DIST_MAX_CM = 60, PULLEY_DIST_STEP_
 
 export const ROPE_LEN_DEFAULT_CM = 50
 export const ROPE_LEN_STEP_CM = 1
-// Dynamische Kopplung (siehe ui.js): ropeLen ∈ [pulleyDist·0,8 , pulleyDist·1,6]
+// Dynamische Kopplung (siehe ui.js): ropeLen ∈ [pulleyDist·MIN , pulleyDist·MAX].
+// Max großzügig (·3), damit die Seilsegmente sinnvoll weit verlängert werden können
+// (m₁/m₃ hängen dann tiefer) — zusammen mit dem Zoom-Out bleibt alles sichtbar.
+export const ROPE_LEN_MIN_FACTOR = 0.8
+export const ROPE_LEN_MAX_FACTOR = 3.0
+
+// ── Auto-Zoom (viewBox paßt sich an, sobald Inhalt den Rand erreicht) ─────────
+export const AUTOZOOM_MARGIN = 16      // Rand-Puffer in SVG-Einheiten
+export const AUTOZOOM_DURATION_MS = 220 // Dauer der smooth-Anpassung
 
 // ── Vektor-Klassen (Stroke/Fill via CSS-Tokens, siehe css/styles.css) ─────────
 // Schwerkraft  → --c-fg (Okabe-Ito blau)

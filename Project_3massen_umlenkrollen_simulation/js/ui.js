@@ -9,11 +9,12 @@ import {
   M3_DEFAULT, M3_MIN, M3_MAX, M3_STEP,
   M2_DEFAULT, M2_MIN, M2_MAX, M2_STEP,
   PULLEY_DIST_DEFAULT_CM, PULLEY_DIST_MIN_CM, PULLEY_DIST_MAX_CM, PULLEY_DIST_STEP_CM,
-  ROPE_LEN_DEFAULT_CM, ROPE_LEN_STEP_CM,
-  PIXELS_PER_CM, SVG_CENTER_X,
+  ROPE_LEN_DEFAULT_CM, ROPE_LEN_STEP_CM, ROPE_LEN_MIN_FACTOR, ROPE_LEN_MAX_FACTOR,
+  AUTOZOOM_MARGIN, AUTOZOOM_DURATION_MS,
+  PIXELS_PER_CM, SVG_CENTER_X, SVG_W, SVG_H,
 } from './constants.js'
 import { computeEquilibrium } from './physics.js'
-import { drawBackground, updateScene, updateAnalysis } from './render.js'
+import { drawBackground, updateScene, updateAnalysis, drawGrid } from './render.js'
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
 function setupTheme() {
@@ -39,10 +40,10 @@ function syncSliderLabels() {
   DOM.m2MinusBtn.disabled = store.m2 <= M2_MIN
 }
 
-// Dynamische Kopplung: Seillängen-Slider min/max = pulleyDist·0,8 … pulleyDist·1,6
+// Dynamische Kopplung: Seillängen-Slider min/max = pulleyDist·[MIN..MAX]-Faktor
 function applyRopeLenBounds() {
-  const min = store.pulleyDistCm * 0.8
-  const max = store.pulleyDistCm * 1.6
+  const min = store.pulleyDistCm * ROPE_LEN_MIN_FACTOR
+  const max = store.pulleyDistCm * ROPE_LEN_MAX_FACTOR
   DOM.ropeLenSlider.min = min
   DOM.ropeLenSlider.max = max
   if (store.ropeLenCm < min) store.ropeLenCm = min
@@ -50,13 +51,72 @@ function applyRopeLenBounds() {
   DOM.ropeLenSlider.value = store.ropeLenCm
 }
 
+// ── Auto-Zoom ─────────────────────────────────────────────────────────────────
+// Die viewBox umfaßt immer mindestens die Standardansicht (0,0,SVG_W,SVG_H) und zoomt
+// nur so weit heraus, wie nötig, sobald gezeichneter Inhalt (Massen, Vektoren INKL.
+// Pfeilspitzen, Labels) den Rand erreicht. Oben verankert (xMidYMin), horizontal
+// zentriert. Die Anpassung wird smooth getweent (kein Sprung).
+const _vb = { x: 0, y: 0, w: SVG_W, h: SVG_H } // aktuell dargestellte viewBox
+let _vbAnim = null
+
+function targetViewBox() {
+  let bb
+  try { bb = DOM.mainSvg.getBBox() } catch { return { x: 0, y: 0, w: SVG_W, h: SVG_H } }
+  const M = AUTOZOOM_MARGIN
+  const left = bb.x, right = bb.x + bb.width, bottom = bb.y + bb.height
+  // Nur herauszoomen, wenn der Inhalt den Standardrahmen wirklich verlässt; dann mit
+  // Rand-Puffer, damit er nicht bündig am Rand klebt. Sonst exakt Standardansicht (1,00×).
+  const minX = left < 0 ? left - M : 0
+  const maxX = right > SVG_W ? right + M : SVG_W
+  const maxY = bottom > SVG_H ? bottom + M : SVG_H // oben bei 0 verankert
+  return { x: minX, y: 0, w: maxX - minX, h: maxY }
+}
+
+function setViewBox(v) {
+  DOM.mainSvg.setAttribute('viewBox', `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`)
+}
+
+// Zoomfaktor (linear, relativ zur Standardansicht): <1 = herausgezoomt.
+function updateZoomReadout() {
+  store.zoomFactor = 1 / Math.max(_vb.w / SVG_W, _vb.h / SVG_H)
+  if (DOM.zoomReadout) DOM.zoomReadout.textContent = `Zoom: ${store.zoomFactor.toFixed(2).replace('.', ',')}×`
+}
+
+function applyAutoZoom() {
+  const t = targetViewBox()
+  // Raster auf die Ziel-Ausdehnung erweitern (füllt beim Herauszoomen die Fläche)
+  drawGrid(t.x, 0, t.x + t.w, t.h)
+  // Nichts zu tun, wenn Ziel praktisch schon erreicht
+  const near = Math.abs(t.x - _vb.x) < 0.5 && Math.abs(t.w - _vb.w) < 0.5 && Math.abs(t.h - _vb.h) < 0.5
+  if (near) { Object.assign(_vb, t); setViewBox(_vb); updateZoomReadout(); return }
+  const start = { ..._vb }
+  const t0 = performance.now()
+  const ease = k => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2) // easeInOutQuad
+  if (_vbAnim) cancelAnimationFrame(_vbAnim)
+  const step = now => {
+    const k = Math.min(1, (now - t0) / AUTOZOOM_DURATION_MS)
+    const e = ease(k)
+    _vb.x = start.x + (t.x - start.x) * e
+    _vb.y = start.y + (t.y - start.y) * e
+    _vb.w = start.w + (t.w - start.w) * e
+    _vb.h = start.h + (t.h - start.h) * e
+    setViewBox(_vb)
+    updateZoomReadout()
+    _vbAnim = k < 1 ? requestAnimationFrame(step) : null
+  }
+  _vbAnim = requestAnimationFrame(step)
+}
+
 // ── Parameter aus UI lesen ────────────────────────────────────────────────────
 function readInputs() {
   store.m1 = parseFloat(DOM.m1Slider.value)
   store.m3 = parseFloat(DOM.m3Slider.value)
   store.pulleyDistCm = parseFloat(DOM.pulleyDistSlider.value)
-  applyRopeLenBounds()
+  // Erst den aktuellen Reglerwert lesen, DANN an die (evtl. neuen) Grenzen klemmen.
+  // (Reihenfolge kritisch: applyRopeLenBounds schreibt den Slider zurück — würde man
+  //  vorher klemmen, überschriebe es die gerade getätigte Reglerbewegung.)
   store.ropeLenCm = parseFloat(DOM.ropeLenSlider.value)
+  applyRopeLenBounds()
   store.showGravity = DOM.togGravity.checked
   store.showTension = DOM.togTension.checked
   store.showComponents = DOM.togComponents.checked
@@ -74,6 +134,7 @@ function update() {
   store.equilibrium = computeEquilibrium(store.m1, store.m2, store.m3, pulleyLeftX, pulleyRightX, segLenPx)
   updateScene()
   updateAnalysis()
+  applyAutoZoom() // nach updateScene: bbox des gezeichneten Inhalts steht fest
 }
 
 // ── Reset auf Defaults ────────────────────────────────────────────────────────
@@ -85,10 +146,10 @@ function resetSim() {
   store.pulleyDistCm = PULLEY_DIST_DEFAULT_CM
   applyRopeLenBounds()
   DOM.ropeLenSlider.value = ROPE_LEN_DEFAULT_CM
-  DOM.togGravity.checked = true
-  DOM.togTension.checked = true
-  DOM.togComponents.checked = true
-  DOM.togComponentValues.checked = true
+  DOM.togGravity.checked = false
+  DOM.togTension.checked = false
+  DOM.togComponents.checked = false
+  DOM.togComponentValues.checked = false
   DOM.togGrid.checked = false
   DOM.gridGroup.style.visibility = 'hidden'
   update()

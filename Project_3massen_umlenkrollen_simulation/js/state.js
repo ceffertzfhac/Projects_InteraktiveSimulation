@@ -8,12 +8,13 @@ export const store = {
   m2: 2.0,               // kg (Mitte, via Stepper)
   pulleyDistCm: 40,      // Rollenabstand (cm)
   ropeLenCm: 50,         // Seilsegmentlänge (cm, dynamisch gekoppelt)
+  zoomFactor: 1.0,       // aktueller Auto-Zoom-Faktor (Anzeige; <1 = herausgezoomt)
 
-  // Visualisierungs-Toggles
-  showGravity: true,
-  showTension: true,
-  showComponents: true,
-  showComponentValues: true,
+  // Visualisierungs-Toggles (Default: alle aus — sauberer Start, Nutzer schaltet zu)
+  showGravity: false,
+  showTension: false,
+  showComponents: false,
+  showComponentValues: false,
   showGrid: false,
 
   // Ergebnis des letzten computeEquilibrium-Runs (oder null / Fehlstatus)
@@ -62,6 +63,7 @@ export function initDOM() {
   DOM.m2MinusBtn = q('m2_minus_btn')
   DOM.pulleyDistValue = q('pulley_dist_value')
   DOM.ropeLenValue = q('rope_len_value')
+  DOM.zoomReadout = q('zoom_readout')
 
   // Toggles
   DOM.togGravity = q('show_gravity_vectors')
