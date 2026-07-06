@@ -121,6 +121,22 @@ function addForceLabel(x, y, sub, type, anchor = 'start', fontCfg = null) {
   DOM.forceVectorsGroup.appendChild(text)
 }
 
+// Rendet eine Schrift-Test-Variante (n) exakt an (x,y) — z. B. „F⃗ test" statt F_S,re-Label
+function addVariantSample(x, y, n) {
+  const v = FONT_VARIANTS.find(vv => vv.n === n)
+  if (!v) return
+  const text = document.createElementNS(SVGNS, 'text')
+  text.setAttribute('x', x); text.setAttribute('y', y)
+  text.setAttribute('text-anchor', 'start')
+  text.style.fill = 'var(--text)'
+  text.style.fontFamily = v.ff
+  text.style.fontSize = v.fs + 'px'
+  text.style.fontWeight = v.w
+  text.style.fontStyle = v.it ? 'italic' : 'normal'
+  text.textContent = v.t
+  DOM.forceVectorsGroup.appendChild(text)
+}
+
 // ── Komponenten-Wert-Anzeige (x, y) in JetBrains Mono ─────────────────────────
 function addComponentDisplay(x, y, vx, vyInternal, type, anchor = 'start') {
   const displayY = -vyInternal // Y-Anzeige positiv nach oben
@@ -316,7 +332,9 @@ export function updateScene() {
     const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
     const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
     addForceLabel(m2Attach.x + (T1_vec.x * FORCE_SCALE_FACTOR) / 2 + nLx * off, m2Attach.y + (T1_vec.y * FORCE_SCALE_FACTOR) / 2 + nLy * off, 'S,li', 'tension')
-    addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension', 'start', FONT_VARIANTS.find(v => v.n === 23))
+    // addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension', 'start', FONT_VARIANTS.find(v => v.n === 23))
+    // Statt F_S,re-Label: Variante 23 („F⃗ test") genau an dieser Stelle
+    addVariantSample(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 23)
     if (showComps) {
       addComponentDisplay(m1Center.x + m1Size / 2 + 30, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T1, 'tension')
       addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T3, 'tension', 'end')
