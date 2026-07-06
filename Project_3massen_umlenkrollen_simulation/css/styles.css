@@ -52,14 +52,17 @@ body.dark {
 
 /* Kraft-Label (SVG-<text>): F⃗_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe.
    Serif-Italic (math-Konvention, passt zu MathJax in der Analyse), 13 px, font-weight 400. */
-.force-label  { font-family: var(--font-serif); font-size: 13px; font-weight: 400; }
+/* stroke:none nötig — das Label teilt sich die vec-*-Klasse mit den Vektor-LINIEN
+   (.vec-tension u. a. setzt stroke); ohne Reset bekäme jeder Glyph eine gleichfarbige
+   1-px-Kontur → wirkt fett / doppelt gezeichnet. */
+.force-label  { font-family: var(--font-serif); font-size: 13px; font-weight: 400; stroke: none; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
 
 /* Komponenten-Wert (x, y) in JetBrains Mono */
-.comp-val     { font-family: var(--font-mono); font-size: 9px; }
+.comp-val     { font-family: var(--font-mono); font-size: 9px; stroke: none; }
 .comp-val.vec-gravity { fill: var(--c-fg); }
 .comp-val.vec-tension { fill: var(--c-fn); }
 .comp-val.vec-comp-h  { fill: var(--c-comp-h); }

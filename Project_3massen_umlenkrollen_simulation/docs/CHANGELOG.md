@@ -1,5 +1,9 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.8] — 2026-07-06
+### Behoben (Abnahme-Feedback: „Schrift fett / doppelt gezeichnet")
+- **Kontur an Text-Labels entfernt (Ursache der Fett-Optik):** Kraft- und Komponenten-Labels tragen `class="force-label vec-tension"` (bzw. `vec-gravity` …). Die Klasse `vec-tension` ist für die Vektor-**Linien** gedacht und setzt `stroke: var(--c-fn)`. Da das `<text>`-Element dieselbe Klasse teilt, malte SVG eine 1-px-Kontur in Füllfarbe um jeden Glyphen → Buchstaben wirkten verdickt / „zweimal übereinander". Deshalb sah das klassenlose Test-„Sample" dünn/sauber aus, das echte Label aber fett. Fix: `stroke: none` in `.force-label` und `.comp-val`. Font-Setzung (Serif-Italic 13 px/400, Variante 23) unverändert.
+
 ## [1.0.7] — 2026-07-06
 ### Geändert (Schriftsetzung finalisiert)
 - **Schrift-Test-Gerüst entfernt:** Das temporäre „Schrift-Test 23 + 24"-Overlay-Panel samt `FONT_TEST`/`FONT_VARIANTS`/`drawFontTest()`/`addVariantSample()` ist raus. Die Kraft-Labels stehen wieder als reguläre `F⃗`-Labels in der Sim (auch `F_S,re`, das während des Tests durch eine „F⃗ test"-Probe ersetzt war).
