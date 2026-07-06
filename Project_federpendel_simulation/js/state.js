@@ -81,6 +81,7 @@ export function initDOM() {
   DOM.startTimingButton = q('start_timing_button')
 
   // Graph
+  DOM.graphSvg = q('graph_svg')
   DOM.gridGroup = q('grid_group')
   DOM.graphTitle = q('graph_title')
   DOM.graphLine = q('graph_line')

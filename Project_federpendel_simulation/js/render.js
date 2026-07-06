@@ -333,6 +333,12 @@ export function setupScene() {
     e.style.visibility = showAmp ? 'visible' : 'hidden'
   })
 
+  // Diagramm-Format pro Aufbau: horizontal → Landscape (700×410), vertikal →
+  // Portrait (410×700), damit der Graph in die hohe, schmale Zelle neben dem
+  // vertikalen Oszillator paßt statt als flacher Streifen winzig zu skalieren.
+  DOM.graphSvg.setAttribute('viewBox',
+    store.oscillationMode === 'vertical' ? `0 0 ${GRAPH_H} ${GRAPH_W}` : `0 0 ${GRAPH_W} ${GRAPH_H}`)
+
   return { animCenterX, animCenterY, springAttachX, springAttachY }
 }
 
@@ -436,14 +442,18 @@ export function updateGraph(time, value) {
   DOM.graphPoint.style.visibility = 'hidden'
   if (!limits) return
 
-  // Gepaddetes Plot-Gebiet (wie Zykloide): links Platz für y-Ticks + y-Achsenlabel,
-  // unten Platz für t-Ticks + t-Achsenlabel, oben Platz für Titel. So ist das
-  // gesamte Diagramm (inkl. Achsenbeschriftung) sichtbar — nichts wird am
+  // Diagramm-Geometrie pro Aufbau: horizontal → Landscape (GRAPH_W×GRAPH_H),
+  // vertikal → Portrait (GRAPH_H×GRAPH_W). Gepaddetes Plot-Gebiet: links Platz
+  // für y-Ticks + y-Achsenlabel, unten Platz für t-Ticks + t-Achsenlabel, oben
+  // Platz für Titel. So ist das gesamte Diagramm sichtbar — nichts wird am
   // viewBox-Rand beschnitten.
+  const isVertical = store.oscillationMode === 'vertical'
+  const graphW = isVertical ? GRAPH_H : GRAPH_W
+  const graphH = isVertical ? GRAPH_W : GRAPH_H
   const padL = 60, padR = 18, padT = 30, padB = 42
-  const plotW = GRAPH_W - padL - padR
-  const plotH = GRAPH_H - padT - padB
-  const xAxisY = padT + plotH
+  const plotW = graphW - padL - padR
+  const plotH = graphH - padT - padB
+  const plotBottom = padT + plotH
 
   const tMax = limits.tMax
   const valMin = limits.min, valMax = limits.max
@@ -452,12 +462,17 @@ export function updateGraph(time, value) {
   const scY = v => padT + plotH - ((v - valMin) / valRng) * plotH
   const x0 = scX(0), y0 = scY(0)
 
+  // Abszisse (Zeitachse) am Nulldurchgang plazieren, wenn 0 im Wertebereich
+  // liegt; sonst am unteren Rand (alles ≥0) bzw. oberen Rand (alles ≤0).
+  const zeroInRange = valMin < 0 && valMax > 0
+  const xAxisY = zeroInRange ? y0 : (valMax <= 0 ? padT : plotBottom)
+
   // Hintergrund-Rect (Plot-Bereich)
   DOM.gridGroup.appendChild(el('rect', { x: padL, y: padT, width: plotW, height: plotH, class: 'graph-bg' }))
 
-  // Achsen (mit Pfeilspitzen)
+  // Achsen (mit Pfeilspitzen): Abszisse am Nulldurchgang, Ordinate volle Höhe
   DOM.gridGroup.appendChild(el('line', { x1: x0, y1: xAxisY, x2: padL + plotW, y2: xAxisY, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
-  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: xAxisY, x2: x0, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
+  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: plotBottom, x2: x0, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
 
   // Y-Ticks (Nice-Step, waagerechte Gitterlinien + Labels)
   const yStep = getNiceTick(valRng)
@@ -471,14 +486,15 @@ export function updateGraph(time, value) {
     DOM.gridGroup.appendChild(tv)
   }
 
-  // t-Ticks (≥3 neben Ursprung, tAxisStep)
+  // t-Ticks (≥3 neben Ursprung, tAxisStep); Gitterlinien volle Höhe, Labels
+  // am unteren Plot-Rand (unabhängig von der Abszissen-Position)
   const tStep = tAxisStep(tMax)
   const tDec = tStep >= 1 ? 1 : (tStep >= 0.1 ? 2 : 3)
   for (let tc = 0; tc <= tMax + tStep * 0.01; tc = Math.round((tc + tStep) * 1e6) / 1e6) {
     const xp = scX(Math.min(tc, tMax))
     if (Math.abs(xp - x0) > 2)
-      DOM.gridGroup.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: xAxisY, class: 'grid-line' }))
-    const tv = el('text', { x: xp, y: xAxisY + 16, 'text-anchor': 'middle', class: 'tick-label' })
+      DOM.gridGroup.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: plotBottom, class: 'grid-line' }))
+    const tv = el('text', { x: xp, y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
     tv.textContent = fmt(tc, tDec)
     DOM.gridGroup.appendChild(tv)
   }
@@ -488,11 +504,12 @@ export function updateGraph(time, value) {
   const tlY = el('text', { x: padL - 42, y: padT + plotH / 2, transform: `rotate(-90 ${padL - 42} ${padT + plotH / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(tlY, yLabel)
   DOM.gridGroup.appendChild(tlY)
-  const tlX = el('text', { x: padL + plotW / 2, y: xAxisY + 32, 'text-anchor': 'middle', class: 'axis-label' })
+  const tlX = el('text', { x: padL + plotW / 2, y: plotBottom + 32, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(tlX, 't / s')
   DOM.gridGroup.appendChild(tlX)
 
-  // Titel (als letztes SVG-Kind, oberhalb Plot-Bereich)
+  // Titel (als letztes SVG-Kind, oberhalb Plot-Bereich, zentriert pro Format)
+  DOM.graphTitle.setAttribute('x', graphW / 2)
   setGraphTitle(DOM.graphTitle, graphTitles[store.graphType])
 
   // Daten-Polyline bis zum aktuellen Zeitpunkt

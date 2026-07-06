@@ -5,6 +5,22 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.9 — 2026-07-06
+
+### Feature
+- **Diagramm-Format pro Aufbau**: horizontales Pendel → Landscape-Graph
+  (700×410), vertikales Pendel → Portrait-Graph (410×700). Der Graph paßt
+  in die hohe, schmale Zelle neben dem vertikalen Oszillator, statt als
+  flacher Streifen winzig zu skalieren. `updateGraph` berechnet plotW/plotH
+  aus der Orientierung; `setupScene` setzt den `graph_svg`-viewBox.
+- **Abszisse am Nulldurchgang**: bei Graphen mit Nulldurchgang
+  (Wertebereich um 0 symmetrisch — alle drei Größen x/v/a) wird die
+  Zeitachse (Abszisse) jetzt bei y=0 plaziert, nicht am unteren Plot-Rand.
+  Ordinate läuft volle Plot-Höhe, Achsen kreuzen am Ursprung (links, Mitte).
+  t-Tick-Labels bleiben am unteren Rand (unabhängig von der Abszissen-
+  Position), Gitterlinien spannen volle Plot-Höhe/-Breite. Titel pro
+  Format neu zentriert.
+
 ## v1.0.8 — 2026-07-05
 
 ### Feature
