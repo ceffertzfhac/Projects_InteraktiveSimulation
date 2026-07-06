@@ -181,7 +181,7 @@ const FONT_VARIANTS = [
   { n: 22, ff: "'JetBrains Mono', monospace", fs: 13, w: 400, it: false, t: 'test' },
   // F⃗-Proben (Combining-Arrow-Rendering prüfen, mit Subscript)
   { n: 23, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: true, t: 'F⃗ test' },
-  { n: 24, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true, t: 'F⃗G,1' },
+  { n: 24, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true, t: 'F⃗G,1 test' },
 ]
 
 function drawFontTest() {
