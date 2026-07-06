@@ -102,9 +102,26 @@ body.dark {
 .sim-wrapper  { position: relative; overflow: hidden; border-bottom: 3px solid var(--border2); background: var(--bg); }
 .graph-wrapper{ position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 
+/* Probe-Layout: Sim & Diagramm nebeneinander (Sim links, Diagramm rechts).
+   Default bleibt gestapelt; .layout-split wird per Toggle am #center_area
+   gesetzt. Graph-ViewBox ist landscape — preserveAspectRatio=meet zentriert
+   ihn in der schmalen Zelle (für eine echte Portrait-Variante müssten
+   GRAPH_W/GRAPH_H und Plot-Geometrie getauscht werden — bewußt offen für
+   Folge-Iteration, da nur Probe). */
+.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
+.center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
+
 @media (max-width: 1100px) {
   .center-area { grid-template-rows: 0.9fr 1.1fr; }
+  /* Auf schmalen Viewports Nebeneinander nicht erzwingen — bleibt gestapelt. */
+  .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 0.9fr 1.1fr; }
+  .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
 }
+
+/* Topbar: Layout-Umschalter neben Back-Button */
+.topbar-left { gap: 8px; }
+.layout-toggle-btn { padding: 4px 10px; font-size: .72rem; }
 .graph-toolbar{ position: absolute; top: 8px; left: 12px; z-index: 10; display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
 .graph-sel    { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 4px 8px; font-family: var(--font-mono); font-size: .72rem; color: var(--text); cursor: pointer; outline: none; max-width: 240px; }
 .select-field { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 4px 8px; font-family: var(--font-mono); font-size: .72rem; color: var(--text); cursor: pointer; outline: none; width: 100%; }

@@ -13,6 +13,7 @@ export const store = {
   stackedType: 'pos',   // Stacked-Modus-Gruppe
   isStacked: false,
   isDigitalDisplay: false,
+  layoutSplit: false,   // Probe-Layout: Sim & Diagramm nebeneinander (true) statt übereinander (false)
 
   // Abgeleitet
   omega: 0,             // Winkelgeschwindigkeit (rad/s)
@@ -141,6 +142,7 @@ export function initDOM() {
   // Layout
   DOM.appLayout = q('app_layout')
   DOM.analysisToggle = q('analysis_toggle')
+  DOM.layoutToggle = q('layout_toggle')
   DOM.timeLabel = q('time_label')
 
   // Live-Panel

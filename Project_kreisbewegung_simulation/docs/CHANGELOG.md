@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.4 — 2026-07-06
+
+### Feature (Probe)
+- **Layout-Umschalter übereinander ↔ nebeneinander** (probehalber): Toggle-Button
+  in der Topbar neben „← Übersicht" schaltet `#center_area` zwischen dem
+  Default-Layout (Sim oben, Diagramm unten — gestapelt) und einem
+  Nebeneinander-Layout (Sim links, Diagramm rechts) über die Klasse
+  `.layout-split` (`grid-template-columns: 1fr 1fr`). Wahl wird in
+  `localStorage` (`kb_layout`) persistiert. Auf Viewports ≤1100 px fällt das
+  Nebeneinander auf Gestapelt zurück (kein Gequetsche). Hinweis: die Graph-
+  ViewBox bleibt landscape — `preserveAspectRatio=meet` zentriert sie in der
+  schmalen Zelle; eine echte Portrait-Variante (GRAPH_W/GRAPH_H + Plot-Geometrie
+  getauscht) ist bewußt offen für eine Folge-Iteration, falls das
+  Nebeneinander-Layout gefällt.
+
 ## v1.0.3 — 2026-07-06
 
 ### Fix

@@ -68,6 +68,12 @@ function liveObjects(t) {
   }
 }
 
+// ── Layout-Umschalter (Probe: Sim & Diagramm übereinander / nebeneinander) ────
+function applyLayout() {
+  DOM.centerArea.classList.toggle('layout-split', store.layoutSplit)
+  DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
+}
+
 // ── Stoppuhr-Anzeige (analog vs. digital) ────────────────────────────────────
 function applyStopwatchMode() {
   const showDigital = store.isDigitalDisplay
@@ -309,12 +315,22 @@ function setupUI() {
     const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
     DOM.analysisToggle.setAttribute('aria-expanded', String(!collapsed))
   })
+
+  // Layout-Umschalter (Probe): Sim & Diagramm übereinander ↔ nebeneinander
+  DOM.layoutToggle?.addEventListener('click', () => {
+    store.layoutSplit = !store.layoutSplit
+    applyLayout()
+    localStorage.setItem('kb_layout', store.layoutSplit ? 'split' : 'stacked')
+  })
 }
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 function init() {
   initDOM()
   setupTheme()
+  // Probe-Layout aus localStorage wiederherstellen (default: gestapelt)
+  store.layoutSplit = localStorage.getItem('kb_layout') === 'split'
+  applyLayout()
   drawStopwatchMarks()
   drawSubdialMarks()
   initDigitalDisplaySegments()
