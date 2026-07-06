@@ -5,6 +5,8 @@
   --c-comp-v: #56b4e9;   /* Vertikalkomponente   – Sky-Blue  */
   --mass-label: #ffffff; /* Massen-Beschriftung (kontrastiert in beiden Themes) */
   --warn: #d1002d;       /* Gleichgewichtswarnung */
+  /* Serif-Stack für Variablensymbole (F⃗, m) — kursiv, orientiert an LaTeX/MathJax */
+  --font-serif: 'Times New Roman', 'STIX Two Text', Cambria, 'Noto Serif', Georgia, serif;
 }
 body.dark {
   --c-comp-h: #e0783b;
@@ -37,7 +39,7 @@ body.dark {
 #mass_middle { fill: var(--c-p3); stroke: var(--text); }
 #mass_right  { fill: var(--c-p2); stroke: var(--text); }
 #mass_left_label, #mass_middle_label, #mass_right_label {
-  fill: var(--mass-label); font-family: var(--font-ui); font-size: 11px;
+  fill: var(--mass-label); font-family: var(--font-serif); font-size: 12px;
   font-weight: 400; text-anchor: middle; dominant-baseline: middle; font-style: italic;
 }
 
@@ -49,8 +51,8 @@ body.dark {
 .vec-comp-v   { stroke: var(--c-comp-v); }
 
 /* Kraft-Label (SVG-<text>): F⃗_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe.
-   Schrift 13 px (mit dünnen 0,7×-Vektorpfeilen nicht mehr „fett"), font-weight 400. */
-.force-label  { font-family: var(--font-ui); font-size: 13px; font-weight: 400; }
+   Serif-Italic (math-Konvention, passt zu MathJax in der Analyse), 13 px, font-weight 400. */
+.force-label  { font-family: var(--font-serif); font-size: 13px; font-weight: 400; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }

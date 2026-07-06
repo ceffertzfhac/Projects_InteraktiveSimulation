@@ -1,5 +1,14 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.5] — 2026-07-06
+### Geändert (Abnahme-Feedback: Schrift + Label-Platzierung)
+- **Serifenschrift für Variablensymbole:** Kraft-Labels (F⃗) und Massen-Labels (m₁/m₂/m₃) verwenden jetzt eine Serif-Italic (`--font-serif`: Times New Roman/STIX/Cambria …) statt DM Sans. Grund: DM Sans italic ist nur in Weight 400 verfügbar und wirkt schwer („dick"); Serif-Italic ist die math-Konvention (wie LaTeX/MathJax in der Analyse-Sidebar) und naturally leichter. Kraft-Label 13 px, Massen-Label 12 px.
+- **Vektor-Pfeil-Länge korrigiert:** `sym.getBBox()` lieferte in einigen Browsern die BBox des Gesamttextes (F + Subscript) → Pfeil war „viel zu lang". Umstellung auf `getStartPositionOfChar(0)`/`getEndPositionOfChar(0)` → Pfeil spannt exakt die F-Glyphenbreite (×0,82, am F-Stamm linksbündig), sitzt am Cap-Top (oberer Balken des F).
+- **Label-Platzierung überarbeitet (Kollisionen vermeiden):**
+  - m₁/m₃: Schwerkraft- und Seilkraft-Label standen bisher auf derselben Seite → jetzt entgegengesetzt (Schwerkraft außen: m₁ links / m₃ rechts, Seilkraft innen: m₁ rechts / m₃ links).
+  - m₂-Seilkräfte: `F_S,li` nutzte die **innere** Normale (zwischen den Seilen → Kollision mit `F_S,re`/`F_G,2`); korrigiert auf **äußere** Normale beider Seilstrecken, Offset 35→42 px.
+  - `F_G,2` nach rechts des Schwere-Pfeils (weg von den Seilkräften oben). Komponenten-Wert-Anzeigen entsprechend nach außen verschoben.
+
 ## [1.0.4] — 2026-07-06
 ### Behoben (Abnahme-Feedback)
 - **Vektor-Pfeil sitzt über dem F (nicht über dem Subscript):** Pfeil-Lage/Breite wird jetzt aus der tatsächlichen F-Glyphen-BBox (`getBBox()` auf dem F-tspan) gemessen → robust gegenüber `text-anchor`; previously landete der Pfeil bei `end`/`middle`-Ankern über dem Subscript (Mitte von F_{xyz}).

@@ -98,8 +98,11 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
 }
 
 // ── SVG-Kraft-Label: <i>F</i>⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil darüber,
-//    Subscript upright). Pfeil-Breite/Lage aus der F-tspan-BBox -> sitzt immer
-//    über dem F, nie über dem Subscript (unabhängig vom text-anchor).
+//    Subscript upright). Pfeil-Länge/Lage aus Char-Positionen des F (Index 0)
+//    -> sitzt immer exakt über dem F (nicht über dem Subscript), unabhängig vom
+//    text-anchor. getBBox() auf tspan liefert in einigen Browsern die BBox des
+//    Gesamttextes und wäre zu lang; getStartPositionOfChar/getEndPositionOfChar
+//    sind char-genau.
 const LABEL_FS = 13       // px — muß mit .force-label font-size in CSS übereinstimmen
 function addForceLabel(x, y, sub, type, anchor = 'start') {
   const g = document.createElementNS(SVGNS, 'g')
@@ -117,26 +120,27 @@ function addForceLabel(x, y, sub, type, anchor = 'start') {
   g.appendChild(text)
   DOM.forceVectorsGroup.appendChild(g)
 
-  // Vektor-Pfeil über dem F: Linie + Chevron-Spitze, positioniert über der
-  // tatsächlichen F-Glyphen-BBox (robust gegenüber text-anchor).
+  // Vektor-Pfeil über dem F (am oberen Balken): Linie + Chevron-Spitze.
   let ax0, ax1, ay
   try {
-    const fBox = sym.getBBox()
-    if (fBox.width > 0) {
-      ax0 = fBox.x; ax1 = fBox.x + fBox.width; ay = fBox.y - 1.5
-    } else { throw new Error('empty bbox') }
+    const sp = text.getStartPositionOfChar(0)
+    const ep = text.getEndPositionOfChar(0)
+    if (!Number.isFinite(sp.x) || ep.x <= sp.x) throw new Error('char pos failed')
+    const fAdv = ep.x - sp.x
+    ax0 = sp.x                 // am F-Stamm (links)
+    ax1 = sp.x + fAdv * 0.82   // ~oberer Balken des F (etwas kürzer als Advance)
+    ay = sp.y - LABEL_FS * 0.8 // knapp über dem Cap-Top (oberer Balken)
   } catch {
-    // Fallback (F am Text-Anfang): nur für anchor='start' exakt.
-    const fW = LABEL_FS * 0.62
+    const fW = LABEL_FS * 0.55
     ax0 = anchor === 'end' ? x - fW : anchor === 'middle' ? x - fW / 2 : x
-    ax1 = ax0 + fW; ay = y - LABEL_FS * 1.02
+    ax1 = ax0 + fW; ay = y - LABEL_FS * 1.0
   }
   const arrow = document.createElementNS(SVGNS, 'path')
   arrow.setAttribute('class', 'vec-arrow')
   arrow.setAttribute('d',
     `M ${ax0} ${ay} L ${ax1} ${ay} ` +
-    `M ${ax1} ${ay} L ${ax1 - 2} ${ay - 1.4} ` +
-    `M ${ax1} ${ay} L ${ax1 - 2} ${ay + 1.4}`)
+    `M ${ax1} ${ay} L ${ax1 - 1.8} ${ay - 1.3} ` +
+    `M ${ax1} ${ay} L ${ax1 - 1.8} ${ay + 1.3}`)
   g.appendChild(arrow)
 }
 
@@ -213,22 +217,24 @@ export function updateScene() {
   const m2Attach = { x: m2_pos.x, y: m2_pos.y }
   const showComps = store.showComponentValues
 
-  // Gewichtskräfte (vertikal nach unten)
+  // Gewichtskräfte (vertikal nach unten) — Labels AUSSERHALB (m1 links, m3 rechts),
+  // m2 rechts des Schwere-Pfeils (weg von den Seilkräften oben).
   if (store.showGravity) {
     DOM.forceVectorsGroup.appendChild(createForceVector(m1Center.x, m1Center.y, m1Center.x, m1Center.y + T1 * FORCE_SCALE_FACTOR, 'gravity'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Center.x, m2Center.y, m2Center.x, m2Center.y + Fg2 * FORCE_SCALE_FACTOR, 'gravity'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m3Center.x, m3Center.y, m3Center.x, m3Center.y + T3 * FORCE_SCALE_FACTOR, 'gravity'))
-    addForceLabel(m1Center.x + m1Size / 2 + 5, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2, 'G,1', 'gravity')
-    addForceLabel(m2Center.x - m2Size / 2 - 5, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2, 'G,2', 'gravity', 'end')
-    addForceLabel(m3Center.x - m3Size / 2 - 5, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2, 'G,3', 'gravity', 'end')
+    addForceLabel(m1Center.x - m1Size / 2 - 7, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2, 'G,1', 'gravity', 'end')
+    addForceLabel(m2Center.x + m2Size / 2 + 7, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2, 'G,2', 'gravity')
+    addForceLabel(m3Center.x + m3Size / 2 + 7, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2, 'G,3', 'gravity')
     if (showComps) {
-      addComponentDisplay(m1Center.x + m1Size / 2 + 35, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2 - 10, 0, T1, 'gravity')
-      addComponentDisplay(m2Center.x - m2Size / 2 - 50, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2 - 10, 0, Fg2, 'gravity', 'end')
-      addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2 - 10, 0, T3, 'gravity', 'end')
+      addComponentDisplay(m1Center.x - m1Size / 2 - 24, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, T1, 'gravity', 'end')
+      addComponentDisplay(m2Center.x + m2Size / 2 + 30, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2 - 9, 0, Fg2, 'gravity')
+      addComponentDisplay(m3Center.x + m3Size / 2 + 30, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, T3, 'gravity')
     }
   }
 
-  // Seilkräfte (gesamt)
+  // Seilkräfte (gesamt) — m1/m3 Labels auf der INNEREN Seite (entgegengesetzt zur
+  // Schwerkraft), m2-Seilkräfte auf der ÄUSSEREN Seite der jeweiligen Seilstrecke.
   if (store.showTension) {
     DOM.forceVectorsGroup.appendChild(createForceVector(m1Center.x, m1Center.y, m1Center.x, m1Center.y - T1 * FORCE_SCALE_FACTOR, 'tension'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m3Center.x, m3Center.y, m3Center.x, m3Center.y - T3 * FORCE_SCALE_FACTOR, 'tension'))
@@ -236,19 +242,20 @@ export function updateScene() {
     const t3End = { x: m2Attach.x + T3_vec.x * FORCE_SCALE_FACTOR, y: m2Attach.y + T3_vec.y * FORCE_SCALE_FACTOR }
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Attach.x, m2Attach.y, t1End.x, t1End.y, 'tension'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Attach.x, m2Attach.y, t3End.x, t3End.y, 'tension'))
-    addForceLabel(m1Center.x + m1Size / 2 + 5, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2, 'S,1', 'tension')
-    addForceLabel(m3Center.x - m3Size / 2 - 5, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2, 'S,3', 'tension', 'end')
-    const off = 35
-    const nLx = -T1_vec.y / T1, nLy = T1_vec.x / T1
-    const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3
+    addForceLabel(m1Center.x + m1Size / 2 + 7, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2, 'S,1', 'tension')
+    addForceLabel(m3Center.x - m3Size / 2 - 7, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2, 'S,3', 'tension', 'end')
+    // Äußere Normale: F_S,li links der linken Seilstrecke, F_S,re rechts der rechten.
+    const off = 42
+    const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
+    const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
     addForceLabel(m2Attach.x + (T1_vec.x * FORCE_SCALE_FACTOR) / 2 + nLx * off, m2Attach.y + (T1_vec.y * FORCE_SCALE_FACTOR) / 2 + nLy * off, 'S,li', 'tension')
     addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension')
     if (showComps) {
-      addComponentDisplay(m1Center.x + m1Size / 2 + 35, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 10, 0, -T1, 'tension')
-      addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 10, 0, -T3, 'tension', 'end')
-      const coff = 50
-      addComponentDisplay(m2Attach.x + T1_vec.x * FORCE_SCALE_FACTOR * 0.7 + nLx * coff, m2Attach.y + T1_vec.y * FORCE_SCALE_FACTOR * 0.7 + nLy * coff, T1_vec.x, T1_vec.y, 'tension')
-      addComponentDisplay(m2Attach.x + T3_vec.x * FORCE_SCALE_FACTOR * 0.7 + nRx * coff, m2Attach.y + T3_vec.y * FORCE_SCALE_FACTOR * 0.7 + nRy * coff, T3_vec.x, T3_vec.y, 'tension')
+      addComponentDisplay(m1Center.x + m1Size / 2 + 30, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T1, 'tension')
+      addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T3, 'tension', 'end')
+      const coff = 56
+      addComponentDisplay(m2Attach.x + T1_vec.x * FORCE_SCALE_FACTOR * 0.6 + nLx * coff, m2Attach.y + T1_vec.y * FORCE_SCALE_FACTOR * 0.6 + nLy * coff, T1_vec.x, T1_vec.y, 'tension')
+      addComponentDisplay(m2Attach.x + T3_vec.x * FORCE_SCALE_FACTOR * 0.6 + nRx * coff, m2Attach.y + T3_vec.y * FORCE_SCALE_FACTOR * 0.6 + nRy * coff, T3_vec.x, T3_vec.y, 'tension')
     }
   }
 
