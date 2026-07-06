@@ -5,6 +5,23 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.8 — 2026-07-06
+
+### Fix
+- **Vektor-Pfeilspitzen sitzen jetzt exakt auf dem Zielpunkt (nicht zu
+  kurz).** v1.0.7 hatte `refX = markerWidth` (Spitze am Linien-Ende)
+  **und** die Schaft-Kürzung um die Marker-Länge kombiniert — eine
+  Doppelkompensation: die Spitze wurde dadurch um genau eine Marker-Länge
+  **hinter** den Zielpunkt gezogen. Sichtbar am Ortsvektor, dessen goldene
+  Spitze am linken Rand des Massenpunkts endete statt in dessen Zentrum.
+  Fix: alle Animations-Marker auf `refX = 0` gesetzt (Dreieck-**Basis** am
+  gekürzten Linien-Ende, Spitze läuft eine Marker-Länge nach vorn). Zusammen
+  mit der beibehaltenen Schaft-Kürzung landet die Spitze exakt auf dem
+  Zielpunkt, der Schaft endet an der Dreieck-Basis (kein seitliches
+  Herausgucken). Deterministische Geometrie — keine Augenmaß-Justierung.
+  Widersprüchliche Regel in `CLAUDE.md` und
+  `global_docs/simulation_instruction.md` entsprechend korrigiert.
+
 ## v1.0.7 — 2026-07-06
 
 ### Fix

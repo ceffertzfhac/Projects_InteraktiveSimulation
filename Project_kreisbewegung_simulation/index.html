@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreisbewegung
-    <span class="version">v1.0.7</span>
+    <span class="version">v1.0.8</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -172,16 +172,20 @@ window.MathJax = {
     <div class="sim-wrapper">
       <svg id="main_svg" viewBox="0 0 450 480" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <marker id="anim-arrowhead" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-r" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-v" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-a" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-rx" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-ry" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-vx" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-vy" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-ax" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
-          <marker id="arrowhead-ay" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <!-- refX=0: Dreieck-Basis am (gekürzten) Linien-Ende; Spitze läuft eine
+               Marker-Länge nach vorn und landet exakt auf dem Zielpunkt. Der
+               Schaft wird in render.js um genau diese Länge gekürzt, sodaß er an
+               der Basis endet (kein seitliches Herausgucken nahe der Spitze). -->
+          <marker id="anim-arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-r" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-v" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-a" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-rx" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ry" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-vx" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-vy" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ax" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ay" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
         </defs>
 
         <g id="animation_group">

@@ -25,14 +25,18 @@ const graphHFull = () => store.layoutSplit ? GRAPH_H_SPLIT     : GRAPH_H_STACK
 
 // ── Pfeilspitzen-Marker-Längen (px) ──────────────────────────────────────────
 // Alle Animations-Marker: markerWidth=5, markerUnits=strokeWidth (Default) →
-// Marker-Länge in px = 5 · strokeWidth. Mit refX=5 (markerWidth) sitzt die
-// Dreieck-Spitze am Vektor-Endpunkt, das Dreieck ragt 5·sw dahinter. Da das
-// Dreieck auf eine Punkt-Spitze zuläuft, der Schaft aber konstant 1·sw breit
-// ist, wäre der Schaft nahe der Spitze schmaler als das Dreieck — nein,
-// *breiter* als das Dreieck: die Schaft-Kanten gucken seitlich aus der Spitze.
-// Fix: Schaft um die Marker-Länge kürzen, sodaß er an der Dreieck-Basis endet;
-// das Dreieck überdeckt den Schaft dann vollständig (Polygon-Fill ist deckend,
-// siehe styles.css `#arrowhead-* polygon { fill: … }`).
+// Marker-Länge in px = 5 · strokeWidth. Kanonische Geometrie (eine konsistente
+// Kombination, KEINE Doppelkompensation):
+//   • Marker refX=0  → die Dreieck-BASIS sitzt am Linien-Endpunkt, die Spitze
+//     läuft eine Marker-Länge in Richtung des Vektors nach vorn.
+//   • Schaft am (x2,y2)-Ende um genau diese Marker-Länge kürzen → das gekürzte
+//     Linien-Ende ist der Zielpunkt MINUS Marker-Länge; die Spitze landet dann
+//     exakt AUF dem Zielpunkt (nicht zu lang, nicht zu kurz).
+// Der Schaft endet an der Dreieck-Basis, das deckend gefüllte Dreieck überdeckt
+// die letzte Marker-Länge vollständig — nichts guckt seitlich aus der Spitze.
+// (Polygon-Fill via styles.css `#arrowhead-* polygon { fill: … }`.)
+// FALSCH wäre refX=markerWidth ZUSAMMEN mit Schaft-Kürzung: dann sitzt die
+// Spitze am gekürzten Ende → um eine Marker-Länge zu kurz (Bug bis v1.0.7).
 const ARROW_LEN_MAIN = 5 * 2.5  // Hauptvektoren (Ort/Geschw./Beschl.), sw=2,5 → 12,5 px
 const ARROW_LEN_COMP = 5 * 2    // Komponenten-Vektoren, sw=2 → 10 px
 const ARROW_LEN_AXIS = 5 * 1.2   // Koordinatenachsen, sw=1,2 → 6 px
