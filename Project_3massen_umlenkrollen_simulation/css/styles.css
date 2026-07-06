@@ -1,0 +1,78 @@
+/* ── 3-Massen-Umlenkrollen — simspezifische Tokens (shared vorab eingebunden) ── */
+:root {
+  /* Komponenten-Farben (Okabe-Ito, colorblind-safe, ergänzen shared --c-fg/--c-fn) */
+  --c-comp-h: #d55e00;   /* Horizontalkomponente – Vermilion */
+  --c-comp-v: #56b4e9;   /* Vertikalkomponente   – Sky-Blue  */
+  --mass-label: #ffffff; /* Massen-Beschriftung (kontrastiert in beiden Themes) */
+  --warn: #d1002d;       /* Gleichgewichtswarnung */
+}
+body.dark {
+  --c-comp-h: #e0783b;
+  --c-comp-v: #8fd0f5;
+  --mass-label: #10131c;
+  --warn: #ff6b6b;
+}
+
+/* ── Marker (Pfeilspitzen): Polygon-Fill via Token, refX=0 in HTML-Defs ─────── */
+#arrowhead-gravity polygon   { fill: var(--c-fg); }
+#arrowhead-tension polygon   { fill: var(--c-fn); }
+#arrowhead-comp-h polygon    { fill: var(--c-comp-h); }
+#arrowhead-comp-v polygon    { fill: var(--c-comp-v); }
+#arrowhead-coords polygon    { fill: var(--text2); }
+
+/* ── Szene: Decke, Rollen, Halterungen ──────────────────────────────────────── */
+#ceiling          { fill: var(--surface3); stroke: var(--border2); }
+#pulley_mount_left, #pulley_mount_right { fill: var(--surface3); stroke: var(--border2); }
+#pulley_left, #pulley_right               { fill: var(--surface2); stroke: var(--border2); }
+#pulley_left_center, #pulley_right_center { fill: var(--text2); }
+#rope             { stroke: var(--text); }
+
+/* Koordinatensystem */
+.coordinate-axis   { stroke: var(--text2); stroke-width: 1.5; marker-end: url(#arrowhead-coords); }
+.coordinate-label  { fill: var(--text2); font-family: var(--font-ui); font-size: 14px;
+                     dominant-baseline: middle; text-anchor: middle; }
+
+/* Massen (kategorial: --c-p1 / --c-p3 / --c-p2 für m₁ / m₂ / m₃) */
+#mass_left   { fill: var(--c-p1); stroke: var(--text); }
+#mass_middle { fill: var(--c-p3); stroke: var(--text); }
+#mass_right  { fill: var(--c-p2); stroke: var(--text); }
+#mass_left_label, #mass_middle_label, #mass_right_label {
+  fill: var(--mass-label); font-family: var(--font-ui); font-size: 16px;
+  text-anchor: middle; dominant-baseline: middle; font-style: italic;
+}
+
+/* ── Kraft-Vektoren (Stroke via Klasse, auto Dark Mode) ─────────────────────── */
+.vec          { stroke-linecap: round; }
+.vec-gravity  { stroke: var(--c-fg); }
+.vec-tension  { stroke: var(--c-fn); }
+.vec-comp-h   { stroke: var(--c-comp-h); }
+.vec-comp-v   { stroke: var(--c-comp-v); }
+
+/* Kraft-Label (SVG-<text>): F_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe */
+.force-label  { font-family: var(--font-ui); font-size: 15px; }
+.force-label.vec-gravity { fill: var(--c-fg); }
+.force-label.vec-tension { fill: var(--c-fn); }
+.force-label.vec-comp-h  { fill: var(--c-comp-h); }
+.force-label.vec-comp-v  { fill: var(--c-comp-v); }
+
+/* Komponenten-Wert (x, y) in JetBrains Mono */
+.comp-val     { font-family: var(--font-mono); font-size: 11px; }
+.comp-val.vec-gravity { fill: var(--c-fg); }
+.comp-val.vec-tension { fill: var(--c-fn); }
+.comp-val.vec-comp-h  { fill: var(--c-comp-h); }
+.comp-val.vec-comp-v  { fill: var(--c-comp-v); }
+
+/* Hintergrundraster */
+#grid_group path { stroke: var(--border); stroke-width: 1; }
+
+/* ── Analyse-Sidebar: Warnung + Kraft-farbige Wertzeilen ────────────────────── */
+#equilibrium_warning { color: var(--warn); text-align: center; font-weight: 700;
+                       margin-top: 10px; visibility: hidden; }
+/* Komponenten-Wert-Zeilen farblich unterstreichen (Mint-Akzent bleibt für Status) */
+.info-row .info-label { color: var(--text2); }
+.info-row .info-value { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
+
+/* ── Center-Layout: Sim füllt die Zelle aus ─────────────────────────────────── */
+.center-area { display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+.sim-wrapper { position: relative; overflow: hidden; flex: 1; display: flex; align-items: center; justify-content: center; }
+#main_svg { width: 100%; height: 100%; max-width: 100%; max-height: 100%; display: block; }

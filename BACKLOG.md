@@ -97,7 +97,7 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 | M6 | Kreisbewegung migrieren | kreisbewegung (+kreiskinematik_v5) | → `Project_kreisbewegung_simulation/`. **Vorher prüfen**, ob `kreiskinematik_v5` darin aufgeht (thematisch nah, größte Datei) — Konsolidierung statt Doppelmigration. |
 | M7 | Atwood-Energie migrieren | atwood_energy | Entweder eigene `Project_atwood_energy_simulation/` *oder* Energie-Graphen als Diagrammtyp-Option in `Project_atwood_simulation/` aufnehmen (Produktentscheidung bei Umsetzung). |
 | M8 | Elastischer Stoß migrieren | elastischerStoß | → `Project_stoss_simulation/`. **Größter Physik-Eingriff:** Per-Frame-Physik → `precompute()` umstellen. |
-| M9 | 3-Massen-Umlenkrollen migrieren | 3massen_umlenkrollen_v2 | Statisches Gleichgewicht (keine Zeit-Animation) → leichteste echte Sim. → `Project_3massen_umlenkrollen/`. Grenzfall zur Werkzeug-Schale — prüfen, ob Sim- oder Werkzeug-Shell passender. |
+| M9 | ✅ 3-Massen-Umlenkrollen migrieren | 3massen_umlenkrollen_v2 | **Erledigt (Sprint 4):** `Project_3massen_umlenkrollen_simulation/` v1.0.0 — als **Sim-Schale** (analog Lorentz: Topbar Theme+Reset, kein Play/Pause/Stoppuhr/CSV) umgesetzt. `computeEquilibrium()` löst Winkel analytisch aus dem Kräftedreieck; SVG-`<text>`-Labels (kein HTML-Overlay), kanonische Pfeilspitzen, Okabe-Ito-Farben, einklappbare Analyse-Sidebar. Standalone-HTML ins `legacy_archive/` verschoben; Karte auf Modular umgehängt. |
 
 ## WERKZEUG-SCHALE (Diagrammatische Werkzeuge, in-place)
 
