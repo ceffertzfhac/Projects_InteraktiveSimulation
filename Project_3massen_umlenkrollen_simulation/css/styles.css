@@ -37,7 +37,7 @@ body.dark {
 #mass_middle { fill: var(--c-p3); stroke: var(--text); }
 #mass_right  { fill: var(--c-p2); stroke: var(--text); }
 #mass_left_label, #mass_middle_label, #mass_right_label {
-  fill: var(--mass-label); font-family: var(--font-ui); font-size: 9px;
+  fill: var(--mass-label); font-family: var(--font-ui); font-size: 11px;
   font-weight: 400; text-anchor: middle; dominant-baseline: middle; font-style: italic;
 }
 
@@ -48,15 +48,22 @@ body.dark {
 .vec-comp-h   { stroke: var(--c-comp-h); }
 .vec-comp-v   { stroke: var(--c-comp-v); }
 
-/* Kraft-Label (SVG-<text>): F_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe */
-.force-label  { font-family: var(--font-ui); font-size: 9px; font-weight: 400; }
+/* Kraft-Label (SVG-<text>): F⃗_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe.
+   Schrift 11 px (Mitte zwischen 9 = zu klein und 13 = zu dick), font-weight 400. */
+.force-label  { font-family: var(--font-ui); font-size: 11px; font-weight: 400; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
+/* Vektor-Pfeil über dem F (Pfad in der .force-label-Gruppe) */
+.force-label .vec-arrow { fill: none; stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; }
+.force-label.vec-gravity .vec-arrow { stroke: var(--c-fg); }
+.force-label.vec-tension .vec-arrow { stroke: var(--c-fn); }
+.force-label.vec-comp-h  .vec-arrow { stroke: var(--c-comp-h); }
+.force-label.vec-comp-v  .vec-arrow { stroke: var(--c-comp-v); }
 
 /* Komponenten-Wert (x, y) in JetBrains Mono */
-.comp-val     { font-family: var(--font-mono); font-size: 7px; }
+.comp-val     { font-family: var(--font-mono); font-size: 8px; }
 .comp-val.vec-gravity { fill: var(--c-fg); }
 .comp-val.vec-tension { fill: var(--c-fn); }
 .comp-val.vec-comp-h  { fill: var(--c-comp-h); }

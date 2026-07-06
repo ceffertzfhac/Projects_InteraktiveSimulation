@@ -1,5 +1,10 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.3] — 2026-07-06
+### Behoben (Abnahme-Feedback)
+- **Vektor-Pfeil über dem F:** Kraft-Labels zeigen jetzt die Vektor-Notation F⃗ (kleiner Pfeil-Pfad über dem kursiven F, in Vektorfarbe gestrichelt ausgeführt als Linie + Chevron-Spitze). Bisher fehlte der Pfeil, es stand nur „F".
+- **Schrift-Lesbarkeit:** Label-Schrift von 9 px (0,7×-Skalierung aus v1.0.2 — zu klein/schwer lesbar) auf **11 px** zurückgenommen. font-weight bleibt 400 (nicht fett) — 11 px ist die Mitte zwischen 9 (zu klein) und 13 (zu dick). Massen-Labels 9→11 px, Komponenten-Werte 7→8 px.
+
 ## [1.0.2] — 2026-07-06
 ### Behoben (Abnahme-Feedback)
 - **Vektorpfeile & Sim-Schrift auf 0,7× skaliert:** `VEC_STROKE` 3→2,1 (Marker skaliert via `markerUnits=strokeWidth` automatisch mit), Massen-Labels 13→9 px, Kraft-Labels 13→9 px, Komponenten-Werte 10→7 px — Pfeile und Beschriftungen erscheinen jetzt dezent, nicht mehr „fett".

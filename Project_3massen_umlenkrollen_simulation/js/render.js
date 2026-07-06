@@ -97,11 +97,15 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   return line
 }
 
-// ── SVG-Kraft-Label: <i>F</i><sub>…</sub> (Symbol kursiv, Subscript upright) ──
+// ── SVG-Kraft-Label: <i>F</i>⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil darüber,
+//    Subscript upright). Pfeil als kleiner Pfad über dem F — positioniert via
+//    text-anchor, Breite ≈ 0,62·fontSize (Typische F-Glyphenbreite).
+const LABEL_FS = 11       // px — muß mit .force-label font-size in CSS übereinstimmen
 function addForceLabel(x, y, sub, type, anchor = 'start') {
+  const g = document.createElementNS(SVGNS, 'g')
+  g.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
-  text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   text.setAttribute('text-anchor', anchor)
   const sym = document.createElementNS(SVGNS, 'tspan')
   sym.setAttribute('font-style', 'italic')
@@ -110,7 +114,23 @@ function addForceLabel(x, y, sub, type, anchor = 'start') {
   subT.setAttribute('dy', '0.25em'); subT.setAttribute('font-size', '0.7em')
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
-  DOM.forceVectorsGroup.appendChild(text)
+  g.appendChild(text)
+
+  // Vektor-Pfeil über dem F: kurze Linie mit kleiner Spitze (Chevron) rechts.
+  const fW = LABEL_FS * 0.62
+  let ax0 = x
+  if (anchor === 'end') ax0 = x - fW
+  else if (anchor === 'middle') ax0 = x - fW / 2
+  const ax1 = ax0 + fW
+  const ay = y - LABEL_FS * 1.02
+  const arrow = document.createElementNS(SVGNS, 'path')
+  arrow.setAttribute('class', 'vec-arrow')
+  arrow.setAttribute('d',
+    `M ${ax0} ${ay} L ${ax1} ${ay} ` +
+    `M ${ax1} ${ay} L ${ax1 - 2} ${ay - 1.4} ` +
+    `M ${ax1} ${ay} L ${ax1 - 2} ${ay + 1.4}`)
+  g.appendChild(arrow)
+  DOM.forceVectorsGroup.appendChild(g)
 }
 
 // ── Komponenten-Wert-Anzeige (x, y) in JetBrains Mono ─────────────────────────
