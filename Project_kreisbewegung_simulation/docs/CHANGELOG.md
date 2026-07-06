@@ -5,6 +5,26 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.5 — 2026-07-06
+
+### Feature (Probe — Nebeneinander-Layout verfeinert)
+- **Sim- und Graph-ViewBox im Split-Modus portrait**: Im Nebeneinander-Layout
+  werden Sim- und Diagramm-Zelle hochkant ausgefüllt statt mit einer landscape-
+  ViewBox klein zu bleiben. Sim `450×480` → `450×720` (Zentrum mittig bei
+  `cy=360` statt 260), Graph `700×410` → `410×700`. Beide ViewBoxen werden per
+  JS in `setupScene`/`updateGraph` aus `store.layoutSplit` gesetzt; die
+  Graph-Geometrie (`graphW`/`graphHFull`/`graphSlotH` für Single bzw. gestapelte
+  Teilgraphs) ist nun layout-abhängig. Der Kreis füllt die schmale Sim-Breite,
+  Stoppuhr (oben) und Zeit-Label (unten) nutzen den vertikalen Freiraum.
+- **Layout-Wechsel live ohne Sim-Reset**: Der Toggle ruft `relayout()` —
+  `setupScene` + `updateGraph` + `updateScene` mit dem neuen Zentrum —, sodaß
+  ViewBox/Zoom/Koordinatensystem/Szene/Graph sofort neu aufgebaut werden,
+  ohne die Sim-Zeit zurückzusetzen (laufende Animation wird nicht gestört).
+- **Layout-abhängige Konstanten** in `constants.js`: `ANIM_H_STACK/SPLIT`,
+  `ANIM_CY_STACK/SPLIT`, `GRAPH_W/H_STACK/SPLIT`, `GRAPH_H_STACKED_STACK/SPLIT`
+  (statt der früheren einzelnen `ANIM_H`/`GRAPH_W`/…). `ANIM_W`/`ANIM_CX` sind
+  für beide Layouts gleich (450 / 225).
+
 ## v1.0.4 — 2026-07-06
 
 ### Feature (Probe)

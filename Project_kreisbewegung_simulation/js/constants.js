@@ -13,10 +13,15 @@ export const PIXELS_PER_ACCELERATION_UNIT = 6    // px pro (m/s²) (5 × 1,2)
 export const POINT_RADIUS = 8                  // Massenpunkt-Radius (px)
 
 // ── Animationsfläche (SVG-Koordinaten) ───────────────────────────────────────
+// ANIM_W/ANIM_CX sind für beide Layouts gleich. Höhe & Y-Zentrum hängen vom
+// Layout ab: gestapelt (Sim über Diagramm) → quadratic 450×480, Zentrum unten
+// (260); nebeneinander (Split) → portrait 450×720, Zentrum mittig (360),
+// sodaß die schmale, hohe Zelle ausgefüllt wird (Kreis füllt die Breite,
+// Stoppuhr oben / Zeit-Label unten nutzen den vertikalen Freiraum).
 export const ANIM_W = 450
-export const ANIM_H = 480
 export const ANIM_CX = ANIM_W / 2
-export const ANIM_CY = ANIM_H / 2 + 20
+export const ANIM_H_STACK = 480, ANIM_CY_STACK = 260
+export const ANIM_H_SPLIT = 720, ANIM_CY_SPLIT = 360
 
 // ── Slider-Grenzen ────────────────────────────────────────────────────────────
 export const R_MIN = 0.5, R_MAX = 2.0         // Radius (m)
@@ -24,9 +29,13 @@ export const PHI0_MIN = 0, PHI0_MAX = 360      // Anfangswinkel (°)
 export const OMEGA_MIN = -180, OMEGA_MAX = 180 // Winkelgeschwindigkeit (°/s)
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
-export const GRAPH_W = 700
-export const GRAPH_H = 410
-export const GRAPH_H_STACKED = 200             // Höhe je gestapelter Teilgraph
+// Layout-abhängig: gestapelt = landscape (700×410), Split = portrait
+// (410×700). Gestapelte Teilgraphen je Slot: landscape 200, portrait 345
+// (= (700−10)/2). Die jeweilige Gesamt-Höhe ergibt sich aus 2·Slot+Gap.
+export const GRAPH_W_STACK = 700, GRAPH_H_STACK = 410
+export const GRAPH_W_SPLIT = 410, GRAPH_H_SPLIT = 700
+export const GRAPH_H_STACKED_STACK = 200
+export const GRAPH_H_STACKED_SPLIT = 345
 export const GRAPH_STACKED_GAP = 10            // Zwischenraum oben↔unten
 
 // ── Stoppuhr (Gruppen-Transform in setupScene) ────────────────────────────────

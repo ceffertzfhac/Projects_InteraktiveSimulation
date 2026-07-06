@@ -1,10 +1,12 @@
 'use strict'
 
 import {
-  ANIM_W, ANIM_H, ANIM_CX, ANIM_CY,
+  ANIM_W, ANIM_CX,
+  ANIM_H_STACK, ANIM_CY_STACK, ANIM_H_SPLIT, ANIM_CY_SPLIT,
   DEFAULT_PIXELS_PER_METER, PIXELS_PER_VELOCITY_UNIT, PIXELS_PER_ACCELERATION_UNIT,
   POINT_RADIUS,
-  GRAPH_W, GRAPH_H, GRAPH_H_STACKED, GRAPH_STACKED_GAP,
+  GRAPH_W_STACK, GRAPH_H_STACK, GRAPH_W_SPLIT, GRAPH_H_SPLIT,
+  GRAPH_H_STACKED_STACK, GRAPH_H_STACKED_SPLIT, GRAPH_STACKED_GAP,
   WATCH_CX, WATCH_CY, WATCH_R, SDIAL_CX, SDIAL_CY, SDIAL_R,
   SEG_THICK, SEG_LEN, DIGIT_SPACING, COLON_WIDTH, LCD_FRAME_PADDING,
   DIGIT_WIDTH, DIGIT_HEIGHT, COLON_DOT_SIZE,
@@ -14,6 +16,13 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { getNiceTick, linePlotIndex, frequency } from './physics.js'
+
+// ── Layout-abhängige Geometrie (gestapelt ↔ nebeneinander) ───────────────────
+const animH      = () => store.layoutSplit ? ANIM_H_SPLIT      : ANIM_H_STACK
+export const animCY = () => store.layoutSplit ? ANIM_CY_SPLIT    : ANIM_CY_STACK
+const graphW     = () => store.layoutSplit ? GRAPH_W_SPLIT     : GRAPH_W_STACK
+const graphHFull = () => store.layoutSplit ? GRAPH_H_SPLIT     : GRAPH_H_STACK
+const graphSlotH = () => store.layoutSplit ? GRAPH_H_STACKED_SPLIT : GRAPH_H_STACKED_STACK
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -90,7 +99,7 @@ function niceStepLE(range, minDivs) {
 
 // ── Zoom: passt ppm so an, daß der Kreisradius in die Zeichenfläche paßt ─────
 export function updateZoom() {
-  const usable = Math.min(ANIM_W, ANIM_H) / 2 - 40
+  const usable = Math.min(ANIM_W, animH()) / 2 - 40
   const needed = store.R * DEFAULT_PIXELS_PER_METER
   store.zoomFactor = needed > usable ? usable / needed : 1
   store.currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER * store.zoomFactor
@@ -101,21 +110,22 @@ export function updateZoom() {
 export function drawCoordSystem() {
   DOM.animationCoordSystem.innerHTML = ''
   const ppm = store.currentPixelsPerMeter
+  const cy = animCY()
   const axLen = Math.max(2.0, store.R) * ppm * 1.05
   // x-Achse
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX - 10, y1: ANIM_CY, x2: ANIM_CX + axLen, y2: ANIM_CY,
+    x1: ANIM_CX - 10, y1: cy, x2: ANIM_CX + axLen, y2: cy,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
-  const xl = el('text', { x: ANIM_CX + axLen + 8, y: ANIM_CY + 4, 'font-size': 13, fill: 'var(--text)' })
+  const xl = el('text', { x: ANIM_CX + axLen + 8, y: cy + 4, 'font-size': 13, fill: 'var(--text)' })
   xl.textContent = 'x'
   DOM.animationCoordSystem.appendChild(xl)
   // y-Achse
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX, y1: ANIM_CY + 10, x2: ANIM_CX, y2: ANIM_CY - axLen,
+    x1: ANIM_CX, y1: cy + 10, x2: ANIM_CX, y2: cy - axLen,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
-  const yl = el('text', { x: ANIM_CX - 14, y: ANIM_CY - axLen - 4, 'font-size': 13, fill: 'var(--text)' })
+  const yl = el('text', { x: ANIM_CX - 14, y: cy - axLen - 4, 'font-size': 13, fill: 'var(--text)' })
   yl.textContent = 'y'
   DOM.animationCoordSystem.appendChild(yl)
 }
@@ -127,6 +137,8 @@ export function drawCoordSystem() {
 export function drawTrajectoryCircle() {
   const r = store.R * store.currentPixelsPerMeter
   DOM.disk.setAttribute('r', r)
+  DOM.disk.setAttribute('cx', ANIM_CX)
+  DOM.disk.setAttribute('cy', animCY())
 }
 
 // ── Stoppuhr-Skalen ──────────────────────────────────────────────────────────
@@ -218,6 +230,8 @@ export function updateDigitalDisplay(totalSeconds) {
 
 // ── Szene aufbauen (statische Elemente) ──────────────────────────────────────
 export function setupScene() {
+  // Sim-ViewBox layout-abhängig (gestapelt 450×480, Split 450×720 portrait)
+  DOM.mainSvg.setAttribute('viewBox', `0 0 ${ANIM_W} ${animH()}`)
   updateZoom()
   drawCoordSystem()
   drawTrajectoryCircle()
@@ -228,7 +242,7 @@ export function setupScene() {
   // Eck-Platzierung); LCD-Rahmen des Digital-Easteregg ragt weiter über
   // (analog ist Default).
   DOM.stopwatch.setAttribute('transform', 'translate(181, -13) scale(0.8)')
-  return { cx: ANIM_CX, cy: ANIM_CY }
+  return { cx: ANIM_CX, cy: animCY() }
 }
 
 // ── Vektor-Linie setzen (mit Sichtbarkeit) ───────────────────────────────────
@@ -335,7 +349,7 @@ function drawGraphSlot(attrs) {
   pointEl.style.visibility = 'hidden'
   if (!limits) return
 
-  const gW = GRAPH_W
+  const gW = graphW()
   const gH = graphHeight
   const padL = 60, padR = 18, padT = 28, padB = 38
   const fullW = gW - padL - padR
@@ -469,6 +483,9 @@ function currentInterpForTrajectory(type) {
 // ── Diagramm aktualisieren (Single oder Stacked) ─────────────────────────────
 export function updateGraph(time) {
   const interp = currentInterpValue(store.graphType, time)
+  // Graph-ViewBox layout-abhängig (gestapelt landscape 700×410, Split
+  // portrait 410×700); gilt für Single und Stacked (2·Slot+Gap = Gesamt-Höhe).
+  DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
 
   if (store.isStacked) {
     DOM.graphGroupSingle.style.visibility = 'hidden'
@@ -477,16 +494,17 @@ export function updateGraph(time) {
     const [topType, bottomType] = stackedTypes(store.stackedType)
     const topVal = currentInterpValue(topType, time)
     const botVal = currentInterpValue(bottomType, time)
-    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: topType, graphHeight: GRAPH_H_STACKED, currentTime: time, currentValue: topVal })
+    const slotH = graphSlotH()
+    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: topType, graphHeight: slotH, currentTime: time, currentValue: topVal })
     DOM.graphGroupStackedTop.setAttribute('transform', 'translate(0, 0)')
-    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: bottomType, graphHeight: GRAPH_H_STACKED, currentTime: time, currentValue: botVal })
-    DOM.graphGroupStackedBottom.setAttribute('transform', `translate(0, ${GRAPH_H_STACKED + GRAPH_STACKED_GAP})`)
+    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: bottomType, graphHeight: slotH, currentTime: time, currentValue: botVal })
+    DOM.graphGroupStackedBottom.setAttribute('transform', `translate(0, ${slotH + GRAPH_STACKED_GAP})`)
   } else {
     DOM.graphGroupStackedTop.style.visibility = 'hidden'
     DOM.graphGroupStackedBottom.style.visibility = 'hidden'
     DOM.graphGroupSingle.style.visibility = 'visible'
     DOM.graphGroupSingle.setAttribute('transform', 'translate(0, 0)')
-    drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType, graphHeight: GRAPH_H, currentTime: time, currentValue: interp })
+    drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
   }
 }
 

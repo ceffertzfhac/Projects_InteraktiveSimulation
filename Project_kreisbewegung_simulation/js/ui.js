@@ -4,7 +4,7 @@ import { store, DOM, initDOM } from './state.js'
 import {
   singleGraphOptions, stackedGraphOptions,
   singleToStackedMap, stackedToSingleMap,
-  ANIM_CX, ANIM_CY,
+  ANIM_CX, ANIM_CY_STACK, ANIM_CY_SPLIT,
 } from './constants.js'
 import {
   recomputeDerived, precompute, extendMotionData, recalculateAxisLimits,
@@ -15,6 +15,11 @@ import {
   drawStopwatchMarks, drawSubdialMarks, initDigitalDisplaySegments,
   fmt,
 } from './render.js'
+
+// Sim-Zentrum layout-abhängig (gestapelt CY=260, Split CY=360); cx bleibt 225.
+function animCenter() {
+  return { cx: ANIM_CX, cy: store.layoutSplit ? ANIM_CY_SPLIT : ANIM_CY_STACK }
+}
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
 function setupTheme() {
@@ -74,6 +79,18 @@ function applyLayout() {
   DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
 }
 
+// Layout-Wechsel live: Sim-/Graph-ViewBox, Zoom, Koordinatensystem, Szene und
+// Graph neu aufbauen — ohne die Sim-Zeit zurückzusetzen (laufende Animation
+// wird nicht gestört).
+function relayout() {
+  applyLayout()
+  setupScene()
+  const { p, v, a } = liveObjects(store.simulatedTime)
+  updateScene(store.simulatedTime, p, v, a, animCenter())
+  updateGraph(store.simulatedTime)
+  applyStopwatchMode()
+}
+
 // ── Stoppuhr-Anzeige (analog vs. digital) ────────────────────────────────────
 function applyStopwatchMode() {
   const showDigital = store.isDigitalDisplay
@@ -124,7 +141,7 @@ function resetSim(isPlayTrigger = false) {
 
   // Anfangsszene bei t = 0 (Vektoren auch im Ruhezustand zeichnen)
   const { p, v, a } = liveObjects(0)
-  updateScene(0, p, v, a, { cx: ANIM_CX, cy: ANIM_CY })
+  updateScene(0, p, v, a, animCenter())
 
   updateGraph(0)
   updateKennwerte()
@@ -148,7 +165,7 @@ function animate(currentTime) {
   }
 
   const { p, v, a } = liveObjects(store.visualTime)
-  updateScene(store.simulatedTime, p, v, a, { cx: ANIM_CX, cy: ANIM_CY })
+  updateScene(store.simulatedTime, p, v, a, animCenter())
   updateGraph(store.simulatedTime)
 
   store.aniFrameId = requestAnimationFrame(animate)
@@ -319,8 +336,8 @@ function setupUI() {
   // Layout-Umschalter (Probe): Sim & Diagramm übereinander ↔ nebeneinander
   DOM.layoutToggle?.addEventListener('click', () => {
     store.layoutSplit = !store.layoutSplit
-    applyLayout()
     localStorage.setItem('kb_layout', store.layoutSplit ? 'split' : 'stacked')
+    relayout()
   })
 }
 
