@@ -56,17 +56,12 @@ body.dark {
    (.vec-tension u. a. setzt stroke); ohne Reset bekäme jeder Glyph eine gleichfarbige
    1-px-Kontur → wirkt fett / doppelt gezeichnet. */
 .force-label  { font-family: var(--font-serif); font-size: 13px; font-weight: 400; stroke: none; }
+/* Komponentenwert-Zeile innerhalb der Label-Einheit (erbt Fill = Vektorfarbe) */
+.comp-val-line { font-family: var(--font-mono); font-size: 9px; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
-
-/* Komponenten-Wert (x, y) in JetBrains Mono */
-.comp-val     { font-family: var(--font-mono); font-size: 9px; stroke: none; }
-.comp-val.vec-gravity { fill: var(--c-fg); }
-.comp-val.vec-tension { fill: var(--c-fn); }
-.comp-val.vec-comp-h  { fill: var(--c-comp-h); }
-.comp-val.vec-comp-v  { fill: var(--c-comp-v); }
 
 /* Hintergrundraster */
 #grid_group path { stroke: var(--border); stroke-width: 1; }

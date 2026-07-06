@@ -1,5 +1,12 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.9] — 2026-07-06
+### Behoben (Kollisionsfreiheit im „alles an"-Modus, über den ganzen Parameterraum)
+- **Label + Komponentenwert = eine Einheit:** Kraft-Label (`F⃗_…`) und zugehöriger Komponentenwert `(x, y)` werden jetzt als ein gemeinsames `<text>` (zwei Zeilen) gerendert statt als zwei unabhängig platzierte Elemente. Damit können Label und sein Wert prinzipiell nie mehr aufeinanderfallen (behob die Überlappungen bei F_G,1/F_S,li/F_S,re/F_G,3).
+- **m₂-Seilkraft-Labels an die Vektorspitze:** `F⃗_S,li`/`F⃗_S,re` sitzen jetzt an der Spitze der jeweiligen Seilkraft + äußere Normale (Text wächst von m₂ weg), statt am Mittelpunkt — klarer getrennt.
+- **Automatische Kollisionsauflösung (`resolveLabelCollisions`):** Nachbearbeitung, die überlappende Label-Boxen entlang der Achse geringster Durchdringung (MTV) auseinanderschiebt; die Massen sind feste Hindernisse, damit kein Label auf eine Masse rutscht. Fängt konfigurationsabhängige Restüberlappungen ab (z. B. `F⃗_G,2` ↔ `F⃗_S,3` bei kleinem Rollenabstand). Verifiziert über Massen/Abstand/Seillängen-Extremwerte.
+- **Komponenten standardmäßig an:** `resetSim` aktiviert jetzt auch „Komponentenzerlegung" und „Vektorkomponenten anzeigen" (vorher nur im HTML `checked`, per Reset wieder aus).
+
 ## [1.0.8] — 2026-07-06
 ### Behoben (Abnahme-Feedback: „Schrift fett / doppelt gezeichnet")
 - **Kontur an Text-Labels entfernt (Ursache der Fett-Optik):** Kraft- und Komponenten-Labels tragen `class="force-label vec-tension"` (bzw. `vec-gravity` …). Die Klasse `vec-tension` ist für die Vektor-**Linien** gedacht und setzt `stroke: var(--c-fn)`. Da das `<text>`-Element dieselbe Klasse teilt, malte SVG eine 1-px-Kontur in Füllfarbe um jeden Glyphen → Buchstaben wirkten verdickt / „zweimal übereinander". Deshalb sah das klassenlose Test-„Sample" dünn/sauber aus, das echte Label aber fett. Fix: `stroke: none` in `.force-label` und `.comp-val`. Font-Setzung (Serif-Italic 13 px/400, Variante 23) unverändert.

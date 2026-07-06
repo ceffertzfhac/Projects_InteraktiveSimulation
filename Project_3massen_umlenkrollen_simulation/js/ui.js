@@ -87,8 +87,8 @@ function resetSim() {
   DOM.ropeLenSlider.value = ROPE_LEN_DEFAULT_CM
   DOM.togGravity.checked = true
   DOM.togTension.checked = true
-  DOM.togComponents.checked = false
-  DOM.togComponentValues.checked = false
+  DOM.togComponents.checked = true
+  DOM.togComponentValues.checked = true
   DOM.togGrid.checked = false
   DOM.gridGroup.style.visibility = 'hidden'
   update()

@@ -97,10 +97,14 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   return line
 }
 
-// ── SVG-Kraft-Label: F⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil via Combining-
-//    Arrow U+20D7 darüber — von der Schrift selbst plaziert, wie in LaTeX/MathJax;
-//    kein hand-positionierter Pfad, der mit dem F-Glyphen verschmilzt).
-function addForceLabel(x, y, sub, type, anchor = 'start') {
+// ── SVG-Kraft-Label als EINE Einheit: Zeile 1 = F⃗<sub>…</sub> (Symbol kursiv,
+//    Vektor-Pfeil via Combining-Arrow U+20D7 — von der Schrift selbst plaziert),
+//    optional Zeile 2 = Komponentenwert (vx, vy) in Mono. Label und Wert bilden ein
+//    gemeinsames <text> → sie können prinzipiell nie gegeneinander kollidieren.
+//    comp = { vx, vyInternal } (intern y nach unten positiv → Anzeige -vyInternal)
+//    oder null (nur Symbol). Gibt das <text>-Element zurück (für die Kollisions-
+//    auflösung in resolveLabelCollisions()).
+function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
   text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
@@ -112,25 +116,62 @@ function addForceLabel(x, y, sub, type, anchor = 'start') {
   subT.setAttribute('dy', '0.25em'); subT.setAttribute('font-size', '0.7em')
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
+  if (comp && store.showComponentValues) {
+    const val = document.createElementNS(SVGNS, 'tspan')
+    val.setAttribute('x', x); val.setAttribute('dy', '1.2em')
+    val.setAttribute('class', 'comp-val-line')
+    val.textContent = `(${comp.vx.toFixed(1)}, ${(-comp.vyInternal).toFixed(1)})`
+    text.appendChild(val)
+  }
   DOM.forceVectorsGroup.appendChild(text)
+  return text
 }
 
-// ── Komponenten-Wert-Anzeige (x, y) in JetBrains Mono ─────────────────────────
-function addComponentDisplay(x, y, vx, vyInternal, type, anchor = 'start') {
-  const displayY = -vyInternal // Y-Anzeige positiv nach oben
-  const xComp = vx.toFixed(1)
-  const yComp = displayY.toFixed(1)
-  const text = document.createElementNS(SVGNS, 'text')
-  text.setAttribute('x', x); text.setAttribute('y', y)
-  text.setAttribute('class', `comp-val ${VEC_CLASS[type]}`)
-  text.setAttribute('text-anchor', anchor)
-  const l1 = document.createElementNS(SVGNS, 'tspan')
-  l1.textContent = `(${xComp},`
-  const l2 = document.createElementNS(SVGNS, 'tspan')
-  l2.setAttribute('x', x); l2.setAttribute('dy', '12')
-  l2.textContent = `${yComp})`
-  text.appendChild(l1); text.appendChild(l2)
-  DOM.forceVectorsGroup.appendChild(text)
+// ── Kollisionsauflösung der Label-Einheiten ───────────────────────────────────
+// Deterministische Platzierung (an den Vektoren) hält für die meisten Konfigurationen,
+// aber bei kleinem Rollenabstand/bestimmten Massen überlappen zwei Einheiten (z. B.
+// F_G,2 und F_S,3). Diese Nachbearbeitung schiebt überlappende Label-Boxen entlang der
+// Achse geringster Durchdringung (MTV) auseinander — die Massen sind feste Hindernisse,
+// damit kein Label auf eine Masse rutscht. labels: [{el, ...}], obstacles: [{x,y,w,h}].
+function resolveLabelCollisions(labels, obstacles) {
+  const PAD = 4
+  const items = labels.map(l => {
+    const b = l.el.getBBox()
+    return { el: l.el, x: b.x, y: b.y, w: b.width, h: b.height, dx: 0, dy: 0, fixed: false }
+  })
+  obstacles.forEach(o => items.push({ el: null, x: o.x, y: o.y, w: o.w, h: o.h, dx: 0, dy: 0, fixed: true }))
+
+  for (let iter = 0; iter < 20; iter++) {
+    let moved = false
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i], b = items[j]
+        if (a.fixed && b.fixed) continue
+        const ax1 = a.x + a.dx, ay1 = a.y + a.dy, ax2 = ax1 + a.w, ay2 = ay1 + a.h
+        const bx1 = b.x + b.dx, by1 = b.y + b.dy, bx2 = bx1 + b.w, by2 = by1 + b.h
+        const ox = Math.min(ax2, bx2) - Math.max(ax1, bx1) + PAD // x-Überlappung (+Puffer)
+        const oy = Math.min(ay2, by2) - Math.max(ay1, by1) + PAD // y-Überlappung (+Puffer)
+        if (ox <= 0 || oy <= 0) continue // keine Überlappung
+        // entlang der Achse geringster Durchdringung trennen
+        if (ox < oy) {
+          const dir = (ax1 + ax2) <= (bx1 + bx2) ? -1 : 1
+          if (a.fixed) b.dx -= dir * ox
+          else if (b.fixed) a.dx += dir * ox
+          else { a.dx += dir * ox / 2; b.dx -= dir * ox / 2 }
+        } else {
+          const dir = (ay1 + ay2) <= (by1 + by2) ? -1 : 1
+          if (a.fixed) b.dy -= dir * oy
+          else if (b.fixed) a.dy += dir * oy
+          else { a.dy += dir * oy / 2; b.dy -= dir * oy / 2 }
+        }
+        moved = true
+      }
+    }
+    if (!moved) break
+  }
+  items.forEach(it => {
+    if (it.el && (it.dx || it.dy)) it.el.setAttribute('transform', `translate(${it.dx.toFixed(1)} ${it.dy.toFixed(1)})`)
+  })
 }
 
 // ── Massen-Gruppe plazieren + beschriften ─────────────────────────────────────
@@ -186,7 +227,7 @@ export function updateScene() {
   const m3Center = { x: m3_attach.x, y: m3_attach.y + m3Size / 2 }
   const m2Center = { x: m2_pos.x, y: m2_pos.y + m2Size / 2 }
   const m2Attach = { x: m2_pos.x, y: m2_pos.y }
-  const showComps = store.showComponentValues
+  const labels = []  // Kraft-Label-Einheiten für die Kollisionsauflösung
 
   // Gewichtskräfte (vertikal nach unten) — Labels AUSSERHALB (m1 links, m3 rechts),
   // m2 rechts des Schwere-Pfeils (weg von den Seilkräften oben).
@@ -194,14 +235,9 @@ export function updateScene() {
     DOM.forceVectorsGroup.appendChild(createForceVector(m1Center.x, m1Center.y, m1Center.x, m1Center.y + T1 * FORCE_SCALE_FACTOR, 'gravity'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Center.x, m2Center.y, m2Center.x, m2Center.y + Fg2 * FORCE_SCALE_FACTOR, 'gravity'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m3Center.x, m3Center.y, m3Center.x, m3Center.y + T3 * FORCE_SCALE_FACTOR, 'gravity'))
-    addForceLabel(m1Center.x - m1Size / 2 - 7, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2, 'G,1', 'gravity', 'end')
-    addForceLabel(m2Center.x + m2Size / 2 + 7, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2, 'G,2', 'gravity')
-    addForceLabel(m3Center.x + m3Size / 2 + 7, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2, 'G,3', 'gravity')
-    if (showComps) {
-      addComponentDisplay(m1Center.x - m1Size / 2 - 24, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, T1, 'gravity', 'end')
-      addComponentDisplay(m2Center.x + m2Size / 2 + 30, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2 - 9, 0, Fg2, 'gravity')
-      addComponentDisplay(m3Center.x + m3Size / 2 + 30, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, T3, 'gravity')
-    }
+    labels.push({ el: addForceLabel(m1Center.x - m1Size / 2 - 8, m1Center.y + (T1 * FORCE_SCALE_FACTOR) / 2, 'G,1', 'gravity', 'end', { vx: 0, vyInternal: T1 }), ax: m1Center.x, ay: m1Center.y })
+    labels.push({ el: addForceLabel(m2Center.x + m2Size / 2 + 8, m2Center.y + (Fg2 * FORCE_SCALE_FACTOR) / 2, 'G,2', 'gravity', 'start', { vx: 0, vyInternal: Fg2 }), ax: m2Center.x, ay: m2Center.y })
+    labels.push({ el: addForceLabel(m3Center.x + m3Size / 2 + 8, m3Center.y + (T3 * FORCE_SCALE_FACTOR) / 2, 'G,3', 'gravity', 'start', { vx: 0, vyInternal: T3 }), ax: m3Center.x, ay: m3Center.y })
   }
 
   // Seilkräfte (gesamt) — m1/m3 Labels auf der INNEREN Seite (entgegengesetzt zur
@@ -213,21 +249,15 @@ export function updateScene() {
     const t3End = { x: m2Attach.x + T3_vec.x * FORCE_SCALE_FACTOR, y: m2Attach.y + T3_vec.y * FORCE_SCALE_FACTOR }
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Attach.x, m2Attach.y, t1End.x, t1End.y, 'tension'))
     DOM.forceVectorsGroup.appendChild(createForceVector(m2Attach.x, m2Attach.y, t3End.x, t3End.y, 'tension'))
-    addForceLabel(m1Center.x + m1Size / 2 + 7, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2, 'S,1', 'tension')
-    addForceLabel(m3Center.x - m3Size / 2 - 7, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2, 'S,3', 'tension', 'end')
+    labels.push({ el: addForceLabel(m1Center.x + m1Size / 2 + 8, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2, 'S,1', 'tension', 'start', { vx: 0, vyInternal: -T1 }), ax: m1Center.x, ay: m1Center.y })
+    labels.push({ el: addForceLabel(m3Center.x - m3Size / 2 - 8, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2, 'S,3', 'tension', 'end', { vx: 0, vyInternal: -T3 }), ax: m3Center.x, ay: m3Center.y })
     // Äußere Normale: F_S,li links der linken Seilstrecke, F_S,re rechts der rechten.
-    const off = 42
+    // Label an der Vektorspitze + äußere Normale, Text wächst von m₂ weg (li: end, re: start).
+    const off = 30
     const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
     const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
-    addForceLabel(m2Attach.x + (T1_vec.x * FORCE_SCALE_FACTOR) / 2 + nLx * off, m2Attach.y + (T1_vec.y * FORCE_SCALE_FACTOR) / 2 + nLy * off, 'S,li', 'tension')
-    addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension')
-    if (showComps) {
-      addComponentDisplay(m1Center.x + m1Size / 2 + 30, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T1, 'tension')
-      addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T3, 'tension', 'end')
-      const coff = 56
-      addComponentDisplay(m2Attach.x + T1_vec.x * FORCE_SCALE_FACTOR * 0.6 + nLx * coff, m2Attach.y + T1_vec.y * FORCE_SCALE_FACTOR * 0.6 + nLy * coff, T1_vec.x, T1_vec.y, 'tension')
-      addComponentDisplay(m2Attach.x + T3_vec.x * FORCE_SCALE_FACTOR * 0.6 + nRx * coff, m2Attach.y + T3_vec.y * FORCE_SCALE_FACTOR * 0.6 + nRy * coff, T3_vec.x, T3_vec.y, 'tension')
-    }
+    labels.push({ el: addForceLabel(t1End.x + nLx * off, t1End.y + nLy * off, 'S,li', 'tension', 'end', { vx: T1_vec.x, vyInternal: T1_vec.y }), ax: m2Attach.x, ay: m2Attach.y })
+    labels.push({ el: addForceLabel(t3End.x + nRx * off, t3End.y + nRy * off, 'S,re', 'tension', 'start', { vx: T3_vec.x, vyInternal: T3_vec.y }), ax: m2Attach.x, ay: m2Attach.y })
   }
 
   // Komponentenzerlegung der Seilkräfte auf m₂ (gestrichelt, x dann y)
@@ -240,6 +270,14 @@ export function updateScene() {
     DOM.forceVectorsGroup.appendChild(createForceVector(sx, sy, t3ex, sy, 'horizontal', true))
     DOM.forceVectorsGroup.appendChild(createForceVector(t3ex, sy, t3ex, t3ey, 'vertical', true))
   }
+
+  // Restüberlappungen der Label-Einheiten auflösen (Massen als feste Hindernisse)
+  const massObstacles = [
+    { x: m1_attach.x - m1Size / 2, y: m1_attach.y, w: m1Size, h: m1Size },
+    { x: m2_pos.x - m2Size / 2,    y: m2_pos.y,    w: m2Size, h: m2Size },
+    { x: m3_attach.x - m3Size / 2, y: m3_attach.y, w: m3Size, h: m3Size },
+  ]
+  resolveLabelCollisions(labels, massObstacles)
 
   // Massen über die Vektoren legen (z-Order: zuletzt angehängt = oben)
   const parent = DOM.massLeftGroup.parentNode
