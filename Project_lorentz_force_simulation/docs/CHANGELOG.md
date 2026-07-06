@@ -1,5 +1,17 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.3] - 2026-07-06
+### Behoben (Vektor-Pfeilspitzen — kanonische Geometrie)
+- **Pfeilspitzen (Strom-Pfeile `I`/`e⁻`, Kraft-Pfeile `F_L`/`F_s`) sitzen
+  jetzt exakt auf dem Zielpunkt statt ~1·strokeWidth darüber hinaus.** Marker
+  `arr-current`/`arr-current-phys`/`arr-fl`/`arr-fs` von `refX = markerWidth − 1`
+  auf `refX = 0` umgestellt (Dreieck-Basis am Linien-Ende); der Schaft wird via
+  neuem `shortenEnd()`-Helfer um die Marker-Länge (`markerWidth · strokeWidth`)
+  gekürzt — bei den Kraft-Pfeilen mit der **dynamischen** Strichbreite
+  (`7 · dynamicWidth`), sodaß die Spitze bei jeder Kraftstärke passt. Konsistent
+  mit der korrigierten kanonischen Regel in `CLAUDE.md` (vgl. Kreisbewegung
+  v1.0.8, Rollende Körper v2.0.3). Rein visuelle Korrektur, keine Physikänderung.
+
 ## [1.5.2] - 2026-07-05
 ### Behoben (Fixed)
 - **Kritischer ASI-Bug (Simulation ladete nicht):** In `ui.js` schloss die

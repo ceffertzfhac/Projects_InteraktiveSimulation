@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Lorentzkraft: Parallele Leiter
-    <span class="version">v1.5.2</span>
+    <span class="version">v1.5.3</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -145,10 +145,12 @@ window.MathJax = {
   <div class="sim-wrapper">
     <svg id="main_svg" viewBox="0 0 700 500" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <marker id="arr-fl" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-l)"/></marker>
-        <marker id="arr-fs" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-s)"/></marker>
-        <marker id="arr-current" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current)"/></marker>
-        <marker id="arr-current-phys" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current-phys)"/></marker>
+        <!-- refX=0: Dreieck-Basis am (gekürzten) Linien-Ende; Schaft in render.js
+             um Marker-Länge gekürzt → Spitze exakt auf dem Zielpunkt (CLAUDE.md). -->
+        <marker id="arr-fl" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-l)"/></marker>
+        <marker id="arr-fs" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-force-s)"/></marker>
+        <marker id="arr-current" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current)"/></marker>
+        <marker id="arr-current-phys" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-current-phys)"/></marker>
         <linearGradient id="condGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%"   stop-color="#d48a4d" />
           <stop offset="30%"  stop-color="#ffb37e" />
