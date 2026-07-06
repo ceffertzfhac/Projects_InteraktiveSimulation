@@ -219,8 +219,12 @@ export function setupScene() {
   updateZoom()
   drawCoordSystem()
   drawTrajectoryCircle()
-  // Stoppuhr oben rechts im Sim-SVG plazieren
-  DOM.stopwatch.setAttribute('transform', `translate(${ANIM_W - 150}, 20) scale(0.42)`)
+  // Stoppuhr oben rechts: zur Seite in die Ecke und deutlich vergrößert
+  // (scale 0,50 → 1,50). Analog-Kreis (r=72) wird zu r=108 (Ø 216 px) und
+  // bleibt innerhalb des viewBox (x 222..438, y 2..218); der LCD-Rahmen des
+  // Digital-Easteregg ist breiter und ragt bei scale 1,50 leicht über den
+  // rechten Rand — analog ist Default, daher Ecke-Platzierung prioritär.
+  DOM.stopwatch.setAttribute('transform', 'translate(-90, -70) scale(1.5)')
   return { cx: ANIM_CX, cy: ANIM_CY }
 }
 
@@ -315,30 +319,45 @@ function drawGraphSlot(attrs) {
   const gW = GRAPH_W
   const gH = graphHeight
   const padL = 60, padR = 18, padT = 28, padB = 38
-  const plotW = gW - padL - padR
-  const plotH = gH - padT - padB
-  const plotBottom = padT + plotH
+  const fullW = gW - padL - padR
+  const fullH = gH - padT - padB
+
+  // Sonderfall Bahnkurve (yx/xy): gleich skalierte x/y-Achsen, sodaß der Kreis
+  // rund erscheint. Dafür wird ein zentrierter quadratischer Plot-Bereich
+  // (Seite = min(volle Breite, volle Höhe)) verwendet; da x- und y-Wertebereich
+  // beide 2·Rpad umfassen, sind px/Einheit für beide Achsen identisch.
+  // Zeitreihen behalten das unabhängig skalierte Landscape-Format.
+  const isTraj = !limits.xIsTime
+  const sq = Math.min(fullW, fullH)
+  const plotL = isTraj ? padL + (fullW - sq) / 2 : padL
+  const plotT = isTraj ? padT + (fullH - sq) / 2 : padT
+  const plotW = isTraj ? sq : fullW
+  const plotH = isTraj ? sq : fullH
+  const plotBottom = plotT + plotH
 
   const xMin = limits.xMin, xMax = limits.xMax
   const yMin = limits.yMin, yMax = limits.yMax
   const xRng = (xMax - xMin) || 1
   const yRng = (yMax - yMin) || 1
-  const scX = v => padL + ((v - xMin) / xRng) * plotW
-  const scY = v => padT + plotH - ((v - yMin) / yRng) * plotH
+  const scX = v => plotL + ((v - xMin) / xRng) * plotW
+  const scY = v => plotT + plotH - ((v - yMin) / yRng) * plotH
   const x0 = scX(0), y0 = scY(0)
 
   // Abszisse am Nulldurchgang plazieren, wenn 0 im Wertebereich liegt
   const zeroInY = yMin < 0 && yMax > 0
-  const yAxis = zeroInY ? y0 : (yMax <= 0 ? padT : plotBottom)
+  const hAxisY = zeroInY ? y0 : (yMax <= 0 ? plotT : plotBottom)
+  // Ordinate am Nulldurchgang, wenn 0 im Definitionsbereich liegt; sonst links
+  // (alle x ≥ 0, z. B. Zeit ab 0) bzw. rechts (alle x ≤ 0).
   const zeroInX = xMin < 0 && xMax > 0
-  const xAxis = zeroInX ? x0 : (xMax <= 0 ? padL : padL + plotW)
+  const vAxisX = zeroInX ? x0 : (xMin >= 0 ? plotL : plotL + plotW)
 
   // Hintergrund-Rect (Plot-Bereich)
-  gridEl.appendChild(el('rect', { x: padL, y: padT, width: plotW, height: plotH, class: 'graph-bg' }))
+  gridEl.appendChild(el('rect', { x: plotL, y: plotT, width: plotW, height: plotH, class: 'graph-bg' }))
 
-  // Achsen mit Pfeilspitzen: x-Achse am Nulldurchgang, y-Achse am Nulldurchgang
-  gridEl.appendChild(el('line', { x1: padL, y1: yAxis, x2: padL + plotW, y2: yAxis, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
-  gridEl.appendChild(el('line', { x1: xAxis, y1: plotBottom, x2: xAxis, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
+  // Achsen mit Pfeilspitzen: Abszisse (horizontal) am Nulldurchgang bzw. Rand,
+  // Ordinate (vertikal) am Nulldurchgang bzw. links/rechts.
+  gridEl.appendChild(el('line', { x1: plotL, y1: hAxisY, x2: plotL + plotW, y2: hAxisY, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
+  gridEl.appendChild(el('line', { x1: vAxisX, y1: plotBottom, x2: vAxisX, y2: plotT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#graph-arrowhead)' }))
 
   // Y-Ticks: feine 1-2-4-5-Folge, ≥4 beschriftete Ticks inkl. 0
   const yStep = niceStepLE(yRng, 4)
@@ -346,8 +365,8 @@ function drawGraphSlot(attrs) {
   for (let vv = Math.ceil(yMin / yStep) * yStep; vv <= yMax + 1e-9; vv = Math.round((vv + yStep) * 1e9) / 1e9) {
     const yp = scY(vv)
     if (Math.abs(yp - y0) > 1.5)
-      gridEl.appendChild(el('line', { x1: padL, y1: yp, x2: padL + plotW, y2: yp, class: 'grid-line' }))
-    const tv = el('text', { x: padL - 8, y: yp + 4, 'text-anchor': 'end', class: 'tick-label' })
+      gridEl.appendChild(el('line', { x1: plotL, y1: yp, x2: plotL + plotW, y2: yp, class: 'grid-line' }))
+    const tv = el('text', { x: plotL - 8, y: yp + 4, 'text-anchor': 'end', class: 'tick-label' })
     tv.textContent = fmt(vv, yDec)
     gridEl.appendChild(tv)
   }
@@ -358,17 +377,17 @@ function drawGraphSlot(attrs) {
   for (let xc = Math.ceil(xMin / xStep) * xStep; xc <= xMax + xStep * 0.01; xc = Math.round((xc + xStep) * 1e6) / 1e6) {
     const xp = scX(Math.min(xc, xMax))
     if (Math.abs(xp - x0) > 2)
-      gridEl.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: plotBottom, class: 'grid-line' }))
+      gridEl.appendChild(el('line', { x1: xp, y1: plotT, x2: xp, y2: plotBottom, class: 'grid-line' }))
     const tv = el('text', { x: xp, y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
     tv.textContent = fmt(xc, xDec)
     gridEl.appendChild(tv)
   }
 
   // Achsenbeschriftungen
-  const tlY = el('text', { x: padL - 42, y: padT + plotH / 2, transform: `rotate(-90 ${padL - 42} ${padT + plotH / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
+  const tlY = el('text', { x: plotL - 42, y: plotT + plotH / 2, transform: `rotate(-90 ${plotL - 42} ${plotT + plotH / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(tlY, limits.yLabel)
   gridEl.appendChild(tlY)
-  const tlX = el('text', { x: padL + plotW / 2, y: plotBottom + 32, 'text-anchor': 'middle', class: 'axis-label' })
+  const tlX = el('text', { x: plotL + plotW / 2, y: plotBottom + 32, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(tlX, limits.xLabel)
   gridEl.appendChild(tlX)
 

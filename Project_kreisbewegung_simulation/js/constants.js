@@ -4,7 +4,7 @@
 export const TIME_STEP = 1 / 60               // Physik-Zeitschritt (60 Hz)
 
 // ── Pixel-Skalierung (Animation) ─────────────────────────────────────────────
-export const DEFAULT_PIXELS_PER_METER = 75    // px pro m (Referenz bei R=1,5 m)
+export const DEFAULT_PIXELS_PER_METER = 82    // px pro m (Referenz bei R=1,5 m)
 export const PIXELS_PER_VELOCITY_UNIT = 20    // px pro (m/s)
 export const PIXELS_PER_ACCELERATION_UNIT = 5 // px pro (m/s²)
 export const POINT_RADIUS = 8                  // Massenpunkt-Radius (px)

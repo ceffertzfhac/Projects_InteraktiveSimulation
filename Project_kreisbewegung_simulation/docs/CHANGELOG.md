@@ -5,6 +5,35 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.1 — 2026-07-06
+
+Bugfix- und Style-Release nach der Migration.
+
+### Fix
+- **Achsenposition in Zeitreihen korrigiert**: In allen `*t`-Diagrammen saß
+  die Ordinate (vertikale Achse) am rechten Plot-Rand statt links, und die
+  Abszisse war bei nicht-negativen Größen (|v|, |a|, φ) fälschlich in der
+  Mitte (y=0). Ursache: invertierte Branches in `drawGraphSlot`
+  (`render.js`) bzw. symmetrische y-Range für eigentlich nicht-negative
+  Größen. Letzteres behoben über die `pos()`-Hilfe in `recalculateAxisLimits`
+  (`physics.js`): y-Range ab 0 → Abszisse am unteren Rand. Ordinate nun
+  links (`xMin ≥ 0` → `plotL`), am Nulldurchgang bei Werten um 0.
+- **φ-Plot ohne 360°→0-Sägezahn**: `phitData` speichert jetzt den
+  ungebrochenen Winkel (`phi·180/π`); die Live-Anzeige nutzt separat
+  `angleDeg()` (normiert auf [0°, 360°)).
+
+### Style
+- **Gleichskalierte Bahnkurven (Sonderfall Kreisbahn)**: Für die
+  Bahnkurven-Diagramme `y(x)`/`x(y)` wird ein zentrierter quadratischer
+  Plot-Bereich verwendet (Seite = min(volle Breite, volle Höhe)), sodaß
+  x- und y-Achse gleiche px/Einheit haben und die Kreisbahn rund
+  erscheint. Zeitreihen behalten das unabhängig skalierte Landscape-Format.
+- **Zeichenfläche ~10 % vergrößert** (ohne Diagramm einzuschränken):
+  `DEFAULT_PIXELS_PER_METER` 75 → 82.
+- **Stoppuhr zur Seite in die Ecke und auf scale 1,50 vergrößert**
+  (`translate(-90, -70) scale(1.5)`); analoger Kreis Ø 216 px innerhalb
+  des viewBox.
+
 ## v1.0.0 — 2026-07-06
 
 Erste modulare Version. Migration des bisherigen Standalone-Prototypen

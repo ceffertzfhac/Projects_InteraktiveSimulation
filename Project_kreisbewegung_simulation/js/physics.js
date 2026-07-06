@@ -65,37 +65,49 @@ export function extendMotionData(duration) {
     store.vxData.push(-R * w * s); store.vyData.push(R * w * c)
     store.axData.push(-R * w * w * c); store.ayData.push(-R * w * w * s)
     store.vabsData.push(Math.abs(R * w)); store.aabsData.push(Math.abs(R * w * w))
-    store.phitData.push(angleDeg(t))
+    // φ kontinuierlich (ungebrochen) für saubere Plot-Linie ohne 360°→0-Sprünge;
+    // die Live-Anzeige nutzt separat angleDeg() (auf [0°,360°) normiert).
+    store.phitData.push(phi * 180 / Math.PI)
   }
 }
 
 // Achsengrenzen je Diagrammtyp. Einheitliche Struktur:
 //   { xMin, xMax, yMin, yMax, xArr, yArr, xLabel, yLabel, xIsTime, tMax }
 // Zeitreihen: xArr = tData (0..tMax). Bahnkurven: xArr = Position (xData/yData).
+// Oszillierende Größen (x/y/vₓ/vᵧ/aₓ/aᵧ) → symmetrische y-Range um 0 (Nulldurchgang);
+// nicht-negative Größen (|v|/|a|/φ) → y-Range ab 0 (Abszisse am unteren Rand).
 export function recalculateAxisLimits() {
   const tMax = store.tData.length > 0 ? store.tData[store.tData.length - 1] : 10
   const R = store.R
   const Rpad = R * 1.1 || 1
+  const vMag = Math.abs(R * store.omega)
+  const aMag = Math.abs(R * store.omega * store.omega)
+  const maxPhi = store.phitData.length > 0 ? Math.max(...store.phitData) : 360
+  // symmetrische y-Range um 0 für oszillierende Größen
+  const osc = arr => {
+    const m = arr.length > 0 ? Math.max(...arr.map(v => Math.abs(v))) : 1
+    return { yMin: -m * 1.1, yMax: m * 1.1 }
+  }
+  // nicht-negative y-Range ab 0
+  const pos = mx => ({ yMin: 0, yMax: (mx > 0 ? mx * 1.1 : 1) })
   const datasets = {
-    yx:   { xArr: store.xData, yArr: store.yData,    xMin: -Rpad, xMax: Rpad, yMin: -Rpad, yMax: Rpad, xIsTime: false, xLabel: 'x / m', yLabel: 'y / m' },
-    xy:   { xArr: store.yData, yArr: store.xData,    xMin: -Rpad, xMax: Rpad, yMin: -Rpad, yMax: Rpad, xIsTime: false, xLabel: 'y / m', yLabel: 'x / m' },
-    xt:   { xArr: store.tData, yArr: store.xData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'x / m' },
-    yt:   { xArr: store.tData, yArr: store.yData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'y / m' },
-    vxt:  { xArr: store.tData, yArr: store.vxData,   xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'vₓ / (m/s)' },
-    vyt:  { xArr: store.tData, yArr: store.vyData,   xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'vᵧ / (m/s)' },
-    axt:  { xArr: store.tData, yArr: store.axData,   xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'aₓ / (m/s²)' },
-    ayt:  { xArr: store.tData, yArr: store.ayData,   xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'aᵧ / (m/s²)' },
-    vabs: { xArr: store.tData, yArr: store.vabsData, xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: '|v| / (m/s)' },
-    aabs: { xArr: store.tData, yArr: store.aabsData, xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: '|a| / (m/s²)' },
-    phit: { xArr: store.tData, yArr: store.phitData, xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'φ / °' },
+    yx:   { xArr: store.xData,  yArr: store.yData,    xMin: -Rpad, xMax: Rpad, yMin: -Rpad, yMax: Rpad, xIsTime: false, xLabel: 'x / m', yLabel: 'y / m' },
+    xy:   { xArr: store.yData,  yArr: store.xData,     xMin: -Rpad, xMax: Rpad, yMin: -Rpad, yMax: Rpad, xIsTime: false, xLabel: 'y / m', yLabel: 'x / m' },
+    xt:   { xArr: store.tData, yArr: store.xData,     xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'x / m',          ...osc(store.xData) },
+    yt:   { xArr: store.tData, yArr: store.yData,     xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'y / m',          ...osc(store.yData) },
+    vxt:  { xArr: store.tData, yArr: store.vxData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'vₓ / (m/s)',     ...osc(store.vxData) },
+    vyt:  { xArr: store.tData, yArr: store.vyData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'vᵧ / (m/s)',     ...osc(store.vyData) },
+    axt:  { xArr: store.tData, yArr: store.axData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'aₓ / (m/s²)',    ...osc(store.axData) },
+    ayt:  { xArr: store.tData, yArr: store.ayData,    xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'aᵧ / (m/s²)',    ...osc(store.ayData) },
+    vabs: { xArr: store.tData, yArr: store.vabsData,  xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: '|v| / (m/s)',    ...pos(vMag) },
+    aabs: { xArr: store.tData, yArr: store.aabsData,  xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: '|a| / (m/s²)',   ...pos(aMag) },
+    phit: { xArr: store.tData, yArr: store.phitData, xMin: 0, xMax: tMax, xIsTime: true, xLabel: 't / s', yLabel: 'φ / °',          ...pos(maxPhi) },
   }
   for (const key in datasets) {
     const d = datasets[key]
-    const yMaxAbs = d.yArr.length > 0 ? Math.max(...d.yArr.map(v => Math.abs(v))) : 1
     store.axisLimits[key] = {
       xMin: d.xMin, xMax: d.xMax,
-      yMin: d.xIsTime ? -yMaxAbs * 1.1 : d.yMin,
-      yMax: d.xIsTime ? yMaxAbs * 1.1 : d.yMax,
+      yMin: d.yMin, yMax: d.yMax,
       xArr: d.xArr, yArr: d.yArr,
       xLabel: d.xLabel, yLabel: d.yLabel,
       xIsTime: d.xIsTime,
