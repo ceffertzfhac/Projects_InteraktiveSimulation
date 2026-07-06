@@ -8,7 +8,7 @@
 <script>
 window.MathJax = {
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
-  svg: { fontCache: 'global' },
+  svg: { fontCache: 'global', scale: 0.9 },
   options: { enableMenu: false }
 };
 </script>
@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Statisches Kräftegleichgewicht
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.0.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -203,16 +203,18 @@ window.MathJax = {
       <div class="panel-section">
         <div class="panel-label">Physik</div>
         <div class="formula-box">
-          <div>Statisches Kräftegleichgewicht an \(m_2\): die Gewichtskraft \(\vec{F}_{G,2}\) hält den beiden Seilkräften \(\vec{F}_{S,\mathrm{li}}\), \(\vec{F}_{S,\mathrm{re}}\) die Waage.</div>
-          <div style="margin-top:6px">Seilkräfte (masseloses Seil, reibungsfreie Rollen):</div>
-          <div>\[F_{S,1} = m_1 g,\qquad F_{S,3} = m_3 g,\qquad F_{G,2} = m_2 g\]</div>
-          <div style="margin-top:6px">Gleichgewicht (Vektorsumme null):</div>
-          <div>\[\vec{F}_{S,\mathrm{li}} + \vec{F}_{S,\mathrm{re}} + \vec{F}_{G,2} = 0\]</div>
-          <div style="margin-top:6px">Winkel aus dem Kräftedreieck (Cosinus-Satz):</div>
-          <div>\[\cos\gamma_1 = \frac{F_{S,1}^2 + F_{G,2}^2 - F_{S,3}^2}{2\,F_{S,1}\,F_{G,2}}\]</div>
-          <div>\[\cos\gamma_3 = \frac{F_{S,3}^2 + F_{G,2}^2 - F_{S,1}^2}{2\,F_{S,3}\,F_{G,2}}\]</div>
-          <div style="margin-top:6px">Bedingung: die Dreiecksungleichung muß erfüllt sein, sonst ist kein Gleichgewicht möglich:</div>
-          <div>\[F_{S,1} + F_{S,3} > F_{G,2} > |F_{S,1} - F_{S,3}|\]</div>
+          <div>An \(m_2\) hält \(\vec{F}_{G,2}\) den Seilkräften \(\vec{F}_{S,\mathrm{li}}\), \(\vec{F}_{S,\mathrm{re}}\) die Waage.</div>
+          <div style="margin-top:6px">Seilkräfte (masseloses Seil):</div>
+          <div>\[F_{S,1}=m_1 g\]</div>
+          <div>\[F_{S,3}=m_3 g\]</div>
+          <div>\[F_{G,2}=m_2 g\]</div>
+          <div style="margin-top:6px">Gleichgewicht:</div>
+          <div>\[\vec{F}_{S,\mathrm{li}}+\vec{F}_{S,\mathrm{re}}+\vec{F}_{G,2}=0\]</div>
+          <div style="margin-top:6px">Winkel (Cosinus-Satz):</div>
+          <div>\[\cos\gamma_1=\tfrac{F_{S,1}^2+F_{G,2}^2-F_{S,3}^2}{2\,F_{S,1}F_{G,2}}\]</div>
+          <div>\[\cos\gamma_3=\tfrac{F_{S,3}^2+F_{G,2}^2-F_{S,1}^2}{2\,F_{S,3}F_{G,2}}\]</div>
+          <div style="margin-top:6px">Dreiecksungleichung:</div>
+          <div>\[F_{S,1}+F_{S,3}>F_{G,2}>|F_{S,1}-F_{S,3}|\]</div>
         </div>
       </div>
 

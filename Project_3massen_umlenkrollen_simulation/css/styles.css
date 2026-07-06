@@ -37,8 +37,8 @@ body.dark {
 #mass_middle { fill: var(--c-p3); stroke: var(--text); }
 #mass_right  { fill: var(--c-p2); stroke: var(--text); }
 #mass_left_label, #mass_middle_label, #mass_right_label {
-  fill: var(--mass-label); font-family: var(--font-ui); font-size: 16px;
-  text-anchor: middle; dominant-baseline: middle; font-style: italic;
+  fill: var(--mass-label); font-family: var(--font-ui); font-size: 13px;
+  font-weight: 400; text-anchor: middle; dominant-baseline: middle; font-style: italic;
 }
 
 /* ── Kraft-Vektoren (Stroke via Klasse, auto Dark Mode) ─────────────────────── */
@@ -49,14 +49,14 @@ body.dark {
 .vec-comp-v   { stroke: var(--c-comp-v); }
 
 /* Kraft-Label (SVG-<text>): F_{…} — Symbol kursiv via tspan, Fill = Vektorfarbe */
-.force-label  { font-family: var(--font-ui); font-size: 15px; }
+.force-label  { font-family: var(--font-ui); font-size: 13px; font-weight: 400; }
 .force-label.vec-gravity { fill: var(--c-fg); }
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
 
 /* Komponenten-Wert (x, y) in JetBrains Mono */
-.comp-val     { font-family: var(--font-mono); font-size: 11px; }
+.comp-val     { font-family: var(--font-mono); font-size: 10px; }
 .comp-val.vec-gravity { fill: var(--c-fg); }
 .comp-val.vec-tension { fill: var(--c-fn); }
 .comp-val.vec-comp-h  { fill: var(--c-comp-h); }
@@ -64,6 +64,17 @@ body.dark {
 
 /* Hintergrundraster */
 #grid_group path { stroke: var(--border); stroke-width: 1; }
+
+/* ── Formel-Box: schmaleres Panel (270 px) → horizontales Scrollen als ───────
+   Sicherheit, kleinere Schrift, damit die Cosinus-Satz-Brüche nicht über den
+   Rand ragen. Intro-Zeilen bewußt kurz gehalten, damit kein „:" umbricht.   */
+.formula-box {
+  font-size: 0.72rem;
+  overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  line-height: 1.7;
+}
+.formula-box > div { overflow-wrap: break-word; }
 
 /* ── Analyse-Sidebar: Warnung + Kraft-farbige Wertzeilen ────────────────────── */
 #equilibrium_warning { color: var(--warn); text-align: center; font-weight: 700;

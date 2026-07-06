@@ -1,5 +1,12 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.1] — 2026-07-06
+### Behoben
+- **Vektorzerlegung funktionsfähig:** die Komponenten-Vektoren referenzierten `url(#arrowhead-horizontal)`/`-vertical`, aber die Marker-IDs heißen `arrowhead-comp-h`/`-comp-v` → Pfeilspitzen fehlten. Zentrale `MARKER_ID`-Map in `render.js` bindet jeden Vektortyp an den korrekten Marker.
+- **Formel-Überlauf in der Analyse-Sidebar (270 px):** lange `\qquad`-Mehrfachgleichungen aufgeteilt (eine Seilkraft-Gleichung je Zeile), Cosinus-Satz als kompakter `\tfrac`-Bruch, MathJax `svg.scale: 0.9`, `.formula-box` mit `overflow-x:auto` als Sicherheit.
+- **Colon-Umbruch:** Intro-Zeilen vor den Formeln gekürzt (z. B. „Winkel (Cosinus-Satz):" statt „Winkel aus dem Kräftedreieck (Cosinus-Satz):"), damit das „:" nicht mehr allein auf die nächste Zeile rutscht.
+- **Schrift in der Simulation zu dick:** Massen-Labels 16→13 px (`font-weight:400`), Kraft-Labels 15→13 px, Komponenten-Werte 11→10 px.
+
 ## [1.0.0] — 2026-07-06
 ### Migration (Standalone `3massen_umlenkrollen_v2.html` → modular)
 - **Scaffold:** `Project_3massen_umlenkrollen_simulation/` in kanonischer 6-Modul-Struktur (`constants/state/physics/render/ui`, kein `main.js`, `js/ui.js` als Einstieg).

@@ -14,6 +14,14 @@ const SVGNS = 'http://www.w3.org/2000/svg'
 const VEC_STROKE = 3        // px (markerWidth 5 → Marker-Länge 15 px)
 const MARKER_LEN = 5 * VEC_STROKE
 
+// Marker-ID je Vektortyp (muß mit den <marker id="…"> in index.html übereinstimmen).
+const MARKER_ID = {
+  gravity: 'arrowhead-gravity',
+  tension: 'arrowhead-tension',
+  horizontal: 'arrowhead-comp-h',
+  vertical: 'arrowhead-comp-v',
+}
+
 // ── Zahl-Formatierung (Komma-Dezimal) ─────────────────────────────────────────
 export function fmt(n, d = 2) {
   if (!Number.isFinite(n)) return '—'
@@ -84,7 +92,7 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   line.setAttribute('x2', end.x); line.setAttribute('y2', end.y)
   line.setAttribute('class', `vec ${VEC_CLASS[type]}`)
   line.setAttribute('stroke-width', VEC_STROKE)
-  line.setAttribute('marker-end', `url(#arrowhead-${type})`)
+  line.setAttribute('marker-end', `url(#${MARKER_ID[type]})`)
   if (dashed) line.setAttribute('stroke-dasharray', '5 5')
   return line
 }
