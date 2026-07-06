@@ -4,9 +4,12 @@
 export const TIME_STEP = 1 / 60               // Physik-Zeitschritt (60 Hz)
 
 // ── Pixel-Skalierung (Animation) ─────────────────────────────────────────────
-export const DEFAULT_PIXELS_PER_METER = 82    // px pro m (Referenz bei R=1,5 m)
-export const PIXELS_PER_VELOCITY_UNIT = 20    // px pro (m/s)
-export const PIXELS_PER_ACCELERATION_UNIT = 5 // px pro (m/s²)
+// Simulationsdarstellung einheitlich ×1,2 (Zentrum ANIM_CX/ANIM_CY bleibt
+// fest): ppm für Bahn/Ort, velocity- und acceleration-Scale alle um denselben
+// Faktor, sodaß Kreis + alle Vektoren gleichmäßig skaliert werden.
+export const DEFAULT_PIXELS_PER_METER = 98.4    // px pro m (82 × 1,2)
+export const PIXELS_PER_VELOCITY_UNIT = 24       // px pro (m/s) (20 × 1,2)
+export const PIXELS_PER_ACCELERATION_UNIT = 6    // px pro (m/s²) (5 × 1,2)
 export const POINT_RADIUS = 8                  // Massenpunkt-Radius (px)
 
 // ── Animationsfläche (SVG-Koordinaten) ───────────────────────────────────────

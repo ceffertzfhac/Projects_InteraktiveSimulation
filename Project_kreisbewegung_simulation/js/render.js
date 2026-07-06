@@ -120,11 +120,13 @@ export function drawCoordSystem() {
   DOM.animationCoordSystem.appendChild(yl)
 }
 
-// ── Bahnkurve (gestrichelter Kreis) ───────────────────────────────────────────
+// ── Bahnkurve (progressive Spur, gestrichelt) ────────────────────────────────
+// trajectory_path ist ein <path>; sein `d` wird in updateScene aus den getasten
+// Positionen (0 .. min(t, T)) aufgebaut — die Bahnkurve entsteht erst während
+// des 1. Umlaufs und ist danach der vollständige Kreis (nicht schon bei t=0).
 export function drawTrajectoryCircle() {
   const r = store.R * store.currentPixelsPerMeter
   DOM.disk.setAttribute('r', r)
-  DOM.trajectoryPath.setAttribute('r', r)
 }
 
 // ── Stoppuhr-Skalen ──────────────────────────────────────────────────────────
@@ -219,12 +221,13 @@ export function setupScene() {
   updateZoom()
   drawCoordSystem()
   drawTrajectoryCircle()
-  // Stoppuhr oben rechts: zur Seite in die Ecke und deutlich vergrößert
-  // (scale 0,50 → 1,50). Analog-Kreis (r=72) wird zu r=108 (Ø 216 px) und
-  // bleibt innerhalb des viewBox (x 222..438, y 2..218); der LCD-Rahmen des
-  // Digital-Easteregg ist breiter und ragt bei scale 1,50 leicht über den
-  // rechten Rand — analog ist Default, daher Ecke-Platzierung prioritär.
-  DOM.stopwatch.setAttribute('transform', 'translate(-90, -70) scale(1.5)')
+  // Stoppuhr oben rechts: auf 80 % (scale 0,80), etwa eine halbe Uhrbreite
+  // zur Seite und noch ~0,2 Uhrbreite nach rechts + unten geschoben. Analog-
+  // Kreis Ø 115 px, Center (405, 83), bbox x 347..463, y 25..141. Rechte
+  // Hälfte des analogen Kreises ragt leicht über den viewBox-Rand (gewünschte
+  // Eck-Platzierung); LCD-Rahmen des Digital-Easteregg ragt weiter über
+  // (analog ist Default).
+  DOM.stopwatch.setAttribute('transform', 'translate(181, -13) scale(0.8)')
   return { cx: ANIM_CX, cy: ANIM_CY }
 }
 
@@ -269,9 +272,25 @@ export function updateScene(t, p, v, a, centers) {
   setVec(DOM.accelerationVectorX, px, py, axe, py, showAc)
   setVec(DOM.accelerationVectorY, axe, py, axe, aye, showAc)
 
-  // Bahnkurve sichtbar?
-  DOM.trajectoryPath.style.visibility = store.showTrajectory ? 'visible' : 'hidden'
-  DOM.disk.style.visibility = store.showTrajectory ? 'visible' : 'hidden'
+  // Bahnkurve: erst während des 1. Umlaufs gezeichnet (progressive Spur bis
+  // min(t, T)), danach vollständiger Kreis — nicht schon bei t=0 sichtbar.
+  if (!store.showTrajectory) {
+    DOM.trajectoryPath.style.visibility = 'hidden'
+    DOM.trajectoryPath.setAttribute('d', '')
+    DOM.disk.style.visibility = 'hidden'
+  } else {
+    const traceEnd = store.T === Infinity ? t : Math.min(t, store.T)
+    const { tData, xData, yData } = store
+    let d = ''
+    for (let i = 0; i < tData.length && tData[i] <= traceEnd + 1e-9; i++) {
+      const sx = cx + xData[i] * ppm
+      const sy = cy - yData[i] * ppm
+      d += (d ? ' L' : 'M') + sx.toFixed(2) + ' ' + sy.toFixed(2)
+    }
+    DOM.trajectoryPath.setAttribute('d', d)
+    DOM.trajectoryPath.style.visibility = d ? 'visible' : 'hidden'
+    DOM.disk.style.visibility = 'visible'
+  }
 
   // Stoppuhr
   if (store.isDigitalDisplay) {
@@ -408,8 +427,13 @@ function drawGraphSlot(attrs) {
       pts += `${scX(currentTime)},${scY(currentValue)} `
     }
   } else {
-    // Bahnkurve: vollständige Kurve
-    for (let i = 0; i < xArr.length; i++) pts += `${scX(xArr[i])},${scY(yArr[i])} `
+    // Bahnkurve: progressive Spur bis min(t, T) — erst während des 1. Umlaufs
+    // gezeichnet, danach vollständiger Kreis (nicht schon bei t=0). Plot-Region
+    // bleibt stabil (Achsen fest bei ±Rpad), nur die Polyline wächst.
+    const traceEnd = store.T === Infinity ? currentTime : Math.min(currentTime, store.T)
+    const idx = linePlotIndex(traceEnd)
+    const n = Math.min(idx, xArr.length)
+    for (let i = 0; i < n; i++) pts += `${scX(xArr[i])},${scY(yArr[i])} `
   }
   lineEl.setAttribute('points', pts)
 

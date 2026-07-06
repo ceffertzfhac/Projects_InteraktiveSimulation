@@ -5,6 +5,33 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.2 — 2026-07-06
+
+Layout- und Darstellungs-Refinements.
+
+### Style
+- **Simulationsdarstellung ×1,2**: `DEFAULT_PIXELS_PER_METER` 82 → 98,4,
+  `PIXELS_PER_VELOCITY_UNIT` 20 → 24, `PIXELS_PER_ACCELERATION_UNIT` 5 → 6 —
+  alle drei Pixel-Konstanten einheitlich um 1,2, sodaß Kreis, Orts-,
+  Geschwindigkeits- und Beschleunigungsvektoren gleichmäßig vergrößert werden.
+  Das Zentrum (`ANIM_CX`/`ANIM_CY`) bleibt fest; Auto-Zoom greift bei großen R
+  weiterhin. Uhr und Zoom-Text sind davon nicht betroffen (eigene Transforms).
+- **Stoppuhr auf 80 % und zur Seite**: `scale 0,8`, etwa eine halbe Uhrbreite
+  zur Seite sowie noch ~0,2 Uhrbreite nach rechts und unten geschoben
+  (`translate(181, -13) scale(0.8)`). Die rechte Hälfte des analogen Kreises
+  ragt leicht über den viewBox-Rand (gewünschte Eck-Platzierung).
+
+### Behavior
+- **Bahnkurve wird erst während des 1. Umlaufs gezeichnet** (Animation und
+  Diagramm): In der Animation ist `trajectory_path` jetzt ein `<path>`, dessen
+  `d` in `updateScene` aus den getasteten Positionen `0 .. min(t, T)` aufgebaut
+  wird. Im Bahnkurven-Diagramm (`y(x)`/`x(y)`) zeichnet `drawGraphSlot` die
+  Polyline ebenfalls nur bis `min(t, T)` (statt sofort die vollständige Kurve).
+  Bei `t=0` ist kein Kreis zu sehen (nur der Startpunkt), die Bahn entsteht
+  progressiv im 1. Umlauf und ist danach der vollständige Kreis.
+  `drawTrajectoryCircle` setzt nur noch `disk.r` (die `r`-Zuweisung an den
+  ehemaligen `<circle>` entfällt).
+
 ## v1.0.1 — 2026-07-06
 
 Bugfix- und Style-Release nach der Migration.
