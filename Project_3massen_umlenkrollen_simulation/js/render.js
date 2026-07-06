@@ -100,11 +100,17 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
 // ── SVG-Kraft-Label: F⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil via Combining-
 //    Arrow U+20D7 darüber — von der Schrift selbst plaziert, wie in LaTeX/MathJax;
 //    kein hand-positionierter Pfad, der mit dem F-Glyphen verschmilzt).
-function addForceLabel(x, y, sub, type, anchor = 'start') {
+function addForceLabel(x, y, sub, type, anchor = 'start', fontCfg = null) {
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
   text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   text.setAttribute('text-anchor', anchor)
+  if (fontCfg) { // Variante 23 o. Ä. schlägt auf dieses Label durch
+    text.style.fontFamily = fontCfg.ff
+    text.style.fontSize = fontCfg.fs + 'px'
+    text.style.fontWeight = fontCfg.w
+    text.style.fontStyle = fontCfg.it ? 'italic' : 'normal'
+  }
   const sym = document.createElementNS(SVGNS, 'tspan')
   sym.setAttribute('font-style', 'italic')
   sym.textContent = 'F⃗'   // F + COMBINING RIGHT ARROW ABOVE → F⃗
@@ -310,7 +316,7 @@ export function updateScene() {
     const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
     const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
     addForceLabel(m2Attach.x + (T1_vec.x * FORCE_SCALE_FACTOR) / 2 + nLx * off, m2Attach.y + (T1_vec.y * FORCE_SCALE_FACTOR) / 2 + nLy * off, 'S,li', 'tension')
-    addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension')
+    addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension', 'start', FONT_VARIANTS.find(v => v.n === 23))
     if (showComps) {
       addComponentDisplay(m1Center.x + m1Size / 2 + 30, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T1, 'tension')
       addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T3, 'tension', 'end')
