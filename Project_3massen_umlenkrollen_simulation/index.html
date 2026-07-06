@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Statisches Kräftegleichgewicht
-    <span class="version">v1.0.1</span>
+    <span class="version">v1.0.2</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -188,10 +188,14 @@ window.MathJax = {
       <div class="panel-section">
         <div class="panel-label">Gleichgewichtsanalyse</div>
         <div class="analysis-grid">
-          <div class="analysis-cell key">Seilkraft / Winkel links</div>
-          <div class="analysis-cell val" id="left_values">—</div>
-          <div class="analysis-cell key">Seilkraft / Winkel rechts</div>
-          <div class="analysis-cell val" id="right_values">—</div>
+          <div class="analysis-cell key">Seilkraft links \(F_{S,1}\)</div>
+          <div class="analysis-cell val" id="left_force">—</div>
+          <div class="analysis-cell key">Winkel links \(\gamma_1\) (zur Senkr.)</div>
+          <div class="analysis-cell val" id="left_angle">—</div>
+          <div class="analysis-cell key">Seilkraft rechts \(F_{S,3}\)</div>
+          <div class="analysis-cell val" id="right_force">—</div>
+          <div class="analysis-cell key">Winkel rechts \(\gamma_3\) (zur Senkr.)</div>
+          <div class="analysis-cell val" id="right_angle">—</div>
           <div class="analysis-cell key">Vertikalkräfte auf \(m_2\)</div>
           <div class="analysis-cell val" id="vertical_forces_value">—</div>
           <div class="analysis-cell key">Horizontalkräfte auf \(m_2\)</div>
@@ -203,17 +207,16 @@ window.MathJax = {
       <div class="panel-section">
         <div class="panel-label">Physik</div>
         <div class="formula-box">
-          <div>An \(m_2\) hält \(\vec{F}_{G,2}\) den Seilkräften \(\vec{F}_{S,\mathrm{li}}\), \(\vec{F}_{S,\mathrm{re}}\) die Waage.</div>
-          <div style="margin-top:6px">Seilkräfte (masseloses Seil):</div>
+          <div>1. Newtonsches Gesetz: ist die Summe aller Kräfte auf \(m_2\) null, so bleibt \(m_2\) in Ruhe (Kräftegleichgewicht).</div>
+          <div>\[\sum\vec{F}=0=\vec{F}_{S,\mathrm{li}}+\vec{F}_{S,\mathrm{re}}+\vec{F}_{G,2}\]</div>
+          <div style="margin-top:6px">Seilkräfte (masseloses Seil, reibungsfreie Rollen):</div>
           <div>\[F_{S,1}=m_1 g\]</div>
           <div>\[F_{S,3}=m_3 g\]</div>
           <div>\[F_{G,2}=m_2 g\]</div>
-          <div style="margin-top:6px">Gleichgewicht:</div>
-          <div>\[\vec{F}_{S,\mathrm{li}}+\vec{F}_{S,\mathrm{re}}+\vec{F}_{G,2}=0\]</div>
-          <div style="margin-top:6px">Winkel (Cosinus-Satz):</div>
+          <div style="margin-top:6px">Winkel \(\gamma\) zur Senkrechten (Cosinus-Satz):</div>
           <div>\[\cos\gamma_1=\tfrac{F_{S,1}^2+F_{G,2}^2-F_{S,3}^2}{2\,F_{S,1}F_{G,2}}\]</div>
           <div>\[\cos\gamma_3=\tfrac{F_{S,3}^2+F_{G,2}^2-F_{S,1}^2}{2\,F_{S,3}F_{G,2}}\]</div>
-          <div style="margin-top:6px">Dreiecksungleichung:</div>
+          <div style="margin-top:6px">Dreiecksungleichung (sonst kein Gleichgewicht):</div>
           <div>\[F_{S,1}+F_{S,3}>F_{G,2}>|F_{S,1}-F_{S,3}|\]</div>
         </div>
       </div>

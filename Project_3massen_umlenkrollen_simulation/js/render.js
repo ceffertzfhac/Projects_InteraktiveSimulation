@@ -11,8 +11,8 @@ import {
 import { store, DOM } from './state.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
-const VEC_STROKE = 3        // px (markerWidth 5 → Marker-Länge 15 px)
-const MARKER_LEN = 5 * VEC_STROKE
+const VEC_STROKE = 2.1      // px — 0,7× des v1.0.1-Werts (Marker skaliert via markerUnits=strokeWidth)
+const MARKER_LEN = 5 * VEC_STROKE   // Marker-Länge = markerWidth · strokeWidth
 
 // Marker-ID je Vektortyp (muß mit den <marker id="…"> in index.html übereinstimmen).
 const MARKER_ID = {
@@ -244,14 +244,16 @@ export function updateScene() {
 }
 
 // ── Analyse-Panel (HTML, statisches MathJax — nur textContent aktualisieren) ─
+// Winkel γ zur Vertikalen: γ₁ = angle1 − π/2, γ₃ = π/2 − angle3 (siehe physics.js).
 export function updateAnalysis() {
   const eq = store.equilibrium
-  const dash = '--- N / ---°'
   if (!eq || eq.status !== 'ok') {
-    DOM.leftValues.textContent = dash
-    DOM.rightValues.textContent = dash
-    DOM.verticalForcesValue.textContent = '---'
-    DOM.horizontalForcesValue.textContent = '---'
+    DOM.leftForce.textContent = '—'
+    DOM.leftAngle.textContent = '—'
+    DOM.rightForce.textContent = '—'
+    DOM.rightAngle.textContent = '—'
+    DOM.verticalForcesValue.textContent = '—'
+    DOM.horizontalForcesValue.textContent = '—'
     DOM.equilibriumWarning.style.visibility = 'visible'
     DOM.equilibriumWarning.textContent =
       eq && eq.status === 'collision'
@@ -260,10 +262,12 @@ export function updateAnalysis() {
     return
   }
   const { T1, T3, Fg2, T1_vec, T3_vec, angle1, angle3 } = eq
-  const ang1Deg = 180 - (angle1 * 180) / Math.PI
-  const ang3Deg = (angle3 * 180) / Math.PI
-  DOM.leftValues.textContent = `${fmt(T1, 2)} N / ${fmt(ang1Deg, 1)}°`
-  DOM.rightValues.textContent = `${fmt(T3, 2)} N / ${fmt(ang3Deg, 1)}°`
+  const gamma1Deg = ((angle1 - Math.PI / 2) * 180) / Math.PI
+  const gamma3Deg = ((Math.PI / 2 - angle3) * 180) / Math.PI
+  DOM.leftForce.textContent = `${fmt(T1, 2)} N`
+  DOM.leftAngle.textContent = `${fmt(gamma1Deg, 1)}°`
+  DOM.rightForce.textContent = `${fmt(T3, 2)} N`
+  DOM.rightAngle.textContent = `${fmt(gamma3Deg, 1)}°`
   DOM.verticalForcesValue.textContent = `↑ ${fmt(-T1_vec.y - T3_vec.y, 2)} N vs ↓ ${fmt(Fg2, 2)} N`
   DOM.horizontalForcesValue.textContent = `← ${fmt(-T1_vec.x, 2)} N vs → ${fmt(T3_vec.x, 2)} N`
   DOM.equilibriumWarning.style.visibility = 'hidden'

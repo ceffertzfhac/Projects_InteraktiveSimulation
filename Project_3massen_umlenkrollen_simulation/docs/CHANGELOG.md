@@ -1,5 +1,11 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.2] — 2026-07-06
+### Behoben (Abnahme-Feedback)
+- **Vektorpfeile & Sim-Schrift auf 0,7× skaliert:** `VEC_STROKE` 3→2,1 (Marker skaliert via `markerUnits=strokeWidth` automatisch mit), Massen-Labels 13→9 px, Kraft-Labels 13→9 px, Komponenten-Werte 10→7 px — Pfeile und Beschriftungen erscheinen jetzt dezent, nicht mehr „fett".
+- **Winkel eindeutig als „zur Senkrechten":** Seilkraft und Winkel in der Analyse aufgeteilt (eigene Zellen); Winkel γ jetzt explizit als Winkel **zur Senkrechten (Vertikalen)** ausgewiesen — `γ₁ = angle₁ − π/2`, `γ₃ = π/2 − angle₃` (Horizontalkomponente = T·sin γ, Vertikalkomponente = T·cos γ, in Node verifiziert).
+- **Newton-Erklärung in der Analyse:** Formel-Box beginnt jetzt mit dem 1. Newtonschen Gesetz (Summe aller Kräfte = 0 → m₂ bleibt in Ruhe) und `\(\sum\vec{F}=0=...\)`.
+
 ## [1.0.1] — 2026-07-06
 ### Behoben
 - **Vektorzerlegung funktionsfähig:** die Komponenten-Vektoren referenzierten `url(#arrowhead-horizontal)`/`-vertical`, aber die Marker-IDs heißen `arrowhead-comp-h`/`-comp-v` → Pfeilspitzen fehlten. Zentrale `MARKER_ID`-Map in `render.js` bindet jeden Vektortyp an den korrekten Marker.

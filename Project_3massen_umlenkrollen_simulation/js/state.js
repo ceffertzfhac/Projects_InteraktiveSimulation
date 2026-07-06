@@ -71,8 +71,10 @@ export function initDOM() {
   DOM.togComponentValues = q('show_component_values')
 
   // Analyse-Panel
-  DOM.leftValues = q('left_values')
-  DOM.rightValues = q('right_values')
+  DOM.leftForce = q('left_force')
+  DOM.leftAngle = q('left_angle')
+  DOM.rightForce = q('right_force')
+  DOM.rightAngle = q('right_angle')
   DOM.verticalForcesValue = q('vertical_forces_value')
   DOM.horizontalForcesValue = q('horizontal_forces_value')
   DOM.equilibriumWarning = q('equilibrium_warning')
