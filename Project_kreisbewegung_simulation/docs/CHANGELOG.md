@@ -5,6 +5,34 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.7 — 2026-07-06
+
+### Fix
+- **Vektor-Pfeilspitzen: Schaft-Kürzung verhindert seitliches Ausgucken
+  aus der Spitze.** v1.0.3 hatte die Spitze via `refX = markerWidth` korrekt
+  auf den Vektor-Endpunkt gesetzt (kein Überschießen mehr). Dabei lief der
+  Schaft aber bis zum Endpunkt durch — und da das Dreieck auf eine Punkt-
+  Spitze zuläuft (0 Breite), der Schaft aber konstant `1·strokeWidth` breit
+  ist, war das Dreieck nahe der Spitze schmaler als der Schaft: die Schaft-
+  Kanten guckten seitlich aus der Spitze heraus („man sieht den darunter-
+  liegenden Schaft, dort wo die Spitze zusammenläuft").
+  Fix: der Schaft wird am Endpunkt um die Marker-Länge
+  (`markerWidth · strokeWidth` px) gekürzt, sodaß er an der Dreieck-Basis
+  endet; das deckend gefüllte Dreieck (via CSS `#arrowhead-* polygon`) über-
+  deckt den Schaft dann vollständig. Hilfe `shortenEnd(x1,y1,x2,y2, by)` zieht
+  den Endpunkt in Vektor-Richtung zurück (Guard: bei `len ≤ by` unverändert,
+  z. B. bei t=0, φ₀=0 der y-Komponenten-Vektor der Länge 0).
+  - Hauptvektoren (Ort/Geschw./Beschl., sw=2,5): Kürzung 12,5 px.
+  - Komponenten (rₓ/rᵧ etc., sw=2): Kürzung 10 px.
+  - Koordinatenachsen (sw=1,2): Kürzung 6 px.
+  Ausnahme `#graph-arrowhead` (Graph-Achsenpfeile) bleibt auf `refX=0`
+  **ohne** Schaft-Kürzung — das Graph-bg-Rect ist um die Pfeilspitze
+  dimensioniert.
+- **Lernen zentral hinterlegt** (CLAUDE.md + `global_docs/simulation_instruction.md`):
+  Die Regel „Vektor-Pfeilspitzen" um die Schaft-Kürzung ergänzt — `refX`
+  allein reicht nicht (Spitze am Endpunkt, aber Schaft durch zu weit);
+  erst die Kürzung macht die Spitze sauber.
+
 ## v1.0.6 — 2026-07-06
 
 ### Fix

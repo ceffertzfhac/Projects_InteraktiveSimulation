@@ -22,6 +22,30 @@ const animH      = () => store.layoutSplit ? ANIM_H_SPLIT      : ANIM_H_STACK
 export const animCY = () => store.layoutSplit ? ANIM_CY_SPLIT    : ANIM_CY_STACK
 const graphW     = () => store.layoutSplit ? GRAPH_W_SPLIT     : GRAPH_W_STACK
 const graphHFull = () => store.layoutSplit ? GRAPH_H_SPLIT     : GRAPH_H_STACK
+
+// ── Pfeilspitzen-Marker-Längen (px) ──────────────────────────────────────────
+// Alle Animations-Marker: markerWidth=5, markerUnits=strokeWidth (Default) →
+// Marker-Länge in px = 5 · strokeWidth. Mit refX=5 (markerWidth) sitzt die
+// Dreieck-Spitze am Vektor-Endpunkt, das Dreieck ragt 5·sw dahinter. Da das
+// Dreieck auf eine Punkt-Spitze zuläuft, der Schaft aber konstant 1·sw breit
+// ist, wäre der Schaft nahe der Spitze schmaler als das Dreieck — nein,
+// *breiter* als das Dreieck: die Schaft-Kanten gucken seitlich aus der Spitze.
+// Fix: Schaft um die Marker-Länge kürzen, sodaß er an der Dreieck-Basis endet;
+// das Dreieck überdeckt den Schaft dann vollständig (Polygon-Fill ist deckend,
+// siehe styles.css `#arrowhead-* polygon { fill: … }`).
+const ARROW_LEN_MAIN = 5 * 2.5  // Hauptvektoren (Ort/Geschw./Beschl.), sw=2,5 → 12,5 px
+const ARROW_LEN_COMP = 5 * 2    // Komponenten-Vektoren, sw=2 → 10 px
+const ARROW_LEN_AXIS = 5 * 1.2   // Koordinatenachsen, sw=1,2 → 6 px
+
+// Endpunkt (x2,y2) um `by` px in Richtung (x2−x1, y2−y1) zurückziehen. Liefert
+// das gekürzte (x2,y2); bei by≤0 oder zu kurzem Vektor unverändert.
+function shortenEnd(x1, y1, x2, y2, by) {
+  if (!(by > 0)) return { x2, y2 }
+  const dx = x2 - x1, dy = y2 - y1
+  const len = Math.hypot(dx, dy)
+  if (len <= by) return { x2, y2 }
+  return { x2: x2 - (dx / len) * by, y2: y2 - (dy / len) * by }
+}
 const graphSlotH = () => store.layoutSplit ? GRAPH_H_STACKED_SPLIT : GRAPH_H_STACKED_STACK
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -112,17 +136,19 @@ export function drawCoordSystem() {
   const ppm = store.currentPixelsPerMeter
   const cy = animCY()
   const axLen = Math.max(2.0, store.R) * ppm * 1.05
-  // x-Achse
+  // x-Achse (Schaft um Marker-Länge kürzen, Spitze via refX am Original-Ende)
+  const axEnd = shortenEnd(ANIM_CX - 10, cy, ANIM_CX + axLen, cy, ARROW_LEN_AXIS)
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX - 10, y1: cy, x2: ANIM_CX + axLen, y2: cy,
+    x1: ANIM_CX - 10, y1: cy, x2: axEnd.x2, y2: axEnd.y2,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
   const xl = el('text', { x: ANIM_CX + axLen + 8, y: cy + 4, 'font-size': 13, fill: 'var(--text)' })
   xl.textContent = 'x'
   DOM.animationCoordSystem.appendChild(xl)
   // y-Achse
+  const ayEnd = shortenEnd(ANIM_CX, cy + 10, ANIM_CX, cy - axLen, ARROW_LEN_AXIS)
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX, y1: cy + 10, x2: ANIM_CX, y2: cy - axLen,
+    x1: ANIM_CX, y1: cy + 10, x2: ayEnd.x2, y2: ayEnd.y2,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
   const yl = el('text', { x: ANIM_CX - 14, y: cy - axLen - 4, 'font-size': 13, fill: 'var(--text)' })
@@ -246,10 +272,15 @@ export function setupScene() {
 }
 
 // ── Vektor-Linie setzen (mit Sichtbarkeit) ───────────────────────────────────
-function setVec(lineEl, x1, y1, x2, y2, visible) {
+// markerLen = Pfeilspitzen-Länge in px; der Schaft wird am (x2,y2)-Ende um
+// markerLen gekürzt, sodaß er an der Dreieck-Basis endet (Spitze via refX am
+// Original-Endpunkt). Verhindert das seitliche Ausgucken des Schafts nahe der
+// Spitze.
+function setVec(lineEl, x1, y1, x2, y2, visible, markerLen = 0) {
   if (!visible) { lineEl.style.visibility = 'hidden'; return }
+  const end = shortenEnd(x1, y1, x2, y2, markerLen)
   lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1)
-  lineEl.setAttribute('x2', x2); lineEl.setAttribute('y2', y2)
+  lineEl.setAttribute('x2', end.x2); lineEl.setAttribute('y2', end.y2)
   lineEl.style.visibility = 'visible'
 }
 
@@ -264,27 +295,27 @@ export function updateScene(t, p, v, a, centers) {
 
   // Ortsvektor (Mittelpunkt → Punkt) + Komponenten
   const showR = store.showPositionVector
-  setVec(DOM.positionVector, cx, cy, px, py, showR)
+  setVec(DOM.positionVector, cx, cy, px, py, showR, ARROW_LEN_MAIN)
   // Komponenten als Vektoraddition-Stil: x-Komp vom Zentrum, y-Komp am Ende der x-Komp
   const showRc = store.showPositionComponents && showR
-  setVec(DOM.positionVectorX, cx, cy, px, cy, showRc)
-  setVec(DOM.positionVectorY, px, cy, px, py, showRc)
+  setVec(DOM.positionVectorX, cx, cy, px, cy, showRc, ARROW_LEN_COMP)
+  setVec(DOM.positionVectorY, px, cy, px, py, showRc, ARROW_LEN_COMP)
 
   // Geschwindigkeitsvektor (vom Punkt aus, skaliert) + Komponenten
   const vScale = PIXELS_PER_VELOCITY_UNIT * store.zoomFactor
   const vxe = px + v.x * vScale, vye = py - v.y * vScale
-  setVec(DOM.velocityVector, px, py, vxe, vye, store.showVelocityVector)
+  setVec(DOM.velocityVector, px, py, vxe, vye, store.showVelocityVector, ARROW_LEN_MAIN)
   const showVc = store.showVelocityComponents && store.showVelocityVector
-  setVec(DOM.velocityVectorX, px, py, vxe, py, showVc)
-  setVec(DOM.velocityVectorY, vxe, py, vxe, vye, showVc)
+  setVec(DOM.velocityVectorX, px, py, vxe, py, showVc, ARROW_LEN_COMP)
+  setVec(DOM.velocityVectorY, vxe, py, vxe, vye, showVc, ARROW_LEN_COMP)
 
   // Beschleunigungsvektor (vom Punkt aus, skaliert) + Komponenten
   const aScale = PIXELS_PER_ACCELERATION_UNIT * store.zoomFactor
   const axe = px + a.x * aScale, aye = py - a.y * aScale
-  setVec(DOM.accelerationVector, px, py, axe, aye, store.showAccelerationVector)
+  setVec(DOM.accelerationVector, px, py, axe, aye, store.showAccelerationVector, ARROW_LEN_MAIN)
   const showAc = store.showAccelerationComponents && store.showAccelerationVector
-  setVec(DOM.accelerationVectorX, px, py, axe, py, showAc)
-  setVec(DOM.accelerationVectorY, axe, py, axe, aye, showAc)
+  setVec(DOM.accelerationVectorX, px, py, axe, py, showAc, ARROW_LEN_COMP)
+  setVec(DOM.accelerationVectorY, axe, py, axe, aye, showAc, ARROW_LEN_COMP)
 
   // Bahnkurve: erst während des 1. Umlaufs gezeichnet (progressive Spur bis
   // min(t, T)), danach vollständiger Kreis — nicht schon bei t=0 sichtbar.
