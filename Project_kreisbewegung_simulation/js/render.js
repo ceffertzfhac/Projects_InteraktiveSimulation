@@ -424,9 +424,13 @@ function drawGraphSlot(attrs) {
   setAxisLabel(tlX, limits.xLabel)
   gridEl.appendChild(tlX)
 
-  // Titel (zentriert)
-  titleEl.setAttribute('x', gW / 2)
-  titleEl.setAttribute('y', 18)
+  // Titel — platziert relativ zum Plot-Bereich (zentriert über dem Plot, 10 px
+  // über dessen Oberkante). Bei zentriertem quadratischem Bahnkurven-Plot im
+  // Portrait-Layout (Split) wäre viewBox-Zentrierung (gW/2, y=18) falsch: der
+  // Plot sitzt tiefer und ist horizontal versetzt, sodaß der Titel sonst weit
+  // über dem Plot schwebt. Plot-relativ paßt für alle Layouts/Modi.
+  titleEl.setAttribute('x', plotL + plotW / 2)
+  titleEl.setAttribute('y', plotT - 10)
   setGraphTitle(titleEl, graphTitles[type] ?? type)
 
   // Daten-Polyline

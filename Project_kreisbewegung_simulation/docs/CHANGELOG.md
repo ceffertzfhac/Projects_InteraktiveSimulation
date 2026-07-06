@@ -5,6 +5,20 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.6 — 2026-07-06
+
+### Fix
+- **Diagramm-Überschrift im Split-Modus plot-relativ plaziert**: Der Titel
+  wurde bisher viewBox-zentriert (`x = gW/2`, `y = 18`) gesetzt. Im
+  Nebeneinander-Layout (Portrait 410×700) ist der Plotbereich der Bahnkurve
+  aber als zentriertes Quadrat vertikal tief gelegen (`plotT ≈ 179`) und
+  horizontal versetzt (`plotL+plotW/2 ≈ 226`), sodaß die Überschrift weit
+  oben über dem Plot schwebte statt direkt darüber. `drawGraphSlot` setzt
+  den Titel jetzt auf `x = plotL + plotW/2`, `y = plotT − 10` (10 px über
+  der Plot-Oberkante) — paßt für alle Layouts (Split/Gestapelt) und Modi
+  (Single/Stacked, Bahnkurve/Zeitreihe), da der Titel stets über dem
+  tatsächlichen Plot-Bereich zentriert ist.
+
 ## v1.0.5 — 2026-07-06
 
 ### Feature (Probe — Nebeneinander-Layout verfeinert)
