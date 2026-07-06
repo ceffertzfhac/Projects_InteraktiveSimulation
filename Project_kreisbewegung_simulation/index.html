@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kreisbewegung – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Kreisbewegung
+    <span class="version">v1.0.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Parameter</div>
+      <div class="slider-label">Radius \(R\)</div>
+      <div class="slider-row">
+        <input type="range" id="radius_slider" min="0.5" max="2.0" value="1.5" step="0.1">
+        <span class="slider-val" id="radius_value">1,5 m</span>
+      </div>
+      <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+        <span class="slider-val" id="phi0_value">0 °</span>
+      </div>
+      <div class="slider-label">Winkelgeschw. \(\omega\)</div>
+      <div class="slider-row">
+        <input type="range" id="omega_slider" min="-180" max="180" value="60" step="5">
+        <span class="slider-val" id="omega_value">60 °/s</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Diagramm</div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">\(x\)/\(y\) gestapelt</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_xy_stacked">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Visualisierung</div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Ortsvektor \(\vec{r}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_position_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">in \(r_x\)/\(r_y\) zerlegen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_position_components">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschw.-Vektor \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_velocity_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">in \(v_x\)/\(v_y\) zerlegen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_velocity_components">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschl.-Vektor \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_acceleration_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">in \(a_x\)/\(a_y\) zerlegen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_acceleration_components">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Bahnkurve anzeigen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_trajectory" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Legende</div>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-r)"></div>
+        <div class="legend-label">Ortsvektor \(\vec{r}\)</div>
+        <div class="legend-swatch" style="background:var(--c-rx)"></div>
+        <div class="legend-label">Komponente \(r_x\)</div>
+        <div class="legend-swatch" style="background:var(--c-ry)"></div>
+        <div class="legend-label">Komponente \(r_y\)</div>
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-vx)"></div>
+        <div class="legend-label">Komponente \(v_x\)</div>
+        <div class="legend-swatch" style="background:var(--c-vy)"></div>
+        <div class="legend-label">Komponente \(v_y\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-ax)"></div>
+        <div class="legend-label">Komponente \(a_x\)</div>
+        <div class="legend-swatch" style="background:var(--c-ay)"></div>
+        <div class="legend-label">Komponente \(a_y\)</div>
+        <div class="legend-swatch" style="background:var(--c-traj);opacity:.7"></div>
+        <div class="legend-label">Bahnkurve</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Abspielgeschwindigkeit</div>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation (oben) + Diagramm (unten, gestapelt) ──────── -->
+  <main class="center-area" id="center_area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 450 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="anim-arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-r" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-v" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-a" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-rx" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ry" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-vx" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-vy" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ax" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-ay" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+        </defs>
+
+        <g id="animation_group">
+          <g id="animation_coord_system"></g>
+          <circle id="disk" cx="225" cy="260" r="100" fill="none" stroke="var(--c-traj)" stroke-width="0" opacity="0.06"/>
+          <circle id="trajectory_path" cx="225" cy="260" r="100" fill="none" stroke="var(--c-traj)" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <circle id="point" cx="325" cy="260" r="8" fill="var(--accent)" stroke="var(--text)" stroke-width="1"/>
+          <text id="zoom_text_display" x="12" y="20" class="zoom-text"></text>
+
+          <!-- Ortsvektor + Komponenten -->
+          <line id="position_vector" stroke-width="2.5" marker-end="url(#arrowhead-r)" visibility="hidden"/>
+          <line id="position_vector_x" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-rx)" visibility="hidden"/>
+          <line id="position_vector_y" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-ry)" visibility="hidden"/>
+
+          <!-- Geschwindigkeitsvektor + Komponenten -->
+          <line id="velocity_vector" stroke-width="2.5" marker-end="url(#arrowhead-v)" visibility="hidden"/>
+          <line id="velocity_vector_x" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-vx)" visibility="hidden"/>
+          <line id="velocity_vector_y" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-vy)" visibility="hidden"/>
+
+          <!-- Beschleunigungsvektor + Komponenten -->
+          <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrowhead-a)" visibility="hidden"/>
+          <line id="acceleration_vector_x" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-ax)" visibility="hidden"/>
+          <line id="acceleration_vector_y" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowhead-ay)" visibility="hidden"/>
+
+          <!-- Stoppuhr -->
+          <g id="stopwatch" transform="translate(300, 20) scale(0.42)" style="cursor:pointer">
+            <circle id="stopwatch_circle" cx="280" cy="120" r="72" stroke-width="2"/>
+            <g id="stopwatch_marks"></g>
+            <g id="subdial">
+              <circle id="subdial_face" cx="280" cy="150" r="16" stroke-width="1"/>
+              <g id="subdial_marks"></g>
+              <line id="stopwatch_sub_hand" x1="280" y1="150" x2="280" y2="135" stroke-width="1.5"/>
+            </g>
+            <line id="stopwatch_main_hand" x1="280" y1="120" x2="280" y2="60" stroke-width="3"/>
+            <g id="digital_display_group" visibility="hidden"></g>
+          </g>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+
+    <div class="graph-wrapper">
+      <div class="graph-toolbar">
+        <select id="graph_select" class="graph-sel"></select>
+      </div>
+      <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+
+        <!-- Diagramm: Single -->
+        <g id="graph_group_single" transform="translate(0, 0)">
+          <g id="grid_group"></g>
+          <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point" r="4" fill="var(--accent)" visibility="hidden"/>
+          <text id="graph_title" x="350" y="18" text-anchor="middle" class="graph-title-text"></text>
+        </g>
+
+        <!-- Diagramm: Stacked Top -->
+        <g id="graph_group_stacked_top" transform="translate(0, 0)" style="visibility:hidden">
+          <g id="grid_group_top"></g>
+          <polyline id="graph_line_top" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point_top" r="3" fill="var(--accent)" visibility="hidden"/>
+          <text id="graph_title_top" x="350" y="14" text-anchor="middle" class="graph-title-text small"></text>
+        </g>
+
+        <!-- Diagramm: Stacked Bottom -->
+        <g id="graph_group_stacked_bottom" transform="translate(0, 210)" style="visibility:hidden">
+          <g id="grid_group_bottom"></g>
+          <polyline id="graph_line_bottom" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point_bottom" r="3" fill="var(--accent)" visibility="hidden"/>
+          <text id="graph_title_bottom" x="350" y="14" text-anchor="middle" class="graph-title-text small"></text>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Zeit \(t\)</div>
+        <div class="analysis-cell val" id="live_t">0,00 s</div>
+        <div class="analysis-cell key">Winkel \(\varphi\)</div>
+        <div class="analysis-cell val" id="live_phi">0,0 °</div>
+        <div class="analysis-cell key">Position \(x\)</div>
+        <div class="analysis-cell val" id="live_x">1,50 m</div>
+        <div class="analysis-cell key">Position \(y\)</div>
+        <div class="analysis-cell val" id="live_y">0,00 m</div>
+        <div class="analysis-cell key">Geschw. \(v_x\)</div>
+        <div class="analysis-cell val" id="live_vx">0,00 m/s</div>
+        <div class="analysis-cell key">Geschw. \(v_y\)</div>
+        <div class="analysis-cell val" id="live_vy">1,57 m/s</div>
+        <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+        <div class="analysis-cell val" id="live_vabs">1,57 m/s</div>
+        <div class="analysis-cell key">Beschl. \(a_x\)</div>
+        <div class="analysis-cell val" id="live_ax">−1,65 m/s²</div>
+        <div class="analysis-cell key">Beschl. \(a_y\)</div>
+        <div class="analysis-cell val" id="live_ay">0,00 m/s²</div>
+        <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+        <div class="analysis-cell val" id="live_aabs">1,65 m/s²</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Umlaufgrößen</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Periodendauer \(T\)</div>
+        <div class="analysis-cell val" id="live_T">— s</div>
+        <div class="analysis-cell key">Winkelgeschw. \(\omega\)</div>
+        <div class="analysis-cell val" id="live_omega">— rad/s</div>
+        <div class="analysis-cell key">Frequenz \(f\)</div>
+        <div class="analysis-cell val" id="live_f">— Hz</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Gleichförmige ebene Kreisbewegung:</div>
+        <div>\[\varphi(t) = \varphi_0 + \omega\,t\]</div>
+        <div>\[x(t) = R\cos(\varphi),\quad y(t) = R\sin(\varphi)\]</div>
+        <div>\[v_x = -R\,\omega\sin(\varphi),\quad v_y = R\,\omega\cos(\varphi)\]</div>
+        <div>\[a_x = -R\,\omega^2\cos(\varphi),\quad a_y = -R\,\omega^2\sin(\varphi)\]</div>
+        <div style="margin-top:6px">Zentripetalbeschleunigung (zum Mittelpunkt gerichtet):</div>
+        <div>\[|\vec{a}| = R\,\omega^2 = \frac{|\vec{v}|^2}{R},\quad |\vec{v}| = R\,|\omega|\]</div>
+        <div style="margin-top:6px">Umlaufdauer &amp; Frequenz:</div>
+        <div>\[T = \frac{2\pi}{|\omega|},\quad f = \frac{1}{T}\]</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

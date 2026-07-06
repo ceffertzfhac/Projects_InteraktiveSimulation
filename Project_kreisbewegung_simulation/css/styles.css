@@ -1,0 +1,110 @@
+/* ── Kreisbewegung — sim-spezifische Tokens (nicht in shared dupliziert) ─── */
+:root {
+  --graph-bg:   #ffffff;
+  --grid-line:  #e8eaf0;
+  --lcd-bg:     #0a0a0a;
+  --lcd-on:     #ff3b3b;
+  --lcd-off:    #2a1010;
+
+  /* Vektorfarben: Hauptvektoren aus shared, Komponenten sim-spezifisch.
+     Hauptvektoren: r → Bernstein (Ort), v → Blau, a → Rot (Okabe-Ito-Schema).
+     Komponenten x/y jeweils abgeleitete, unterscheidbare Töne — farbblinden-
+     sicher gewählt (kein purple+green+orange zugleich). */
+  --c-r:    #b08010;   /* Ortsvektor r    – Bernstein (wie --c-p1 light) */
+  --c-rx:   #1f77b4;   /* r_x-Komponente  – Blau */
+  --c-ry:   #1a8a50;  /* r_y-Komponente  – Grün */
+  --c-vx:   #b8860b;   /* v_x-Komponente  – Dunkelgelb */
+  --c-vy:   #c03030;  /* v_y-Komponente  – Rot */
+  --c-ax:   #17a2b8;   /* a_x-Komponente  – Türkis */
+  --c-ay:   #e0782d;  /* a_y-Komponente  – Orange */
+  --c-traj: #7f7f7f;  /* Bahnkurve       – Grau */
+}
+body.dark {
+  --graph-bg:   #161925;
+  --grid-line:  #262c42;
+  --lcd-bg:     #050505;
+  --lcd-on:     #ff5555;
+  --lcd-off:    #1a0808;
+
+  --c-r:    #ffcc33;
+  --c-rx:   #66aaff;
+  --c-ry:   #55ee99;
+  --c-vx:   #ffcc33;
+  --c-vy:   #ff7777;
+  --c-ax:   #56b4e9;
+  --c-ay:   #f0e442;
+  --c-traj: #9aa3b8;
+}
+
+/* ── Marker (Pfeilspitzen) ──────────────────────────────────────────────────── */
+#anim-arrowhead polygon { fill: var(--text); }
+#arrowhead-r polygon  { fill: var(--c-r); }
+#arrowhead-rx polygon { fill: var(--c-rx); }
+#arrowhead-ry polygon { fill: var(--c-ry); }
+#arrowhead-v polygon  { fill: var(--c-vel); }
+#arrowhead-vx polygon { fill: var(--c-vx); }
+#arrowhead-vy polygon { fill: var(--c-vy); }
+#arrowhead-a polygon  { fill: var(--c-acc); }
+#arrowhead-ax polygon { fill: var(--c-ax); }
+#arrowhead-ay polygon { fill: var(--c-ay); }
+#graph-arrowhead polygon { fill: var(--text); }
+
+/* ── Szene: Bahnkurve, Massenpunkt, Zoom-Text ───────────────────────────────── */
+#trajectory_path { stroke: var(--c-traj); }
+#disk            { stroke: var(--c-traj); }
+#point           { fill: var(--accent); stroke: var(--text); }
+.zoom-text       { fill: var(--text2); font-family: var(--font-mono); font-size: 11px; }
+#zoom_text_display { fill: var(--text2); font-family: var(--font-mono); font-size: 11px; }
+
+/* ── Vektoren ──────────────────────────────────────────────────────────────── */
+#position_vector     { stroke: var(--c-r); }
+#position_vector_x   { stroke: var(--c-rx); }
+#position_vector_y   { stroke: var(--c-ry); }
+#velocity_vector     { stroke: var(--c-vel); }
+#velocity_vector_x   { stroke: var(--c-vx); }
+#velocity_vector_y   { stroke: var(--c-vy); }
+#acceleration_vector { stroke: var(--c-acc); }
+#acceleration_vector_x { stroke: var(--c-ax); }
+#acceleration_vector_y { stroke: var(--c-ay); }
+
+/* ── Stoppuhr ──────────────────────────────────────────────────────────────── */
+#stopwatch_circle { fill: var(--surface); stroke: var(--text); cursor: pointer; }
+#subdial_face     { fill: var(--surface); stroke: var(--text2); }
+#stopwatch_main_hand { stroke: var(--text); }
+#stopwatch_sub_hand  { stroke: var(--accent); }
+.sw-mark          { stroke: var(--text2); }
+#digital_display_frame { fill: var(--lcd-bg); stroke: var(--text); }
+.lcd-seg-on       { fill: var(--lcd-on); }
+.lcd-seg-off      { fill: var(--lcd-off); }
+
+/* ── Diagramm ───────────────────────────────────────────────────────────────── */
+#graph_svg   { width: 100%; height: 100%; display: block; }
+
+/* WICHTIG (Phase-0-Lektion): Für JEDES Polyline-/Circle-Graph-Element muß eine
+   CSS-Stroke/Fill-Regel existieren — auch für die Stacked-Varianten `_top`/
+   `_bottom`. SVG-Default `stroke:none` macht Linien unsichtbar, `fill:black`
+   zeichnet den Punkt als schwarzen Default-Circle. */
+#graph_line  { stroke: var(--accent); }
+#graph_point { fill:   var(--accent); }
+#graph_line_top, #graph_line_bottom { stroke: var(--accent); }
+#graph_point_top, #graph_point_bottom { fill:   var(--accent); }
+
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 13px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
+.graph-title-text.small { font-size: 13px; }
+
+/* ── Center-Layout: Simulation oben, Diagramm unten (gestapelt) ──────────── */
+.center-area  { display: grid; grid-template-rows: 0.9fr 1.1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.sim-wrapper  { position: relative; overflow: hidden; border-bottom: 3px solid var(--border2); background: var(--bg); }
+.graph-wrapper{ position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
+
+@media (max-width: 1100px) {
+  .center-area { grid-template-rows: 0.9fr 1.1fr; }
+}
+.graph-toolbar{ position: absolute; top: 8px; left: 12px; z-index: 10; display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.graph-sel    { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 4px 8px; font-family: var(--font-mono); font-size: .72rem; color: var(--text); cursor: pointer; outline: none; max-width: 240px; }
+.select-field { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 4px 8px; font-family: var(--font-mono); font-size: .72rem; color: var(--text); cursor: pointer; outline: none; width: 100%; }
