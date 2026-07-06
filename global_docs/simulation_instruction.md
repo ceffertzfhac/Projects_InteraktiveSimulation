@@ -29,6 +29,7 @@ Jede Simulation muss strikt in folgende Module unterteilt werden:
   - Geschwindigkeit $v$: Blau (`#66aaff`)
   - Beschleunigung $a$: Rot (`#ff7777`)
   - Kräfte $F$: Violett/Grün/Orange je nach Typ.
+- **Vektor-Pfeilspitzen (Marker `refX`):** Simulations-Vektoren (Ort/Geschw./Beschl. + x/y-Komponenten) mit `refX = markerWidth` definieren, sodaß die Pfeilspitze **exakt auf dem Vektor-Endpunkt** sitzt und den Vektor nicht verlängert. Bei `refX=0` ragt die Spitze um `markerWidth · strokeWidth` über den Endpunkt hinaus (Vektor endet jenseits des Zielpunkts — z. B. außerhalb des Kreisradius beim Ortsvektor, oder Zerlegungs-Pfeile enden jenseits der Punkt-Koordinaten). Bekannter, oft nur teilweise behobener Bug (Lorentz/rolling_bodies nutzen `refX = markerWidth − 1` → noch 1 Einheit·strokeWidth Überschiebung); sauber ist nur `refX = markerWidth`. **Ausnahme:** Graph-Achsenpfeile (`#graph-arrowhead`) bleiben auf `refX=0`, weil das Graph-bg-Rect um die Pfeilspitze herum dimensioniert ist („10 px past arrow tips"). Marker-Fills pro Vektorfarbe via CSS (`#<id> polygon { fill: var(--c-…) }`), da das Polygon sonst schwarz rendert.
 
 ### UI-Layout
 - **Sidebar (Links):** Parameter-Steuerung via Slider und Radio-Buttons.

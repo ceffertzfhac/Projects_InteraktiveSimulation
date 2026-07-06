@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.3 — 2026-07-06
+
+### Fix
+- **Vektor-Pfeilspitzen sitzen auf dem Endpunkt (kein Überschießen mehr):**
+  Alle 10 Animations-Marker (`anim-arrowhead`, `arrowhead-r/v/a/rx/ry/vx/vy/ax/ay`)
+  von `refX=0` auf `refX=5` (= markerWidth) gesetzt. Bei `refX=0` ragte die
+  Pfeilspitze um `markerWidth · strokeWidth` über den Vektor-Endpunkt hinaus
+  — der Ortsvektor (und seine x/y-Zerlegung) endete damit jenseits des
+  Kreisradius statt auf ihm. `refX=markerWidth` plaziert die Spitze exakt auf
+  dem Endpunkt (Polygon liegt komplett hinter dem Endpunkt). Betroffen waren
+  alle Vektoren (Ort/Geschw./Beschl. + Komponenten), nicht nur die Orts-
+  Zerlegung. `#graph-arrowhead` bleibt bewußt auf `refX=0` (Graph-bg-Rect ist
+  um die Achs-Pfeilspitze dimensioniert, siehe CLAUDE.md-Regel „10 px past
+  arrow tips").
+- **Lernen zentral hinterlegt** (CLAUDE.md + `global_docs/simulation_instruction.md`):
+  Simulations-Vektoren → `refX = markerWidth`; Graph-Achsenpfeile → `refX=0`
+  mit bg-Rect-Kompensation. Bekannter, teils nur unvollständig behobener Bug
+  (Lorentz/rolling_bodies nutzen `refX = markerWidth − 1` → Rest-Überschießung).
+
 ## v1.0.2 — 2026-07-06
 
 Layout- und Darstellungs-Refinements.
