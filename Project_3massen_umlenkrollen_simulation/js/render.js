@@ -100,17 +100,11 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
 // ── SVG-Kraft-Label: F⃗<sub>…</sub> (Symbol kursiv, Vektor-Pfeil via Combining-
 //    Arrow U+20D7 darüber — von der Schrift selbst plaziert, wie in LaTeX/MathJax;
 //    kein hand-positionierter Pfad, der mit dem F-Glyphen verschmilzt).
-function addForceLabel(x, y, sub, type, anchor = 'start', fontCfg = null) {
+function addForceLabel(x, y, sub, type, anchor = 'start') {
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
   text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
   text.setAttribute('text-anchor', anchor)
-  if (fontCfg) { // Variante 23 o. Ä. schlägt auf dieses Label durch
-    text.style.fontFamily = fontCfg.ff
-    text.style.fontSize = fontCfg.fs + 'px'
-    text.style.fontWeight = fontCfg.w
-    text.style.fontStyle = fontCfg.it ? 'italic' : 'normal'
-  }
   const sym = document.createElementNS(SVGNS, 'tspan')
   sym.setAttribute('font-style', 'italic')
   sym.textContent = 'F⃗'   // F + COMBINING RIGHT ARROW ABOVE → F⃗
@@ -118,22 +112,6 @@ function addForceLabel(x, y, sub, type, anchor = 'start', fontCfg = null) {
   subT.setAttribute('dy', '0.25em'); subT.setAttribute('font-size', '0.7em')
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
-  DOM.forceVectorsGroup.appendChild(text)
-}
-
-// Rendet eine Schrift-Test-Variante (n) exakt an (x,y) — z. B. „F⃗ test" statt F_S,re-Label
-function addVariantSample(x, y, n) {
-  const v = FONT_VARIANTS.find(vv => vv.n === n)
-  if (!v) return
-  const text = document.createElementNS(SVGNS, 'text')
-  text.setAttribute('x', x); text.setAttribute('y', y)
-  text.setAttribute('text-anchor', 'start')
-  text.style.fill = 'var(--text)'
-  text.style.fontFamily = v.ff
-  text.style.fontSize = v.fs + 'px'
-  text.style.fontWeight = v.w
-  text.style.fontStyle = v.it ? 'italic' : 'normal'
-  text.textContent = v.t
   DOM.forceVectorsGroup.appendChild(text)
 }
 
@@ -167,96 +145,6 @@ function hideMasses() {
   for (const g of [DOM.massLeftGroup, DOM.massMiddleGroup, DOM.massRightGroup]) {
     g.setAttribute('transform', 'translate(-1000, -1000)')
   }
-}
-
-// ── SCRIFT-TEST (temporär): rendert "test" in diversen Fonts/Größen/Weights ──
-// numeriert ins Sim-Feld. Sobald die Auswahl feststeht, wird dieser Block wieder
-// entfernt und die gewählte Variante auf die Sim-Labels angewandt.
-const FONT_TEST = true
-const FONT_VARIANTS = [
-  // Serif italic (Math-Konvention, wie LaTeX/MathJax)
-  { n: 1,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 11, w: 400, it: true,  t: 'test' },
-  { n: 2,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 12, w: 400, it: true,  t: 'test' },
-  { n: 3,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: true,  t: 'test' },
-  { n: 4,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true,  t: 'test' },
-  { n: 5,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 500, it: true,  t: 'test' },
-  { n: 6,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 600, it: true,  t: 'test' },
-  { n: 7,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: false, t: 'test' },
-  { n: 8,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 500, it: false, t: 'test' },
-  // DM Sans (Share-UI-Font)
-  { n: 9,  ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 12, w: 400, it: true,  t: 'test' },
-  { n: 10, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 400, it: true,  t: 'test' },
-  { n: 11, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 500, it: true,  t: 'test' },
-  { n: 12, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 400, it: false, t: 'test' },
-  { n: 13, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 500, it: false, t: 'test' },
-  { n: 14, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 600, it: false, t: 'test' },
-  // system-ui (auf macOS: San Francisco)
-  { n: 15, ff: "system-ui, sans-serif", fs: 13, w: 400, it: true,  t: 'test' },
-  { n: 16, ff: "system-ui, sans-serif", fs: 13, w: 400, it: false, t: 'test' },
-  { n: 17, ff: "system-ui, sans-serif", fs: 13, w: 500, it: false, t: 'test' },
-  // Georgia / Cambria / STIX Two Text
-  { n: 18, ff: "Georgia, serif",              fs: 13, w: 400, it: true, t: 'test' },
-  { n: 19, ff: "Cambria, serif",              fs: 13, w: 400, it: true, t: 'test' },
-  { n: 20, ff: "'STIX Two Text', serif",      fs: 13, w: 400, it: true, t: 'test' },
-  // JetBrains Mono
-  { n: 21, ff: "'JetBrains Mono', monospace", fs: 12, w: 400, it: false, t: 'test' },
-  { n: 22, ff: "'JetBrains Mono', monospace", fs: 13, w: 400, it: false, t: 'test' },
-  // F⃗-Proben (Combining-Arrow-Rendering prüfen, mit Subscript)
-  { n: 23, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: true, t: 'F⃗ test' },
-  { n: 24, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true, t: 'F⃗G,1 test' },
-]
-
-function drawFontTest() {
-  let g = document.getElementById('font_test_group')
-  if (!g) {
-    g = document.createElementNS(SVGNS, 'g')
-    g.setAttribute('id', 'font_test_group')
-    DOM.mainSvg.appendChild(g)
-  } else {
-    DOM.mainSvg.appendChild(g) // zuletzt angehängt = oben
-  }
-  g.innerHTML = ''
-
-  // Kleines semitransparentes Panel NUR hinter dem Textblock (deckt nicht die Sim)
-  const panelX = 12, panelY = 8, panelW = 360, panelH = 92
-  const bg = document.createElementNS(SVGNS, 'rect')
-  bg.setAttribute('x', panelX); bg.setAttribute('y', panelY)
-  bg.setAttribute('width', panelW); bg.setAttribute('height', panelH)
-  bg.setAttribute('rx', 8)
-  bg.style.fill = 'var(--bg)'
-  bg.style.opacity = '0.82'
-  g.appendChild(bg)
-
-  const header = document.createElementNS(SVGNS, 'text')
-  header.setAttribute('x', 20); header.setAttribute('y', 26)
-  header.style.fill = 'var(--text)'
-  header.style.font = "600 13px 'DM Sans', sans-serif"
-  header.textContent = 'Schrift-Test 23 + 24'
-  g.appendChild(header)
-
-  const colX = [20, 190]
-  const rowY0 = 56, dY = 28
-  FONT_VARIANTS.filter(v => v.n === 23 || v.n === 24).forEach((v, i) => {
-    const c = i % 3, r = Math.floor(i / 3)
-    const x = colX[c], y = rowY0 + r * dY
-
-    const num = document.createElementNS(SVGNS, 'text')
-    num.setAttribute('x', x); num.setAttribute('y', y)
-    num.style.fill = 'var(--text2)'
-    num.style.font = "400 11px 'DM Sans', sans-serif"
-    num.textContent = `${v.n}.`
-    g.appendChild(num)
-
-    const s = document.createElementNS(SVGNS, 'text')
-    s.setAttribute('x', x + 34); s.setAttribute('y', y)
-    s.style.fill = 'var(--text)'
-    s.style.fontFamily = v.ff
-    s.style.fontSize = v.fs + 'px'
-    s.style.fontWeight = v.w
-    s.style.fontStyle = v.it ? 'italic' : 'normal'
-    s.textContent = v.t
-    g.appendChild(s)
-  })
 }
 
 // ── Szene aktualisieren ───────────────────────────────────────────────────────
@@ -332,9 +220,7 @@ export function updateScene() {
     const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
     const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
     addForceLabel(m2Attach.x + (T1_vec.x * FORCE_SCALE_FACTOR) / 2 + nLx * off, m2Attach.y + (T1_vec.y * FORCE_SCALE_FACTOR) / 2 + nLy * off, 'S,li', 'tension')
-    // addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension', 'start', FONT_VARIANTS.find(v => v.n === 23))
-    // Statt F_S,re-Label: Variante 23 („F⃗ test") genau an dieser Stelle
-    addVariantSample(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 23)
+    addForceLabel(m2Attach.x + (T3_vec.x * FORCE_SCALE_FACTOR) / 2 + nRx * off, m2Attach.y + (T3_vec.y * FORCE_SCALE_FACTOR) / 2 + nRy * off, 'S,re', 'tension')
     if (showComps) {
       addComponentDisplay(m1Center.x + m1Size / 2 + 30, m1Center.y - (T1 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T1, 'tension')
       addComponentDisplay(m3Center.x - m3Size / 2 - 50, m3Center.y - (T3 * FORCE_SCALE_FACTOR) / 2 - 9, 0, -T3, 'tension', 'end')
@@ -360,8 +246,6 @@ export function updateScene() {
   parent.appendChild(DOM.massLeftGroup)
   parent.appendChild(DOM.massRightGroup)
   parent.appendChild(DOM.massMiddleGroup)
-
-  if (FONT_TEST) drawFontTest() // Overlay obendrauf, Sim bleibt sichtbar
 }
 
 // ── Analyse-Panel (HTML, statisches MathJax — nur textContent aktualisieren) ─

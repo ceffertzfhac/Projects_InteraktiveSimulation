@@ -12,8 +12,8 @@ export const store = {
   // Visualisierungs-Toggles
   showGravity: true,
   showTension: true,
-  showComponents: false,
-  showComponentValues: false,
+  showComponents: true,
+  showComponentValues: true,
   showGrid: false,
 
   // Ergebnis des letzten computeEquilibrium-Runs (oder null / Fehlstatus)

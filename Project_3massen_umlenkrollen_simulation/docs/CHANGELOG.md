@@ -1,5 +1,12 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.0.7] — 2026-07-06
+### Geändert (Schriftsetzung finalisiert)
+- **Schrift-Test-Gerüst entfernt:** Das temporäre „Schrift-Test 23 + 24"-Overlay-Panel samt `FONT_TEST`/`FONT_VARIANTS`/`drawFontTest()`/`addVariantSample()` ist raus. Die Kraft-Labels stehen wieder als reguläre `F⃗`-Labels in der Sim (auch `F_S,re`, das während des Tests durch eine „F⃗ test"-Probe ersetzt war).
+- **Variante 23 fest verankert:** Kraft-Labels verwenden den Combining-Vektorpfeil `F⃗` (U+20D7) in Serif-Italic 13 px/400 — genau Variante 23 aus dem Test. Diese Setzung kommt vollständig aus der CSS-Regel `.force-label` (`--font-serif`, 13 px, 400) plus dem kursiven Symbol-tspan; der überflüssige `fontCfg`-Parameter in `addForceLabel` entfällt. Symbol kursiv, Index aufrecht (Konvention).
+### Geändert
+- **Komponenten standardmäßig sichtbar:** Toggles „Komponentenzerlegung" und „Vektorkomponenten anzeigen" starten aktiviert (`checked`), passend zur Regel „Vektoren beim Start sichtbar".
+
 ## [1.0.6] — 2026-07-06
 ### Behoben (Abnahme-Feedback: „Buchstabe doppelt gezeichnet")
 - **Vektor-Pfeil via Unicode statt Pfad:** Der hand-positionierte Pfeil-Pfad lag so nah am F-Glyphen, daß er mit diesem verschmolz und wie ein gedoppeltes F aussah. Jetzt wird der Vektor-Pfeil als **Combining Arrow U+20D7** (`F⃗`) direkt in den Text eingesetzt — die Serifenschrift plaziert ihn selbst korrekt über dem F (wie in LaTeX/MathJax). Manuelles Positioning (`getStartPositionOfChar`/BBox) und die `.vec-arrow`-CSS-Regeln entfallen.
