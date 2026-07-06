@@ -5,6 +5,20 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.10 — 2026-07-06
+
+### Fix
+- **Mindestens 4 beschriftete Ticks pro Achse (inkl. 0)**: die Ordinate
+  (y-Achse) verwendete `getNiceTick(valRng)` (minDivs 3), was durch Auf-
+  runden auf die 1-2-5-Folge bei A=0,8 nur 3 Ticks (−0,5 / 0 / 0,5) lieferte.
+  Neue Funktion `niceStepLE(range, minDivs)` wählt den größten Nice-Step
+  aus einer feineren 1-2-4-5-Folge, der ≤ range/minDivs ist → garantiert
+  ≥ minDivs Teilstriche. Mit `minDivs=4` liefert die Ordinate jetzt 5–7
+  Ticks inkl. 0 (z. B. −0,8 / −0,4 / 0 / 0,4 / 0,8). Die 4er-Stufe schließt
+  die Lücke zwischen 2 und 5 (rein 1-2-5 gäbe sonst nur 3 oder 9 Ticks).
+  Abszisse (t-Achse) liefert über `tAxisStep` ohnehin 6 Ticks (tMax ≥10 s).
+  Maximum ≤12 (5–9 y-Ticks, 6 t-Ticks).
+
 ## v1.0.9 — 2026-07-06
 
 ### Feature
