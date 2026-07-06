@@ -147,8 +147,95 @@ function hideMasses() {
   }
 }
 
+// ── SCRIFT-TEST (temporär): rendert "test" in diversen Fonts/Größen/Weights ──
+// numeriert ins Sim-Feld. Sobald die Auswahl feststeht, wird dieser Block wieder
+// entfernt und die gewählte Variante auf die Sim-Labels angewandt.
+const FONT_TEST = true
+const FONT_VARIANTS = [
+  // Serif italic (Math-Konvention, wie LaTeX/MathJax)
+  { n: 1,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 11, w: 400, it: true,  t: 'test' },
+  { n: 2,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 12, w: 400, it: true,  t: 'test' },
+  { n: 3,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: true,  t: 'test' },
+  { n: 4,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true,  t: 'test' },
+  { n: 5,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 500, it: true,  t: 'test' },
+  { n: 6,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 600, it: true,  t: 'test' },
+  { n: 7,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: false, t: 'test' },
+  { n: 8,  ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 500, it: false, t: 'test' },
+  // DM Sans (Share-UI-Font)
+  { n: 9,  ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 12, w: 400, it: true,  t: 'test' },
+  { n: 10, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 400, it: true,  t: 'test' },
+  { n: 11, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 500, it: true,  t: 'test' },
+  { n: 12, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 400, it: false, t: 'test' },
+  { n: 13, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 500, it: false, t: 'test' },
+  { n: 14, ff: "'DM Sans', Verdana, system-ui, sans-serif", fs: 13, w: 600, it: false, t: 'test' },
+  // system-ui (auf macOS: San Francisco)
+  { n: 15, ff: "system-ui, sans-serif", fs: 13, w: 400, it: true,  t: 'test' },
+  { n: 16, ff: "system-ui, sans-serif", fs: 13, w: 400, it: false, t: 'test' },
+  { n: 17, ff: "system-ui, sans-serif", fs: 13, w: 500, it: false, t: 'test' },
+  // Georgia / Cambria / STIX Two Text
+  { n: 18, ff: "Georgia, serif",              fs: 13, w: 400, it: true, t: 'test' },
+  { n: 19, ff: "Cambria, serif",              fs: 13, w: 400, it: true, t: 'test' },
+  { n: 20, ff: "'STIX Two Text', serif",      fs: 13, w: 400, it: true, t: 'test' },
+  // JetBrains Mono
+  { n: 21, ff: "'JetBrains Mono', monospace", fs: 12, w: 400, it: false, t: 'test' },
+  { n: 22, ff: "'JetBrains Mono', monospace", fs: 13, w: 400, it: false, t: 'test' },
+  // F⃗-Proben (Combining-Arrow-Rendering prüfen, mit Subscript)
+  { n: 23, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 13, w: 400, it: true, t: 'F⃗ test' },
+  { n: 24, ff: "'Times New Roman', 'STIX Two Text', Cambria, Georgia, serif", fs: 14, w: 400, it: true, t: 'F⃗G,1' },
+]
+
+function drawFontTest() {
+  let g = document.getElementById('font_test_group')
+  if (!g) {
+    g = document.createElementNS(SVGNS, 'g')
+    g.setAttribute('id', 'font_test_group')
+    DOM.mainSvg.appendChild(g)
+  } else {
+    DOM.mainSvg.appendChild(g) // zuletzt angehängt = oben
+  }
+  g.innerHTML = ''
+
+  const bg = document.createElementNS(SVGNS, 'rect')
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0)
+  bg.setAttribute('width', SVG_W); bg.setAttribute('height', SVG_H)
+  bg.style.fill = 'var(--bg)'
+  g.appendChild(bg)
+
+  const header = document.createElementNS(SVGNS, 'text')
+  header.setAttribute('x', 20); header.setAttribute('y', 26)
+  header.style.fill = 'var(--text)'
+  header.style.font = "600 15px 'DM Sans', sans-serif"
+  header.textContent = 'Schrift-Test — bitte Nummer(n) nennen, die gut aussehen'
+  g.appendChild(header)
+
+  const colX = [20, 320, 620]
+  const rowY0 = 56, dY = 52
+  FONT_VARIANTS.forEach((v, i) => {
+    const c = i % 3, r = Math.floor(i / 3)
+    const x = colX[c], y = rowY0 + r * dY
+
+    const num = document.createElementNS(SVGNS, 'text')
+    num.setAttribute('x', x); num.setAttribute('y', y)
+    num.style.fill = 'var(--text2)'
+    num.style.font = "400 11px 'DM Sans', sans-serif"
+    num.textContent = `${v.n}.`
+    g.appendChild(num)
+
+    const s = document.createElementNS(SVGNS, 'text')
+    s.setAttribute('x', x + 34); s.setAttribute('y', y)
+    s.style.fill = 'var(--text)'
+    s.style.fontFamily = v.ff
+    s.style.fontSize = v.fs + 'px'
+    s.style.fontWeight = v.w
+    s.style.fontStyle = v.it ? 'italic' : 'normal'
+    s.textContent = v.t
+    g.appendChild(s)
+  })
+}
+
 // ── Szene aktualisieren ───────────────────────────────────────────────────────
 export function updateScene() {
+  if (FONT_TEST) { drawFontTest(); return }
   const pulleyDist = store.pulleyDistCm * PIXELS_PER_CM
   const pulleyLeftX = SVG_CENTER_X - pulleyDist / 2
   const pulleyRightX = SVG_CENTER_X + pulleyDist / 2
