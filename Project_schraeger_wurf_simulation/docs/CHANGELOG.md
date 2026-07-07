@@ -1,5 +1,20 @@
 # Changelog — Schräger Wurf
 
+## v1.2.4 — 2026-07-07
+### Behoben
+- **Achsenrichtung im gestapelten Diagramm auswählbar.** Das Dropdown zur
+  Y-Achsen-Konfiguration (Richtung oben/unten, Nullpunkt Boden/Start) war im
+  gestapelten Modus ausgegraut — obwohl yAxisConfig dort sehr wohl sinnvoll
+  ist: der untere Teilgraph ist jeweils die y-Komponente (Höhe y(t) bzw.
+  v_y(t)/a_y(t)), und `drawSingleGraph` wendet `useYAxisConfig:true` darauf
+  an (render.js), bzw. `ui.js` zeichnet ihn aus den `_display`-Daten. Die
+  Sperre `!store.isStacked` war also zu restriktiv. Da im gestapelten Modus
+  `graphType` auf `pos`/`vel`/`acc` steht (nicht auf `yt`/`vyt`/`ayt`), reicht
+  das bloße Streichen nicht — die Bedingung wurde erweitert auf
+  `!isTraj && (store.isStacked || includes yt/vyt/ayt)`: gestapelt immer aktiv
+  (jede Option hat eine y-Komponente), Einzelfeld bei y-Zeitdiagramm, bei
+  Bahnkurven und reinen x-Zeitdiagrammen weiterhin deaktiviert.
+
 ## v1.2.3 — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**

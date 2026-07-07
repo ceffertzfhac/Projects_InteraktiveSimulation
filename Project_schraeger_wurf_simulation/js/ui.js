@@ -172,9 +172,11 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
     DOM.subHand.setAttribute('x2', SDIAL_CX); DOM.subHand.setAttribute('y2', SDIAL_CY - 15)
   }
 
-  // Y-Achsen-Konfig-Dropdown nur bei y-Zeitdiagramm relevant
+  // Y-Achsen-Konfig-Dropdown: bei y-Zeitdiagramm (Einzelfeld) UND im gestapelten
+  // Modus — dort nutzt der untere y-Komponenten-Teilgraph (y/v_y/a_y) yAxisConfig
+  // (render.js drawSingleGraph … useYAxisConfig:true; ui.js _display-Daten).
   const isTraj = ['yx', 'xy'].includes(store.graphType)
-  const isYRelevant = !store.isStacked && !isTraj && ['yt', 'vyt', 'ayt'].includes(store.graphType)
+  const isYRelevant = !isTraj && (store.isStacked || ['yt', 'vyt', 'ayt'].includes(store.graphType))
   DOM.yAxisSelect.disabled = !isYRelevant
   DOM.togStacked.disabled = isTraj
   if (isTraj) DOM.togStacked.checked = false
