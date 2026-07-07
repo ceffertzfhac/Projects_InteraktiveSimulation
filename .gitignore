@@ -11,3 +11,9 @@
 test.txt
 *.tmp
 *.bak
+
+# Temp-Archiv (Staging für sicheres Löschen): Dateien, die sehr sicher nicht mehr
+# benötigt werden, werden hierhin *verschoben* (nicht sofort gelöscht). Das Archiv
+# wird erst geleert/gelöscht, wenn das gesamte Projekt fertig + abgenommen ist UND
+# der PO es ausdrücklich bestätigt. Lokales Sicherheitsnetz — nicht committed.
+_temp_archiv/
