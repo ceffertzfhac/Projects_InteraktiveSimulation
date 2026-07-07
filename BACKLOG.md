@@ -23,7 +23,7 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 | T3 | ✅ AGENTS.md und README.md aktualisieren | Repo | **Erledigt (Session 2026-07-07):** Beide neu geschrieben auf die aktuelle Repo-Struktur (9 `Project_*`-Sims, `AllAnimations/`, `Standalone Proto/`, `shared/`, `global_docs/`), veraltete Namen (`zykloide_schiefe_ebene/`, `lorentz_force_simulation/`, v1.0.0/v1.6.0) entfernt. AGENTS.md verweist auf CLAUDE.md als kanonische Quelle. ~~ Ursprünglich: referenzierten noch alte Verzeichnisnamen. ~~ |
 | T4 | GEMINI.md aufräumen | Repo | `global_docs/GEMINI.md` ist inhaltlich nahezu identisch mit `CLAUDE.md`. Entweder konsolidieren oder klar abgrenzen. |
 | T6 | Einheitliche `fmt()`-Funktion | Beide | Projekt 1 nutzt `toLocaleString('de-DE')`, Projekt 2 `toFixed().replace()`. Projekt 2 ist robuster (NaN-Check). Angleichen. |
-| T7 | Magic Numbers in render.js | Lorentzkraft | Feder-Parameter (14 Windungen, Radius 7, Drahtbreite 2,6, 12 Helix-Schritte) sind hardcodiert. Zu Konstanten machen. |
+| T7 | ✅ Magic Numbers in render.js | Lorentzkraft | **Erledigt (Session 2026-07-07):** Feder-Helix-Parameter (Windungen, Radius, Drahtbreite, Hook-Länge, Sample-Schritte, Layer-Strichbreiten/Farben) aus `render.js` in neues `SPRING`-Objekt in `constants.js` ausgelagert. Keine Verhaltensänderung (v1.5.5). ~~ Ursprünglich: Feder-Parameter hardcodiert. ~~ |
 | T8 | ✅ Combining-Pfeil-Vektorlabels repo-weit angleichen | Alle (v/a/F-Sims) | **Erledigt (Session 2026-07-07):** PO-Entscheid — nur **bestehende** Labels angleichen, keine neuen an label-lose Sims. Rollende Körper (v2.0.4) + Lorentz (v1.5.4) auf `F⃗`+Index (Serif-Italic, `stroke:none`, Werte bewußt entfernt) gebracht; `--font-serif` in shared CSS zentralisiert. Nachbesserungen: Rolling v2.0.5 (Kräfte-Beträge im Analyse-Tab), 3-Massen v1.2.0 (Winkel α zur Horizontalen in Grafik + Analyse). 6 label-lose Sims (Freier Fall, Schräger Wurf, Zykloide, Atwood, Federpendel, Kreisbewegung) bewußt unangetastet — separates Feature. ~~ Ursprünglich: 3-Massen (v1.0.7+) setzt Vektor-Labels als Symbol mit Combining-Arrow U+20D7 (`F⃗`) in Serif-Italic + `stroke:none` (kein Faux-Bold, s. CLAUDE.md „SVG-Text-Labels nie stroke-tragende vec-Klasse"). Andere Sims beschriften ihre v/a/F-Vektoren uneinheitlich. Nur die Label-Notation angleichen — Pfeilspitzen-Geometrie (`refX=0`+`shortenEnd`) war bereits repo-weit gefixt (Session 2026-07-06). ~~ |
 
 ---
@@ -253,9 +253,9 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 38
+- **Gesamt-Items (offen):** 37
 - **Bugs:** 3
-- **Technische Schulden:** 7 (davon T8, T3 erledigt)
+- **Technische Schulden:** 7 (davon T8, T3, T7 erledigt)
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
@@ -263,4 +263,4 @@ Berührung gegen die kanonische Regel abgleichen.
 - **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
 - **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 21 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3 — Session 2026-07-07)
+- **Erledigt:** 22 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7 — Session 2026-07-07)

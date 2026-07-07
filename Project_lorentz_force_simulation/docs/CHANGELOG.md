@@ -1,5 +1,14 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.5] - 2026-07-07
+### Refaktoriert (T7 — Feder-Magic-Numbers zu Konstanten)
+- **Feder-Helix-Parameter aus `render.js` nach `constants.js` ausgelagert** (neues
+  `SPRING`-Objekt): Windungen (`COILS=14`), Helix-Radius (`7`), Drahtbreite (`2,6`),
+  Hook-Länge (`15`), Fallback-Schwelle (`5`), Sample-Schritte (`12`) sowie die
+  Strichbreiten-Multiplikatoren/Farben der drei Layer + Hooks. `draw3DSpring()` und
+  `getHelixSegment()` referenzieren jetzt `SPRING.*` statt nackter Zahlen. Rein
+  interne Refaktorierung — keine Verhaltens-/Optikänderung.
+
 ## [1.5.4] - 2026-07-07
 ### Geändert (T8 — Vektor-Label-Notation an 3-Massen-Referenz angeglichen)
 - **Kraft-Vektor-Labels tragen jetzt das Vektorsymbol mit Pfeil** (`F⃗` + Index L für

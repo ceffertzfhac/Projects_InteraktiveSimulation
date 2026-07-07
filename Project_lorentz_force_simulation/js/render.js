@@ -1,6 +1,6 @@
 'use strict'
 
-import { SCALE, Y_COND1, Y_CEILING, COLORS, SVG_W } from './constants.js'
+import { SCALE, Y_COND1, Y_CEILING, COLORS, SVG_W, SPRING } from './constants.js'
 import { store, DOM } from './state.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
@@ -47,7 +47,7 @@ function vecLabel(x, y, sym, color, sub = null, anchor = 'start') {
  * Generates path d for a helix segment between angles t1 and t2.
  */
 function getHelixSegment(t1, t2, xCenter, yStart, hPerRad, radius) {
-  const steps = 12
+  const steps = SPRING.HELIX_STEPS
   let d = ''
   for (let i = 0; i <= steps; i++) {
     const t = t1 + (t2 - t1) * (i / steps)
@@ -68,13 +68,13 @@ function draw3DSpring(g, x, yStart, yEnd) {
   if (!isFinite(x) || !isFinite(yStart) || !isFinite(yEnd)) return
   
   const totalH = yEnd - yStart
-  const hookH = 15
+  const hookH = SPRING.HOOK_H
   const activeH = totalH - 2 * hookH
-  
-  if (activeH < 5) {
+
+  if (activeH < SPRING.MIN_ACTIVE_H) {
     const l = document.createElementNS('http://www.w3.org/2000/svg', 'line')
     l.setAttribute('x1', x); l.setAttribute('y1', yStart); l.setAttribute('x2', x); l.setAttribute('y2', yEnd)
-    l.setAttribute('stroke', '#666'); l.setAttribute('stroke-width', '2')
+    l.setAttribute('stroke', SPRING.COLOR_FALLBACK); l.setAttribute('stroke-width', SPRING.FALLBACK_STROKE_WIDTH)
     g.appendChild(l)
     return
   }
@@ -82,14 +82,14 @@ function draw3DSpring(g, x, yStart, yEnd) {
   // 1. Top Hook
   const topHook = document.createElementNS('http://www.w3.org/2000/svg', 'path')
   topHook.setAttribute('d', `M ${x} ${Y_CEILING} L ${x} ${yStart + hookH}`)
-  topHook.setAttribute('fill', 'none'); topHook.setAttribute('stroke', '#555'); topHook.setAttribute('stroke-width', '2')
+  topHook.setAttribute('fill', 'none'); topHook.setAttribute('stroke', SPRING.COLOR_HOOK); topHook.setAttribute('stroke-width', SPRING.HOOK_STROKE_WIDTH)
   g.appendChild(topHook)
 
   // 2. Coils (Interleaved Rendering)
-  const numCoils = 14
-  const radius = 7
+  const numCoils = SPRING.COILS
+  const radius = SPRING.RADIUS
   const hPerRad = activeH / (numCoils * 2 * Math.PI)
-  const wireWidth = 2.6
+  const wireWidth = SPRING.WIRE_WIDTH
 
   for (let i = 0; i < numCoils; i++) {
     const tStart = i * 2 * Math.PI
@@ -99,35 +99,35 @@ function draw3DSpring(g, x, yStart, yEnd) {
     const dBack = getHelixSegment(tStart + Math.PI, tStart + 2 * Math.PI, x, yBase, hPerRad, radius)
     const backPath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     backPath.setAttribute('d', dBack); backPath.setAttribute('fill', 'none')
-    backPath.setAttribute('stroke', '#333'); backPath.setAttribute('stroke-width', wireWidth * 0.8)
+    backPath.setAttribute('stroke', SPRING.COLOR_BACK); backPath.setAttribute('stroke-width', wireWidth * SPRING.BACK_WIDTH_FACTOR)
     g.appendChild(backPath)
 
     // Front Arc (0 to PI) - covers the back part
     const dFront = getHelixSegment(tStart, tStart + Math.PI, x, yBase, hPerRad, radius)
-    
+
     // Layer 1: Front Outline (Black)
     const l1 = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     l1.setAttribute('d', dFront); l1.setAttribute('fill', 'none'); l1.setAttribute('stroke-linecap', 'round')
-    l1.setAttribute('stroke', '#111'); l1.setAttribute('stroke-width', wireWidth + 1.0)
+    l1.setAttribute('stroke', SPRING.COLOR_FRONT_OUTLINE); l1.setAttribute('stroke-width', wireWidth + SPRING.FRONT_OUTLINE_EXTRA)
     g.appendChild(l1)
-    
+
     // Layer 2: Front Body (Metallic Gradient)
     const l2 = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     l2.setAttribute('d', dFront); l2.setAttribute('fill', 'none'); l2.setAttribute('stroke-linecap', 'round')
     l2.setAttribute('stroke', 'url(#springGrad)'); l2.setAttribute('stroke-width', wireWidth)
     g.appendChild(l2)
-    
+
     // Layer 3: Front Highlight (Subtle White)
     const l3 = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     l3.setAttribute('d', dFront); l3.setAttribute('fill', 'none'); l3.setAttribute('stroke-linecap', 'round')
-    l3.setAttribute('stroke', '#fff'); l3.setAttribute('stroke-width', wireWidth * 0.3); l3.setAttribute('stroke-opacity', '0.5')
+    l3.setAttribute('stroke', SPRING.COLOR_HIGHLIGHT); l3.setAttribute('stroke-width', wireWidth * SPRING.FRONT_HIGHLIGHT_FACTOR); l3.setAttribute('stroke-opacity', SPRING.HIGHLIGHT_OPACITY)
     g.appendChild(l3)
   }
 
   // 3. Bottom Hook
   const botHook = document.createElementNS('http://www.w3.org/2000/svg', 'path')
   botHook.setAttribute('d', `M ${x + radius} ${yEnd - hookH} L ${x} ${yEnd}`)
-  botHook.setAttribute('fill', 'none'); botHook.setAttribute('stroke', '#555'); botHook.setAttribute('stroke-width', '2')
+  botHook.setAttribute('fill', 'none'); botHook.setAttribute('stroke', SPRING.COLOR_HOOK); botHook.setAttribute('stroke-width', SPRING.HOOK_STROKE_WIDTH)
   g.appendChild(botHook)
 }
 
