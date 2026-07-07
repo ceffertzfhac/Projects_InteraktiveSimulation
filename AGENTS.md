@@ -1,120 +1,64 @@
-# AGENTS.md - Agentic Coding Guidelines
+# AGENTS.md — Agentic Coding Guidelines
+
+> **Kanonischer Leitfaden ist [`CLAUDE.md`](./CLAUDE.md).** Diese Datei gibt nur den
+> Repo-Überblick für Agenten; bei Widersprüchen gilt CLAUDE.md. Status & Aufgaben
+> liegen im repo-weiten [`BACKLOG.md`](./BACKLOG.md).
 
 ## Project Overview
 
-This is a physics simulation (HTML/CSS/JS) for demonstrating rolling dynamics on inclined planes. The simulation visualizes various rolling bodies (cylinders, spheres) with different form factors, compares their motion, and displays energy analysis.
+Mono-Repo interaktiver Physik-Simulationen für FH Aachen FB 8. Reine Client-Web-Apps:
+Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3. **Kein Build-Schritt, kein npm, keine
+automatisierten Tests** — Verifikation erfolgt manuell im Browser.
 
-**Main file:** `index.html`
-
-## Project Structure
+## Repo Structure
 
 ```
-zykloide_schiefe_ebene/
-├── index.html          # Main entry point (ES Modules)
-├── css/                 # CSS files (future)
-├── js/
-│   ├── main.js         # Entry point, initialization
-│   ├── constants.js    # Physics & UI constants
-│   ├── state.js        # State management & DOM cache
-│   ├── physics.js      # Physics calculations
-│   ├── render.js      # Rendering functions
-│   └── ui.js          # UI event handlers
-└── docs/
-    ├── README.md       # Project documentation
-    └── CHANGELOG.md    # Change log
+Project_<sim>_simulation/   # modulare Sims (je index.html + js/{constants,state,physics,render,ui}.js + css/ + docs/)
+AllAnimations/              # globale Übersichtsseite (index.html) + lauffähige Standalone-Prototypen + Vorschaubilder/
+Standalone Proto/           # historische Quellordner der Single-File-Prototypen (nicht kanonisch)
+shared/                     # shared/css/design-system.css (Design-Tokens, Layout, Klapp-Sidebar)
+global_docs/                # Architektur-Blueprint (simulation_instruction.md) + KI-Kontext
+CLAUDE.md                   # kanonischer Entwicklungsleitfaden (Architektur, Konventionen, Design-System)
+BACKLOG.md                  # repo-weites MoSCoW-Backlog
 ```
 
----
+Jede modulare Sim folgt dem Sechs-Modul-Aufbau aus `global_docs/simulation_instruction.md`:
+`constants.js` / `state.js` / `physics.js` / `render.js` / `ui.js` (+ ggf. `main.js` bei
+älteren Sims). Datenfluß: UI → `state.store` → `physics.precompute()` → `render.updateScene()`.
 
-## Build / Development Commands
+## Running
 
-### Running the Project
-Requires a local server (ES Modules don't work with file:// protocol):
+ES-Module brauchen einen HTTP-Server (`file://` scheitert an CORS). Server im Repo-Root
+starten, sonst 404 auf `shared/css/`:
 
 ```bash
-# With npx serve
-npx serve .
-
-# Or with any other server
-python3 -m http.server 8000
+python3 -m http.server 8000   # dann http://localhost:8000/<sim>/index.html
 ```
 
-Then open: http://localhost:3000 (or http://localhost:8000)
+## Conventions (Kurzfassung — s. CLAUDE.md für vollständige Regeln)
 
-### Testing
-No automated tests exist. Manual testing involves:
-1. Opening the HTML file in a browser
-2. Verifying physics calculations visually
-3. Checking all UI controls work (sliders, toggles, buttons)
-4. Testing CSV export functionality
-
-### Linting
-No linting is configured. For JavaScript, follow the existing code style.
-
----
-
-## Code Style Guidelines
-
-### JavaScript (ES Modules)
-
-- **Use `'use strict'`** at the top of modules
-- **Use ES6+ features**: const/let, arrow functions, template literals, modules
-- **No semicolons** at statement ends (consistent with existing code)
-
-#### Naming Conventions
-- **Constants**: UPPER_SNAKE_CASE (e.g., `G`, `DT`, `SVG_W`)
-- **Variables/functions**: camelCase (e.g., `simTime`, `resetSim`)
-- **DOM element IDs**: snake_case (e.g., `radius_slider`, `play_btn`)
-- **Private variables**: Prefix with underscore (e.g., `_visX0`, `_mjDebounceTimer`)
-- **Module names**: lowercase, e.g., `constants.js`, `render.js`
-
-#### Functions
-- Keep functions focused and under 50 lines when possible
-- Use JSDoc for documentation
-- Document complex physics calculations with comments
-
-#### State Management
-- Global state stored in `state.js`
-- Use `DOM` object for cached DOM references
-- State updates trigger `resetSim()` or `updateScene()`
-- Use `requestAnimationFrame` for animation loops
-
-### CSS Guidelines
-- 2-space indentation
-- CSS custom properties in `:root`
-- Dark/light theme support with `.light` class
-- Use classes over element selectors
-
-### Formatting
-- Maximum line length ~100 characters
-- One blank line between function definitions
-- Use helper functions for repeated operations
-
----
-
-## Common Tasks
-
-### Adding a New Body Type
-1. Add entry to `ALL_TYPES` in `constants.js`
-2. Add case in `computeK()` in `physics.js`
-3. Add styling in `updateCylinderStyle()` in `render.js`
-4. Add radio button in `index.html`
-
-### Adding a New Graph Quantity
-1. Add entry to `GRAPH_OPTIONS` in `constants.js`
-2. Ensure quantity is computed in `precompute()` in `physics.js`
-3. Update `CMP_KEYS` if needed
-
-### Modifying Physics
-- Main physics computed in `precompute()` in `physics.js`
-- Acceleration formula: `a = g·sin(α) / (1 + k)`
-- k-factor: `k = I / (mR²)`
-
----
+- **Sprache:** UI-Text, Kommentare, Doku auf Deutsch.
+- **Dezimaltrenner:** Komma `,` in UI-Texten/Labels; Punkt `.` in SVG-Koordinaten.
+- **ES6+:** `const`/`let`, Arrow-Functions, Template-Literals, **keine Semikolons**,
+  `'use strict'` am Modulanfang.
+- **Naming:** `UPPER_SNAKE` Konstanten, `camelCase` Funktionen/Variablen, `snake_case`
+  DOM-IDs, `_prefix` modul-private.
+- **State:** alle veränderlichen Variablen ausschließlich in `state.js` → `store`.
+  Keine modul-globalen Variablen anderswo.
+- **Koordinaten:** zentrale `physToScreen(x,y)` in `render.js` — nie pixel-roh streuen.
+- **Theming:** Farben via CSS Custom Properties (`--bg`, `--surface`, `--accent` …).
+  Vector-Farben standardisiert; `var()` als SVG-Attribut funktioniert **nicht** (lit. Hex
+  oder CSS-Klasse nutzen).
+- **Versionierung:** jeder Code-Change bump die Version in `docs/CHANGELOG.md` (patch =
+  Bugfix/Style, minor = Feature); Version in `index.html` synchron halten.
+- **Git-Hooks** (`.githooks`, `core.hooksPath` gesetzt): `commit-msg` erzwingt
+  Conventional Commits (`<typ>(<scope>): <beschreibung>`); `pre-commit` blockt
+  `.DS_Store`/`test.txt`.
 
 ## Notes for AI Agents
 
-- This project uses **ES Modules** - no build step required, but needs a local server
-- The original single-file version is preserved as `zykloide_schiefe_ebene_v5.html`
-- All text is in German (project for FH-Physik course)
-- Simulation is deterministic - same inputs always produce same outputs
+- Keine Commits ohne ausdrückliche Anweisung; auf dem Default-Branch erst branchen.
+- Formeln als **statisches HTML** in `index.html` schreiben (MathJax rendert beim
+  Start), nicht per JS-`innerHTML` einfügen — siehe CLAUDE.md „MathJax statisch".
+- Vor dem Löschen/Überschreiben den Inhalt prüfen; bei Widerspruch zur Beschreibung
+  zurückmelden statt blind auszuführen.

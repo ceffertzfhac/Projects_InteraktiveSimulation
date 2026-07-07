@@ -20,7 +20,7 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 |----|-------|---------|--------------|
 | T1 | render.js aufteilen (1013 Zeilen) | Rollende Körper | Monolithische `render.js` in thematische Teilmodule zerlegen: z.B. `render-scene.js`, `render-vectors.js`, `render-analysis.js`. |
 | T2 | Redundante Projektkopie entfernen | Repo | `Standalone Proto/rolling_bodies_simulation/` ist eine vollständige Kopie von `Project_rolling_bodies_simulation/` — Überbleibsel der Migration. Entfernen. |
-| T3 | AGENTS.md und README.md aktualisieren | Repo | Beide Dateien referenzieren noch die alten Verzeichnisnamen (`zykloide_schiefe_ebene/`, `lorentz_force_simulation/`). |
+| T3 | ✅ AGENTS.md und README.md aktualisieren | Repo | **Erledigt (Session 2026-07-07):** Beide neu geschrieben auf die aktuelle Repo-Struktur (9 `Project_*`-Sims, `AllAnimations/`, `Standalone Proto/`, `shared/`, `global_docs/`), veraltete Namen (`zykloide_schiefe_ebene/`, `lorentz_force_simulation/`, v1.0.0/v1.6.0) entfernt. AGENTS.md verweist auf CLAUDE.md als kanonische Quelle. ~~ Ursprünglich: referenzierten noch alte Verzeichnisnamen. ~~ |
 | T4 | GEMINI.md aufräumen | Repo | `global_docs/GEMINI.md` ist inhaltlich nahezu identisch mit `CLAUDE.md`. Entweder konsolidieren oder klar abgrenzen. |
 | T6 | Einheitliche `fmt()`-Funktion | Beide | Projekt 1 nutzt `toLocaleString('de-DE')`, Projekt 2 `toFixed().replace()`. Projekt 2 ist robuster (NaN-Check). Angleichen. |
 | T7 | Magic Numbers in render.js | Lorentzkraft | Feder-Parameter (14 Windungen, Radius 7, Drahtbreite 2,6, 12 Helix-Schritte) sind hardcodiert. Zu Konstanten machen. |
@@ -253,9 +253,9 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 39
+- **Gesamt-Items (offen):** 38
 - **Bugs:** 3
-- **Technische Schulden:** 7 (davon T8 erledigt)
+- **Technische Schulden:** 7 (davon T8, T3 erledigt)
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
@@ -263,4 +263,4 @@ Berührung gegen die kanonische Regel abgleichen.
 - **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
 - **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 20 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8 — Session 2026-07-07)
+- **Erledigt:** 21 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3 — Session 2026-07-07)
