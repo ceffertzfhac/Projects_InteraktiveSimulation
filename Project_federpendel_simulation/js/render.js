@@ -16,6 +16,7 @@ import {
 import { store, DOM } from './state.js'
 import { getNiceTick, linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
 

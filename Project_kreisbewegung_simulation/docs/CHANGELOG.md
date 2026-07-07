@@ -5,6 +5,14 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.10 — 2026-07-07
+### Behoben (T6-Regressions-Fix)
+- **Simulation war nach T6 (v1.0.9) dysfunktional:** `fmt` wurde in `ui.js` über
+  einen mehrzeiligen Import aus `render.js` bezogen (`  fmt,`), aber beim
+  T6-Umzug auf `shared/js/format.js` war `render.js` fälschlich als „nur intern"
+  eingestuft und das `export { fmt }` weggelassen worden → Importfehler → Modul
+  lud nicht. Fix: `export { fmt }` in `render.js` nachgetragen.
+
 ## v1.0.9 — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt.**

@@ -17,6 +17,7 @@ import {
 import { store, DOM } from './state.js'
 import { getNiceTick, linePlotIndex, frequency } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+export { fmt }
 
 // ── Layout-abhängige Geometrie (gestapelt ↔ nebeneinander) ───────────────────
 const animH      = () => store.layoutSplit ? ANIM_H_SPLIT      : ANIM_H_STACK
