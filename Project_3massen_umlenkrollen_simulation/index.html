@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Statisches Kräftegleichgewicht
-    <span class="version">v1.1.0</span>
+    <span class="version">v1.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -160,6 +160,7 @@ window.MathJax = {
         <g id="mass_middle_group"><rect id="mass_middle" width="50" height="50" ry="4"/><text id="mass_middle_label" x="25" y="25">m₂</text></g>
 
         <g id="force_vectors_group"></g>
+        <g id="angle_group"></g>
 
         <!-- Koordinatensystem -->
         <g id="coordinate_system_group">
@@ -194,11 +195,11 @@ window.MathJax = {
         <div class="analysis-grid">
           <div class="analysis-cell key">Seilkraft links \(F_{S,1}\)</div>
           <div class="analysis-cell val" id="left_force">—</div>
-          <div class="analysis-cell key">Winkel links \(\gamma_1\) (zur Senkr.)</div>
+          <div class="analysis-cell key">Winkel links \(\alpha_1\) (zur Horiz.)</div>
           <div class="analysis-cell val" id="left_angle">—</div>
           <div class="analysis-cell key">Seilkraft rechts \(F_{S,3}\)</div>
           <div class="analysis-cell val" id="right_force">—</div>
-          <div class="analysis-cell key">Winkel rechts \(\gamma_3\) (zur Senkr.)</div>
+          <div class="analysis-cell key">Winkel rechts \(\alpha_3\) (zur Horiz.)</div>
           <div class="analysis-cell val" id="right_angle">—</div>
           <div class="analysis-cell key">Vertikalkräfte auf \(m_2\)</div>
           <div class="analysis-cell val" id="vertical_forces_value">—</div>
@@ -220,6 +221,7 @@ window.MathJax = {
           <div style="margin-top:6px">Winkel \(\gamma\) zur Senkrechten (Cosinus-Satz):</div>
           <div>\[\cos\gamma_1=\tfrac{F_{S,1}^2+F_{G,2}^2-F_{S,3}^2}{2\,F_{S,1}F_{G,2}}\]</div>
           <div>\[\cos\gamma_3=\tfrac{F_{S,3}^2+F_{G,2}^2-F_{S,1}^2}{2\,F_{S,3}F_{G,2}}\]</div>
+          <div style="margin-top:6px">\(\gamma\) ist der Seil-Neigungswinkel zur <b>Senkrechten</b>; der zur <b>Horizontalen</b> ist \(\alpha = 90^\circ-\gamma\) (in der Graphik an \(m_2\) als \(\alpha_1\)/\(\alpha_3\) eingetragen).</div>
           <div style="margin-top:6px">Dreiecksungleichung (sonst kein Gleichgewicht):</div>
           <div>\[F_{S,1}+F_{S,3}>F_{G,2}>|F_{S,1}-F_{S,3}|\]</div>
         </div>

@@ -5,8 +5,7 @@
   --c-comp-v: #56b4e9;   /* Vertikalkomponente   – Sky-Blue  */
   --mass-label: #ffffff; /* Massen-Beschriftung (kontrastiert in beiden Themes) */
   --warn: #d1002d;       /* Gleichgewichtswarnung */
-  /* Serif-Stack für Variablensymbole (F⃗, m) — kursiv, orientiert an LaTeX/MathJax */
-  --font-serif: 'Times New Roman', 'STIX Two Text', Cambria, 'Noto Serif', Georgia, serif;
+  /* --font-serif wird aus shared/css/design-system.css übernommen (DRY) */
 }
 body.dark {
   --c-comp-h: #e0783b;
@@ -62,6 +61,13 @@ body.dark {
 .force-label.vec-tension { fill: var(--c-fn); }
 .force-label.vec-comp-h  { fill: var(--c-comp-h); }
 .force-label.vec-comp-v  { fill: var(--c-comp-v); }
+
+/* Winkel α zur Horizontalen an m₂ (Bezugslinie + Bögen + Bezeichnung; nur Label,
+   kein Wert). Eigene Klasse (nicht .force-label), damit der numerische Subscript
+   aufrecht bleibt — nur das Symbol α ist kursiv (via tspan, s. render.js). */
+.angle-ref   { stroke: var(--text3); stroke-width: 1; stroke-dasharray: 3 3; fill: none; opacity: .55; }
+.angle-arc   { stroke: var(--text2); stroke-width: 1.2; fill: none; }
+.angle-label { font-family: var(--font-serif); font-size: 13px; font-weight: 400; stroke: none; fill: var(--text2); }
 
 /* Hintergrundraster */
 #grid_group path { stroke: var(--border); stroke-width: 1; }

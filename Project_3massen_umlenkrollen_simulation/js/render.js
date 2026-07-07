@@ -131,6 +131,63 @@ function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
   return text
 }
 
+// ── Winkel α zur Horizontalen an m₂ eintragen ─────────────────────────────────
+// Gestrichelte Horizontale als Bezugslinie durch den Seil-Angriffspunkt, Bögen
+// zwischen Horizontale und jeweiliger Seilstrecke (linkes Seil = angle1 im
+// math.-Konventionsraum 90..180°, rechtes = angle3 0..90°), dazu die Bezeichnung
+// α₁/α₃ (Serif-Italic wie die Kraft-Labels, Subscript numerisch aufrecht). NUR die
+// Bezeichnung — kein Wert (PO-Vorgabe). Bogenradius außerhalb der m₂-Masse, sodaß
+// die Masse (z-Order oben) die Horizontale mittig überdeckt und nur die äußeren
+// Bezugs-Stücke sichtbar bleiben.
+function drawAngleAtM2(m2Attach, m2Size, angle1, angle3) {
+  DOM.angleGroup.innerHTML = ''
+  const cx = m2Attach.x, cy = m2Attach.y
+  const r = Math.max(28, m2Size / 2 + 10)              // Bogenradius, außerhalb der m₂-Masse
+  const armLen = r + 12
+  // math-Winkel (y↑) → Bildschirm (y↓): y = cy − r·sin(θ)
+  const toScreen = (theta, rad) => ({ x: cx + rad * Math.cos(theta), y: cy - rad * Math.sin(theta) })
+
+  const h = document.createElementNS(SVGNS, 'line')
+  h.setAttribute('x1', cx - armLen); h.setAttribute('y1', cy)
+  h.setAttribute('x2', cx + armLen); h.setAttribute('y2', cy)
+  h.setAttribute('class', 'angle-ref')
+  DOM.angleGroup.appendChild(h)
+
+  // Bogen als Polyline (statt SVG-Arc-Sweep-Flag-Raterei): sample im math-Winkelraum.
+  const arcPath = (fromTheta, toTheta, steps = 14) => {
+    let d = ''
+    for (let i = 0; i <= steps; i++) {
+      const t = fromTheta + (toTheta - fromTheta) * (i / steps)
+      const p = toScreen(t, r)
+      d += (i === 0 ? 'M' : 'L') + ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`
+    }
+    return d
+  }
+  const aL = document.createElementNS(SVGNS, 'path')
+  aL.setAttribute('d', arcPath(angle1, Math.PI)); aL.setAttribute('class', 'angle-arc')
+  DOM.angleGroup.appendChild(aL)
+  const aR = document.createElementNS(SVGNS, 'path')
+  aR.setAttribute('d', arcPath(0, angle3)); aR.setAttribute('class', 'angle-arc')
+  DOM.angleGroup.appendChild(aR)
+
+  // α-Label je Sektor auf der Winkelhalbierenden (gerade außerhalb des Bogens).
+  const labelAt = (thetaMid, sub) => {
+    const p = toScreen(thetaMid, r + 6)
+    const t = document.createElementNS(SVGNS, 'text')
+    t.setAttribute('x', p.x.toFixed(1)); t.setAttribute('y', p.y.toFixed(1))
+    t.setAttribute('class', 'angle-label')
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'middle')
+    const s = document.createElementNS(SVGNS, 'tspan')
+    s.setAttribute('font-style', 'italic'); s.textContent = 'α'
+    const sb = document.createElementNS(SVGNS, 'tspan')
+    sb.setAttribute('dy', '0.25em'); sb.setAttribute('font-size', '0.7em'); sb.textContent = sub
+    t.appendChild(s); t.appendChild(sb)
+    DOM.angleGroup.appendChild(t)
+  }
+  labelAt((angle1 + Math.PI) / 2, '1')   // α₁: Sektor linkes Seil (angle1) ↔ linke Horizontale (π)
+  labelAt(angle3 / 2, '3')               // α₃: Sektor rechtes Seil (angle3) ↔ rechte Horizontale (0)
+}
+
 // ── Kollisionsauflösung der Label-Einheiten ───────────────────────────────────
 // Deterministische Platzierung (an den Vektoren) hält für die meisten Konfigurationen,
 // aber bei kleinem Rollenabstand/bestimmten Massen überlappen zwei Einheiten (z. B.
@@ -200,6 +257,7 @@ export function updateScene() {
   positionPulleys(pulleyLeftX, pulleyRightX)
 
   DOM.forceVectorsGroup.innerHTML = ''
+  DOM.angleGroup.innerHTML = ''
   const eq = store.equilibrium
 
   if (!eq || eq.status !== 'ok') {
@@ -208,7 +266,7 @@ export function updateScene() {
     return
   }
 
-  const { m2_pos, tp_L, tp_R, m1_attach, m3_attach, T1, T3, Fg2, T1_vec, T3_vec } = eq
+  const { m2_pos, tp_L, tp_R, m1_attach, m3_attach, T1, T3, Fg2, T1_vec, T3_vec, angle1, angle3 } = eq
   const m1Size = store.m1 * SIZE_PER_KG
   const m2Size = store.m2 * SIZE_PER_KG
   const m3Size = store.m3 * SIZE_PER_KG
@@ -275,6 +333,10 @@ export function updateScene() {
     DOM.forceVectorsGroup.appendChild(createForceVector(t3ex, sy, t3ex, t3ey, 'vertical', true))
   }
 
+  // Winkel α (zur Horizontalen) an m₂ eintragen — Horizontale als Bezug, Bögen
+  // zwischen Horizontale und Seilstrecken, α₁/α₃-Bezeichnung (nur Label, kein Wert).
+  drawAngleAtM2(m2Attach, m2Size, angle1, angle3)
+
   // Restüberlappungen der Label-Einheiten auflösen (Massen als feste Hindernisse)
   const massObstacles = [
     { x: m1_attach.x - m1Size / 2, y: m1_attach.y, w: m1Size, h: m1Size },
@@ -291,7 +353,9 @@ export function updateScene() {
 }
 
 // ── Analyse-Panel (HTML, statisches MathJax — nur textContent aktualisieren) ─
-// Winkel γ zur Vertikalen: γ₁ = angle1 − π/2, γ₃ = π/2 − angle3 (siehe physics.js).
+// Winkel zur Horizontalen: α₁ = 90° − γ₁ = 180° − angle1°, α₃ = 90° − γ₃ = angle3°
+// (angle1/angle3 sind die Seil-Richtungen im math.-Konventionsraum ab der +x-Achse,
+// siehe physics.js). γ (zur Senkrechten) bleibt die kosinussatz-native Größe.
 export function updateAnalysis() {
   const eq = store.equilibrium
   if (!eq || eq.status !== 'ok') {
@@ -309,12 +373,15 @@ export function updateAnalysis() {
     return
   }
   const { T1, T3, Fg2, T1_vec, T3_vec, angle1, angle3 } = eq
+  // γ = Seil-Neigungswinkel zur Senkrechten; α = Winkel zur Horizontalen = 90° − γ.
   const gamma1Deg = ((angle1 - Math.PI / 2) * 180) / Math.PI
   const gamma3Deg = ((Math.PI / 2 - angle3) * 180) / Math.PI
+  const alpha1Deg = 90 - gamma1Deg
+  const alpha3Deg = 90 - gamma3Deg
   DOM.leftForce.textContent = `${fmt(T1, 2)} N`
-  DOM.leftAngle.textContent = `${fmt(gamma1Deg, 1)}°`
+  DOM.leftAngle.textContent = `${fmt(alpha1Deg, 1)}°`
   DOM.rightForce.textContent = `${fmt(T3, 2)} N`
-  DOM.rightAngle.textContent = `${fmt(gamma3Deg, 1)}°`
+  DOM.rightAngle.textContent = `${fmt(alpha3Deg, 1)}°`
   DOM.verticalForcesValue.textContent = `↑ ${fmt(-T1_vec.y - T3_vec.y, 2)} N vs ↓ ${fmt(Fg2, 2)} N`
   DOM.horizontalForcesValue.textContent = `← ${fmt(-T1_vec.x, 2)} N vs → ${fmt(T3_vec.x, 2)} N`
   DOM.equilibriumWarning.style.visibility = 'hidden'

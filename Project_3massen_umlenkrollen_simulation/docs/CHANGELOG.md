@@ -1,5 +1,20 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.0] — 2026-07-07
+### Geändert (PO-Vorgabe: Winkel zur Horizontalen)
+- **Winkel jetzt zur Horizontalen (α) statt zur Senkrechten (γ).** Die Analyse-
+  Zellen zeigen `α₁`/`α₃` (zur Horiz.) mit den Werten `α = 90° − γ` (vorher
+  `γ₁`/`γ₃` zur Senkrechten). γ bleibt die kosinussatz-native Größe — die Formel-
+  Box erklärt zusätzlich die Beziehung `α = 90° − γ` und daß γ der Seil-Neigungswinkel
+  zur Senkrechten ist.
+- **Winkel in der Graphik sichtbar:** An `m₂` wird der Seil-Neigungswinkel zur
+  Horizontalen als gestrichelte Horizontale (Bezugslinie) + Bögen zwischen
+  Horizontale und jeweiliger Seilstrecke + `α₁`/`α₃`-Bezeichnung eingetragen —
+  **nur die Bezeichnung, kein Wert** (PO-Vorgabe). Eigene Gruppe `#angle_group`,
+  Serif-Italic-Label (wie Kraft-Labels), Bogenradius adaptiv außerhalb der m₂-
+  Masse. Neu: `drawAngleAtM2()` in `render.js`; CSS `.angle-ref`/`.angle-arc`/
+  `.angle-label`.
+
 ## [1.1.0] — 2026-07-06
 Sammel-Release: Seillängen-Regler repariert & erweitert, Auto-Zoom, Einheiten, Raster,
 Koordinaten-Feinschliff, Default-Toggles. Verifiziert per headless-Chrome-Screenshots

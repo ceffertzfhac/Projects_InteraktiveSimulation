@@ -49,6 +49,7 @@ export function initDOM() {
   DOM.massMiddleLabel = q('mass_middle_label')
   DOM.massRightLabel = q('mass_right_label')
   DOM.forceVectorsGroup = q('force_vectors_group')
+  DOM.angleGroup = q('angle_group')
   DOM.gridGroup = q('grid_group')
 
   // Slider & Stepper
