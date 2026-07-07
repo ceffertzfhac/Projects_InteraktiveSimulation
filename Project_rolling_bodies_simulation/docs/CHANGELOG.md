@@ -2,6 +2,35 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.7] - 2026-07-07
+### Refaktoriert (T1 — render.js in thematische Submodule aufgeteilt)
+- **`render.js` (1068 Zeilen) in 5 Dateien aufgeteilt, Verhalten unverändert.**
+  Die monolithische Datei war die größte des Repos und schwer zu überblicken.
+  Aufteilung entlang thematischer Grenzen:
+  - `render-core.js` — gemeinsame Helfer (`fmt`-Re-export, `fmtTech`, `fmtE`,
+    `svgEl`, `shortenEnd`, `physToScreen`, `localVecToScreen`, `getNiceStep`,
+    `makeInterp`); von allen Submodulen importiert.
+  - `render-scene.js` — Viewport-Setup, Hintergrund/Rampe, Hindernis,
+    Koordinatensystem, Zylinder-Stil, Stoppuhr.
+  - `render-vectors.js` — Geschw.-/Beschl.-/Kraftvektoren (Fg/Fn/Fr) +
+    Vektor-Legende (private `drawArrow`/`vecLabel` mitgewandert).
+  - `render-analysis.js` — Live-Analyse-Grid, Renn-Bars, Vergleichsliste,
+    gestrichelte Vergleichskörper (`computeK`-Import aus physics mitgewandert).
+  - `render-graph.js` — `getTransformedData` (Boden-/Ebenen-Transform) +
+    `updateGraph` (Achsen, Gitter, Datenlinien, Cursor, Legende).
+  - `render.js` — jetzt Aggregator: re-exportiert alle 24 öffentlichen Exporte
+    (sodaß `import * as render` in `ui.js`/`main.js` unverändert greift) und
+    enthält selbst nur noch den Szenen-Orchestrator `updateScene` (pro Frame)
+    plus den privaten `douglasPeucker`-Simplifyer für die Punktespuren.
+- **Abhängigkeitsgraph zyklenfrei:** `render.js` → 4 Submodule →
+  `render-core`/`constants`/`state`/`physics`. `shortenEnd` (bisher
+  modul-privat) ist jetzt exportiert, da `render-scene` (Koordinatenachsen)
+  und `render-vectors` (Vektor-Pfeile) es gemeinsam nutzen.
+- **Verifikation:** `node --check` auf allen 6 Dateien; Diff der
+  Funktionskörper (normalisiert, eindeutige Zeilen) Original-vs-Neu ist leer —
+  jeder Statement steht wortwörtlich in den Submodulen. Keine
+  Verhaltensänderung (reine Code-Umschichtung).
+
 ## [2.0.6] - 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
