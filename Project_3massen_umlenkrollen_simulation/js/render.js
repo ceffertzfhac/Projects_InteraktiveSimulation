@@ -90,12 +90,17 @@ function positionPulleys(pulleyLeftX, pulleyRightX) {
 
 // ── Kraft-Vektor (Linie + Marker, Schaft gekürzt) ─────────────────────────────
 function createForceVector(x1, y1, x2, y2, type, dashed = false) {
-  const end = shortenEnd(x1, y1, x2, y2, MARKER_LEN)
+  // Gestrichelte Komponenten um 0,8 dünnere Strichdicke (PO-Vorgabe). Da der Marker
+  // via markerUnits=strokeWidth skaliert, muß shortenEnd um die *tatsächliche*
+  // Marker-Länge (5·sw) kürzen — sonst endet die dünnere gestrichelte Spitze zu
+  // kurz (kanonische Geometrie, s. CLAUDE.md).
+  const sw = dashed ? VEC_STROKE - 0.8 : VEC_STROKE
+  const end = shortenEnd(x1, y1, x2, y2, 5 * sw)
   const line = document.createElementNS(SVGNS, 'line')
   line.setAttribute('x1', x1); line.setAttribute('y1', y1)
   line.setAttribute('x2', end.x); line.setAttribute('y2', end.y)
   line.setAttribute('class', `vec ${VEC_CLASS[type]}`)
-  line.setAttribute('stroke-width', VEC_STROKE)
+  line.setAttribute('stroke-width', sw)
   line.setAttribute('marker-end', `url(#${MARKER_ID[type]})`)
   if (dashed) line.setAttribute('stroke-dasharray', '5 5')
   return line
@@ -121,11 +126,24 @@ function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
   if (comp && store.showComponentValues) {
-    const val = document.createElementNS(SVGNS, 'tspan')
-    val.setAttribute('x', x); val.setAttribute('dy', '1.2em')
-    val.setAttribute('class', 'comp-val-line')
-    val.textContent = `(${comp.vx.toFixed(1)}, ${(-comp.vyInternal).toFixed(1)}) N`
-    text.appendChild(val)
+    // Komponentenwerte eingefärbt wie die jeweilige gestrichelte Komponente:
+    // vx → Horizontalkomponente (--c-comp-h), vy → Vertikalkomponente (--c-comp-v).
+    // Strukturzeichen (Klammern, Komma, Einheit) erben die Kraftfarbe. Färbung via
+    // CSS-Klassen (.comp-val-h/v), da var() als SVG-Fill-Attribut nicht aufgelöst
+    // wird (s. CLAUDE.md) — so greift auch der Dark-Mode automatisch.
+    const seg = (txt, extra = '') => {
+      const ts = document.createElementNS(SVGNS, 'tspan')
+      ts.setAttribute('class', `comp-val-line ${extra}`.trim())
+      ts.textContent = txt
+      return ts
+    }
+    const t0 = seg('(')
+    t0.setAttribute('x', x); t0.setAttribute('dy', '1.2em')
+    text.appendChild(t0)
+    text.appendChild(seg(comp.vx.toFixed(1), 'comp-val-h'))
+    text.appendChild(seg(', '))
+    text.appendChild(seg((-comp.vyInternal).toFixed(1), 'comp-val-v'))
+    text.appendChild(seg(') N'))
   }
   DOM.forceVectorsGroup.appendChild(text)
   return text

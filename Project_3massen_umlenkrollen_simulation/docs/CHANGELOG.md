@@ -1,5 +1,18 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.1] — 2026-07-07
+### Geändert (PO-Vorgabe: Komponentenwerte & gestrichelte Komponenten)
+- **Komponenten-Zahlenwerte eingefärbt wie die jeweilige gestrichelte Komponente:**
+  In der Wertzeile `(vx, vy) N` (sichtbar bei „Komponentenwerte anzeigen") ist `vx`
+  jetzt in der Farbe der Horizontalkomponente (`--c-comp-h`, Vermilion), `vy` in der
+  der Vertikalkomponente (`--c-comp-v`, Sky-Blue). Strukturzeichen (Klammern, Komma,
+  Einheit) erben weiterhin die Kraftfarbe. Färbung via CSS-Klassen `.comp-val-h/v`
+  (var() als SVG-Fill-Attribut würde nicht aufgelöst; so greift Dark Mode automatisch).
+- **Gestrichelte Komponenten 0,8 dünnere Strichdicke:** `VEC_STROKE` (2,1) für
+  gestrichelte Komponenten auf 1,3 reduziert. Da der Marker über `markerUnits=
+  strokeWidth` skaliert, kürzt `shortenEnd` jetzt um die *tatsächliche* Marker-Länge
+  (5·sw) — sonst endet die dünnere gestrichelte Spitze zu kurz (kanonische Geometrie).
+
 ## [1.2.0] — 2026-07-07
 ### Geändert (PO-Vorgabe: Winkel zur Horizontalen)
 - **Winkel jetzt zur Horizontalen (α) statt zur Senkrechten (γ).** Die Analyse-
