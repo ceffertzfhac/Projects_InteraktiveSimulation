@@ -1,5 +1,14 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.7] - 2026-07-07
+### Behoben (B1 — RHO_CU-Duplikat in ui.js)
+- **`RHO_CU` jetzt aus `constants.js` importiert** statt als Magic Number `0.0178`
+  hartkodiert in `ui.js` (Zeile ~26, geschätzter Strom im Spannungsmodus zur
+  Federhärte-Limit-Berechnung). Bisher war der Wert abgeschrieben, während
+  `physics.js` bereits die Konstante importiert nutzte — bei künftiger Änderung
+  von `RHO_CU` (anderes Material/Korrektur) wären Slider-Limit und Physik
+  auseinandergelaufen. Rein interne Konsistenz — keine Verhaltens-/Optikänderung.
+
 ## [1.5.6] - 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt** —

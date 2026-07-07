@@ -2,6 +2,7 @@
 
 import { store, DOM } from './state.js'
 import { computePhysics, calculateMinSpringK } from './physics.js'
+import { RHO_CU } from './constants.js'
 import { updateScene } from './render.js'
 
 /**
@@ -23,7 +24,7 @@ function onParamChange() {
   if (store.currentFlowMode === 'parallel') {
     // We need to estimate current for U mode to set limit
     const estimatedI = (store.inputMode === 'voltage') ? 
-                       (store.voltage / (0.0178 * store.length / store.crossSection)) : 
+                       (store.voltage / (RHO_CU * store.length / store.crossSection)) :
                        store.targetCurrent
     
     const minD = calculateMinSpringK(estimatedI, store.length, store.distance0)

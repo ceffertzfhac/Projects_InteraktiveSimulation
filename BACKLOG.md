@@ -8,9 +8,9 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 
 | ID | Titel | Projekt | Beschreibung |
 |----|-------|---------|--------------|
-| B1 | RHO_CU-Duplikat in ui.js | Lorentzkraft | `0.0178` ist in `ui.js` (Zeile ~26) hart hineinkopiert statt aus `constants.js` importiert. Wenn die Konstante geändert wird, wird der Slider-Minimalwert falsch. |
-| B2 | SP-Spur unsichtbar | Rollende Körper | Schwerpunktspur ist trotz korrekter Implementierung nicht sichtbar (vermutlich Clipping oder Z-Index-Problem in SVG-Verschachtelung). |
-| B3 | Timing-Sprung bei Pause→Play | Rollende Körper | `lastTs` wird beim Pausieren nicht zurückgesetzt, sodass `simTime` nach Resume einen großen Sprung macht. |
+| B1 | ✅ RHO_CU-Duplikat in ui.js | Lorentzkraft | **Erledigt (Session 2026-07-07):** `RHO_CU` in `ui.js` jetzt aus `constants.js` importiert statt als Magic Number `0.0178` hartkodiert (Zeile ~26, geschätzter Strom im Spannungsmodus zur Federhärte-Limit-Berechnung). `physics.js` nutzte die Konstante bereits korrekt — Slider-Limit und Physik laufen nicht mehr auseinander, wenn `RHO_CU` künftig geändert wird. Lorentz v1.5.6 → v1.5.7. Rein interne Konsistenz, keine Optikänderung. ~~ Ursprünglich: `0.0178` hart hineinkopiert statt importiert. ~~ |
+| B2 | ✅ SP-Spur unsichtbar | Rollende Körper | **Verifiziert — kein Code-Defekt (Session 2026-07-07):** Spur-Code (`render.js:146-177`) ist korrekt: `#traces_g` liegt als Kind von `#world_g` nach `#cylinder_g` (Spur über dem Zylinder), kein CSS blendet es aus, `clip-path` nur auf `vectors_g`/`forces_g` (nicht auf `traces_g`), `physToScreen`+`sp_y=R_m` ergeben stimmige Geometrie, `activeSubjects` enthält `'sp'` per Default. Eintrag vom 2026-07-04 ist veraltet (vor dem v2.0.7-`render.js`-Split). `tog_sp_trace` ist per Default **aus** (bewusst — Bahnkurven sind kein Vektor-Toggle i. S. der „standardmäßig sichtbar"-Konvention; Punktspuren analog). Bei eingeschaltetem Toggle wird die magenta SP-Bahn sichtbar gezeichnet. Kein Fix nötig. ~~ Ursprünglich: Schwerpunktspur trotz korrekter Implementierung nicht sichtbar (vermutlich Clipping/Z-Index). ~~ |
+| B3 | ✅ Timing-Sprung bei Pause→Play | Rollende Körper | **Verifiziert — Code seit jeher korrekt (Session 2026-07-07):** `startAnim()` (`ui.js:338`) setzt `state.store.lastTs = 0`; `animate()` (`ui.js:352`) guardiert `if (!state.store.lastTs) state.store.lastTs = now` → erste `dt = 0` beim Resume → kein `simTime`-Sprung. Code unverändert seit „Stunde Null". Backlog-Eintrag war übervorsichtig/veraltet. Kein Fix nötig. ~~ Ursprünglich: `lastTs` wird beim Pausieren nicht zurückgesetzt → großer Sprung nach Resume. ~~ |
 
 ---
 
@@ -253,8 +253,8 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 35
-- **Bugs:** 3
+- **Gesamt-Items (offen):** 32
+- **Bugs:** 0 (B1, B2, B3 erledigt — Session 2026-07-07)
 - **Technische Schulden:** 7 (davon T8, T3, T7, T6, T2 erledigt)
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
@@ -263,4 +263,4 @@ Berührung gegen die kanonische Regel abgleichen.
 - **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
 - **Werkzeug-Schale:** 3 (W1–W3)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 23 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2 — Session 2026-07-07)
+- **Erledigt:** 26 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3 — Session 2026-07-07)
