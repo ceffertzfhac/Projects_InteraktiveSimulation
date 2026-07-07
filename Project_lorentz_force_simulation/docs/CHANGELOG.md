@@ -1,5 +1,21 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.4] - 2026-07-07
+### Geändert (T8 — Vektor-Label-Notation an 3-Massen-Referenz angeglichen)
+- **Kraft-Vektor-Labels tragen jetzt das Vektorsymbol mit Pfeil** (`F⃗` + Index L für
+  Lorentzkraft, S für Federkraft) in Serif-Italic mit `stroke:none` (kein Faux-Bold)
+  — statt wie bisher `FL=…N` / `Fs=…N` als nackte Mono-Zeichenkette. **Beträge werden
+  bewußt nicht mehr gezeigt** (PO-Vorgabe: Werte sind nicht nötig und standen im Weg).
+  Neue Hilfsfunktion `vecLabel(...)` in `render.js`; CSS-Klasse `.force-label` in
+  `styles.css`. Farbe bleibt wie bisher.
+- **Namens-Hinweis:** F_S ist laut CLAUDE.md-Konvention „Seilkraft"; hier bezeichnet
+  es die **Federkraft** (vorbestehende Mehrdeutigkeit, wird durch T8 nicht neu
+  eingeführt — Indexbuchstabe `S` wie bisher beibehalten).
+- **Strom-Pfeil-Labels** (`e-`/`I`) bleiben unverändert (keine Kraft-Vektor-Labels;
+  `e-` ist Partikel, `I` eine Strom-Richtungsmarkierung — keine Vektor-Symbole im
+  T8-Sinne).
+- **`--font-serif`** wird nun aus `shared/css/design-system.css` bezogen.
+
 ## [1.5.3] - 2026-07-06
 ### Behoben (Vektor-Pfeilspitzen — kanonische Geometrie)
 - **Pfeilspitzen (Strom-Pfeile `I`/`e⁻`, Kraft-Pfeile `F_L`/`F_s`) sitzen

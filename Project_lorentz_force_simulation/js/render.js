@@ -3,6 +3,8 @@
 import { SCALE, Y_COND1, Y_CEILING, COLORS, SVG_W } from './constants.js'
 import { store, DOM } from './state.js'
 
+const SVGNS = 'http://www.w3.org/2000/svg'
+
 function fmt(n, decimals = 2) {
   return n.toLocaleString('de-DE', {
     minimumFractionDigits: decimals,
@@ -19,6 +21,26 @@ function shortenEnd(x1, y1, x2, y2, by) {
   if (len < 1e-6) return { x: x2, y: y2 }
   const shaft = Math.max(len - by, 2)
   return { x: x1 + dx / len * shaft, y: y1 + dy / len * shaft }
+}
+
+// Vektor-Label: Symbol kursiv via Serif-tspan + Vektor-Pfeil (Combining-Arrow
+// U+20D7), optional tiefgestellter Index. Referenz: 3-Massen-Sim (T8). Fill =
+// Vektorfarbe (inline); .force-label setzt Serif + stroke:none (kein Faux-Bold,
+// s. CLAUDE.md-Regel). Werte werden bewußt nicht gezeigt (PO-Vorgabe).
+function vecLabel(x, y, sym, color, sub = null, anchor = 'start') {
+  const t = document.createElementNS(SVGNS, 'text')
+  t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('class', 'force-label')
+  t.setAttribute('fill', color); t.setAttribute('text-anchor', anchor)
+  t.setAttribute('dominant-baseline', 'middle')
+  const s = document.createElementNS(SVGNS, 'tspan')
+  s.setAttribute('font-style', 'italic'); s.textContent = `${sym}⃗`   // Symbol + U+20D7
+  t.appendChild(s)
+  if (sub) {
+    const sb = document.createElementNS(SVGNS, 'tspan')
+    sb.setAttribute('dy', '0.25em'); sb.setAttribute('font-size', '0.7em'); sb.textContent = sub
+    t.appendChild(sb)
+  }
+  return t
 }
 
 /**
@@ -222,10 +244,8 @@ export function updateScene() {
     fl_line.setAttribute('x1', forceX); fl_line.setAttribute('y1', y2 + fDir * ry); fl_line.setAttribute('x2', flEnd.x); fl_line.setAttribute('y2', flEnd.y)
     fl_line.setAttribute('stroke', COLORS.FORCE_L); fl_line.setAttribute('stroke-width', dynamicWidth); fl_line.setAttribute('marker-end', 'url(#arr-fl)')
     DOM.vectors_g.appendChild(fl_line)
-    const fl_lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    fl_lbl.setAttribute('x', forceX + 5); fl_lbl.setAttribute('y', y2 + fDir * (ry + fl_len + 12))
-    fl_lbl.setAttribute('fill', COLORS.FORCE_L); fl_lbl.setAttribute('font-size', '9'); fl_lbl.setAttribute('font-family', 'JetBrains Mono'); fl_lbl.textContent = `FL=${fmt(store.forceL, 3)}N`
-    DOM.vectors_g.appendChild(fl_lbl)
+    // Kraft-Label F⃗_L (T8, 3-Massen-Notation) — nur Symbol mit Pfeil, kein Wert.
+    DOM.vectors_g.appendChild(vecLabel(forceX + 8, y2 + fDir * (ry + fl_len + 10), 'F', COLORS.FORCE_L, 'L'))
     const sDir = isParallel ? -1 : 1; const fs_len = fl_len / 2
     for (let x of [springX1, springX2]) {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
@@ -233,10 +253,7 @@ export function updateScene() {
       line.setAttribute('x1', x); line.setAttribute('y1', y2 + sDir * ry); line.setAttribute('x2', x); line.setAttribute('y2', fsEnd.y)
       line.setAttribute('stroke', COLORS.FORCE_S); line.setAttribute('stroke-width', dynamicWidth); line.setAttribute('marker-end', 'url(#arr-fs)')
       DOM.vectors_g.appendChild(line)
-      const fs_lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-      fs_lbl.setAttribute('x', x + 5); fs_lbl.setAttribute('y', y2 + sDir * (ry + fs_len + 8))
-      fs_lbl.setAttribute('fill', COLORS.FORCE_S); fs_lbl.setAttribute('font-size', '9'); fs_lbl.setAttribute('font-family', 'JetBrains Mono'); fs_lbl.textContent = `Fs=${fmt(store.forceL/2, 3)}N`
-      DOM.vectors_g.appendChild(fs_lbl)
+      DOM.vectors_g.appendChild(vecLabel(x + 8, y2 + sDir * (ry + fs_len + 10), 'F', COLORS.FORCE_S, 'S'))
     }
   }
 

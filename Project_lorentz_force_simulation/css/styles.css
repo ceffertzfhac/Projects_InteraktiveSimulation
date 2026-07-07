@@ -49,6 +49,11 @@ body.dark {
 #arr-current polygon     { fill: var(--c-current); }
 #arr-current-phys polygon{ fill: var(--c-current-phys); }
 
+/* Vektor-Label (SVG-<text>): Symbol kursiv via Serif-tspan + Vektor-Pfeil
+   (Combining-Arrow U+20D7), optionaler Index — 3-Massen-Referenz (T8). Fill =
+   Vektorfarbe (inline am <text>). stroke:none verhindert Faux-Bold (s. CLAUDE.md-Regel). */
+.force-label { font-family: var(--font-serif); font-size: 13px; font-weight: 400; stroke: none; }
+
 /* ── RADIO ROWS (nicht in shared) ────────────────────────────────────────── */
 .radio-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; cursor: pointer; font-size: .75rem; color: var(--text2); user-select: none; }
 .radio-row:hover { color: var(--text); }
