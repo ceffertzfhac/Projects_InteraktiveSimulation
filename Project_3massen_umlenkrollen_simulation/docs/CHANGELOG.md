@@ -1,5 +1,13 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.2] — 2026-07-07
+### Behoben (PO-Korrektur: Komponenten-Einfärbung nur an m₂)
+- **Komponenten-Farbkodierung (vx → H, vy → V) jetzt nur für die Seilkräfte an m₂**
+  (`F_S,li`/`F_S,re`) — dort werden die gestrichelten Komponenten gezeichnet. Bei den
+  übrigen Kraft-Labels (Schwerkraft `F_G,1/2/3`, Seilkräfte an `m₁`/`m₃`) trägt die
+  Wertzeile wieder die **Vektor-/Kraftfarbe** (vorher [1.2.1] waren dort ebenfalls
+  H/V-Farben gesetzt). Neuer Schalter `compColored` an `addForceLabel()`.
+
 ## [1.2.1] — 2026-07-07
 ### Geändert (PO-Vorgabe: Komponentenwerte & gestrichelte Komponenten)
 - **Komponenten-Zahlenwerte eingefärbt wie die jeweilige gestrichelte Komponente:**

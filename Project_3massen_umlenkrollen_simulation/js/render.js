@@ -112,8 +112,10 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
 //    gemeinsames <text> → sie können prinzipiell nie gegeneinander kollidieren.
 //    comp = { vx, vyInternal } (intern y nach unten positiv → Anzeige -vyInternal)
 //    oder null (nur Symbol). Gibt das <text>-Element zurück (für die Kollisions-
-//    auflösung in resolveLabelCollisions()).
-function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
+//    auflösung in resolveLabelCollisions()). compColored=true: vx/vy-Werte in den
+//    Farben der gestrichelten Komponenten (nur für die Seilkräfte an m₂, wo solche
+//    Komponenten gezeichnet werden); sonst trägt die Wertzeile die Vektorfarbe.
+function addForceLabel(x, y, sub, type, anchor = 'start', comp = null, compColored = false) {
   const text = document.createElementNS(SVGNS, 'text')
   text.setAttribute('x', x); text.setAttribute('y', y)
   text.setAttribute('class', `force-label ${VEC_CLASS[type]}`)
@@ -126,24 +128,33 @@ function addForceLabel(x, y, sub, type, anchor = 'start', comp = null) {
   subT.textContent = sub
   text.appendChild(sym); text.appendChild(subT)
   if (comp && store.showComponentValues) {
-    // Komponentenwerte eingefärbt wie die jeweilige gestrichelte Komponente:
-    // vx → Horizontalkomponente (--c-comp-h), vy → Vertikalkomponente (--c-comp-v).
-    // Strukturzeichen (Klammern, Komma, Einheit) erben die Kraftfarbe. Färbung via
-    // CSS-Klassen (.comp-val-h/v), da var() als SVG-Fill-Attribut nicht aufgelöst
-    // wird (s. CLAUDE.md) — so greift auch der Dark-Mode automatisch.
-    const seg = (txt, extra = '') => {
-      const ts = document.createElementNS(SVGNS, 'tspan')
-      ts.setAttribute('class', `comp-val-line ${extra}`.trim())
-      ts.textContent = txt
-      return ts
+    const dy1 = '1.2em'
+    if (compColored) {
+      // Nur Seilkräfte an m₂: vx → Horizontalkomponente (--c-comp-h),
+      // vy → Vertikalkomponente (--c-comp-v); Strukturzeichen erben die Kraftfarbe.
+      // Färbung via CSS-Klassen (.comp-val-h/v), da var() als SVG-Fill-Attribut
+      // nicht aufgelöst wird (s. CLAUDE.md) — so greift auch der Dark-Mode automatisch.
+      const seg = (txt, extra = '') => {
+        const ts = document.createElementNS(SVGNS, 'tspan')
+        ts.setAttribute('class', `comp-val-line ${extra}`.trim())
+        ts.textContent = txt
+        return ts
+      }
+      const t0 = seg('(')
+      t0.setAttribute('x', x); t0.setAttribute('dy', dy1)
+      text.appendChild(t0)
+      text.appendChild(seg(comp.vx.toFixed(1), 'comp-val-h'))
+      text.appendChild(seg(', '))
+      text.appendChild(seg((-comp.vyInternal).toFixed(1), 'comp-val-v'))
+      text.appendChild(seg(') N'))
+    } else {
+      // Anderswo: ganze Wertzeile in der Vektor-/Kraftfarbe (Fill vom Label erben).
+      const val = document.createElementNS(SVGNS, 'tspan')
+      val.setAttribute('x', x); val.setAttribute('dy', dy1)
+      val.setAttribute('class', 'comp-val-line')
+      val.textContent = `(${comp.vx.toFixed(1)}, ${(-comp.vyInternal).toFixed(1)}) N`
+      text.appendChild(val)
     }
-    const t0 = seg('(')
-    t0.setAttribute('x', x); t0.setAttribute('dy', '1.2em')
-    text.appendChild(t0)
-    text.appendChild(seg(comp.vx.toFixed(1), 'comp-val-h'))
-    text.appendChild(seg(', '))
-    text.appendChild(seg((-comp.vyInternal).toFixed(1), 'comp-val-v'))
-    text.appendChild(seg(') N'))
   }
   DOM.forceVectorsGroup.appendChild(text)
   return text
@@ -336,8 +347,8 @@ export function updateScene() {
     const off = 30
     const nLx = T1_vec.y / T1,  nLy = -T1_vec.x / T1   // äußere Normale links
     const nRx = -T3_vec.y / T3, nRy = T3_vec.x / T3    // äußere Normale rechts
-    labels.push({ el: addForceLabel(t1End.x + nLx * off, t1End.y + nLy * off, 'S,li', 'tension', 'end', { vx: T1_vec.x, vyInternal: T1_vec.y }), ax: m2Attach.x, ay: m2Attach.y })
-    labels.push({ el: addForceLabel(t3End.x + nRx * off, t3End.y + nRy * off, 'S,re', 'tension', 'start', { vx: T3_vec.x, vyInternal: T3_vec.y }), ax: m2Attach.x, ay: m2Attach.y })
+    labels.push({ el: addForceLabel(t1End.x + nLx * off, t1End.y + nLy * off, 'S,li', 'tension', 'end', { vx: T1_vec.x, vyInternal: T1_vec.y }, true), ax: m2Attach.x, ay: m2Attach.y })
+    labels.push({ el: addForceLabel(t3End.x + nRx * off, t3End.y + nRy * off, 'S,re', 'tension', 'start', { vx: T3_vec.x, vyInternal: T3_vec.y }, true), ax: m2Attach.x, ay: m2Attach.y })
   }
 
   // Komponentenzerlegung der Seilkräfte auf m₂ (gestrichelt, x dann y)
