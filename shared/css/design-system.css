@@ -59,8 +59,9 @@
   --r-lg:    10px;
 
   /* Typografie */
-  --font-ui:   'DM Sans', 'Verdana', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-ui:    'DM Sans', 'Verdana', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+  --font-serif: 'Times New Roman', 'STIX Two Text', Cambria, 'Noto Serif', Georgia, serif;
 }
 
 /* ── DARK MODE ───────────────────────────────────────────────── */
