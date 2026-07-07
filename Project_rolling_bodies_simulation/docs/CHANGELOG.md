@@ -2,6 +2,29 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.8] - 2026-07-07
+### Behoben (zwei visuelle Bugs aus PO-Feedback)
+- **Vektor-Pfeilspitzen wieder sichtbar (v⃗/a⃗/F⃗_G/N/R).** Die 5 Vektor-Marker
+  (`arr-v/a/fg/fn/fr` in `index.html`) trugen das Polygon-Fill als Inline-SVG-Attribut
+  `fill="var(--c-…)"`. `var()` wirkt aber **nicht zuverlässig als SVG-Präsentationsattribut
+  im `<marker>`-Rendering-Kontext** (Browser erben CSS-Variablen nicht konsistent in den
+  Marker-Subbaum via Attribut) → die Spitzen waren unsichtbar (gemeldet für
+  Geschwindigkeit; betrifft alle 5 Marker gleich). Fix nach CLAUDE.md-Kanonik (vgl.
+  3-Massen-Referenz): Inline-`fill` von den Polygonen entfernt, stattdessen CSS-Regeln
+  `#arr-* polygon { fill: var(--c-…) }` in `styles.css`. Der CSS-Cascade erreicht den
+  Marker-Subbaum zuverlässig. (Nicht-marker `fill="var(...)"` wie die Zykloiden-Punkte
+  `pt_*` waren unbeeinträchtigt — dort funktioniert das Attribut.)
+- **Gestrichelte Vergleichskörper rotieren jetzt korrekt.** `drawCompareObjects`
+  (render-analysis) zeichnete jeden Vergleichskörper nur als gestrichelten Kreis —
+  dieser ist rotationssymmetrisch, sodaß die Roll-Drehung nicht erkennbar war (die Körper
+  „rutschten" nur). Jetzt wird jedes Objekt in eine Gruppe mit
+  `translate(x,y) rotate((φ+α)·180/π)` gepackt (Rollwinkel φ = x/R, plus Inklination α —
+  exakt wie beim Hauptkörper in `render.js`) und zusätzlich ein gestrichelter Radius als
+  Rotations-Indikator gezeichnet; dieser wandert mit dem Rollwinkel um den Mittelpunkt.
+  Label bleibt aufrecht außerhalb der Rotationsgruppe. Jeder Vergleichskörper rollt jetzt
+  mit seiner eigenen Winkelgeschwindigkeit (unterschiedliche k-Faktoren → unterschiedl.
+  Beschleunigung → unterschiedl. Drehung), wie es das Rennen veranschaulichen soll.
+
 ## [2.0.7] - 2026-07-07
 ### Refaktoriert (T1 — render.js in thematische Submodule aufgeteilt)
 - **`render.js` (1068 Zeilen) in 5 Dateien aufgeteilt, Verhalten unverändert.**

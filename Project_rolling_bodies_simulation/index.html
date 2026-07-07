@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Dynamik rollender Körper
-    <span class="version">v2.0.7</span>
+    <span class="version">v2.0.8</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -152,11 +152,13 @@ window.MathJax = {
         </clipPath>
         <!-- refX=0: Dreieck-Basis am (gekürzten) Linien-Ende; Schaft in render.js
              um Marker-Länge gekürzt → Spitze exakt auf dem Zielpunkt (CLAUDE.md). -->
-        <marker id="arr-v"  markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-vel)"/></marker>
-        <marker id="arr-a"  markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-acc)"/></marker>
-        <marker id="arr-fg" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fg)"/></marker>
-        <marker id="arr-fn" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fn)"/></marker>
-        <marker id="arr-fr" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="var(--c-fr)"/></marker>
+        <!-- Polygon-Fill per CSS (#arr-* polygon in styles.css), nicht inline —
+             var() wirkt nicht als SVG-Attribut (CLAUDE.md). -->
+        <marker id="arr-v"  markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5"/></marker>
+        <marker id="arr-a"  markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5"/></marker>
+        <marker id="arr-fg" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5"/></marker>
+        <marker id="arr-fn" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5"/></marker>
+        <marker id="arr-fr" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5"/></marker>
         <radialGradient id="sphereGrad" cx="32%" cy="28%" r="68%">
           <stop offset="0%"   stop-color="#ffffff" stop-opacity=".95"/>
           <stop offset="25%"  stop-color="#b8c8e8" stop-opacity=".9"/>

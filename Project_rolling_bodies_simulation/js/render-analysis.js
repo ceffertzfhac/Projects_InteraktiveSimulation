@@ -145,6 +145,10 @@ export function drawCompareObjects(t) {
   compareObjsG.innerHTML = '';
   if (!state.DOM.modeInclined.checked) return;
 
+  const alpha = state.store.alpha_rad;
+  const R_m = state.store.R_m;
+  const R_px = R_m * state.store.ppm;
+
   for (const ck of state.store.compareActive) {
     const ct = ALL_TYPES.find(x => x.key === ck);
     const cd = state.store.compareData[ck];
@@ -160,14 +164,31 @@ export function drawCompareObjects(t) {
     const f2 = (state.store.fullData.t[lo + 1] > state.store.fullData.t[lo]) ? (t - state.store.fullData.t[lo]) / (state.store.fullData.t[lo + 1] - state.store.fullData.t[lo]) : 0;
     const cx = cd.x[lo] + f2 * (cd.x[lo + 1] - cd.x[lo]);
 
-    const sc = physToScreen(cx, state.store.R_m);
-    const R_px = state.store.R_m * state.store.ppm;
+    const sc = physToScreen(cx, R_m);
 
-    compareObjsG.appendChild(svgEl('circle', {
-      cx: fmtTech(sc.x), cy: fmtTech(sc.y), r: fmtTech(R_px),
+    // Rollwinkel φ = x/R (+ Inklination α, wie beim Hauptkörper in render.js:
+    // rotDeg = (φ + α)·180/π). Gruppe erst verschieben, dann rotieren → Drehung
+    // um den Kreismittelpunkt. Ein gestrichelter Kreis allein ist rotations-
+    // symmetrisch (keine Drehung erkennbar); der gestrichelte Radius vom Zentrum
+    // zum Rand wandert mit dem Rollwinkel und macht die Rotation sichtbar.
+    const rotDeg = (cx / R_m + alpha) * 180 / Math.PI;
+    const g = svgEl('g', {
+      transform: `translate(${fmtTech(sc.x)},${fmtTech(sc.y)}) rotate(${fmtTech(rotDeg, 3)})`
+    });
+    g.appendChild(svgEl('circle', {
+      cx: 0, cy: 0, r: fmtTech(R_px),
       fill: 'none', stroke: ct.color, 'stroke-width': 2,
       'stroke-dasharray': '6,3', opacity: '0.65'
     }));
+    // Rotations-Indikator: gestrichelter Radius (12-Uhr-Position vor Drehung).
+    g.appendChild(svgEl('line', {
+      x1: 0, y1: 0, x2: 0, y2: fmtTech(-R_px),
+      stroke: ct.color, 'stroke-width': 2,
+      'stroke-dasharray': '4,3', opacity: '0.9'
+    }));
+    compareObjsG.appendChild(g);
+
+    // Label bleibt aufrecht (außerhalb der Rotationsgruppe, in Bildschirm-Koordinaten).
     const tl = svgEl('text', {
       x: fmtTech(sc.x), y: fmtTech(sc.y - R_px - 5), 'text-anchor': 'middle',
       'font-family': 'JetBrains Mono', 'font-size': '9px', fill: ct.color, opacity: '0.8'

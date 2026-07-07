@@ -19,6 +19,16 @@ body.dark { --accent2: var(--fh-mint); }
 #stopwatch_sub_hand   { stroke: var(--accent); stroke-linecap: round; }
 .sw-mark              { stroke: var(--text); }
 
+/* ── VEKTOR-PFEILSPITZEN (Marker-Polygon-Fills via CSS) ────────────────────── */
+/* var() wirkt NICHT als SVG-Attribut (CLAUDE.md) → Fill hier per CSS, nicht
+   inline am <polygon>. Sonst rendert das Polygon schwarz/ohne Spitze. Farben
+   aus shared (Okabe-Ito, colorblind-safe). */
+#arr-v  polygon { fill: var(--c-vel); }
+#arr-a  polygon { fill: var(--c-acc); }
+#arr-fg polygon { fill: var(--c-fg); }
+#arr-fn polygon { fill: var(--c-fn); }
+#arr-fr polygon { fill: var(--c-fr); }
+
 /* ── OBJECT BUTTONS ─────────────────────────────── */
 /* .btn/.btn.primary/.btn:disabled kommen aus shared; .btn.success ist Rolling-Export-Feedback. */
 .btn.success { background: rgba(82,214,138,.15); border-color: rgba(82,214,138,.5); color: #52d68a; }
