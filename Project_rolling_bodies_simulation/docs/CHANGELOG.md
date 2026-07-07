@@ -2,6 +2,17 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.6] - 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
+  (in `render.js` re-exportiert, damit `ui.js` weiterhin `render.fmt(...)` nutzt).
+  **Sichtbare Änderung:** bisheriger Default `d=3` entfällt (shared-Default `d=2`);
+  die 4 betroffenen Live-Werte (`x_disp`/`y_disp`/`vabs`/`aabs` in `render.js`)
+  tragen jetzt explizit `, 3` — Anzeige unverändert. Fallback für nicht-endliche
+  Werte '···' → '—' (shared-Standard; nur Randfall). `fmtTech` (Punkt-Dezimal für
+  SVG-Attribute) und `fmtE` (Energie mit ' J'-Suffix) bleiben Rolling-spezifisch
+  lokal — keine Nutzer-Anzeige im shared-Sinne.
+
 ## [2.0.5] - 2026-07-07
 ### Hinzugefügt (PO-Vorgabe: Kräfte-Beträge im Analyse-Tab)
 - **Kräfte-Beträge \(F_G\)/\(F_N\)/\(F_R\) im rechten Analyse-Tab** (Sektion

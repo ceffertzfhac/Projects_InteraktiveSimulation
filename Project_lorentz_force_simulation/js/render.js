@@ -2,15 +2,9 @@
 
 import { SCALE, Y_COND1, Y_CEILING, COLORS, SVG_W, SPRING } from './constants.js'
 import { store, DOM } from './state.js'
+import { fmt } from '../../shared/js/format.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
-
-function fmt(n, decimals = 2) {
-  return n.toLocaleString('de-DE', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  })
-}
 
 // Kanonische Pfeilspitzen-Geometrie (siehe CLAUDE.md): Marker mit refX=0
 // (Dreieck-Basis am Linien-Ende) + Schaft um Marker-Länge `by = markerWidth ·

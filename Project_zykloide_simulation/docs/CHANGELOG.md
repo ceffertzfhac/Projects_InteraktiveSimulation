@@ -1,5 +1,12 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.6 — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
+  (in `render.js` re-exportiert). Identische Logik (Komma-Dezimal,
+  `Number.isFinite`-Guard → '—') — keine Verhaltensänderung, nur DRY: eine
+  repo-weite Hilfsfunktion statt neun lokaler.
+
 ## v1.0.5 — 2026-07-05
 ### Geändert (Style)
 - **Zylinder-Startposition weiter links:** `START_OFFSET_PX` 50 → 30 — der Zylinder startet näher an der linken Viewbox-Kante. Kamera-Follow-Trigger unverändert.

@@ -18,14 +18,12 @@ import {
 import { computeK } from './physics.js';
 
 import * as state from './state.js';
+import { fmt } from '../../shared/js/format.js';
+export { fmt };
 
-/**
- * Format a number for display (with comma)
- */
-export function fmt(v, d = 3) {
-  if (typeof v !== 'number' || !isFinite(v)) return '···';
-  return v.toFixed(d).replace('.', ',');
-}
+// fmt() via shared/js/format.js (T6). fmtTech (Punkt-Dezimal für SVG-Attribute)
+// und fmtE (Energie mit ' J'-Suffix) bleiben Rolling-spezifisch (keine
+// Nutzer-Anzeige im shared-Sinne).
 
 /**
  * Format for technical SVG attributes (always with dot)
@@ -593,10 +591,10 @@ export function updateAnalysis(interp) {
       y_disp = -(x_local * sa - y_local * ca);
     }
 
-    c.x.textContent = fmt(x_disp)     + ' m';
-    c.y.textContent = fmt(y_disp)     + ' m';
-    c.v.textContent = fmt(interp(state.store.fullData[`${s}_vabs`]))  + ' m/s';
-    c.a.textContent = fmt(interp(state.store.fullData[`${s}_aabs`])) + ' m/s²';
+    c.x.textContent = fmt(x_disp, 3)     + ' m';
+    c.y.textContent = fmt(y_disp, 3)     + ' m';
+    c.v.textContent = fmt(interp(state.store.fullData[`${s}_vabs`]), 3)  + ' m/s';
+    c.a.textContent = fmt(interp(state.store.fullData[`${s}_aabs`]), 3) + ' m/s²';
   }
 }
 

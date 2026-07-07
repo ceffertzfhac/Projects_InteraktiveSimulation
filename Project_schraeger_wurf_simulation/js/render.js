@@ -15,6 +15,8 @@ import {
 import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
          flightTime, maxHeight, range, impactAngle, getNiceTickStep, linePlotIndex } from './physics.js'
+import { fmt } from '../../shared/js/format.js'
+export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -24,10 +26,7 @@ function el(tag, attrs) {
   return e
 }
 
-export function fmt(n, d = 2) {
-  if (!Number.isFinite(n)) return '—'
-  return n.toFixed(d).replace('.', ',')
-}
+// fmt() via shared/js/format.js (T6)
 
 // SVG-Text mit gemischter Formatierung (normal/kursiv) aus HTML-<i>-Tags
 function createStyledSvgText(svgEl, text) {

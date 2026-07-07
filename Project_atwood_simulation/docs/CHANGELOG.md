@@ -1,5 +1,13 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.3 — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
+  (in `render.js` re-exportiert, damit `ui.js` weiterhin `import { fmt }` bezieht).
+  **Neu:** `Number.isFinite`-Guard → '—' statt bisherigem 'NaN'-String bei nicht-
+  endlichen Werten (latenter Bugfix; Atwood hatte keinen Guard). Komma-Dezimal
+  unverändert — keine sichtbare Änderung im Normalbetrieb.
+
 ## v2.2.2 — 2026-07-05
 ### Geändert (UI-Konsistenz)
 - **Topbar-Buttonleiste (kanonisch):** Play/Pause/Reset aus der linken Sidebar in die Topbar (`topbar-right`) verschoben — immer erreichbar. Reihenfolge: Theme-Toggle · ▶ Play · ⏸ Pause · ↺ Reset · Diagramm (CSV) · Alle Daten (CSV). Alte `btn-row`-Sektion links entfernt.

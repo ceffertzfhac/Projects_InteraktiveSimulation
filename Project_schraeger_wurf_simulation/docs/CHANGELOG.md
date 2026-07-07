@@ -1,5 +1,12 @@
 # Changelog — Schräger Wurf
 
+## v1.2.3 — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
+  (in `render.js` re-exportiert). Identische Logik (Komma-Dezimal,
+  `Number.isFinite`-Guard → '—') — keine Verhaltensänderung, nur DRY: eine
+  repo-weite Hilfsfunktion statt neun lokaler.
+
 ## v1.2.2 — 2026-07-05
 
 ### Fix

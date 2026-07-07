@@ -9,6 +9,7 @@ import {
   CEILING_Y, PULLEY_Y, PULLEY_RADIUS, TRIANGLE_SIDE_LENGTH, VEC_CLASS,
 } from './constants.js'
 import { store, DOM } from './state.js'
+import { fmt } from '../../shared/js/format.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
 const VEC_STROKE = 2.1      // px — 0,7× des v1.0.1-Werts (Marker skaliert via markerUnits=strokeWidth)
@@ -22,11 +23,7 @@ const MARKER_ID = {
   vertical: 'arrowhead-comp-v',
 }
 
-// ── Zahl-Formatierung (Komma-Dezimal) ─────────────────────────────────────────
-export function fmt(n, d = 2) {
-  if (!Number.isFinite(n)) return '—'
-  return n.toFixed(d).replace('.', ',')
-}
+// ── Zahl-Formatierung (Komma-Dezimal) via shared/js/format.js (T6) ────────────
 
 // ── Kanonische Pfeilspitzen-Geometrie (CLAUDE.md): refX=0 + Schaft um ────────
 // Marker-Länge (markerWidth·strokeWidth) gekürzt → Spitze exakt auf Zielpunkt.

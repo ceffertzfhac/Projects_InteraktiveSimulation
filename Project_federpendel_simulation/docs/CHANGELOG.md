@@ -5,6 +5,12 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.11 — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt.**
+  Identische Logik (Komma-Dezimal, `Number.isFinite`-Guard → '—') — keine
+  Verhaltensänderung, nur DRY: eine repo-weite Hilfsfunktion statt neun lokaler.
+
 ## v1.0.10 — 2026-07-06
 
 ### Fix

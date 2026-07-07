@@ -6,6 +6,8 @@ import { G, PPM, PPN, CM_PER_M, Y_MAX_CM,
          SW_RADIUS, SW_HAND_LEN } from './constants.js';
 import { store, DOM } from './state.js';
 import { svgY, massHalfPx, getAccel, getNiceTick, interpolateAt } from './physics.js';
+import { fmt } from '../../shared/js/format.js';
+export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
 function el(tag, attrs) {
@@ -44,7 +46,7 @@ function setGraphTitle(textEl, text) {
   textEl.appendChild(sym);
 }
 
-export function fmt(n, d = 2) { return n.toFixed(d).replace('.', ','); }
+// fmt() via shared/js/format.js (T6) — re-export siehe Import oben
 
 // Adds axis arrowhead marker to a graph SVG's <defs> on first call.
 function ensureAxisMarker(svgEl) {

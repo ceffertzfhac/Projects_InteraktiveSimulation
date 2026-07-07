@@ -3,6 +3,8 @@ import { G, PIXELS_PER_METER, GROUND_PX, BALL_X,
          GRAPH_W, GRAPH_H, PIXELS_PER_VEL, PIXELS_PER_ACC, VEL_THRESHOLD } from './constants.js';
 import { store, DOM } from './state.js';
 import { scaleY, getDisplayY, getDisplayV, getDisplayA, flightTime, getNiceTick } from './physics.js';
+import { fmt } from '../../shared/js/format.js';
+export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -38,9 +40,7 @@ function setAxisLabel(textEl, text) {
   textEl.appendChild(unit);
 }
 
-export function fmt(n, d = 2) {
-  return n.toFixed(d).replace('.', ',');
-}
+// fmt() via shared/js/format.js (T6)
 
 export function drawRuler() {
   DOM.rulerGroup.innerHTML = '';

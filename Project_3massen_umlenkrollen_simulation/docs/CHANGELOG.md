@@ -1,5 +1,11 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.3] — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt.**
+  Identische Logik (Komma-Dezimal, `Number.isFinite`-Guard → '—') — keine
+  Verhaltensänderung, nur DRY: eine repo-weite Hilfsfunktion statt neun lokaler.
+
 ## [1.2.2] — 2026-07-07
 ### Behoben (PO-Korrektur: Komponenten-Einfärbung nur an m₂)
 - **Komponenten-Farbkodierung (vx → H, vy → V) jetzt nur für die Seilkräfte an m₂**

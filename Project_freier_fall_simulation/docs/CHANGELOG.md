@@ -1,5 +1,12 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.5 — 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
+  (in `render.js` re-exportiert). **Neu:** `Number.isFinite`-Guard → '—' statt
+  bisherigem 'NaN'-String (latenter Bugfix; Freier Fall hatte keinen Guard).
+  Komma-Dezimal unverändert — keine sichtbare Änderung im Normalbetrieb.
+
 ## v2.2.4 — 2026-07-05
 ### Geändert (UI-Konsistenz)
 - **Topbar-Buttonleiste (kanonisch):** Play/Pause/Reset aus der linken Sidebar in die Topbar (`topbar-right`) verschoben — immer erreichbar. Reihenfolge: Theme-Toggle · ▶ Play · ⏸ Pause · ↺ Reset · Diagramm (CSV) · Alle Daten (CSV). Alte `btn-row`-Sektion links entfernt.

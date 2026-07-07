@@ -1,5 +1,16 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.6] - 2026-07-07
+### Refaktoriert (T6 — einheitliches fmt() via shared/js)
+- **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt** —
+  repo-weit eine einzige, robuste Hilfsfunktion (Komma-Dezimal, `Number.isFinite`-
+  Guard → '—' statt 'NaN'-String). **Sichtbare Änderung:** die bisherige Lorentz-
+  Variante nutzte `toLocaleString('de-DE')` und erzeugte bei Werten ≥ 1000 einen
+  Tausenderpunkt (z. B. „1.000,00 A"); die einheitliche `toFixed`-Variante zeigt
+  „1000,00 A" (kein Tausenderpunkt). Betrifft nur Slider-Maxima (Strom 1000 A,
+  Abstand 1000 mm) — bewußt zugunsten repo-weiter Einheitlichkeit geopfert
+  (BACKLOG T6: robuste `toFixed`-Variante als Basis). Zusätzlich NaN-Guard neu.
+
 ## [1.5.5] - 2026-07-07
 ### Refaktoriert (T7 — Feder-Magic-Numbers zu Konstanten)
 - **Feder-Helix-Parameter aus `render.js` nach `constants.js` ausgelagert** (neues
