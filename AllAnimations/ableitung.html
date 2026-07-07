@@ -14,6 +14,7 @@
         }
         body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
         #container { display: flex; flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         #main_svg { border: 1px solid var(--border-color); width: 650px; height: 500px; }
         #controls { display: flex; flex-direction: column; width: 230px; }
@@ -49,7 +50,7 @@
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
       <span style="font-size:.82rem">☀️</span>
     </div>
-    <h1>Interaktive Analyse: Die Ableitung als Grenzwert</h1>
+    <h1>Interaktive Analyse: Die Ableitung als Grenzwert <span class="version">v1.0.0</span></h1>
     <div id="container">
         <svg id="main_svg" viewBox="0 0 650 500">
             <defs>
@@ -58,12 +59,6 @@
                 </marker>
             </defs>
             <g id="graph_group" transform="translate(0, 0)">
-                <!-- NEU: foreignObject statt text, um HTML/MathJax im SVG zu rendern -->
-                <foreignObject x="0" y="10" width="650" height="40">
-                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
-                        Graph der Funktion
-                    </div>
-                </foreignObject>
                 <g id="grid_group"></g>
                 <polyline id="func_line" fill="none" stroke="lightgray" stroke-width="3" />
                 <polyline id="tangent_line" fill="none" stroke="var(--fh-purple)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
@@ -79,6 +74,16 @@
                 <text id="dx_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
                 <text id="dy_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
                 <g id="legend_group"></g>
+                <!-- Graph-Titel: statisches MathJax (3 Funktions-Varianten), letztes
+                     SVG-Kind → wird über Datenlinien/ Legende gerendert (z-Order-Konvention).
+                     JS schaltet nur display um — kein typesetPromise zur Laufzeit. -->
+                <foreignObject x="0" y="10" width="650" height="40" style="pointer-events:none;">
+                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
+                        <div id="formula_gerade">Graph der Funktion: \(f(x) = 2x - 2\)</div>
+                        <div id="formula_parabel" style="display:none;">Graph der Funktion: \(f(x) = 0{,}1 (x-12)^2 - 2\)</div>
+                        <div id="formula_komplex" style="display:none;">Graph der Funktion: \(f(x) = -5 \sin\!\left(\tfrac{x}{2}\right) + 0{,}03\, x^2\)</div>
+                    </div>
+                </foreignObject>
             </g>
         </svg>
 
@@ -148,7 +153,9 @@
             p1_dot: document.getElementById('p1_dot'), p2_dot: document.getElementById('p2_dot'),
             secTriangleH: document.getElementById('sec_triangle_h'), secTriangleV: document.getElementById('sec_triangle_v'),
             dxText: document.getElementById('dx_text'), dyText: document.getElementById('dy_text'),
-            formulaContainer: document.getElementById('formula_container_div')
+            formulaGerade: document.getElementById('formula_gerade'),
+            formulaParabel: document.getElementById('formula_parabel'),
+            formulaKomplex: document.getElementById('formula_komplex')
         };
         
         const plotPaddingLeft = 50, plotPaddingBottom = 40, plotPaddingTop = 50, plotPaddingRight = 20;
@@ -167,34 +174,29 @@
         }
 
         function changeFunction(funcName) {
-            let formulaString = ""; 
             if (funcName === 'Gerade') {
                 y_data = x_data.map(x => 2 * x - 2);
-                formulaString = "Graph der Funktion: \\(f(x) = 2x - 2\\)";
             } else if (funcName === 'Parabel') {
                 y_data = x_data.map(x => 0.1 * (x - 12)**2 - 2);
-                formulaString = "Graph der Funktion: \\(f(x) = 0.1 (x-12)^2 - 2\\)";
             } else if (funcName === 'Komplex') {
-                // GEÄNDERT: Funktion angepasst
                 y_data = x_data.map(x => -5 * Math.sin(x / 2) + 0.03 * x**2);
-                formulaString = "Graph der Funktion: \\(f(x) = -5 \\sin\\left(\\frac{x}{2}\\right) + 0.03 x^2\\)";
             }
-            
+
             dy_dx_data = [];
             dy_dx_data.push((y_data[1] - y_data[0]) / x_step);
             for(let i=1; i < y_data.length - 1; i++) {
                 dy_dx_data.push((y_data[i+1] - y_data[i-1]) / (2 * x_step));
             }
             dy_dx_data.push((y_data[y_data.length-1] - y_data[y_data.length-2]) / x_step);
-            
+
             recalculateAxisLimits();
             drawGraph();
             update();
-            
-            ui.formulaContainer.innerHTML = formulaString;
-            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-                MathJax.typesetPromise([ui.formulaContainer]);
-            }
+
+            // Statisches MathJax: nur display umschalten, kein typesetPromise zur Laufzeit.
+            ui.formulaGerade.style.display  = funcName === 'Gerade'  ? '' : 'none';
+            ui.formulaParabel.style.display = funcName === 'Parabel' ? '' : 'none';
+            ui.formulaKomplex.style.display = funcName === 'Komplex' ? '' : 'none';
         }
 
         function recalculateAxisLimits() {
@@ -225,8 +227,8 @@
             ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleY(0), x2: plotPaddingLeft+plotWidth, y2: scaleY(0), stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
             ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleX(0), y1: plotPaddingTop+plotHeight, x2: scaleX(0), y2: plotPaddingTop, stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
             
-            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft+plotWidth+15, y: scaleY(0)+4, 'text-anchor': 'middle'})).textContent = 'x';
-            ui.gridGroup.appendChild(createSVGElement('text', {x: scaleX(0), y: plotPaddingTop-10, 'text-anchor': 'middle'})).textContent = 'y';
+            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft+plotWidth+15, y: scaleY(0)+4, 'text-anchor': 'middle', 'font-style': 'italic'})).textContent = 'x';
+            ui.gridGroup.appendChild(createSVGElement('text', {x: scaleX(0), y: plotPaddingTop-10, 'text-anchor': 'middle', 'font-style': 'italic'})).textContent = 'y';
 
             let points_str = "";
             for(let i=0; i<x_data.length; i++) {

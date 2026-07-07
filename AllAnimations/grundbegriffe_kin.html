@@ -24,6 +24,7 @@
         }
         body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
+        .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         #main_svg { border: 1px solid var(--border-color); width: 900px; height: 480px; }
         #controls { display: grid; grid-template-columns: 1fr; gap: 15px; width: 900px; padding: 20px; margin-top: 10px; align-items: start; }
@@ -91,7 +92,7 @@
       <span style="font-size:.82rem">☀️</span>
     </div>
 
-    <h1>Interaktive Graphik: Grundbegriffe der Kinetmatik</h1>
+    <h1>Interaktive Graphik: Grundbegriffe der Kinetmatik <span class="version">v1.0.0</span></h1>
     
     <div id="container">
         <svg id="main_svg" viewBox="0 0 900 480">
@@ -105,9 +106,41 @@
             <g id="animation_area"></g>
 
             <foreignObject x="610" y="40" width="280" height="420">
-                <div id="analysis-box" xmlns="http://www.w.org/1999/xhtml">
-                    <h3 id="analysis-title">Erklärung</h3>
-                    <p id="analysis-text">Wählen Sie einen Begriff aus der unteren Liste aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern.</p>
+                <div id="analysis-box" xmlns="http://www.w3.org/1999/xhtml">
+                    <!-- Statisches MathJax: alle Erklär-Varianten im DOM, JS schaltet nur
+                         display um (kein typesetPromise zur Laufzeit). Standard = 'default'. -->
+                    <div class="analysis-variant" id="analysis_default">
+                        <h3>Erklärung</h3>
+                        <p>Wählen Sie einen Begriff aus der unteren Liste aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern.</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_sA" style="display:none;">
+                        <h3>Ortsvektor \(\vec{s}_A = \vec{s}(t_A)\)</h3>
+                        <p>Der Ortsvektor zeigt vom Ursprung zum Ort A zur Zeit \(t_A\). Er beschreibt die genaue Position als Spaltenvektor \((x_A, y_A)^T\).</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_sB" style="display:none;">
+                        <h3>Ortsvektor \(\vec{s}_B = \vec{s}(t_B)\)</h3>
+                        <p>Der Ortsvektor zum Zeitpunkt \(t_B\). Der Vergleich von \(\vec{s}_A\) und \(\vec{s}_B\) zeigt die Bewegung des Objekts.</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_verschiebung_BA" style="display:none;">
+                        <h3>Verschiebung \(\Delta\vec{s}_{BA}\)</h3>
+                        <p>Die Verschiebung von A nach B ist der Vektor, der direkt vom Startpunkt A zum Endpunkt B zeigt: \(\Delta\vec{s}_{BA} = \vec{s}_B - \vec{s}_A\). Er beschreibt die Netto-Ortsänderung.</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_verschiebung_AB" style="display:none;">
+                        <h3>Verschiebung \(\Delta\vec{s}_{AB}\)</h3>
+                        <p>Die Verschiebung von B nach A ist der Gegenvektor zu \(\Delta\vec{s}_{BA}\). Er zeigt vom Endpunkt B zurück zum Startpunkt A: \(\Delta\vec{s}_{AB} = \vec{s}_A - \vec{s}_B = -\Delta\vec{s}_{BA}\).</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_abstand" style="display:none;">
+                        <h3>Abstand \(|\Delta\vec{s}_{BA}|\)</h3>
+                        <p>Der Abstand ist der Betrag (die Länge) des Verschiebungsvektors. Er ist die direkte Distanz (Luftlinie) zwischen A und B und ist immer ein positiver Wert: \(|\Delta\vec{s}_{BA}| = |\Delta\vec{s}_{AB}|\).</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_weg" style="display:none;">
+                        <h3>Weglänge \(s_{AB}\)</h3>
+                        <p>Die Weglänge ist die Länge des tatsächlichen Pfades, den das Objekt zwischen A und B zurückgelegt hat. Sie ist immer größer oder gleich dem Abstand.</p>
+                    </div>
+                    <div class="analysis-variant" id="analysis_pathBg" style="display:none;">
+                        <h3>Strecke \(\vec{s}(t)\)</h3>
+                        <p>Die Strecke (oder Bahnkurve) ist die Menge aller Orte, die das Objekt im Laufe der Zeit durchläuft. Sie ist die 'Spur', die die Bewegung hinterlässt.</p>
+                    </div>
                 </div>
             </foreignObject>
         </svg>
@@ -189,8 +222,6 @@
             valVerschiebungAB: document.getElementById('val_verschiebung_AB'),
             valAbstand: document.getElementById('val_abstand'),
             valWeg: document.getElementById('val_weg'),
-            analysisTitle: document.getElementById('analysis-title'),
-            analysisText: document.getElementById('analysis-text'),
             controls: {
                 sA: document.getElementById('control_sA'), sB: document.getElementById('control_sB'),
                 verschiebung_BA: document.getElementById('control_verschiebung_BA'),
@@ -209,21 +240,37 @@
             }
         };
         
-        const explanations = {
-            sA: { title: "Ortsvektor \\(\\vec{s}_A = \\vec{s}(t_A)\\)", text: "Der Ortsvektor zeigt vom Ursprung zum Ort A zur Zeit \\(t_A\\). Er beschreibt die genaue Position als Spaltenvektor \\((x_A, y_A)^T\\)." },
-            sB: { title: "Ortsvektor \\(\\vec{s}_B = \\vec{s}(t_B)\\)", text: "Der Ortsvektor zum Zeitpunkt \\(t_B\\). Der Vergleich von \\(\\vec{s}_A\\) und \\(\\vec{s}_B\\) zeigt die Bewegung des Objekts." },
-            verschiebung_BA: { title: "Verschiebung \\(\\Delta\\vec{s}_{BA}\\)", text: "Die Verschiebung von A nach B ist der Vektor, der direkt vom Startpunkt A zum Endpunkt B zeigt: \\(\\Delta\\vec{s}_{BA} = \\vec{s}_B - \\vec{s}_A\\). Er beschreibt die Netto-Ortsänderung." },
-            verschiebung_AB: { title: "Verschiebung \\(\\Delta\\vec{s}_{AB}\\)", text: "Die Verschiebung von B nach A ist der Gegenvektor zu \\(\\Delta\\vec{s}_{BA}\\). Er zeigt vom Endpunkt B zurück zum Startpunkt A: \\(\\Delta\\vec{s}_{AB} = \\vec{s}_A - \\vec{s}_B = -\\Delta\\vec{s}_{BA}\\)." },
-            abstand: { title: "Abstand \\(|\\Delta\\vec{s}_{BA}|\\)", text: "Der Abstand ist der Betrag (die Länge) des Verschiebungsvektors. Er ist die direkte Distanz (Luftlinie) zwischen A und B und ist immer ein positiver Wert: \\(|\\Delta\\vec{s}_{BA}| = |\\Delta\\vec{s}_{AB}|\\)." },
-            weg: { title: "Weglänge \\(s_{AB}\\)", text: "Die Weglänge ist die Länge des tatsächlichen Pfades, den das Objekt zwischen A und B zurückgelegt hat. Sie ist immer größer oder gleich dem Abstand." },
-            pathBg: { title: "Strecke \\(\\vec{s}(t)\\)", text: "Die Strecke (oder Bahnkurve) ist die Menge aller Orte, die das Objekt im Laufe der Zeit durchläuft. Sie ist die 'Spur', die die Bewegung hinterlässt." },
-            default: { title: "Erklärung", text: "Wählen Sie einen Begriff aus der unteren Liste aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern." }
-        };
+        // Erklär-Varianten für die Analyse-Box (statisches MathJax im DOM).
+        const analysisVariants = ['default', 'sA', 'sB', 'verschiebung_BA', 'verschiebung_AB', 'abstand', 'weg', 'pathBg'];
 
         function createSVGElement(tag, attributes) {
             const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
             for (const key in attributes) el.setAttribute(key, attributes[key]);
             return el;
+        }
+
+        // Achsenbeschriftung (CLAUDE.md-Typografie): optionaler Deskriptor vor dem
+        // Symbol (upright), Variablensymbol italic, optionaler Suffix (upright),
+        // '/ Einheit' (upright) — via tspan.
+        function setAxisLabel(el, before, symbol, after, unit) {
+            if (before) {
+                const b = createSVGElement('tspan', {});
+                b.textContent = before;
+                el.appendChild(b);
+            }
+            const sym = createSVGElement('tspan', { 'font-style': 'italic' });
+            sym.textContent = symbol;
+            el.appendChild(sym);
+            if (after) {
+                const a = createSVGElement('tspan', {});
+                a.textContent = after;
+                el.appendChild(a);
+            }
+            if (unit) {
+                const u = createSVGElement('tspan', {});
+                u.textContent = ' / ' + unit;
+                el.appendChild(u);
+            }
         }
         
         function linspace(start, stop, num) {
@@ -290,9 +337,15 @@
             }
             ui.plotArea.appendChild(createSVGElement('line', { x1: scaleX(x_min), y1: y0, x2: scaleX(x_max), y2: y0, stroke: 'currentColor', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
             ui.plotArea.appendChild(createSVGElement('line', { x1: x0, y1: scaleY(y_min), x2: x0, y2: scaleY(y_max), stroke: 'currentColor', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }));
-            ui.plotArea.appendChild(createSVGElement('text', { x: scaleX(x_max), y: y0 + 35, 'text-anchor': 'end', fill: 'currentColor'})).innerHTML = 'x-Position / m';
-            ui.plotArea.appendChild(createSVGElement('text', { x: x0 + 10, y: scaleY(y_max) - 20, 'text-anchor': 'start', fill: 'currentColor'})).innerHTML = 'y-Position / m';
-            ui.plotArea.appendChild(createSVGElement('text', { x: PLOT_MARGINS.left + PLOT_WIDTH / 2, y: PLOT_MARGINS.top - 15, 'text-anchor': 'middle', 'font-size': '18px', 'font-weight': 'bold', fill: 'currentColor' })).textContent = 'Bahndiagramm / x-y-Diagramm';
+            const xLabel = createSVGElement('text', { x: scaleX(x_max), y: y0 + 35, 'text-anchor': 'end', fill: 'currentColor' });
+            setAxisLabel(xLabel, '', 'x', '-Position', 'm');
+            ui.plotArea.appendChild(xLabel);
+            const yLabel = createSVGElement('text', { x: x0 + 10, y: scaleY(y_max) - 20, 'text-anchor': 'start', fill: 'currentColor' });
+            setAxisLabel(yLabel, '', 'y', '-Position', 'm');
+            ui.plotArea.appendChild(yLabel);
+            const graphTitle = createSVGElement('text', { id: 'graph_title', x: PLOT_MARGINS.left + PLOT_WIDTH / 2, y: PLOT_MARGINS.top - 15, 'text-anchor': 'middle', 'font-size': '18px', 'font-weight': 'bold', fill: 'currentColor' });
+            graphTitle.textContent = 'Bahndiagramm / x-y-Diagramm';
+            ui.plotArea.appendChild(graphTitle);
         }
 
         function drawScene() {
@@ -410,13 +463,20 @@
             ui.valVerschiebungAB.innerHTML = isChecked('verschiebung_AB') ? buildVectorHTML(pathData.x_A - pathData.x_B, pathData.y_A - pathData.y_B) : '';
             ui.valAbstand.textContent = isChecked('abstand') ? `${formatNum(pathData.deltaS_mag)} m` : '';
             ui.valWeg.textContent = isChecked('weg') ? `${formatNum(pathData.s_AB_length)} m` : '';
+
+            // Graph-Titel als letztes SVG-Kind halten (z-Order-Konvention: Titel
+            // liegt über Datenlinien/Legende). Nach jedem Neu-Anhängen re-appenden.
+            const titleEl = document.getElementById('graph_title');
+            if (titleEl) ui.plotArea.appendChild(titleEl);
         }
-        
+
         function updateAnalysisBox(key) {
-            const content = explanations[key] || explanations.default;
-            ui.analysisTitle.innerHTML = content.title;
-            ui.analysisText.innerHTML = content.text;
-            if (typeof MathJax !== 'undefined' && MathJax.typeset) { MathJax.typesetPromise([ui.analysisTitle, ui.analysisText]); }
+            // Statisches MathJax: nur display umschalten, kein typesetPromise zur Laufzeit.
+            const id = analysisVariants.includes(key) ? key : 'default';
+            analysisVariants.forEach(v => {
+                const el = document.getElementById('analysis_' + v);
+                if (el) el.style.display = (v === id) ? '' : 'none';
+            });
         }
         
         function handleTimeSliderInput() {

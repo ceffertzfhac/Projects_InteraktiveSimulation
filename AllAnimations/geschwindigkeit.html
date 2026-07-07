@@ -39,6 +39,7 @@
             margin-bottom: 0.5em;
             color: var(--text-color);
         }
+        .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
 
         #container {
             display: flex;
@@ -180,7 +181,7 @@
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
       <span style="font-size:.82rem">☀️</span>
     </div>
-    <h1>Geschwindigkeit als Steigung der Ort-Zeit-Kurve</h1>
+    <h1>Geschwindigkeit als Steigung der Ort-Zeit-Kurve <span class="version">v1.0.0</span></h1>
     <div id="container">
         <svg id="main_svg" viewBox="0 0 650 500">
             <defs>
@@ -189,11 +190,6 @@
                 </marker>
             </defs>
             <g id="graph_group" transform="translate(0, 0)">
-                <foreignObject x="0" y="10" width="650" height="40">
-                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
-                        Funktionsgleichung x(t)
-                    </div>
-                </foreignObject>
                 <g id="grid_group"></g>
                 <polyline id="func_line" fill="none" stroke="var(--fh-lightgray)" stroke-width="3" />
                 <polyline id="tangent_line" fill="none" stroke="var(--fh-purple)" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden" />
@@ -209,6 +205,16 @@
                 <text id="dt_text" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
                 <text id="dx_text_sec" x="0" y="0" fill="var(--fh-green)" font-size="11px" visibility="hidden"></text>
                 <g id="legend_group"></g>
+                <!-- Graph-Titel: statisches MathJax (3 Funktions-Varianten), letztes
+                     SVG-Kind → über Datenlinien/Legende gerendert (z-Order-Konvention).
+                     JS schaltet nur display um — kein typesetPromise zur Laufzeit. -->
+                <foreignObject x="0" y="10" width="650" height="40" style="pointer-events:none;">
+                    <div id="formula_container_div" xmlns="http://www.w3.org/1999/xhtml">
+                        <div id="formula_gerade">Funktionsgleichung: \(x(t) = 2 \, \dfrac{\text{m}}{\text{s}} \cdot t - 5 \, \text{m}\)</div>
+                        <div id="formula_parabel" style="display:none;">Funktionsgleichung: \(x(t) = 1 \, \dfrac{\text{m}}{\text{s}^2} \cdot (t - 5 \, \text{s})^2 + 1 \, \text{m}\)</div>
+                        <div id="formula_komplex" style="display:none;">Funktionsgleichung: \(x(t) = \tfrac{1}{1000} \left( -4\,\dfrac{\text{m}}{\text{s}^2}(t+2\,\text{s})^2 - 4\,\dfrac{\text{m}}{\text{s}}(t+2\,\text{s}) - 20\,\text{m} \right) \sin\!\left( \dfrac{t}{1\,\text{s}} \right)\)</div>
+                    </div>
+                </foreignObject>
             </g>
         </svg>
 
@@ -289,7 +295,9 @@
             p1_dot: document.getElementById('p1_dot'), p2_dot: document.getElementById('p2_dot'),
             secTriangleH: document.getElementById('sec_triangle_h'), secTriangleV: document.getElementById('sec_triangle_v'),
             dtText: document.getElementById('dt_text'), dxTextSec: document.getElementById('dx_text_sec'),
-            formulaContainer: document.getElementById('formula_container_div'),
+            formulaGerade: document.getElementById('formula_gerade'),
+            formulaParabel: document.getElementById('formula_parabel'),
+            formulaKomplex: document.getElementById('formula_komplex'),
             tStepDownButton: document.getElementById('t_step_down_button'),
             tStepUpButton: document.getElementById('t_step_up_button')
         };
@@ -311,6 +319,18 @@
             return el;
         }
 
+        // Achsenbeschriftung (CLAUDE.md-Typografie): Deskriptor upright,
+        // Variablensymbol italic, '/ Einheit' upright — via tspan.
+        function setAxisLabel(el, prefix, symbol, unit) {
+            el.textContent = prefix ? prefix + ' ' : '';
+            const sym = createSVGElement('tspan', { 'font-style': 'italic' });
+            sym.textContent = symbol;
+            const unitSpan = createSVGElement('tspan', {});
+            unitSpan.textContent = ' / ' + unit;
+            el.appendChild(sym);
+            el.appendChild(unitSpan);
+        }
+
         function calculateDerivative(y_data, t_step_size) {
             const dy_dt_data = new Array(y_data.length);
             if (y_data.length < 2) return dy_dt_data.fill(0);
@@ -329,7 +349,9 @@
                 ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleT(t_val), y1: plotPaddingTop, x2: scaleT(t_val), y2: plotPaddingTop+plotHeight, stroke: '#eee'}));
                 ui.gridGroup.appendChild(createSVGElement('text', {x: scaleT(t_val), y: plotPaddingTop+plotHeight+15, 'text-anchor': 'middle'})).textContent = t_val.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0});
             }
-            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft + plotWidth / 2, y: plotPaddingTop + plotHeight + 35, 'text-anchor': 'middle', 'font-size': '14px'})).textContent = "Zeit t / s";
+            const tAxisLabel = createSVGElement('text', {x: plotPaddingLeft + plotWidth / 2, y: plotPaddingTop + plotHeight + 35, 'text-anchor': 'middle', 'font-size': '14px'});
+            setAxisLabel(tAxisLabel, 'Zeit', 't', 's');
+            ui.gridGroup.appendChild(tAxisLabel);
             
             const position_range = position_max_scaled - position_min_scaled;
             const y_tick_step = (position_range > 0) ? getNiceTickStep(position_range, 8) : 1;
@@ -338,7 +360,10 @@
                 ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleX(y_val), x2: plotPaddingLeft+plotWidth, y2: scaleX(y_val), stroke: '#eee'}));
                 ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft-8, y: scaleX(y_val)+4, 'text-anchor': 'end'})).textContent = y_val.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
             }
-            ui.gridGroup.appendChild(createSVGElement('text', {x: plotPaddingLeft - 35, y: plotPaddingTop + plotHeight / 2, 'text-anchor': 'middle', 'font-size': '14px', transform: `rotate(-90, ${plotPaddingLeft - 35}, ${plotPaddingTop + plotHeight / 2})`})).textContent = "Ort x / m";
+            const xRot = `rotate(-90, ${plotPaddingLeft - 35}, ${plotPaddingTop + plotHeight / 2})`;
+            const xAxisLabel = createSVGElement('text', {x: plotPaddingLeft - 35, y: plotPaddingTop + plotHeight / 2, 'text-anchor': 'middle', 'font-size': '14px', transform: xRot});
+            setAxisLabel(xAxisLabel, 'Ort', 'x', 'm');
+            ui.gridGroup.appendChild(xAxisLabel);
 
             ui.gridGroup.appendChild(createSVGElement('line', {x1: plotPaddingLeft, y1: scaleX(0), x2: plotPaddingLeft+plotWidth, y2: scaleX(0), stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
             ui.gridGroup.appendChild(createSVGElement('line', {x1: scaleT(0), y1: plotPaddingTop+plotHeight, x2: scaleT(0), y2: plotPaddingTop, stroke: 'black', 'marker-end': 'url(#arrowhead)'}));
@@ -388,17 +413,12 @@
 
         const func_labels = ['Gerade', 'Parabel', 'Komplex'];
         function changeFunction(label) {
-            let formulaString = ""; 
-
             if (label === func_labels[2]) {
                 position_values = t_values.map(t => (1/1000 * (-4*Math.pow(t+2, 2) - 4*(t+2) - 20) * Math.sin(t)));
-                formulaString = "Funktionsgleichung: \\(x(t) = \\frac{1}{1000} \\left( -4\\,\\frac{\\text{m}}{\\text{s}^2}(t+2\\,\\text{s})^2 - 4\\,\\frac{\\text{m}}{\\text{s}}(t+2\\,\\text{s}) - 20\\,\\text{m} \\right) \\sin\\left( \\frac{t}{1\\,\\text{s}} \\right) \\)";
             } else if (label === func_labels[0]) {
                 position_values = t_values.map(t => 2 * t - 5);
-                formulaString = "Funktionsgleichung: \\(x(t) = 2 \\, \\frac{\\text{m}}{\\text{s}} \\cdot t - 5 \\, \\text{m} \\)";
             } else if (label === func_labels[1]) {
                 position_values = t_values.map(t => Math.pow(t - 5, 2) + 1);
-                formulaString = "Funktionsgleichung: \\(x(t) = 1 \\, \\frac{\\text{m}}{\\text{s}^2} \\cdot (t - 5 \\, \\text{s})^2 + 1 \\, \\text{m} \\)";
             }
 
             velocity_values = calculateDerivative(position_values, dt_step);
@@ -418,11 +438,11 @@
                 points_str += `${scaleT(t_values[i])},${scaleX(position_values[i])} `;
             }
             ui.funcLine.setAttribute('points', points_str.trim());
-            
-            ui.formulaContainer.innerHTML = formulaString;
-            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-                MathJax.typesetPromise([ui.formulaContainer]);
-            }
+
+            // Statisches MathJax: nur display umschalten, kein typesetPromise zur Laufzeit.
+            ui.formulaGerade.style.display  = label === 'Gerade'  ? '' : 'none';
+            ui.formulaParabel.style.display = label === 'Parabel' ? '' : 'none';
+            ui.formulaKomplex.style.display = label === 'Komplex' ? '' : 'none';
             update();
         }
 

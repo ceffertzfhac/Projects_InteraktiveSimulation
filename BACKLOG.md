@@ -104,9 +104,9 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 
 | ID | Titel | Datei | Beschreibung |
 |----|-------|------|--------------|
-| W1 | Ableitung → Werkzeug-Schale | ableitung.html | Keine Animation → Werkzeug-Schale (§7 Blueprint): Topbar + Back + Theme + Tokens, keine Play/Pause/Reset/Stoppuhr/CSV. Legende + Graph-Konventionen (`setAxisLabel`). Statisches MathJax. |
-| W2 | Geschwindigkeit → Werkzeug-Schale | geschwindigkeit.html | Wie W1. Step-Button-Widgets bleiben; Achsenbeschriftung kanonisch. |
-| W3 | Grundbegriffe Kinematik → Werkzeug-Schale | grundbegriffe_kin.html | Wie W1. Viele Toggles bleiben; kein Sim-Loop. |
+| W1 | ✅ Ableitung → Werkzeug-Schale | ableitung.html | **Erledigt (Session 2026-07-07, v1.0.0):** Chrome (Topbar/Back/Theme/Tokens) stand schon via R4; keine Sim-Controls vorhanden. Konvertiert: **statisches MathJax** (3 Funktions-Varianten als statische `<div>`s, `changeFunction` schaltet nur `display` — kein `typesetPromise` zur Laufzeit), Graph-Titel als **letztes SVG-Kind** (z-Order-Konvention), Achsen-Labels `x`/`y` **italic** (Variable kursiv). Version `v1.0.0`. ~~ Ursprünglich: Werkzeug-Schale §7 + Legende + setAxisLabel + statisches MathJax. ~~ |
+| W2 | ✅ Geschwindigkeit → Werkzeug-Schale | geschwindigkeit.html | **Erledigt (Session 2026-07-07, v1.0.0):** Wie W1. Step-Button-Widgets bleiben erhalten. **Statisches MathJax** (3 Funktions-Varianten statisch, `display`-Umschaltung), Graph-Titel letztes SVG-Kind, Achsenbeschriftung **kanonisch** via `setAxisLabel`-Helfer (Deskriptor upright, `t`/`x` italic, `s`/`m` upright). Version `v1.0.0`. ~~ Ursprünglich: wie W1, Step-Buttons bleiben, Achsenbeschriftung kanonisch. ~~ |
+| W3 | ✅ Grundbegriffe Kinematik → Werkzeug-Schale | grundbegriffe_kin.html | **Erledigt (Session 2026-07-07, v1.0.0):** Viele Toggles bleiben, kein Sim-Loop. **Statisches MathJax**: Analyse-Box mit 8 Erklär-Varianten als statische `<div class="analysis-variant">`s (default + 7 Begriffe), `updateAnalysisBox` schaltet nur `display` — kein `typesetPromise`. Achsen-Labels `x-Position / m`/`y-Position / m` kanonisch (`x`/`y` italic via `setAxisLabel`-Helfer). Graph-Titel `Bahndiagramm / x-y-Diagramm` mit `id="graph_title"` und Re-Append am Ende von `updateVisualization` → **letztes SVG-Kind**. Namespace-Typo `www.w.org` → `www.w3.org` repariert. Version `v1.0.0`. Offen (bewusst nicht in W3): Vektor-Pfeilspitzen-Geometrie (`refX=markerWidth`) — separates Item, bei nächster Berührung gegen kanonische `refX=0`+`shortenEnd`-Regel abgleichen. Vorhandener Titel-Typo „Kinetmatik" (→ „Kinematik") bewusst nicht geändert (Out-of-Scope). ~~ Ursprünglich: wie W1, viele Toggles, kein Sim-Loop. ~~ |
 
 ---
 
@@ -253,7 +253,7 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 31
+- **Gesamt-Items (offen):** 28
 - **Bugs:** 0 (B1, B2, B3 erledigt — Session 2026-07-07)
 - **Technische Schulden:** 7 — **alle erledigt** (T1, T2, T3, T4, T6, T7, T8)
 - **Features (bestehende Projekte):** 11
@@ -261,6 +261,6 @@ Berührung gegen die kanonische Regel abgleichen.
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4 (davon I2, I4 erledigt)
 - **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
-- **Werkzeug-Schale:** 3 (W1–W3)
+- **Werkzeug-Schale:** 3 — **alle erledigt** (W1, W2, W3 — Session 2026-07-07)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 27 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4 — Session 2026-07-07)
+- **Erledigt:** 30 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07)
