@@ -1,65 +1,37 @@
-# GEMINI.md - Rollende Körper Simulation
+# GEMINI.md — Kontext für den Gemini-Assistenten
 
-Dieses Projekt ist eine interaktive Physik-Simulation zur Untersuchung der Dynamik von rollenden Körpern auf einer schiefen Ebene. Es wurde für den Einsatz in Physik-Kursen entwickelt und ermöglicht den Vergleich verschiedener Körperformen und physikalischer Parameter.
+> **Kanonischer Leitfaden ist [`../CLAUDE.md`](../CLAUDE.md).** Diese Datei ist nur
+> der Einstiegspunkt für den Gemini-Assistenten; bei Widersprüchen gilt CLAUDE.md.
+> Status & Aufgaben liegen im repo-weiten [`../BACKLOG.md`](../BACKLOG.md).
+>
+> Frühere Fassung dieser Datei war eine rollende-Körper-spezifische Doppelspur zu
+> CLAUDE.md und enthielt veraltete/false Aussagen (u. a. „Syne"-Font, der inzwischen
+> abgeschafft ist, und die Behauptung, `index.html` ließe sich per `file://` öffnen —
+> ES-Module scheitern aber an CORS, siehe CLAUDE.md § „Running a Simulation").
+> Daher konsolidiert auf diesen Zeiger (T4, Session 2026-07-07).
 
-## Projektübersicht
+## Repo-Überblick
 
-*   **Zweck:** Visualisierung und Analyse der Rollbewegung (Beschleunigung, Energie, Kräfte) unter Berücksichtigung des Trägheitsmoments.
-*   **Technologien:** 
-    *   **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES Modules).
-    *   **Grafik:** SVG für die Hauptsimulation und Diagramme.
-    *   **Mathematik:** MathJax für die Darstellung physikalischer Formeln.
-    *   **Physik-Engine:** Eigenimplementierung basierend auf analytischen Lösungen der Bewegungsgleichungen (Vorausberechnung der Pfade).
+Mono-Repo interaktiver Physik-Simulationen für FH Aachen FB 8 — reine Client-Web-Apps:
+Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3. **Kein Build-Schritt, kein npm, keine
+automatisierten Tests** — Verifikation erfolgt manuell im Browser.
 
-## Architektur & Dateistruktur
+## Wo was liegt
 
-Das Projekt folgt einer modularen Struktur in JavaScript (ES Modules):
+- `CLAUDE.md` — kanonischer Leitfaden (Architektur, Design-System, Konventionen,
+  Checkliste „Neue Simulation", Git-Workflow).
+- `BACKLOG.md` — MoSCoW-priorisiertes, repo-weites Backlog (Bugs, Tech-Schulden,
+  Features, Migrationen, Werkzeug-Schalen).
+- `global_docs/simulation_instruction.md` — Blueprint zum Aufbau einer Simulation
+  (§7 Werkzeug-Schale, §8 Migrations-Workflow Standalone → Modular).
+- `Project_*/` — die modularen Simulationen (jeweils 6-Modul-Architektur).
+- `AllAnimations/` — repo-weite Übersichtsseite (`index.html`) + ausgelagerte
+  Standalone-Prototypen.
+- `shared/css/design-system.css` — gemeinsame Design-Tokens (FH Aachen Corporate
+  Design, Okabe-Ito-Kraftfarben, Klapp-Sidebar-CSS).
 
-*   `index.html`: Der zentrale Einstiegspunkt, definiert das UI-Layout (Sidebar für Steuerung, Hauptbereich für SVG-Simulation und Graphen).
-*   `js/`:
-    *   `main.js`: Initialisierung und globales Error-Handling.
-    *   `state.js`: Zentrales State-Management und Cache für DOM-Elemente.
-    *   `physics.js`: Physikalische Berechnungen (k-Faktoren, Rollbedingung, Trajektorien-Vorausberechnung).
-    *   `render.js`: Komplette SVG-Rendering-Logik (Simulation, Vektoren, Graphen, Energiebalken).
-    *   `ui.js`: Event-Handler für Slider, Buttons und Toggles; Steuerung der Simulations-Loop.
-    *   `constants.js`: Physikalische Konstanten (G, Massen) und UI-Konfigurationen (Farben, Skalierungen).
-*   `css/styles.css`: Definition des modernen Dark/Light-Designs (JetBrains Mono & Syne Fonts).
-*   `docs/`: Enthält `README.md` und weitere Dokumentationen.
+## Für Gemini
 
-## Entwicklung & Betrieb
-
-### Starten der Simulation
-Da das Projekt ES-Module verwendet, muss es über einen lokalen Webserver gestartet werden:
-
-```bash
-# Mit Node.js/npm (empfohlen)
-npx serve .
-
-# Mit Python
-python3 -m http.server
-```
-
-Alternativ kann die `index.html` in modernen Browsern direkt geöffnet werden, sofern diese lokale Module unterstützen.
-
-### Testen
-Es gibt derzeit keine automatisierten Unit-Tests. Manuelle Tests sollten folgende Szenarien abdecken:
-1.  **Rollbedingung:** Wechsel zwischen "Ebene" und "Schiefe Ebene" sowie Anpassung von $\alpha$ und $\mu_s$.
-2.  **Vergleichsmodus:** Aktivieren mehrerer Körper in der Sidebar und Prüfung des "Rennens".
-3.  **Visualisierung:** Togglen der Vektoren ($v, a, F_g, F_N, F_R$) und der Punktspuren.
-4.  **CSV-Export:** Validierung der exportierten Daten in Excel/LibreOffice.
-
-## Entwicklungskonventionen
-
-*   **Sprache:** UI und Kommentare sind primär in Deutsch verfasst (Zielgruppe: FH-Physik-Kurse).
-*   **Dokumentationspflicht:** Nach jeder Code-Änderung MÜSSEN die Dokumentationsdateien (`docs/CHANGELOG.md`, `docs/FEATURE_BACKLOG.md` oder der Issue-Tracker in `docs/issues.md`) aktualisiert werden, um den Fortschritt lückenlos zu dokumentieren.
-*   **Physik-Logik:** Änderungen an der Mechanik müssen in `js/physics.js` erfolgen. Alle Berechnungen sind analytisch und werden vor dem Start der Animation in `precompute()` durchgeführt.
-*   **Rendering:** Neue Visualisierungen (z.B. neue Vektoren) werden in `js/render.js` implementiert. Koordinatentransformationen (`physToScreen`) müssen strikt eingehalten werden.
-*   **State:** Globale Variablen befinden sich ausschließlich in `js/state.js`.
-*   **Stil:** Saubere Trennung von Logik (Physik), Darstellung (Render) und Interaktion (UI).
-
-## Wichtige Konstanten (Auszug aus `constants.js`)
-
-*   `G = 9.81` (Erdbeschleunigung)
-*   `X_STOP = 5.0` (Länge der Rampe in Metern)
-*   `DT = 1/240` (Simulations-Zeitschritt für hohe Präzision)
-*   `SUBJECTS`: `sp` (Schwerpunkt), `p1-p4` (Punkte auf dem Körper).
+Beginne jede Arbeit mit `CLAUDE.md` und `BACKLOG.md`. Versionsstände, Konventionen
+und physikalische Regeln stehen dort verbindlich; diese Datei pflegt keine eigene
+Inhaltsspur, um Drift zu vermeiden.
