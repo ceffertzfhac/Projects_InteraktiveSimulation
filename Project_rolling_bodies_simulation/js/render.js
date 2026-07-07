@@ -401,6 +401,24 @@ function drawArrow(parent, x1, y1, vx, vy, color, markerId, minLen = VEC_MIN_LEN
   return el;
 }
 
+// Vektor-Label: Symbol kursiv via Serif-tspan mit Vektor-Pfeil (Combining-Arrow
+// U+20D7), optional tiefgestellter Index. Referenz: 3-Massen-Sim (T8). Fill =
+// Vektorfarbe (inline); Klasse .force-label setzt Serif + stroke:none (kein
+// Faux-Bold, s. CLAUDE.md-Regel). Werte werden bewußt nicht gezeigt (PO-Vorgabe).
+function vecLabel(x, y, sym, color, sub = null, anchor = 'start') {
+  const t = svgEl('text', {
+    x: fmtTech(x), y: fmtTech(y), class: 'force-label', fill: color,
+    'text-anchor': anchor, 'dominant-baseline': 'middle',
+  });
+  const s = svgEl('tspan', { 'font-style': 'italic' }); s.textContent = `${sym}⃗`;   // Symbol + U+20D7
+  t.appendChild(s);
+  if (sub) {
+    const sb = svgEl('tspan', { dy: '0.25em', 'font-size': '0.7em' }); sb.textContent = sub;
+    t.appendChild(sb);
+  }
+  return t;
+}
+
 export function updateVectorsAndForces(interp, screenSP, camDX) {
   const { vectorsG, forcesG, vecLegendG } = state.DOM;
   vectorsG.innerHTML = '';
@@ -472,28 +490,14 @@ export function updateVectorsAndForces(interp, screenSP, camDX) {
   if (showFg) {
     const px = linearFPx(MASS * G);
     drawArrow(forcesG, sx, sy, 0, px, 'var(--c-fg)', 'arr-fg', 0);
-    const lbl = svgEl('text', {
-      x: fmtTech(sx + 6), y: fmtTech(sy + px * 0.55),
-      fill: 'var(--c-fg)', 'font-family': 'JetBrains Mono',
-      'font-size': '9px', 'dominant-baseline': 'middle'
-    });
-    lbl.textContent = `${fmt(MASS * G, 1)} N`;
-    forcesG.appendChild(lbl);
+    forcesG.appendChild(vecLabel(sx + 8, sy + px * 0.5, 'F', 'var(--c-fg)', 'G'));
   }
 
   if (showFn) {
     const FN = MASS * G * (isInclined ? ca : 1.0);
     const px = linearFPx(FN);
     drawArrow(forcesG, sx, sy, sa * px, -ca * px, 'var(--c-fn)', 'arr-fn', 0);
-    const lx = sx + sa * px * 0.55 + 6;
-    const ly = sy - ca * px * 0.55;
-    const lbl = svgEl('text', {
-      x: fmtTech(lx), y: fmtTech(ly),
-      fill: 'var(--c-fn)', 'font-family': 'JetBrains Mono',
-      'font-size': '9px', 'dominant-baseline': 'middle', 'text-anchor': 'start'
-    });
-    lbl.textContent = `${fmt(FN, 1)} N`;
-    forcesG.appendChild(lbl);
+    forcesG.appendChild(vecLabel(sx + sa * px * 0.55 + 8, sy - ca * px * 0.55, 'F', 'var(--c-fn)', 'N'));
   }
 
   if (showFr) {
@@ -501,51 +505,37 @@ export function updateVectorsAndForces(interp, screenSP, camDX) {
     if (FR > 1e-9) {
       const px = linearFPx(FR);
       drawArrow(forcesG, contactPt.x, contactPt.y, -ca * px, -sa * px, 'var(--c-fr)', 'arr-fr', 0);
-      const lx = contactPt.x - ca * px * 1.18;
-      const ly = contactPt.y - sa * px * 1.18;
-      const lbl = svgEl('text', {
-        x: fmtTech(lx), y: fmtTech(ly - 5),
-        fill: 'var(--c-fr)', 'font-family': 'JetBrains Mono',
-        'font-size': '9px', 'text-anchor': 'middle'
-      });
-      lbl.textContent = `${fmt(FR, 2)} N`;
-      forcesG.appendChild(lbl);
+      forcesG.appendChild(vecLabel(contactPt.x - ca * px * 1.18, contactPt.y - sa * px * 1.18, 'F', 'var(--c-fr)', 'R', 'middle'));
     } else {
       forcesG.appendChild(svgEl('circle', {
         cx: fmtTech(contactPt.x), cy: fmtTech(contactPt.y), r: 4,
         fill: 'none', stroke: 'var(--c-fr)', 'stroke-width': '1.5', 'stroke-dasharray': '2,2'
       }));
-      const lbl = svgEl('text', {
-        x: fmtTech(contactPt.x + 12), y: fmtTech(contactPt.y - 4),
-        fill: 'var(--c-fr)', 'font-family': 'JetBrains Mono', 'font-size': '9px', opacity: '.6'
-      });
-      lbl.textContent = 'FR = 0 N';
+      const lbl = vecLabel(contactPt.x + 14, contactPt.y - 6, 'F', 'var(--c-fr)', 'R');
+      lbl.setAttribute('opacity', '.6');
       forcesG.appendChild(lbl);
     }
   }
 
   let ly2 = 0;
-  const addLeg = (color, label, markerId) => {
+  // Legende: Vektor-Symbol mit Pfeil (vecLabel, serif-italic) — dieselbe Notation wie
+  // an den Vektoren selbst. Keine Skalierungs-Klammern mehr (s. force-scale-note).
+  const addLeg = (color, sym, sub, markerId) => {
     const g2 = svgEl('g', { transform: `translate(0,${ly2})` });
     // Legenden-Pfeil: Schaft um Marker-Länge (7·2) kürzen, damit die refX=0-Spitze bei x=22 endet.
     g2.appendChild(svgEl('line', {
       x1: 0, y1: 8, x2: shortenEnd(0, 8, 22, 8, 7 * 2).x2, y2: 8,
       stroke: color, 'stroke-width': 2, 'marker-end': `url(#${markerId})`
     }));
-    const tx = svgEl('text', {
-      x: 28, y: 12, 'font-family': 'JetBrains Mono',
-      'font-size': '10px', fill: color
-    });
-    tx.textContent = label;
-    g2.appendChild(tx);
+    g2.appendChild(vecLabel(28, 8, sym, color, sub));
     vecLegendG.appendChild(g2);
-    ly2 += 17;
+    ly2 += 18;
   };
-  if (showV)  addLeg('var(--c-vel)', 'v (proportional)', 'arr-v');
-  if (showA)  addLeg('var(--c-acc)', 'a (logarithmisch)', 'arr-a');
-  if (showFg) addLeg('var(--c-fg)',  'Fg (linear)',       'arr-fg');
-  if (showFn) addLeg('var(--c-fn)',  'FN (linear)',       'arr-fn');
-  if (showFr) addLeg('var(--c-fr)',  'FR (linear)',       'arr-fr');
+  if (showV)  addLeg('var(--c-vel)', 'v', null, 'arr-v');
+  if (showA)  addLeg('var(--c-acc)', 'a', null, 'arr-a');
+  if (showFg) addLeg('var(--c-fg)',  'F', 'G', 'arr-fg');
+  if (showFn) addLeg('var(--c-fn)',  'F', 'N', 'arr-fn');
+  if (showFr) addLeg('var(--c-fr)',  'F', 'R', 'arr-fr');
   vecLegendG.setAttribute('visibility', ly2 > 0 ? 'visible' : 'hidden');
 }
 

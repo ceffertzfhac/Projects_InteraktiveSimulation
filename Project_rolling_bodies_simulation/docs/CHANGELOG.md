@@ -2,6 +2,36 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.5] - 2026-07-07
+### Hinzugefügt (PO-Vorgabe: Kräfte-Beträge im Analyse-Tab)
+- **Kräfte-Beträge \(F_G\)/\(F_N\)/\(F_R\) im rechten Analyse-Tab** (Sektion
+  „Physik & Rollbedingung") als kleine Liste mit den zugehörigen Vektorfarben.
+  Die Werte wurden in [2.0.4] (T8) von den On-Vektor-Labels entfernt; PO-Vorgabe
+  war, sie stattdessen hier zu zeigen. m = 1 kg normiert, Kräfte beim reinen Rollen
+  zeitunabhängig → Aktualisierung in `resetSim()` (nicht pro Frame). Neue DOM-IDs
+  `fmag_g/n/r`; CSS `.force-mags`/`.force-mag-row`/`.force-mag-val`.
+
+## [2.0.4] - 2026-07-07
+### Geändert (T8 — Vektor-Label-Notation an 3-Massen-Referenz angeglichen)
+- **Vektor-Labels tragen jetzt das Vektorsymbol mit Pfeil** (`F⃗` + Index G/N/R an
+  den Kraftvektoren, `v⃗`/`a⃗`/`F⃗_G/N/R` in der SVG-Legende) in Serif-Italic mit
+  `stroke:none` (kein Faux-Bold) — statt wie bisher nackter Werte in JetBrains Mono
+  bzw. Legenden-Einträgen wie `Fg (linear)`. **Beträge werden bewußt nicht mehr
+  gezeigt** (PO-Vorgabe: Werte sind nicht nötig und standen im Weg). Neue Hilfsfunktion
+  `vecLabel(x, y, sym, color, sub, anchor)` in `render.js` (für On-Vektor-Labels wie
+  Legende); CSS-Klasse `.force-label` in `styles.css`. Sonderfall Reibung = 0
+  (gestrichelter Kreis) trägt jetzt halbtransparentes `F⃗_R`.
+- **Visualisierung-Sektion in die linke Sidebar verschoben:** Die Vektor-Toggles
+  (SP-Bahn, Punktspuren, v/a/F-Vektoren, Kamera, Kraftvektor-Skalierung) saßen zuvor
+  im **rechten Analyse-Panel** — das im Default eingeklappt ist, sodaß die Toggles
+  unerreichbar waren. Jetzt dauerhaft sichtbar bei den übrigen Controls.
+- **Skalierungs-Hinweis geklärt:** Statt der unklaren Klammer `(linear)`/`(proportional)`
+  in der Legende erklärt eine Notiz in der Sidebar: „Pfeillänge proportional zum Betrag
+  (Kräfte und v); bei a logarithmisch wegen des großen Wertebereichs." (lineare vs.
+  proportionale Bezeichnung war synonym und daher verwirrend.)
+- **`--font-serif`** wird nun aus `shared/css/design-system.css` bezogen (vorher
+  nur in der 3-Massen-Sim lokal definiert).
+
 ## [2.0.3] - 2026-07-06
 ### Behoben (Vektor-Pfeilspitzen — kanonische Geometrie)
 - **Pfeilspitzen sitzen jetzt exakt auf dem Zielpunkt statt ~1·strokeWidth

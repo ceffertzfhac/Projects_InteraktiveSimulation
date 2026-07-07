@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Dynamik rollender Körper
-    <span class="version">v2.0.3</span>
+    <span class="version">v2.0.5</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -102,6 +102,28 @@ window.MathJax = {
       <label class="speed-pill"><input type="radio" name="speed" value="0.5">½×</label>
       <label class="speed-pill"><input type="radio" name="speed" value="0.25">¼×</label>
     </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-label">Visualisierung</div>
+    <div class="vis-toggle-row"><span class="vis-label">SP-Bahn anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_sp_trace"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Punktspuren anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_traces"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row" id="row_traces_fg" style="opacity:0.4; pointer-events:none;"><span class="vis-label" style="font-size:0.68rem; padding-left:12px;">↳ im Vordergrund</span><label class="toggle-switch"><input type="checkbox" id="tog_traces_fg" disabled><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-vel)">Geschwindigkeitsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_v"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-acc)">Beschleunigungsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_a"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fg)">Gewichtskraft \(F_g\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fg"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fn)">Normalkraft \(F_N\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fn"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fr)">Haftreibungskraft \(F_R\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fr"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row"><span class="vis-label">Kamera folgt SP</span><label class="toggle-switch"><input type="checkbox" id="tog_follow" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+    <div class="vis-toggle-row" style="margin-top:6px;">
+      <span class="vis-label">Kraftvektoren Skalierung</span>
+      <div style="display:flex;gap:4px;">
+        <button type="button" class="vec-scale-btn active" data-scale="1">1×</button>
+        <button type="button" class="vec-scale-btn" data-scale="2">2×</button>
+        <button type="button" class="vec-scale-btn" data-scale="4">4×</button>
+      </div>
+    </div>
+    <div class="force-scale-note">Pfeillänge proportional zum Betrag (Kräfte und <i>v</i>); bei <i>a</i> logarithmisch wegen des großen Wertebereichs.</div>
   </div>
 
   <div class="panel-section">
@@ -232,28 +254,6 @@ window.MathJax = {
   <div class="panel-body">
 
   <div class="panel-section">
-    <div class="panel-label">Visualisierung</div>
-    <div class="vis-toggle-row"><span class="vis-label">SP-Bahn anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_sp_trace"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label">Punktspuren anzeigen</span><label class="toggle-switch"><input type="checkbox" id="tog_traces"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row" id="row_traces_fg" style="opacity:0.4; pointer-events:none;"><span class="vis-label" style="font-size:0.68rem; padding-left:12px;">↳ im Vordergrund</span><label class="toggle-switch"><input type="checkbox" id="tog_traces_fg" disabled><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-vel)">Geschwindigkeitsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_v"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-acc)">Beschleunigungsvektoren</span><label class="toggle-switch"><input type="checkbox" id="tog_a"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fg)">Gewichtskraft \(F_g\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fg"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fn)">Normalkraft \(F_N\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fn"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-fr)">Haftreibungskraft \(F_R\)</span><label class="toggle-switch"><input type="checkbox" id="tog_fr"><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row"><span class="vis-label">Kamera folgt SP</span><label class="toggle-switch"><input type="checkbox" id="tog_follow" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
-    <div class="vis-toggle-row" style="margin-top:6px;">
-      <span class="vis-label">Kraftvektoren Skalierung</span>
-      <div style="display:flex;gap:4px;">
-        <button type="button" class="vec-scale-btn active" data-scale="1">1×</button>
-        <button type="button" class="vec-scale-btn" data-scale="2">2×</button>
-        <button type="button" class="vec-scale-btn" data-scale="4">4×</button>
-      </div>
-    </div>
-    <div class="force-scale-note">F<sub>g</sub>/F<sub>N</sub>/F<sub>R</sub>: linear skaliert · <strong>v</strong>: proportional · <strong>a</strong>: logarithmisch</div>
-  </div>
-
-  <div class="panel-section">
     <div class="panel-label">Analyse-Objekte & Bezugssystem</div>
     <div style="font-size:0.7rem; color:var(--text2); margin-bottom:8px;">Bezugssystem (Koordinatensystem):</div>
     <div style="display:flex; gap:10px; margin-bottom:12px;">
@@ -313,6 +313,12 @@ window.MathJax = {
       <div id="rollcond_box" class="roll-condition roll-ok">Rollbedingung erfüllt ✓</div>
       <div class="mu-note" id="mu_required_note">Benötigtes μ<sub>s,min</sub>: – (Ebene)</div>
       <div class="mu-note">Gewählter Haftreibungskoeffizient \(\mu_s\): <span id="mu_val">0,40</span> <span style="color:var(--text3);font-size:.9em">(automatisch ausreichend für reines Rollen)</span></div>
+      <div class="force-mags">
+        <div class="force-mags-head">Kräfte am Hauptkörper (m = 1 kg):</div>
+        <div class="force-mag-row"><span class="force-mag-sym" style="color:var(--c-fg)">\(F_G\)</span><span class="force-mag-val" id="fmag_g">9,81 N</span></div>
+        <div class="force-mag-row"><span class="force-mag-sym" style="color:var(--c-fn)">\(F_N\)</span><span class="force-mag-val" id="fmag_n">9,81 N</span></div>
+        <div class="force-mag-row"><span class="force-mag-sym" style="color:var(--c-fr)">\(F_R\)</span><span class="force-mag-val" id="fmag_r">0,00 N</span></div>
+      </div>
     </div>
   </div>
 

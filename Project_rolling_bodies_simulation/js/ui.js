@@ -6,7 +6,7 @@
 import * as state from './state.js';
 import * as render from './render.js';
 import {
-  G, DEFAULT_DURATION, MIN_DURATION, MAX_SIM_DURATION,
+  G, MASS, DEFAULT_DURATION, MIN_DURATION, MAX_SIM_DURATION,
   ALL_TYPES, GRAPH_OPTIONS, SUBJECTS, SUBJ_LABELS
 } from './constants.js';
 import { computeK, rollConditionMuMin, precompute } from './physics.js';
@@ -166,6 +166,18 @@ export function resetSim(preserveTime = false) {
   state.DOM.muVal.textContent     = render.fmt(state.store.mu_s, 2);
   state.DOM.innerRVal.textContent = render.fmt(state.DOM.innerRSlider.value / 100, 2);
   state.DOM.kvalDisplay.textContent = render.fmt(state.store.kFactor, 4);
+
+  // Kräfte-Beträge im Analyse-Tab. Die Werte wurden (T8) von den On-Vektor-Labels
+  // entfernt; PO-Vorgabe: Beträge stattdessen hier anzeigen. m = 1 kg normiert,
+  // Kräfte beim reinen Rollen zeitunabhängig → Aktualisierung in resetSim genügt.
+  const _ca = Math.cos(state.store.alpha_rad), _sa = Math.sin(state.store.alpha_rad);
+  const _inclined = state.DOM.modeInclined.checked;
+  const _Fg = MASS * G;
+  const _Fn = MASS * G * (_inclined ? _ca : 1.0);
+  const _Fr = _inclined ? MASS * G * _sa * state.store.kFactor / (1 + state.store.kFactor) : 0;
+  state.DOM.fmagG.textContent = render.fmt(_Fg, 2) + ' N';
+  state.DOM.fmagN.textContent = render.fmt(_Fn, 2) + ' N';
+  state.DOM.fmagR.textContent = render.fmt(_Fr, 2) + ' N';
 
   const beta = parseInt(state.DOM.innerRSlider.value, 10) / 100;
   state.DOM.kbadgeThickCyl.textContent = `k = ${render.fmt(computeK('thick_cylinder', beta), 3)}`;

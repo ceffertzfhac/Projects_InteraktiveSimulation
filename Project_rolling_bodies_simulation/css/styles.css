@@ -122,3 +122,18 @@ body.dark { --accent2: var(--fh-mint); }
 
 /* Force scale note */
 .force-scale-note { font-size:.63rem; color:var(--text3); font-style:italic; margin-top:4px; line-height:1.45; }
+
+/* Vektor-Label (SVG-<text>): Symbol kursiv via Serif-tspan + Vektor-Pfeil
+   (Combining-Arrow U+20D7), optionaler Index — 3-Massen-Referenz (T8). Fill =
+   Vektorfarbe (inline am <text>), gilt für On-Vektor-Labels wie Legende.
+   stroke:none nötig, damit kein Faux-Bold (s. CLAUDE.md-Regel). */
+.force-label { font-family: var(--font-serif); font-size: 13px; font-weight: 400; stroke: none; }
+
+/* Kräfte-Beträge im Analyse-Tab (Werte wurden von den On-Vektor-Labels entfernt,
+   PO-Vorgabe: stattdessen hier als Liste zeigen). Formel-Symbole als statisches
+   MathJax (index.html), Werte als Mono-textContent (ui.js). */
+.force-mags { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+.force-mags-head { font-size: .68rem; color: var(--text2); margin-bottom: 5px; }
+.force-mag-row { display: flex; justify-content: space-between; align-items: baseline; padding: 1px 0; }
+.force-mag-sym { font-size: .78rem; }
+.force-mag-val { font-family: var(--font-mono); font-size: .74rem; color: var(--text); }

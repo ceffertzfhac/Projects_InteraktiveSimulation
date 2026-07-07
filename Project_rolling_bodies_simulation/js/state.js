@@ -127,6 +127,9 @@ export function initDOMCache() {
   DOM.innerRVal = document.getElementById('inner_r_val');
   DOM.kvalDisplay = document.getElementById('kval_display');
   DOM.rollcondBox = document.getElementById('rollcond_box');
+  DOM.fmagG = document.getElementById('fmag_g');
+  DOM.fmagN = document.getElementById('fmag_n');
+  DOM.fmagR = document.getElementById('fmag_r');
   DOM.muRequiredNote = document.getElementById('mu_required_note');
   DOM.kbadgeThickCyl = document.getElementById('kbadge_thickCyl');
   DOM.kbadgeThickSph = document.getElementById('kbadge_thickSph');
