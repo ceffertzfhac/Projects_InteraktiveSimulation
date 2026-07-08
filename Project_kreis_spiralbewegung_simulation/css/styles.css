@@ -96,23 +96,31 @@ body.dark {
 .graph-line-2          { stroke: var(--c-v); }
 .graph-point           { fill: var(--c-point); }
 
-/* ── CENTER-LAYOUT: Simulation + Diagramm gestapelt ────────────────────────── */
+/* ── CENTER-LAYOUT: Simulation + Diagramm (untereinander / nebeneinander) ──── */
 .center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area.layout-side { grid-template-rows: 1fr; grid-template-columns: 1fr 1fr; }
 .sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
+.center-area.layout-side .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
 #main_svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 #graph_svg { width: 100%; height: 100%; display: block; }
 
 /* ── SIM-SPEZIFISCHE WIDGETS ───────────────────────────────────────────────── */
-/* Parameter-Raster: Label | Slider | Wert */
-.parameter-grid { display: grid; grid-template-columns: 120px 1fr 70px; gap: 8px 10px; align-items: center; }
-.parameter-grid .slider-label { text-align: right; color: var(--text2); font-size: .82rem; }
-.parameter-grid .slider-row input[type="range"] { width: 100%; margin: 0; }
-.parameter-grid .slider-val { font-family: var(--font-mono); font-size: .8rem; text-align: left; }
+/* Parameter-Raster: je Parameter eine eigenständige Zeile (Label | Slider | Wert).
+   display:none auf der ganzen .param-row (z. B. v_r im Kreis-Modus) entfernt alle
+   drei Zellen gemeinsam — kein Grid-Auto-Place-Verschieben mehr (B7). */
+.parameter-grid { display: flex; flex-direction: column; gap: 10px; }
+.parameter-grid .param-row { display: grid; grid-template-columns: 120px 1fr 72px; gap: 10px; align-items: center; }
+.parameter-grid .param-row .slider-label { text-align: right; color: var(--text2); font-size: .82rem; line-height: 1.15; }
+.parameter-grid .param-row .slider-label span { display: inline; }
+.parameter-grid .param-row input[type="range"] { width: 100%; margin: 0; }
+.parameter-grid .param-row .slider-val { font-family: var(--font-mono); font-size: .8rem; text-align: left; color: var(--accent); }
 
-/* Select-Zeile (Ansicht/Modus/Szenario/Winkeleinheit) */
-.vis-control { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 10px; margin-bottom: 8px; }
-.vis-control .slider-label { text-align: right; color: var(--text2); font-size: .82rem; }
+/* Select-Zeile (Ansicht/Modus/Szenario/Winkeleinheit/Anordnung) — linksbündig,
+   Dropdown vollbreit & lesbar (B8). */
+.vis-control { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.vis-control .slider-label { min-width: 84px; flex: 0 0 auto; color: var(--text2); font-size: .82rem; text-align: left; }
+.vis-control .select-field { flex: 1 1 auto; width: auto; min-width: 0; margin-bottom: 0; font-size: .82rem; padding: 5px 8px; }
 
 /* Zerlegungs-Fieldset (nested) */
 .decomp-fieldset { border: 1px dashed var(--border); border-radius: var(--r); padding: 5px 10px 8px; margin: 4px 0 8px 18px; }

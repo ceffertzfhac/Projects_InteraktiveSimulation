@@ -41,6 +41,11 @@ likewise zentral. Per-Sim `KNOWN_LIMITATIONS.md` verweist bei Bedarf mit
 | B4 | offen | Manuelle Zeitmessung: Pause→Play-Versatz | Federpendel | Should | Bei laufender manueller Zeitmessung und Pause→Play setzt Play `lastFrameTime=0`; der erste Frame danach macht einen (auf 0,1 s begrenzten) `deltaTime`-Sprung, die Sim-Zeit wird um die Pausendauer nicht korrekt versetzt. Pausen-Handling sauberer abbilden. *(aus `Project_federpendel_simulation/docs/issues.md`, migriert 2026-07-08)* |
 | B5 | offen | Vertikaler Modus bei großer Masse — Skalierung | Federpendel | Could | Bei \(m=5{,}0\) kg und kleinem \(k\) wird \(\delta L=mg/k\) sehr groß; die Gleichgewichtslage kann in den unteren Animationsbereich rutschen und die Schwingung ragt knapp an den Rand. Skalierung prüfen. *(aus `Project_federpendel_simulation/docs/issues.md`, migriert 2026-07-08)* |
 | B6 | offen | m₃-Default 1,1 kg vs. Anzeige „2,1 kg" — Abnahme offen | 3-Massen-Umlenkrollen | Should | Der v2-Prototyp trug im HTML `value="1.1"` am m₃-Slider, aber den Anzeigetext „2.1 kg" (staler Platzhalter); runtime-relevant war 1,1. Die Migration übernimmt 1,1 kg (Verhalten wie Prototyp beim Laden). Falls didaktisch 2,1 kg gewünscht: `M3_DEFAULT` in `constants.js` ändern. Wartet auf PO-Abnahme. *(aus `Project_3massen_umlenkrollen_simulation/docs/issues.md`, migriert 2026-07-08)* |
+| B7 | ✅ erledigt (v1.1.0) | Regler-/Beschriftungs-Layout der Bewegungsparameter | Kreis-/Spiralbewegung | Should | Darstellung/Raumaufteilung der Regler und Beschriftungen der Bewegungsparameter überarbeiten: einige Beschriftungen nicht sichtbar; Regler nicht untereinander, unterschiedlich lang und sehr kurz — insgesamt unschön/unprofessionell. *(PO-Meldung 2026-07-08)* — behoben: jeder Parameter eigenständige `.param-row`, `display:none` der ganzen `v_r`-Zeile entfernt alle Zellen gemeinsam. |
+| B8 | ✅ erledigt (v1.1.0) | Visualisierung-Sektion + Dropdown-Lesbarkeit | Kreis-/Spiralbewegung | Should | Bei „Visualisierung" Ansicht linksbündig ausrichten; Dropdown so gestalten, daß die Auswahl lesbar ist. *(PO-Meldung 2026-07-08)* — behoben: `.vis-control` Flex, Label linksbündig, Dropdown vollbreit + lesbar. |
+| B9 | ✅ erledigt (v1.1.0) | Dynamische Achseneinteilung der Diagramme | Kreis-/Spiralbewegung | Should | Achseneinteilung soll sich dynamisch anpassen, analog zu anderen Simulationen, die das schon umsetzen (`niceStepLE`/`tAxisStep`). *(PO-Meldung 2026-07-08)* — behoben: Ordinate nutzt `niceStepLE` (1-2-4-5-Serie, ≥4/≥6 Teilstriche). |
+| B10 | ✅ erledigt (v1.1.0) | Diagramm-Flächenausnutzung | Kreis-/Spiralbewegung | Should | Diagramme sollen die zur Verfügung stehende Fläche gut — aber optisch ansprechend — ausnutzen. *(PO-Meldung 2026-07-08)* — behoben: layout-abhängige `graphGeom()` (Portrait im Seitenmodus), `applyGraphLayout()`. |
+| B11 | ✅ erledigt (v1.1.0) | Physik-Analyse-Tab dünn / reagiert nicht auf α | Kreis-/Spiralbewegung | Should | Der „Physik"-Teil der Analyse ist noch sehr dünn und reagiert nicht auf Anpassungen (z. B. α=0 vs. α≠0) — muß angepaßt werden. *(PO-Meldung 2026-07-08)* — behoben: dritte statische MathJax-Variante `formulas_kreis_acc`, live α-abhängige Umschaltung. |
 
 ---
 
@@ -103,6 +108,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | FX3 | Kreis-/Spiralbewegung | Could | Polar-Zerlegung in ISO-Ansicht | Aktuell nur in 2D (in ISO deaktiviert). |
 | FX4 | Kreis-/Spiralbewegung | Could | Weitere Szenarien-Presets | z. B. Spirale innen, gleichförmig mit \(\varphi_0\neq0\). |
 | FX5 | Kreis-/Spiralbewegung | Should | nStop-Obergrenze dokumentieren oder cappen | Bei großen \(n\cdot90°\) kann das Auto-Stopp-Ziel jenseits des 120 s-Precompute-Horizonts liegen. |
+| FX6 | ✅ erledigt (v1.1.0) · ~~Kreis-/Spiralbewegung~~ | Could | Umschalter Simulation/Diagramm nebeneinander/untereinander | Layout-Umschalter zwischen „Sim + Diagramm nebeneinander" und „untereinander" (vgl. Schräger-Wurf/Freier-Fall Single-vs-Stacked-Graph). *(PO-Wunsch 2026-07-08)* — umgesetzt als `#layout_mode_select` in der Diagramme-Sektion; Portrait-Graph-Geometrie im Seitenmodus. |
 | FW1 | Schräger Wurf | Could | Luftwiderstand-Modell | Stokes/Newton-Drag als optionaler Schalter — aktuell reine Vakuumkinematik. Didaktisch wertvoll für Realitätsvergleich. |
 | FW2 | Schräger Wurf | Could | Vergleichende Würfe (mehrere Bahnen) | ~~Mehrere Flugbahnen gleichzeitig~~ **Teilweise ✅ (v1.2.0):** eine Vergleichsbahn läßt sich über den Umschalter „Vergleichsbahn" einfrieren und live vergleichen. Offen: ≥2 gespeicherte Referenzen + Vergleichsbahn auch im Bahnkurven-Diagramm \(y(x)\) als zweite Linie (aktuell nur Szenen-Overlay). |
 | FW3 | Schräger Wurf | Could | Optimalwinkel-Anzeige | Numerisch berechneter \(\alpha_{\text{opt}}\) für maximale Reichweite bei gegebenem \(h_0\), \(v_0\) — bei \(h_0>0\) liegt er unter 45°. |
@@ -328,21 +334,25 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-Stand: 2026-07-08 (nach Zentralisierung von per-Sim `issues.md`/`FEATURE_BACKLOG.md`).
+Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1.1.0).
 
 - **Gesamt-Items (offen):** 68
-- **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07)
+- **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
-- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 · FW 7 · FZ 7)
+- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 [FX6 erledigt v1.1.0] · FW 7 · FZ 7)
 - **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 erledigt
 - **Werkzeug-Schale:** 0 offen — W1, W2, W3 erledigt
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 32 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08)
+- **Erledigt (historisch):** 38 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur
 > `docs/CHANGELOG.md` + optionale `docs/KNOWN_LIMITATIONS.md`. Siehe
 > `## KONVENTIONEN` oben und `CLAUDE.md` (Dokumentations-Regel).
+
+> **Kreis-Spiral v1.1.0 (2026-07-08):** 6 PO-Punkte umgesetzt (B7–B11 + FX6) —
+> Regler-Layout, Visualisierung-Dropdown, Sim/Diagramm-Anordnung, dynamische
+> Achseneinteilung, Diagramm-Flächenausnutzung, α-abhängige Physik-Formelbox.

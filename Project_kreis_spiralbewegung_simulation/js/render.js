@@ -9,7 +9,7 @@ import {
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { getNiceTickStep, tAxisStep, interpolateAt, linePlotIndex, radiusAt } from './physics.js'
+import { niceStepLE, tAxisStep, interpolateAt, linePlotIndex, radiusAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 export { fmt }
 
@@ -316,8 +316,23 @@ function updateAnalysisPanel(P) {
 }
 
 // ── Diagramm zeichnen ────────────────────────────────────────────────────────
-function graphHeight() {
-  return store.diagramMode === '1' ? GRAPH_H_SINGLE : GRAPH_H_DUAL
+// Layout-abhängige Graph-Geometrie: gestapelt → Landscape, nebeneinander →
+// Portrait, sodaß der Graph die hohe/schmale Zelle ausfüllt (FX6, B10).
+function graphGeom() {
+  const side = store.layoutMode === 'sidebyside'
+  const dual = store.diagramMode === '2'
+  const W = side ? 460 : GRAPH_W
+  const Hsingle = side ? 560 : GRAPH_H_SINGLE
+  const Hdual = side ? 280 : GRAPH_H_DUAL
+  const H = dual ? Hdual : Hsingle
+  return { W, H, dual, side, Hdual }
+}
+
+// viewBox + Gruppe-2-Transform an aktuelle Anordnung/Modus anpassen
+function applyGraphLayout() {
+  const g = graphGeom()
+  DOM.graphSvg.setAttribute('viewBox', `0 0 ${g.W} ${g.H}`)
+  DOM.graphGroup2.setAttribute('transform', `translate(0,${g.Hdual})`)
 }
 
 function yUnitString(qq) {
@@ -342,8 +357,9 @@ function drawGraph(idx, time) {
   const limits = store.axisLimits[qq]
   if (!limits) return
 
-  const H = graphHeight()
-  const plotW = GRAPH_W - PAD_L - PAD_R
+  const g = graphGeom()
+  const { H, W, dual } = g
+  const plotW = W - PAD_L - PAD_R
   const plotH = H - PAD_T - PAD_B
   const t_max = limits.t_max
 
@@ -359,8 +375,8 @@ function drawGraph(idx, time) {
   // Hintergrund (Plot-Fläche)
   group.appendChild(el('rect', { x: PAD_L, y: PAD_T, width: plotW, height: plotH, class: 'graph-bg' }))
 
-  // Y-Gitter + Ticks
-  const yStep = getNiceTickStep(valMax - valMin, H === GRAPH_H_SINGLE ? 8 : 4)
+  // Y-Gitter + Ticks — 1-2-4-5-Nice-Step, ≥4 (dual) bzw. ≥6 (single) Teilstriche (B9)
+  const yStep = niceStepLE(valMax - valMin, dual ? 4 : 6)
   for (let v = Math.ceil(valMin / yStep) * yStep; v <= valMax + 1e-9; v += yStep) {
     const yp = scaleY(v)
     if (yp < PAD_T || yp > xAxisY + 1) continue
@@ -421,12 +437,13 @@ function drawGraph(idx, time) {
   }
 
   // Titel (letztes Kind → über Datenlinien + bg)
-  const title = el('text', { x: GRAPH_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
+  const title = el('text', { x: W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
   setGraphTitle(title, graphTitles[qq])
   group.appendChild(title)
 }
 
 function drawGraphs(time) {
+  applyGraphLayout()
   drawGraph(1, time)
   if (store.diagramMode === '2') drawGraph(2, time)
 }

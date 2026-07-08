@@ -3,6 +3,35 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.0] — 2026-07-08
+### Neu / Behoben (6 Kreis-Spiral-Punkte → BACKLOG B7–B11, FX6)
+- **B7 — Bewegungsparameter-Layout:** Jeder Parameter ist nun eine
+  eigenständige `.param-row` (Label | Slider | Wert). `display:none` auf der
+  ganzen `v_r`-Zeile (Kreis-Modus) entfernt alle drei Zellen gemeinsam — das
+  bisherige CSS-Grid-Auto-Place-Verschieben (Beschriftungen unsichtbar,
+  Regler unterschiedlich lang/versetzt) ist behoben. Regler einheitlich
+  vollbreit, Wert-Spalte 72 px.
+- **B8 — Visualisierung-Anordnung:** `.vis-control` ist jetzt Flex mit
+  linksbündigem Label (min-width 84 px) und vollbreitem, lesbarer Dropdown
+  (`font-size .82rem`, padding angepaßt). Betrifft Ansicht/Modus/Szenario/
+  Winkeleinheit/Diagramm/Anordnung einheitlich.
+- **FX6 — Anordnung Sim/Diagramm:** Umschalter „untereinander / nebeneinander"
+  (`#layout_mode_select`) in der Diagramme-Sektion. Nebeneinander schaltet
+  `.center-area` auf `grid-template-columns: 1fr 1fr` (mit Trennlinie rechts);
+  der Graph bekommt Portrait-Geometrie (`graphGeom()`, 460×560/280), um die
+  hohe schmale Zelle auszufüllen. Wechsel ist reiner Redraw (kein Reset).
+- **B9 — Dynamische Achseneinteilung:** Ordinante nutzt `niceStepLE(range,
+  minDivs)` (1-2-4-5-Serie, ≥4 Teilstriche dual / ≥6 single) statt der
+  1-2-5-`getNiceTickStep`-Variante; schließt die Lücke zwischen 2 und 5.
+- **B10 — Diagramm-Flächenausnutzung:** Plot-Breite/-Höhe und viewBox werden
+  aus der layout-abhängigen Geometrie berechnet (Portrait im Seitenmodus),
+  `applyGraphLayout()` setzt viewBox + Gruppe-2-Transform pro Zeichnung.
+- **B11 — Physik-Analyse-Tab:** Dritte statische MathJax-Variante
+  `#formulas_kreis_acc` für Kreis mit \(\alpha\neq0\) (\(\varphi(t)\) mit
+  \(\tfrac12\alpha t^2\), Tangentialbeschl. \(a_t=R|\alpha|\),
+  \(|\vec a|=R\sqrt{\omega^4+\alpha^2}\)). Umschaltung reagiert live auf den
+  \(\alpha\)-Regler (gleichförmig ↔ ungleichförmig), kein Laufzeit-Typeset.
+
 ## [1.0.0] — 2026-07-08
 ### Neu (Migration von `AllAnimations/kreiskinematik_v5.html`)
 - Modularisierung der 1479-Zeilen-Standalonedatei in den kanonischen 6-Module-

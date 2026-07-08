@@ -74,6 +74,7 @@ function resetSim(isPlayTrigger = false) {
   store.angleUnit = DOM.angleUnitSelect.value
   store.motionMode = DOM.motionModeSelect.value
   store.diagramMode = document.querySelector('input[name="diagram_mode"]:checked').value
+  store.layoutMode = DOM.layoutModeSelect.value
   const decompVal = name => {
     const r = document.querySelector(`input[name="${name}"]:checked`)
     return r ? r.value : 'none'
@@ -114,15 +115,18 @@ function resetSim(isPlayTrigger = false) {
     ;[...DOM.rDecompRadios, ...DOM.vDecompRadios, ...DOM.aDecompRadios].forEach(r => r.disabled = false)
   }
   DOM.hSlider.disabled = !isISO
-  DOM.vrControlWrapper.style.display = isKreis ? 'none' : 'block'
+  DOM.vrControlWrapper.style.display = isKreis ? 'none' : ''
   DOM.vrSlider.disabled = isKreis
   if (isKreis) { DOM.vrSlider.value = 0; store.vr = 0 }
   if (!isISO) { DOM.hSlider.value = 0; store.h = 0 }
 
-  // Statisches MathJax: Radius-Label + Formelbox Kreis↔Spirale umschalten
+  // Statisches MathJax: Radius-Label + Formelbox umschalten
+  // Kreis gleichförmig (α=0) · Kreis ungleichförmig (α≠0) · Spirale (B11)
+  const alphaNonZero = Math.abs(store.alpha_rad) > 1e-6
   DOM.radiusLabelKreis.style.display = isKreis ? '' : 'none'
   DOM.radiusLabelSpiral.style.display = isKreis ? 'none' : ''
-  DOM.formulasKreis.style.display = isKreis ? '' : 'none'
+  DOM.formulasKreis.style.display = (isKreis && !alphaNonZero) ? '' : 'none'
+  DOM.formulasKreisAcc.style.display = (isKreis && alphaNonZero) ? '' : 'none'
   DOM.formulasSpiral.style.display = isKreis ? 'none' : ''
 
   // Wert-Labels (deg/rad)
@@ -147,9 +151,10 @@ function resetSim(isPlayTrigger = false) {
     DOM.nControlGroup.style.display = 'none'
   }
 
-  // Dual-Graph-Sichtbarkeit
+  // Dual-Graph-Sichtbarkeit + Anordnung (untereinander / nebeneinander)
   DOM.dualGraphControl.style.display = (store.diagramMode === '2') ? '' : 'none'
   DOM.graphGroup2.style.visibility = (store.diagramMode === '2') ? 'visible' : 'hidden'
+  DOM.appLayout.querySelector('.center-area').classList.toggle('layout-side', store.layoutMode === 'sidebyside')
 
   // Zoom
   store.currentPixelsPerMeter = Math.min(DEFAULT_PIXELS_PER_METER, (Math.min(ANIM_CX, ANIM_CY) * 0.9) / store.R0)
@@ -328,6 +333,13 @@ DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
 }))
 DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateScene(store.simulatedTime) })
 DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graphSelect2.value; updateScene(store.simulatedTime) })
+
+// Anordnung Sim/Diagramm (nur Redraw, kein Reset — FX6)
+DOM.layoutModeSelect.addEventListener('change', () => {
+  store.layoutMode = DOM.layoutModeSelect.value
+  DOM.appLayout.querySelector('.center-area').classList.toggle('layout-side', store.layoutMode === 'sidebyside')
+  updateScene(store.simulatedTime)
+})
 
 // Redraw-Only-Toggles
 ;[DOM.toggleOmega, DOM.toggleAlpha, DOM.togglePhi, DOM.toggleTrajectory, DOM.toggleAtScaling].forEach(cb =>

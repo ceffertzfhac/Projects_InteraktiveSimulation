@@ -8,9 +8,10 @@ export const store = {
   omega0_rad: 60 * Math.PI / 180, phi0_rad: 0, alpha_rad: 0,
   speedFactor: 1.0,
 
-  // Modus / Ansicht / Einheit / Diagramm
+  // Modus / Ansicht / Einheit / Diagramm / Anordnung
   motionMode: 'kreis', currentView: '2D', angleUnit: 'deg',
   diagramMode: '1', graphType1: 'phi', graphType2: 'omega',
+  layoutMode: 'stacked',
 
   // Vektorzerlegung
   rDecomp: 'none', vDecomp: 'none', aDecomp: 'none', scaleAt: false,
@@ -95,6 +96,7 @@ export function initDOM() {
   DOM.diagramModeRadios = document.querySelectorAll('input[name="diagram_mode"]')
   DOM.dualGraphControl = q('dual_graph_control')
   DOM.graphSelect1 = q('graph_select_1'); DOM.graphSelect2 = q('graph_select_2')
+  DOM.layoutModeSelect = q('layout_mode_select')
 
   // Animations-SVG
   DOM.mainSvg = q('main_svg')
@@ -128,12 +130,14 @@ export function initDOM() {
 
   // Diagramm
   DOM.graphGroup1 = q('graph_group_1'); DOM.graphGroup2 = q('graph_group_2')
+  DOM.graphSvg = q('graph_svg')
 
   // Live-Analyse (einzelner Partikel)
   DOM.live = {}
   quantities.forEach(qq => { DOM.live[qq] = q(`live_${qq}`) })
 
-  // Statische MathJax-Varianten (Kreis/Spirale)
+  // Statische MathJax-Varianten (Kreis gleichförmig / Kreis ungleichförmig / Spirale)
   DOM.formulasKreis = q('formulas_kreis')
+  DOM.formulasKreisAcc = q('formulas_kreis_acc')
   DOM.formulasSpiral = q('formulas_spiral')
 }

@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -48,30 +48,44 @@ window.MathJax = {
     <div class="panel-section">
       <div class="panel-label">Bewegungsparameter</div>
       <div class="parameter-grid">
-        <div class="slider-label" id="radius_label_kreis">Radius \(R\)</div>
-        <div class="slider-label" id="radius_label_spiral" style="display:none">Anfangsradius \(R_0\)</div>
-        <div class="slider-row"><input type="range" id="radius_slider" min="0.1" max="2.0" value="1.5" step="0.1"></div>
-        <div class="slider-val" id="radius_value">1,5 m</div>
+        <div class="param-row">
+          <div class="slider-label">
+            <span id="radius_label_kreis">Radius \(R\)</span>
+            <span id="radius_label_spiral" style="display:none">Anfangsradius \(R_0\)</span>
+          </div>
+          <input type="range" id="radius_slider" min="0.1" max="2.0" value="1.5" step="0.1">
+          <div class="slider-val" id="radius_value">1,5 m</div>
+        </div>
 
-        <div class="slider-label">Höhe \(h\)</div>
-        <div class="slider-row"><input type="range" id="h_slider" min="-1.5" max="1.5" value="0" step="0.1" disabled></div>
-        <div class="slider-val" id="h_value">0,0 m</div>
+        <div class="param-row">
+          <div class="slider-label">Höhe \(h\)</div>
+          <input type="range" id="h_slider" min="-1.5" max="1.5" value="0" step="0.1" disabled>
+          <div class="slider-val" id="h_value">0,0 m</div>
+        </div>
 
-        <div class="slider-label">Radialgeschw. \(v_r\)</div>
-        <div class="slider-row" id="vr_control_wrapper" style="display:none"><input type="range" id="vr_slider" min="-1.0" max="1.0" value="0" step="0.05" disabled></div>
-        <div class="slider-val" id="vr_value">0,00 m/s</div>
+        <div class="param-row" id="vr_control_wrapper" style="display:none">
+          <div class="slider-label">Radialgeschw. \(v_r\)</div>
+          <input type="range" id="vr_slider" min="-1.0" max="1.0" value="0" step="0.05" disabled>
+          <div class="slider-val" id="vr_value">0,00 m/s</div>
+        </div>
 
-        <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
-        <div class="slider-row"><input type="range" id="phi0_slider" min="0" max="360" value="0" step="1"></div>
-        <div class="slider-val" id="phi0_value">0 °</div>
+        <div class="param-row">
+          <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
+          <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+          <div class="slider-val" id="phi0_value">0 °</div>
+        </div>
 
-        <div class="slider-label">Anfangswinkelgeschw. \(\omega_0\)</div>
-        <div class="slider-row"><input type="range" id="omega0_slider" min="-180" max="180" value="60" step="5"></div>
-        <div class="slider-val" id="omega0_value">60 °/s</div>
+        <div class="param-row">
+          <div class="slider-label">Anfangswinkelgeschw. \(\omega_0\)</div>
+          <input type="range" id="omega0_slider" min="-180" max="180" value="60" step="5">
+          <div class="slider-val" id="omega0_value">60 °/s</div>
+        </div>
 
-        <div class="slider-label">Winkelbeschl. \(\alpha\)</div>
-        <div class="slider-row"><input type="range" id="alpha_slider" min="-90" max="90" value="0" step="5"></div>
-        <div class="slider-val" id="alpha_value">0 °/s²</div>
+        <div class="param-row">
+          <div class="slider-label">Winkelbeschl. \(\alpha\)</div>
+          <input type="range" id="alpha_slider" min="-90" max="90" value="0" step="5">
+          <div class="slider-val" id="alpha_value">0 °/s²</div>
+        </div>
       </div>
     </div>
 
@@ -188,6 +202,13 @@ window.MathJax = {
       <div class="panel-label">Diagramme</div>
       <div class="radio-row"><label><input type="radio" name="diagram_mode" value="1" checked> Ein Diagramm</label></div>
       <div class="radio-row"><label><input type="radio" name="diagram_mode" value="2"> Zwei Diagramme</label></div>
+      <div class="vis-control" style="margin-top:10px">
+        <span class="slider-label">Anordnung</span>
+        <select id="layout_mode_select" class="select-field">
+          <option value="stacked" selected>Simulation / Diagramm untereinander</option>
+          <option value="sidebyside">nebeneinander</option>
+        </select>
+      </div>
       <div class="vis-control" style="margin-top:8px">
         <span class="slider-label">Diagramm 1</span>
         <select id="graph_select_1" class="select-field"></select>
@@ -327,7 +348,15 @@ window.MathJax = {
         <div>Kreisbahn (gleichförmig, \(\alpha=0\), \(v_r=0\)):</div>
         <div>\[\varphi(t)=\varphi_0+\omega_0\,t,\quad \omega(t)=\omega_0\]</div>
         <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
-        <div>\[|\vec{v}|=R\,|\omega|,\quad |\vec{a}|=R\,\omega^2\;\text{(Zentripetal)}\]</div>
+        <div>\[|\vec{v}|=R\,|\omega|,\quad |\vec{a}|=R\,\omega^2\;\text{(rein Zentripetal)}\]</div>
+      </div>
+      <div class="formula-box" id="formulas_kreis_acc" style="display:none">
+        <div>Kreisbahn (ungleichförmig, \(\alpha\neq 0\), \(v_r=0\)):</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2,\quad \omega(t)=\omega_0+\alpha\,t\]</div>
+        <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
+        <div>\[|\vec{v}|=R\,|\omega|\]</div>
+        <div>\[a_r=R\,\omega^2\;\text{(Zentripetal)},\quad a_t=R\,|\alpha|\;\text{(Tangential)}\]</div>
+        <div>\[|\vec{a}|=R\sqrt{\omega^4+\alpha^2}\]</div>
       </div>
       <div class="formula-box" id="formulas_spiral" style="display:none">
         <div>Spiralbahn (\(v_r\neq 0\), optional \(\alpha\neq 0\)):</div>
