@@ -1,21 +1,24 @@
 /* ── SIM-SPEZIFISCHE TOKENS (ergänzen shared/css/design-system.css) ────────── */
 /* Kein :root-Remap shared Tokens (das bräche Dark Mode — CLAUDE.md).          */
-/* Farbpalette bewahrt die Quelldatei (Parität); purple+orange+green ist       */
-/* bewusst nicht Okabe-Ito-normalisiert → Backlog (issues.md).                 */
+/* Vektorfarben Okabe-Ito-normalisiert (FX1, v1.2.1): v→--c-vel, a→--c-acc     */
+/* (shared), r/traj wie Schwester-Sim Kreisbewegung (amber/grau), α/φ Okabe-   */
+/* Farben. Löst Rot-Kollision (a,α,point waren rot) + mint-Kollision (ω,traj). */
+/* Komponenten-Vektoren (x/y/r/t) erben die Elternfarbe, unterschieden via     */
+/* Strichmuster (dashed/dotted) — d. h. Komponente = Elternfarbe, bewusst.    */
 :root {
   --graph-bg:    #ffffff;
   --grid-line:   #e8eaf0;
   --disk-fill:   #e0e0e0;
   --disk-stroke: #cccccc;
 
-  --c-r:      #7f7f7f;   /* Ortsvektor r   – Grau (Quelle: --fh-grey) */
-  --c-v:      #FF7F0E;   /* Geschw. v      – Orange (Quelle: --fh-orange) */
-  --c-a:      #9467BD;   /* Beschl. a      – Violett (Quelle: --fh-purple) */
+  --c-r:      #b08010;   /* Ortsvektor r   – Bernstein (wie Kreisbewegung --c-r) */
+  --c-v:      var(--c-vel);   /* Geschw. v – Blau (shared Okabe-Ito) */
+  --c-a:      var(--c-acc);   /* Beschl. a – Rot (shared Okabe-Ito) */
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
-  --c-alpha:  #d1002d;   /* Winkelbeschl. α – Rot */
-  --c-phi:    #2ca02c;   /* Winkel φ       – Grün */
-  --c-traj:   var(--accent);   /* Bahnkurve – Mint (gestrichelt) */
-  --c-point:  #d1002d;   /* Partikel – Rot */
+  --c-alpha:  #cc79a7;   /* Winkelbeschl. α – Mauve (Okabe reddish-purple) */
+  --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
+  --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
+  --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
 }
 
 body.dark {
@@ -24,14 +27,14 @@ body.dark {
   --disk-fill:   #2a3148;
   --disk-stroke: #3d4766;
 
-  --c-r:      #a0abc7;
-  --c-v:      #FFA040;
-  --c-a:      #B791D6;
+  --c-r:      #ffcc33;
+  --c-v:      var(--c-vel);
+  --c-a:      var(--c-acc);
   --c-omega:  var(--accent);
-  --c-alpha:  #ff7777;
+  --c-alpha:  #e078c3;
   --c-phi:    #55ee99;
-  --c-traj:   var(--accent);
-  --c-point:  #ff7777;
+  --c-traj:   #9aa3b8;
+  --c-point:  #e6eaf5;
 }
 
 /* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */

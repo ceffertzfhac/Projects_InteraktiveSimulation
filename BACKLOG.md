@@ -104,7 +104,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | FK3 | Kreisbewegung | Could | Umlaufzähler | Wie viele Umläufe absolviert seit Start (\(\varphi/360°\)). |
 | FK4 | Kreisbewegung | Could | Zentripetalkraft-Layer | \(F_Z = m\,\lvert\vec a\rvert\) als optionale Vektorgröße (zusätzliche Masse-Parameter nötig). |
 | FK5 | Kreisbewegung | Could | \(\omega\) als rad/s im UI | Neben °/s auch rad/s anzeigen. |
-| FX1 | Kreis-/Spiralbewegung | Should | Okabe-Ito-Farbpalette | Vektorfarben (aktuell Violett/Orange/Grün aus der Quelldatei) auf farbblinden-sichere Okabe-Ito-Tokens angleichen (CLAUDE.md empfiehlt shared `--c-vel`/`--c-acc`). Beziehung zu Komponenten-Farben klären. |
+| FX1 | ✅ erledigt (v1.2.1) · ~~Kreis-/Spiralbewegung~~ | Should | Okabe-Ito-Farbpalette | Vektorfarben (aktuell Violett/Orange/Grün aus der Quelldatei) auf farbblinden-sichere Okabe-Ito-Tokens angleichen (CLAUDE.md empfiehlt shared `--c-vel`/`--c-acc`). Beziehung zu Komponenten-Farben klären. *(Session 2026-07-08)* — umgesetzt: `--c-v`→`var(--c-vel)`, `--c-a`→`var(--c-acc)` (shared, deckungsgleich mit Kreisbewegung); `--c-r`→Bernstein, `--c-traj`→Grau (wie Kreisbewegung, Mint bleibt `ω` allein); `--c-alpha` Rot→Mauve `#cc79a7`, `--c-phi`→Blaugrün `#009e73` (Okabe); `--c-point` Rot→`--text` (löst Rot-Kollision a/α/Partikel). Komponenten-Vektoren erben weiter die Elternfarbe (Strichmuster x/y/r/t) — „Komponente = Elternfarbe" bewusst. Alle Farben über lokale Tokens, eine Stelle (`css/styles.css`). |
 | FX2 | Kreis-/Spiralbewegung | Should | Kanonische Atwood-Subdial | Stoppuhr um Subdial (cy=25, r=13, 10 Marken, 1 U/s) ergänzen — Quelldatei hat nur Hauptzeiger. |
 | FX3 | Kreis-/Spiralbewegung | Could | Polar-Zerlegung in ISO-Ansicht | Aktuell nur in 2D (in ISO deaktiviert). |
 | FX4 | Kreis-/Spiralbewegung | Could | Weitere Szenarien-Presets | z. B. Spirale innen, gleichförmig mit \(\varphi_0\neq0\). |
@@ -343,14 +343,14 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 - **Gesamt-Items (offen):** 67
 - **Bugs:** 2 offen (B4, B5) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08); B6 erledigt (3-Massen v1.2.4, 2026-07-08)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
-- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 [FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7)
+- **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7)
 - **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 + W1 (Ableitung, modular) erledigt
 - **Werkzeug-Schale:** 0 offen — W2, W3 erledigt (W1 modular migriert → Migrationen)
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 43 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08)
+- **Erledigt (historisch):** 44 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08; FX1 — Kreis-Spiral v1.2.1, 2026-07-08)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur

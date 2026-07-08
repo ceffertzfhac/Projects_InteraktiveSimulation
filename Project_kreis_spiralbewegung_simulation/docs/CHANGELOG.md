@@ -3,6 +3,29 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.2.1] — 2026-07-08
+### Stil (FX1 — Okabe-Ito-Farbpalette)
+- Vektorfarben von der Quelldatei-Palette (Violett/Orange/Grün) auf
+  farbblinden-sichere Okabe-Ito-Tokens umgestellt. Auflösung bisheriger
+  Kollisionen: `a`/`α`/Partikel waren alle Rot, `ω`/Bahnkurve beide Mint.
+- **Zuweisung** (Light/Dark):
+  - `--c-v` → `var(--c-vel)` (Blau), `--c-a` → `var(--c-acc)` (Rot) — shared
+    Tokens gemäß CLAUDE.md, deckungsgleich mit Schwester-Sim Kreisbewegung.
+  - `--c-r` Grau → Bernstein `#b08010`/`#ffcc33` (wie Kreisbewegung).
+  - `--c-traj` Mint → Grau `#7f7f7f`/`#9aa3b8` (wie Kreisbewegung; Mint bleibt
+    `ω` allein).
+  - `--c-alpha` Rot → Mauve `#cc79a7`/`#e078c3` (Okabe reddish-purple).
+  - `--c-phi` `#2ca02c` → Blaugrün `#009e73`/`#55ee99` (Okabe bluish-green).
+  - `--c-point` Rot → `--text` (`#1a1e2e`/`#e6eaf5`); Partikel frei von
+    Vektorfarben, max. Kontrast auf Disk/Graph.
+- `--c-omega` (Mint) unverändert. Komponenten-Vektoren (x/y/r/t) erben weiter
+  die Elternfarbe, unterschieden via Strichmuster (dashed/dotted) —
+  „Komponente = Elternfarbe" bewusst beibehalten.
+- Alle Farben laufen über die lokalen Tokens (`--c-r … --c-point`), die
+  Legenden-Swatches, Sidebar-Labels, Vektor-Klassen und Graphlinien speisen —
+  eine Stelle (`css/styles.css`), keine weiteren Eingriffe nötig. Keine
+  hartkodierten Alt-Hex-Werte in `index.html`/`js/`.
+
 ## [1.2.0] — 2026-07-08
 ### Neu (FX7 — kartesische Komponenten + α(t) im Physik-Block)
 - Nach der B12-Panel-Verbreiterung (405 px) ist Platz für mehr Formeln. Die
