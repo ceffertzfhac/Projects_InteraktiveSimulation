@@ -3,6 +3,25 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.7] — 2026-07-08
+### Neu (B9 — dynamische Achsenskalierung, Auto-Range auf den geplotteten Bereich)
+- **Bisher:** Achsen waren auf die *vorausberechnete Volllspanne* (min/max über
+  den gesamten Lauf) vorskaliert. Bei monoton wachsenden Größen (z. B. \(\varphi\)
+  bis \(\approx 6000°\)) blieb der Graph lange fast leer — man sah erst spät, daß
+  etwas passiert, und erst am Ende war er voll. Beides nicht sinnvoll.
+- **Jetzt Auto-Range auf den bisher geplotteten Bereich** (beide Achsen, wie vom
+  PO gewählt): X (Zeit) läuft bis zur aktuellen Sim-Zeit, Y (Wert) nimmt min/max
+  über die schon geplotteten Daten — beides auf Nice-Steps gerundet (\(1\)-\(2\)-\(4\)-\(5\)
+  bzw. `tAxisStep`). Der Graph füllt sofort die Fläche, aktuelle Werte stehen in
+  lesbarer Skala; beide Achsen wachsen mit. Für Schwingungsgrößen (x/y/v/a) hält
+  die typspezifische Padding 0 im Sichtbereich (Abszisse am Nulldurchgang); für
+  konstante Werte (\(\omega\) bei \(\alpha=0\)) bleibt der kleine Bereich um den
+  Wert. Am Laufende (volle Spanne) identisch zur Vorausberechnung.
+- **Vorschau am Start:** Solange noch nichts geplottet ist (\(t\approx 0\)), zeigt
+  der Graph die volle Spanne (Vorausberechnung); mit dem ersten gespielten Sample
+  greift Auto-Range. `plottedValueRange()` nutzt dieselbe typspezifische Logik
+  wie `computeAxisLimits()`.
+
 ## [1.1.6] — 2026-07-08
 ### Behoben (B10 — Diagramm füllt die Fläche auch im untereinander-Modus)
 - **v1.1.5 war zu quadratisch:** Die Landscape-Maße `480×430` (Aspect 1,12, fast

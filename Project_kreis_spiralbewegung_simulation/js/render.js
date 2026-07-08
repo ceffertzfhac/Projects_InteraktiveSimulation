@@ -358,6 +358,31 @@ function yUnitString(qq) {
   return ''
 }
 
+// Auto-Range für Y: min/max über den bisher geplotteten Daten-Abschnitt [0..n),
+// mit derselben typspezifischen Padding wie computeAxisLimits (Beteiligung von 0
+// bei Betrags-/Symmetrie-Größen, kleiner Bereich um konstante Werte). cf = rad-Faktor.
+const MAGNITUDE_Q = ['ar', 'at', 'vabs', 'aabs']
+const SYMMETRIC_Q = ['x', 'y', 'vx', 'vy', 'ax', 'ay']
+function plottedValueRange(qq, data, n, cf) {
+  let rawMin = Infinity, rawMax = -Infinity
+  for (let i = 0; i < n; i++) { const v = data[i] * cf; if (v < rawMin) rawMin = v; if (v > rawMax) rawMax = v }
+  const range = rawMax - rawMin
+  const pad = range < 1e-9 ? Math.max(Math.abs(rawMax || 0) * 0.1, 1) : range * 0.1
+  let min, max
+  if (MAGNITUDE_Q.includes(qq)) {
+    min = 0; max = rawMax + pad                                              // 0..max+pad
+  } else if (SYMMETRIC_Q.includes(qq)) {
+    min = rawMin - pad; max = rawMax + pad
+    if (min > 0) min = -pad                                                  // 0 im Sichtbereich
+    if (max < 0) max = pad
+  } else {                                                                   // φ/ω/α
+    if (rawMin >= 0) { min = Math.max(0, rawMin - pad); max = rawMax + pad }
+    else if (rawMax <= 0) { min = rawMin - pad; max = Math.min(0, rawMax + pad) }
+    else { min = rawMin - pad; max = rawMax + pad }
+  }
+  return { min, max }
+}
+
 function drawGraph(idx, time, geom) {
   const group = idx === 1 ? DOM.graphGroup1 : DOM.graphGroup2
   group.innerHTML = ''
@@ -370,13 +395,35 @@ function drawGraph(idx, time, geom) {
   const G_W = geom.w
   const plotW = G_W - PAD_L - PAD_R
   const plotH = geom.hEach - PAD_T - PAD_B
-  const t_max = limits.t_max
 
   const isAngular = ['phi', 'omega', 'alpha'].includes(qq)
   const cf = (isAngular && store.angleUnit === 'rad') ? Math.PI / 180 : 1.0
-  const valMin = limits.min * cf, valMax = limits.max * cf
 
-  const scaleT = t => PAD_L + (t / (t_max || 1)) * plotW
+  const data = store.fullData[`p_${qq}`]
+  const tArr = store.fullData.t
+  const tEnd = tArr.length ? tArr[tArr.length - 1] : 0
+  const plotIndex = linePlotIndex(time)
+
+  // ── Dynamische Achsenskalierung (B9): Auto-Range auf den bisher geplotteten
+  //    Bereich — X (Zeit) bis zur aktuellen Sim-Zeit, Y (Wert) min/max über die
+  //    geplotteten Daten, beides auf Nice-Steps gerundet. Der Graph füllt sofort
+  //    die Fläche und zeigt aktuelle Werte in lesbarer Skala, statt auf den
+  //    Endwert (z. B. φ≈6000°) vorskaliert lange leer zu bleiben. Beide Achsen
+  //    wachsen mit; am Ende (volle Spanne) identisch zur Vorausberechnung.
+  //    Solange noch nichts geplottet ist (t≈0), Vorschau auf die volle Spanne.
+  let tMaxAxis, valMin, valMax
+  if (plotIndex < 2) {
+    tMaxAxis = limits.t_max
+    valMin = limits.min * cf
+    valMax = limits.max * cf
+  } else {
+    const yr = plottedValueRange(qq, data, plotIndex, cf)
+    valMin = yr.min; valMax = yr.max
+    tMaxAxis = Math.max(time, tArr[plotIndex - 1])
+    if (tMaxAxis < 1e-6) tMaxAxis = limits.t_max
+  }
+
+  const scaleT = t => PAD_L + (t / (tMaxAxis || 1)) * plotW
   const scaleY = v => PAD_T + plotH - ((v - valMin) / ((valMax - valMin) || 1)) * plotH
   const xAxisY = PAD_T + plotH
   // Abszisse bei y=0, wenn 0 im Wertebereich liegt; sonst am unteren Rand
@@ -397,8 +444,8 @@ function drawGraph(idx, time, geom) {
     group.appendChild(t)
   }
   // X-Gitter + Ticks (Label am unteren Rand, Achse bei y=0)
-  const tStep = tAxisStep(t_max)
-  for (let tg = tStep; tg <= t_max + 1e-9; tg += tStep) {
+  const tStep = tAxisStep(tMaxAxis)
+  for (let tg = tStep; tg <= tMaxAxis + 1e-9; tg += tStep) {
     const xp = scaleT(tg)
     group.appendChild(el('line', { x1: xp, y1: PAD_T, x2: xp, y2: xAxisY, class: 'grid-line' }))
     const t = el('text', { x: xp, y: xAxisY + 15, 'text-anchor': 'middle', class: 'tick-label' })
@@ -423,15 +470,12 @@ function drawGraph(idx, time, geom) {
   group.appendChild(xLabel)
 
   // Datenlinie + aktueller Punkt
-  const data = store.fullData[`p_${qq}`]
-  const tArr = store.fullData.t
-  const plotIndex = linePlotIndex(time)
   const pts = []
   for (let i = 0; i < plotIndex && i < data.length; i++) {
     pts.push(`${scaleT(tArr[i])},${scaleY(data[i] * cf)}`)
   }
   let curVal = null
-  if (plotIndex > 0 && time <= t_max) {
+  if (plotIndex > 0 && time <= tEnd + 1e-9) {
     const i = Math.max(0, plotIndex - 1)
     const t1 = tArr[i], t2 = tArr[i + 1] || t1
     const a = t2 > t1 ? (time - t1) / (t2 - t1) : 0
