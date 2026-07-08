@@ -1,5 +1,14 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.4] — 2026-07-08
+### Behoben (B6 — m₃-Default nach PO-Abnahme)
+- **`m₃`-Default 1,1 kg → 1,2 kg** (PO-Entscheidung 2026-07-08). Der v2-Prototyp
+  trug `value="1.1"` bei stalem Display „2.1 kg"; die Migration (M9) hatte
+  zunächst das Prototyp-Verhalten (1,1 kg) übernommen. PO entschied 1,2 kg —
+  Gleichgewichtswinkel liegen sauber in der SVG-Szene.
+  Geändert: `M3_DEFAULT` (`constants.js`), `store.m3` (`state.js`),
+  `m3_slider`-`value` + statischer Anzeigetext (`index.html`). B6 geschlossen.
+
 ## [1.2.3] — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt.**

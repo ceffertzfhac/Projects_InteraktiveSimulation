@@ -4,7 +4,7 @@
 export const store = {
   // Parameter (Eingaben)
   m1: 1.9,               // kg (links)
-  m3: 1.1,               // kg (rechts)
+  m3: 1.2,               // kg (rechts) — PO-Default 2026-07-08 (→ B6)
   m2: 2.0,               // kg (Mitte, via Stepper)
   pulleyDistCm: 40,      // Rollenabstand (cm)
   ropeLenCm: 50,         // Seilsegmentlänge (cm, dynamisch gekoppelt)

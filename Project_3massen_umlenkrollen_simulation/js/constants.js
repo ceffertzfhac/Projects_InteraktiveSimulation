@@ -17,12 +17,12 @@ export const TRIANGLE_HEIGHT = (TRIANGLE_SIDE_LENGTH * Math.sqrt(3)) / 2
 export const PULLEY_Y = CEILING_Y + TRIANGLE_HEIGHT
 
 // ── Slider-Defaults & Bereiche ────────────────────────────────────────────────
-// Hinweis: Der v2-Prototyp trug m₃ value="1.1" bei Display "2.1 kg" (Stale-HTML);
-// runtime-relevant ist der Sliderwert 1.1 → wird hier als Default übernommen.
+// Hinweis: Der v2-Prototyp trug m₃ value="1.1" bei Display "2.1 kg" (Stale-HTML).
+// PO-Abnahme (2026-07-08, → B6) entschied den Default auf 1,2 kg (Winkel liegen sauber in der Szene).
 export const M1_DEFAULT = 1.9
 export const M1_MIN = 1, M1_MAX = 3, M1_STEP = 0.01
 
-export const M3_DEFAULT = 1.1
+export const M3_DEFAULT = 1.2
 export const M3_MIN = 1, M3_MAX = 3, M3_STEP = 0.01
 
 export const M2_DEFAULT = 2.0
