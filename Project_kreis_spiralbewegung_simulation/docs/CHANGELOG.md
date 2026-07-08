@@ -3,6 +3,20 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.3] — 2026-07-08
+### Behoben (B9/B10 — Achsenanpassung wirklich sichtbar)
+- **Konstante Größen aufgebläht:** Bei `range=0` (z. B. \(\omega=60°/s\) mit
+  \(\alpha=0\)) setzte `pad=1` und das erzwungene `min=-pad` die untere Grenze
+  auf −1 → die Kurve lag als flache Linie ganz oben, ~98 % leer.
+  `computeAxisLimits` nutzt jetzt `pad = max(|max|·0.1, 1)` und behandelt
+  Beträge / vorzeichenbehaftete Kartesische / Winkelgrößen getrennt: konstante
+  Werte bekommen einen sinnvollen kleinen Bereich um den Wert, positive
+  Winkelgrößen (φ 0→360°) keine künstliche Negativ-Spanne mehr.
+- **Abszisse ins Leere:** Die X-Achse wurde immer bei \(y=0\) gezeichnet, auch
+  wenn 0 außerhalb des Wertebereichs lag (dann stand sie unterhalb des Plots).
+  Jetzt: 0 im Bereich → Abszisse am Nulldurchgang; sonst am unteren Rand
+  (CLAUDE.md „Abszisse am Nulldurchgang").
+
 ## [1.1.2] — 2026-07-08
 ### Behoben
 - **B7 — Regler zu kurz (Korrektur der v1.1.0-Variante):** Die v1.1.0-Umsetzung

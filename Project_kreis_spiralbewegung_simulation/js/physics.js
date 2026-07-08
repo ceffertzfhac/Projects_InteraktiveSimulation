@@ -89,23 +89,37 @@ export function precompute() {
   computeAxisLimits()
 }
 
-// ── Achsenlimits je Größe (mit 10 % Padding, 0 zw. min/max für symmetrische) ─
+// ── Achsenlimits je Größe — dynamisch an den Datenbereich angepaßt (B9) ──────
+// Beträge ≥ 0 (0..max); vorzeichenbehaftete Kartesisches (x/y/vx/vy/ax/ay)
+// halten 0 im Sichtbereich (Abszisse am Nulldurchgang); Winkelgrößen
+// (φ/ω/α) nutzen die natürliche Spanne — konstante Größen bekommen einen
+// sinnvollen kleinen Bereich um den Wert, statt auf 0 aufgebläht zu werden.
 export function computeAxisLimits() {
   const fd = store.fullData
   const limits = {}
   const t_max = store.effectiveDuration
+  const magnitude = ['ar', 'at', 'vabs', 'aabs']
+  const symmetric = ['x', 'y', 'vx', 'vy', 'ax', 'ay']
 
   quantities.forEach(qq => {
     const key = `p_${qq}`
     if (!fd[key] || fd[key].length === 0) return
-    let min = Math.min(...fd[key])
-    let max = Math.max(...fd[key])
-    const range = max - min
-    const pad = range < 1e-9 ? 1 : range * 0.1
-    min -= pad; max += pad
-    if (['ar', 'at', 'vabs', 'aabs'].includes(qq)) min = 0   // Beträge ≥ 0
-    if (min > 0) min = -pad                                    // symmetrisch um 0
-    if (max < 0) max = pad
+    const rawMin = Math.min(...fd[key])
+    const rawMax = Math.max(...fd[key])
+    const range = rawMax - rawMin
+    const pad = range < 1e-9 ? Math.max(Math.abs(rawMax || 0) * 0.1, 1) : range * 0.1
+    let min, max
+    if (magnitude.includes(qq)) {
+      min = 0; max = rawMax + pad                                  // 0..max+pad
+    } else if (symmetric.includes(qq)) {
+      min = rawMin - pad; max = rawMax + pad
+      if (min > 0) min = -pad                                      // 0 im Sichtbereich
+      if (max < 0) max = pad
+    } else {                                                       // φ/ω/α
+      if (rawMin >= 0) { min = Math.max(0, rawMin - pad); max = rawMax + pad }
+      else if (rawMax <= 0) { min = rawMin - pad; max = Math.min(0, rawMax + pad) }
+      else { min = rawMin - pad; max = rawMax + pad }
+    }
     limits[qq] = { min, max, t_max }
   })
   store.axisLimits = limits

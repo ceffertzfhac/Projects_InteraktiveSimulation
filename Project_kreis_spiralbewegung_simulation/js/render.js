@@ -369,8 +369,10 @@ function drawGraph(idx, time) {
 
   const scaleT = t => PAD_L + (t / (t_max || 1)) * plotW
   const scaleY = v => PAD_T + plotH - ((v - valMin) / ((valMax - valMin) || 1)) * plotH
-  const y0px = scaleY(0)
   const xAxisY = PAD_T + plotH
+  // Abszisse bei y=0, wenn 0 im Wertebereich liegt; sonst am unteren Rand
+  // (rein positiver/negativer Bereich — CLAUDE.md „Abszisse am Nulldurchgang").
+  const xAxisPos = (valMin <= 0 && 0 <= valMax) ? scaleY(0) : xAxisY
 
   // Hintergrund (Plot-Fläche)
   group.appendChild(el('rect', { x: PAD_L, y: PAD_T, width: plotW, height: plotH, class: 'graph-bg' }))
@@ -395,9 +397,9 @@ function drawGraph(idx, time) {
     group.appendChild(t)
   }
 
-  // Achsen (X bei y=0, Y am linken Rand; refX=0 ohne Kürzung — Graph-Achsen-Ausnahme)
+  // Achsen (X bei y=0 bzw. am unteren Rand, Y am linken Rand; refX=0 ohne Kürzung)
   const axisAttrs = { class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }
-  group.appendChild(el('line', { ...axisAttrs, x1: PAD_L, y1: y0px, x2: PAD_L + plotW, y2: y0px }))
+  group.appendChild(el('line', { ...axisAttrs, x1: PAD_L, y1: xAxisPos, x2: PAD_L + plotW, y2: xAxisPos }))
   group.appendChild(el('line', { ...axisAttrs, x1: PAD_L, y1: xAxisY, x2: PAD_L, y2: PAD_T }))
 
   // Achsenbeschriftungen
