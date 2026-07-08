@@ -46,6 +46,7 @@ likewise zentral. Per-Sim `KNOWN_LIMITATIONS.md` verweist bei Bedarf mit
 | B9 | ✅ erledigt (v1.1.0) | Dynamische Achseneinteilung der Diagramme | Kreis-/Spiralbewegung | Should | Achseneinteilung soll sich dynamisch anpassen, analog zu anderen Simulationen, die das schon umsetzen (`niceStepLE`/`tAxisStep`). *(PO-Meldung 2026-07-08)* — behoben: Ordinate nutzt `niceStepLE` (1-2-4-5-Serie, ≥4/≥6 Teilstriche). |
 | B10 | ✅ erledigt (v1.1.0) | Diagramm-Flächenausnutzung | Kreis-/Spiralbewegung | Should | Diagramme sollen die zur Verfügung stehende Fläche gut — aber optisch ansprechend — ausnutzen. *(PO-Meldung 2026-07-08)* — behoben: layout-abhängige `graphGeom()` (Portrait im Seitenmodus), `applyGraphLayout()`. |
 | B11 | ✅ erledigt (v1.1.0) | Physik-Analyse-Tab dünn / reagiert nicht auf α | Kreis-/Spiralbewegung | Should | Der „Physik"-Teil der Analyse ist noch sehr dünn und reagiert nicht auf Anpassungen (z. B. α=0 vs. α≠0) — muß angepaßt werden. *(PO-Meldung 2026-07-08)* — behoben: dritte statische MathJax-Variante `formulas_kreis_acc`, live α-abhängige Umschaltung. |
+| B12 | ✅ erledigt (v1.1.10) | Physik-Block im Analyse-Panel nicht voll les-/sichtbar | Kreis-/Spiralbewegung | Should | Im schmalen 270-px-Analyse-Panel ragen längere Display-Formeln (z. B. Coriolis-Zerlegung \(\vec a=-R\omega^2\hat e_r+R\alpha\hat e_t-2v_r\omega\hat e_t\), \(\lvert\vec a\rvert=R\sqrt{\omega^4+\alpha^2}\)) als festbreite MathJax-SVG über den rechten Rand und werden vom `.panel{overflow-x:hidden}` abgeschnitten → nicht sichtbar. *(PO-Meldung 2026-07-08)* — behoben: per-Sim-`.formula-box`-Override (kanonisch vgl. 3massen, dasselbe 270-px-Panel/gleicher SVG-Output): kleinere Schrift (0,72 rem) + `overflow-x:auto` als Scroll-Sicherheit statt Abschneiden; Display-Math linksbündig, damit bei Überlauf der Anfang erreichbar bleibt. |
 
 ---
 
@@ -337,7 +338,7 @@ Berührung gegen die kanonische Regel abgleichen.
 Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1.1.0).
 
 - **Gesamt-Items (offen):** 68
-- **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08)
+- **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
 - **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 [FX6 erledigt v1.1.0] · FW 7 · FZ 7)
 - **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
@@ -346,7 +347,7 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 erledigt
 - **Werkzeug-Schale:** 0 offen — W1, W2, W3 erledigt
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 38 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08)
+- **Erledigt (historisch):** 39 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur
@@ -356,3 +357,6 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 > **Kreis-Spiral v1.1.0 (2026-07-08):** 6 PO-Punkte umgesetzt (B7–B11 + FX6) —
 > Regler-Layout, Visualisierung-Dropdown, Sim/Diagramm-Anordnung, dynamische
 > Achseneinteilung, Diagramm-Flächenausnutzung, α-abhängige Physik-Formelbox.
+
+> **Kreis-Spiral v1.1.10 (2026-07-08):** B12 — Physik-Block im Analyse-Panel
+> voll les-/sichtbar gemacht (`.formula-box`-Override, kanonisch vgl. 3massen).

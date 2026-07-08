@@ -148,3 +148,21 @@ body.dark {
 .n-control { display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-left: 18px; }
 .n-control .step-btn { width: 26px; height: 26px; padding: 0; font-weight: 600; line-height: 1; }
 #n_value_display { font-family: var(--font-mono); font-size: .95rem; width: 20px; text-align: center; }
+
+/* ── FORMEL-BOX (Physik-Block im 270-px-Analyse-Panel) ─────────────────────── */
+/* Längere Display-Formeln (z. B. die Coriolis-Zerlegung |a⃗|=−Rω²ê_r+Rαê_t−2v_rωê_t
+   oder |a⃗|=R√(ω⁴+α²)) ragen als festbreite MathJax-SVG über den rechten Rand und
+   werden vom .panel{overflow-x:hidden} abgeschnitten → nicht sichtbar.
+   Lösung kanonisch vgl. 3massen (dasselbe 270-px-Panel, gleicher SVG-Output):
+   kleinere Schrift, damit mehr paßt, + horizontales Scrollen als Sicherheit, statt
+   Abschneiden. Display-Math linksbündig, sodaß bei Überlauf der Anfang erreichbar
+   bleibt (zentriert breite Glg. sonst links weggeschnitten). */
+.formula-box {
+  font-size: 0.72rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  line-height: 1.7;
+}
+.formula-box > div { overflow-wrap: break-word; }
+.formula-box mjx-container[display="true"] { text-align: left; margin: 0.35em 0; }

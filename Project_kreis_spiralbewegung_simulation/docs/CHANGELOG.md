@@ -3,6 +3,25 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.10] — 2026-07-08
+### Behoben (B12 — Physik-Block im Analyse-Panel voll les-/sichtbar)
+- **Bisher abgeschnitten:** Im schmalen 270-px-Analyse-Panel ragen längere
+  Display-Formeln (z. B. die Coriolis-Zerlegung
+  \(\vec a=-R\omega^2\hat e_r+R\alpha\hat e_t-2v_r\omega\hat e_t\) bzw.
+  \(\lvert\vec a\rvert=R\sqrt{\omega^4+\alpha^2}\)) als festbreite MathJax-SVG
+  über den rechten Rand und werden vom `.panel{overflow-x:hidden}`
+  abgeschnitten → nicht sichtbar.
+- **Behoben per `.formula-box`-Override** (kanonisch vgl. 3massen — dasselbe
+  270-px-Panel, gleicher SVG-Output, gleiche `\[…\]`-Display-Math): kleinere
+  Schrift (0,72 rem statt 0,75 rem, paßt mehr), `overflow-x:auto` als
+  Scroll-Sicherheit statt Abschneiden, `overflow-wrap:break-word` für die
+  Intro-Zeilen. Display-Math linksbündig (`mjx-container[display=true]`), sodaß
+  bei Überlauf der **Anfang** erreichbar bleibt und nicht — wie bei zentriertem
+  Überlauf — links weggeschnitten wird. Inhalte/Formeln unverändert.
+- **Warum nicht global in shared CSS:** 3massen hat denselben Override bewußt
+  per-Sim, weil nicht jedes Panel-Format so schmal ist (z. B. breitere Seiten).
+  Bei T9-Konsolidierung prüfen, ob das als shared Helper zentralisiert wird.
+
 ## [1.1.9] — 2026-07-08
 ### Geändert (B8 — Diagrammmodus-Umschalter einheitlich als Pillen)
 - **Bislang „komisch":** „Ein Diagramm / Zwei Diagramme" war ein plain
