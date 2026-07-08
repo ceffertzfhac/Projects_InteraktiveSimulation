@@ -14,7 +14,7 @@ A mono-repo of interactive physics simulations for FH Aachen FB 8 Physik courses
 - `AllAnimations/` — **global overview page** (`index.html`) listing every simulation as a card, plus the standalone prototype HTML files and their `Vorschaubilder/` preview images. Lives at repo root (moved out of `Standalone Proto/`). Modular projects link back here via `../AllAnimations/index.html`.
 - `Standalone Proto/` — versioned source folders of experimental single-file HTML prototypes (historical; not the canonical versions). The runnable prototype copies live in `AllAnimations/`.
 
-**Cross-project tracking:** `BACKLOG.md` (repo root) is the single MoSCoW-prioritized backlog across all sims — bugs, tech debt, features, standalone migrations, and new-simulation ideas. Check it before starting work to find known issues (e.g. T2: remove the duplicate `Standalone Proto/rolling_bodies_simulation/` copy) and after finishing to record follow-ups. `README.md` and `AGENTS.md` are stale (they reference pre-migration folder names) — prefer this file and `BACKLOG.md`.
+**Issue/Backlog tracking (single source of truth):** `BACKLOG.md` (repo root) is the **one** MoSCoW-prioritized tracker across all sims — bugs (`B#`), tech debt (`T#`), features (`F<sim>#` + repo-wide `I#`), standalone migrations (`M#`), and new-simulation ideas (`N#`). It replaced the per-sim `docs/issues.md`/`docs/FEATURE_BACKLOG.md` (those were retired 2026-07-08 — see `## KONVENTIONEN` at the top of `BACKLOG.md`). **Entry-point rule:** an incoming bug report is always filed as a new `B#` in `BACKLOG.md` `## BUGS`, never only in a per-sim file. Per simulation, only `docs/CHANGELOG.md` (shipped versions) and optional `docs/KNOWN_LIMITATIONS.md` (deliberate local limitations / Won't / scope decisions, with `→ <ID>` links back to `BACKLOG.md`) are kept. Check `BACKLOG.md` before starting work (known issues) and after finishing (record follow-ups). `README.md` and `AGENTS.md` are stale (pre-migration folder names) — prefer this file and `BACKLOG.md`.
 
 ## Running a Simulation
 
@@ -57,9 +57,10 @@ js/
 css/styles.css      ← CSS custom properties for theming; .dark / .light on <body>
 docs/
   CHANGELOG.md
-  FEATURE_BACKLOG.md
-  issues.md
+  KNOWN_LIMITATIONS.md   ← optional; deliberate local limitations / Won't / scope notes, with → <ID> links to BACKLOG.md
 ```
+
+> Bugs, features, and tech debt are tracked **centrally** in `BACKLOG.md` (repo root), not in per-sim files. See "Issue/Backlog tracking" above and `## KONVENTIONEN` in `BACKLOG.md`.
 
 **Data flow:** User input → `ui.js` event handler → mutate `store` in `state.js` → `physics.js` → `render.js` (`updateScene()`).
 
@@ -95,7 +96,7 @@ Shared CSS-Tokens: `shared/css/design-system.css` (für neue Sims und Übersicht
 - **Coordinate transform:** Always use a central `physToScreen(x, y)` function in `render.js`. Never scatter raw pixel math.
 - **State:** All mutable variables live exclusively in `state.js` → `store`. No module-level globals elsewhere.
 - **Theming:** Colors via CSS custom properties (`--bg`, `--surface`, `--accent`). Vector colors are standardized: velocity = `#66aaff`, acceleration = `#ff7777`.
-- **Documentation:** After every code change, update `docs/CHANGELOG.md` and either `docs/FEATURE_BACKLOG.md` or `docs/issues.md`.
+- **Documentation:** After every code change, update `docs/CHANGELOG.md` (and bump the version). Log bugs, features, and tech debt **centrally** in `BACKLOG.md` (repo root) as `B#`/`F#`/`T#` — not in per-sim files. Record deliberate sim-specific limitations / Won't / scope decisions in `docs/KNOWN_LIMITATIONS.md`, with `→ <ID>` links to the `BACKLOG.md` entry. An incoming bug report becomes a new `B#` in `BACKLOG.md` `## BUGS` (entry-point rule).
 - **Graph background rect:** Extend 10px past axis arrow tips. With `refX=0` and `markerWidth * strokeWidth ≈ 10px`: use `y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15`. Never let the white area end before the arrowheads.
 - **Graph title z-order:** `<text class/id="graph_title">` must be the **last child** inside the graph SVG — after `<g class="graph_grid">`, after all `<polyline>` and `<circle>` elements. This ensures the title is rendered on top of data lines and the white background rect. Never place it before polylines/circles.
 - **Graph title position:** The title must sit **clearly above** the white graph background rect, not inside it. The graph bg rect starts at `y=-15` (group-relative in FF) and `y=P.top-15` (in Atwood). Title `y` must be at least 5px above the rect top edge. Use `y="-22"` for FF (group-relative), `y="10"` for Atwood (SVG-relative with P.top=30).
@@ -141,7 +142,7 @@ Shared CSS-Tokens: `shared/css/design-system.css` (für neue Sims und Übersicht
 
 ## Adding a New Simulation
 
-Follow the blueprint in `global_docs/simulation_instruction.md`. Scaffold the six-module structure above, then:
+Follow the blueprint in `global_docs/simulation_instruction.md`. Scaffold the six-module structure above (per-sim docs = `docs/CHANGELOG.md` + optional `docs/KNOWN_LIMITATIONS.md`; bugs/features/tech-debt go in the repo-root `BACKLOG.md`, not per-sim files), then:
 1. Define inputs/outputs in `constants.js`
 2. Register all mutable state in `state.js`
 3. Implement `precompute()` in `physics.js`

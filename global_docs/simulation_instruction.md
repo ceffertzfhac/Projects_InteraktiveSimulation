@@ -248,9 +248,13 @@ modulare Architektur (§2) überführt. Referenzimplementierung:
 
 1. **Scaffold anlegen:** Neues `Project_<name>_simulation/` mit
    `index.html`, `js/{constants,state,physics,render,ui}.js`,
-   `css/styles.css`, `docs/{CHANGELOG,FEATURE_BACKLOG,issues}.md`.
+   `css/styles.css`, `docs/{CHANGELOG,KNOWN_LIMITATIONS}.md`.
    Kein `main.js` (neuere Sims: `js/ui.js` ist der ES-Module-Einstieg via
-   `<script type="module" src="js/ui.js">`).
+   `<script type="module" src="js/ui.js">`). **Bugs, Features und Tech-Schulden
+   werden zentral im Repo-Root `BACKLOG.md` getrackt** (als `B#`/`F<sim>#`/`T#`),
+   *nicht* in per-Sim-Dateien; `docs/KNOWN_LIMITATIONS.md` führt nur bewußte
+   lokale Einschränkungen / Won't / Scope-Entscheidungen mit `→ <ID>`-Verweis
+   auf `BACKLOG.md`. Siehe `## KONVENTIONEN` in `BACKLOG.md` und CLAUDE.md.
 2. **`shared/css/design-system.css` einbinden** vor der per-Sim `css/styles.css`
    (DRY). Per-Sim nur noch simspezifische Tokens + SVG-Target-Regeln.
 3. **Layout-Schale aufbauen** nach §3: 3-Spalten-App `280px 1fr 270px`,
