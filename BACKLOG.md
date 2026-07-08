@@ -4,13 +4,43 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 
 ---
 
+## KONVENTIONEN
+
+Diese Datei ist der **einzige zentrale Tracker** projektorweit für Bugs,
+technische Schulden, Features und Migrationen. Pro Simulation pflegt nur
+noch `docs/CHANGELOG.md` (shipped-Versionen) plus optionale
+`docs/KNOWN_LIMITATIONS.md` (bewußte lokale Einschränkungen / Won't /
+Scope-Entscheidungen, mit `→ <ID>`-Verweis auf hier).
+
+**ID-Präfixe:** `B#` Bugs · `T#` Technische Schulden · `F<sim>#` sim-spezifische
+Features · `I#` Infrastruktur & repo-weite Querschnitts-Features · `S#`
+Standalone-Integration · `N#` Neue Simulationen · `M#` Migrationen · `W#`
+Werkzeug-Schale · `R#` Rollout.
+
+**Sim-Feature-Präfixe:** `FL` Lorentzkraft · `FR` Rollende Körper · `FA` Atwood
+· `FF` Freier Fall · `FP` Federpendel · `F3` 3-Massen-Umlenkrollen · `FK`
+Kreisbewegung · `FX` Kreis-/Spiralbewegung · `FW` Schräger Wurf · `FZ` Zykloide.
+
+**Status-Marker:** `✅` erledigt (Originaltext in `~~Durchstreich~~` erhalten);
+sonst *offen*. **Prio-Spalte** (MoSCoW): Must / Should / Could / Won't.
+
+**Entry-Point-Regel:** Ein eingehender Bug-Report wird **immer** als neue `B#`
+in `## BUGS` angelegt — nie nur in einer per-Sim-Datei. Features/Tech-Schulden
+likewise zentral. Per-Sim `KNOWN_LIMITATIONS.md` verweist bei Bedarf mit
+`→ B#`/`→ F#`/`→ I#`/`→ T#` auf den zentralen Eintrag.
+
+---
+
 ## BUGS
 
-| ID | Titel | Projekt | Beschreibung |
-|----|-------|---------|--------------|
-| B1 | ✅ RHO_CU-Duplikat in ui.js | Lorentzkraft | **Erledigt (Session 2026-07-07):** `RHO_CU` in `ui.js` jetzt aus `constants.js` importiert statt als Magic Number `0.0178` hartkodiert (Zeile ~26, geschätzter Strom im Spannungsmodus zur Federhärte-Limit-Berechnung). `physics.js` nutzte die Konstante bereits korrekt — Slider-Limit und Physik laufen nicht mehr auseinander, wenn `RHO_CU` künftig geändert wird. Lorentz v1.5.6 → v1.5.7. Rein interne Konsistenz, keine Optikänderung. ~~ Ursprünglich: `0.0178` hart hineinkopiert statt importiert. ~~ |
-| B2 | ✅ SP-Spur unsichtbar | Rollende Körper | **Verifiziert — kein Code-Defekt (Session 2026-07-07):** Spur-Code (`render.js:146-177`) ist korrekt: `#traces_g` liegt als Kind von `#world_g` nach `#cylinder_g` (Spur über dem Zylinder), kein CSS blendet es aus, `clip-path` nur auf `vectors_g`/`forces_g` (nicht auf `traces_g`), `physToScreen`+`sp_y=R_m` ergeben stimmige Geometrie, `activeSubjects` enthält `'sp'` per Default. Eintrag vom 2026-07-04 ist veraltet (vor dem v2.0.7-`render.js`-Split). `tog_sp_trace` ist per Default **aus** (bewusst — Bahnkurven sind kein Vektor-Toggle i. S. der „standardmäßig sichtbar"-Konvention; Punktspuren analog). Bei eingeschaltetem Toggle wird die magenta SP-Bahn sichtbar gezeichnet. Kein Fix nötig. ~~ Ursprünglich: Schwerpunktspur trotz korrekter Implementierung nicht sichtbar (vermutlich Clipping/Z-Index). ~~ |
-| B3 | ✅ Timing-Sprung bei Pause→Play | Rollende Körper | **Verifiziert — Code seit jeher korrekt (Session 2026-07-07):** `startAnim()` (`ui.js:338`) setzt `state.store.lastTs = 0`; `animate()` (`ui.js:352`) guardiert `if (!state.store.lastTs) state.store.lastTs = now` → erste `dt = 0` beim Resume → kein `simTime`-Sprung. Code unverändert seit „Stunde Null". Backlog-Eintrag war übervorsichtig/veraltet. Kein Fix nötig. ~~ Ursprünglich: `lastTs` wird beim Pausieren nicht zurückgesetzt → großer Sprung nach Resume. ~~ |
+| ID | Status | Titel | Projekt | Prio | Beschreibung |
+|----|--------|-------|---------|------|--------------|
+| B1 | ✅ | RHO_CU-Duplikat in ui.js | Lorentzkraft | — | **Erledigt (Session 2026-07-07):** `RHO_CU` in `ui.js` jetzt aus `constants.js` importiert statt als Magic Number `0.0178` hartkodiert (Zeile ~26, geschätzter Strom im Spannungsmodus zur Federhärte-Limit-Berechnung). `physics.js` nutzte die Konstante bereits korrekt — Slider-Limit und Physik laufen nicht mehr auseinander, wenn `RHO_CU` künftig geändert wird. Lorentz v1.5.6 → v1.5.7. Rein interne Konsistenz, keine Optikänderung. ~~ Ursprünglich: `0.0178` hart hineinkopiert statt importiert. ~~ |
+| B2 | ✅ | SP-Spur unsichtbar | Rollende Körper | — | **Verifiziert — kein Code-Defekt (Session 2026-07-07):** Spur-Code (`render.js:146-177`) ist korrekt: `#traces_g` liegt als Kind von `#world_g` nach `#cylinder_g` (Spur über dem Zylinder), kein CSS blendet es aus, `clip-path` nur auf `vectors_g`/`forces_g` (nicht auf `traces_g`), `physToScreen`+`sp_y=R_m` ergeben stimmige Geometrie, `activeSubjects` enthält `'sp'` per Default. Eintrag vom 2026-07-04 ist veraltet (vor dem v2.0.7-`render.js`-Split). `tog_sp_trace` ist per Default **aus** (bewusst — Bahnkurven sind kein Vektor-Toggle i. S. der „standardmäßig sichtbar"-Konvention; Punktspuren analog). Bei eingeschaltetem Toggle wird die magenta SP-Bahn sichtbar gezeichnet. Kein Fix nötig. ~~ Ursprünglich: Schwerpunktspur trotz korrekter Implementierung nicht sichtbar (vermutlich Clipping/Z-Index). ~~ |
+| B3 | ✅ | Timing-Sprung bei Pause→Play | Rollende Körper | — | **Verifiziert — Code seit jeher korrekt (Session 2026-07-07):** `startAnim()` (`ui.js:338`) setzt `state.store.lastTs = 0`; `animate()` (`ui.js:352`) guardiert `if (!state.store.lastTs) state.store.lastTs = now` → erste `dt = 0` beim Resume → kein `simTime`-Sprung. Code unverändert seit „Stunde Null". Backlog-Eintrag war übervorsichtig/veraltet. Kein Fix nötig. ~~ Ursprünglich: `lastTs` wird beim Pausieren nicht zurückgesetzt → großer Sprung nach Resume. ~~ |
+| B4 | offen | Manuelle Zeitmessung: Pause→Play-Versatz | Federpendel | Should | Bei laufender manueller Zeitmessung und Pause→Play setzt Play `lastFrameTime=0`; der erste Frame danach macht einen (auf 0,1 s begrenzten) `deltaTime`-Sprung, die Sim-Zeit wird um die Pausendauer nicht korrekt versetzt. Pausen-Handling sauberer abbilden. *(aus `Project_federpendel_simulation/docs/issues.md`, migriert 2026-07-08)* |
+| B5 | offen | Vertikaler Modus bei großer Masse — Skalierung | Federpendel | Could | Bei \(m=5{,}0\) kg und kleinem \(k\) wird \(\delta L=mg/k\) sehr groß; die Gleichgewichtslage kann in den unteren Animationsbereich rutschen und die Schwingung ragt knapp an den Rand. Skalierung prüfen. *(aus `Project_federpendel_simulation/docs/issues.md`, migriert 2026-07-08)* |
+| B6 | offen | m₃-Default 1,1 kg vs. Anzeige „2,1 kg" — Abnahme offen | 3-Massen-Umlenkrollen | Should | Der v2-Prototyp trug im HTML `value="1.1"` am m₃-Slider, aber den Anzeigetext „2.1 kg" (staler Platzhalter); runtime-relevant war 1,1. Die Migration übernimmt 1,1 kg (Verhalten wie Prototyp beim Laden). Falls didaktisch 2,1 kg gewünscht: `M3_DEFAULT` in `constants.js` ändern. Wartet auf PO-Abnahme. *(aus `Project_3massen_umlenkrollen_simulation/docs/issues.md`, migriert 2026-07-08)* |
 
 ---
 
@@ -25,31 +55,70 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 | T6 | ✅ Einheitliche `fmt()`-Funktion | Beide | **Erledigt (Session 2026-07-07):** Repo-weit eine gemeinsame, robuste `fmt(value, decimals=2)` in `shared/js/format.js` (Komma-Dezimal via `toFixed().replace('.', ',')`, `Number.isFinite`-Guard → '—'). Alle 9 modularen Sims importieren sie statt einer lokalen Definition; die 7 Sims, die `fmt` in `ui.js` nutzen (Atwood, Zykloide, Freier Fall, Schräger Wurf, Rolling sowie Federpendel + Kreisbewegung via mehrzeiliger Import), re-exportieren sie aus `render.js`. **Regressions-Fix (gleiche Session):** Federpendel (v1.0.11→v1.0.12) und Kreisbewegung (v1.0.9→v1.0.10) waren zunächst dysfunktional, weil ihr mehrzeiliger `fmt`-Import in `ui.js` übersehen und das `export { fmt }` in `render.js` weggelassen worden war — nachgetragen. **Sichtbare Änderungen (bewußt):** Lorentz verlor den Tausenderpunkt (früher `toLocaleString`, z. B. „1.000,00 A" → „1000,00 A"; nur Slider-Maxima Strom 1000 A / Abstand 1000 mm); Rolling-Fallback '···' → '—' (Randfall) und 4 bare-Aufrufe bekommen explizit `, 3` (Default 3→2 sonst Präzisionsverlust). Atwood/Freier Fall/Lorentz bekamen den bisher fehlenden NaN-Guard (latenter Bugfix). Rollings `fmtTech` (Punkt-Dezimal, SVG-Attribute) und `fmtE` (Energie, ' J'-Suffix) bleiben Rolling-spezifisch lokal. ~~ Ursprünglich: Projekt 1 nutzt `toLocaleString('de-DE')`, Projekt 2 `toFixed().replace()`. Projekt 2 ist robuster (NaN-Check). Angleichen. ~~ |
 | T7 | ✅ Magic Numbers in render.js | Lorentzkraft | **Erledigt (Session 2026-07-07):** Feder-Helix-Parameter (Windungen, Radius, Drahtbreite, Hook-Länge, Sample-Schritte, Layer-Strichbreiten/Farben) aus `render.js` in neues `SPRING`-Objekt in `constants.js` ausgelagert. Keine Verhaltensänderung (v1.5.5). ~~ Ursprünglich: Feder-Parameter hardcodiert. ~~ |
 | T8 | ✅ Combining-Pfeil-Vektorlabels repo-weit angleichen | Alle (v/a/F-Sims) | **Erledigt (Session 2026-07-07):** PO-Entscheid — nur **bestehende** Labels angleichen, keine neuen an label-lose Sims. Rollende Körper (v2.0.4) + Lorentz (v1.5.4) auf `F⃗`+Index (Serif-Italic, `stroke:none`, Werte bewußt entfernt) gebracht; `--font-serif` in shared CSS zentralisiert. Nachbesserungen: Rolling v2.0.5 (Kräfte-Beträge im Analyse-Tab), 3-Massen v1.2.0 (Winkel α zur Horizontalen in Grafik + Analyse). 6 label-lose Sims (Freier Fall, Schräger Wurf, Zykloide, Atwood, Federpendel, Kreisbewegung) bewußt unangetastet — separates Feature. ~~ Ursprünglich: 3-Massen (v1.0.7+) setzt Vektor-Labels als Symbol mit Combining-Arrow U+20D7 (`F⃗`) in Serif-Italic + `stroke:none` (kein Faux-Bold, s. CLAUDE.md „SVG-Text-Labels nie stroke-tragende vec-Klasse"). Andere Sims beschriften ihre v/a/F-Vektoren uneinheitlich. Nur die Label-Notation angleichen — Pfeilspitzen-Geometrie (`refX=0`+`shortenEnd`) war bereits repo-weit gefixt (Session 2026-07-06). ~~ |
+| T9 | `shared/js`-Helper konsolidieren | Alle (modular) | **Should** — `setAxisLabel`/`setGraphTitle`/`shortenEnd`/`tAxisStep`/`niceStepLE` bisher pro Sim lokal gehalten; in ein gemeinsames `shared/js/`-Modul überführen (I2-Folge). Reduziert Drift zwischen den Sims und vereinfacht künftige Migrationen. *(aus `Project_kreis_spiralbewegung_simulation/docs/FEATURE_BACKLOG.md`, migriert 2026-07-08)* |
 
 ---
 
-## FEATURES — LORENTZKRAFT
+## FEATURES
 
-| ID | Titel | Beschreibung |
-|----|-------|--------------|
-| FL1 | Dynamische Einschwingung | Gedämpfte Schwingung beim Ein-/Ausschalten des Stroms (DGL 2. Ordnung lösen). Aktuell springt der Leiter sofort ins Gleichgewicht. Didaktisch der wichtigste fehlende Aspekt. |
-| FL2 | Magnetfeld-Visualisierung | B-Feld-Linien zwischen den Leitern (war in einer früheren Version implementiert, dann entfernt). |
-| FL3 | Kraft-Abstands-Diagramm | Interaktives Diagramm: F_L(d) und F_s(d) gemeinsam, zeigt grafisch den stabilen Gleichgewichtspunkt. |
-| FL4 | Massenträgheit berücksichtigen | Eigengewicht des hängenden Leiters in die Ausgangslage einrechnen (aktuell vernachlässigt). |
-| FL5 | Material-Auswahl | Verschiedene Leiter-Materialien (Kupfer, Aluminium, Gold) mit unterschiedlichem ρ. |
+Einheitliche Tabelle aller sim-spezifischen Feature-Wünsche (Prefix `F<sim>#`).
+Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
+`## INFRASTRUKTUR & REPOSITORY` (`I5`/`I6`/`I7`), dort referenziert.
 
----
+| ID | Projekt | Prio | Titel | Beschreibung |
+|----|---------|------|-------|--------------|
+| FL1 | Lorentzkraft | Should | Dynamische Einschwingung | Gedämpfte Schwingung beim Ein-/Ausschalten des Stroms (DGL 2. Ordnung lösen). Aktuell springt der Leiter sofort ins Gleichgewicht. Didaktisch der wichtigste fehlende Aspekt. |
+| FL2 | Lorentzkraft | Should | Magnetfeld-Visualisierung | B-Feld-Linien/-vektoren zwischen den Leitern, physikalisch korrekt am Ort des betroffenen Leiters (war früher implementiert, dann entfernt). |
+| FL3 | Lorentzkraft | Could | Kraft-Abstands-Diagramm | Interaktives Diagramm: F_L(d) und F_s(d) gemeinsam; Schnittpunkte markieren die Gleichgewichtslagen (stabil/instabil). |
+| FL4 | Lorentzkraft | Could | Massenträgheit berücksichtigen | Eigengewicht des hängenden Leiters in die Ausgangslage einrechnen (aktuell vernachlässigt). |
+| FL5 | Lorentzkraft | Could | Material-Auswahl | Verschiedene Leiter-Materialien (Kupfer, Aluminium, Gold) mit unterschiedlichem ρ. |
+| FL6 | Lorentzkraft | Could | 3D / Iso-Darstellung | Umstellung der SVG-Grafik auf eine isometrische Ansicht für räumliches Verständnis der parallelen Leiteranordnung. |
+| FL7 | Lorentzkraft | Could | Stromrichtung-Toggle | Umschalten der Stromrichtung in einem Leiter → Abstoßung und Federstauchung sichtbar machen. |
+| FR1 | Rollende Körper | Should | Ghosting / Snapshots | Verblasste Körperkopien in festen Zeitintervallen (z. B. alle 0,5 s) zur visuellen Darstellung der Beschleunigung. |
+| FR2 | Rollende Körper | — | ~~Interaktive Diagramme (Hover)~~ | → **I5** (retired; repo-weites Querschnitts-Feature). |
+| FR3 | Rollende Körper | Could | Benutzerdefinierter k-Faktor | Texteingabe für beliebigen k-Wert, um experimentell die Rolle des Trägheitsmoments zu untersuchen. |
+| FR4 | Rollende Körper | Could | Mehrere Rampenabschnitte | Simulation mehrerer aufeinanderfolgender Strecken (z. B. schiefe Ebene → horizontal → schiefe Ebene). |
+| FR5 | Rollende Körper | Could | Dynamische Reibung / Gleiten | Übergang Haftreibung → Gleitreibung visualisieren, wenn die Rollbedingung manuell unterschritten wird. |
+| FR6 | Rollende Körper | — | ~~Diagramm-Export (PNG/SVG)~~ | → **I6** (retired; repo-weites Querschnitts-Feature). |
+| FR7 | Rollende Körper | Could | Exzentrischer Schwerpunkt | Körper mit ungleichmäßiger Massenverteilung (exzentrischer SP) simulieren. |
+| FR8 | Rollende Körper | Won't | 3D-Visualisierung | Portierung auf Three.js für eine echte 3D-Ansicht der rollenden Körper (langfristig). |
+| FR9 | Rollende Körper | Could | Vergleichsmodus-Erweiterung | Mehr als 5 Vergleichskörper gleichzeitig; automatisches „Ranking-Tableau" nach Zieleinlauf. |
+| FA1 | Atwood | Could | Anfangsgeschwindigkeit v₀ | Massenstart mit vorgegebener Startgeschwindigkeit. |
+| FA2 | Atwood | Could | Reibung | Lager-/Seilreibung als optionaler Slider (Dämpfung). |
+| FA3 | Atwood | Could | Phase II / Nachprall | Weiterführung der Simulation nach Kollision (elastisch/inelastisch). |
+| FP1 | Federpendel | Should | Dämpfung | Dämpfungskoeffizient \(c\) (viskos) → gedämpfte Schwingung \(x(t)=x_0\,e^{-\delta t}\cos(\omega t)\), \(\delta=c/(2m)\); aperiodischer Grenzfall als Sonderfall. Neuer Slider + Hüllkurve im Diagramm. |
+| FP2 | Federpendel | Should | Erzwungene Schwingung | Sinusförmige äußere Kraft einstellbarer Frequenz, Resonanzkurve, Phasenverschiebung. |
+| FP3 | Federpendel | Could | Phasenraum-Diagramm | \(v\) gegen \(x\) (Ellipse bei ungedämpfter Schwingung) als weiterer Diagrammtyp. |
+| FP4 | Federpendel | Could | Zwei Feder-Masse-Systeme nebeneinander | Vergleich unterschiedlicher \(k\)/\(m\)-Kombinationen in einer Szene. |
+| F31 | 3-Massen-Umlenkrollen | Could | Werte-Export (CSV) | Einzelner Gleichgewichts-Datensatz (T1, T3, Winkel, Kraftkomponenten, Gleichgewichtsstatus) als CSV — aktuell kein Export (keine Zeitreihe, analog Lorentz). Bei Bedarf als „Werte (CSV)" in der Topbar. |
+| F32 | 3-Massen-Umlenkrollen | Could | Kräftedreieck als Nebenansicht | Grafische Darstellung des Kräftedreiecks (T1, T3, Fg2) neben der Szene, um den Cosinus-Satz didaktisch zu belegen. |
+| F33 | 3-Massen-Umlenkrollen | Could | Reibung / massebehaftetes Seil | Erweiterung über die ideales-Seil-Annahme (derzeit als Hinweis in der Sidebar dokumentiert). |
+| FK1 | Kreisbewegung | Should | Geschwindigkeits-Regler-Richtung | Bei negativer \(\omega\) dreht sich die Masse gegen den Uhrzeigersinn — im Live-Panel klarmachen, daß \(\lvert\omega\rvert\) die Umlaufgeschwindigkeit ist und das Vorzeichen die Richtung. |
+| FK2 | Kreisbewegung | Could | Vergleichsbahn / zweite Kreisbahn | Mit abweichendem \(R\) zum direkten Vergleich (analog Schräger-Wurf-Vergleichsbahn → FW2). |
+| FK3 | Kreisbewegung | Could | Umlaufzähler | Wie viele Umläufe absolviert seit Start (\(\varphi/360°\)). |
+| FK4 | Kreisbewegung | Could | Zentripetalkraft-Layer | \(F_Z = m\,\lvert\vec a\rvert\) als optionale Vektorgröße (zusätzliche Masse-Parameter nötig). |
+| FK5 | Kreisbewegung | Could | \(\omega\) als rad/s im UI | Neben °/s auch rad/s anzeigen. |
+| FX1 | Kreis-/Spiralbewegung | Should | Okabe-Ito-Farbpalette | Vektorfarben (aktuell Violett/Orange/Grün aus der Quelldatei) auf farbblinden-sichere Okabe-Ito-Tokens angleichen (CLAUDE.md empfiehlt shared `--c-vel`/`--c-acc`). Beziehung zu Komponenten-Farben klären. |
+| FX2 | Kreis-/Spiralbewegung | Should | Kanonische Atwood-Subdial | Stoppuhr um Subdial (cy=25, r=13, 10 Marken, 1 U/s) ergänzen — Quelldatei hat nur Hauptzeiger. |
+| FX3 | Kreis-/Spiralbewegung | Could | Polar-Zerlegung in ISO-Ansicht | Aktuell nur in 2D (in ISO deaktiviert). |
+| FX4 | Kreis-/Spiralbewegung | Could | Weitere Szenarien-Presets | z. B. Spirale innen, gleichförmig mit \(\varphi_0\neq0\). |
+| FX5 | Kreis-/Spiralbewegung | Should | nStop-Obergrenze dokumentieren oder cappen | Bei großen \(n\cdot90°\) kann das Auto-Stopp-Ziel jenseits des 120 s-Precompute-Horizonts liegen. |
+| FW1 | Schräger Wurf | Could | Luftwiderstand-Modell | Stokes/Newton-Drag als optionaler Schalter — aktuell reine Vakuumkinematik. Didaktisch wertvoll für Realitätsvergleich. |
+| FW2 | Schräger Wurf | Could | Vergleichende Würfe (mehrere Bahnen) | ~~Mehrere Flugbahnen gleichzeitig~~ **Teilweise ✅ (v1.2.0):** eine Vergleichsbahn läßt sich über den Umschalter „Vergleichsbahn" einfrieren und live vergleichen. Offen: ≥2 gespeicherte Referenzen + Vergleichsbahn auch im Bahnkurven-Diagramm \(y(x)\) als zweite Linie (aktuell nur Szenen-Overlay). |
+| FW3 | Schräger Wurf | Could | Optimalwinkel-Anzeige | Numerisch berechneter \(\alpha_{\text{opt}}\) für maximale Reichweite bei gegebenem \(h_0\), \(v_0\) — bei \(h_0>0\) liegt er unter 45°. |
+| FW4 | Schräger Wurf | Could | Höhenlinie / Reichweitenmarker | Markierung von \(x_{\text{max}}\) und \(y_{\text{max}}\) in der Szene. |
+| FW5 | Schräger Wurf | Could | \(g\) als Regler | Erdbeschleunigung einstellbar (Mond/Mars/Venus) — aktuell fest 9,8. |
+| FW6 | Schräger Wurf | Could | \(g=9{,}81\) angleichen | An Freier-Fall/Atwood-Standard anpassen (aktuell 9,8 für v47-Parität). Entscheidung didaktisch. |
+| FW7 | Schräger Wurf | Could | Stoppuhr an Atwood-Standard | LCD-Easteregg ggf. als eigene Umschaltung im Panel statt Klick-auf-Uhr. |
+| FZ1 | Zykloide | Could | Punktradius als Regler | \(r/R\) einstellbar (aktuell fest 0,9) — Übergang Zykloide (\(r=R\)) über Trochoiden zur Geraden (\(r=0\), SP). |
+| FZ2 | Zykloide | Could | Gleiten mit Schlupf | \(\omega \neq v_c/R\) entkoppeln — Rollen vs. Gleiten vergleichbar machen. |
+| FZ3 | Zykloide | Could | Vergleich mit reiner Zykloide | Sonderfall \(r=R\) als Referenzbahn einblendbar (Punkt auf der Lauffläche). |
+| FZ4 | Zykloide | Could | Winkel \(\varphi(t)\) als Diagrammgröße | Zusätzlich zu x/y/v/a auch den Drehwinkel selbst anbieten. |
+| FZ5 | Zykloide | Could | Einzelne Subjekt-CSVs | Export nur des ausgewählten Subjekts statt immer alle 5×8. |
+| FZ6 | Zykloide | Could | Vektor-Skalierung adaptiv | `V_VECTOR_SCALE`/`A_VECTOR_SCALE` aktuell fest 50 — bei kleinen/großen \(v_c\) ggf. auto-fit. |
+| FZ7 | Zykloide | Could | Kamera-Trigger sichtbar | Optionale Markierung des Kamera-Follow-Startpunkts. |
 
-## FEATURES — ROLLENDE KÖRPER
-
-| ID | Titel | Beschreibung |
-|----|-------|--------------|
-| FR1 | Ghosting / Snapshots | Verblasste Körperkopien in festen Zeitintervallen (z.B. alle 0,5 s) zur visuellen Darstellung der Beschleunigung. |
-| FR2 | Interaktive Diagramme (Hover) | Mouseover über SVG-Diagramm zeigt exakte Werte zum Zeitpunkt t; Cursor folgt der Kurve. |
-| FR3 | Benutzerdefinierter k-Faktor | Texteingabe für beliebigen k-Wert, um experimentell die Rolle des Trägheitsmoments zu untersuchen. |
-| FR4 | Mehrere Rampenabschnitte | Simulation mehrerer aufeinanderfolgender Strecken (z.B. schiefe Ebene → horizontal → schiefe Ebene). |
-| FR5 | Dynamische Reibung / Gleiten | Übergang Haftreibung → Gleitreibung visualisieren, wenn Rollbedingung manuell unterschritten wird. |
-| FR6 | Diagramm-Export (PNG/SVG) | SVG-Diagramme als Bilddatei exportieren (Ergänzung zum bestehenden CSV-Export). |
+**Hinweise zu Querschnitts-Features:** Hover-Werte mehrerer Sims → **I5**; PNG/SVG-Export → **I6**; Energie-Diagramm (Federpendel, Schräger Wurf, Zykloide) → **I7**; Atwood „Energiebilanz" via **M7** bzw. **I7**; Atwood „Vorschaubild" → **S3**.
 
 ---
 
@@ -85,6 +154,9 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 | I2 | ✅ Shared Design-System | **Erledigt (Sprint 3, R0/R7):** `shared/css/design-system.css` an CLAUDE.md/FF-Referenz angleichen (Tokens, Okabe-Ito-Kraftfarben, Grid 280/1fr/270, Klapp-Sidebar-CSS). Alle modularen Sims (Atwood/Rolling/Lorentz) und die Übersicht linken shared; Standalones via `<link>` vor Inline-`<style>`. `shared/js/format.js` (fmt-Helper) inzwischen erledigt (T6); weiteres `shared/js/` (Math/SVG-Helper) weiterhin offen. |
 | I3 | Unit-Tests für Physik-Module | Vitest-Setup für `physics.js` beider Projekte. Kernformeln (k-Faktor, Gleichgewicht, Precompute) testbar machen. |
 | I4 | ✅ Blueprint um Werkzeug-Schale + Migrations-Workflow erweitern | **Erledigt (Sprint 4a):** `global_docs/simulation_instruction.md` um §7 „Werkzeug-Schale" (diagrammatische Werkzeuge, keine Sim-Controls) und §8 „Migrations-Workflow: Standalone → Modular" (Schritt-für-Schritt incl. Konsolidierungs-Prüfung) ergänzt. |
+| I5 | Hover-Werte repo-weit | **Should** — Mouseover über SVG-Diagramm zeigt exakte Werte zum Zeitpunkt t; Cursor folgt der Kurve. Querschnitts-Feature, betrifft: Rollende Körper (~~FR2~~ retired), Schräger Wurf, Zykloide, Kreis-/Spiralbewegung. *(konsolidiert 2026-07-08 aus mehreren per-Sim FEATURE_BACKLOGs)* |
+| I6 | PNG/SVG-Export repo-weit | **Could** — Diagramme als Bilddatei exportieren (ergänzt den bestehenden CSV-Export). Querschnitts-Feature, betrifft: Rollende Körper (~~FR6~~ retired), Schräger Wurf, Zykloide, Kreis-/Spiralbewegung. *(konsolidiert 2026-07-08)* |
+| I7 | Energie-Diagramm repo-weit | **Could** — \(E_{\text{kin}}/E_{\text{pot}}/E_{\text{ges}}\) vs. Zeit als zusätzlicher Diagrammtyp (Energieerhaltung visualisieren). Querschnitts-Feature, betrifft: Federpendel, Schräger Wurf, Zykloide (Atwood via M7). *(konsolidiert 2026-07-08)* |
 
 ---
 
@@ -256,14 +328,21 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 27
-- **Bugs:** 0 (B1, B2, B3 erledigt — Session 2026-07-07)
-- **Technische Schulden:** 7 — **alle erledigt** (T1, T2, T3, T4, T6, T7, T8)
-- **Features (bestehende Projekte):** 11
-- **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
-- **Neue Simulationen:** 6
-- **Infrastruktur:** 4 (davon I2, I4 erledigt)
+Stand: 2026-07-08 (nach Zentralisierung von per-Sim `issues.md`/`FEATURE_BACKLOG.md`).
+
+- **Gesamt-Items (offen):** 68
+- **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07)
+- **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
+- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 · FW 7 · FZ 7)
+- **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
+- **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
+- **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 erledigt
-- **Werkzeug-Schale:** 3 — **alle erledigt** (W1, W2, W3 — Session 2026-07-07)
-- **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 32 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08)
+- **Werkzeug-Schale:** 0 offen — W1, W2, W3 erledigt
+- **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
+- **Erledigt (historisch):** 32 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08)
+
+> **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
+> wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur
+> `docs/CHANGELOG.md` + optionale `docs/KNOWN_LIMITATIONS.md`. Siehe
+> `## KONVENTIONEN` oben und `CLAUDE.md` (Dokumentations-Regel).
