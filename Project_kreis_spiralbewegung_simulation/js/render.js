@@ -328,7 +328,7 @@ function updateAnalysisPanel(P) {
 // der @media-Fallback (≤1100 px erzwingt gestapelt = breite Zelle) automatisch
 // zu Landscape; ein Fenster-Resize paßt live nach. Ticks rechnen pro Format neu.
 const LAND_W = 700, LAND_H_SINGLE = 410, LAND_SLOT_DUAL = 200   // gestapelt
-const PORT_W = 410, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345   // nebeneinander
+const PORT_W = 492, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345   // nebeneinander (PO: Diagramm 20 % breiter, weniger Rand — Zellbreite unangetastet)
 const DUAL_GAP = 10
 // Vorschau-Spanne für die dynamische Achsenskalierung (B9): am Start (und solange
 // die Kurve diesen Punkt noch nicht erreicht hat) zeigt der Graph ein festes

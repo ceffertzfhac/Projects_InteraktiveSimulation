@@ -421,6 +421,16 @@ DOM.analysisToggle.addEventListener('click', () => {
   updateScene(store.simulatedTime)
 })
 
+// Akkordeon-Steuerungs-Sidebar (Prototyp): linke Cluster ein-/ausklappbar.
+// .panel-label ist <button> → Enter/Space triggert click nativ.
+document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const section = btn.parentElement
+    const collapsed = section.classList.toggle('collapsed')
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+  })
+})
+
 // Fenster-Resize: Graph-Format (Portrait/Landscape) paßt sich der Zell-Form live
 // an — rAF-gedrosselt, sodaß Achsenskalierung/Ticks nachziehen (B9/B10).
 let resizeRaf = null

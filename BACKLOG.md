@@ -167,6 +167,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | I5 | Hover-Werte repo-weit | **Should** — Mouseover über SVG-Diagramm zeigt exakte Werte zum Zeitpunkt t; Cursor folgt der Kurve. Querschnitts-Feature, betrifft: Rollende Körper (~~FR2~~ retired), Schräger Wurf, Zykloide, Kreis-/Spiralbewegung. *(konsolidiert 2026-07-08 aus mehreren per-Sim FEATURE_BACKLOGs)* |
 | I6 | PNG/SVG-Export repo-weit | **Could** — Diagramme als Bilddatei exportieren (ergänzt den bestehenden CSV-Export). Querschnitts-Feature, betrifft: Rollende Körper (~~FR6~~ retired), Schräger Wurf, Zykloide, Kreis-/Spiralbewegung. *(konsolidiert 2026-07-08)* |
 | I7 | Energie-Diagramm repo-weit | **Could** — \(E_{\text{kin}}/E_{\text{pot}}/E_{\text{ges}}\) vs. Zeit als zusätzlicher Diagrammtyp (Energieerhaltung visualisieren). Querschnitts-Feature, betrifft: Federpendel, Schräger Wurf, Zykloide (Atwood via M7). *(konsolidiert 2026-07-08)* |
+| I8 | Akkordeon-Steuerungs-Sidebar repo-weit | **Should** — Überlange linke Steuerungs-Sidebar: statt ganzer Sidebar einklappen, die thematischen `.panel-section`-Cluster einzeln ein-/ausklappbar machen (Akkordeon: `.panel-label`→Button+Chevron, Inhalt verbergen). **Prototyp erledigt (Kreis-/Spiralbewegung v1.3.0, 2026-07-08):** 6 Cluster, default eingeklappt = Modus & Szenarien + Abspielgeschwindigkeit & Auto-Stopp; Abspielgeschwindigkeit+Auto-Stopp zusammengeführt, Winkeleinheit→Diagramme-Cluster; Chevrons 1,4 rem; `~ * { display:none !important }` dominiert JS-`display:block`-Kinder. Offen: als kanonisches Muster in `global_docs/simulation_instruction.md` § „Akkordeon-Steuerungs-Sidebar" dokumentieren + auf die anderen Sims mit überlangen Sidebars übertragen. |
 
 ---
 
@@ -344,7 +345,7 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 - **Bugs:** 2 offen (B4, B5) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08); B6 erledigt (3-Massen v1.2.4, 2026-07-08)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
 - **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7)
-- **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
+- **Infrastruktur & Querschnitts-Features:** 6 offen (I1, I3, I5, I6, I7, I8) — I2, I4 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 + W1 (Ableitung, modular) erledigt

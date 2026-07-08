@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.2.1</span>
+    <span class="version">v1.3.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -46,8 +46,8 @@ window.MathJax = {
   <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
   <aside class="panel left-panel">
 
-    <div class="panel-section">
-      <div class="panel-label">Bewegungsparameter</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Bewegungsparameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="parameter-grid">
         <div class="slider-label">
           <span id="radius_label_kreis">Radius \(R\)</span>
@@ -92,8 +92,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Visualisierung</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-control">
         <span class="slider-label">Ansicht</span>
         <select id="view_select" class="select-field">
@@ -146,8 +146,44 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Modus &amp; Szenarien</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-r)"></div><div class="legend-label">Ortsvektor \(\vec{r}\)</div>
+        <div class="legend-swatch" style="background:var(--c-v)"></div><div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-a)"></div><div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-omega)"></div><div class="legend-label">Winkelgeschw. \(\vec{\omega}\)</div>
+        <div class="legend-swatch" style="background:var(--c-alpha)"></div><div class="legend-label">Winkelbeschl. \(\vec{\alpha}\)</div>
+        <div class="legend-swatch" style="background:var(--c-phi)"></div><div class="legend-label">Winkel \(\varphi\)</div>
+        <div class="legend-swatch" style="background:var(--c-traj)"></div><div class="legend-label">Bahnverlauf</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramme<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
+      <div class="vis-control" style="margin-top:8px">
+        <span class="slider-label">Diagramm 1</span>
+        <select id="graph_select_1" class="select-field"></select>
+      </div>
+      <div class="vis-control" id="dual_graph_control" style="display:none">
+        <span class="slider-label">Diagramm 2</span>
+        <select id="graph_select_2" class="select-field"></select>
+      </div>
+      <div class="vis-control" style="margin-top:8px">
+        <span class="slider-label">Winkeleinheit</span>
+        <select id="angle_unit_select" class="select-field">
+          <option value="deg" selected>Grad (°)</option>
+          <option value="rad">Bogenmaß (rad)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Modus &amp; Szenarien<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-control">
         <span class="slider-label">Modus</span>
         <select id="motion_mode_select" class="select-field">
@@ -167,18 +203,14 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Abspielgeschwindigkeit</div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit &amp; Auto-Stopp<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="speed-pills" id="speed_group">
         <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
       </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Auto-Stopp</div>
-      <div class="vis-toggle-row"><span class="vis-label">Auto-Stopp aktivieren</span>
+      <div class="vis-toggle-row" style="margin-top:10px"><span class="vis-label">Auto-Stopp aktivieren</span>
         <label class="toggle-switch"><input type="checkbox" id="auto_stop_checkbox"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
       </div>
       <div class="n-control" id="n_control_group" style="display:none">
@@ -187,46 +219,6 @@ window.MathJax = {
         <span id="n_value_display">1</span>
         <button class="btn step-btn" id="n_plus_btn">+</button>
         <span>· 90°</span>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Winkeleinheit</div>
-      <div class="vis-control">
-        <span class="slider-label">Einheit</span>
-        <select id="angle_unit_select" class="select-field">
-          <option value="deg" selected>Grad (°)</option>
-          <option value="rad">Bogenmaß (rad)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Diagramme</div>
-      <div class="speed-pills" id="diagram_mode_group">
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
-      </div>
-      <div class="vis-control" style="margin-top:8px">
-        <span class="slider-label">Diagramm 1</span>
-        <select id="graph_select_1" class="select-field"></select>
-      </div>
-      <div class="vis-control" id="dual_graph_control" style="display:none">
-        <span class="slider-label">Diagramm 2</span>
-        <select id="graph_select_2" class="select-field"></select>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Legende</div>
-      <div class="legend-grid">
-        <div class="legend-swatch" style="background:var(--c-r)"></div><div class="legend-label">Ortsvektor \(\vec{r}\)</div>
-        <div class="legend-swatch" style="background:var(--c-v)"></div><div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
-        <div class="legend-swatch" style="background:var(--c-a)"></div><div class="legend-label">Beschleunigung \(\vec{a}\)</div>
-        <div class="legend-swatch" style="background:var(--c-omega)"></div><div class="legend-label">Winkelgeschw. \(\vec{\omega}\)</div>
-        <div class="legend-swatch" style="background:var(--c-alpha)"></div><div class="legend-label">Winkelbeschl. \(\vec{\alpha}\)</div>
-        <div class="legend-swatch" style="background:var(--c-phi)"></div><div class="legend-label">Winkel \(\varphi\)</div>
-        <div class="legend-swatch" style="background:var(--c-traj)"></div><div class="legend-label">Bahnverlauf</div>
       </div>
     </div>
 

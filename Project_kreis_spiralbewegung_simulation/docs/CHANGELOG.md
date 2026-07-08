@@ -3,6 +3,38 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.3.0] — 2026-07-08
+### Neu (Akkordeon-Steuerungs-Sidebar — Prototyp I8)
+- Die linke Steuerungs-Sidebar war überlang und reichte über den unteren Rand.
+  Statt sie als Ganzes einzuklappen (wie das rechte Analyse-Panel), werden die
+  vorhandenen thematischen `.panel-section`-Cluster nun **einzelnen ein-/ausklappbar**
+  gemacht (Akkordeon): jeder `.panel-label`-Header wird zum klickbaren Button mit
+  Chevron `▾` (rotiert bei eingeklappt → `▸`), Inhalt darunter per CSS verbergt.
+- **Cluster-Reihenfolge (6)** nach Zusammenführung + Sortierung:
+  Bewegungsparameter · Visualisierung · Legende · Diagramme (incl. Winkeleinheit) ·
+  Modus & Szenarien · Abspielgeschwindigkeit & Auto-Stopp.
+  Zusammengeführt: Abspielgeschwindigkeit + Auto-Stopp → ein Cluster; Winkeleinheit
+  in den Diagramme-Cluster integriert (Label „Winkeleinheit" statt „Einheit").
+  Legende unter Visualisierung, Diagramme unter Legende (über Modus & Szenarien).
+- **Default eingeklappt:** Modus & Szenarien, Abspielgeschwindigkeit & Auto-Stopp.
+  Offen: Bewegungsparameter, Visualisierung, Legende, Diagramme.
+- Implementiert in `css/styles.css` (`.panel-section.collapsible`, Chevron-Geometrie,
+  `~ * { display:none !important }` — dominiert JS-gesteuerte `display:block`-Kinder
+  wie `#n_control_group`/`#dual_graph_control`, kein „Durchblitzen" im eingeklappten
+  Zustand) + `js/ui.js` (Toggle-Handler, `aria-expanded`; Button → Enter/Space nativ).
+  Statische MathJax-Labels → `display:none` hier unbedenklich (kein Laufzeit-Typeset
+  nötig, anders als beim rechten Analyse-Panel).
+- **Chevrons doppelt groß** (`1.4 rem`) für gute Sichtbarkeit/Klickbarkeit.
+- Prototyp zunächst nur diese Sim; Greift es, als kanonisches Muster
+  (`simulation_instruction.md` § „Akkordeon-Steuerungs-Sidebar") dokumentieren +
+  auf andere Sims übertragen → BACKLOG I8.
+### Stil (Nebeneinander-Modus: Diagramm 20 % breiter, weniger Rand)
+- Das Diagramm **selbst** (nicht die Zelle / Center-Partition) wird im Split-Modus
+  breiter: Portrait-ViewBox `PORT_W` 410 → 492 (×1,2) in `render.js`. Die Center-
+  Spalten bleiben 50/50 (`1fr 1fr`), die Sim-Zelle unangetastet — nur der Plot
+  wächst, seitliche Ränder werden kleiner. Format-lokal (Landscape/Gestapelt über
+  `LAND_W`-Zweig unberührt); ≤1100-px-Fallback weiterhin gestapelt.
+
 ## [1.2.1] — 2026-07-08
 ### Stil (FX1 — Okabe-Ito-Farbpalette)
 - Vektorfarben von der Quelldatei-Palette (Violett/Orange/Grün) auf
