@@ -120,6 +120,78 @@ DOM.analysisToggle.addEventListener('click', () => {
 - **SVG-Resize:** Das SVG nutzt `viewBox` + `preserveAspectRatio="xMidYMid meet"`, skaliert also beim Klappen automatisch — keine Neuberechnung (`resetSim`) nötig.
 - **Default eingeklappt:** `.app-layout` im HTML die Klasse `analysis-collapsed` geben und `aria-expanded="false"` setzen; nicht erst per JS einklappen (vermeidet Aufblitzen).
 
+### Akkordeon-Steuerungs-Sidebar (links)
+
+Die **linke** Steuerungs-Sidebar wird — anders als die rechte Analyse-Sidebar — **nicht als Ganzes** eingeklappt (die Steuerung soll jederzeit sichtbar/bedienbar bleiben), sondern jede thematische `.panel-section` wird **einzelnes ein-/ausklappbar** gemacht (Akkordeon). Das komprimiert eine überlange Sidebar, ohne sie zu verstecken. Kanonische Referenzimplementierung: **`Project_kreis_spiralbewegung_simulation/` ab v1.3.0**. Für Simulationen mit überlanger linker Sidebar (≥ 5 Cluster oder solche, die über den unteren Rand reichen) dieses Muster übernehmen → BACKLOG I8.
+
+**UX-Regeln (best practice):**
+- Die Sidebar als Ganzes bleibt stehen; jedes `.panel-section`-Cluster ist einzeln auf-/zuklappbar.
+- `.panel-label` wird zum klickbaren `<button>` mit Chevron `▾` (rotiert `-90°` → `▸` bei eingeklappt) — die etablierte Akkordeon-Metapher.
+- Chevron **groß** (`1,4 rem`) für gute Sichtbarkeit/Klickbarkeit.
+- `aria-expanded` pro Cluster + `:focus-visible`-Ring; `<button>` → Enter/Space nativ (kein Key-Handler nötig).
+- **Default-Zustand pro Cluster:** häufig Genutztes offen (Parameter, Visualisierung, Legende, Diagramme), selten Genutztes eingeklappt (Modus & Szenarien, Abspielgeschwindigkeit/Auto-Stopp). Pro Sim neu entscheiden, nicht starr übernehmen.
+
+**Cluster-Prinzipien (Konsolidierung & Sortierung)** — vor dem Konvertieren prüfen, sonst entstehen zu viele winzige Cluster:
+- **Cluster-Inflation vermeiden:** verwandte kleine Cluster zusammenlegen (Bsp. *Abspielgeschwindigkeit + Auto-Stopp* → ein Cluster).
+- **Single-Control-Cluster integrieren:** eine Sektion mit nur einem Steuerlement (Bsp. *Winkeleinheit* = nur ein Dropdown) nicht als eigene Sektion führen, sondern in einen verwandten Cluster integrieren (Bsp. *Diagramme*).
+- **Legende direkt nach Visualisierung:** die Legende dokumentiert die Visualisierungs-Vektoren/Objekte → unmittelbar unter dem Visualisierungs-Cluster platzieren.
+- **Diagramm-/Konfig-Cluster gruppieren:** Diagramm-Auswahl + zugehörige Anzeigeoptionen (z. B. Winkeleinheit) zusammen.
+- Ziel: ~4–6 Cluster, die ohne Scrollen Überblick geben; Seltenes default weggeklappt.
+
+**HTML-Struktur** (`index.html`) — pro `.panel-section`:
+```html
+<div class="panel-section collapsible collapsed">   <!-- collapsed = Default eingeklappt; ohne = offen -->
+  <button class="panel-label" type="button" aria-expanded="false">   <!-- false bei collapsed, true sonst -->
+    Modus &amp; Szenarien<span class="acc-chevron" aria-hidden="true">▾</span>
+  </button>
+  <!-- Section-Inhalt: Slider, Toggles, Selects … alles NACH .panel-label -->
+</div>
+```
+
+**CSS** (`css/styles.css`):
+```css
+/* .panel-label wird zum Akkordeon-Header (Button). Shared .panel-label-Typografie
+   (uppercase Klein-Label) bleibt erhalten; hier nur Button-Reset + Flex-Zeile. */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron { flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease; }
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+/* !important dominiert JS-gesteuerte display:block-Kinder (#n_control_group,
+   #dual_graph_control, decomp-fieldsets) — sonst blitzen sie eingeklappt durch. */
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
+```
+
+**JS** (`js/ui.js` — Bootstrap, einmalig):
+```javascript
+// Akkordeon-Steuerungs-Sidebar: linke Cluster ein-/ausklappbar.
+// .panel-label ist <button> → Enter/Space triggert click nativ.
+document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const section = btn.parentElement
+    const collapsed = section.classList.toggle('collapsed')
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+  })
+})
+```
+
+**Gotchas:**
+- **`display:none` ist hier erlaubt** (linke Sidebar = statische MathJax-Labels, beim Laden typeset) — das off-screen-Mysterium des rechten Analyse-Panels (`position:fixed; left:-10000px`) braucht es hier **nicht**.
+- **`!important` zwingend:** ohne es würden JS-gesteuerte `display:block`-Kinder (conditional sichtbare Controls wie `#n_control_group`, `#dual_graph_control`, Zerlegungs-Fieldsets) im eingeklappten Zustand durchblitzen, weil Inline-Styles die CSS-Regel sonst schlagen.
+- **Geschwister-Selector `~ *`** setzt voraus, daß `.panel-label` das **erste Kind** der `.panel-section` ist (bei allen Sims der Fall) — kein zusätzlicher Content-Wrapper nötig.
+- **Kein State-Verlust:** Slider-/Toggle-Werte bleiben erhalten (DOM bleibt, nur `display`) — Klappen löst kein `resetSim` aus.
+- **Pro Sim** neu entscheiden, welche Cluster default eingeklappt sind (Nutzungshäufigkeit) und ob Konsolidierung nötig ist — nicht die Kreis-Spiral-Zustände starr übernehmen.
+
 ## 4. Konventionen (Mandatorisch)
 
 ### Numerik & Notation
