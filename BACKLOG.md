@@ -110,6 +110,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | FX4 | Kreis-/Spiralbewegung | Could | Weitere Szenarien-Presets | z. B. Spirale innen, gleichförmig mit \(\varphi_0\neq0\). |
 | FX5 | Kreis-/Spiralbewegung | Should | nStop-Obergrenze dokumentieren oder cappen | Bei großen \(n\cdot90°\) kann das Auto-Stopp-Ziel jenseits des 120 s-Precompute-Horizonts liegen. |
 | FX6 | ✅ erledigt (v1.1.0) · ~~Kreis-/Spiralbewegung~~ | Could | Umschalter Simulation/Diagramm nebeneinander/untereinander | Layout-Umschalter zwischen „Sim + Diagramm nebeneinander" und „untereinander" (vgl. Schräger-Wurf/Freier-Fall Single-vs-Stacked-Graph). *(PO-Wunsch 2026-07-08)* — umgesetzt als `#layout_mode_select` in der Diagramme-Sektion; Portrait-Graph-Geometrie im Seitenmodus. |
+| FX7 | ✅ erledigt (v1.2.0) · ~~Kreis-/Spiralbewegung~~ | Should | Kartesische Komponenten \(v_x,v_y,a_x,a_y\) + \(\alpha(t)\) im Physik-Block | Die Physik-Formelbox zeigte nur \(x,y,\lvert\vec v\rvert,\lvert\vec a\rvert\) (Kreis) bzw. polare \(\vec v,\vec a\) (Spirale). *(PO-Wunsch 2026-07-08, nach B12-Pannel-Verbreiterung)* — ergänzt: \(v_x(t),v_y(t),a_x(t),a_y(t)\) (kartesisch, exakt wie `physics.js` berechnet, inkl. Coriolis-Term in der Spirale) sowie \(\alpha(t)\) in allen drei Varianten. Statisches MathJax (kein Laufzeit-Typeset); Überlauf via B12-Scroll-Sicherheit. |
 | FW1 | Schräger Wurf | Could | Luftwiderstand-Modell | Stokes/Newton-Drag als optionaler Schalter — aktuell reine Vakuumkinematik. Didaktisch wertvoll für Realitätsvergleich. |
 | FW2 | Schräger Wurf | Could | Vergleichende Würfe (mehrere Bahnen) | ~~Mehrere Flugbahnen gleichzeitig~~ **Teilweise ✅ (v1.2.0):** eine Vergleichsbahn läßt sich über den Umschalter „Vergleichsbahn" einfrieren und live vergleichen. Offen: ≥2 gespeicherte Referenzen + Vergleichsbahn auch im Bahnkurven-Diagramm \(y(x)\) als zweite Linie (aktuell nur Szenen-Overlay). |
 | FW3 | Schräger Wurf | Could | Optimalwinkel-Anzeige | Numerisch berechneter \(\alpha_{\text{opt}}\) für maximale Reichweite bei gegebenem \(h_0\), \(v_0\) — bei \(h_0>0\) liegt er unter 45°. |
@@ -340,14 +341,14 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 - **Gesamt-Items (offen):** 68
 - **Bugs:** 3 offen (B4, B5, B6) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
-- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 [FX6 erledigt v1.1.0] · FW 7 · FZ 7)
+- **Features sim-spezifisch:** 48 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 5 [FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7)
 - **Infrastruktur & Querschnitts-Features:** 5 offen (I1, I3, I5, I6, I7) — I2, I4 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 erledigt
 - **Werkzeug-Schale:** 0 offen — W1, W2, W3 erledigt
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 39 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08)
+- **Erledigt (historisch):** 40 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur

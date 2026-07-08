@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.1.11</span>
+    <span class="version">v1.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -344,25 +344,36 @@ window.MathJax = {
       <div class="panel-label">Physik</div>
       <div class="formula-box" id="formulas_kreis">
         <div>Kreisbahn (gleichförmig, \(\alpha=0\), \(v_r=0\)):</div>
-        <div>\[\varphi(t)=\varphi_0+\omega_0\,t,\quad \omega(t)=\omega_0\]</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t,\quad \omega(t)=\omega_0,\quad \alpha(t)=0\]</div>
         <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
-        <div>\[|\vec{v}|=R\,|\omega|,\quad |\vec{a}|=R\,\omega^2\;\text{(rein Zentripetal)}\]</div>
+        <div>\[v_x(t)=-R\,\omega(t)\,\sin\varphi(t),\quad v_y(t)=R\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R\,\omega^2(t)\cos\varphi(t),\quad a_y(t)=-R\,\omega^2(t)\sin\varphi(t)\]</div>
+        <div>\[|\vec{v}(t)|=R\,|\omega(t)|,\quad |\vec{a}(t)|=R\,\omega^2(t)\;\text{(rein Zentripetal)}\]</div>
       </div>
       <div class="formula-box" id="formulas_kreis_acc" style="display:none">
         <div>Kreisbahn (ungleichförmig, \(\alpha\neq 0\), \(v_r=0\)):</div>
-        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2,\quad \omega(t)=\omega_0+\alpha\,t\]</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2\]</div>
+        <div>\[\omega(t)=\omega_0+\alpha\,t,\quad \alpha(t)=\alpha\]</div>
         <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
-        <div>\[|\vec{v}|=R\,|\omega|\]</div>
-        <div>\[a_r=R\,\omega^2\;\text{(Zentripetal)},\quad a_t=R\,|\alpha|\;\text{(Tangential)}\]</div>
-        <div>\[|\vec{a}|=R\sqrt{\omega^4+\alpha^2}\]</div>
+        <div>\[v_x(t)=-R\,\omega(t)\,\sin\varphi(t),\quad v_y(t)=R\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R\,\omega^2(t)\cos\varphi(t)-R\,\alpha(t)\,\sin\varphi(t)\]</div>
+        <div>\[a_y(t)=-R\,\omega^2(t)\sin\varphi(t)+R\,\alpha(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_r(t)=R\,\omega^2(t)\;\text{(Zentripetal)},\quad a_t(t)=R\,|\alpha(t)|\;\text{(Tangential)}\]</div>
+        <div>\[|\vec{a}(t)|=R\sqrt{\omega^4(t)+\alpha^2(t)}\]</div>
       </div>
       <div class="formula-box" id="formulas_spiral" style="display:none">
         <div>Spiralbahn (\(v_r\neq 0\), optional \(\alpha\neq 0\)):</div>
-        <div>\[R(t)=R_0+v_r\,t,\quad \varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2\]</div>
-        <div>\[\omega(t)=\omega_0+\alpha\,t\]</div>
-        <div>\[\vec{v}=v_r\,\hat{e}_r+R\,\omega\,\hat{e}_t\]</div>
-        <div>\[\vec{a}=-R\,\omega^2\hat{e}_r+R\,\alpha\,\hat{e}_t-2\,v_r\,\omega\,\hat{e}_t\]</div>
-        <div style="margin-top:4px"><small>Der Coriolis-Term \(-2v_r\omega\hat{e}_t\) wirkt nur bei \(v_r\neq 0\).</small></div>
+        <div>\[R(t)=R_0+v_r\,t\]</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2\]</div>
+        <div>\[\omega(t)=\omega_0+\alpha\,t,\quad \alpha(t)=\alpha\]</div>
+        <div>\[x(t)=R(t)\cos\varphi(t),\quad y(t)=R(t)\sin\varphi(t)\]</div>
+        <div>\[v_x(t)=v_r\cos\varphi(t)-R(t)\,\omega(t)\,\sin\varphi(t)\]</div>
+        <div>\[v_y(t)=v_r\sin\varphi(t)+R(t)\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R(t)\,\omega^2(t)\cos\varphi(t)-R(t)\,\alpha(t)\,\sin\varphi(t)-2\,v_r\,\omega(t)\,\sin\varphi(t)\]</div>
+        <div>\[a_y(t)=-R(t)\,\omega^2(t)\sin\varphi(t)+R(t)\,\alpha(t)\,\cos\varphi(t)+2\,v_r\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[\vec{v}(t)=v_r\,\hat{e}_r+R(t)\,\omega(t)\,\hat{e}_t\]</div>
+        <div>\[\vec{a}(t)=-R(t)\,\omega^2(t)\hat{e}_r+R(t)\,\alpha(t)\,\hat{e}_t-2\,v_r\,\omega(t)\,\hat{e}_t\]</div>
+        <div style="margin-top:4px"><small>Der Coriolis-Term \(-2\,v_r\,\omega(t)\,\hat{e}_t\) wirkt nur bei \(v_r\neq 0\); hier ist \(R=R(t)\).</small></div>
       </div>
     </div>
 

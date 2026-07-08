@@ -3,6 +3,31 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.2.0] — 2026-07-08
+### Neu (FX7 — kartesische Komponenten + α(t) im Physik-Block)
+- Nach der B12-Panel-Verbreiterung (405 px) ist Platz für mehr Formeln. Die
+  Physik-Formelbox zeigte bisher nur \(x,y,\lvert\vec v\rvert,\lvert\vec a\rvert\)
+  (Kreis) bzw. die polaren \(\vec v,\vec a\) (Spirale).
+- **Ergänzt in allen drei Varianten:**
+  - **Kreis gleichförmig** (\(\alpha=0\)): \(v_x(t),v_y(t),a_x(t),a_y(t)\)
+    (rein Zentripetal, \(-R\omega^2\cos\varphi\) / \(-R\omega^2\sin\varphi\)) und
+    \(\alpha(t)=0\).
+  - **Kreis ungleichförmig** (\(\alpha\neq0\)): \(v_x(t),v_y(t)\) sowie
+    \(a_x(t)=-R\omega^2\cos\varphi-R\alpha\sin\varphi\),
+    \(a_y(t)=-R\omega^2\sin\varphi+R\alpha\cos\varphi\); \(\alpha(t)=\alpha\).
+  - **Spirale** (\(v_r\neq0\)): volle kartesische Form inkl. Coriolis-Term
+    \(-2v_r\omega\sin\varphi\) / \(+2v_r\omega\cos\varphi\) — exakt wie `physics.js`
+    berechnet; \(\alpha(t)=\alpha\); \(R=R(t)\) im Kleingedruckten klargestellt.
+- Die Formeln sind konsistent mit `physics.js` (`vx=vr·cosφ−R·ω·sinφ` usw.),
+  statisches MathJax (kein Laufzeit-Typeset), Überlauf via B12-Scroll-Sicherheit.
+- **Durchgängige \((t)\)-Notation** für alle zeitabhängigen Größen (\(\varphi(t)\),
+  \(\omega(t)\), \(\alpha(t)\), \(R(t)\) in der Spirale) — auch auf der RHS der
+  Komponentenformeln und den LHS-Beträgen (\(|\vec v(t)|\), \(a_r(t)\), …).
+  Konstante Parameter (\(R\) im Kreis, \(v_r\), \(\varphi_0\), \(\omega_0\))
+  bewußt ohne \((t)\).
+- IDs (`formulas_kreis`/`_kreis_acc`/`_spiral`) und die B11-Umschaltlogik
+  (modus-/α-abhängig) unverändert — nur mehr Zeilen pro Box.
+
 ## [1.1.11] — 2026-07-08
 ### Geändert (Analyse-Panel nur diese Sim 1,5× breiter)
 - Das rechte Analyse-Panel ist im shared Design-System einheitlich 270 px breit.
