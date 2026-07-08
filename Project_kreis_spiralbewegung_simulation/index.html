@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.1.8</span>
+    <span class="version">v1.1.9</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -169,7 +169,7 @@ window.MathJax = {
 
     <div class="panel-section">
       <div class="panel-label">Abspielgeschwindigkeit</div>
-      <div class="speed-pills">
+      <div class="speed-pills" id="speed_group">
         <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
@@ -203,8 +203,10 @@ window.MathJax = {
 
     <div class="panel-section">
       <div class="panel-label">Diagramme</div>
-      <div class="radio-row"><label><input type="radio" name="diagram_mode" value="1" checked> Ein Diagramm</label></div>
-      <div class="radio-row"><label><input type="radio" name="diagram_mode" value="2"> Zwei Diagramme</label></div>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
       <div class="vis-control" style="margin-top:8px">
         <span class="slider-label">Diagramm 1</span>
         <select id="graph_select_1" class="select-field"></select>

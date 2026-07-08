@@ -68,6 +68,17 @@ function applyLayout() {
   DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
 }
 
+// ── Pill-Active-State (kanonisch vgl. Atwood .radio-pill) ────────────────────
+// Die shared .speed-pill blendet das Radio aus (opacity:0) → die gewählte Pille
+// braucht die .active-Klasse, damit sie als ausgewählt highlightet. Gilt für die
+// Abspielgeschwindigkeit und den Diagrammmodus (Ein/Zwei), einheitlich.
+function syncPills(groupEl) {
+  if (!groupEl) return
+  groupEl.querySelectorAll('.speed-pill').forEach(p => {
+    p.classList.toggle('active', p.querySelector('input').checked)
+  })
+}
+
 // ── Reset (aus resetScene) ───────────────────────────────────────────────────
 function resetSim(isPlayTrigger = false) {
   stopAnimation()
@@ -164,6 +175,8 @@ function resetSim(isPlayTrigger = false) {
   // Dual-Graph-Sichtbarkeit + Anordnung (übereinander / nebeneinander — FX6, einheitlich mit Kreisbewegung)
   DOM.dualGraphControl.style.display = (store.diagramMode === '2') ? '' : 'none'
   DOM.graphGroup2.style.visibility = (store.diagramMode === '2') ? 'visible' : 'hidden'
+  syncPills(DOM.diagramModeGroup)
+  syncPills(DOM.speedGroup)
   applyLayout()
 
   // Zoom
@@ -342,6 +355,7 @@ DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
   const dual = store.diagramMode === '2'
   DOM.dualGraphControl.style.display = dual ? '' : 'none'
   DOM.graphGroup2.style.visibility = dual ? 'visible' : 'hidden'
+  syncPills(DOM.diagramModeGroup)
   updateScene(store.simulatedTime)
 }))
 DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateScene(store.simulatedTime) })

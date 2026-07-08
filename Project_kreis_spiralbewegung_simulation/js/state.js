@@ -94,6 +94,8 @@ export function initDOM() {
   DOM.nMinusBtn = q('n_minus_btn'); DOM.nPlusBtn = q('n_plus_btn')
   DOM.nValueDisplay = q('n_value_display')
   DOM.diagramModeRadios = document.querySelectorAll('input[name="diagram_mode"]')
+  DOM.diagramModeGroup = q('diagram_mode_group')
+  DOM.speedGroup = q('speed_group')
   DOM.dualGraphControl = q('dual_graph_control')
   DOM.graphSelect1 = q('graph_select_1'); DOM.graphSelect2 = q('graph_select_2')
   DOM.layoutToggle = q('layout_toggle')

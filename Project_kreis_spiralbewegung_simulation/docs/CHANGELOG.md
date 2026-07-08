@@ -3,6 +3,21 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.9] — 2026-07-08
+### Geändert (B8 — Diagrammmodus-Umschalter einheitlich als Pillen)
+- **Bislang „komisch":** „Ein Diagramm / Zwei Diagramme" war ein plain
+  `.radio-row`-Text-Radio — ungleichmäßig mit den hübschen Speed-Pillen im
+  selben Sim und mit Atwoods `.radio-pill`-Diagramm-Umschalter.
+- **Jetzt das shared `.speed-pill`-Muster** (shared/css/design-system.css, das
+  im selben Sim schon für Abspielgeschwindigkeit genutzt wird): zwei Pillen mit
+  `flex:1` in einer `.speed-pills`-Gruppe. Einheitlich mit der Speed-Pille im
+  selben Sim, kein neues CSS nötig.
+- **Active-Highlight per JS** (kanonisch vgl. Atwood): `syncPills()` setzt die
+  `.active`-Klasse auf die gewählte Pille (das Radio ist via `opacity:0`
+  ausgeblendet). War bei kreis_spiral bisher gar nicht gesetzt → die gewählte
+  Speed-Pille highlightete nicht. Jetzt wird sie (und die Diagramm-Pille) beim
+  Start und bei jedem Wechsel korrekt markiert.
+
 ## [1.1.8] — 2026-07-08
 ### Geändert (B9 — Vorschauphase für weichen Start der dynamischen Skalierung)
 - **v1.1.7 startete zu abrupt** und zeigte vorm Start die gesamte Range: Am
