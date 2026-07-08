@@ -122,7 +122,9 @@ function resetSim(isPlayTrigger = false) {
 
   // Statisches MathJax: Radius-Label + Formelbox umschalten
   // Kreis gleichförmig (α=0) · Kreis ungleichförmig (α≠0) · Spirale (B11)
-  const alphaNonZero = Math.abs(store.alpha_rad) > 1e-6
+  // Achtung: alphaDeg (frisch gelesen) nehmen, nicht store.alpha_rad — letzterer
+  // wird erst weiter unten gesetzt, sonst hinkt die Umschaltung einen Wert hinterher.
+  const alphaNonZero = Math.abs(alphaDeg) > 1e-6
   DOM.radiusLabelKreis.style.display = isKreis ? '' : 'none'
   DOM.radiusLabelSpiral.style.display = isKreis ? 'none' : ''
   DOM.formulasKreis.style.display = (isKreis && !alphaNonZero) ? '' : 'none'

@@ -3,6 +3,13 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.1] — 2026-07-08
+### Behoben
+- **B11 — α-Formelbox hinkte hinterher:** Die Umschaltung der Physik-Formelbox
+  (gleichförmig ↔ ungleichförmig) wertete `store.alpha_rad` aus, das erst
+  *nach* dem Umschalt-Block gesetzt wurde → die Box reagierte immer einen
+  α-Wert verspätet. Nutzt jetzt den frisch gelesenen `alphaDeg`.
+
 ## [1.1.0] — 2026-07-08
 ### Neu / Behoben (6 Kreis-Spiral-Punkte → BACKLOG B7–B11, FX6)
 - **B7 — Bewegungsparameter-Layout:** Jeder Parameter ist nun eine
