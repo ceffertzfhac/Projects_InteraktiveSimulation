@@ -316,29 +316,33 @@ function updateAnalysisPanel(P) {
 }
 
 // ── Diagramm zeichnen ────────────────────────────────────────────────────────
-// Graph-Format paßt sich ans Layout an (CLAUDE.md „Diagramm-Format pro Layout",
-// kanonisch vgl. Atwood: viewBox dynamisch, Ticks rechnen pro Format neu):
-//   übereinander (gestapelt) → Landscape (breit + flach) — füllt die breite Zelle
-//   nebeneinander (split)    → Portrait  (schmal + hoch) — füllt die hohe Zelle
-// Portrait/Landscape wird aus der TATSÄCHLICHEN Zell-Form der graph-wrapper-Zelle
+// Graph-Format paßt sich ans Layout an (CLAUDE.md „Diagramm-Format pro Layout").
+// Maße pro Orientierung übernommen aus Kreisbewegung v1.0.10 — das bewährt sich
+// dort und füllt die Zelle: das BREITE Landscape (700×410) füllt die gestapelte
+// (breite, flache) Zelle, das PORTRAIT (410×700) die hohe Split-Zelle. (Mein
+// früher 480×430 war fast quadratisch → wirkte im untereinander-Modus „3:4",
+// füllte die Breite nicht.) Dual teilt die Gesamthöhe in 2 Slots + Gap (wie
+// Kreisbewegung); Single nutzt die volle Höhe.
+// Orientierung (Landscape/Portrait) wird aus der TATSÄCHLICHEN Zell-Form
 // abgeleitet (getBoundingClientRect), nicht nur aus store.layoutSplit — so greift
-// der @media-Fallback (Viewport ≤1100 px erzwingt gestapelt = breite Zelle)
-// automatisch zu Landscape, und ein Fenster-Resize paßt das Format live an.
-// drawGraph liest die Maße aus geom → Achsenskalierung (Nice-Step/Ticks) rechnet
-// pro Format neu (B9/B10). Gruppe 2 wird per transform an hEach geschoben.
-const LAND_W = 480, LAND_H_SINGLE = 430, LAND_H_DUAL = 215
-const PORT_W = 400, PORT_H_SINGLE = 620, PORT_H_DUAL = 310
+// der @media-Fallback (≤1100 px erzwingt gestapelt = breite Zelle) automatisch
+// zu Landscape; ein Fenster-Resize paßt live nach. Ticks rechnen pro Format neu.
+const LAND_W = 700, LAND_H_SINGLE = 410, LAND_SLOT_DUAL = 200   // gestapelt
+const PORT_W = 410, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345   // nebeneinander
+const DUAL_GAP = 10
 
 function graphGeom() {
   const dual = store.diagramMode === '2'
   const rect = DOM.graphSvg.getBoundingClientRect()
-  const cellW = rect.width || LAND_W
+  const cellW = rect.width || 600
   const cellH = rect.height || LAND_H_SINGLE
-  const portrait = cellH > cellW            // hohe Zelle → Portrait
-  const w = portrait ? PORT_W : LAND_W
-  const hEach = portrait ? (dual ? PORT_H_DUAL : PORT_H_SINGLE)
-                         : (dual ? LAND_H_DUAL : LAND_H_SINGLE)
-  return { w, h: dual ? hEach * 2 : hEach, hEach, dual }
+  const landscape = cellW >= cellH                                  // breite Zelle
+  const w = landscape ? LAND_W : PORT_W
+  const hSingle = landscape ? LAND_H_SINGLE : PORT_H_SINGLE
+  const slotDual = landscape ? LAND_SLOT_DUAL : PORT_SLOT_DUAL
+  const hEach = dual ? slotDual : hSingle
+  const totalH = dual ? slotDual * 2 + DUAL_GAP : hSingle
+  return { w, h: totalH, hEach, dual, gap: DUAL_GAP }
 }
 
 function yUnitString(qq) {
@@ -455,7 +459,7 @@ function drawGraphs(time) {
   // Ticks/Achsen rechnen in drawGraph aus geom neu (B9/B10).
   DOM.graphSvg.setAttribute('viewBox', `0 0 ${geom.w} ${geom.h}`)
   DOM.graphGroup1.setAttribute('transform', 'translate(0,0)')
-  DOM.graphGroup2.setAttribute('transform', `translate(0,${geom.hEach})`)
+  DOM.graphGroup2.setAttribute('transform', `translate(0,${geom.hEach + geom.gap})`)
   DOM.graphGroup2.style.visibility = geom.dual ? 'visible' : 'hidden'
   drawGraph(1, time, geom)
   if (geom.dual) drawGraph(2, time, geom)

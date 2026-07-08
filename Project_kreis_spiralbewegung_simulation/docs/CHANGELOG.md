@@ -3,6 +3,21 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.6] — 2026-07-08
+### Behoben (B10 — Diagramm füllt die Fläche auch im untereinander-Modus)
+- **v1.1.5 war zu quadratisch:** Die Landscape-Maße `480×430` (Aspect 1,12, fast
+  quadratisch) ließen den Graph im **untereinander-Modus** (breite, flache Zelle)
+  via `preserveAspectRatio=meet` auf Höhe skalieren → er wirkte „ca. 3:4"-artig
+  und füllte die viel breitere Zelle nicht aus (seitliche Leerflächen).
+- **Maße übernommen aus Kreisbewegung v1.0.10** (was sich dort bewährt und die
+  Zelle füllt): **Landscape 700×410** (gestapelt) bzw. **Portrait 410×700**
+  (nebeneinander). Das breite Landscape (Aspect 1,71) füllt die gestapelte Zelle,
+  das Portrait die hohe Split-Zelle. Dual teilt die Gesamthöhe in 2 Slots + Gap
+  (`200+10+200` gestapelt / `345+10+345` Split) wie Kreisbewegung; Gruppe 2 per
+  `transform(0, hEach+gap)` geschoben.
+- Orientierung (Landscape/Portrait) weiterhin aus der tatsächlichen Zell-Form
+  (`getBoundingClientRect`) → `@media`-Fallback und Resize greifen automatisch.
+
 ## [1.1.5] — 2026-07-08
 ### Behoben (B9/B10 — Achsenskalierung paßt sich ans Format an, auch im übereinander-Modus)
 - **Bislang konstant Landscape:** Der Graph hatte eine fixe viewBox `480×430`
