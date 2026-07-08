@@ -1,0 +1,126 @@
+/* ── SIM-SPEZIFISCHE TOKENS (ergänzen shared/css/design-system.css) ────────── */
+/* Kein :root-Remap shared Tokens (das bräche Dark Mode — CLAUDE.md).          */
+/* Farbpalette bewahrt die Quelldatei (Parität); purple+orange+green ist       */
+/* bewusst nicht Okabe-Ito-normalisiert → Backlog (issues.md).                 */
+:root {
+  --graph-bg:    #ffffff;
+  --grid-line:   #e8eaf0;
+  --disk-fill:   #e0e0e0;
+  --disk-stroke: #cccccc;
+
+  --c-r:      #7f7f7f;   /* Ortsvektor r   – Grau (Quelle: --fh-grey) */
+  --c-v:      #FF7F0E;   /* Geschw. v      – Orange (Quelle: --fh-orange) */
+  --c-a:      #9467BD;   /* Beschl. a      – Violett (Quelle: --fh-purple) */
+  --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
+  --c-alpha:  #d1002d;   /* Winkelbeschl. α – Rot */
+  --c-phi:    #2ca02c;   /* Winkel φ       – Grün */
+  --c-traj:   var(--accent);   /* Bahnkurve – Mint (gestrichelt) */
+  --c-point:  #d1002d;   /* Partikel – Rot */
+}
+
+body.dark {
+  --graph-bg:    #161925;
+  --grid-line:   #262c42;
+  --disk-fill:   #2a3148;
+  --disk-stroke: #3d4766;
+
+  --c-r:      #a0abc7;
+  --c-v:      #FFA040;
+  --c-a:      #B791D6;
+  --c-omega:  var(--accent);
+  --c-alpha:  #ff7777;
+  --c-phi:    #55ee99;
+  --c-traj:   var(--accent);
+  --c-point:  #ff7777;
+}
+
+/* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */
+/* Marker-Fills (Polygon sonst schwarz) — kanonisch refX=0 + shortenEnd */
+#arrowhead polygon     { fill: var(--text); }
+#arrow-r polygon       { fill: var(--c-r); }
+#arrow-v polygon       { fill: var(--c-v); }
+#arrow-a polygon       { fill: var(--c-a); }
+#arrow-omega polygon   { fill: var(--c-omega); }
+#arrow-alpha polygon   { fill: var(--c-alpha); }
+#arrow-phi polygon     { fill: var(--c-phi); }
+
+/* Koordinatenachsen (ISO) */
+#iso_axis_x, #iso_axis_y, #iso_axis_z { stroke: var(--text); stroke-opacity: 0.5; stroke-width: 1.5; }
+#iso_label_x, #iso_label_y, #iso_label_z { fill: var(--text2); font-size: 12px; font-style: italic; }
+#iso_circle_path      { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
+
+/* Disk + Partikel */
+#disk                  { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
+#point                 { fill: var(--c-point); }
+
+/* Bahnkurve */
+#trajectory_path       { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; fill: none; }
+
+/* Phi-Bogen */
+#phi_arc               { stroke: var(--c-phi); stroke-width: 1.5; fill: none; }
+#phi_label             { fill: var(--c-phi); font-style: italic; font-size: 14px; }
+
+/* Hauptvektoren + Komponenten (Komponenten in Elternfarbe, dashed/dotted) */
+#position_vector       { stroke: var(--c-r); stroke-width: 2.5; }
+#position_vector_x     { stroke: var(--c-r); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#position_vector_y     { stroke: var(--c-r); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#velocity_vector       { stroke: var(--c-v); stroke-width: 2.5; }
+#velocity_vector_x     { stroke: var(--c-v); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#velocity_vector_y     { stroke: var(--c-v); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#velocity_vector_r     { stroke: var(--c-v); stroke-width: 2; }
+#velocity_vector_t     { stroke: var(--c-v); stroke-width: 2; }
+#acceleration_vector   { stroke: var(--c-a); stroke-width: 3; }
+#acceleration_vector_x { stroke: var(--c-a); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#acceleration_vector_y { stroke: var(--c-a); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#acceleration_vector_r { stroke: var(--c-a); stroke-width: 2; }
+#acceleration_vector_t { stroke: var(--c-a); stroke-width: 2; }
+#omega_vector          { stroke: var(--c-omega); stroke-width: 2.5; }
+#alpha_vector          { stroke: var(--c-alpha); stroke-width: 2.5; }
+
+/* Stoppuhr (kanonisch: var(--surface)/var(--text) statt weiß/schwarz) */
+#stopwatch_circle      { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+.sw-mark               { stroke: var(--text); }
+#stopwatch_main_hand   { stroke: var(--text); stroke-width: 3; }
+
+#zoom_text_display     { fill: var(--text2); font-family: var(--font-mono); font-size: 14px; }
+
+/* Diagramm */
+.graph-bg              { fill: var(--graph-bg); }
+.grid-line             { stroke: var(--grid-line); }
+.axis-line             { stroke: var(--text); }
+.axis-label            { fill: var(--text); font-size: 13px; font-family: var(--font-ui); }
+.tick-label            { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text      { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
+.graph-line            { fill: none; stroke-width: 2; }
+.graph-line-1          { stroke: var(--accent); }
+.graph-line-2          { stroke: var(--c-v); }
+.graph-point           { fill: var(--c-point); }
+
+/* ── CENTER-LAYOUT: Simulation + Diagramm gestapelt ────────────────────────── */
+.center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
+#main_svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
+#graph_svg { width: 100%; height: 100%; display: block; }
+
+/* ── SIM-SPEZIFISCHE WIDGETS ───────────────────────────────────────────────── */
+/* Parameter-Raster: Label | Slider | Wert */
+.parameter-grid { display: grid; grid-template-columns: 120px 1fr 70px; gap: 8px 10px; align-items: center; }
+.parameter-grid .slider-label { text-align: right; color: var(--text2); font-size: .82rem; }
+.parameter-grid .slider-row input[type="range"] { width: 100%; margin: 0; }
+.parameter-grid .slider-val { font-family: var(--font-mono); font-size: .8rem; text-align: left; }
+
+/* Select-Zeile (Ansicht/Modus/Szenario/Winkeleinheit) */
+.vis-control { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 10px; margin-bottom: 8px; }
+.vis-control .slider-label { text-align: right; color: var(--text2); font-size: .82rem; }
+
+/* Zerlegungs-Fieldset (nested) */
+.decomp-fieldset { border: 1px dashed var(--border); border-radius: var(--r); padding: 5px 10px 8px; margin: 4px 0 8px 18px; }
+.decomp-fieldset legend { font-weight: 400; font-size: .78rem; color: var(--text2); padding: 0 4px; }
+.decomp-fieldset .radio-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; font-size: .82rem; }
+.decomp-fieldset .at-scaling-row { padding-left: 18px; margin-top: 4px; font-size: .8rem; color: var(--text2); }
+
+/* Auto-Stopp n·90°-Stepper */
+.n-control { display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-left: 18px; }
+.n-control .step-btn { width: 26px; height: 26px; padding: 0; font-weight: 600; line-height: 1; }
+#n_value_display { font-family: var(--font-mono); font-size: .95rem; width: 20px; text-align: center; }

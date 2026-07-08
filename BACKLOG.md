@@ -95,7 +95,8 @@ Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
 | M1 | ✅ Schräger Wurf migrieren | 47 | **Erledigt (Sprint 4b):** `Project_schraeger_wurf_simulation/` v1.0.0 — precompute + interpolateAt, volle Feature-Parität zum v47-Prototyp. Fehlabgelegtes `AllAnimations/schräger_wurf.html` (Rollender-Zylinder-Dup) gelöscht. Commit `8880539`. |
 | M4 | ✅ Zykloide migrieren | zykloide3 | **Erledigt (Sprint 4b):** `Project_zykloide_simulation/` v1.0.0 — gleicher Scaffold wie M1, Trochoiden-Physik (ω=Vc/R, r=0,9·R), Kamera-Follow, 5 Subjekte × 8 Größen, CSV. `AllAnimations/zykloide3.html` gelöscht. Commit `2378737`. |
 | M5 | ✅ Federpendel migrieren | federpendel | **Erledigt (Sprint 4e):** `Project_federpendel_simulation/` v1.0.0 — 6-Modul, precompute + interpolateAt, kanonische Topbar-Buttonleiste, einklappbare Sidebar, gestapeltes Center-Layout, statisches MathJax, CSV (sep=;). `AllAnimations/federpendel.html` + `Standalone Proto/Federpendel/` stillgelegt. |
-| M6 | Kreisbewegung migrieren | kreisbewegung (+kreiskinematik_v5) | → `Project_kreisbewegung_simulation/`. **Vorher prüfen**, ob `kreiskinematik_v5` darin aufgeht (thematisch nah, größte Datei) — Konsolidierung statt Doppelmigration. |
+| M6 | ✅ Kreisbewegung migrieren | kreisbewegung | **Erledigt (Session 2026-07-08):** `Project_kreisbewegung_simulation/` existiert bereits als vollständige modulare Sim (v1.0.0→v1.0.10, nutzt `--bg` direkt → Dark Mode funktioniert); AllAnimations-Karte zeigt schon darauf. Nur im Backlog nicht markiert gewesen. Orphan-Standalone `AllAnimations/kreisbewegung.html` (69 KB, ungelinkt) ins `Project_kreisbewegung_simulation/legacy_archive/` verschoben (konservativ, wie T2). Konsolidierungs-Check: `kreiskinematik_v5` ist thematisch ein eigenes didaktisches Werkzeug (nicht-uniforme Winkelkinematik + Spirale + 3D-Iso) → **separat** migriert als M6b, nicht in Kreisbewegung konsolidiert. ~~ Ursprünglich: kreisbewegung (+kreiskinematik_v5), Konsolidierung prüfen. ~~ |
+| M6b | ✅ Kreiskinematik / Dreh-Spiralbewegung migrieren | kreiskinematik_v5 | **Erledigt (Session 2026-07-08, v1.0.0):** `Project_kreis_spiralbewegung_simulation/` — 6-Module-Scaffold nach M1/M4. Nicht-uniforme Winkelkinematik (α, v_r Spirale, Coriolis), 3D-Iso, kartesische + polare Vektorzerlegung, Auto-Stopp (analytische Quadrat-Lösung), 4 Presets, deg/rad, Ein-/Zwei-Diagramm-Modus, 13 Größen, CSV (14 Spalten). Dark Mode via shared Tokens direkt (kein `:root`-Remap). Statisches MathJax (R/R₀ + Formelbox als display-Varianten). Kanonische Pfeilspitzen (`refX=0`+`shortenEnd`), Graph-Konventionen (`setAxisLabel`/`setGraphTitle`, Abszisse bei y=0, bg-Rect). Festes 120 s-Precompute (statt extend-on-the-fly), Spiral-R→0-Wächter. Quelldatei ins `legacy_archive/` verschoben; AllAnimations-Karte umgehängt + „Modular"-Badge. **Verifiziert:** Headless-Chrome (Playwright) — Console fehlerfrei, Auto-Stopp physikalisch korrekt (n=2 → Stopp t=2,00 s, φ=180,00 °), Dark Mode greift, alle Modi/Ansichten/Presets/Zerlegungen/Graphen. Farbpalette (Violett+Orange+Grün) bewusst nicht Okabe-Ito-normalisiert (Parität) → Folge-Aufgabe (issues.md). Plan: `.claude/plans/harmonic-drifting-peach.md`. |
 | M7 | Atwood-Energie migrieren | atwood_energy | Entweder eigene `Project_atwood_energy_simulation/` *oder* Energie-Graphen als Diagrammtyp-Option in `Project_atwood_simulation/` aufnehmen (Produktentscheidung bei Umsetzung). |
 | M8 | Elastischer Stoß migrieren | elastischerStoß | → `Project_stoss_simulation/`. **Größter Physik-Eingriff:** Per-Frame-Physik → `precompute()` umstellen. |
 | M9 | ✅ 3-Massen-Umlenkrollen migrieren | 3massen_umlenkrollen_v2 | **Erledigt (Sprint 4):** `Project_3massen_umlenkrollen_simulation/` v1.0.0 — als **Sim-Schale** (analog Lorentz: Topbar Theme+Reset, kein Play/Pause/Stoppuhr/CSV) umgesetzt. `computeEquilibrium()` löst Winkel analytisch aus dem Kräftedreieck; SVG-`<text>`-Labels (kein HTML-Overlay), kanonische Pfeilspitzen, Okabe-Ito-Farben, einklappbare Analyse-Sidebar. Standalone-HTML ins `legacy_archive/` verschoben; Karte auf Modular umgehängt. |
@@ -255,14 +256,14 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-- **Gesamt-Items (offen):** 28
+- **Gesamt-Items (offen):** 27
 - **Bugs:** 0 (B1, B2, B3 erledigt — Session 2026-07-07)
 - **Technische Schulden:** 7 — **alle erledigt** (T1, T2, T3, T4, T6, T7, T8)
 - **Features (bestehende Projekte):** 11
 - **Standalone-Verbesserungen:** 4 (davon S2 erledigt)
 - **Neue Simulationen:** 6
 - **Infrastruktur:** 4 (davon I2, I4 erledigt)
-- **Migrationen:** 4 offen (M6–M9) — M1, M2, M3, M4, M5 erledigt
+- **Migrationen:** 2 offen (M7, M8) — M1, M2, M3, M4, M5, M6, M6b, M9 erledigt
 - **Werkzeug-Schale:** 3 — **alle erledigt** (W1, W2, W3 — Session 2026-07-07)
 - **Rollout UI/UX (Sprint 3):** 10 (R0–R9 — **alle erledigt**; R8 bewusst als nicht umgesetzt dokumentiert)
-- **Erledigt:** 30 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07)
+- **Erledigt:** 32 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08)
