@@ -3,6 +3,17 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.2] — 2026-07-08
+### Behoben
+- **B7 — Regler zu kurz (Korrektur der v1.1.0-Variante):** Die v1.1.0-Umsetzung
+  mit fester 3-Spalten-Zelle (120 px Label · 1fr · 72 px Wert) ließ in der
+280-px-Sidebar nur ~36 px für den Regler — genauso kurz wie zuvor. Auf das
+  **kanonische Muster** (vgl. Freier Fall) umgestellt: Label eigene Zeile
+  drüber (`.slider-label`), darunter `.slider-row` (`grid 1fr auto`) =
+  Regler (füllt) + Wert (auto) → Regler ~180 px breit, alle untereinander
+  gleich lang. `#vr_control_wrapper` umschließt Label+Reglerzeile der v_r-
+  Zeile, sodaß `display:none` im Kreis-Modus die ganze Zeile entfernt.
+
 ## [1.1.1] — 2026-07-08
 ### Behoben
 - **B11 — α-Formelbox hinkte hinterher:** Die Umschaltung der Physik-Formelbox
@@ -12,12 +23,11 @@ Die Version in `index.html` ist mit der neuesten Changelog-Version synchron geha
 
 ## [1.1.0] — 2026-07-08
 ### Neu / Behoben (6 Kreis-Spiral-Punkte → BACKLOG B7–B11, FX6)
-- **B7 — Bewegungsparameter-Layout:** Jeder Parameter ist nun eine
-  eigenständige `.param-row` (Label | Slider | Wert). `display:none` auf der
-  ganzen `v_r`-Zeile (Kreis-Modus) entfernt alle drei Zellen gemeinsam — das
-  bisherige CSS-Grid-Auto-Place-Verschieben (Beschriftungen unsichtbar,
-  Regler unterschiedlich lang/versetzt) ist behoben. Regler einheitlich
-  vollbreit, Wert-Spalte 72 px.
+- **B7 — Bewegungsparameter-Layout:** Kanonisches Muster (Label drüber,
+  Regler + Wert darunter) statt 3-Spalten-Zelle; `display:none` auf der
+  ganzen `v_r`-Zeile (Kreis-Modus) entfernt Label+Regler gemeinsam — das
+  bisherige Verschieben ist behoben. *(v1.1.0 noch mit zu schmaler 3-Spalten-
+  Variante; in v1.1.2 auf vollbreite Regler korrigiert.)*
 - **B8 — Visualisierung-Anordnung:** `.vis-control` ist jetzt Flex mit
   linksbündigem Label (min-width 84 px) und vollbreitem, lesbarer Dropdown
   (`font-size .82rem`, padding angepaßt). Betrifft Ansicht/Modus/Szenario/

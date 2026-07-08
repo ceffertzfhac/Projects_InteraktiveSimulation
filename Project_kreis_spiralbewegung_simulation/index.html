@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.1.1</span>
+    <span class="version">v1.1.2</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -48,43 +48,45 @@ window.MathJax = {
     <div class="panel-section">
       <div class="panel-label">Bewegungsparameter</div>
       <div class="parameter-grid">
-        <div class="param-row">
-          <div class="slider-label">
-            <span id="radius_label_kreis">Radius \(R\)</span>
-            <span id="radius_label_spiral" style="display:none">Anfangsradius \(R_0\)</span>
-          </div>
+        <div class="slider-label">
+          <span id="radius_label_kreis">Radius \(R\)</span>
+          <span id="radius_label_spiral" style="display:none">Anfangsradius \(R_0\)</span>
+        </div>
+        <div class="slider-row">
           <input type="range" id="radius_slider" min="0.1" max="2.0" value="1.5" step="0.1">
-          <div class="slider-val" id="radius_value">1,5 m</div>
+          <span class="slider-val" id="radius_value">1,5 m</span>
         </div>
 
-        <div class="param-row">
-          <div class="slider-label">Höhe \(h\)</div>
+        <div class="slider-label">Höhe \(h\)</div>
+        <div class="slider-row">
           <input type="range" id="h_slider" min="-1.5" max="1.5" value="0" step="0.1" disabled>
-          <div class="slider-val" id="h_value">0,0 m</div>
+          <span class="slider-val" id="h_value">0,0 m</span>
         </div>
 
-        <div class="param-row" id="vr_control_wrapper" style="display:none">
+        <div id="vr_control_wrapper" style="display:none">
           <div class="slider-label">Radialgeschw. \(v_r\)</div>
-          <input type="range" id="vr_slider" min="-1.0" max="1.0" value="0" step="0.05" disabled>
-          <div class="slider-val" id="vr_value">0,00 m/s</div>
+          <div class="slider-row">
+            <input type="range" id="vr_slider" min="-1.0" max="1.0" value="0" step="0.05" disabled>
+            <span class="slider-val" id="vr_value">0,00 m/s</span>
+          </div>
         </div>
 
-        <div class="param-row">
-          <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
+        <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
+        <div class="slider-row">
           <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
-          <div class="slider-val" id="phi0_value">0 °</div>
+          <span class="slider-val" id="phi0_value">0 °</span>
         </div>
 
-        <div class="param-row">
-          <div class="slider-label">Anfangswinkelgeschw. \(\omega_0\)</div>
+        <div class="slider-label">Anfangswinkelgeschw. \(\omega_0\)</div>
+        <div class="slider-row">
           <input type="range" id="omega0_slider" min="-180" max="180" value="60" step="5">
-          <div class="slider-val" id="omega0_value">60 °/s</div>
+          <span class="slider-val" id="omega0_value">60 °/s</span>
         </div>
 
-        <div class="param-row">
-          <div class="slider-label">Winkelbeschl. \(\alpha\)</div>
+        <div class="slider-label">Winkelbeschl. \(\alpha\)</div>
+        <div class="slider-row">
           <input type="range" id="alpha_slider" min="-90" max="90" value="0" step="5">
-          <div class="slider-val" id="alpha_value">0 °/s²</div>
+          <span class="slider-val" id="alpha_value">0 °/s²</span>
         </div>
       </div>
     </div>

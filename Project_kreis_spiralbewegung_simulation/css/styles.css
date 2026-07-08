@@ -106,15 +106,17 @@ body.dark {
 #graph_svg { width: 100%; height: 100%; display: block; }
 
 /* ── SIM-SPEZIFISCHE WIDGETS ───────────────────────────────────────────────── */
-/* Parameter-Raster: je Parameter eine eigenständige Zeile (Label | Slider | Wert).
-   display:none auf der ganzen .param-row (z. B. v_r im Kreis-Modus) entfernt alle
-   drei Zellen gemeinsam — kein Grid-Auto-Place-Verschieben mehr (B7). */
-.parameter-grid { display: flex; flex-direction: column; gap: 10px; }
-.parameter-grid .param-row { display: grid; grid-template-columns: 120px 1fr 72px; gap: 10px; align-items: center; }
-.parameter-grid .param-row .slider-label { text-align: right; color: var(--text2); font-size: .82rem; line-height: 1.15; }
-.parameter-grid .param-row .slider-label span { display: inline; }
-.parameter-grid .param-row input[type="range"] { width: 100%; margin: 0; }
-.parameter-grid .param-row .slider-val { font-family: var(--font-mono); font-size: .8rem; text-align: left; color: var(--accent); }
+/* Bewegungsparameter: kanonisches Muster (vgl. Freier Fall) — Label eigene Zeile
+   drüber (.slider-label, shared), dann .slider-row (grid 1fr auto) = Regler + Wert.
+   Regler wird so ~180 px breit statt ~36 px in der 280-px-Sidebar (B7).
+   #vr_control_wrapper umschließt Label+Reglerzeile der v_r-Zeile, sodaß
+   display:none im Kreis-Modus die ganze Zeile entfernt (kein Verschieben). */
+.parameter-grid { display: block; }
+.parameter-grid .slider-label { color: var(--text2); font-size: .8rem; margin-bottom: 3px; }
+.parameter-grid .slider-label span { display: inline; }
+.parameter-grid .slider-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin-bottom: 12px; }
+.parameter-grid .slider-val { font-family: var(--font-mono); font-size: .8rem; color: var(--accent); text-align: right; min-width: 56px; }
+#vr_control_wrapper .slider-row { margin-bottom: 12px; }
 
 /* Select-Zeile (Ansicht/Modus/Szenario/Winkeleinheit/Anordnung) — linksbündig,
    Dropdown vollbreit & lesbar (B8). */
