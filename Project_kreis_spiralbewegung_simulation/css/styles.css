@@ -96,14 +96,28 @@ body.dark {
 .graph-line-2          { stroke: var(--c-v); }
 .graph-point           { fill: var(--c-point); }
 
-/* ── CENTER-LAYOUT: Simulation + Diagramm (untereinander / nebeneinander) ──── */
+/* ── CENTER-LAYOUT: Simulation + Diagramm (übereinander / nebeneinander) ──── */
+/* Einheitlich mit Kreisbewegung: .layout-split-Klasse am #center_area, gleiche
+   Spalten/Zeilen, Trennlinie rechts, @media-Fallback auf schmalen Viewports. */
 .center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
-.center-area.layout-side { grid-template-rows: 1fr; grid-template-columns: 1fr 1fr; }
+.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
 .sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
-.center-area.layout-side .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
+.center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
+.center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
 #main_svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 #graph_svg { width: 100%; height: 100%; display: block; }
+
+/* Schmale Viewports: immer übereinander (sonst wird es zu eng) — wie Kreisbewegung */
+@media (max-width: 1100px) {
+  .center-area, .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
+  .center-area.layout-split .graph-wrapper { padding-top: 4px; padding-left: 0; }
+}
+
+/* Topbar: Layout-Umschalter neben Back-Button (wie Kreisbewegung) */
+.topbar-left { gap: 8px; }
+.layout-toggle-btn { padding: 4px 10px; font-size: .72rem; }
 
 /* ── SIM-SPEZIFISCHE WIDGETS ───────────────────────────────────────────────── */
 /* Bewegungsparameter: kanonisches Muster (vgl. Freier Fall) — Label eigene Zeile

@@ -316,23 +316,12 @@ function updateAnalysisPanel(P) {
 }
 
 // ── Diagramm zeichnen ────────────────────────────────────────────────────────
-// Layout-abhängige Graph-Geometrie: gestapelt → Landscape, nebeneinander →
-// Portrait, sodaß der Graph die hohe/schmale Zelle ausfüllt (FX6, B10).
-function graphGeom() {
-  const side = store.layoutMode === 'sidebyside'
-  const dual = store.diagramMode === '2'
-  const W = side ? 460 : GRAPH_W
-  const Hsingle = side ? 560 : GRAPH_H_SINGLE
-  const Hdual = side ? 280 : GRAPH_H_DUAL
-  const H = dual ? Hdual : Hsingle
-  return { W, H, dual, side, Hdual }
-}
-
-// viewBox + Gruppe-2-Transform an aktuelle Anordnung/Modus anpassen
-function applyGraphLayout() {
-  const g = graphGeom()
-  DOM.graphSvg.setAttribute('viewBox', `0 0 ${g.W} ${g.H}`)
-  DOM.graphGroup2.setAttribute('transform', `translate(0,${g.Hdual})`)
+// Graph-Geometrie ist fix (Landscape) — auch im nebeneinander-Modus bleibt
+// der Graph landscape und wird via preserveAspectRatio=meet in die Zelle
+// zentriert (einheitlich mit Kreisbewegung; eine Portrait-Variante ist dort
+// bewußt offen gelassen). FX6 schaltet nur die .center-area-Anordnung um.
+function graphHeight() {
+  return store.diagramMode === '1' ? GRAPH_H_SINGLE : GRAPH_H_DUAL
 }
 
 function yUnitString(qq) {
@@ -357,9 +346,9 @@ function drawGraph(idx, time) {
   const limits = store.axisLimits[qq]
   if (!limits) return
 
-  const g = graphGeom()
-  const { H, W, dual } = g
-  const plotW = W - PAD_L - PAD_R
+  const H = graphHeight()
+  const dual = store.diagramMode === '2'
+  const plotW = GRAPH_W - PAD_L - PAD_R
   const plotH = H - PAD_T - PAD_B
   const t_max = limits.t_max
 
@@ -439,13 +428,12 @@ function drawGraph(idx, time) {
   }
 
   // Titel (letztes Kind → über Datenlinien + bg)
-  const title = el('text', { x: W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
+  const title = el('text', { x: GRAPH_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
   setGraphTitle(title, graphTitles[qq])
   group.appendChild(title)
 }
 
 function drawGraphs(time) {
-  applyGraphLayout()
   drawGraph(1, time)
   if (store.diagramMode === '2') drawGraph(2, time)
 }

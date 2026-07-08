@@ -3,6 +3,26 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.4] — 2026-07-08
+### Geändert (FX6 — Layout-Umschalter EINHEITLICH mit Kreisbewegung)
+- **Bislang nicht-kanonisch:** Der Umschalter „Simulation & Diagramm
+  nebeneinander / übereinander" war ein eigenes Select-Feld (`#layout_mode_select`)
+  in der Sidebar-Sektion „Diagramme" — nur in dieser Sim so, nirgendwo anders.
+  Auf das **kanonische Kreisbewegung-Muster** umgestellt (Generelle Regel:
+  erst schauen, woanders umgesetzt, dann EINHEITLICH nachbauen):
+  - Topbar-Button `#layout_toggle` (`.btn.layout-toggle-btn`) direkt neben
+    Back-Button, Text swap `▦ Nebeneinander` ↔ `⊟ Übereinander`.
+  - `.layout-split`-Klasse am `#center_area` (statt `.layout-side`), gleiche
+    Grid-Regeln wie Kreisbewegung (`1fr 1fr` Spalten, Trennlinie rechts,
+    `@media (max-width: 1100px)`-Fallback auf übereinander).
+  - Persistenz via `localStorage`-Key `ks_layout` (analog `kb_layout`).
+  - Wechsel ist reiner Redraw, die Sim-Zeit wird nicht zurückgesetzt.
+- **Graph-Geometrie konsistent gehalten:** Die für v1.1.0 kurz probierte
+  Portrait-Geometrie im Split-Modus (`graphGeom()`/`applyGraphLayout()`)
+  ist wieder entfernt — der Graph bleibt wie bei Kreisbewegung durchgehend
+  Landscape (`graphHeight()` konstant), sodaß die Anzeige beim Umschalten
+  nicht springt und die Sim-Konfiguration einheitlich bleibt.
+
 ## [1.1.3] — 2026-07-08
 ### Behoben (B9/B10 — Achsenanpassung wirklich sichtbar)
 - **Konstante Größen aufgebläht:** Bei `range=0` (z. B. \(\omega=60°/s\) mit
