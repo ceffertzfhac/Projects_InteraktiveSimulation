@@ -330,6 +330,13 @@ function updateAnalysisPanel(P) {
 const LAND_W = 700, LAND_H_SINGLE = 410, LAND_SLOT_DUAL = 200   // gestapelt
 const PORT_W = 410, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345   // nebeneinander
 const DUAL_GAP = 10
+// Vorschau-Spanne für die dynamische Achsenskalierung (B9): am Start (und solange
+// die Kurve diesen Punkt noch nicht erreicht hat) zeigt der Graph ein festes
+// Fenster 0..T_PREVIEW × (Wertebereich bis T_PREVIEW) — eine sinnvolle, stabile
+// Anfangsansicht statt der vorskalierten Vollspanne (φ≈6000°) oder eines abrupt
+// winzigen Mini-Fensters. Erst wenn die Kurve T_PREVIEW erreicht, beginnt der
+// dynamische Auto-Range (Achsen wachsen mit). PO-Vorgabe „sagen wir 3 s".
+const GRAPH_T_PREVIEW = 3
 
 function graphGeom() {
   const dual = store.diagramMode === '2'
@@ -410,18 +417,30 @@ function drawGraph(idx, time, geom) {
   //    die Fläche und zeigt aktuelle Werte in lesbarer Skala, statt auf den
   //    Endwert (z. B. φ≈6000°) vorskaliert lange leer zu bleiben. Beide Achsen
   //    wachsen mit; am Ende (volle Spanne) identisch zur Vorausberechnung.
-  //    Solange noch nichts geplottet ist (t≈0), Vorschau auf die volle Spanne.
+  //
+  //    Vorschauphase: Am Start (und solange die Kurve T_PREVIEW noch nicht
+  //    erreicht hat) festes Fenster 0..T_PREVIEW × (Wertebereich bis T_PREVIEW)
+  //    — stabile, sinnvolle Anfangsansicht statt Vollspanne oder abruptem
+  //    Mini-Fenster. Erst wenn die Kurve T_PREVIEW erreicht, beginnt der
+  //    dynamische Auto-Range (kein Sprung: am Übergang dieselben Daten → dieselbe
+  //    Skala). Bei kurzen Läufen (T_PREVIEW≥tEnd) bleibt die ganze Spanne fest.
+  const T_PREVIEW = Math.min(GRAPH_T_PREVIEW, tEnd)
+  const previewIdx = Math.max(2, linePlotIndex(T_PREVIEW))
+  const inPreview = time < T_PREVIEW - 1e-9 || plotIndex < 2
+
   let tMaxAxis, valMin, valMax
-  if (plotIndex < 2) {
-    tMaxAxis = limits.t_max
-    valMin = limits.min * cf
-    valMax = limits.max * cf
+  if (inPreview) {
+    // Feste Vorschau: 0..T_PREVIEW, Y = Bereich über [0, T_PREVIEW]
+    tMaxAxis = T_PREVIEW
+    const yr = plottedValueRange(qq, data, previewIdx, cf)
+    valMin = yr.min; valMax = yr.max
   } else {
+    // Dynamisch: Auto-Range auf den geplotteten Bereich (wachsend)
+    tMaxAxis = Math.max(time, tArr[plotIndex - 1])
     const yr = plottedValueRange(qq, data, plotIndex, cf)
     valMin = yr.min; valMax = yr.max
-    tMaxAxis = Math.max(time, tArr[plotIndex - 1])
-    if (tMaxAxis < 1e-6) tMaxAxis = limits.t_max
   }
+  if (tMaxAxis < 1e-6) tMaxAxis = T_PREVIEW || 1
 
   const scaleT = t => PAD_L + (t / (tMaxAxis || 1)) * plotW
   const scaleY = v => PAD_T + plotH - ((v - valMin) / ((valMax - valMin) || 1)) * plotH

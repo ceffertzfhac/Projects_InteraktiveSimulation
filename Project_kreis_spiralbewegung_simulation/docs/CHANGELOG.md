@@ -3,6 +3,22 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.8] — 2026-07-08
+### Geändert (B9 — Vorschauphase für weichen Start der dynamischen Skalierung)
+- **v1.1.7 startete zu abrupt** und zeigte vorm Start die gesamte Range: Am
+  \(t=0\)-Ruhezustand fiel der Graph auf die vorausberechnete Vollspanne
+  (\(\varphi\approx 6000°\)) zurück, und der erste gespielte Frame war ein winziges
+  \(0\ldots0{,}05\,\text{s}\)-Fenster — beides unschön.
+- **Jetzt Vorschauphase (feste Start-Spanne):** Solange die Kurve \(T_{\text{PREVIEW}}=3\,\text{s}\)
+  noch nicht erreicht hat (auch am Ruhe-Start), zeigt der Graph ein festes Fenster
+  \(0\ldots 3\,\text{s}\) × (Wertebereich bis \(3\,\text{s}\)). Die Kurve wächst
+  stabil bis zur \(3\)-s-Ecke, und erst wenn sie dort ankommt, beginnt der
+  dynamische Auto-Range (Achsen wachsen mit) — am Übergang kein Sprung, weil
+  dieselben Daten dieselbe Skala ergeben. Bei kurzen Läufen
+  (\(T_{\text{PREVIEW}}\geq t_{\text{End}}\)) bleibt die ganze Spanne fest.
+- \(T_{\text{PREVIEW}}\) als Konstante (`GRAPH_T_PREVIEW = 3`) im render.js, an
+  PO-Vorgabe „sagen wir 3 s" angelehnt; bei Bedarf einstellbar.
+
 ## [1.1.7] — 2026-07-08
 ### Neu (B9 — dynamische Achsenskalierung, Auto-Range auf den geplotteten Bereich)
 - **Bisher:** Achsen waren auf die *vorausberechnete Volllspanne* (min/max über
