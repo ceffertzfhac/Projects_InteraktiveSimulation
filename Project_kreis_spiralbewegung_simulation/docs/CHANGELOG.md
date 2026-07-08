@@ -3,6 +3,18 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.11] — 2026-07-08
+### Geändert (Analyse-Panel nur diese Sim 1,5× breiter)
+- Das rechte Analyse-Panel ist im shared Design-System einheitlich 270 px breit.
+  Diese Sim trägt viele Vektoren/Größen (r, v, a je mit kartesisch + polarer
+  Zerlegung, ω, α, φ) und den Physik-Formelblock → 270 px sind eng.
+- **Per-Sim-Override** (nur kreis_spiral, andere Sims unberührt): rechte Spalte
+  270 → **405 px** (\(\tfrac32\times\)). Eingeklappt bleibt die 44-px-Schiene.
+  Die abseitige `panel-body`-Typeset-Breite (MathJax im Hintergrund) ebenfalls
+  auf 405 gesetzt → kein Reflow beim Aufklappen.
+- **Synergie mit B12:** Der breitere Physik-Formelblock braucht seltener
+  horizontal zu scrollen (längere Display-Formeln passen eher ins Feld).
+
 ## [1.1.10] — 2026-07-08
 ### Behoben (B12 — Physik-Block im Analyse-Panel voll les-/sichtbar)
 - **Bisher abgeschnitten:** Im schmalen 270-px-Analyse-Panel ragen längere

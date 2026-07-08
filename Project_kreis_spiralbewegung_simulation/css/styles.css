@@ -96,6 +96,16 @@ body.dark {
 .graph-line-2          { stroke: var(--c-v); }
 .graph-point           { fill: var(--c-point); }
 
+/* ── ANALYSE-PANEL: nur diese Sim 1,5× breiter (270 → 405 px) ──────────────── */
+/* Diese Sim hat viele Vektoren/Größen + Physik-Formelblock → mehr Platz als
+   der shared Default (270 px). Pro-Sim-Override der shared grid-Spalte; andere
+   Sims bleiben unberührt. Eingeklappt bleibt die 44-px-Schiene. Die
+   abseitige panel-Body-Typeset-Breite wird ebenfalls auf 405 gesetzt, sodaß
+   MathJax im Hintergrund exakt in der später sichtbaren Breite rendert (kein
+   Reflow beim Aufklappen). */
+.app-layout { grid-template-columns: 280px 1fr 405px; }
+.app-layout.analysis-collapsed .right-panel .panel-body { width: 405px; }
+
 /* ── CENTER-LAYOUT: Simulation + Diagramm (übereinander / nebeneinander) ──── */
 /* Einheitlich mit Kreisbewegung: .layout-split-Klasse am #center_area, gleiche
    Spalten/Zeilen, Trennlinie rechts, @media-Fallback auf schmalen Viewports. */
