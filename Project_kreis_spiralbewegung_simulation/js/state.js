@@ -130,6 +130,7 @@ export function initDOM() {
   DOM.zoomTextDisplay = q('zoom_text_display')
 
   // Diagramm
+  DOM.graphSvg = q('graph_svg')
   DOM.graphGroup1 = q('graph_group_1'); DOM.graphGroup2 = q('graph_group_2')
 
   // Live-Analyse (einzelner Partikel)

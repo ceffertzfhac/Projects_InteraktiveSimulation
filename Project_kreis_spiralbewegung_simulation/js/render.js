@@ -5,7 +5,7 @@ import {
   VEL_SCALE, ACC_SCALE, OMEGA_LEN_FACTOR, ALPHA_LEN_FACTOR, ISO_ANGLE,
   WATCH_TX, WATCH_TY, WATCH_SCALE, WATCH_CX, WATCH_CY, WATCH_R, WATCH_HAND_LEN,
   ZOOM_TEXT_X, ZOOM_TEXT_Y,
-  GRAPH_W, GRAPH_H_SINGLE, GRAPH_H_DUAL, PAD_L, PAD_R, PAD_T, PAD_B,
+  PAD_L, PAD_R, PAD_T, PAD_B,
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
 } from './constants.js'
 import { store, DOM } from './state.js'
@@ -316,12 +316,29 @@ function updateAnalysisPanel(P) {
 }
 
 // ── Diagramm zeichnen ────────────────────────────────────────────────────────
-// Graph-Geometrie ist fix (Landscape) — auch im nebeneinander-Modus bleibt
-// der Graph landscape und wird via preserveAspectRatio=meet in die Zelle
-// zentriert (einheitlich mit Kreisbewegung; eine Portrait-Variante ist dort
-// bewußt offen gelassen). FX6 schaltet nur die .center-area-Anordnung um.
-function graphHeight() {
-  return store.diagramMode === '1' ? GRAPH_H_SINGLE : GRAPH_H_DUAL
+// Graph-Format paßt sich ans Layout an (CLAUDE.md „Diagramm-Format pro Layout",
+// kanonisch vgl. Atwood: viewBox dynamisch, Ticks rechnen pro Format neu):
+//   übereinander (gestapelt) → Landscape (breit + flach) — füllt die breite Zelle
+//   nebeneinander (split)    → Portrait  (schmal + hoch) — füllt die hohe Zelle
+// Portrait/Landscape wird aus der TATSÄCHLICHEN Zell-Form der graph-wrapper-Zelle
+// abgeleitet (getBoundingClientRect), nicht nur aus store.layoutSplit — so greift
+// der @media-Fallback (Viewport ≤1100 px erzwingt gestapelt = breite Zelle)
+// automatisch zu Landscape, und ein Fenster-Resize paßt das Format live an.
+// drawGraph liest die Maße aus geom → Achsenskalierung (Nice-Step/Ticks) rechnet
+// pro Format neu (B9/B10). Gruppe 2 wird per transform an hEach geschoben.
+const LAND_W = 480, LAND_H_SINGLE = 430, LAND_H_DUAL = 215
+const PORT_W = 400, PORT_H_SINGLE = 620, PORT_H_DUAL = 310
+
+function graphGeom() {
+  const dual = store.diagramMode === '2'
+  const rect = DOM.graphSvg.getBoundingClientRect()
+  const cellW = rect.width || LAND_W
+  const cellH = rect.height || LAND_H_SINGLE
+  const portrait = cellH > cellW            // hohe Zelle → Portrait
+  const w = portrait ? PORT_W : LAND_W
+  const hEach = portrait ? (dual ? PORT_H_DUAL : PORT_H_SINGLE)
+                         : (dual ? LAND_H_DUAL : LAND_H_SINGLE)
+  return { w, h: dual ? hEach * 2 : hEach, hEach, dual }
 }
 
 function yUnitString(qq) {
@@ -337,19 +354,18 @@ function yUnitString(qq) {
   return ''
 }
 
-function drawGraph(idx, time) {
+function drawGraph(idx, time, geom) {
   const group = idx === 1 ? DOM.graphGroup1 : DOM.graphGroup2
   group.innerHTML = ''
-  if (idx === 2 && store.diagramMode !== '2') return
+  if (idx === 2 && !geom.dual) return
 
   const qq = idx === 1 ? store.graphType1 : store.graphType2
   const limits = store.axisLimits[qq]
   if (!limits) return
 
-  const H = graphHeight()
-  const dual = store.diagramMode === '2'
-  const plotW = GRAPH_W - PAD_L - PAD_R
-  const plotH = H - PAD_T - PAD_B
+  const G_W = geom.w
+  const plotW = G_W - PAD_L - PAD_R
+  const plotH = geom.hEach - PAD_T - PAD_B
   const t_max = limits.t_max
 
   const isAngular = ['phi', 'omega', 'alpha'].includes(qq)
@@ -367,7 +383,7 @@ function drawGraph(idx, time) {
   group.appendChild(el('rect', { x: PAD_L, y: PAD_T, width: plotW, height: plotH, class: 'graph-bg' }))
 
   // Y-Gitter + Ticks — 1-2-4-5-Nice-Step, ≥4 (dual) bzw. ≥6 (single) Teilstriche (B9)
-  const yStep = niceStepLE(valMax - valMin, dual ? 4 : 6)
+  const yStep = niceStepLE(valMax - valMin, geom.dual ? 4 : 6)
   for (let v = Math.ceil(valMin / yStep) * yStep; v <= valMax + 1e-9; v += yStep) {
     const yp = scaleY(v)
     if (yp < PAD_T || yp > xAxisY + 1) continue
@@ -428,14 +444,21 @@ function drawGraph(idx, time) {
   }
 
   // Titel (letztes Kind → über Datenlinien + bg)
-  const title = el('text', { x: GRAPH_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
+  const title = el('text', { x: G_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
   setGraphTitle(title, graphTitles[qq])
   group.appendChild(title)
 }
 
 function drawGraphs(time) {
-  drawGraph(1, time)
-  if (store.diagramMode === '2') drawGraph(2, time)
+  const geom = graphGeom()
+  // viewBox ans aktuelle Format anpassen (Landscape gestapelt / Portrait split) —
+  // Ticks/Achsen rechnen in drawGraph aus geom neu (B9/B10).
+  DOM.graphSvg.setAttribute('viewBox', `0 0 ${geom.w} ${geom.h}`)
+  DOM.graphGroup1.setAttribute('transform', 'translate(0,0)')
+  DOM.graphGroup2.setAttribute('transform', `translate(0,${geom.hEach})`)
+  DOM.graphGroup2.style.visibility = geom.dual ? 'visible' : 'hidden'
+  drawGraph(1, time, geom)
+  if (geom.dual) drawGraph(2, time, geom)
 }
 
 // ── Szene aktualisieren ──────────────────────────────────────────────────────

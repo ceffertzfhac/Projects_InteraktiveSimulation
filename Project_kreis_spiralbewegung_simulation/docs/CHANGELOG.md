@@ -3,6 +3,32 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.1.5] — 2026-07-08
+### Behoben (B9/B10 — Achsenskalierung paßt sich ans Format an, auch im übereinander-Modus)
+- **Bislang konstant Landscape:** Der Graph hatte eine fixe viewBox `480×430`
+  (Landscape) in *jedem* Layout. Im **übereinander-Modus** (breite, flache Zelle)
+  letterboxte der Landscape-Graph via `preserveAspectRatio=meet` klein in die
+  Breite — die Achsenskalierung nutzte die Fläche nicht (B10), Ticks wirkten
+  gequetscht. Im nebeneinander-Modus verschwendete Landscape die hohe Zelle.
+- **Graph-Format jetzt layout-abhängig** (CLAUDE.md „Diagramm-Format pro Layout",
+  kanonisch vgl. Atwood: viewBox dynamisch, Ticks rechnen pro Format neu):
+  - **übereinander (gestapelt) → Landscape** (`480×430` Single / `215` Dual-je)
+    — füllt die breite, flache Zelle.
+  - **nebeneinander (split) → Portrait** (`400×620` Single / `310` Dual-je)
+    — füllt die hohe, schmale Zelle.
+  - `graphGeom()` leitet Portrait/Landscape aus der **tatsächlichen Zell-Form**
+    (`getBoundingClientRect`) ab, nicht nur aus `store.layoutSplit` → der
+    `@media`-Fallback (Viewport ≤1100 px erzwingt gestapelt = breite Zelle)
+    schaltet automatisch zu Landscape; ein Fenster-Resize paßt live nach.
+  - `drawGraph` rechnet Nice-Step/Ticks pro Format neu; die SVG-`viewBox` wird
+    in `drawGraphs` pro Render gesetzt, Gruppe 2 per `transform` an `hEach`
+    geschoben.
+- **Live-Anpassung:** Resize-Listener (rAF-gedrosselt) und das Analyse-Sidebar-
+  Umschalten triggern `updateScene` → Graph-Format/Achsen rechnen live nach.
+- Aufgeräumt: `GRAPH_W`/`GRAPH_H_*`/`GRAPH_GAP` aus `constants.js` entfernt
+  (jetzt `LAND_*`/`PORT_*` in `render.js`); `graphHeight()` durch `graphGeom()`
+  ersetzt; `DOM.graphSvg`-Ref wiederaufgenommen.
+
 ## [1.1.4] — 2026-07-08
 ### Geändert (FX6 — Layout-Umschalter EINHEITLICH mit Kreisbewegung)
 - **Bislang nicht-kanonisch:** Der Umschalter „Simulation & Diagramm

@@ -33,10 +33,8 @@ export const ZOOM_TEXT_X = 250.6
 export const ZOOM_TEXT_Y = 108.24
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
-export const GRAPH_W = 480
-export const GRAPH_H_SINGLE = 430        // Ein-Diagramm-Modus
-export const GRAPH_H_DUAL = 215          // Zwei-Diagramm-Modus (je)
-export const GRAPH_GAP = 0               // group2 y-Offset = GRAPH_H_DUAL
+// Graph-Maße liegen in render.js (LAND_*/PORT_*): das Format schaltet je Zell-Form
+// (Landscape gestapelt / Portrait nebeneinander) um, daher nicht mehr fest hier.
 // Plot-Padding (bg-Rect 10 px past arrowheads via refX=0-Ausnahme)
 export const PAD_L = 55, PAD_R = 15, PAD_T = 30, PAD_B = 40
 

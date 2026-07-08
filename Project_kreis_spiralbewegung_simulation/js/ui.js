@@ -403,6 +403,16 @@ DOM.exportAll.addEventListener('click', exportAllCSV)
 DOM.analysisToggle.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
   DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+  // Sidebar-Umschaltung ändert die Zell-Form → Graph-Format live nachrechnen
+  updateScene(store.simulatedTime)
+})
+
+// Fenster-Resize: Graph-Format (Portrait/Landscape) paßt sich der Zell-Form live
+// an — rAF-gedrosselt, sodaß Achsenskalierung/Ticks nachziehen (B9/B10).
+let resizeRaf = null
+window.addEventListener('resize', () => {
+  if (resizeRaf) cancelAnimationFrame(resizeRaf)
+  resizeRaf = requestAnimationFrame(() => updateScene(store.simulatedTime))
 })
 
 resetSim(false)
