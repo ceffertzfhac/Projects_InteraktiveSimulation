@@ -11,17 +11,20 @@
         :root {
             --fh-blue: var(--fh-mint);
             --fh-red: #d1002d;
-            --bg-color: var(--bg);
-            --border-color: var(--border);
-            --text-color: var(--text);
-            --control-bg: var(--surface);
-            --label-color: var(--text2);
             --fh-green: #2ca02c; /* Farbe für Sekante und Steigungsdreieck */
             --fh-purple: #9467BD; /* Farbe für Tangente */
             --fh-lightgray: lightgray; /* Farbe für die Funktionskurve */
         }
 
+        /* Shared-Token-Remap auf body (NICHT :root) — sonst frört var(--bg) den
+           Light-Wert ein und Dark Mode greift nicht (CSS-Variablen lösen eager am
+           deklarierenden Element; body.dark redefiniert die Tokens aber auf body). */
         body {
+            --bg-color: var(--bg);
+            --border-color: var(--border);
+            --text-color: var(--text);
+            --control-bg: var(--surface);
+            --label-color: var(--text2);
             font-family: var(--font-ui);
             display: flex;
             justify-content: center;

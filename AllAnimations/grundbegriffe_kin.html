@@ -17,12 +17,17 @@
             --color-accent2: #2ca02c;         /* Verschiebung Delta_s (Grün für Unterscheidung) */
             --color-accent3: #d62728;         /* Verschiebung Delta_s (Rot für zweiten Vektor) */
             --color-path-bg: #AAAAAA;
+        }
+        /* Shared-Token-Remap auf body (NICHT :root) — sonst frört var(--bg)/var(--text)
+           den Light-Wert ein und Dark Mode greift nicht (CSS-Variablen lösen eager am
+           deklarierenden Element; body.dark redefiniert die Tokens aber auf body). */
+        body {
             --color-text-primary: var(--text);
             --bg-color: var(--bg);
             --control-bg: var(--surface);
             --border-color: var(--border);
+            font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em;
         }
-        body { font-family: var(--font-ui); display: flex; justify-content: center; align-items: center; flex-direction: column; background-color: var(--bg-color); color: var(--color-text-primary); margin: 0; padding: 1em; }
         h1 { font-weight: 300; font-size: 1.6em; margin-bottom: 0.5em; }
         .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
         #container { display: flex; flex-direction: column; align-items: center; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--control-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
