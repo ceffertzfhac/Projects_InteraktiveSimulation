@@ -5,6 +5,41 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-07-09
+
+Massive Rolle mit Rotationsenergie. Die Rolle bekommt eine wählbare Masse
+und Form (Voll-/Hohlzylinder); ihre Rotationsenergie wird Teil der
+Energiebilanz, die Beschleunigung und die Seilkräfte ändern sich entsprechend.
+
+### Features
+- **Rollenmasse \(M_R\)** (Slider 0,1–1 kg, Default 0,1 kg = nahezu masselos)
+  und **Form** (Vollzylinder / Hohlzylinder, Select) in neuer linker
+  Sektion „Rolle". Außenradius \(R\) fix (0,4 m).
+- **Innenradius \(r/R\)** (Slider 0,1–0,9, nur bei Hohlzylinder sichtbar):
+  Trägheitsmoment \(I_{\text{voll}}=\tfrac12 M_R R^2\) bzw.
+  \(I_{\text{hohl}}=\tfrac12 M_R(R^2+r^2)\).
+- **Physik**: effektive Rollenmasse \(I/R^2\) im Beschleunigungs-Nenner
+  \(a=((m_1-m_2)g-\operatorname{sign}\cdot F_R)/(m_1+m_2+I/R^2)\).
+  Rotationsenergie \(E_{\text{rot}}=\tfrac12(I/R^2)v^2\) in
+  \(E_{k,\text{ges}}\) und \(E_{\text{ges}}\) aufgenommen — Erhaltung
+  \(E_{\text{ges}}+E_V=\text{konst.}\) bleibt erhalten (numerisch über alle
+  \(M_R\)/Form/\(\eta\)-Kombinationen verifiziert, Drift < 1e-13).
+- **Seilkräfte verschieden**: \(F_{S,1}=m_1(g-a)\), \(F_{S,2}=m_2(g+a)\)
+  (bei massiver Rolle und/oder Reibung). Live-Panel: einzelne „Seilkraft
+  \(F_S\)" → \(F_{S,1}\)/\(F_{S,2}\); Legenden-Eintrag entsprechend.
+- **E_rot sichtbar**: neuer Balken „\(E_{\text{rot}}\) (Rolle)" im
+  System-Block des Energie-Balkendiagramms (gleiche Kinetik-Farbe);
+  Live-Wert „Rotation \(E_{\text{rot}}\)"; CSV-Spalte `E_rot`;
+  Liniendiagrammtyp „Rotationsenergie E_rot".
+- **Rollen-Visual**: Hohlzylinder-Loch (Kreis mit \(r=\eta R\), nur hohl)
+  + Rotations-Markierung (Mint-Speiche, dreht mit Winkel \(\varphi=s/R\),
+  Schlupf-frei) — die massive Rolle wird als drehende Scheibe sichtbar.
+- **Formel-Box** aktualisiert: neue \(a\)-Formel mit \(I/R^2\),
+  Trägheitsmomente, \(F_{S,1}/F_{S,2}\), \(E_{\text{rot}}\),
+  \(E_{\text{ges}}=E_{\text{kin}}+E_{\text{rot}}+E_{\text{pot}}\).
+- **KNOWN_LIMITATIONS.md**: veralteten Eintrag „Kein Trägheitsmoment der
+  Rolle" durch die neuen Modellannahmen ersetzt.
+
 ## v1.1.1 — 2026-07-09
 
 Nullpunkt-Auswahl \(E_{\text{pot}}\) direkt über die Energiebilanz

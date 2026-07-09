@@ -8,7 +8,7 @@ import { G, PPM, PPN, CM_PER_M, Y_MAX_CM,
          SW_RADIUS, SW_HAND_LEN,
          LAND_W, LAND_H, PORT_W, PORT_H_SINGLE, PORT_SLOT_DUAL, DUAL_GAP } from './constants.js';
 import { store, DOM } from './state.js';
-import { svgY, massHalfPx, getAccel, getNiceTick, interpolateAt } from './physics.js';
+import { svgY, massHalfPx, getAccel, pulleyEffMass, getNiceTick, interpolateAt } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
 export { fmt };
 
@@ -193,6 +193,10 @@ const GRAPH_CFG = {
   wr: {
     unit: 'J', title: () => 'Energieverlust E_V(t)', ylabel: () => 'E_V / J',
     lines: () => [{ key: 'wr', color: 'var(--c-eloss)', label: 'E_V' }],
+  },
+  erot: {
+    unit: 'J', title: () => 'Rotationsenergie E_rot(t)', ylabel: () => 'E_rot / J',
+    lines: () => [{ key: 'ek_rot', color: 'var(--c-ekin)', label: 'E_rot' }],
   },
   y:     kin('y', 'cm',   'Position',         'Positionen',         'y'),
   v:     kin('v', 'm/s',  'Geschwindigkeit',  'Geschwindigkeiten',   'v'),
@@ -415,9 +419,11 @@ function drawSingleGraph(group, cellW, cellH, time, type, subject) {
 
 // ── Szenen-Update ─────────────────────────────────────────────────────────────
 export function updateScene(t, y1_m, y2_m) {
-  const { m1, m2, showForces, showNetForce, showFrictionArrow, frictionForce } = store;
+  const { m1, m2, showForces, showNetForce, showFrictionArrow, frictionForce,
+          pulleyShape, pulleyInnerRatio } = store;
   const FR = Math.max(0, frictionForce);
-  const { a: accel, T: tens, moving } = getAccel(m1, m2, FR);
+  const mEff = pulleyEffMass(store);             // I/R² der massiven Rolle
+  const { a: accel, T1, T2, moving } = getAccel(m1, m2, FR, mEff);
   const drive = (m1 - m2) * G;
 
   const m1_w = MASS_BASE + m1 * MASS_FACTOR;
@@ -446,17 +452,36 @@ export function updateScene(t, y1_m, y2_m) {
   DOM.rope.setAttribute('d',
     `M ${X_LEFT} ${y1_svg} V ${PULLEY_Y} A ${PULLEY_R} ${PULLEY_R} 0 0 1 ${X_RIGHT} ${PULLEY_Y} V ${y2_svg}`);
 
-  // Kräfte
+  // Kräfte (Seilkräfte T1/T2 sind bei massiver Rolle verschieden)
   const vis = showForces ? 'visible' : 'hidden';
   const netVis = (showForces && showNetForce) ? 'visible' : 'hidden';
   const Fg1 = m1 * G * PPN, Fg2 = m2 * G * PPN;
-  const T_len = tens * PPN;
+  const T1_len = T1 * PPN, T2_len = T2 * PPN;
   setVec(DOM.fG1,  X_LEFT,  y1_svg + m1_hpx, X_LEFT,  y1_svg + m1_hpx + Fg1, vis);
-  setVec(DOM.fT1,  X_LEFT,  y1_svg - m1_hpx, X_LEFT,  y1_svg - m1_hpx - T_len, vis);
+  setVec(DOM.fT1,  X_LEFT,  y1_svg - m1_hpx, X_LEFT,  y1_svg - m1_hpx - T1_len, vis);
   setVec(DOM.fG2,  X_RIGHT, y2_svg + m2_hpx, X_RIGHT, y2_svg + m2_hpx + Fg2, vis);
-  setVec(DOM.fT2,  X_RIGHT, y2_svg - m2_hpx, X_RIGHT, y2_svg - m2_hpx - T_len, vis);
+  setVec(DOM.fT2,  X_RIGHT, y2_svg - m2_hpx, X_RIGHT, y2_svg - m2_hpx - T2_len, vis);
   setVec(DOM.fNet1, X_LEFT,  y1_svg, X_LEFT,  y1_svg + m1 * accel * PPN, netVis);
   setVec(DOM.fNet2, X_RIGHT, y2_svg, X_RIGHT, y2_svg - m2 * accel * PPN, netVis);
+
+  // Massive Rolle: Loch (Hohlzylinder) + Rotations-Markierung (Winkel φ = s/R).
+  // m1 fällt (s>0) ⇒ linke Seilseite unten ⇒ Rolle auf dem Bildschirm CCW
+  // ⇒ SVG-rotate negativ (SVG positiv = CW auf y-down-Bildschirm).
+  if (DOM.pulleyInner) {
+    if (pulleyShape === 'hohl') {
+      const rPx = pulleyInnerRatio * PULLEY_R;
+      DOM.pulleyInner.setAttribute('r', String(rPx));
+      DOM.pulleyInner.setAttribute('visibility', 'visible');
+    } else {
+      DOM.pulleyInner.setAttribute('visibility', 'hidden');
+    }
+  }
+  if (DOM.pulleyRotor) {
+    const s_m = (store.y1_start_cm / CM_PER_M) - y1_m;   // Verschiebung m1 (fällt ⇒ >0)
+    const R_m = PULLEY_R / PPM;
+    const phiDeg = (s_m / R_m) * (180 / Math.PI);
+    DOM.pulleyRotor.setAttribute('transform', `rotate(${-phiDeg} ${PULLEY_X} ${PULLEY_Y})`);
+  }
 
   // Reibungspfeil an der Rolle (nur wenn F_R>0 und Bewegung)
   const frVis = (showForces && showFrictionArrow && FR > 0 && moving) ? 'visible' : 'hidden';
@@ -482,7 +507,8 @@ export function updateScene(t, y1_m, y2_m) {
   const v2 = interpolateAt(store.v2_data, t);
   DOM.liveA1.textContent   = `${fmt(accel, 3)} m/s²`;
   DOM.liveA2.textContent   = `${fmt(-accel, 3)} m/s²`;
-  DOM.liveTens.textContent = `${fmt(tens, 2)} N`;
+  DOM.liveT1.textContent   = `${fmt(T1, 2)} N`;
+  DOM.liveT2.textContent   = `${fmt(T2, 2)} N`;
   const frAct = moving ? FR : Math.min(FR, Math.abs(drive));
   DOM.liveFr.textContent   = `${fmt(frAct, 2)} N`;
   DOM.liveV1.textContent   = `${fmt(v1, 3)} m/s`;
@@ -496,10 +522,12 @@ export function updateScene(t, y1_m, y2_m) {
   const ep = interpolateAt(store.ep_sum_data, t);
   const et = interpolateAt(store.etot_data, t);
   const wr = interpolateAt(store.wr_data, t);
+  const erot = interpolateAt(store.ek_rot_data, t);
   DOM.liveEkin.textContent = `${fmt(ek, 2)} J`;
   DOM.liveEpot.textContent = `${fmt(ep, 2)} J`;
   DOM.liveEtot.textContent = `${fmt(et, 2)} J`;
   DOM.liveWr.textContent   = `${fmt(wr, 2)} J`;
+  DOM.liveErot.textContent = `${fmt(erot, 2)} J`;
   DOM.balance1.innerHTML = `<i>E</i><sub>kin</sub> + <i>E</i><sub>pot</sub> = <i>E</i><sub>ges</sub> = ${fmt(et, 2)} J`;
   DOM.balance2.innerHTML = `<i>E</i><sub>ges</sub> + <i>E</i><sub>V</sub> = ${fmt(et + wr, 2)} J <span class="bal-const">(konstant)</span>`;
 }

@@ -8,7 +8,11 @@ export const store = {
   y1_start_cm: 100,   // Abstand von Blende (Slider zeigt Höhe vom Boden = 350 − dies)
   y2_start_cm: 100,
   frictionForce: 0,    // |F_R| in N (skalar, vereinfachtes Coulomb-Modell)
-  epZeroMode: 'separate', // 'separate' | 'y1' | 'y2'  — E_pot-Nullpunkt
+  epZeroMode: 'separate', // 'separate' | 'y1' | 'y2' | 'boden' | 'decke'
+  // Rolle (massiv): Masse, Form, Innenradius-Verhältnis r/R (nur Hohlzylinder)
+  pulleyMass: 0.1,       // M_p in kg, 0.1–1
+  pulleyShape: 'voll',   // 'voll' = Vollzylinder, 'hohl' = Hohlzylinder
+  pulleyInnerRatio: 0.5, // η = r/R, 0.1–0.9 (Außenradius R fix)
   speedFactor: 1.0,
   layoutSplit: true,   // true = Nebeneinander, false = Übereinander
   diagramMode: 'bars', // 'bars' = Energie-Balken (Default), '1'/'2' = Achsendiagramme
@@ -38,6 +42,7 @@ export const store = {
   eges1_data: [], eges2_data: [],
   ek_sum_data: [], ep_sum_data: [], etot_data: [],
   wr_data: [],
+  ek_rot_data: [],  // Rotationsenergie der Rolle = ½(I/R²)v²
   axisLimits: {},
   energyBarMax: 1,   // Skalenmaximum Energie-Balken (precompute)
 };
@@ -67,6 +72,14 @@ export function initDOM() {
   DOM.frictionSlider = document.getElementById('friction_slider');
   DOM.frictionValue  = document.getElementById('friction_value');
   DOM.epZeroSelect   = document.getElementById('ep_zero_select');
+
+  // Rolle (massiv)
+  DOM.pulleyMassSlider  = document.getElementById('pulley_mass_slider');
+  DOM.pulleyMassValue   = document.getElementById('pulley_mass_value');
+  DOM.pulleyShapeSelect = document.getElementById('pulley_shape_select');
+  DOM.pulleyInnerSlider = document.getElementById('pulley_inner_slider');
+  DOM.pulleyInnerValue  = document.getElementById('pulley_inner_value');
+  DOM.pulleyInnerGroup  = document.getElementById('pulley_inner_group');
 
   // Layout
   DOM.layoutToggle = document.getElementById('layout_toggle');
@@ -120,6 +133,8 @@ export function initDOM() {
   DOM.frictionArrow = document.getElementById('friction_arrow');
   DOM.frictionLabel = document.getElementById('friction_label');
   DOM.zeroLinesGroup = document.getElementById('zero_lines_group');
+  DOM.pulleyInner    = document.getElementById('pulley_inner');
+  DOM.pulleyRotor    = document.getElementById('pulley_rotor');
 
   // Graph-SVG (ein SVG, zwei verschobene Gruppen — I9)
   DOM.graphSvg     = document.getElementById('graph_svg');
@@ -129,7 +144,8 @@ export function initDOM() {
   // Live-Analyse
   DOM.liveA1    = document.getElementById('live_a1');
   DOM.liveA2    = document.getElementById('live_a2');
-  DOM.liveTens  = document.getElementById('live_tens');
+  DOM.liveT1    = document.getElementById('live_t1');
+  DOM.liveT2    = document.getElementById('live_t2');
   DOM.liveFr    = document.getElementById('live_fr');
   DOM.liveV1    = document.getElementById('live_v1');
   DOM.liveV2    = document.getElementById('live_v2');
@@ -140,6 +156,7 @@ export function initDOM() {
   DOM.liveEpot   = document.getElementById('live_epot');
   DOM.liveEtot   = document.getElementById('live_etot');
   DOM.liveWr     = document.getElementById('live_wr');
+  DOM.liveErot   = document.getElementById('live_erot');
   DOM.balance1   = document.getElementById('balance1');
   DOM.balance2   = document.getElementById('balance2');
 }

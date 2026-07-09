@@ -10,15 +10,26 @@ export const svgY = y_m => Y_APERTURE_BOTTOM + y_m * PPM;
 // Halbe Massenhöhe in Pixeln
 export const massHalfPx = m => (MASS_BASE + m * MASS_FACTOR) / 2;
 
-// Beschleunigung mit vereinfachter Coulomb-Reibung (skalar).
+// Effektive Rollen-Masse I/R² (zusätzliche träge Masse im Atwood-System).
+//   voll: I = ½ M_p R²        ⇒ I/R² = ½ M_p
+//   hohl: I = ½ M_p (R² + r²) ⇒ I/R² = ½ M_p (1 + η²),  η = r/R
+// E_rot = ½ I ω² = ½ (I/R²) v²  (Rolle dreht ohne Schlupf, ω = v/R).
+export function pulleyEffMass({ pulleyMass: Mp, pulleyShape, pulleyInnerRatio: eta }) {
+  if (Mp <= 0) return 0;
+  return pulleyShape === 'hohl' ? 0.5 * Mp * (1 + eta * eta) : 0.5 * Mp;
+}
+
+// Beschleunigung mit vereinfachter Coulomb-Reibung (skalar) + massiver Rolle.
 // drive = (m1−m2)·g  (>0 ⇒ m1 fällt). Haftreibung: |drive| ≤ F_R ⇒ a = 0.
-// Sonst: a = (drive − sign(drive)·F_R)/(m1+m2).  Seilkraft T = m1·(g−a).
-export function getAccel(m1, m2, FR) {
+// Sonst: a = (drive − sign(drive)·F_R)/(m1+m2+mEff).  mEff = I/R² der Rolle.
+// Seilkräfte sind bei massiver Rolle verschieden: T1 = m1·(g−a), T2 = m2·(g+a).
+export function getAccel(m1, m2, FR, mEff = 0) {
   const drive = (m1 - m2) * G;
-  if (Math.abs(drive) <= FR) return { a: 0, T: m1 * G, moving: false };
-  const a = (drive - Math.sign(drive) * FR) / (m1 + m2);
-  const T = m1 * (G - a);
-  return { a, T, moving: true };
+  if (Math.abs(drive) <= FR) return { a: 0, T1: m1 * G, T2: m2 * G, moving: false };
+  const a  = (drive - Math.sign(drive) * FR) / (m1 + m2 + mEff);
+  const T1 = m1 * (G - a);
+  const T2 = m2 * (G + a);
+  return { a, T1, T2, moving: true };
 }
 
 // Nice-Tick-Schritt für Wertebereich (Ziel ~n Ticks) — 1-2-5-Folge
@@ -42,8 +53,9 @@ export function precompute() {
   const L_m   = y1_m0 + y2_m0;                  // erhaltene Seillänge
   const Y_MAX_M = Y_MAX_CM / CM_PER_M;          // 3,5 m
   const FR = Math.max(0, frictionForce);
+  const mEff = pulleyEffMass(store);            // I/R² der massiven Rolle
 
-  const { a: accel, T: tens, moving } = getAccel(m1, m2, FR);
+  const { a: accel, moving } = getAccel(m1, m2, FR, mEff);
   const m1_half_m = massHalfPx(m1) / PPM;
   const m2_half_m = massHalfPx(m2) / PPM;
 
@@ -86,7 +98,7 @@ export function precompute() {
     't_data','y1_data','y2_data','v1_data','v2_data','a1_data','a2_data',
     'ydiff_data','yrel1_data','yrel2_data',
     'ek1_data','ek2_data','ep1_data','ep2_data','eges1_data','eges2_data',
-    'ek_sum_data','ep_sum_data','etot_data','wr_data',
+    'ek_sum_data','ep_sum_data','etot_data','wr_data','ek_rot_data',
   ];
   A.forEach(k => { store[k] = []; });
 
@@ -102,10 +114,11 @@ export function precompute() {
     // Energien
     const ek1 = 0.5 * m1 * v * v;
     const ek2 = 0.5 * m2 * v * v;
+    const ek_rot = 0.5 * mEff * v * v;             // Rotationsenergie der Rolle
     const ep1 = m1 * G * (h1 - hNull1);
     const ep2 = m2 * G * (h2 - hNull2);
     const eges1 = ek1 + ep1, eges2 = ek2 + ep2;
-    const ek_sum = ek1 + ek2, ep_sum = ep1 + ep2, etot = eges1 + eges2;
+    const ek_sum = ek1 + ek2 + ek_rot, ep_sum = ep1 + ep2, etot = eges1 + eges2;
     // Reibungsarbeit: W_R = F_R · Wegstrecke (nur während Bewegung; a=0 ⇒ 0)
     const dist = 0.5 * Math.abs(accel) * tc * tc;
     const wr = FR * dist;
@@ -132,6 +145,7 @@ export function precompute() {
     store.ep_sum_data.push(ep_sum);
     store.etot_data.push(etot);
     store.wr_data.push(wr);
+    store.ek_rot_data.push(ek_rot);
 
     if (t >= store.t_end) break;
   }
@@ -139,14 +153,14 @@ export function precompute() {
   // Achsen-Limits für jeden Datensatz
   const keys = [
     'y1','y2','v1','v2','a1','a2','ydiff','yrel1','yrel2',
-    'ek1','ek2','ep1','ep2','eges1','eges2','ek_sum','ep_sum','etot','wr',
+    'ek1','ek2','ep1','ep2','eges1','eges2','ek_sum','ep_sum','etot','wr','ek_rot',
   ];
   const arrs = [
     store.y1_data, store.y2_data, store.v1_data, store.v2_data,
     store.a1_data, store.a2_data, store.ydiff_data, store.yrel1_data, store.yrel2_data,
     store.ek1_data, store.ek2_data, store.ep1_data, store.ep2_data,
     store.eges1_data, store.eges2_data, store.ek_sum_data, store.ep_sum_data,
-    store.etot_data, store.wr_data,
+    store.etot_data, store.wr_data, store.ek_rot_data,
   ];
   store.axisLimits = {};
   keys.forEach((key, i) => {
@@ -167,6 +181,7 @@ export function precompute() {
     store.ek1_data, store.ep1_data, store.eges1_data,
     store.ek2_data, store.ep2_data, store.eges2_data,
     store.ek_sum_data, store.ep_sum_data, store.etot_data, store.wr_data,
+    store.ek_rot_data,
   ];
   let emax = 1;
   for (const a of eArrs) for (const v of a) { const av = Math.abs(v); if (av > emax) emax = av; }

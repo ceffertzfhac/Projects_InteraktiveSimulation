@@ -1,6 +1,6 @@
 'use strict';
 
-import { Y_MAX_CM, CM_PER_M } from './constants.js';
+import { Y_MAX_CM, CM_PER_M, PULLEY_R, PPM } from './constants.js';
 import { store, DOM, initDOM } from './state.js';
 import { precompute, interpolateAt } from './physics.js';
 import { fmt, drawRuler, drawStopwatchMarks, drawZeroLines, updateScene, updateGraphs, getLineConfig } from './render.js';
@@ -70,10 +70,28 @@ function updateHeightParams() {
   }
 }
 
+// ── Rolle (massiv) ─────────────────────────────────────────────────────────────
+// Außenradius R fix (PULLEY_R/PPM = 0,4 m = 40 cm). Innenradius-Verhältnis nur
+// beim Hohlzylinder relevant; Slider wird für Vollzylinder ausgeblendet.
+function updatePulleyParams() {
+  store.pulleyMass = parseFloat(DOM.pulleyMassSlider.value);
+  DOM.pulleyMassValue.textContent = `${fmt(store.pulleyMass, 2)} kg`;
+
+  store.pulleyShape = DOM.pulleyShapeSelect.value;
+  const isHohl = store.pulleyShape === 'hohl';
+  DOM.pulleyInnerGroup.style.display = isHohl ? '' : 'none';
+
+  store.pulleyInnerRatio = parseFloat(DOM.pulleyInnerSlider.value);
+  const eta = store.pulleyInnerRatio;
+  const r_cm = eta * (PULLEY_R / PPM) * 100;     // r = η·R in cm (R = 40 cm)
+  DOM.pulleyInnerValue.textContent = `r/R = ${fmt(eta, 2)}  (r = ${fmt(r_cm, 1)} cm)`;
+}
+
 // ── Diagramm-Auswahl ──────────────────────────────────────────────────────────
 const ENERGY_OPTS = [
   { val: 'ecomposite', label: 'Energie (E_kin, E_pot, E_ges)' },
   { val: 'ekin', label: 'Kinetische Energie E_kin' },
+  { val: 'erot', label: 'Rotationsenergie E_rot (Rolle)' },
   { val: 'epot', label: 'Potentielle Energie E_pot' },
   { val: 'eges', label: 'Gesamtenergie E_ges' },
   { val: 'wr', label: 'Energieverlust E_V' },
@@ -142,6 +160,8 @@ function resetSim() {
   DOM.frictionValue.textContent = `${fmt(store.frictionForce, 1)} N`;
   store.epZeroMode = DOM.epZeroSelect.value;
 
+  updatePulleyParams();
+
   store.showForces       = DOM.togForces.checked;
   store.showNetForce     = DOM.togNet.checked;
   store.showFrictionArrow = DOM.togFrictionArrow.checked;
@@ -206,11 +226,11 @@ function exportCSV(all) {
   const energyCols = (key) => store[`${key}_data`];
 
   if (all) {
-    const header = 'sep=;\nt / s;y₁ / cm;y₂ / cm;v₁ / (m/s);v₂ / (m/s);a₁ / (m/s²);a₂ / (m/s²);Δy / cm;E_kin / J;E_pot / J;E_ges / J;E_V / J';
+    const header = 'sep=;\nt / s;y₁ / cm;y₂ / cm;v₁ / (m/s);v₂ / (m/s);a₁ / (m/s²);a₂ / (m/s²);Δy / cm;E_kin / J;E_rot / J;E_pot / J;E_ges / J;E_V / J';
     const rows = t_data.map((_, i) => [
       t_data[i], store.y1_data[i], store.y2_data[i], store.v1_data[i], store.v2_data[i],
       store.a1_data[i], store.a2_data[i], store.ydiff_data[i],
-      store.ek_sum_data[i], store.ep_sum_data[i], store.etot_data[i], store.wr_data[i],
+      store.ek_sum_data[i], store.ek_rot_data[i], store.ep_sum_data[i], store.etot_data[i], store.wr_data[i],
     ].map(v => fmt(v, 4)).join(';'));
     download([header, ...rows].join('\n'), 'atwood_energy_all.csv');
     return;
@@ -268,6 +288,11 @@ DOM.diffSlider.addEventListener('input', resetSim);
 // Reibung & Energie-Referenz
 DOM.frictionSlider.addEventListener('input', resetSim);
 DOM.epZeroSelect.addEventListener('change', resetSim);
+
+// Rolle (massiv)
+DOM.pulleyMassSlider.addEventListener('input', resetSim);
+DOM.pulleyShapeSelect.addEventListener('change', () => { updatePulleyParams(); resetSim(); });
+DOM.pulleyInnerSlider.addEventListener('input', resetSim);
 
 // Visualisierung
 DOM.togForces.addEventListener('change', () => { store.showForces = DOM.togForces.checked; resetSim(); });

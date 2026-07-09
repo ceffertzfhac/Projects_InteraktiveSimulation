@@ -17,9 +17,10 @@ vollständiges Roll-/Gleitreibungsmodell:
 - Reibung wirkt ausschließlich an der Rolle (Rollenreibung); eine
   Luftreibung ist nicht modelliert.
 - Reibungsarbeit \(E_V = F_R \cdot s\) mit \(s = \tfrac12 |a| t^2\)
-  (Wegstrecke der bewegten Masse ab Start); die Drehung der Rolle
-  selbst (Trägheitsmoment) ist nicht modelliert — die Rolle ist
-  masselos/ideal.
+  (Wegstrecke der bewegten Masse ab Start). Die Reibung wirkt als
+  skalare Hemmkraft im translatorischen Kräftegleichgewicht; die
+  Lagerreibung erzeugt eine Seilkraftdifferenz \(F_{S,1}-F_{S,2}\), wird
+  aber nicht als separates Drehmoment am Rollenmodell geführt.
 - Kollision ist ein harter Stopp (analytische \(t_{\text{koll}}\)), kein
   Stoß- oder Rückprallmodell; danach ruht die Simulation.
 
@@ -37,11 +38,25 @@ Start = 0); Boden/Decke geben feste absolute Nullpunkte mit von 0
 verschiedenem \(E_{\text{ges}}\). Die Erhaltungsaussage (\(E_{\text{ges}}+E_V\)
 konstant) ist unabhängig vom Nullpunkt. → M7
 
-## Kein Trägheitsmoment der Rolle
+## Massive Rolle — Modellannahmen → M7
 
-Die Rolle wird als ideal/masselos behandelt; Rotationsenergie der Rolle
-ist nicht Teil von \(E_{\text{ges}}\). Bei realen Rollen trägt
-\(\tfrac12 I \omega^2\) zur Gesamtenergie bei. → M7
+Die Rolle hat eine wählbare Masse \(M_R\) (0,1–1 kg) und Form
+(Vollzylinder \(I=\tfrac12 M_R R^2\) bzw. Hohlzylinder
+\(I=\tfrac12 M_R (R^2+r^2)\) mit einstellbarem \(r/R\in[0{,}1;0{,}9]\),
+Außenradius \(R\) fix). Modellannahmen:
+
+- **Kein Seilschlupf**: \(\omega = v/R\), die Rotationsenergie
+  \(E_{\text{rot}}=\tfrac12(I/R^2)v^2\) ist Teil von \(E_{\text{ges}}\);
+  die Erhaltung \(E_{\text{ges}}+E_V=\text{konst.}\) bleibt erhalten.
+- **Homogene Massenverteilung**: Voll/Hohlzylinder mit scharfem
+  Innenrand, keine radial Dichte-verteilten Profile.
+- **Default \(M_R=0{,}1\) kg** (Vollzylinder): nahezu masselos,
+  \(I/R^2=0{,}05\) kg — das System verhält sich klassisch; erst größere
+  \(M_R\) oder dünne Ringe (hohl, \(r/R\to 0{,}9\)) machen die
+  Rotationsenergie sichtbar.
+- Die Seilkräfte sind bei massiver Rolle **verschieden**
+  (\(F_{S,1}=m_1(g-a)\), \(F_{S,2}=m_2(g+a)\)); der alte Einzelwert
+  „Seilkraft \(F_S\)" entfällt zugunsten von \(F_{S,1}/F_{S,2}\). → M7
 
 ## Energieerhaltung ist exakt, nicht numerisch integriert
 

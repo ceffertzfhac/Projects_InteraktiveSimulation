@@ -50,6 +50,8 @@ body.dark {
 #sim-bg      { fill:   var(--sim-bg); }
 #ceiling     { fill:   var(--ceiling-fill); }
 #pulley      { fill:   var(--pulley-fill);  stroke: var(--pulley-stroke); }
+#pulley_inner { fill: var(--sim-bg);        stroke: var(--pulley-stroke); }
+#pulley_mark { stroke: var(--accent); }
 #pulley_mount { fill:  var(--pulley-fill);  stroke: var(--pulley-stroke); }
 #pulley_axle { fill:   var(--text2);        stroke: var(--text3); }
 #aperture_path { fill: var(--aperture-fill); }
