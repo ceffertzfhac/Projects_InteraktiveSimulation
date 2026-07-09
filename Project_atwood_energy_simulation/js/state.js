@@ -11,7 +11,7 @@ export const store = {
   epZeroMode: 'separate', // 'separate' | 'y1' | 'y2'  — E_pot-Nullpunkt
   speedFactor: 1.0,
   layoutSplit: true,   // true = Nebeneinander, false = Übereinander
-  diagramMode: '1',   // '1' = Ein Diagramm, '2' = Zwei Diagramme
+  diagramMode: 'bars', // 'bars' = Energie-Balken (Default), '1'/'2' = Achsendiagramme
   graphType1: 'ecomposite',
   graphType2: 'wr',
   subject: 'system',   // 'system' | 'm1' | 'm2'
@@ -39,6 +39,7 @@ export const store = {
   ek_sum_data: [], ep_sum_data: [], etot_data: [],
   wr_data: [],
   axisLimits: {},
+  energyBarMax: 1,   // Skalenmaximum Energie-Balken (precompute)
 };
 
 export const DOM = {};
@@ -71,11 +72,13 @@ export function initDOM() {
   DOM.layoutToggle = document.getElementById('layout_toggle');
 
   // Diagramm-Steuerung
-  DOM.graphModeRadios = [...document.querySelectorAll('input[name="graph_mode"]')];
+  DOM.graphModeRadios = [...document.querySelectorAll('input[name="diagram_mode"]')];
   DOM.graphSelect1  = document.getElementById('graph_select_1');
   DOM.graphSelect2  = document.getElementById('graph_select_2');
   DOM.subjectSelect = document.getElementById('subject_select');
   DOM.graphSel2Group = document.getElementById('graph_sel2_group');
+  DOM.lineOptionsGroup = document.getElementById('line_options_group');
+  DOM.energyBarsView = document.getElementById('energy_bars_view');
 
   // Visualisierung
   DOM.togForces       = document.getElementById('toggle_forces');

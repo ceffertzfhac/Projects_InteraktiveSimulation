@@ -98,9 +98,15 @@ function populateSelect(sel, opts) {
 }
 
 function updateGraphSelectors() {
-  const mode = DOM.graphModeRadios.find(r => r.checked)?.value || '1';
+  const mode = DOM.graphModeRadios.find(r => r.checked)?.value || 'bars';
   store.diagramMode = mode;
-  DOM.graphSel2Group.style.display = mode === '2' ? '' : 'none';
+  // Balken-Modus braucht keine Achsen-Optionen; 1/2-Modus zeigt Subjekt + Diagramm-Auswahl.
+  if (mode === 'bars') {
+    DOM.lineOptionsGroup.style.display = 'none';
+  } else {
+    DOM.lineOptionsGroup.style.display = '';
+    DOM.graphSel2Group.style.display = mode === '2' ? '' : 'none';
+  }
   populateSelect(DOM.graphSelect1, ALL_OPTS);
   populateSelect(DOM.graphSelect2, ALL_OPTS);
   DOM.graphSelect1.value = store.graphType1;
@@ -160,11 +166,9 @@ function resetSim() {
 }
 
 // ── Pill-Status ───────────────────────────────────────────────────────────────
-function updateSpeedPills() {
+// speed-pills werden für Abspielgeschwindigkeit UND Diagramm-Modus verwendet.
+function updateAllPills() {
   document.querySelectorAll('.speed-pill').forEach(p => p.classList.toggle('active', p.querySelector('input').checked));
-}
-function updateModePills() {
-  document.querySelectorAll('.radio-pill').forEach(p => p.classList.toggle('active', p.querySelector('input').checked));
 }
 
 // ── Theme ──────────────────────────────────────────────────────────────────────
@@ -273,7 +277,7 @@ DOM.togZeroLines.addEventListener('change', () => { store.showZeroLines = DOM.to
 
 // Diagramm
 DOM.graphModeRadios.forEach(r => r.addEventListener('change', () => {
-  updateModePills(); updateGraphSelectors(); updateGraphs(store.simulatedTime);
+  updateAllPills(); updateGraphSelectors(); updateGraphs(store.simulatedTime);
 }));
 DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateGraphs(store.simulatedTime); });
 DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graphSelect2.value; updateGraphs(store.simulatedTime); });
@@ -289,7 +293,7 @@ DOM.layoutToggle.addEventListener('click', () => {
 // Geschwindigkeit
 document.querySelectorAll('input[name="speed"]').forEach(r => r.addEventListener('change', () => {
   document.querySelectorAll('input[name="speed"]').forEach(rad => { if (rad.checked) store.speedFactor = parseFloat(rad.value); });
-  updateSpeedPills();
+  updateAllPills();
 }));
 
 // Play/Pause/Reset
@@ -301,6 +305,5 @@ DOM.resetBtn.addEventListener('click', () => { store.simulatedTime = 0; resetSim
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false));
 DOM.exportAll.addEventListener('click', () => exportCSV(true));
 
-updateSpeedPills();
-updateModePills();
+updateAllPills();
 resetSim();

@@ -5,6 +5,40 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.0 — 2026-07-09
+
+Rework der Diagramm-Anzeige nach PO-Korrektur: das im Prototypen als
+**Balkendiagramm** ausgeführte Energie-Overview ist wieder die
+**Default-Anzeige rechts**, umschaltbar auf 1 bzw. 2 Achsendiagramme.
+Steuerflächen-Orientierung an der Best Practice der Kreis-/Spiralbewegung-Sims.
+
+### Features
+- **Energie-Balkendiagramm als Default**: horizontale, zentrierte Balken
+  (positiv nach rechts, negativ nach links) für alle 13 Energiegrößen —
+  \(m_1\): \(E_{k,1}/E_{p,1}/E_{\text{ges},1}\); \(m_2\): \(E_{k,2}/E_{p,2}/E_{\text{ges},2}\);
+  System: \(E_{k,\text{ges}}/E_{p,\text{ges}}/E_{\text{ges}}/E_{\text{Verlust}}\).
+  Treu aus dem Prototyp übertragen, aber mit **statischen MathJax-Labels**
+  (kein Laufzeit-`typesetPromise` pro Frame) — pro Frame wird nur
+  Balken-Breite/Position + Wert aktualisiert.
+- **3-Wege-Diagramm-Modus** (statt bisher 1/2): „Energie-Balken" (Default) ·
+  „Ein Diagramm" · „Zwei Diagramme". Umschaltung über `speed-pills` in der
+  linken Sidebar-Sektion „Diagramme" (Best-Practice-Muster der
+  Kreis-/Spiralbewegung-Sims, nicht mehr in einer Center-Toolbar).
+- **Skalenmaximum pro Lauf**: `store.energyBarMax` = größter |E| über alle
+  13 Reihen × gesamte Animation (Floor 1) — der längste Balken füllt die
+  halbe ViewBox, Vergleichbarkeit über die Zeit bleibt erhalten.
+- **Steuerflächen-Konsolidierung**: Subjekt-, Diagramm-1/2-Auswahl in die
+  linke Sektion „Diagramme" verschoben; nur im Achsenmodus sichtbar
+  (`#line_options_group`), Diagramm 2 nur im Modus „Zwei Diagramme".
+  Die frühere Center-`graph-toolbar` entfällt; der Graph-Bereich zeigt
+  ausschließlich die Balken-Ansicht bzw. das Achsen-SVG.
+- **Pill-Logik vereinheitlicht**: `speed-pills` für Abspielgeschwindigkeit
+  und Diagramm-Modus gemeinsam über `updateAllPills()` aktiviert.
+
+### Removed
+- Center-`graph-toolbar` (Radios + Selects) inkl. ihrer CSS-Regeln
+  (`.radio-group`/`.radio-pill`/`.graph-toolbar.*`).
+
 ## v1.0.0 — 2026-07-09
 
 Erste modulare Version. Migration des Standalone-Prototypen

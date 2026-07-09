@@ -241,6 +241,17 @@ function graphGeom() {
 
 // ── Graph-Update ─────────────────────────────────────────────────────────────
 export function updateGraphs(time) {
+  // Default-Modus: Energie-Balkendiagramm (horizontal, zentriert).
+  if (store.diagramMode === 'bars') {
+    DOM.graphSvg.style.display = 'none';
+    DOM.energyBarsView.style.display = '';
+    updateEnergyBars(time);
+    return;
+  }
+  // Achsendiagramm-Modus (1 oder 2 Liniengraphen).
+  DOM.graphSvg.style.display = '';
+  DOM.energyBarsView.style.display = 'none';
+
   const geom = graphGeom();
   DOM.graphSvg.setAttribute('viewBox', `0 0 ${geom.w} ${geom.h}`);
   ensureAxisMarker(DOM.graphSvg);
@@ -254,6 +265,38 @@ export function updateGraphs(time) {
   } else {
     DOM.graphGroup2.style.visibility = 'hidden';
     drawSingleGraph(DOM.graphGroup1, geom.cellW, geom.cellH, time, store.graphType1, store.subject);
+  }
+}
+
+// ── Energie-Balkendiagramm (Default-Diagramm-Anzeige) ─────────────────────────
+// 13 Reihen (m₁: E_k/E_p/E_ges · m₂: E_k/E_p/E_ges · System: E_k/E_p/E_ges/E_V),
+// zentrierte horizontale Balken (positiv nach rechts, negativ nach links),
+// skaliert auf store.energyBarMax (halbe ViewBox-Breite = voller längster Balken).
+// Statische MathJax-Labels in index.html — hier nur rect-Breite/Position + Wert.
+const BAR_CENTER = 50, BAR_HALF = 50; // ViewBox 0..100, Center 50
+let _barRows = null;
+function cacheBarRows() {
+  _barRows = [...DOM.energyBarsView.querySelectorAll('.ebar-row')].map(row => ({
+    rect: row.querySelector('.ebar-fill'),
+    val:  row.querySelector('.ebar-value'),
+    key:  row.dataset.key,
+    neg:  row.dataset.neg === '1',
+  }));
+}
+
+export function updateEnergyBars(time) {
+  if (!_barRows) cacheBarRows();
+  if (!store.t_data.length) return;
+  const max = store.energyBarMax || 1;
+  for (const r of _barRows) {
+    const arr = store[`${r.key}_data`];
+    if (!arr) continue;
+    const raw = interpolateAt(arr, time);
+    const val = r.neg ? -raw : raw;
+    const w = (Math.abs(val) / max) * BAR_HALF;
+    r.rect.setAttribute('x', String(val >= 0 ? BAR_CENTER : BAR_CENTER - w));
+    r.rect.setAttribute('width', String(Math.max(0, w)));
+    r.val.textContent = `${fmt(val, 2)} J`;
   }
 }
 

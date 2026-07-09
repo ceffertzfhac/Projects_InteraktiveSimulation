@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -141,6 +141,29 @@ window.MathJax = {
       </div>
     </div>
 
+    <div class="panel-section">
+      <button class="panel-label" type="button">Diagramme<span class="accordion-chevron">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="bars" checked><span>Energie-Balken</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
+      <div id="line_options_group" style="display:none">
+        <div class="slider-label">Subjekt</div>
+        <select id="subject_select" class="select-field">
+          <option value="system" selected>System</option>
+          <option value="m1">Nur \(m_1\)</option>
+          <option value="m2">Nur \(m_2\)</option>
+        </select>
+        <div class="slider-label">Diagramm 1</div>
+        <select id="graph_select_1" class="select-field"></select>
+        <div id="graph_sel2_group">
+          <div class="slider-label">Diagramm 2</div>
+          <select id="graph_select_2" class="select-field"></select>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-section collapsed">
       <button class="panel-label" type="button">Abspielgeschwindigkeit<span class="accordion-chevron">▾</span></button>
       <div class="speed-pills">
@@ -208,22 +231,33 @@ window.MathJax = {
     </div>
 
     <div class="graph-wrapper">
-      <div class="graph-toolbar">
-        <div class="radio-group" id="graph_mode_group">
-          <label class="radio-pill"><input type="radio" name="graph_mode" value="1" checked><span>1 Diagramm</span></label>
-          <label class="radio-pill"><input type="radio" name="graph_mode" value="2"><span>2 Diagramme</span></label>
-        </div>
-        <select id="subject_select" class="select-field subject-field">
-          <option value="system" checked>System</option>
-          <option value="m1">Nur m₁</option>
-          <option value="m2">Nur m₂</option>
-        </select>
-        <select id="graph_select_1" class="select-field"></select>
-        <div id="graph_sel2_group" style="display:none">
-          <select id="graph_select_2" class="select-field"></select>
-        </div>
+      <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (13 Reihen) -->
+      <div class="energy-bars-view" id="energy_bars_view">
+        <div class="ebar-title">Energiebilanz</div>
+
+        <div class="ebar-group-label">Masse \(m_1\)</div>
+        <div class="ebar-row" data-key="ek1"><span class="ebar-label">\(E_{k,1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep1"><span class="ebar-label">\(E_{p,1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="eges1"><span class="ebar-label">\(E_{\text{ges},1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
+        <div class="ebar-group-label">Masse \(m_2\)</div>
+        <div class="ebar-row" data-key="ek2"><span class="ebar-label">\(E_{k,2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep2"><span class="ebar-label">\(E_{p,2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="eges2"><span class="ebar-label">\(E_{\text{ges},2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
+        <div class="ebar-group-label">Gesamtsystem</div>
+        <div class="ebar-row" data-key="ek_sum"><span class="ebar-label">\(E_{k,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep_sum"><span class="ebar-label">\(E_{p,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="etot"><span class="ebar-label">\(E_{\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="wr" data-neg="1"><span class="ebar-label">\(E_{\text{Verlust}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill eloss" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
       </div>
-      <svg id="graph_svg" preserveAspectRatio="xMidYMid meet">
+
+      <!-- Achsendiagramme (1 oder 2 Liniengraphen) -->
+      <svg id="graph_svg" preserveAspectRatio="xMidYMid meet" style="display:none">
         <g id="graph_group_1" transform="translate(0,0)">
           <g class="graph_grid"></g>
           <polyline class="graph_line_a" fill="none" stroke-width="2" points=""/>

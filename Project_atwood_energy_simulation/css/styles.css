@@ -91,16 +91,6 @@ body.dark {
 /* Basis-Regeln, damit Linien/Punkte sichtbar sind (SVG-Default stroke:none/fill:none) */
 .polyline-base { fill: none; stroke-width: 2; }
 
-/* ── RADIO GROUP (Diagramm-Modus) ────────────────────────────────────────── */
-.radio-group { display: flex; gap: 4px; margin-bottom: 7px; flex-wrap: wrap; }
-.radio-pill {
-  flex: 1; padding: 4px 0; border: 1px solid var(--border); border-radius: 20px;
-  background: var(--surface2); text-align: center; font-size: .72rem; color: var(--text2);
-  cursor: pointer; transition: all .15s; position: relative; user-select: none;
-}
-.radio-pill input { position: absolute; opacity: 0; inset: 0; pointer-events: none; }
-.radio-pill.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-
 /* ── CENTER: Layout-Umschalter (Nebeneinander ↔ Übereinander) ─────────────── */
 .center-area { display: flex; overflow: hidden; background: var(--bg); transition: background .3s; }
 /* Default = Übereinander (Spalte) */
@@ -120,18 +110,43 @@ body.dark {
   color: var(--text3); pointer-events: none;
 }
 
-/* ── GRAPH-WRAPPER (Toolbar + SVG) ─────────────────────────────────────────── */
+/* ── GRAPH-WRAPPER (Balken-Ansicht oder Liniengraph) ─────────────────────────── */
 .graph-wrapper { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
-.graph-toolbar {
-  flex-shrink: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 6px 10px; border-bottom: 1px solid var(--border); background: var(--surface);
-}
-.graph-toolbar .radio-group { margin: 0; }
-.graph-toolbar .select-field { margin: 0; flex: 1 1 130px; min-width: 120px; }
-.graph-toolbar .subject-field { flex: 0 0 122px; min-width: 110px; }
-.graph-toolbar #graph_sel2_group { flex: 1 1 130px; display: flex; }
-.graph-toolbar #graph_sel2_group .select-field { flex: 1; min-width: 120px; }
 #graph_svg { flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; display: block; }
+
+/* ── ENERGIE-BALKENDIAGRAMM (Default-Diagramm-Anzeige) ─────────────────────── */
+.energy-bars-view {
+  flex: 1 1 auto; overflow-y: auto; min-height: 0;
+  padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 3px;
+}
+.ebar-title {
+  font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 2px;
+}
+.ebar-group-label {
+  font-size: .72rem; font-weight: 600; color: var(--text2);
+  margin: 7px 0 1px; letter-spacing: .02em;
+}
+.ebar-row {
+  display: grid; grid-template-columns: 88px 1fr 74px;
+  align-items: center; gap: 8px;
+}
+.ebar-label {
+  text-align: right; font-size: .8rem; color: var(--text2); white-space: nowrap;
+}
+.ebar-track {
+  background: var(--surface2); border-radius: 3px; height: 16px; overflow: hidden;
+}
+.ebar-svg { width: 100%; height: 16px; display: block; }
+.ebar-center { stroke: var(--text3); stroke-width: 0.5; opacity: .55; }
+.ebar-fill.ekin  { fill: var(--c-ekin); }
+.ebar-fill.epot  { fill: var(--c-epot); }
+.ebar-fill.etot  { fill: var(--c-etot); }
+.ebar-fill.eloss { fill: var(--c-eloss); }
+.ebar-value {
+  font-family: var(--font-mono); font-size: .74rem; text-align: right;
+  color: var(--text); white-space: nowrap;
+}
+.ebar-sep { height: 1px; background: var(--border); margin: 3px 0; }
 
 /* ── AKKORDEON-STEUERUNGS-SIDEBAR (I8) ─────────────────────────────────────── */
 .left-panel button.panel-label {

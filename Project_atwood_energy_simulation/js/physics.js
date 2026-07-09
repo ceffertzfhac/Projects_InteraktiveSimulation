@@ -150,6 +150,19 @@ export function precompute() {
       full_data: arr,
     };
   });
+
+  // Skalenmaximum für das Energie-Balkendiagramm (Default-Anzeige):
+  // größter |E| über alle 13 Energie-Reihen × alle t — sodaß der längste
+  // Balken die halbe ViewBox ausfüllt (±50 um Center 50) und die Balken über
+  // der gesamten Animation vergleichbar bleiben.
+  const eArrs = [
+    store.ek1_data, store.ep1_data, store.eges1_data,
+    store.ek2_data, store.ep2_data, store.eges2_data,
+    store.ek_sum_data, store.ep_sum_data, store.etot_data, store.wr_data,
+  ];
+  let emax = 1;
+  for (const a of eArrs) for (const v of a) { const av = Math.abs(v); if (av > emax) emax = av; }
+  store.energyBarMax = emax || 1;
 }
 
 // Linear interpoliert aus precompute-Arrays zur Zeit t
