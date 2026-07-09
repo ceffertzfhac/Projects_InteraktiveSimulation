@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.0 — 2026-07-09
+### Geändert (Dual-Diagramme orthogonal zur Sim/Diagramm-Aufteilung)
+- Im gestapelten Modus (zwei Diagramme, `isStacked`) liegen die beiden Diagramme
+  nun **orthogonal zur Sim/Diagramm-Aufteilung**: im **Übereinander-Layout**
+  (`layoutSplit=false`, breite Diagrammzelle) werden sie **nebeneinander** angeordnet
+  (statt wie bisher übereinander gestapelt — in der breit-flachen Zelle waren die
+  Teilgraphen sehr flach); im **Nebeneinander-Layout** (`layoutSplit=true`, hohe
+  Zelle) bleiben sie **übereinander gestapelt** (unverändert). Die **Mittellinie**
+  (Sim/Diagramm-Trenner, Grid-Partition) verschiebt sich nicht.
+- Technisch: neue `stackedDualGeom()` liefert viewBox + `slotH` + `off2`-Versatz;
+  Übereinander-Dual → viewBox `2·GRAPH_W_STACK+Gap` × `GRAPH_H_STACK` + X-Versatz,
+  Nebeneinander-Dual → wie gehabt gestapelt. `graphSlotH` + `GRAPH_H_STACKED_STACK`
+  entfallen. Kanonische Regel in `simulation_instruction.md` / `CLAUDE.md`
+  hinterlegt (Rollout s. `BACKLOG.md`).
+
 ## v1.0.10 — 2026-07-07
 ### Behoben (T6-Regressions-Fix)
 - **Simulation war nach T6 (v1.0.9) dysfunktional:** `fmt` wurde in `ui.js` über

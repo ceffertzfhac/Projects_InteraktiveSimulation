@@ -3,6 +3,22 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.4.0] — 2026-07-09
+### Geändert (Dual-Diagramme orthogonal zur Sim/Diagramm-Aufteilung)
+- Im Zweier-Diagramm-Modus liegen die beiden Diagramme nun **orthogonal zur
+  Sim/Diagramm-Aufteilung**: im **Übereinander-Modus** (Sim oben, Diagramm unten,
+  breite Diagrammzelle) werden die beiden Diagramme **nebeneinander** angeordnet
+  (statt wie bisher übereinander gestapelt — die Stapelung in der breit-flachen
+  Zelle erzeugte sehr flache, schlecht lesbare Teilgraphen); im **Nebeneinander-Modus**
+  (Sim links, Diagramm rechts, hohe Zelle) bleiben sie **übereinander gestapelt**
+  (unverändert). Die **Mittellinie** (Sim/Diagramm-Trenner, Grid-Partition) verschiebt
+  sich nicht — nur die Anordnung *innerhalb* der Diagrammzelle ändert sich.
+- Technisch: `graphGeom()` liefert nun pro Diagramm `cellW`/`cellH` + `off2`-Versatz
+  für `graphGroup2`; Landscape-Dual → viewBox-Breite `2·LAND_W+DUAL_GAP` + X-Versatz,
+  Portrait-Dual → viewBox-Höhe `2·PORT_SLOT_DUAL+DUAL_GAP` + Y-Versatz (wie gehabt).
+  Ungenutztes `LAND_SLOT_DUAL` entfernt. Kanonische Regel in `simulation_instruction.md`
+  / `CLAUDE.md` hinterlegt (Rollout s. `BACKLOG.md`).
+
 ## [1.3.0] — 2026-07-08
 ### Neu (Akkordeon-Steuerungs-Sidebar — Prototyp I8)
 - Die linke Steuerungs-Sidebar war überlang und reichte über den unteren Rand.

@@ -321,14 +321,18 @@ function updateAnalysisPanel(P) {
 // dort und füllt die Zelle: das BREITE Landscape (700×410) füllt die gestapelte
 // (breite, flache) Zelle, das PORTRAIT (410×700) die hohe Split-Zelle. (Mein
 // früher 480×430 war fast quadratisch → wirkte im untereinander-Modus „3:4",
-// füllte die Breite nicht.) Dual teilt die Gesamthöhe in 2 Slots + Gap (wie
-// Kreisbewegung); Single nutzt die volle Höhe.
+// füllte die Breite nicht.) SINGLE nutzt das volle Format. DUAL ordnet die beiden
+// Diagramme ORTHOGONAL zur Sim/Diagramm-Aufteilung (kanonische Regel, s. CLAUDE.md):
+// übereinander-Modus (Landscape, breite Zelle) → Diagramme nebeneinander
+// (viewBox-Breite 2·LAND_W+Gap); nebeneinander-Modus (Portrait, hohe Zelle) →
+// Diagramme übereinander gestapelt (Slot-Höhe PORT_SLOT_DUAL). Die Mittellinie
+// (Sim/Diagramm-Trenner) bleibt unangetastet.
 // Orientierung (Landscape/Portrait) wird aus der TATSÄCHLICHEN Zell-Form
 // abgeleitet (getBoundingClientRect), nicht nur aus store.layoutSplit — so greift
 // der @media-Fallback (≤1100 px erzwingt gestapelt = breite Zelle) automatisch
 // zu Landscape; ein Fenster-Resize paßt live nach. Ticks rechnen pro Format neu.
-const LAND_W = 700, LAND_H_SINGLE = 410, LAND_SLOT_DUAL = 200   // gestapelt
-const PORT_W = 492, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345   // nebeneinander (PO: Diagramm 20 % breiter, weniger Rand — Zellbreite unangetastet)
+const LAND_W = 700, LAND_H_SINGLE = 410                          // übereinander: breite Zelle (Single + je Diagramm im Dual-nebeneinander)
+const PORT_W = 492, PORT_H_SINGLE = 700, PORT_SLOT_DUAL = 345    // nebeneinander: hohe Zelle (Single voll; Dual-Slot = PORT_SLOT_DUAL; PO: 20 % breiter)
 const DUAL_GAP = 10
 // Vorschau-Spanne für die dynamische Achsenskalierung (B9): am Start (und solange
 // die Kurve diesen Punkt noch nicht erreicht hat) zeigt der Graph ein festes
@@ -343,13 +347,24 @@ function graphGeom() {
   const rect = DOM.graphSvg.getBoundingClientRect()
   const cellW = rect.width || 600
   const cellH = rect.height || LAND_H_SINGLE
-  const landscape = cellW >= cellH                                  // breite Zelle
-  const w = landscape ? LAND_W : PORT_W
-  const hSingle = landscape ? LAND_H_SINGLE : PORT_H_SINGLE
-  const slotDual = landscape ? LAND_SLOT_DUAL : PORT_SLOT_DUAL
-  const hEach = dual ? slotDual : hSingle
-  const totalH = dual ? slotDual * 2 + DUAL_GAP : hSingle
-  return { w, h: totalH, hEach, dual, gap: DUAL_GAP }
+  const landscape = cellW >= cellH                                  // breite Zelle = übereinander-Modus
+  // SINGLE: volles Format (Landscape breit / Portrait hoch)
+  if (!dual) {
+    const w = landscape ? LAND_W : PORT_W
+    const h = landscape ? LAND_H_SINGLE : PORT_H_SINGLE
+    return { w, h, cellW: w, cellH: h, dual: false, gap: DUAL_GAP, off2: { x: 0, y: 0 } }
+  }
+  // DUAL: Diagramme orthogonal zur Sim/Diagramm-Aufteilung.
+  //  • Landscape (übereinander): NEBENEINANDER — je Diagramm LAND_W breit,
+  //    viewBox-Breite = 2·LAND_W + DUAL_GAP, graphGroup2 versetzt in X.
+  //  • Portrait (nebeneinander): ÜBEREINANDER gestapelt — je Diagramm PORT_SLOT_DUAL hoch,
+  //    viewBox-Höhe = 2·PORT_SLOT_DUAL + DUAL_GAP, graphGroup2 versetzt in Y.
+  if (landscape) {
+    const eachW = LAND_W, h = LAND_H_SINGLE
+    return { w: eachW * 2 + DUAL_GAP, h, cellW: eachW, cellH: h, dual: true, gap: DUAL_GAP, off2: { x: eachW + DUAL_GAP, y: 0 } }
+  }
+  const w = PORT_W, eachH = PORT_SLOT_DUAL
+  return { w, h: eachH * 2 + DUAL_GAP, cellW: w, cellH: eachH, dual: true, gap: DUAL_GAP, off2: { x: 0, y: eachH + DUAL_GAP } }
 }
 
 function yUnitString(qq) {
@@ -399,9 +414,9 @@ function drawGraph(idx, time, geom) {
   const limits = store.axisLimits[qq]
   if (!limits) return
 
-  const G_W = geom.w
+  const G_W = geom.cellW
   const plotW = G_W - PAD_L - PAD_R
-  const plotH = geom.hEach - PAD_T - PAD_B
+  const plotH = geom.cellH - PAD_T - PAD_B
 
   const isAngular = ['phi', 'omega', 'alpha'].includes(qq)
   const cf = (isAngular && store.angleUnit === 'rad') ? Math.PI / 180 : 1.0
@@ -518,11 +533,12 @@ function drawGraph(idx, time, geom) {
 
 function drawGraphs(time) {
   const geom = graphGeom()
-  // viewBox ans aktuelle Format anpassen (Landscape gestapelt / Portrait split) —
-  // Ticks/Achsen rechnen in drawGraph aus geom neu (B9/B10).
+  // viewBox ans aktuelle Format + Dual-Anordnung anpassen (Landscape Dual =
+  // nebeneinander, Portrait Dual = übereinander) — Ticks/Achsen rechnen in
+  // drawGraph aus geom neu (B9/B10).
   DOM.graphSvg.setAttribute('viewBox', `0 0 ${geom.w} ${geom.h}`)
   DOM.graphGroup1.setAttribute('transform', 'translate(0,0)')
-  DOM.graphGroup2.setAttribute('transform', `translate(0,${geom.hEach + geom.gap})`)
+  DOM.graphGroup2.setAttribute('transform', `translate(${geom.off2.x},${geom.off2.y})`)
   DOM.graphGroup2.style.visibility = geom.dual ? 'visible' : 'hidden'
   drawGraph(1, time, geom)
   if (geom.dual) drawGraph(2, time, geom)

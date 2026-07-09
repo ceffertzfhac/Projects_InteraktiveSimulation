@@ -231,6 +231,24 @@ function physToScreen(xLoc, yLoc) {
   **Portrait-Graph** (z. B. 410×700), sodaß er die hohe, schmale Zelle füllt
   statt als flacher Streifen winzig zu skalieren. `plotW`/`plotH` und der
   `graph_svg`-viewBox aus der Orientierung/Layout berechnen. Gestapelt → Landscape.
+- **Zwei-Diagramm-Anordnung orthogonal zur Sim/Diagramm-Aufteilung** (kanonische
+  Referenz: Kreis-/Spiralbewegung v1.4.0, Kreisbewegung v1.1.0): Hat eine Simulation
+  einen Nebeneinander-/Übereinander-Layout-Umschalter **und** einen Zweier-Diagramm-Modus,
+  liegen die beiden Diagramme **orthogonal zur Sim/Diagramm-Aufteilung** — sie füllen
+  die Form des Diagrammbereichs, die Mittellinie (Sim/Diagramm-Trenner = Grid-Partition)
+  verschiebt sich nicht, nur die Anordnung *innerhalb* der Diagrammzelle:
+  | Layout | Sim | zwei Diagramme |
+  |---|---|---|
+  | **Nebeneinander** (Diagrammzelle hoch) | links | rechts **übereinander** gestapelt |
+  | **Übereinander** (Diagrammzelle breit-flach) | oben | unten **nebeneinander** |
+  Grund: übereinander gestapelte Teilgraphen in einer *breit-flachen* Zelle werden
+  sehr flach und schlecht lesbar; nebeneinander in einer *hohen* Zelle würden winzig.
+  Technisch (in `render.js`): eine Geometrie-Funktion liefert pro Diagramm `cellW`/
+  `cellH` + `off2`-Versatz für die zweite Diagrammgruppe. Übereinander-Dual →
+  viewBox-Breite `2·(Diagramm-Breite)+Gap`, zweite Gruppe versetzt in **X**; Neben-
+  einander-Dual → viewBox-Höhe `2·(Slot-Höhe)+Gap`, zweite Gruppe versetzt in **Y**
+  (wie gehabt). Beim Bahnkurven-Sonderfall (gleichskalierte x/y-Achsen) bleibt der
+  zentrierte quadratische Plot pro Diagramm erhalten. Keine CSS-Grid-Änderung.
 
 ## 5. Implementierungs-Workflow
 

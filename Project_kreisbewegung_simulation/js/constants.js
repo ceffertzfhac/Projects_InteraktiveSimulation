@@ -29,14 +29,15 @@ export const PHI0_MIN = 0, PHI0_MAX = 360      // Anfangswinkel (°)
 export const OMEGA_MIN = -180, OMEGA_MAX = 180 // Winkelgeschwindigkeit (°/s)
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
-// Layout-abhängig: gestapelt = landscape (700×410), Split = portrait
-// (410×700). Gestapelte Teilgraphen je Slot: landscape 200, portrait 345
-// (= (700−10)/2). Die jeweilige Gesamt-Höhe ergibt sich aus 2·Slot+Gap.
+// Layout-abhängig: gestapelt = landscape (700×410), Split = portrait (410×700).
+// DUAL (zwei Diagramme) liegt orthogonal zur Sim/Diagramm-Aufteilung
+// (s. stackedDualGeom in render.js): übereinander (landscape) → nebeneinander
+// (je 700×410); nebeneinander (portrait) → übereinander gestapelt, je Slot
+// GRAPH_H_STACKED_SPLIT (= (700−10)/2), Gesamt-Höhe 2·Slot+Gap.
 export const GRAPH_W_STACK = 700, GRAPH_H_STACK = 410
 export const GRAPH_W_SPLIT = 410, GRAPH_H_SPLIT = 700
-export const GRAPH_H_STACKED_STACK = 200
 export const GRAPH_H_STACKED_SPLIT = 345
-export const GRAPH_STACKED_GAP = 10            // Zwischenraum oben↔unten
+export const GRAPH_STACKED_GAP = 10            // Zwischenraum zwischen den beiden Diagrammen
 
 // ── Stoppuhr (Gruppen-Transform in setupScene) ────────────────────────────────
 export const WATCH_CX = 280, WATCH_CY = 120, WATCH_R = 72

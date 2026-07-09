@@ -6,7 +6,7 @@ import {
   DEFAULT_PIXELS_PER_METER, PIXELS_PER_VELOCITY_UNIT, PIXELS_PER_ACCELERATION_UNIT,
   POINT_RADIUS,
   GRAPH_W_STACK, GRAPH_H_STACK, GRAPH_W_SPLIT, GRAPH_H_SPLIT,
-  GRAPH_H_STACKED_STACK, GRAPH_H_STACKED_SPLIT, GRAPH_STACKED_GAP,
+  GRAPH_H_STACKED_SPLIT, GRAPH_STACKED_GAP,
   WATCH_CX, WATCH_CY, WATCH_R, SDIAL_CX, SDIAL_CY, SDIAL_R,
   SEG_THICK, SEG_LEN, DIGIT_SPACING, COLON_WIDTH, LCD_FRAME_PADDING,
   DIGIT_WIDTH, DIGIT_HEIGHT, COLON_DOT_SIZE,
@@ -52,7 +52,22 @@ function shortenEnd(x1, y1, x2, y2, by) {
   if (len <= by) return { x2, y2 }
   return { x2: x2 - (dx / len) * by, y2: y2 - (dy / len) * by }
 }
-const graphSlotH = () => store.layoutSplit ? GRAPH_H_STACKED_SPLIT : GRAPH_H_STACKED_STACK
+// Zwei-Diagramm-Geometrie (isStacked): die beiden Diagramme liegen ORTHOGONAL zur
+// Sim/Diagramm-Aufteilung (kanonische Regel, s. CLAUDE.md) — die Mittellinie (Grid-
+// Partition) bleibt unangetastet, nur die Anordnung innerhalb der Diagrammzelle
+// ändert sich. Breite je Diagramm = graphW() (layout-abhängig, in drawGraphSlot).
+//  • übereinander (layoutSplit=false, breite Zelle): NEBENEINANDER — je Landscape-
+//    Format (GRAPH_H_STACK hoch), viewBox-Breite 2·W+Gap, off2 horizontal.
+//  • nebeneinander (layoutSplit=true, hohe Zelle): ÜBEREINANDER gestapelt — je
+//    Portrait-Slot (GRAPH_H_STACKED_SPLIT hoch), viewBox-Höhe 2·Slot+Gap, off2 vertikal.
+function stackedDualGeom() {
+  if (!store.layoutSplit) {
+    const w = GRAPH_W_STACK, h = GRAPH_H_STACK
+    return { vbW: w * 2 + GRAPH_STACKED_GAP, vbH: h, slotH: h, off2: { x: w + GRAPH_STACKED_GAP, y: 0 } }
+  }
+  const w = GRAPH_W_SPLIT, slotH = GRAPH_H_STACKED_SPLIT
+  return { vbW: w, vbH: slotH * 2 + GRAPH_STACKED_GAP, slotH, off2: { x: 0, y: slotH + GRAPH_STACKED_GAP } }
+}
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -521,27 +536,30 @@ function currentInterpForTrajectory(type) {
 // ── Diagramm aktualisieren (Single oder Stacked) ─────────────────────────────
 export function updateGraph(time) {
   const interp = currentInterpValue(store.graphType, time)
-  // Graph-ViewBox layout-abhängig (gestapelt landscape 700×410, Split
-  // portrait 410×700); gilt für Single und Stacked (2·Slot+Gap = Gesamt-Höhe).
-  DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
-
+  // Graph-ViewBox layout- & modus-abhängig. SINGLE: volles Format (gestapelt
+  // landscape 700×410, Split portrait 410×700). STACKED (zwei Diagramme): die
+  // Diagramme liegen orthogonal zur Sim/Diagramm-Aufteilung — übereinander-Layout
+  // → nebeneinander (viewBox-Breite 2·W+Gap), nebeneinander-Layout → übereinander
+  // gestapelt (viewBox-Höhe 2·Slot+Gap). Mittellinie (Grid-Partition) unangetastet.
   if (store.isStacked) {
     DOM.graphGroupSingle.style.visibility = 'hidden'
     DOM.graphGroupStackedTop.style.visibility = 'visible'
     DOM.graphGroupStackedBottom.style.visibility = 'visible'
+    const dg = stackedDualGeom()
+    DOM.graphSvg.setAttribute('viewBox', `0 0 ${dg.vbW} ${dg.vbH}`)
     const [topType, bottomType] = stackedTypes(store.stackedType)
     const topVal = currentInterpValue(topType, time)
     const botVal = currentInterpValue(bottomType, time)
-    const slotH = graphSlotH()
-    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: topType, graphHeight: slotH, currentTime: time, currentValue: topVal })
+    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: topType, graphHeight: dg.slotH, currentTime: time, currentValue: topVal })
     DOM.graphGroupStackedTop.setAttribute('transform', 'translate(0, 0)')
-    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: bottomType, graphHeight: slotH, currentTime: time, currentValue: botVal })
-    DOM.graphGroupStackedBottom.setAttribute('transform', `translate(0, ${slotH + GRAPH_STACKED_GAP})`)
+    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: bottomType, graphHeight: dg.slotH, currentTime: time, currentValue: botVal })
+    DOM.graphGroupStackedBottom.setAttribute('transform', `translate(${dg.off2.x}, ${dg.off2.y})`)
   } else {
     DOM.graphGroupStackedTop.style.visibility = 'hidden'
     DOM.graphGroupStackedBottom.style.visibility = 'hidden'
     DOM.graphGroupSingle.style.visibility = 'visible'
     DOM.graphGroupSingle.setAttribute('transform', 'translate(0, 0)')
+    DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
     drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
   }
 }
