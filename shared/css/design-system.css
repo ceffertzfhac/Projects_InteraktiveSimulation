@@ -47,6 +47,12 @@
   --c-fn:    #e69f00;   /* Seilkraft/Normalkraft – Orange */
   --c-fr:    #cc79a7;   /* Resultierende F_ges – Mauve  */
 
+  /* Energie-Arten — Okabe-Ito (colorblind-safe), konfliktfrei zu Kraft-/Bewegungsvektoren */
+  --c-ekin:  #d55e00;   /* Kinetische Energie  – Verbilliot/Orange */
+  --c-epot:  #009e73;   /* Potentielle Energie  – Grün    */
+  --c-etot:  #999999;   /* Gesamtenergie        – Grau     */
+  --c-eloss: #56b4e9;   /* Energieverlust       – Himmelblau */
+
   /* Punkt-Farben für Zykloiden-Analyse */
   --c-sp:    #222222;
   --c-p1:    #b08010;
@@ -90,6 +96,11 @@ body.dark {
   --c-fg:    #56b4e9;
   --c-fn:    #f0e442;
   --c-fr:    #e078c3;
+
+  --c-ekin:  #ff8c42;
+  --c-epot:  #4dd9a0;
+  --c-etot:  #c0c4d0;
+  --c-eloss: #9ad4f5;
 }
 
 /* ── BASE RESET ──────────────────────────────────────────────── */
