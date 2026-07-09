@@ -268,11 +268,11 @@ export function updateGraphs(time) {
   if (geom.dual) {
     DOM.graphGroup2.style.visibility = 'visible';
     DOM.graphGroup2.setAttribute('transform', `translate(${geom.off2.x},${geom.off2.y})`);
-    drawSingleGraph(DOM.graphGroup1, geom.cellW, geom.cellH, time, store.graphType1, store.subject);
-    drawSingleGraph(DOM.graphGroup2, geom.cellW, geom.cellH, time, store.graphType2, store.subject);
+    drawSingleGraph(DOM.graphGroup1, geom.cellW, geom.cellH, time, store.graphType1, store.subject1);
+    drawSingleGraph(DOM.graphGroup2, geom.cellW, geom.cellH, time, store.graphType2, store.subject2);
   } else {
     DOM.graphGroup2.style.visibility = 'hidden';
-    drawSingleGraph(DOM.graphGroup1, geom.cellW, geom.cellH, time, store.graphType1, store.subject);
+    drawSingleGraph(DOM.graphGroup1, geom.cellW, geom.cellH, time, store.graphType1, store.subject1);
   }
 }
 

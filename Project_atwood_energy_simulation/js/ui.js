@@ -131,7 +131,11 @@ function updateGraphSelectors() {
   DOM.graphSelect2.value = store.graphType2;
   store.graphType1 = DOM.graphSelect1.value;
   store.graphType2 = DOM.graphSelect2.value;
-  store.subject   = DOM.subjectSelect.value;
+  // Je Diagramm ein eigenes Subjekt (unabhängig wählbar im Modus „Zwei Diagramme").
+  DOM.subjectSelect1.value = store.subject1;
+  DOM.subjectSelect2.value = store.subject2;
+  store.subject1 = DOM.subjectSelect1.value;
+  store.subject2 = DOM.subjectSelect2.value;
 }
 
 // ── Layout-Umschalter (Nebeneinander ↔ Übereinander) ──────────────────────────
@@ -247,8 +251,8 @@ function exportCSV(all) {
       headers.push(`${ln.label} / ${cfg.unit}`);
     });
   };
-  addType(store.graphType1, store.subject);
-  if (mode === '2') addType(store.graphType2, store.subject);
+  addType(store.graphType1, store.subject1);
+  if (mode === '2') addType(store.graphType2, store.subject2);
   const rows = t_data.map((_, i) => [t_data[i], ...cols.map(c => c[i])].map(v => fmt(v, 4)).join(';'));
   download([`sep=;\n${headers.join(';')}`, ...rows].join('\n'), 'atwood_energy_diagram.csv');
 }
@@ -306,7 +310,8 @@ DOM.graphModeRadios.forEach(r => r.addEventListener('change', () => {
 }));
 DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateGraphs(store.simulatedTime); });
 DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graphSelect2.value; updateGraphs(store.simulatedTime); });
-DOM.subjectSelect.addEventListener('change', () => { store.subject = DOM.subjectSelect.value; updateGraphs(store.simulatedTime); });
+DOM.subjectSelect1.addEventListener('change', () => { store.subject1 = DOM.subjectSelect1.value; updateGraphs(store.simulatedTime); });
+DOM.subjectSelect2.addEventListener('change', () => { store.subject2 = DOM.subjectSelect2.value; updateGraphs(store.simulatedTime); });
 
 // Layout-Umschalter
 DOM.layoutToggle.addEventListener('click', () => {

@@ -118,7 +118,10 @@ export function precompute() {
     const ep1 = m1 * G * (h1 - hNull1);
     const ep2 = m2 * G * (h2 - hNull2);
     const eges1 = ek1 + ep1, eges2 = ek2 + ep2;
-    const ek_sum = ek1 + ek2 + ek_rot, ep_sum = ep1 + ep2, etot = eges1 + eges2;
+    // E_ges (System-Gesamtenergie) schließt die Rotationsenergie der Rolle ein —
+    // die Rolle ist Teil des Systems. eges1/eges2 sind die Einzelmassen-Energien
+    // (ohne E_rot, die gehört zur Rolle). Ohne Reibung ist E_ges exakt konstant.
+    const ek_sum = ek1 + ek2 + ek_rot, ep_sum = ep1 + ep2, etot = ek_sum + ep_sum;
     // Reibungsarbeit: W_R = F_R · Wegstrecke (nur während Bewegung; a=0 ⇒ 0)
     const dist = 0.5 * Math.abs(accel) * tc * tc;
     const wr = FR * dist;

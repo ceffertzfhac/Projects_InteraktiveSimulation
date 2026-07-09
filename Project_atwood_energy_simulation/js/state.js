@@ -10,7 +10,7 @@ export const store = {
   frictionForce: 0,    // |F_R| in N (skalar, vereinfachtes Coulomb-Modell)
   epZeroMode: 'separate', // 'separate' | 'y1' | 'y2' | 'boden' | 'decke'
   // Rolle (massiv): Masse, Form, Innenradius-Verhältnis r/R (nur Hohlzylinder)
-  pulleyMass: 0.1,       // M_p in kg, 0.1–1
+  pulleyMass: 0,         // M_p in kg, 0–1 (0 = masselos, klassische Atwood-Maschine)
   pulleyShape: 'voll',   // 'voll' = Vollzylinder, 'hohl' = Hohlzylinder
   pulleyInnerRatio: 0.5, // η = r/R, 0.1–0.9 (Außenradius R fix)
   speedFactor: 1.0,
@@ -18,7 +18,8 @@ export const store = {
   diagramMode: 'bars', // 'bars' = Energie-Balken (Default), '1'/'2' = Achsendiagramme
   graphType1: 'ecomposite',
   graphType2: 'wr',
-  subject: 'system',   // 'system' | 'm1' | 'm2'
+  subject1: 'system',  // Subjekt für Diagramm 1: 'system' | 'm1' | 'm2'
+  subject2: 'system',  // Subjekt für Diagramm 2 (nur Modus „Zwei Diagramme")
 
   // Visualisierung
   showForces: true,
@@ -88,7 +89,8 @@ export function initDOM() {
   DOM.graphModeRadios = [...document.querySelectorAll('input[name="diagram_mode"]')];
   DOM.graphSelect1  = document.getElementById('graph_select_1');
   DOM.graphSelect2  = document.getElementById('graph_select_2');
-  DOM.subjectSelect = document.getElementById('subject_select');
+  DOM.subjectSelect1 = document.getElementById('subject_select_1');
+  DOM.subjectSelect2 = document.getElementById('subject_select_2');
   DOM.graphSel2Group = document.getElementById('graph_sel2_group');
   DOM.lineOptionsGroup = document.getElementById('line_options_group');
   DOM.energyBarsView = document.getElementById('energy_bars_view');

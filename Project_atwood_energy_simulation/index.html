@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.0</span>
+    <span class="version">v1.2.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -47,7 +47,7 @@ window.MathJax = {
   <aside class="panel left-panel">
 
     <div class="panel-section">
-      <button class="panel-label" type="button">Massen<span class="accordion-chevron">▾</span></button>
+      <button class="panel-label" type="button">Massen &amp; Rolle<span class="accordion-chevron">▾</span></button>
       <div class="slider-label">Masse \(m_1\)</div>
       <div class="slider-row">
         <input type="range" id="m1_slider" min="1" max="10" value="5.2" step="0.1">
@@ -57,6 +57,23 @@ window.MathJax = {
       <div class="slider-row">
         <input type="range" id="m2_slider" min="1" max="10" value="4.8" step="0.1">
         <span class="slider-val" id="m2_value">4,8 kg</span>
+      </div>
+      <div class="slider-label">Rollenmasse \(M_R\) (0 = masselos)</div>
+      <div class="slider-row">
+        <input type="range" id="pulley_mass_slider" min="0" max="1" value="0" step="0.05">
+        <span class="slider-val" id="pulley_mass_value">0,00 kg</span>
+      </div>
+      <div class="slider-label">Form (Außenradius \(R\) fix)</div>
+      <select id="pulley_shape_select" class="select-field">
+        <option value="voll" selected>Vollzylinder</option>
+        <option value="hohl">Hohlzylinder</option>
+      </select>
+      <div id="pulley_inner_group" style="display:none">
+        <div class="slider-label">Innenradius \(r/R\)</div>
+        <div class="slider-row">
+          <input type="range" id="pulley_inner_slider" min="0.1" max="0.9" value="0.5" step="0.05">
+          <span class="slider-val" id="pulley_inner_value">r/R = 0,50 (r = 20,0 cm)</span>
+        </div>
       </div>
     </div>
 
@@ -90,26 +107,7 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <button class="panel-label" type="button">Rolle<span class="accordion-chevron">▾</span></button>
-      <div class="slider-label">Rollenmasse \(M_R\)</div>
-      <div class="slider-row">
-        <input type="range" id="pulley_mass_slider" min="0.1" max="1" value="0.1" step="0.05">
-        <span class="slider-val" id="pulley_mass_value">0,10 kg</span>
-      </div>
-      <div class="slider-label">Form (Außenradius \(R\) fix)</div>
-      <select id="pulley_shape_select" class="select-field">
-        <option value="voll" selected>Vollzylinder</option>
-        <option value="hohl">Hohlzylinder</option>
-      </select>
-      <div id="pulley_inner_group" style="display:none">
-        <div class="slider-label">Innenradius \(r/R\)</div>
-        <div class="slider-row">
-          <input type="range" id="pulley_inner_slider" min="0.1" max="0.9" value="0.5" step="0.05">
-          <span class="slider-val" id="pulley_inner_value">r/R = 0,50 (r = 20,0 cm)</span>
-        </div>
-      </div>
-    </div>
+
 
     <div class="panel-section collapsed">
       <button class="panel-label" type="button">Reibung<span class="accordion-chevron">▾</span></button>
@@ -164,17 +162,23 @@ window.MathJax = {
         <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
       </div>
       <div id="line_options_group" style="display:none">
-        <div class="slider-label">Subjekt</div>
-        <select id="subject_select" class="select-field">
-          <option value="system" selected>System</option>
-          <option value="m1">Nur \(m_1\)</option>
-          <option value="m2">Nur \(m_2\)</option>
-        </select>
         <div class="slider-label">Diagramm 1</div>
         <select id="graph_select_1" class="select-field"></select>
+        <div class="slider-label">Subjekt 1</div>
+        <select id="subject_select_1" class="select-field">
+          <option value="system" selected>System</option>
+          <option value="m1">Nur m₁</option>
+          <option value="m2">Nur m₂</option>
+        </select>
         <div id="graph_sel2_group">
           <div class="slider-label">Diagramm 2</div>
           <select id="graph_select_2" class="select-field"></select>
+          <div class="slider-label">Subjekt 2</div>
+          <select id="subject_select_2" class="select-field">
+            <option value="system" selected>System</option>
+            <option value="m1">Nur m₁</option>
+            <option value="m2">Nur m₂</option>
+          </select>
         </div>
       </div>
     </div>

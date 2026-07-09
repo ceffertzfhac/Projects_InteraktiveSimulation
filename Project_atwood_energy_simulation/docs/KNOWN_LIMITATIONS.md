@@ -40,20 +40,24 @@ konstant) ist unabhängig vom Nullpunkt. → M7
 
 ## Massive Rolle — Modellannahmen → M7
 
-Die Rolle hat eine wählbare Masse \(M_R\) (0,1–1 kg) und Form
-(Vollzylinder \(I=\tfrac12 M_R R^2\) bzw. Hohlzylinder
+Die Rolle hat eine wählbare Masse \(M_R\) (0–1 kg, 0 = masselos) und
+Form (Vollzylinder \(I=\tfrac12 M_R R^2\) bzw. Hohlzylinder
 \(I=\tfrac12 M_R (R^2+r^2)\) mit einstellbarem \(r/R\in[0{,}1;0{,}9]\),
 Außenradius \(R\) fix). Modellannahmen:
 
 - **Kein Seilschlupf**: \(\omega = v/R\), die Rotationsenergie
-  \(E_{\text{rot}}=\tfrac12(I/R^2)v^2\) ist Teil von \(E_{\text{ges}}\);
-  die Erhaltung \(E_{\text{ges}}+E_V=\text{konst.}\) bleibt erhalten.
+  \(E_{\text{rot}}=\tfrac12(I/R^2)v^2\) ist Teil von \(E_{\text{ges}}\)
+  (\(E_{\text{ges}}=E_{\text{kin}}+E_{\text{rot}}+E_{\text{pot}}\));
+  die Erhaltung \(E_{\text{ges}}+E_V=\text{konst.}\) bleibt erhalten —
+  auch ohne Reibung ist \(E_{\text{ges}}\) exakt konstant, denn die Rolle
+  ist Teil des Systems (Rotationsenergie ist mitgezählt).
 - **Homogene Massenverteilung**: Voll/Hohlzylinder mit scharfem
   Innenrand, keine radial Dichte-verteilten Profile.
-- **Default \(M_R=0{,}1\) kg** (Vollzylinder): nahezu masselos,
-  \(I/R^2=0{,}05\) kg — das System verhält sich klassisch; erst größere
-  \(M_R\) oder dünne Ringe (hohl, \(r/R\to 0{,}9\)) machen die
-  Rotationsenergie sichtbar.
+- **Default \(M_R=0\) kg** (masselos, klassische Atwood-Maschine):
+  \(I/R^2=0\), keine Rotationsenergie, Seilkräfte gleich
+  (\(F_{S,1}=F_{S,2}=m_1 m_2 g/(m_1+m_2)\)). Erst \(M_R>0\) oder dünne
+  Ringe (hohl, \(r/R\to 0{,}9\)) machen die Rotationsenergie sichtbar und
+  die Seilkräfte verschieden.
 - Die Seilkräfte sind bei massiver Rolle **verschieden**
   (\(F_{S,1}=m_1(g-a)\), \(F_{S,2}=m_2(g+a)\)); der alte Einzelwert
   „Seilkraft \(F_S\)" entfällt zugunsten von \(F_{S,1}/F_{S,2}\). → M7

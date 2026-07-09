@@ -5,6 +5,49 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.1 — 2026-07-09
+
+Korrektur der System-Gesamtenergie + Rollenmassen-Bereich erweitert +
+Subjekt-Wahl pro Diagramm + Sektions-Umstrukturierung. PO-Abnahme-Feedback.
+
+### Fixes
+- **\(E_{\text{ges}}\)-Berechnung korrigiert (Kritisch)**: bisher war
+  `etot = eges1 + eges2 = ek1+ek2+ep1+ep2` — die Rotationsenergie der
+  Rolle fehlte in der System-Gesamtenergie. Ohne Reibung fiel
+  \(E_{\text{ges}}\) (angezeigt) während die Rolle Rotationsenergie
+  aufnahm → **nicht** konstant, entgegen der Erwartung. Die Rolle ist
+  Teil des Systems, also muß \(E_{\text{rot}}\) in \(E_{\text{ges}}\):
+  `etot = ek_sum + ep_sum = ek1+ek2+ek_rot+ep1+ep2`. Die Einzelmassen-Energien
+  \(E_{\text{ges},1}/E_{\text{ges},2}\) bleiben ohne \(E_{\text{rot}}\)
+  (die Rotation gehört zur Rolle, nicht zur Einzelmasse). Numerisch
+  verifiziert: ohne Reibung \(E_{\text{ges}}\)-Drift < 2e-14 über alle
+  \(M_R\)/Form-Kombinationen; mit Reibung \(E_{\text{ges}}+E_V\)-Drift
+  < 6e-14 (konstant). Die alte Formel hatte ohne massige Rolle gepaßt
+  (kein \(E_{\text{rot}}\)), daher trat der Fehler erst mit v1.2.0 auf.
+
+### Features
+- **Rollenmasse 0–1 kg**: Slider `min` von 0,1 auf 0 gesetzt — die
+  **masselose Rolle** (klassische Atwood-Maschine) ist wählbar. Default
+  \(M_R=0\) kg (masselos): \(I/R^2=0\), keine Rotationsenergie, Seilkräfte
+  gleich — das klassische Verhalten ist der Ausgangszustand; erst
+  \(M_R>0\) aktiviert Rotation und ungleiche Seilkräfte. `pulleyEffMass`
+  liefert für \(M_R=0\) bereits 0; das Rollen-Mark (kinematische Drehung
+  \(\varphi=s/R\)) dreht sich auch bei masseloser Rolle weiter.
+- **Subjekt pro Diagramm unabhängig**: im Modus „Zwei Diagramme" hat
+  jedes Diagramm seinen eigenen Subjekt-Wähler (System / Nur m₁ /
+  Nur m₂) — statt eines einzelnen, für beide geltenden Subjekts.
+  `subject` (einfach) → `subject1`/`subject2` in `state`/`DOM`;
+  `render.updateGraphs` verwendet `subject1` für Diagramm 1 und
+  `subject2` für Diagramm 2; CSV-Export entsprechend. Subjekt 2-Select
+  nur im Modus „Zwei Diagramme" sichtbar.
+
+### Changed
+- **Sektion „Massen & Rolle"**: Rollen-Steuerung (Masse, Form,
+  Innenradius) in die „Massen"-Sektion integriert und diese in
+  „Massen & Rolle" umbenannt; die eigenständige „Rolle"-Sektion
+  entfällt. Options-Text der Subjekt-Selects auf Unicode-Subskripte
+  (m₁/m₂) umgestellt (MathJax rendert in `<option>` nativ nicht).
+
 ## v1.2.0 — 2026-07-09
 
 Massive Rolle mit Rotationsenergie. Die Rolle bekommt eine wählbare Masse
