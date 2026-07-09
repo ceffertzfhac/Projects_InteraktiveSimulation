@@ -5,6 +5,29 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.1 — 2026-07-09
+
+Nullpunkt-Auswahl \(E_{\text{pot}}\) direkt über die Energiebilanz
+gepackt und um zwei Bezugspunkte erweitert.
+
+### Features
+- **Nullpunkt-Auswahl über der Energiebilanz**: `ep_zero_select` aus der
+  linken Sidebar-Sektion in eine schmale `energy-zero-bar` am oberen Rand
+  des Graph-Bereichs verschoben (direkt über dem Balkendiagramm). Linke
+  Sektion „Reibung & Energie-Referenz" heißt nun „Reibung" (enthält nur
+  noch den Reibungskraft-Slider).
+- **Zwei weitere Bezugspunkte**: „Boden (h = 0)" und „Decke (oberes Ende)"
+  als wählbare \(E_{\text{pot}}\)-Nullpunkte. `physics.js` liefert je Modus
+  `hNull1`/`hNull2`: `boden` → 0, `decke` → \(h_{\max}\). Energieerhaltung
+  bleibt erhalten (Nullpunkthöhe zeitunabhängig).
+- **Nulllinien in der Szene** für alle 5 Modi (separate/y1/y2/boden/decke);
+  Boden → Linie am Boden, Decke → Linie an der Decke.
+
+### Notes
+- Options-Text ohne MathJax (nativ nicht renderbar); Unicode-Subskripte
+  (m₁/m₂) statt `\(...\)`. Das Label „Nullpunkt \(E_{\text{pot}}\)" außerhalb
+  des Selects bleibt MathJax-gesetzt.
+
 ## v1.1.0 — 2026-07-09
 
 Rework der Diagramm-Anzeige nach PO-Korrektur: das im Prototypen als

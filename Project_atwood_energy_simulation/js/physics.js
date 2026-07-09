@@ -65,13 +65,21 @@ export function precompute() {
   store.t_end = collisions.length > 0 ? Math.min(...collisions) : 10.0;
 
   // E_pot-Nullpunkthöhen (m über Boden), je Modus:
-  //   separate: je Masse eigene Start Höhe  → E_pot_i(0)=0 für beide
-  //   y1:       beide auf h1_0 bezogen
-  //   y2:       beide auf h2_0 bezogen
+  //   separate: je Masse eigene Starthöhe → E_pot_i(0)=0 für beide
+  //   y1:       beide auf Starthöhe von m₁ bezogen
+  //   y2:       beide auf Starthöhe von m₂ bezogen
+  //   boden:    beide auf Boden (h = 0) bezogen — klassische Lageenergie
+  //   decke:    beide auf Decke (h = h_max) bezogen — Energien ≤ 0
   const h1_0 = Y_MAX_M - y1_m0;
   const h2_0 = Y_MAX_M - y2_m0;
-  const hNull1 = epZeroMode === 'y2' ? h2_0 : h1_0;
-  const hNull2 = epZeroMode === 'y1' ? h1_0 : h2_0;
+  let hNull1, hNull2;
+  switch (epZeroMode) {
+    case 'y1':    hNull1 = h1_0;     hNull2 = h1_0;     break;
+    case 'y2':    hNull1 = h2_0;     hNull2 = h2_0;     break;
+    case 'boden': hNull1 = 0;        hNull2 = 0;        break;
+    case 'decke': hNull1 = Y_MAX_M;  hNull2 = Y_MAX_M;  break;
+    default:      hNull1 = h1_0;     hNull2 = h2_0;     // separate
+  }
 
   // Arrays zurücksetzen
   const A = [

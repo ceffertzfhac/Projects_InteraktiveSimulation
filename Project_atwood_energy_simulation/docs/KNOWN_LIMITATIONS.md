@@ -28,13 +28,14 @@ konstant) und Energieverlust (mit F_R: \(E_{\text{ges}}\) fällt, \(E_V\)
 wächst, \(E_{\text{ges}}+E_V\) konstant) zu zeigen. Für quantitative
 Reibungsanalyse ist das Modell zu grob. → M7
 
-## E_pot-Nullpunkt nur startbezogen → M7
+## E_pot-Nullpunkt wählbar → M7
 
-Drei wählbare Nullpunkte (je Masse eigene Starthöhe / Höhe von m₁-Start /
-Höhe von m₂-Start) — alle auf eine **Start­höhe** bezogen. Damit ist
-\(E_{\text{ges}}(0)=0\) (v(0)=0 und E_pot am Start = 0). Ein fester
-absoluter Nullpunkt (Boden, h=0) ist bewußt nicht angeboten; die
-Erhaltungsaussage (Linie konstant) ist unabhängig vom Nullpunkt. → M7
+Fünf wählbare Nullpunkte (je Masse eigene Starthöhe / Höhe von m₁-Start /
+Höhe von m₂-Start / **Boden (h = 0)** / **Decke (oberes Ende)**). Die
+startbezogenen Modi liefern \(E_{\text{ges}}(0)=0\) (v(0)=0 und E_pot am
+Start = 0); Boden/Decke geben feste absolute Nullpunkte mit von 0
+verschiedenem \(E_{\text{ges}}\). Die Erhaltungsaussage (\(E_{\text{ges}}+E_V\)
+konstant) ist unabhängig vom Nullpunkt. → M7
 
 ## Kein Trägheitsmoment der Rolle
 

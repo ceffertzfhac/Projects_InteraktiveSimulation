@@ -128,8 +128,12 @@ export function drawZeroLines() {
     heights.push(Y_MAX_M - y2_start_cm / CM_PER_M);
   } else if (epZeroMode === 'y1') {
     heights.push(Y_MAX_M - y1_start_cm / CM_PER_M);
-  } else {
+  } else if (epZeroMode === 'y2') {
     heights.push(Y_MAX_M - y2_start_cm / CM_PER_M);
+  } else if (epZeroMode === 'boden') {
+    heights.push(0);
+  } else if (epZeroMode === 'decke') {
+    heights.push(Y_MAX_M);
   }
   const x1 = X_LEFT - 38, x2 = X_RIGHT + 38;
   for (const h_m of heights) {
