@@ -5,6 +5,22 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.14 — 2026-07-10
+
+E_pot-Nulllinie im „Decke"-Modus hinter der Blende verschwunden. Bugfix B17.
+
+### Fixes
+- **Nulllinie bei epZeroMode „decke" unsichtbar (B17)**: `zero_lines_group`
+  stand im SVG **vor** `aperture_path` (Blenden-Grafik, deckende Füllung
+  `--aperture-fill`). Im Modus „Decke" liegt die Nulllinie exakt auf Höhe
+  der Blendenunterkante (`h = Y_MAX_M` ⇒ SVG-y = 107,5, oberer Rand des
+  `aperture_path`-Rechtecks) — die später gezeichnete, deckend gefüllte
+  Blende überdeckte die Linie vollständig. PO-Meldung 2026-07-10.
+  **Korrigiert:** `zero_lines_group` im Markup hinter `aperture_path`
+  verschoben (`index.html`), sodaß die gestrichelte Nulllinie jetzt über
+  der Blende gezeichnet wird und sichtbar bleibt. Rein deklarative
+  Dokumentreihenfolge, keine JS-Änderung nötig.
+
 ## v1.2.13 — 2026-07-10
 
 E_pot-Nulllinien im separate-Modus mit Index 1/2 beschriftet. FAE14.
