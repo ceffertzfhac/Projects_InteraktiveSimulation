@@ -5,6 +5,17 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.1 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5→4 Cluster konsolidiert — „Diagramm"
+  (nur ein Toggle: x/y gestapelt) in „Visualisierung" integriert
+  (Single-Control-Cluster-Regel). Parameter/Visualisierung/Legende bleiben
+  offen, „Abspielgeschwindigkeit" default eingeklappt. Referenz: Kreis-/
+  Spiralbewegung v1.3.0 (Schwester-Sim). Per Browsertest verifiziert.
+
 ## v1.1.0 — 2026-07-09
 ### Geändert (Dual-Diagramme orthogonal zur Sim/Diagramm-Aufteilung)
 - Im gestapelten Modus (zwei Diagramme, `isStacked`) liegen die beiden Diagramme
