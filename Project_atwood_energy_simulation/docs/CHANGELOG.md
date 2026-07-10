@@ -5,6 +5,38 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.7 — 2026-07-10
+
+Diagrammsteuerung vom linken Sidebar in den Center über das
+\(E_{\text{pot}}\)-Dropdown gezogen + Layout-Umschalter ausgeblendet.
+FAE9–FAE11 (auf Branch ausprobiert).
+
+### Features
+- **Diagrammsteuerung in den Center (FAE9)**: die „Diagramme"-Sektion
+  (Modus-Pills Energie-Balken/Ein/Zwei + Diagramm-/Subjekt-Dropdowns)
+  aus dem linken Sidebar entfernt und als neue `.diagram-controls-bar`
+  im `graph-wrapper` platziert — direkt über dem
+  \(E_{\text{pot}}\)-Nullpunkt-Dropdown (`energy-zero-bar`). So sitzt
+  die Steuerung immer sichtbar direkt über dem gesteuerten Diagramm
+  und entlastet den linken Sidebar. IDs/`name="diagram_mode"`
+  unverändert → JS (`state.js`/`ui.js`/`render.js`) panel-agnostisch,
+  keine Code-Änderung nötig; `setupAccordion()` (`.left-panel`-scoped)
+  betrifft die entfernte Sektion nicht mehr. Label+Select zu
+  `.diagram-opt`-Paaren umgebaut. Neue CSS-Regeln in `styles.css`.
+- **Zwei-Diagramme-Selects als 2×2-Einheit (FAE10)**: bei „Zwei
+  Diagramme" stehen die 4 Dropdowns als konsistente 2×2-Steuerheinheit
+  — Diagramm 1 / Subjekt 1 in Zeile 1, Diagramm 2 / Subjekt 2 in
+  Zeile 2, exakt untereinander, gleiche Spaltenbreiten. `.diagram-line-opts`
+  + `#graph_sel2_group` von Flex auf CSS-Grid `1fr 1fr`; `#graph_sel2_group`
+  mit `grid-column:1/-1` spannt beide Spalten und ist intern 2-spaltig.
+- **Layout-Umschalter ausgeblendet (FAE11)**: in dieser Sim macht nur
+  Nebeneinander Sinn → der Umschalter-Button (`#layout_toggle`) im
+  Topbar wird ausgeblendet (HTML-Kommentar, Code behalten).
+  `applyLayout()` und der Click-Listener in `ui.js` sind null-sicher
+  geguarded (`if (DOM.layoutToggle)`); Init zwingt `layoutSplit=true`
+  (Nebeneinander), die savedLayout-Auswertung ist auskommentiert.
+  Zum Reaktivieren nur den HTML-Kommentar um den Button entfernen.
+
 ## v1.2.6 — 2026-07-10
 
 Physik-Box im Analyse-Panel auf Energiebetrachtung umgestellt +

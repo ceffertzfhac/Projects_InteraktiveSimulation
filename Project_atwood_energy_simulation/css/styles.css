@@ -124,6 +124,23 @@ body.dark {
 .energy-zero-bar .ez-label { font-size: .78rem; color: var(--text2); white-space: nowrap; }
 .energy-zero-bar .select-field { margin: 0; max-width: 340px; }
 
+/* ── DIAGRAMM-STEUERLEISTE (über dem E_pot-Dropdown, FAE9) ─────────────────── */
+/* updateGraphSelectors() setzt display:'' zum Zeigen → fällt auf diesen
+   CSS-Default zurück; daher muß display:grid sein (sonst '' → block). */
+.diagram-controls-bar {
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;
+  padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--surface);
+}
+/* 2×2-Steuerheinheit: Diagramm 1 / Subjekt 1 in Zeile 1, Diagramm 2 / Subjekt 2
+   in Zeile 2 — gleiche Spaltenbreiten (1fr 1fr), selectors exakt untereinander.
+   #graph_sel2_group spannt beide Spalten und ist selbst 2-spaltig, sodaß D2
+   unter D1 und S2 unter S1 rücken (FAE10). */
+.diagram-line-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+#graph_sel2_group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; grid-column: 1 / -1; }
+.diagram-opt { display: flex; flex-direction: column; }
+.diagram-opt .slider-label { margin-bottom: 3px; }
+.diagram-opt .select-field { margin: 0; }   /* override des 8-px-Bottom-Margins */
+
 /* ── ENERGIE-BALKENDIAGRAMM (Default-Diagramm-Anzeige) ─────────────────────── */
 .energy-bars-view {
   flex: 1 1 auto; overflow-y: auto; min-height: 0;

@@ -142,8 +142,10 @@ function updateGraphSelectors() {
 function applyLayout() {
   const split = store.layoutSplit;
   DOM.mainSvg.closest('.center-area').classList.toggle('layout-split', split);
-  DOM.layoutToggle.textContent = split ? '▦ Nebeneinander' : '▦ Übereinander';
-  DOM.layoutToggle.classList.toggle('active', split);
+  if (DOM.layoutToggle) {                              // FAE11: Button ausgeblendet → null-sicher
+    DOM.layoutToggle.textContent = split ? '▦ Nebeneinander' : '▦ Übereinander';
+    DOM.layoutToggle.classList.toggle('active', split);
+  }
   localStorage.setItem('atwood_energy_layout', split ? 'split' : 'stacked');
 }
 
@@ -282,9 +284,12 @@ setupAccordion();
 drawRuler();
 drawStopwatchMarks();
 
-// Layout wiederherstellen
-const savedLayout = localStorage.getItem('atwood_energy_layout');
-store.layoutSplit = savedLayout === 'stacked' ? false : true;
+// Layout wiederherstellen — FAE11: nur Nebeneinander sinnvoll (Umschalter
+// ausgeblendet), daher Layout immer Nebeneinander. savedLayout-Auswertung
+// bleibt als Kommentar, falls der Umschalter reaktiviert wird.
+// const savedLayout = localStorage.getItem('atwood_energy_layout');
+// store.layoutSplit = savedLayout === 'stacked' ? false : true;
+store.layoutSplit = true;
 applyLayout();
 
 // Massen
@@ -321,12 +326,15 @@ DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graph
 DOM.subjectSelect1.addEventListener('change', () => { store.subject1 = DOM.subjectSelect1.value; updateGraphs(store.simulatedTime); });
 DOM.subjectSelect2.addEventListener('change', () => { store.subject2 = DOM.subjectSelect2.value; updateGraphs(store.simulatedTime); });
 
-// Layout-Umschalter
-DOM.layoutToggle.addEventListener('click', () => {
-  store.layoutSplit = !store.layoutSplit;
-  applyLayout();
-  updateGraphs(store.simulatedTime);
-});
+// Layout-Umschalter (FAE11: Button ausgeblendet — Listener null-sicher,
+// Code bleibt zum Reaktivieren erhalten)
+if (DOM.layoutToggle) {
+  DOM.layoutToggle.addEventListener('click', () => {
+    store.layoutSplit = !store.layoutSplit;
+    applyLayout();
+    updateGraphs(store.simulatedTime);
+  });
+}
 
 // Geschwindigkeit
 document.querySelectorAll('input[name="speed"]').forEach(r => r.addEventListener('change', () => {

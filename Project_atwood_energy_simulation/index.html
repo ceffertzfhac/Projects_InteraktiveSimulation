@@ -20,11 +20,15 @@ window.MathJax = {
 <header class="topbar">
   <div class="topbar-left">
     <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+    <!-- FAE11: Layout-Umschalter ausgeblendet — in dieser Sim macht nur
+         Nebeneinander Sinn. Button + JS bleiben erhalten (null-sicher
+         geguarded), zum Reaktivieren nur diese Kommentare entfernen.
     <button class="btn layout-toggle-btn" id="layout_toggle" title="Layout: Simulation &amp; Diagramm nebeneinander / übereinander">▦ Nebeneinander</button>
+    -->
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.6</span>
+    <span class="version">v1.2.7</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -154,35 +158,6 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <button class="panel-label" type="button">Diagramme<span class="accordion-chevron">▾</span></button>
-      <div class="speed-pills" id="diagram_mode_group">
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="bars" checked><span>Energie-Balken</span></label>
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
-      </div>
-      <div id="line_options_group" style="display:none">
-        <div class="slider-label">Diagramm 1</div>
-        <select id="graph_select_1" class="select-field"></select>
-        <div class="slider-label">Subjekt 1</div>
-        <select id="subject_select_1" class="select-field">
-          <option value="system" selected>System</option>
-          <option value="m1">Nur m₁</option>
-          <option value="m2">Nur m₂</option>
-        </select>
-        <div id="graph_sel2_group">
-          <div class="slider-label">Diagramm 2</div>
-          <select id="graph_select_2" class="select-field"></select>
-          <div class="slider-label">Subjekt 2</div>
-          <select id="subject_select_2" class="select-field">
-            <option value="system" selected>System</option>
-            <option value="m1">Nur m₁</option>
-            <option value="m2">Nur m₂</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
     <div class="panel-section collapsed">
       <button class="panel-label" type="button">Abspielgeschwindigkeit<span class="accordion-chevron">▾</span></button>
       <div class="speed-pills">
@@ -254,6 +229,35 @@ window.MathJax = {
     </div>
 
     <div class="graph-wrapper">
+      <!-- Diagrammsteuerung — direkt über dem Diagramm (FAE9) -->
+      <div class="diagram-controls-bar">
+        <div class="speed-pills" id="diagram_mode_group">
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="bars" checked><span>Energie-Balken</span></label>
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+        </div>
+        <div id="line_options_group" class="diagram-line-opts" style="display:none">
+          <div class="diagram-opt"><span class="slider-label">Diagramm 1</span>
+            <select id="graph_select_1" class="select-field"></select></div>
+          <div class="diagram-opt"><span class="slider-label">Subjekt 1</span>
+            <select id="subject_select_1" class="select-field">
+              <option value="system" selected>System</option>
+              <option value="m1">Nur m₁</option>
+              <option value="m2">Nur m₂</option>
+            </select></div>
+          <div id="graph_sel2_group">
+            <div class="diagram-opt"><span class="slider-label">Diagramm 2</span>
+              <select id="graph_select_2" class="select-field"></select></div>
+            <div class="diagram-opt"><span class="slider-label">Subjekt 2</span>
+              <select id="subject_select_2" class="select-field">
+                <option value="system" selected>System</option>
+                <option value="m1">Nur m₁</option>
+                <option value="m2">Nur m₂</option>
+              </select></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Nullpunkt potentielle Energie — direkt über der Energiebilanz -->
       <div class="energy-zero-bar">
         <span class="ez-label">Nullpunkt \(E_{\text{pot}}\):</span>
