@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.12 — 2026-07-10
+
+E_pot-Nulllinie der rechten Masse (m₂) war doppelt beschriftet. Bugfix B16.
+
+### Fixes
+- **E_pot-Nulllinie m₂ zeigte „E_pot = 0" links UND rechts (B16)**:
+  `drawZeroLines` (`render.js`) zeichnete das Links-Label unbedingt und
+  ergänzte bei `right:true` (m₂-Nulllinie) zusätzlich ein Rechts-Label —
+  seit FAE7 (v1.2.5) also zwei Beschriftungen für dieselbe Linie. Nur
+  rechts ist korrekt. PO-Meldung 2026-07-10. **Korrigiert:** Links-/
+  Rechts-Label jetzt exklusiv (`if (right) … else …`).
+
 ## v1.2.11 — 2026-07-10
 
 Diagrammtyp „Energie (E_kin, E_pot, E_ges)" ignorierte das gewählte Subjekt. Bugfix B15.

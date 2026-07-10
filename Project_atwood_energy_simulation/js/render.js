@@ -140,9 +140,11 @@ export function drawZeroLines() {
   for (const { h: h_m, right } of lines) {
     const y = Y_FLOOR_SVG - h_m * PPM;
     g.appendChild(el('line', { x1, y1: y, x2, y2: y, class: 'zero-line' }));
-    g.appendChild(textEl('E_pot = 0', x1 - 2, y - 3, 'end', 'zero-line-label'));
     if (right) {
-      g.appendChild(textEl('E_pot = 0', x2 + 2, y - 3, 'start', 'zero-line-label')); // FAE7
+      // Nulllinie der rechten Masse (m₂) ⇒ nur rechts beschriften (FAE7-Korrektur).
+      g.appendChild(textEl('E_pot = 0', x2 + 2, y - 3, 'start', 'zero-line-label'));
+    } else {
+      g.appendChild(textEl('E_pot = 0', x1 - 2, y - 3, 'end', 'zero-line-label'));
     }
   }
 }
