@@ -5,6 +5,33 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.10 — 2026-07-10
+
+Vorzeichen von v₁/v₂/a₁/a₂ auf die Höhen-Konvention korrigiert. Bugfix B14.
+
+### Fixes
+- **v₁/v₂/a₁/a₂ hatten invertiertes Vorzeichen gegenüber y₁/y₂ (B14,
+  kritisch)**: `y1_data`/`y2_data` sind kanonisch als „Höhe vom Boden"
+  gespeichert (`Y_MAX_CM − y·100`, wächst beim Steigen). `v1_data`/`a1_data`
+  wurden dagegen direkt aus der **Apertur-Koordinate** übernommen
+  (`v`/`accel`, positiv wenn m₁ **fällt** — Apertur-Abstand wächst), ohne
+  die Umrechnung auf die Höhen-Konvention, die `yrel1_data`/`yrel2_data`
+  bereits korrekt anwenden (`-s`/`+s`). Folge: Live-Panel, „Geschwindigkeit
+  v"/„Beschleunigung a"-Diagramme und CSV-Export zeigten z. B. bei
+  fallendem m₁ (Höhe y₁ sinkt) ein **positives, wachsendes** v₁ statt des
+  erwarteten negativen Werts — Vorzeichen von Position und Geschwindigkeit
+  widersprachen sich direkt (Ableitungsbeziehung dy/dt=v verletzt).
+  Numerisch verifiziert (m₁=6 kg, m₂=4 kg): y₁ fällt von 250,000 auf
+  249,564 cm, v₁ zeigte vorher +0,131 m/s statt der erwarteten −0,131 m/s.
+  Dieselbe Vorzeichenverwechslung (Apertur- vs. Höhen-Koordinate) war
+  bereits Ursache von B13 (Rollenrotation) — dort gefixt, hier nicht.
+  **Korrigiert:** `physics.js` `v1_data.push(-v)`, `v2_data.push(v)`,
+  `a1_data.push(-accel)`, `a2_data.push(accel)`; `render.js`
+  Live-Panel-Beschleunigung `liveA1`/`liveA2` ebenfalls getauscht (nutzte
+  `accel`/`-accel` direkt statt der Arrays). Energieberechnung unverändert
+  korrekt (nutzt `v*v`, quadriert — vorzeichenunabhängig); Energieerhaltung
+  weiterhin exakt (Drift ~1e-14). PO-Meldung 2026-07-10.
+
 ## v1.2.9 — 2026-07-10
 
 Abszissenbreite der Diagramme ~20 % erhöht. FAE13.
