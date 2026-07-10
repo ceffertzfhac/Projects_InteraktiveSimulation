@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Federpendel
-    <span class="version">v1.0.13</span>
+    <span class="version">v1.0.14</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -45,16 +45,12 @@ window.MathJax = {
   <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
   <aside class="panel left-panel">
 
-    <div class="panel-section">
-      <div class="panel-label">Aufbau</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Aufbau &amp; Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="radio-group" style="display:flex; gap:18px; margin-bottom:6px">
         <label><input type="radio" name="orientation" value="horizontal" checked> Horizontal</label>
         <label><input type="radio" name="orientation" value="vertical"> Vertikal</label>
       </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Parameter</div>
       <div class="slider-label">Masse \(m\)</div>
       <div class="slider-row">
         <input type="range" id="mass_slider" min="0.5" max="5.0" value="2.0" step="0.1">
@@ -72,8 +68,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Visualisierung</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">Auslenkungsvektor \(\vec{x}\)</span>
         <label class="toggle-switch">
@@ -104,8 +100,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Legende</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="legend-grid">
         <div class="legend-swatch" style="background:var(--c-sp)"></div>
         <div class="legend-label">Auslenkung \(\vec{x}\)</div>
@@ -118,8 +114,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Abspielgeschwindigkeit</div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="speed-pills">
         <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>

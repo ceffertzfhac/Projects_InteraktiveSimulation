@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.14 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5→4 Cluster konsolidiert — „Aufbau"
+  (Single-Control: Orientierung-Radiogroup) in „Parameter" integriert
+  (Single-Control-Cluster-Regel), neuer Titel „Aufbau & Parameter".
+  Aufbau & Parameter/Visualisierung/Legende bleiben offen, „Abspiel-
+  geschwindigkeit" default eingeklappt. Referenz: Kreis-/Spiralbewegung
+  v1.3.0. Per Playwright verifiziert.
+
 ## v1.0.13 — 2026-07-10
 
 Vertikaler Modus: dynamische Skalierung bei großer Masse/kleinem k. Bugfix B5.
