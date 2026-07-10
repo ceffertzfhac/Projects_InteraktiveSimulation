@@ -89,6 +89,10 @@ export function initDOM() {
   DOM.liveA1    = document.getElementById('live_a1');
   DOM.liveA2    = document.getElementById('live_a2');
   DOM.liveTens  = document.getElementById('live_tens');
+  DOM.liveFg1   = document.getElementById('live_fg1');
+  DOM.liveFg2   = document.getElementById('live_fg2');
+  DOM.liveFnet1 = document.getElementById('live_fnet1');
+  DOM.liveFnet2 = document.getElementById('live_fnet2');
   DOM.liveV1    = document.getElementById('live_v1');
   DOM.liveV2    = document.getElementById('live_v2');
   DOM.liveY1    = document.getElementById('live_y1');

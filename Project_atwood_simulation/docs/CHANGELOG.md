@@ -1,5 +1,28 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.5 — 2026-07-10
+
+Startpositionsgrenzen von Atwood-Energie übernommen + F_G/F_ges je Masse
+in „Physik (konstant)" ergänzt. FA4, FA5.
+
+### Features
+- **Startpositionsgrenzen von Atwood-Energie übernommen (FA4)**:
+  `y1_slider`/`y2_slider` `min`/`max` 70/330 → 40/320 cm (Höhe vom Boden),
+  Diff-Modus-Klammer in `ui.js` (`Math.min(330,…)`/`Math.max(70,…)` →
+  `Math.min(320,…)`/`Math.max(40,…)`) analog angepasst. Physikalisch
+  identische Maschine wie Atwood-Energie (gleiche `MASS_BASE`/
+  `MASS_FACTOR`/`Y_MAX_CM`) — bei max. Masse (10 kg, Halbhöhe 27,5 cm)
+  keine Kollision mit Boden/Oberkante (→ FAE1/FAE6).
+- **\(F_G\)/\(F_{\text{ges}}\) je Masse in „Physik (konstant)" (FA5)**:
+  Live-Werte-Box zeigte bisher nur \(a_1\), \(a_2\), \(F_S\). Ergänzt:
+  \(F_{G,1}=m_1 g\), \(F_{G,2}=m_2 g\) (immer positiv, Schwerkraft) sowie
+  \(F_{\text{ges},1}=m_1 a_1\), \(F_{\text{ges},2}=m_2 a_2\) (resultierende
+  Kraft je Masse) — `a_i` dabei im selben Höhen-Vorzeichen wie die bereits
+  angezeigten \(a_1\)/\(a_2\) (B14-Konvention: `F_ges,1 = m1·(-accel)`,
+  `F_ges,2 = m2·accel`), damit \(F=ma\) mit den sichtbaren Werten
+  konsistent aufgeht. Neue DOM-IDs `live_fg1`/`live_fg2`/`live_fnet1`/
+  `live_fnet2`. *(PO-Wunsch 2026-07-10)*
+
 ## v2.2.4 — 2026-07-10
 
 Vorzeichen von v₁/v₂/a₁/a₂ auf die Höhen-Konvention korrigiert. Bugfix B14.

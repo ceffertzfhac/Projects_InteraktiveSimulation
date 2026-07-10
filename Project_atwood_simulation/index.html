@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.2.4</span>
+    <span class="version">v2.2.5</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -69,14 +69,14 @@ window.MathJax = {
       <div id="y1_group">
         <div class="slider-label">Startposition \(y_1\)</div>
         <div class="slider-row">
-          <input type="range" id="y1_slider" min="70" max="330" value="250" step="5">
+          <input type="range" id="y1_slider" min="40" max="320" value="250" step="5">
           <span class="slider-val" id="y1_value">250 cm</span>
         </div>
       </div>
       <div id="y2_group">
         <div class="slider-label">Startposition \(y_2\)</div>
         <div class="slider-row">
-          <input type="range" id="y2_slider" min="70" max="330" value="250" step="5">
+          <input type="range" id="y2_slider" min="40" max="320" value="250" step="5">
           <span class="slider-val" id="y2_value">250 cm</span>
         </div>
       </div>
@@ -289,6 +289,14 @@ window.MathJax = {
           <div class="analysis-cell val" id="live_a2">— m/s²</div>
           <div class="analysis-cell key">Seilkraft \(F_S\)</div>
           <div class="analysis-cell val" id="live_tens">— N</div>
+          <div class="analysis-cell key">Schwerkraft \(F_{G,1}\)</div>
+          <div class="analysis-cell val" id="live_fg1">— N</div>
+          <div class="analysis-cell key">Schwerkraft \(F_{G,2}\)</div>
+          <div class="analysis-cell val" id="live_fg2">— N</div>
+          <div class="analysis-cell key">Resultierend \(F_{\text{ges},1}\)</div>
+          <div class="analysis-cell val" id="live_fnet1">— N</div>
+          <div class="analysis-cell key">Resultierend \(F_{\text{ges},2}\)</div>
+          <div class="analysis-cell val" id="live_fnet2">— N</div>
         </div>
       </div>
     </div>

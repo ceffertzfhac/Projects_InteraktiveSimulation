@@ -210,6 +210,11 @@ export function updateScene(t, y1_m, y2_m) {
   DOM.liveA1.textContent    = `${fmt(-accel, 3)} m/s²`;
   DOM.liveA2.textContent    = `${fmt(accel, 3)} m/s²`;
   DOM.liveTens.textContent  = `${fmt(tens, 2)} N`;
+  DOM.liveFg1.textContent   = `${fmt(m1 * G, 2)} N`;
+  DOM.liveFg2.textContent   = `${fmt(m2 * G, 2)} N`;
+  // F_ges,i = m_i · a_i mit a_i im selben Höhen-Vorzeichen wie live_a1/live_a2 (B14)
+  DOM.liveFnet1.textContent = `${fmt(m1 * -accel, 2)} N`;
+  DOM.liveFnet2.textContent = `${fmt(m2 * accel, 2)} N`;
   DOM.liveV1.textContent    = `${fmt(v1, 3)} m/s`;
   DOM.liveV2.textContent    = `${fmt(v2, 3)} m/s`;
   DOM.liveY1.textContent    = `${fmt(Y_MAX_CM - y1_m * CM_PER_M, 1)} cm`;
