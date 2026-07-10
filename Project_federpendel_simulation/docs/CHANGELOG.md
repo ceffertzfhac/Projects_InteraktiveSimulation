@@ -5,6 +5,38 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.13 — 2026-07-10
+
+Vertikaler Modus: dynamische Skalierung bei großer Masse/kleinem k. Bugfix B5.
+
+### Fixes
+- **Vertikaler Modus rutscht bei großer Masse/kleinem k aus dem sichtbaren
+  Bereich (B5)**: Die Dehnung \(\delta L=mg/k\) wurde mit der festen
+  `PIXELS_PER_METER=100` skaliert — bei \(m=5{,}0\) kg und \(k=5\) N/m
+  ergibt das \(\delta L≈9{,}81\) m (≈981 px), die Ruhelage lag damit weit
+  unterhalb der viewBox (Höhe 475 px). **Korrigiert:** neues
+  `store.currentPixelsPerMeter`, im vertikalen Modus dynamisch auf
+  `min(PIXELS_PER_METER, verfügbarerPlatz / (L0+δL+|Amplitude|))`
+  geclampt — Feder, Ruhelage und Schwingung bleiben immer im sichtbaren
+  Bereich; bei kleinem δL bleibt die Skala unverändert bei 100 px/m
+  (kein Sichtbarkeitsunterschied bei typischen Parametern). Horizontaler
+  Modus (keine Gravitationsdehnung) bleibt unverändert bei voller Skala.
+  `updateScene()` nutzt dieselbe Skala wie `setupScene()`, damit
+  Schwingung und Ruhelage nicht auseinanderlaufen. Numerisch verifiziert
+  (Worst Case \(m=5,k=5,A=1{,}5\)): tiefster Punkt jetzt bei y≈420 px
+  statt weit außerhalb der 480-px-viewBox.
+
+### Geprüft, kein Fehler
+- **B4 (manuelle Zeitmessung: Pause→Play-Versatz) — nicht reproduzierbar.**
+  Der migrierte Bug-Report bezog sich vermutlich auf eine ältere
+  Prototyp-Fassung. Im aktuellen Code setzt `startAnimation()` bereits
+  `store.lastFrameTime = 0` vor dem Resume; `animate()` erkennt das über
+  `if (!store.lastFrameTime) store.lastFrameTime = currentTime`, wodurch
+  `deltaTime` im ersten Frame nach Pause exakt 0 ist (keine Sprünge,
+  unabhängig von der Pausendauer). Per Logik-Simulation nachgestellt
+  (5 s Pause, danach Resume) — `visualTime`/`simulatedTime` setzen exakt
+  am Pausierungspunkt fort. Kein Code-Defekt.
+
 ## v1.0.12 — 2026-07-07
 ### Behoben (T6-Regressions-Fix)
 - **Simulation war nach T6 (v1.0.11) vollständig dysfunktional:** `fmt` wurde in

@@ -198,7 +198,6 @@ export function updateDigitalDisplay(totalSeconds) {
 // ── Szene aufbauen (statische Elemente, orientierungsabhängig) ───────────────
 // Gibt { animCenterX, animCenterY, springAttachX, springAttachY } zurück.
 export function setupScene() {
-  const scale = v => v * PIXELS_PER_METER
   const cx0 = ANIM_W / 2, cy0 = ANIM_H / 2
   const A = store.amplitude
   const massSize = store.currentMassRenderSize
@@ -214,6 +213,10 @@ export function setupScene() {
   DOM.surface.style.visibility = 'hidden'
 
   if (store.oscillationMode === 'horizontal') {
+    // Horizontaler Aufbau hat keine massenabhängige Dehnung (keine Gravitation
+    // entlang der Schwingungsachse) — volle Skalierung, kein Clamp nötig.
+    store.currentPixelsPerMeter = PIXELS_PER_METER
+    const scale = v => v * store.currentPixelsPerMeter
     // Horizontaler Aufbau: breites SVG → gestapelt (Sim oben, Diagramm unten).
     DOM.centerArea.classList.remove('layout-side')
     // Stoppuhr nach rechts (auf Oszillator-Höhe), Oszillator nutzt die Breite.
@@ -283,12 +286,23 @@ export function setupScene() {
     DOM.stopwatch.setAttribute('transform', 'translate(220, 60) scale(0.595)')
     DOM.pos0Label.innerHTML = 'Anfangsauslenkung <i>y</i>₀:'
     const deltaL = (store.m * G) / store.k
+    springAttachX = cx0
+    springAttachY = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS
+
+    // B5: bei großer Masse/kleinem k wird δL=mg/k groß — die Ruhelage kann weit
+    // unter den sichtbaren viewBox-Bereich (y bis 480) rutschen. Skaliert
+    // Pixel/Meter dynamisch so, daß Federlänge + δL + Amplitude in den
+    // verfügbaren Platz passen (Clamp nach oben bei PIXELS_PER_METER, sodaß
+    // kleine δL wie bisher unskaliert bleiben).
+    const neededMeters = L0 + deltaL + Math.abs(A)
+    const availablePx = 480 - springAttachY - 60 // Bodenrand minus Label-/Massenpuffer
+    store.currentPixelsPerMeter = Math.min(PIXELS_PER_METER, availablePx / neededMeters)
+    const scale = v => v * store.currentPixelsPerMeter
+
     DOM.anchorObject.setAttribute('x', cx0 - ANCHOR_CROSS_DIMENSION / 2)
     DOM.anchorObject.setAttribute('y', ANCHOR_OFFSET_FROM_EDGE)
     DOM.anchorObject.setAttribute('width', ANCHOR_CROSS_DIMENSION)
     DOM.anchorObject.setAttribute('height', ANCHOR_THICKNESS)
-    springAttachX = cx0
-    springAttachY = ANCHOR_OFFSET_FROM_EDGE + ANCHOR_THICKNESS
     animCenterX = cx0
     animCenterY = springAttachY + scale(L0) + scale(deltaL)
 
@@ -353,7 +367,9 @@ export function setupScene() {
 
 // ── Szene aktualisieren (Masse, Feder, Vektoren, Stoppuhr) ───────────────────
 export function updateScene(t, x, v, a, centers) {
-  const scale = val => val * PIXELS_PER_METER
+  // Nutzt dieselbe (ggf. B5-geclampte) Skala wie setupScene(), damit die
+  // Schwingung nicht von der Ruhelage/Feder abweicht.
+  const scale = val => val * store.currentPixelsPerMeter
   const { animCenterX, animCenterY, springAttachX, springAttachY } = centers
   const massSize = store.currentMassRenderSize
   const vecOffset = 0.5 * massSize + 5

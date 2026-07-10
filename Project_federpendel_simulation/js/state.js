@@ -1,5 +1,7 @@
 'use strict'
 
+import { PIXELS_PER_METER } from './constants.js'
+
 // ── Mutierbarer Zustand (einzige Quelle für alle veränderlichen Werte) ───────
 export const store = {
   // Parameter
@@ -9,6 +11,7 @@ export const store = {
   oscillationMode: 'horizontal', // 'horizontal' | 'vertical'
   graphType: 'pos_t',    // 'pos_t' | 'v_t' | 'a_t'
   speedFactor: 1.0,
+  currentPixelsPerMeter: PIXELS_PER_METER, // B5: im vertikalen Modus dynamisch geclampt
 
   // Abgeleitet
   omega: 0,              // Kreisfrequenz (rad/s)
