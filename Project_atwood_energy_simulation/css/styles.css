@@ -194,3 +194,8 @@ body.dark {
 .vis-toggle-row.is-disabled { opacity: .4; cursor: not-allowed; }
 .vis-toggle-row.is-disabled .toggle-switch { cursor: not-allowed; }
 .vis-toggle-row.is-disabled .vis-label { color: var(--text3); }
+
+/* ── PHYSIK-BOX: horizontale Sicherheit gegen Überlauf (FAE8) ─────────────── */
+/* Panel hat overflow-x:hidden (schneidet sonst zu breite Formeln ab);
+   overflow-x:auto macht die Box selbst scrollbar statt unsichtbar. */
+.formula-box { overflow-x: auto; }

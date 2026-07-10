@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.6 — 2026-07-10
+
+Physik-Box im Analyse-Panel auf Energiebetrachtung umgestellt +
+Umbruch-Sicherheit. FAE8.
+
+### Features
+- **Physik-Box auf Energiebetrachtung umgestellt (FAE8)**: Seilkräfte
+  (\(F_{S,1}/F_{S,2}\)) und Beschleunigung (\(a\)-Formel +
+  Haftreibung-Hinweis) entfernt. Verbleibt eine reine Energie-Sicht:
+  Trägheitsmoment der Rolle (\(I_{\text{voll}}/I_{\text{hohl}}\)),
+  \(E_{\text{kin}}/E_{\text{rot}}/E_{\text{pot}}/E_{\text{ges}}\),
+  Reibungsarbeit \(E_V\), Energieerhaltung.
+- **Umbruch-Sicherheit**: jede Formel steht auf eigener Zeile
+  (keine `\quad`-Kombinationen mehr), sodaß keine Display-Gleichung
+  den 270-px-Panelrand übersteigt. Zusätzlich `overflow-x:auto` auf
+  `.formula-box` (`styles.css`) als Sicherheit — das Panel selbst hat
+  `overflow-x:hidden` und würde zu breite Formeln sonst abschneiden;
+   die Box wird nun scrollbar statt unsichtbar.
+
 ## v1.2.5 — 2026-07-10
 
 E_pot-Nulllinie der rechten Masse zusätzlich rechts beschriften. FAE7.
