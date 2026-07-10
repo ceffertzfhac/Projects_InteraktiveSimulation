@@ -1,5 +1,17 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.6 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5 Cluster (Parameter, Diagramm,
+  Visualisierung, Legende Vektoren, Abspielgeschwindigkeit) einzeln
+  ein-/ausklappbar, kein Konsolidierungsbedarf. Parameter/Diagramm/
+  Visualisierung/Legende Vektoren bleiben offen, „Abspielgeschwindigkeit"
+  default eingeklappt. Referenz: Kreis-/Spiralbewegung v1.3.0. Per
+  Playwright verifiziert.
+
 ## v2.2.5 — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**
