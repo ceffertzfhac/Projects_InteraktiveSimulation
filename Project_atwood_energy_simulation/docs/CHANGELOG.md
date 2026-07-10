@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.15 — 2026-07-10
+
+Massen-Beschriftung nahe der Blende verschwand dahinter. Bugfix B18.
+
+### Fixes
+- **Massen-Label (und Kraftvektoren) nahe der Blende unsichtbar (B18)**:
+  gleiche Ursache wie B17 (Nulllinie), diesmal für `mass1_group`/
+  `mass2_group` (Massen-Rechteck + Label) und die daran hängenden Kraft-
+  vektoren: alle standen im SVG **vor** `aperture_path` (deckende Füllung
+  `--aperture-fill`). Da das Label 20 px über bzw. unter die Box hinausragt
+  (FAE4), reicht es nahe des oberen Anschlags (Masse fast an der Blende)
+  in den Blenden-Bereich hinein und wurde von der später gezeichneten
+  Blende überdeckt — v. a. bei kleinen Massen (kleine Boxhöhe) sichtbar.
+  PO-Meldung 2026-07-10. **Korrigiert:** `mass1_group`/`mass2_group` +
+  die 6 Kraftvektor-`<line>`s + Reibungspfeil im Markup (`index.html`)
+  hinter `aperture_path` verschoben — Massen (und ihre Vektoren) liegen
+  jetzt immer sichtbar vor der Blende, auch am oberen Anschlag. Rein
+  deklarative Dokumentreihenfolge, keine JS-Änderung nötig.
+
 ## v1.2.14 — 2026-07-10
 
 E_pot-Nulllinie im „Decke"-Modus hinter der Blende verschwunden. Bugfix B17.

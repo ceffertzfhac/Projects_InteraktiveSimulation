@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.14</span>
+    <span class="version">v1.2.15</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -201,6 +201,11 @@ window.MathJax = {
         <rect id="floor" x="0" y="457.5" width="400" height="12.5"/>
         <path id="rope" fill="none" stroke-width="1.5" d=""/>
 
+        <path id="aperture_path" fill-rule="evenodd"
+          d="M 0 100 H 400 V 107.5 H 0 Z M 156 100 H 164 V 107.5 H 156 Z M 236 100 H 244 V 107.5 H 236 Z"/>
+
+        <!-- Massen (inkl. Beschriftung) nach der Blende, sodaß sie beim Erreichen
+             des oberen Anschlags sichtbar über der Blende liegen, nicht dahinter (B18). -->
         <g id="mass1_group"><rect id="mass1_rect" rx="3" ry="3"/><text id="mass1_label" dominant-baseline="middle"></text></g>
         <g id="mass2_group"><rect id="mass2_rect" rx="3" ry="3"/><text id="mass2_label" dominant-baseline="middle"></text></g>
 
@@ -213,9 +218,6 @@ window.MathJax = {
 
         <path id="friction_arrow" visibility="hidden" marker-end="url(#arr-fr)"/>
         <text id="friction_label" x="252" y="18" text-anchor="start" visibility="hidden"><tspan font-style="italic">F</tspan><tspan dy="2" font-size="0.78em">R</tspan></text>
-
-        <path id="aperture_path" fill-rule="evenodd"
-          d="M 0 100 H 400 V 107.5 H 0 Z M 156 100 H 164 V 107.5 H 156 Z M 236 100 H 244 V 107.5 H 236 Z"/>
 
         <g id="zero_lines_group"></g>
 
