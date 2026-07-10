@@ -5,6 +5,33 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.11 — 2026-07-10
+
+Diagrammtyp „Energie (E_kin, E_pot, E_ges)" ignorierte das gewählte Subjekt. Bugfix B15.
+
+### Fixes
+- **„Energie (E_kin, E_pot, E_ges)"-Diagramm subjekt-blind (B15, kritisch)**:
+  `GRAPH_CFG.ecomposite.lines` (`render.js`) war als `lines: () => [...]`
+  definiert — unabhängig vom übergebenen `subject` ('system'/'m1'/'m2')
+  wurden immer die System-Summen `ek_sum`/`ep_sum`/`etot` geplottet. Im
+  Modus „Zwei Diagramme" mit Diagramm 1 = Subjekt „Nur m₁" und Diagramm 2 =
+  Subjekt „Nur m₂" zeigten beide Diagramme dieselben (System-)Kurven —
+  auch bei völlig unterschiedlichen Massen (z. B. 1 kg vs. 10 kg). Die
+  Einzeltypen `ekin`/`epot`/`eges` waren **nicht** betroffen (nutzten
+  bereits `lines: sub => …`). PO-Meldung 2026-07-10 (Beobachtung: „beide
+  Diagramme sehen exakt gleich aus"). **Korrigiert:** `ecomposite.lines`
+  wählt jetzt wie die Einzeltypen `ek1/ep1/eges1` (m₁), `ek2/ep2/eges2`
+  (m₂) bzw. `ek_sum/ep_sum/etot` (System). Numerisch verifiziert (m₁=1 kg,
+  m₂=10 kg): Diagramm 1 zeigt `E_kin≈1,75 J`, Diagramm 2 `E_kin≈17,54 J`
+  statt zuvor identisch `E_kin,ges≈19,29 J` in beiden.
+- **Diagrammtitel aller vier Energie-Diagrammtypen jetzt subjektabhängig**:
+  `ecomposite`/`ekin`/`epot`/`eges` zeigten unabhängig vom Subjekt einen
+  generischen Titel (z. B. immer „Kinetische Energie E_kin(t)"), obwohl
+  bei `ekin`/`epot`/`eges` die Daten korrekt subjektabhängig waren — bei
+  zwei Diagrammen mit unterschiedlichem Subjekt aber gleichem Typ sahen
+  die Titel identisch aus. Titel zeigen jetzt „… System/m₁/m₂ …" (analog
+  zum bestehenden Muster der `y`/`v`/`a`-Diagramme).
+
 ## v1.2.10 — 2026-07-10
 
 Vorzeichen von v₁/v₂/a₁/a₂ auf die Höhen-Konvention korrigiert. Bugfix B14.

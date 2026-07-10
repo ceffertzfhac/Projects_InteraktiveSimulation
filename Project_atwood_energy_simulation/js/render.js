@@ -171,27 +171,38 @@ function kin(key, unit, titleSing, titleBoth, sym) {
   };
 }
 
+// Subjekt-Suffix für Energie-Diagrammtitel ("System" | "m₁" | "m₂").
+const eSubj = sub => sub === 'm1' ? 'm₁' : sub === 'm2' ? 'm₂' : 'System';
+
 const GRAPH_CFG = {
   ecomposite: {
     unit: 'J',
-    title: () => 'Energie (E_kin, E_pot, E_ges)',
+    title: sub => `Energie ${eSubj(sub)} (E_kin, E_pot, E_ges)`,
     ylabel: () => 'E / J',
-    lines: () => [
-      { key: 'ek_sum', color: 'var(--c-ekin)', label: 'E_kin' },
-      { key: 'ep_sum', color: 'var(--c-epot)', label: 'E_pot' },
-      { key: 'etot',   color: 'var(--c-etot)', label: 'E_ges' },
-    ],
+    lines: sub => sub === 'm1' ? [
+        { key: 'ek1',   color: 'var(--c-ekin)', label: 'E_kin' },
+        { key: 'ep1',   color: 'var(--c-epot)', label: 'E_pot' },
+        { key: 'eges1', color: 'var(--c-etot)', label: 'E_ges' },
+      ] : sub === 'm2' ? [
+        { key: 'ek2',   color: 'var(--c-ekin)', label: 'E_kin' },
+        { key: 'ep2',   color: 'var(--c-epot)', label: 'E_pot' },
+        { key: 'eges2', color: 'var(--c-etot)', label: 'E_ges' },
+      ] : [
+        { key: 'ek_sum', color: 'var(--c-ekin)', label: 'E_kin' },
+        { key: 'ep_sum', color: 'var(--c-epot)', label: 'E_pot' },
+        { key: 'etot',   color: 'var(--c-etot)', label: 'E_ges' },
+      ],
   },
   ekin: {
-    unit: 'J', title: () => 'Kinetische Energie E_kin(t)', ylabel: () => 'E_kin / J',
+    unit: 'J', title: sub => `Kinetische Energie ${eSubj(sub)} E_kin(t)`, ylabel: () => 'E_kin / J',
     lines: sub => [{ key: sub === 'm1' ? 'ek1' : sub === 'm2' ? 'ek2' : 'ek_sum', color: 'var(--c-ekin)', label: 'E_kin' }],
   },
   epot: {
-    unit: 'J', title: () => 'Potentielle Energie E_pot(t)', ylabel: () => 'E_pot / J',
+    unit: 'J', title: sub => `Potentielle Energie ${eSubj(sub)} E_pot(t)`, ylabel: () => 'E_pot / J',
     lines: sub => [{ key: sub === 'm1' ? 'ep1' : sub === 'm2' ? 'ep2' : 'ep_sum', color: 'var(--c-epot)', label: 'E_pot' }],
   },
   eges: {
-    unit: 'J', title: () => 'Gesamtenergie E_ges(t)', ylabel: () => 'E_ges / J',
+    unit: 'J', title: sub => `Gesamtenergie ${eSubj(sub)} E_ges(t)`, ylabel: () => 'E_ges / J',
     lines: sub => [{ key: sub === 'm1' ? 'eges1' : sub === 'm2' ? 'eges2' : 'etot', color: 'var(--c-etot)', label: 'E_ges' }],
   },
   wr: {
