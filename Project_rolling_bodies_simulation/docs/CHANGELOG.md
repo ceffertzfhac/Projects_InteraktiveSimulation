@@ -2,6 +2,21 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.9] - 2026-07-10
+### Hinzugefügt
+- **Akkordeon-Steuerungs-Sidebar (I8)**: die linke Sidebar war mit 7 Clustern
+  die längste im Repo. Statt die ganze Sidebar einzuklappen, ist jetzt jedes
+  `.panel-section`-Cluster einzeln auf-/zuklappbar (Referenz: Kreis-/
+  Spiralbewegung v1.3.0). Konsolidiert auf 6 Cluster: „Modus" und
+  „Simulationsgeschwindigkeit" (bisher zwei dünne Einzel-Cluster) zu
+  „Modus & Tempo" zusammengelegt. Default eingeklappt: „Vergleichskörper
+  (Rennen)" und „Modus & Tempo" (seltener nach dem initialen Setup
+  angepaßt); „Hauptkörper", „Geometrie & Start", „Visualisierung",
+  „Legende Punkte" bleiben offen. `.panel-label` wird zum `<button>` mit
+  Chevron; `aria-expanded` pro Cluster. Per Browsertest verifiziert,
+  inkl. des Grenzfalls bedingt sichtbarer Inhalte (`#alpha_group`) innerhalb
+  eines Clusters — kein „Durchblitzen" beim Einklappen.
+
 ## [2.0.8] - 2026-07-07
 ### Behoben (zwei visuelle Bugs aus PO-Feedback)
 - **Vektor-Pfeilspitzen wieder sichtbar (v⃗/a⃗/F⃗_G/N/R).** Die 5 Vektor-Marker
