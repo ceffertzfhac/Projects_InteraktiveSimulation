@@ -5,6 +5,34 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.1 — 2026-07-10
+
+Feder verband fälschlich beide Gleiter permanent statt zweier unabhängiger
+Federstummel. Bugfix (PO-Meldung direkt nach Migration).
+
+### Fixes
+- **Feder spannte über die gesamte Lücke zwischen den Gleitern (kritisch,
+  physikalisch falsch)**: `updateScene()` zeichnete einen einzelnen
+  Zickzack-Pfad von der rechten Kante des Gleiters 1 bis zur linken Kante
+  von Gleiter 2 (`drawZigzagSpring(s1x, s2x, …)`), unabhängig vom
+  tatsächlichen Abstand. Nach der Kollision, wenn sich die Gleiter
+  trennen, wuchs die „Feder" ungebremst mit — visuell als **permanente
+  Kopplung** (gekoppelter Oszillator), obwohl es sich um zwei unabhängige
+  freie Körper handelt, die nur beim Kontakt kurz über Federstummel
+  wechselwirken (wie im migrierten Canvas-Prototyp, der zwei separate,
+  je an einem Gleiter befestigte Halbfedern fester Ruhelänge zeichnete —
+  bei der SVG-Neufassung versehentlich zu einer einzigen, spannenden
+  Feder vereinfacht). **Korrigiert:** zwei unabhängige Federstummel
+  (Armlänge `SPRING_REST_LENGTH_M/2`, als zwei Teilpfade in
+  `#spring_path`), die nur bei Lücke < voller Ruhelänge symmetrisch
+  ineinander stauchen; sind die Gleiter weiter als die Ruhelänge
+  entfernt, bleibt zwischen den Stummeln eine sichtbare Lücke. Starre
+  Prellböcke (`k`→∞) zeigten das gleiche Problem nicht (waren bereits
+  unabhängige, fest-lange Elemente), zeigten aber unnötig eine
+  Lücken-abhängige „Stauchung" trotz Δt=0 — ebenfalls auf feste
+  Ruhelänge korrigiert. Per Playwright-Screenshot vor/während/nach dem
+  Stoß verifiziert.
+
 ## v1.0.0 — 2026-07-10
 
 Migration von `AllAnimations/elastischerStoß.html` (Standalone-Prototyp,

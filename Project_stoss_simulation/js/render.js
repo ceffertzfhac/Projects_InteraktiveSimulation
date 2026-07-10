@@ -159,27 +159,40 @@ export function updateScene(t) {
   DOM.glider2Label.setAttribute('y', String(GLIDER_H / 2 + 4))
   DOM.glider2Label.textContent = m2Inf ? '∞' : `${fmt(m2, 1)} kg`
 
-  // Feder / Prellbock zwischen den Gleitern
+  // Federstummel / Prellbock — je EIN unabhängiges Element pro Gleiter mit
+  // fester Ruhelänge (SPRING_REST_LENGTH_M/2), nicht eine einzelne Feder, die
+  // über die gesamte Lücke zwischen den Gleitern spannt (das würde eine
+  // permanente Kopplung suggerieren — physikalisch falsch: die Gleiter sind
+  // zwei unabhängige freie Körper, die nur beim Kontakt kurz wechselwirken).
+  // Nur wenn die Lücke kleiner als die volle Ruhelänge ist, stauchen sich
+  // beide Stummel symmetrisch (Armlänge = halbe Restlücke).
   const springY = gliderTop + GLIDER_H / 2
   const s1x = p1.x + halfWpx, s2x = p2.x - halfWpx
+  const gapPx = Math.max(0, s2x - s1x)
+  const halfRestPx = (SPRING_REST_LENGTH_M / 2) * store.ppm
+  const armPx = gapPx < 2 * halfRestPx ? gapPx / 2 : halfRestPx
+
   if (kInf) {
+    // Starre Prellböcke: keine Kontaktphase (Δt=0), also auch keine sichtbare
+    // Stauchung — feste Ruhelänge bis zum instantanen Stoß.
     DOM.springPath.setAttribute('visibility', 'hidden')
-    const bumperW = (SPRING_REST_LENGTH_M / 2) * store.ppm
     DOM.bumperLeft.setAttribute('visibility', 'visible')
     DOM.bumperRight.setAttribute('visibility', 'visible')
     DOM.bumperLeft.setAttribute('x', String(s1x))
     DOM.bumperLeft.setAttribute('y', String(springY - 6))
-    DOM.bumperLeft.setAttribute('width', String(Math.max(0, bumperW)))
+    DOM.bumperLeft.setAttribute('width', String(halfRestPx))
     DOM.bumperLeft.setAttribute('height', 12)
-    DOM.bumperRight.setAttribute('x', String(s2x - bumperW))
+    DOM.bumperRight.setAttribute('x', String(s2x - halfRestPx))
     DOM.bumperRight.setAttribute('y', String(springY - 6))
-    DOM.bumperRight.setAttribute('width', String(Math.max(0, bumperW)))
+    DOM.bumperRight.setAttribute('width', String(halfRestPx))
     DOM.bumperRight.setAttribute('height', 12)
   } else {
     DOM.bumperLeft.setAttribute('visibility', 'hidden')
     DOM.bumperRight.setAttribute('visibility', 'hidden')
-    DOM.springPath.setAttribute('visibility', s2x > s1x ? 'visible' : 'hidden')
-    DOM.springPath.setAttribute('d', drawZigzagSpring(s1x, s2x, springY, 8))
+    DOM.springPath.setAttribute('visibility', 'visible')
+    const d1 = drawZigzagSpring(s1x, s1x + armPx, springY, 8)
+    const d2 = drawZigzagSpring(s2x - armPx, s2x, springY, 8)
+    DOM.springPath.setAttribute('d', `${d1} ${d2}`)
   }
 
   // Geschwindigkeitsvektoren
