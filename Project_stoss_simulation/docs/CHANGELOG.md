@@ -5,6 +5,32 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.2 — 2026-07-10
+
+Ruhende Gleiter „liefen" beim Verstellen der Federkonstante seitlich im
+Sichtfenster. Bugfix (PO-Meldung).
+
+### Fixes
+- **Optischer Schwerpunkt verschob sich beim Reglern ohne Play (kritisch,
+  irreführend)**: `fitCamera()` zentrierte die Kamera auf `(minX+maxX)/2`
+  über den **gesamten** vorausberechneten Bewegungsverlauf (inkl.
+  Nachlauf nach dem Stoß). Da die Federkonstante \(k\) die Stoßdauer und
+  damit `simDuration` sowie die im Nachlauf zurückgelegte Strecke ändert
+  — ohne daß sich die Startpositionen ändern — verschob sich der
+  berechnete Kameramittelpunkt bei jeder \(k\)-Änderung (v. a. bei
+  asymmetrischem Nachlauf, z. B. wenn die leichtere Masse nach dem Stoß
+  weiter zurückspringt als die schwere vorankommt). Sichtbar als
+  seitliches „Laufen" der ruhenden Gleiter, obwohl `t=0` und die
+  Animation gar nicht läuft. **Korrigiert:** Kamera-Mittelpunkt jetzt
+  **fest** auf den Start-Mittelpunkt `(X1_START_M+X2_START_M)/2 = 0`
+  verankert (regler-unabhängige Konstante); nur noch der Zoom (`ppm`)
+  paßt sich der tatsächlich gebrauchten Spannweite an — symmetrisch um
+  den festen Mittelpunkt, kein Pan-Sprung mehr. Sichtbarkeits-Garantie
+  während der Animation bleibt erhalten (Playwright-Test mit
+  Extremparametern: 0 Off-Screen-Frames). Per Browsertest verifiziert:
+  Mittelpunkt bleibt bei Variation von \(k\)/\(v_1\)/\(m_2\) exakt
+  konstant (± 0 px).
+
 ## v1.0.1 — 2026-07-10
 
 Feder verband fälschlich beide Gleiter permanent statt zweier unabhängiger

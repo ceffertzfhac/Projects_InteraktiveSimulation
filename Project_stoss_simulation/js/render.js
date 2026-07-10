@@ -3,7 +3,7 @@
 import {
   SVG_W, SVG_H, TRACK_Y, TRACK_H, GLIDER_H, GLIDER_WIDTH_M, SPRING_REST_LENGTH_M,
   DEFAULT_PPM, MIN_PPM, SIDE_MARGIN_PX, PIXELS_PER_VELOCITY_UNIT,
-  SW_HAND_LEN, GRAPH_W, GRAPH_H,
+  SW_HAND_LEN, GRAPH_W, GRAPH_H, X1_START_M, X2_START_M,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { getNiceTick, interpolateAt } from './physics.js'
@@ -65,19 +65,28 @@ function setGraphTitle(textElObj, text) {
 
 // ── Auto-Zoom/Pan: einmalig aus den precompute-Arrays berechnet, damit beide
 //    Gleiter über die gesamte Simulationsdauer im Sichtbereich bleiben ─────
+// Der Kamera-Mittelpunkt ist FEST auf den Start-Mittelpunkt (X1_START_M+
+// X2_START_M)/2 verankert — nur der Zoom (ppm) paßt sich der tatsächlich
+// gebrauchten Spannweite an. Würde stattdessen (minX+maxX)/2 über den
+// gesamten Verlauf verwendet (asymmetrischer Nachlauf, z. B. weil eine
+// leichte Masse nach dem Stoß weiter zurückspringt als die schwere Masse
+// vorankommt), verschiebt sich der Mittelpunkt mit jedem Regler, der die
+// Stoßdauer beeinflußt (v. a. die Federkonstante k) — sichtbar als „Laufen"
+// der ruhenden Gleiter im Fenster, obwohl noch gar nicht abgespielt wird.
 export function fitCamera() {
   const halfW = GLIDER_WIDTH_M / 2
-  let minX = Infinity, maxX = -Infinity
+  const center = (X1_START_M + X2_START_M) / 2
+  let maxReach = 0
   for (const arr of [store.x1_data, store.x2_data]) {
     for (const x of arr) {
-      if (x - halfW < minX) minX = x - halfW
-      if (x + halfW > maxX) maxX = x + halfW
+      const reach = Math.abs(x - center) + halfW
+      if (reach > maxReach) maxReach = reach
     }
   }
-  const rangeM = Math.max(maxX - minX, 1.0)
+  const rangeM = Math.max(2 * maxReach, 1.0)
   const availablePx = SVG_W - 2 * SIDE_MARGIN_PX
   store.ppm = Math.min(DEFAULT_PPM, Math.max(MIN_PPM, availablePx / rangeM))
-  store.panOffsetM = (minX + maxX) / 2
+  store.panOffsetM = center
 }
 
 // ── Statische Szene: Fahrbahn + Ständer ──────────────────────────────────────
