@@ -477,7 +477,7 @@ export function updateScene(t, y1_m, y2_m) {
     }
   }
   if (DOM.pulleyRotor) {
-    const s_m = (store.y1_start_cm / CM_PER_M) - y1_m;   // Verschiebung m1 (fällt ⇒ >0)
+    const s_m = y1_m - (store.y1_start_cm / CM_PER_M);   // Verschiebung m1 (fällt ⇒ >0, Apertur-Koordinate wächst beim Fallen)
     const R_m = PULLEY_R / PPM;
     const phiDeg = (s_m / R_m) * (180 / Math.PI);
     DOM.pulleyRotor.setAttribute('transform', `rotate(${-phiDeg} ${PULLEY_X} ${PULLEY_Y})`);

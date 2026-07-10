@@ -5,6 +5,23 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.2 — 2026-07-10
+
+Rollen-Rotationsmarkierung drehte in falsche Richtung. Bugfix B13.
+
+### Fixes
+- **Rolle drehte falschherum (B13)**: die
+  Rotationsmarkierung der massiven Rolle (eingeführt v1.2.0) drehte
+  **CW**, obwohl die Physik bei fallendem \(m_1\) (linkes Seil unten)
+  **CCW** verlangt. Ursache `render.js`: die Verschiebung war als
+  `s_m = y1_start − y1_m` berechnet — `y1_m` ist aber die
+  **Apertur-Koordinate** (Abstand von der Rolle, wächst beim Fallen),
+  sodaß `s_m` beim Fallen **negativ** war, entgegen dem
+  Dokumentationskommentar „fällt ⇒ >0". Das kippte das Vorzeichen von
+  `phiDeg` und `rotate(-phiDeg)` lieferte CW statt CCW. Korrigiert auf
+  `s_m = y1_m − y1_start` (aktuell − start) → `s_m > 0` beim Fallen,
+  `rotate(-phiDeg)` ergibt korrekt CCW. PO-Meldung 2026-07-10.
+
 ## v1.2.1 — 2026-07-09
 
 Korrektur der System-Gesamtenergie + Rollenmassen-Bereich erweitert +
