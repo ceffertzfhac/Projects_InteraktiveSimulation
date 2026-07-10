@@ -1,5 +1,16 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.7 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5 Cluster (Systemparameter,
+  Visualisierung, Analyse-Objekte, Legende, Abspielgeschwindigkeit)
+  einzeln ein-/ausklappbar, kein Konsolidierungsbedarf. Nur
+  „Abspielgeschwindigkeit" default eingeklappt. Referenz: Kreis-/
+  Spiralbewegung v1.3.0. Per Playwright verifiziert.
+
 ## v1.0.6 — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**

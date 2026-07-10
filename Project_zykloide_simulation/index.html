@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Rollender Zylinder / Zykloide
-    <span class="version">v1.0.6</span>
+    <span class="version">v1.0.7</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -45,8 +45,8 @@ window.MathJax = {
   <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
   <aside class="panel left-panel">
 
-    <div class="panel-section">
-      <div class="panel-label">Systemparameter</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Systemparameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Zylinderradius \(R\)</div>
       <div class="slider-row">
         <input type="range" id="radius_slider" min="20" max="80" value="50" step="1">
@@ -60,8 +60,8 @@ window.MathJax = {
       <p class="subject-note">Annahme: Reines Abrollen ohne Schlupf. Der Radius der Punkte ist fest auf \(r = 0{,}9 \cdot R\) gesetzt.</p>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Visualisierung</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">Bahn Schwerpunkt</span>
         <label class="toggle-switch">
@@ -99,8 +99,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Analyse-Objekte</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Analyse-Objekte<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">Schwerpunkt (SP)</span>
         <label class="toggle-switch">
@@ -138,8 +138,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Legende</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="legend-grid">
         <div class="legend-swatch" style="background:var(--c-sp)"></div>
         <div class="legend-label">Schwerpunkt (SP)</div>
@@ -158,8 +158,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Abspielgeschwindigkeit</div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="speed-pills">
         <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
