@@ -1,0 +1,96 @@
+/*
+ * Elastischer Stoß – sim-spezifische Styles
+ * Base-Tokens, Layout, Klapp-Sidebar und UI-Komponenten liegen in
+ * ../shared/css/design-system.css (vor dieser Datei eingebunden).
+ */
+
+:root {
+  --graph-bg:   #ffffff;
+  --grid-line:  #e8eaf0;
+  --track-bed:  #d8dbe2;
+  --track-edge: #aab0be;
+  --track-foot: #9aa0ae;
+
+  /* Gleiter (blau = m1, rot = m2) — wie Atwood/Atwood-Energie */
+  --c-m1: #2060d0;
+  --c-m2: #c03030;
+  --c-glider-inf: #888888;
+}
+
+body.dark {
+  --graph-bg:   #161925;
+  --grid-line:  #262c42;
+  --track-bed:  #232838;
+  --track-edge: #3d4766;
+  --track-foot: #3d4766;
+
+  --c-m1: #66aaff;
+  --c-m2: #ff7777;
+  --c-glider-inf: #6b799e;
+}
+
+.hint-text { font-size: .68rem; color: var(--text3); margin: 6px 0 0; line-height: 1.4; }
+
+/* ── SVG CSS-VAR TARGETS ─────────────────────────────────────────────────── */
+.arr-axis-poly { fill: var(--text); }
+.arr-v1-poly   { fill: var(--c-m1); }
+.arr-v2-poly   { fill: var(--c-m2); }
+
+#track_group .track-bed   { fill: var(--track-bed); }
+#track_group .track-edge  { stroke: var(--track-edge); stroke-width: 1; }
+#track_group .track-tick  { stroke: var(--track-edge); stroke-width: 1; }
+#track_group .track-tick-label { fill: var(--text3); font-size: 10px; font-family: var(--font-mono); }
+#track_group .track-foot  { fill: var(--track-foot); }
+
+.glider    { stroke: rgba(0,0,0,.25); stroke-width: 1; }
+.glider-1  { fill: var(--c-m1); }
+.glider-2  { fill: var(--c-m2); }
+.glider-inf { fill: var(--c-glider-inf); }
+.glider-label { fill: #fff; font-size: 12px; font-weight: 600; font-family: var(--font-mono); pointer-events: none; }
+
+.spring-path { stroke: var(--text2); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.bumper { fill: var(--text); }
+
+.vec-v1 { stroke: var(--c-m1); stroke-width: 3; }
+.vec-v2 { stroke: var(--c-m2); stroke-width: 3; }
+
+.com-circle { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
+.com-cross  { stroke: var(--text); stroke-width: 1.5; }
+.com-label  { fill: var(--text2); font-size: 11px; font-family: var(--font-ui); }
+
+#sw-face, #sw-subdial-face { fill: var(--surface); stroke: var(--text); }
+#sw-face               { stroke-width: 2.5; }
+#sw-subdial-face        { stroke-width: 1.5; }
+#stopwatch_main_hand   { stroke: var(--text); stroke-linecap: round; }
+#stopwatch_sub_hand    { stroke: var(--accent); stroke-linecap: round; }
+.sw-mark               { stroke: var(--text); }
+
+.time-label { position: absolute; top: 8px; left: 16px; font-family: var(--font-mono); font-size: .85rem; color: var(--text2); }
+
+/* ── Diagramm ────────────────────────────────────────────────────────────── */
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text); font-size: 14px; font-weight: 600; font-family: var(--font-ui); text-anchor: middle; }
+
+.graph-line-1  { stroke: var(--c-m1); }
+.graph-line-2  { stroke: var(--c-m2); }
+.graph-line-es { stroke: var(--c-eloss); }
+.graph-dot-1  { fill: var(--c-m1); stroke: var(--surface); stroke-width: 1; }
+.graph-dot-2  { fill: var(--c-m2); stroke: var(--surface); stroke-width: 1; }
+.graph-dot-es { fill: var(--c-eloss); stroke: var(--surface); stroke-width: 1; }
+
+/* ── Energie-/Impuls-Balken ──────────────────────────────────────────────── */
+.bar-row { display: flex; align-items: center; gap: 8px; font-size: .78rem; margin-bottom: 8px; }
+.bar-label { width: 70px; min-width: 70px; text-align: right; color: var(--text2); }
+.bar-wrapper { flex-grow: 1; height: 14px; background: var(--surface2); border-radius: 3px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+.bar-e1, .bar-e2, .bar-es { height: 100%; float: left; transition: width .1s linear; }
+.bar-e1 { background: var(--c-m1); }
+.bar-e2 { background: var(--c-m2); }
+.bar-es { background: var(--c-eloss); }
+.bar-p-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--text3); z-index: 2; transform: translateX(-50%); }
+.bar-p1, .bar-p2 { position: absolute; top: 0; bottom: 0; opacity: .85; transition: all .1s linear; }
+.bar-p1 { background: var(--c-m1); }
+.bar-p2 { background: var(--c-m2); }
