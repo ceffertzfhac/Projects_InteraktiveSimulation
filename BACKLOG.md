@@ -160,7 +160,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 
 | ID | Titel | Simulation | Beschreibung |
 |----|-------|-----------|--------------|
-| S1 | Wellen-Simulation einpflegen | Interferenz zweier Punktquellen | Ist fertig implementiert (890 Zeilen), aber in keiner Index-Seite verlinkt. Kapitel "Wellen" fehlt in `AllAnimations/index.html` komplett. |
+| S1 | ✅ erledigt (Session 2026-07-10) | Wellen-Simulation einpflegen | Interferenz zweier Punktquellen | Ist fertig implementiert (890 Zeilen), aber in keiner Index-Seite verlinkt. Kapitel "Wellen" fehlt in `AllAnimations/index.html` komplett. — erledigt: Datei aus `Standalone Proto/Wellen/wellen.html` nach `AllAnimations/wellen.html` kopiert, Design-System angebunden (`<link>` shared, Token-Remap auf `body` nicht `:root`, Back-Button, Theme-Toggle, Versionsbadge — nach R4/W2-Vorbild). Neues „Kap. 1.9 Schwingungen und Wellen" in `AllAnimations/index.html` zwischen Kap. 1.8 (Stöße) und Kap. 2 (Elektromagnetismus) mit Karte + `card-preview-placeholder` (🌊, Badge „Prototyp" — echtes Vorschaubild steht noch aus → S3). Quelldatei in `Standalone Proto/` bleibt unverändert erhalten. |
 | S2 | ✅ Dark Mode für alle Standalone-Sims | Alle | **Erledigt (Sprint 3, R4–R6):** Alle 14 Standalone-Prototypen + Taschenrechner auf FH-Design-System umgestellt (shared-CSS-Link, Token-Mapping, Dark Mode via `body.dark`-Kaskade, Theme-Toggle mit einheitlichem `fh_theme`-localStorage-Key, Back-Button). |
 | S3 | Vorschaubilder vervollständigen | AllAnimations | Einige Karten haben noch kein Vorschaubild (Platzhalter "Vorschau"). |
 | S4 | Taschenrechner einordnen | Taschenrechner | Ist kein Physik-Thema im eigentlichen Sinne. Entweder als Hilfsmittel in Index aufnehmen oder aus Standalone herauslösen. |
@@ -367,17 +367,17 @@ Berührung gegen die kanonische Regel abgleichen.
 
 Stand: 2026-07-10 (nach kritischer Physik-Review + Bugfix-Session Atwood-Energie/Atwood).
 
-- **Gesamt-Items (offen):** 65
+- **Gesamt-Items (offen):** 64
 - **Bugs:** 0 offen — alle erledigt/verifiziert. B1, B2, B3 (Session 2026-07-07); B7–B11 (Kreis-Spiral v1.1.0, 2026-07-08); B12 (Kreis-Spiral v1.1.10, 2026-07-08); B6 (3-Massen v1.2.4, 2026-07-08); B13 (Atwood-Energie v1.2.2, 2026-07-10); B14–B20 (Atwood-Energie/Atwood/Schräger Wurf/Kreis-Spiral, kritische Physik-Review I10, Session 2026-07-10); B4 (Federpendel, verifiziert kein Defekt), B5 (Federpendel v1.0.13) — Session 2026-07-10
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
 - **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 [FA4/FA5 erledigt v2.2.5] · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7) — FAE (Atwood-Energie) vollständig erledigt: 14/14 (FAE1–14, zuletzt FAE9–14 in v1.2.7–v1.2.13, Session 2026-07-09/10), daher nicht in der offen-Zählung
 - **Infrastruktur & Querschnitts-Features:** 6 offen (I1, I3, I5, I6, I7, I8) — I2, I4, I9, I10 erledigt
-- **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
+- **Standalone-Verbesserungen:** 2 offen (S3, S4) — S1, S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 1 offen (M8) — M1, M2, M3, M4, M5, M6, M6b, M7, M9 + W1 (Ableitung, modular) erledigt
 - **Werkzeug-Schale:** 0 offen — W2, W3 erledigt (W1 modular migriert → Migrationen)
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 63 (B4, B5 — Federpendel v1.0.13, 2026-07-10; FA4, FA5 — Atwood v2.2.5, 2026-07-10; M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08; FX1 — Kreis-Spiral v1.2.1, 2026-07-08; FAE9–13, B13 — Atwood-Energie v1.2.7–v1.2.9/v1.2.2, Session 2026-07-09/10; FAE14, B14–B20 — Atwood-Energie/Atwood/Schräger Wurf/Kreis-Spiral, kritische Physik-Review I10, Session 2026-07-10)
+- **Erledigt (historisch):** 64 (S1 — Wellen-Simulation verlinkt, 2026-07-10; B4, B5 — Federpendel v1.0.13, 2026-07-10; FA4, FA5 — Atwood v2.2.5, 2026-07-10; M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08; FX1 — Kreis-Spiral v1.2.1, 2026-07-08; FAE9–13, B13 — Atwood-Energie v1.2.7–v1.2.9/v1.2.2, Session 2026-07-09/10; FAE14, B14–B20 — Atwood-Energie/Atwood/Schräger Wurf/Kreis-Spiral, kritische Physik-Review I10, Session 2026-07-10)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur
