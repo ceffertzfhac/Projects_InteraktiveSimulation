@@ -5,6 +5,29 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.4 — 2026-07-10
+
+Drei weitere PO-Wünsche: Massen-Label-Verschiebung, Rolle als eigenes
+Balken-Objekt, max. Starthöhe korrigiert. FAE4–FAE6.
+
+### Features
+- **Massen-Label-Verschiebung (FAE4)**: Label \(m_1\) konstant 20 px
+  nach unten (`m1_hpx + 20`), Label \(m_2\) konstant 20 px nach oben
+  (`m2_hpx - 20`) in `render.js`.
+- **Rolle als eigenes Balken-Objekt (FAE5)**: Im Energie-Balkendiagramm
+  eine eigene „Rolle"-Gruppe (analog „Masse \(m_1\)" / „Masse \(m_2\)")
+  mit einer Zeile \(E_{\text{rot}}\) — aus der „Gesamtsystem"-Gruppe
+  herausgelöst und zwischen \(m_2\)- und Gesamtsystem-Gruppe platziert.
+  Label von „\(E_{\text{rot}}\) (Rolle)" → „\(E_{\text{rot}}\)"
+  (Gruppenname macht Zusatz überflüssig). Bar-Update erfolgt
+  `data-key`-basiert, daher gruppenunabhängig unverändert funktionstüchtig.
+  Gesamtsystem jetzt 4 Zeilen (E_k,ges · E_p,ges · E_ges · E_V).
+- **max. Starthöhe korrigiert (FAE6)**: Slider-`max` 330 → 320 für
+  \(y_1\)/\(y_2\) sowie Diff-Modus-Klammer `Math.min(320, …)` in
+  `ui.js`. Bei maximaler Masse (10 kg, Halbhöhe 27,5 cm) reicht die
+  Massenoberkante bei 320 cm Starthöhe bis 347,5 cm < 350 cm — keine
+  Kollision mit der Oberkante/Blende mehr (vorher 330 + 27,5 = 357,5).
+
 ## v1.2.3 — 2026-07-10
 
 Drei kleine PO-Wünsche: Startposition min 40 cm, Rollenmasse max 2 kg,

@@ -62,7 +62,7 @@ function updateHeightParams() {
     DOM.y2Group.style.display   = 'none';
     DOM.diffGroup.style.display = '';
     const diff_cm = parseFloat(DOM.diffSlider.value);
-    const y2_h   = Math.min(330, Math.max(40, y1_h + diff_cm));
+    const y2_h   = Math.min(320, Math.max(40, y1_h + diff_cm));
     DOM.diffValue.textContent = `${fmt(diff_cm, 0)} cm`;
     DOM.y2Value.textContent   = `${fmt(y2_h, 0)} cm`;
     store.y1_start_cm = Y_MAX_CM - y1_h;

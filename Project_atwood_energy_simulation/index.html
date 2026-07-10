@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.3</span>
+    <span class="version">v1.2.4</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -87,14 +87,14 @@ window.MathJax = {
       <div id="y1_group">
         <div class="slider-label">Startposition \(y_1\)</div>
         <div class="slider-row">
-          <input type="range" id="y1_slider" min="40" max="330" value="250" step="5">
+          <input type="range" id="y1_slider" min="40" max="320" value="250" step="5">
           <span class="slider-val" id="y1_value">250 cm</span>
         </div>
       </div>
       <div id="y2_group">
         <div class="slider-label">Startposition \(y_2\)</div>
         <div class="slider-row">
-          <input type="range" id="y2_slider" min="40" max="330" value="250" step="5">
+          <input type="range" id="y2_slider" min="40" max="320" value="250" step="5">
           <span class="slider-val" id="y2_value">250 cm</span>
         </div>
       </div>
@@ -266,7 +266,7 @@ window.MathJax = {
         </select>
       </div>
 
-      <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (13 Reihen) -->
+      <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (Masse m₁ · Masse m₂ · Rolle · Gesamtsystem) -->
       <div class="energy-bars-view" id="energy_bars_view">
         <div class="ebar-title">Energiebilanz</div>
 
@@ -284,9 +284,13 @@ window.MathJax = {
 
         <div class="ebar-sep"></div>
 
+        <div class="ebar-group-label">Rolle</div>
+        <div class="ebar-row" data-key="ek_rot"><span class="ebar-label">\(E_{\text{rot}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
         <div class="ebar-group-label">Gesamtsystem</div>
         <div class="ebar-row" data-key="ek_sum"><span class="ebar-label">\(E_{k,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
-        <div class="ebar-row" data-key="ek_rot"><span class="ebar-label">\(E_{\text{rot}}\) (Rolle)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
         <div class="ebar-row" data-key="ep_sum"><span class="ebar-label">\(E_{p,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
         <div class="ebar-row" data-key="etot"><span class="ebar-label">\(E_{\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
         <div class="ebar-row" data-key="wr" data-neg="1"><span class="ebar-label">\(E_{\text{Verlust}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill eloss" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>

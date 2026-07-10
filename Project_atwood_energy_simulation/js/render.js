@@ -437,14 +437,14 @@ export function updateScene(t, y1_m, y2_m) {
   DOM.mass1Group.setAttribute('transform', `translate(${X_LEFT - m1_w / 2}, ${y1_svg - m1_hpx})`);
   DOM.mass1Rect.setAttribute('width', String(m1_w));
   DOM.mass1Rect.setAttribute('height', String(m1_w));
-  DOM.mass1Label.setAttribute('x', '-6'); DOM.mass1Label.setAttribute('y', String(m1_hpx));
+  DOM.mass1Label.setAttribute('x', '-6'); DOM.mass1Label.setAttribute('y', String(m1_hpx + 20)); // FAE4: 20 px nach unten
   DOM.mass1Label.setAttribute('text-anchor', 'end');
   setMassLabel(DOM.mass1Label, 'm₁', fmt(m1, 1), 'kg');
 
   DOM.mass2Group.setAttribute('transform', `translate(${X_RIGHT - m2_w / 2}, ${y2_svg - m2_hpx})`);
   DOM.mass2Rect.setAttribute('width', String(m2_w));
   DOM.mass2Rect.setAttribute('height', String(m2_w));
-  DOM.mass2Label.setAttribute('x', String(m2_w + 6)); DOM.mass2Label.setAttribute('y', String(m2_hpx));
+  DOM.mass2Label.setAttribute('x', String(m2_w + 6)); DOM.mass2Label.setAttribute('y', String(m2_hpx - 20)); // FAE4: 20 px nach oben
   DOM.mass2Label.setAttribute('text-anchor', 'start');
   setMassLabel(DOM.mass2Label, 'm₂', fmt(m2, 1), 'kg');
 
