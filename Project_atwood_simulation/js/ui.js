@@ -172,6 +172,18 @@ function setupAnalysisToggle() {
   });
 }
 
+// ── Akkordeon-Steuerungs-Sidebar (I8): linke Cluster ein-/ausklappbar ──────
+// .panel-label ist <button> → Enter/Space triggert click nativ.
+function setupAccordion() {
+  document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.parentElement;
+      const collapsed = section.classList.toggle('collapsed');
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    });
+  });
+}
+
 // ── CSV export ────────────────────────────────────────────────────────────────
 function exportCSV(all) {
   const { t_data, y1_data, y2_data, v1_data, v2_data,
@@ -229,6 +241,7 @@ function exportCSV(all) {
 initDOM();
 setupTheme();
 setupAnalysisToggle();
+setupAccordion();
 drawRuler();
 drawStopwatchMarks();
 updateGraphSelectors();

@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.2.5</span>
+    <span class="version">v2.2.6</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -45,8 +45,8 @@ window.MathJax = {
   <!-- ── LEFT PANEL ────────────────────────────────────────────────────── -->
   <aside class="panel left-panel">
 
-    <div class="panel-section">
-      <div class="panel-label">Massen</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Massen<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Masse \(m_1\)</div>
       <div class="slider-row">
         <input type="range" id="m1_slider" min="1" max="10" value="5.2" step="0.1">
@@ -59,8 +59,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Startpositionen</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Startpositionen<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Modus</div>
       <select id="height_mode_select" class="select-field">
         <option value="y1y2">y₁ und y₂ unabhängig</option>
@@ -89,8 +89,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Visualisierung</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">Kräfte \(F_G, F_S\)</span>
         <label class="toggle-switch">
@@ -109,8 +109,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Legende Kräfte</div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Legende Kräfte<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="legend-grid">
         <div class="legend-swatch" style="background:var(--c-m1)"></div>
         <div class="legend-label">Masse \(m_1\)</div>
@@ -125,8 +125,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Abspielgeschwindigkeit</div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="speed-pills">
         <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>

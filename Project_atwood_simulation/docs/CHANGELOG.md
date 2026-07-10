@@ -1,5 +1,20 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.6 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: die 5 Cluster der linken Sidebar
+  (Massen, Startpositionen, Visualisierung, Legende Kräfte,
+  Abspielgeschwindigkeit) sind jetzt einzeln auf-/zuklappbar (Referenz:
+  Kreis-/Spiralbewegung v1.3.0). Default eingeklappt: „Legende Kräfte" +
+  „Abspielgeschwindigkeit" (selten nach dem initialen Setup angepaßt);
+  Massen/Startpositionen/Visualisierung bleiben offen. Per Browsertest
+  verifiziert, inkl. Grenzfall bedingt sichtbarer Inhalte (`#diff_group`
+  im „y1diff"-Modus) innerhalb eines Clusters — kein „Durchblitzen" beim
+  Einklappen.
+
 ## v2.2.5 — 2026-07-10
 
 Startpositionsgrenzen von Atwood-Energie übernommen + F_G/F_ges je Masse
