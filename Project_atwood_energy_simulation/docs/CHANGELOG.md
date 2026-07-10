@@ -5,6 +5,24 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.8 — 2026-07-10
+
+\(E_{\text{pot}}\)-Nullpunkt-Dropdown in die Startpositionen verschoben.
+FAE12 (experimentell erprobt, behalten).
+
+### Features
+- **\(E_{\text{pot}}\)-Nullpunkt in Startpositionen (FAE12)**: das
+  Dropdown für den Nullpunkt der potentiellen Energie aus dem Center
+  (`energy-zero-bar` über der Energiebilanz) in den linken Block
+  „Startpositionen" verschoben — thematisch bei den Höhen-Controls
+  (nach \(y_1\)/\(y_2\)/\(\Delta y\)), im Sidebar-Stil
+  (`.slider-label` + `.select-field`). `.energy-zero-bar` aus dem
+  `graph-wrapper` entfernt; tote CSS-Regel `.energy-zero-bar`/`.ez-label`
+  in `styles.css` aufgeräumt. JS ID-basiert (`epZeroSelect`,
+  `change`→`resetSim`, `drawZeroLines`) unverändert — funktioniert vom
+  neuen Ort. Center oben führt jetzt direkt die Diagrammsteuerung und
+  darunter das Balkendiagramm.
+
 ## v1.2.7 — 2026-07-10
 
 Diagrammsteuerung vom linken Sidebar in den Center über das

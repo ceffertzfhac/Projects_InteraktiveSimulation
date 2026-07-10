@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.7</span>
+    <span class="version">v1.2.8</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -109,6 +109,14 @@ window.MathJax = {
           <span class="slider-val" id="diff_value">0 cm</span>
         </div>
       </div>
+      <div class="slider-label">Nullpunkt \(E_{\text{pot}}\)</div>
+      <select id="ep_zero_select" class="select-field">
+        <option value="separate">je Masse eigene Starthöhe</option>
+        <option value="y1">Höhe von m₁-Start</option>
+        <option value="y2">Höhe von m₂-Start</option>
+        <option value="boden">Boden (h = 0)</option>
+        <option value="decke">Decke (oberes Ende)</option>
+      </select>
     </div>
 
 
@@ -256,18 +264,6 @@ window.MathJax = {
               </select></div>
           </div>
         </div>
-      </div>
-
-      <!-- Nullpunkt potentielle Energie — direkt über der Energiebilanz -->
-      <div class="energy-zero-bar">
-        <span class="ez-label">Nullpunkt \(E_{\text{pot}}\):</span>
-        <select id="ep_zero_select" class="select-field">
-          <option value="separate">je Masse eigene Starthöhe</option>
-          <option value="y1">Höhe von m₁-Start</option>
-          <option value="y2">Höhe von m₂-Start</option>
-          <option value="boden">Boden (h = 0)</option>
-          <option value="decke">Decke (oberes Ende)</option>
-        </select>
       </div>
 
       <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (Masse m₁ · Masse m₂ · Rolle · Gesamtsystem) -->
