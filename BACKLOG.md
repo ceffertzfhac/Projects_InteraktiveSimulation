@@ -360,19 +360,19 @@ Berührung gegen die kanonische Regel abgleichen.
 
 ## STATISTIK
 
-Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1.1.0).
+Stand: 2026-07-10 (nach kritischer Physik-Review + Bugfix-Session Atwood-Energie/Atwood).
 
 - **Gesamt-Items (offen):** 67
-- **Bugs:** 2 offen (B4, B5) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08); B6 erledigt (3-Massen v1.2.4, 2026-07-08)
+- **Bugs:** 2 offen (B4, B5) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08); B6 erledigt (3-Massen v1.2.4, 2026-07-08); B13 erledigt (Atwood-Energie v1.2.2, 2026-07-10); B14–B18 erledigt (Atwood-Energie/Atwood, kritische Physik-Review, Session 2026-07-10)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
-- **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7)
+- **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7) — FAE (Atwood-Energie) vollständig erledigt: 14/14 (FAE1–14, zuletzt FAE9–14 in v1.2.7–v1.2.13, Session 2026-07-09/10), daher nicht in der offen-Zählung
 - **Infrastruktur & Querschnitts-Features:** 6 offen (I1, I3, I5, I6, I7, I8) — I2, I4, I9 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
 - **Migrationen:** 1 offen (M8) — M1, M2, M3, M4, M5, M6, M6b, M7, M9 + W1 (Ableitung, modular) erledigt
 - **Werkzeug-Schale:** 0 offen — W2, W3 erledigt (W1 modular migriert → Migrationen)
 - **Rollout UI/UX (Sprint 3):** 0 offen — R0–R9 erledigt (R8 bewußt als nicht umgesetzt dokumentiert)
-- **Erledigt (historisch):** 44 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08; FX1 — Kreis-Spiral v1.2.1, 2026-07-08)
+- **Erledigt (historisch):** 56 (M2, M3 — Sprint 2; T5, I2, S2, R0–R9 — Sprint 3; I4 — Sprint 4a; M1, M4 — Sprint 4b; M5 — Sprint 4e; T8, T3, T7, T2, B1, B2, B3, T4, W1, W2, W3 — Session 2026-07-07; M6, M6b — Session 2026-07-08; B7, B8, B9, B10, B11, FX6 — Kreis-Spiral v1.1.0, 2026-07-08; B12 — Kreis-Spiral v1.1.10, 2026-07-08; FX7 — Kreis-Spiral v1.2.0, 2026-07-08; W1 modular migriert, FAG1, FAG2 — Ableitung v1.0.0–v1.2.2, 2026-07-08; B6 — 3-Massen v1.2.4, 2026-07-08; FX1 — Kreis-Spiral v1.2.1, 2026-07-08; FAE9–13, B13 — Atwood-Energie v1.2.7–v1.2.9/v1.2.2, Session 2026-07-09/10; FAE14, B14–B18 — Atwood-Energie/Atwood, kritische Physik-Review, Session 2026-07-10)
 
 > **Konsolidierung (Session 2026-07-08):** Per-Sim `issues.md`/`FEATURE_BACKLOG.md`
 > wurden in diesen zentralen Backlog migriert; per-Sim verbleibt nur
@@ -385,3 +385,20 @@ Stand: 2026-07-08 (nach Zentralisierung + Umsetzung der 6 Kreis-Spiral-Punkte v1
 
 > **Kreis-Spiral v1.1.10 (2026-07-08):** B12 — Physik-Block im Analyse-Panel
 > voll les-/sichtbar gemacht (`.formula-box`-Override, kanonisch vgl. 3massen).
+
+> **Atwood-Energie/Atwood — kritische Physik-Review (Session 2026-07-10):**
+> Auf PO-Anfrage alle physikalischen Aspekte von Atwood-Energie kritisch
+> geprüft (Energieerhaltung numerisch verifiziert, exakt bis auf
+> Floating-Point-Rauschen). Ergebnis: **B14** (kritisch) — v₁/v₂/a₁/a₂
+> hatten in **beiden** Atwood-Sims invertiertes Vorzeichen gegenüber der
+> kanonischen Höhen-Konvention von y₁/y₂ (Live-Panel, v/a-Diagramme,
+> CSV-Export betroffen; Energieberechnung selbst unberührt). Danach in
+> PO-Review drei weitere, beim Testen entdeckte UI-Bugs: **B15** (Energie-
+> Composite-Diagramm ignorierte das gewählte Subjekt m₁/m₂), **B16**
+> (E_pot-Nulllinie m₂ doppelt beschriftet), **B17**/**B18** (E_pot-Nulllinie
+> bzw. Massen-Beschriftung verschwanden hinter der Blende, da im SVG vor
+> statt nach `aperture_path` gezeichnet). Plus **FAE14** (E_pot-Nulllinien
+> im `separate`-Modus mit Index 1/2 beschriftet). Alle behoben und einzeln
+> committed (Atwood-Energie v1.2.9→v1.2.15, Atwood v2.2.3→v2.2.4); Branch
+> `feat/atwood-energy-diagrammsteuerung-rechts` per Fast-Forward in `main`
+> gemergt und gepusht.
