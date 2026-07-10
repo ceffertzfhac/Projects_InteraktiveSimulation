@@ -1,5 +1,28 @@
 # Changelog — Schräger Wurf
 
+## v1.2.5 — 2026-07-10
+
+Ball/Bahn/Vektoren konnten bei hohen, steilen Würfen hinter der Stoppuhr
+verschwinden. Bugfix B19 (kritische repo-weite Physik-Review, I10).
+
+### Fixes
+- **Ball/Bahn/Vektoren hinter Stoppuhr verdeckt (B19, kritisch)**: die
+  Stoppuhr-Gruppe (`#stopwatch_circle`, deckende Füllung `--surface`) stand
+  im SVG (`index.html`) **nach** Flugbahn/Ball/Geschwindigkeits-/
+  Beschleunigungsvektoren. Deren Wurfparabel läuft je nach Zoomfaktor
+  (`resetSim` skaliert Animationsfläche automatisch auf `xMax`/`yMax`) durch
+  denselben Bildschirmbereich wie die Stoppuhr (Zentrum ≈(250,47) px,
+  r≈43 px). Numerisch verifiziert (Rastersuche über \(h_0\)/\(v_0\)/α):
+  z. B. \(h_0=2{,}8\) m, \(v_0=22\) m/s, α=82,5° führt die Bahn bis auf
+  5 px an das Stoppuhr-Zentrum heran (weit innerhalb r≈43 px) — Ball und
+  Vektoren wären für einen Teil des Flugs komplett unsichtbar. Gleiches
+  Muster wie B17/B18 (Atwood-Energie): deckendes SVG-Element nach statt vor
+  dynamischem Inhalt gezeichnet. **Korrigiert:** Stoppuhr-Gruppe (+
+  Zoom-Text-Anzeige) im Markup vor `frozen_trajectory_line`/
+  `trajectory_line`/`ball`/Vektoren verschoben — Ball/Bahn/Vektoren liegen
+  jetzt immer sichtbar vor der Stoppuhr. Rein deklarative
+  Dokumentreihenfolge, keine JS-Änderung nötig. *(Session 2026-07-10, I10)*
+
 ## v1.2.4 — 2026-07-07
 ### Behoben
 - **Achsenrichtung im gestapelten Diagramm auswählbar.** Das Dropdown zur

@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Schräger Wurf
-    <span class="version">v1.2.4</span>
+    <span class="version">v1.2.5</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -182,14 +182,9 @@ window.MathJax = {
           <g id="horizontal_ruler_group"></g>
           <g id="ruler_group"></g>
           <g id="stick_figure"></g>
-          <polyline id="frozen_trajectory_line" fill="none" stroke-width="2" visibility="hidden"/>
-          <polyline id="trajectory_line" fill="none" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden"/>
-          <circle id="ball" r="5" cx="136" cy="200"/>
-          <g id="animation_coord_system"></g>
-          <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
-          <line id="velocity_vector" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
-          <line id="velocity_vector_x" stroke-width="2" marker-end="url(#arrow-vx)" visibility="hidden" stroke-dasharray="4,4"/>
-          <line id="velocity_vector_y" stroke-width="2" marker-end="url(#arrow-vy)" visibility="hidden" stroke-dasharray="4,4"/>
+
+          <!-- Stoppuhr vor Ball/Bahn/Vektoren, damit ihre deckende Füllung
+               (Token surface) diese bei hohen/steilen Würfen nicht verdeckt (B19). -->
           <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" class="zoom-text"></text>
           <g id="stopwatch" transform="translate(84, -24) scale(0.595)" style="cursor:pointer">
             <circle id="stopwatch_circle" cx="280" cy="120" r="72" stroke-width="2"/>
@@ -202,6 +197,15 @@ window.MathJax = {
             <line id="stopwatch_main_hand" x1="280" y1="120" stroke-width="3"/>
             <g id="digital_display_group" visibility="hidden"></g>
           </g>
+
+          <polyline id="frozen_trajectory_line" fill="none" stroke-width="2" visibility="hidden"/>
+          <polyline id="trajectory_line" fill="none" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden"/>
+          <circle id="ball" r="5" cx="136" cy="200"/>
+          <g id="animation_coord_system"></g>
+          <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
+          <line id="velocity_vector" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <line id="velocity_vector_x" stroke-width="2" marker-end="url(#arrow-vx)" visibility="hidden" stroke-dasharray="4,4"/>
+          <line id="velocity_vector_y" stroke-width="2" marker-end="url(#arrow-vy)" visibility="hidden" stroke-dasharray="4,4"/>
         </g>
 
         <!-- Diagramm: Single -->
