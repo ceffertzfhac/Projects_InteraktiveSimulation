@@ -1,5 +1,24 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.4 — 2026-07-10
+
+Vorzeichen von v₁/v₂/a₁/a₂ auf die Höhen-Konvention korrigiert. Bugfix B14.
+
+### Fixes
+- **v₁/v₂/a₁/a₂ hatten invertiertes Vorzeichen gegenüber y₁/y₂ (B14,
+  kritisch)**: `y1_data`/`y2_data` sind kanonisch als „Höhe vom Boden"
+  gespeichert (wächst beim Steigen). `v1_data`/`a1_data` (`physics.js`)
+  wurden dagegen direkt aus der **Apertur-Koordinate** übernommen (positiv
+  wenn m₁ **fällt**), ohne die Umrechnung, die `yrel1_data`/`yrel2_data`
+  bereits korrekt anwenden. Folge: Live-Panel, „v"/„a"-Diagramme und
+  CSV-Export zeigten bei fallendem m₁ (y₁ sinkt) ein **positives,
+  wachsendes** v₁ statt negativ — Ableitungsbeziehung dy/dt=v verletzt.
+  Gefunden bei der kritischen Physik-Review der Schwester-Sim
+  Atwood-Energie (identisches Pattern, dort als B14 zuerst behoben).
+  **Korrigiert:** `physics.js` `v1_data.push(-v)`/`v2_data.push(v)`/
+  `a1_data.push(-accel)`/`a2_data.push(accel)`; `render.js` Live-Panel
+  `liveA1`/`liveA2` (nutzte `accel` direkt statt Array) ebenfalls getauscht.
+
 ## v2.2.3 — 2026-07-07
 ### Refaktoriert (T6 — einheitliches fmt() via shared/js)
 - **Lokale `fmt()`-Definition durch Import aus `shared/js/format.js` ersetzt**

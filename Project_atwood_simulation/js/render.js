@@ -207,8 +207,8 @@ export function updateScene(t, y1_m, y2_m) {
   // Live analysis
   const v1 = interpolateAt(store.v1_data, t);
   const v2 = interpolateAt(store.v2_data, t);
-  DOM.liveA1.textContent    = `${fmt(accel, 3)} m/s²`;
-  DOM.liveA2.textContent    = `${fmt(-accel, 3)} m/s²`;
+  DOM.liveA1.textContent    = `${fmt(-accel, 3)} m/s²`;
+  DOM.liveA2.textContent    = `${fmt(accel, 3)} m/s²`;
   DOM.liveTens.textContent  = `${fmt(tens, 2)} N`;
   DOM.liveV1.textContent    = `${fmt(v1, 3)} m/s`;
   DOM.liveV2.textContent    = `${fmt(v2, 3)} m/s`;

@@ -79,10 +79,12 @@ export function precompute() {
     const y2_cm = Y_MAX_CM - y2 * CM_PER_M;
     store.y1_data.push(y1_cm);
     store.y2_data.push(y2_cm);
-    store.v1_data.push(v);
-    store.v2_data.push(-v);
-    store.a1_data.push(accel);
-    store.a2_data.push(-accel);
+    // v/a im Höhen-Koordinatensystem (wie y1/y2 "Höhe vom Boden"): v-Vorzeichen
+    // ist entgegengesetzt zur Apertur-Koordinate v (v>0 dort ⇒ y1 fällt ⇒ Höhe sinkt).
+    store.v1_data.push(-v);
+    store.v2_data.push(v);
+    store.a1_data.push(-accel);
+    store.a2_data.push(accel);
     store.ydiff_data.push(y1_cm - y2_cm);
     store.yrel1_data.push(-s * CM_PER_M);  // Δhöhe m₁ (negativ beim Fallen)
     store.yrel2_data.push(s * CM_PER_M);   // Δhöhe m₂ (positiv beim Steigen)
