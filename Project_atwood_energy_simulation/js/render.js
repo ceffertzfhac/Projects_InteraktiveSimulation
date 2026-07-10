@@ -122,24 +122,28 @@ export function drawZeroLines() {
   if (!store.showZeroLines) return;
   const { epZeroMode, y1_start_cm, y2_start_cm } = store;
   const Y_MAX_M = Y_MAX_CM / CM_PER_M;
-  const heights = [];
+  // { h: Höhe über Boden (m), right: zusätzlich rechts beschriften (Nulllinie der rechten Masse m₂) }
+  const lines = [];
   if (epZeroMode === 'separate') {
-    heights.push(Y_MAX_M - y1_start_cm / CM_PER_M);
-    heights.push(Y_MAX_M - y2_start_cm / CM_PER_M);
+    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false });
+    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true });   // m₂ ⇒ auch rechts (FAE7)
   } else if (epZeroMode === 'y1') {
-    heights.push(Y_MAX_M - y1_start_cm / CM_PER_M);
+    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false });
   } else if (epZeroMode === 'y2') {
-    heights.push(Y_MAX_M - y2_start_cm / CM_PER_M);
+    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true });   // Nulllinie der rechten Masse (FAE7)
   } else if (epZeroMode === 'boden') {
-    heights.push(0);
+    lines.push({ h: 0, right: false });
   } else if (epZeroMode === 'decke') {
-    heights.push(Y_MAX_M);
+    lines.push({ h: Y_MAX_M, right: false });
   }
   const x1 = X_LEFT - 38, x2 = X_RIGHT + 38;
-  for (const h_m of heights) {
+  for (const { h: h_m, right } of lines) {
     const y = Y_FLOOR_SVG - h_m * PPM;
     g.appendChild(el('line', { x1, y1: y, x2, y2: y, class: 'zero-line' }));
     g.appendChild(textEl('E_pot = 0', x1 - 2, y - 3, 'end', 'zero-line-label'));
+    if (right) {
+      g.appendChild(textEl('E_pot = 0', x2 + 2, y - 3, 'start', 'zero-line-label')); // FAE7
+    }
   }
 }
 

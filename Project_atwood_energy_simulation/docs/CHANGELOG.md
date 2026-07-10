@@ -5,6 +5,20 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.5 — 2026-07-10
+
+E_pot-Nulllinie der rechten Masse zusätzlich rechts beschriften. FAE7.
+
+### Features
+- **E_pot-Nulllinie der \(m_2\) auch rechts beschriften (FAE7)**: die
+  Nulllinie der potentiellen Energie der rechten Masse trägt jetzt
+  zusätzlich ein rechtsseitiges Label „E_pot = 0" (an `x2 + 2`,
+  `text-anchor:start`), bisher nur links. `drawZeroLines` (`render.js`)
+  arbeitet jetzt mit `{h, right}`-Objekten; `right:true` für die
+  \(m_2\)-Linie im `separate`-Modus (2. Linie) und im `y2`-Modus
+  (einzige Linie = rechte Masse). Linksseitige Labels bleiben
+  unverändert erhalten.
+
 ## v1.2.4 — 2026-07-10
 
 Drei weitere PO-Wünsche: Massen-Label-Verschiebung, Rolle als eigenes
