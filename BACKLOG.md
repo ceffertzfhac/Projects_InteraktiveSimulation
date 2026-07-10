@@ -98,6 +98,8 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | FA1 | Atwood | Could | Anfangsgeschwindigkeit v₀ | Massenstart mit vorgegebener Startgeschwindigkeit. |
 | FA2 | Atwood | Could | Reibung | Lager-/Seilreibung als optionaler Slider (Dämpfung). |
 | FA3 | Atwood | Could | Phase II / Nachprall | Weiterführung der Simulation nach Kollision (elastisch/inelastisch). |
+| FA4 | Atwood | Should | Startpositionsgrenzen von Atwood-Energie übernehmen | `y1_slider`/`y2_slider` `min`/`max` (aktuell 70/330) auf die in Atwood-Energie korrigierten Werte 40/320 angleichen (→ FAE1/FAE6: bei max. Masse keine Kollision mit Boden/Oberkante). Diff-Modus-Klammer (falls vorhanden) analog anpassen. *(PO-Wunsch 2026-07-10)* |
+| FA5 | Atwood | Should | \(F_G\)/\(F_{\text{ges}}\) je Masse in „Physik (konstant)" anzeigen | Die Live-Werte-Box „Physik (konstant)" zeigt aktuell nur \(a_1\), \(a_2\), \(F_S\). Zusätzlich \(F_{G,1}\), \(F_{G,2}\) (Schwerkraft je Masse, \(m_i g\)) und \(F_{\text{ges},1}\), \(F_{\text{ges},2}\) (resultierende Kraft je Masse, \(m_i a\)) ergänzen — analog zu den bereits vorhandenen SVG-Kraftvektoren/-Toggles („Kräfte \(F_G,F_S\)"/„Resultierende \(F_{\text{ges}}\)") in `index.html`, aber bisher nicht als Zahlenwert im Panel. *(PO-Wunsch 2026-07-10)* |
 | FAE1 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Startposition-Minimum 40 cm | Startpositions-Slider (y₁, y₂) unten von 70 cm auf 40 cm erweitern; diff-Modus-Klammer in `ui.js` ebenfalls anpassen. *(PO-Wunsch 2026-07-10)* — erledigt: `y1_slider`/`y2_slider` `min` 70→40 (`index.html`), Diff-Modus-Klammer `Math.max(40, …)` (`ui.js`). Bei max. 10 kg (Halbhöhe 27,5 cm) bleibt der Massenboden 12,5 cm über dem Boden. |
 | FAE2 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Rollenmasse-Maximum 2 kg | Rollenmassen-Slider oben von 1 kg auf 2 kg erweitern. *(PO-Wunsch 2026-07-10)* — erledigt: `pulley_mass_slider` `max` 1→2 (`index.html`). Physik ohne harte Obergrenze, unverändert. |
 | FAE3 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Reibungspfeil-Toggle bei \(F_R=0\) deaktivieren | Solange die Reibungskraft 0 ist, soll der „Reibungspfeil \(F_R\)"-Visualisierungs-Toggle samt Beschriftung ausgegraut und nicht aktivierbar sein (Pfeil ist ohnehin unsichtbar bei \(F_R=0\)). *(PO-Wunsch 2026-07-10)* — erledigt: `updateFrictionArrowToggle()` in `ui.js` (aufgerufen in `resetSim`) setzt `togFrictionArrow.disabled` + `.is-disabled`-Klasse auf Zeile `friction_arrow_row`; CSS `.vis-toggle-row.is-disabled` (Deckkraft 0,4, `cursor:not-allowed`) in `styles.css`. `checked`-Zustand bleibt erhalten → bei erneutem \(F_R>0\) greift die bisherige Wahl wieder. |
@@ -363,10 +365,10 @@ Berührung gegen die kanonische Regel abgleichen.
 
 Stand: 2026-07-10 (nach kritischer Physik-Review + Bugfix-Session Atwood-Energie/Atwood).
 
-- **Gesamt-Items (offen):** 68
+- **Gesamt-Items (offen):** 70
 - **Bugs:** 2 offen (B4, B5) — B1, B2, B3 erledigt (Session 2026-07-07); B7–B11 erledigt (Kreis-Spiral v1.1.0, 2026-07-08); B12 erledigt (Kreis-Spiral v1.1.10, 2026-07-08); B6 erledigt (3-Massen v1.2.4, 2026-07-08); B13 erledigt (Atwood-Energie v1.2.2, 2026-07-10); B14–B18 erledigt (Atwood-Energie/Atwood, kritische Physik-Review, Session 2026-07-10)
 - **Technische Schulden:** 1 offen (T9) — T1–T8 erledigt
-- **Features sim-spezifisch:** 47 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 3 · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7) — FAE (Atwood-Energie) vollständig erledigt: 14/14 (FAE1–14, zuletzt FAE9–14 in v1.2.7–v1.2.13, Session 2026-07-09/10), daher nicht in der offen-Zählung
+- **Features sim-spezifisch:** 49 offen (FL 7 · FR 7 [FR2/FR6 → I5/I6 retired] · FA 5 [FA4/FA5 neu, PO-Wunsch 2026-07-10] · FP 4 · F3 3 · FK 5 · FX 4 [FX1 erledigt v1.2.1, FX6 erledigt v1.1.0, FX7 erledigt v1.2.0] · FW 7 · FZ 7) — FAE (Atwood-Energie) vollständig erledigt: 14/14 (FAE1–14, zuletzt FAE9–14 in v1.2.7–v1.2.13, Session 2026-07-09/10), daher nicht in der offen-Zählung
 - **Infrastruktur & Querschnitts-Features:** 7 offen (I1, I3, I5, I6, I7, I8, I10) — I2, I4, I9 erledigt
 - **Standalone-Verbesserungen:** 3 offen (S1, S3, S4) — S2 erledigt
 - **Neue Simulationen:** 6 offen (N1–N6)
