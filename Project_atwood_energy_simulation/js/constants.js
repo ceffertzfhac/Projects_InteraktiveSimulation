@@ -39,9 +39,9 @@ export const SW_HAND_LEN  = 50;
 // Diagramm-Geometrie — I9: Zweier-Diagramme orthogonal zur Sim/Diagramm-Aufteilung.
 // Landscape = Übereinander-Layout (breit-flache Diagrammzelle),
 // Portrait  = Nebeneinander-Layout (hohe schmale Diagrammzelle).
-export const LAND_W        = 700;   // Landscape Einzel-Breite
+export const LAND_W        = 840;   // Landscape Einzel-Breite (FAE13: +20 % Abszissenbreite)
 export const LAND_H        = 410;   // Landscape Einzel-Höhe
-export const PORT_W        = 492;   // Portrait Einzel-Breite
+export const PORT_W        = 590;   // Portrait Einzel-Breite (FAE13: +20 % Abszissenbreite)
 export const PORT_H_SINGLE = 700;   // Portrait Einzel-Höhe
 export const PORT_SLOT_DUAL = 345;  // Portrait Zweier-Teilhöhe (gestapelt)
 export const DUAL_GAP     = 20;     // Lücke zwischen den beiden Teilgraphen

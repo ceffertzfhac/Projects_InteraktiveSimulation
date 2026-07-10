@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.9 — 2026-07-10
+
+Abszissenbreite der Diagramme ~20 % erhöht. FAE13.
+
+### Features
+- **Abszissenbreite ~20 % breiter (FAE13)**: `LAND_W` 700→840,
+  `PORT_W` 492→590 in `constants.js` (+20 % Diagrammbreite). Da die
+  Margins `P.left`/`P.right` (58/25) fix bleiben, wächst die
+  Abszissenbreite `PLOT_W = cellW − 83` leicht überproportional
+  (Portrait 409→507, +24 %). `graph_svg` skaliert via
+  `preserveAspectRatio="xMidYMid meet"` + `width:100%`, sodaß das
+  breitere Portrait-`viewBox` den zur Verfügung stehenden horizontalen
+  Platz effizienter ausfüllt. Gilt für Einzel- und Zwei-Diagramme
+  (Hochformat).
+
 ## v1.2.8 — 2026-07-10
 
 \(E_{\text{pot}}\)-Nullpunkt-Dropdown in die Startpositionen verschoben.
