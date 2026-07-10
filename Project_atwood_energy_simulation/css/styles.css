@@ -187,3 +187,10 @@ body.dark {
 }
 .balance-line i { font-style: italic; }
 .bal-const { color: var(--accent); font-weight: 600; }
+
+/* ── REIBUNGSPFEIL-TOGGLE DEAKTIVIERT (FAE3) ───────────────────────────────── */
+/* Bei F_R = 0 ist der Pfeil ohnehin unsichtbar; Toggle + Beschriftung
+   ausgegraut und nicht aktivierbar (Checkbox via .disabled gesperrt). */
+.vis-toggle-row.is-disabled { opacity: .4; cursor: not-allowed; }
+.vis-toggle-row.is-disabled .toggle-switch { cursor: not-allowed; }
+.vis-toggle-row.is-disabled .vis-label { color: var(--text3); }

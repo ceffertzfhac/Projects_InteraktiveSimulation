@@ -99,6 +99,7 @@ export function initDOM() {
   DOM.togForces       = document.getElementById('toggle_forces');
   DOM.togNet          = document.getElementById('toggle_net_force');
   DOM.togFrictionArrow = document.getElementById('toggle_friction_arrow');
+  DOM.frictionArrowRow = document.getElementById('friction_arrow_row');
   DOM.togZeroLines    = document.getElementById('toggle_zero_lines');
 
   // Topbar

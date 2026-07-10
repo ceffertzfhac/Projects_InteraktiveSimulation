@@ -17,7 +17,7 @@ Features · `I#` Infrastruktur & repo-weite Querschnitts-Features · `S#`
 Standalone-Integration · `N#` Neue Simulationen · `M#` Migrationen · `W#`
 Werkzeug-Schale · `R#` Rollout.
 
-**Sim-Feature-Präfixe:** `FL` Lorentzkraft · `FR` Rollende Körper · `FA` Atwood
+**Sim-Feature-Präfixe:** `FL` Lorentzkraft · `FR` Rollende Körper · `FA` Atwood · `FAE` Atwood-Energie
 · `FF` Freier Fall · `FP` Federpendel · `F3` 3-Massen-Umlenkrollen · `FK`
 Kreisbewegung · `FX` Kreis-/Spiralbewegung · `FW` Schräger Wurf · `FZ` Zykloide.
 
@@ -93,6 +93,9 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | FA1 | Atwood | Could | Anfangsgeschwindigkeit v₀ | Massenstart mit vorgegebener Startgeschwindigkeit. |
 | FA2 | Atwood | Could | Reibung | Lager-/Seilreibung als optionaler Slider (Dämpfung). |
 | FA3 | Atwood | Could | Phase II / Nachprall | Weiterführung der Simulation nach Kollision (elastisch/inelastisch). |
+| FAE1 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Startposition-Minimum 40 cm | Startpositions-Slider (y₁, y₂) unten von 70 cm auf 40 cm erweitern; diff-Modus-Klammer in `ui.js` ebenfalls anpassen. *(PO-Wunsch 2026-07-10)* — erledigt: `y1_slider`/`y2_slider` `min` 70→40 (`index.html`), Diff-Modus-Klammer `Math.max(40, …)` (`ui.js`). Bei max. 10 kg (Halbhöhe 27,5 cm) bleibt der Massenboden 12,5 cm über dem Boden. |
+| FAE2 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Rollenmasse-Maximum 2 kg | Rollenmassen-Slider oben von 1 kg auf 2 kg erweitern. *(PO-Wunsch 2026-07-10)* — erledigt: `pulley_mass_slider` `max` 1→2 (`index.html`). Physik ohne harte Obergrenze, unverändert. |
+| FAE3 | ✅ erledigt (v1.2.3) · Atwood-Energie | Should | Reibungspfeil-Toggle bei \(F_R=0\) deaktivieren | Solange die Reibungskraft 0 ist, soll der „Reibungspfeil \(F_R\)"-Visualisierungs-Toggle samt Beschriftung ausgegraut und nicht aktivierbar sein (Pfeil ist ohnehin unsichtbar bei \(F_R=0\)). *(PO-Wunsch 2026-07-10)* — erledigt: `updateFrictionArrowToggle()` in `ui.js` (aufgerufen in `resetSim`) setzt `togFrictionArrow.disabled` + `.is-disabled`-Klasse auf Zeile `friction_arrow_row`; CSS `.vis-toggle-row.is-disabled` (Deckkraft 0,4, `cursor:not-allowed`) in `styles.css`. `checked`-Zustand bleibt erhalten → bei erneutem \(F_R>0\) greift die bisherige Wahl wieder. |
 | FP1 | Federpendel | Should | Dämpfung | Dämpfungskoeffizient \(c\) (viskos) → gedämpfte Schwingung \(x(t)=x_0\,e^{-\delta t}\cos(\omega t)\), \(\delta=c/(2m)\); aperiodischer Grenzfall als Sonderfall. Neuer Slider + Hüllkurve im Diagramm. |
 | FP2 | Federpendel | Should | Erzwungene Schwingung | Sinusförmige äußere Kraft einstellbarer Frequenz, Resonanzkurve, Phasenverschiebung. |
 | FP3 | Federpendel | Could | Phasenraum-Diagramm | \(v\) gegen \(x\) (Ellipse bei ungedämpfter Schwingung) als weiterer Diagrammtyp. |

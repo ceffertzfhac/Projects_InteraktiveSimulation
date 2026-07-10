@@ -5,6 +5,30 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.3 — 2026-07-10
+
+Drei kleine PO-Wünsche: Startposition min 40 cm, Rollenmasse max 2 kg,
+Reibungspfeil-Toggle bei \(F_R=0\) deaktiviert. FAE1–FAE3.
+
+### Features
+- **Startposition-Minimum 40 cm (FAE1)**: die Slider für \(y_1\)- und
+  \(y_2\)-Startposition (`min` 70 → 40 cm) sowie die Klammer im
+  Diff-Modus (`Math.max(40, …)` in `ui.js`) erweitert — Massen können
+  nun tiefer (näher am Boden) starten. Auch bei max. 10 kg-Masse
+  (Halbhöhe 27,5 cm) bleibt der Massenboden 12,5 cm über dem Boden.
+- **Rollenmasse-Maximum 2 kg (FAE2)**: Rollenmassen-Slider `max` 1 → 2
+  kg. Physik (`pulleyEffMass`, `getAccel`) ohne harte Obergrenze,
+  unverändert.
+- **Reibungspfeil-Toggle bei \(F_R=0\) deaktiviert (FAE3)**: solange
+  die Reibungskraft 0 ist, ist der „Reibungspfeil \(F_R\)"-Toggle samt
+  Beschriftung ausgegraut (`.is-disabled`, Deckkraft 0,4) und nicht
+  aktivierbar (Checkbox `disabled`). Der Pfeil ist bei \(F_R=0\)
+  ohnehin unsichtbar. `updateFrictionArrowToggle()` in `ui.js` wird in
+  `resetSim` nach der Reibungskraft-Übernahme aufgerufen; der
+  `checked`-Zustand bleibt erhalten, sodaß bei erneutem \(F_R>0\) die
+  bisherige Wahl wieder greift. Neue Zeilen-ID
+  `friction_arrow_row` + DOM-Cache.
+
 ## v1.2.2 — 2026-07-10
 
 Rollen-Rotationsmarkierung drehte in falsche Richtung. Bugfix B13.
