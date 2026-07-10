@@ -3,6 +3,23 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.4.1] — 2026-07-10
+### Behoben
+- **Punkt/Bahn/Vektoren bei weiten Spiralradien hinter Stoppuhr verdeckt
+  (B20, kritisch)**: `#stopwatch_circle` (deckende Füllung) stand im SVG
+  (`index.html`) **nach** Bahn/Vektoren/Punkt. Da die Zoom-Anpassung
+  (`store.currentPixelsPerMeter`) beim Reset nur auf `R0` basiert, nicht
+  auf den während der Spiralbewegung maximal erreichten Radius, wächst der
+  Bildschirmradius des Punkts im Spiralmodus kontinuierlich über die
+  Stoppuhr-Position hinweg. Numerisch verifiziert mit Standardwerten
+  (\(R_0=1{,}5\) m, \(\omega_0=60\) °/s, Spiralmodus \(v_r=1{,}0\) m/s —
+  alles im normalen Reglerbereich): der Punkt kommt bei \(t≈1{,}15\) s bis
+  auf 8 px an das Stoppuhr-Zentrum heran (Stoppuhr-Radius ≈43 px) — Punkt
+  und Vektoren wären komplett unsichtbar. Gleiches Muster wie B17–B19.
+  **Korrigiert:** Stoppuhr-Gruppe (+ Zoom-Text-Anzeige) im Markup vor
+  `trajectory_path`/Vektoren/`point` verschoben. Rein deklarative
+  Dokumentreihenfolge, keine JS-Änderung nötig. *(Session 2026-07-10, I10)*
+
 ## [1.4.0] — 2026-07-09
 ### Geändert (Dual-Diagramme orthogonal zur Sim/Diagramm-Aufteilung)
 - Im Zweier-Diagramm-Modus liegen die beiden Diagramme nun **orthogonal zur

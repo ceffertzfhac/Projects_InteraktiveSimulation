@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.4.0</span>
+    <span class="version">v1.4.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -254,6 +254,15 @@ window.MathJax = {
             <circle id="disk" fill-opacity="0.4"/>
           </g>
 
+          <!-- Stoppuhr vor Bahn/Vektoren/Punkt, damit ihre deckende Fuellung
+               (Token surface) diese bei weiten Spiralradien nicht verdeckt (B20). -->
+          <g id="stopwatch" transform="translate(84,-24) scale(0.595)" style="cursor:pointer">
+            <circle id="stopwatch_circle" cx="280" cy="120" r="72"/>
+            <g id="stopwatch_marks"></g>
+            <line id="stopwatch_main_hand" x1="280" y1="120"/>
+          </g>
+          <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle"></text>
+
           <path id="trajectory_path" d="" fill="none"/>
 
           <g id="phi_arc_group" style="visibility:hidden">
@@ -280,13 +289,6 @@ window.MathJax = {
           <line id="omega_vector" marker-end="url(#arrow-omega)"/>
           <line id="alpha_vector" marker-end="url(#arrow-alpha)"/>
           <circle id="point" r="8"/>
-
-          <g id="stopwatch" transform="translate(84,-24) scale(0.595)" style="cursor:pointer">
-            <circle id="stopwatch_circle" cx="280" cy="120" r="72"/>
-            <g id="stopwatch_marks"></g>
-            <line id="stopwatch_main_hand" x1="280" y1="120"/>
-          </g>
-          <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle"></text>
         </g>
       </svg>
       <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
