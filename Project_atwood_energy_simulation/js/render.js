@@ -122,29 +122,32 @@ export function drawZeroLines() {
   if (!store.showZeroLines) return;
   const { epZeroMode, y1_start_cm, y2_start_cm } = store;
   const Y_MAX_M = Y_MAX_CM / CM_PER_M;
-  // { h: Höhe über Boden (m), right: zusätzlich rechts beschriften (Nulllinie der rechten Masse m₂) }
+  // { h: Höhe über Boden (m), right: zusätzlich rechts beschriften (Nulllinie der rechten Masse m₂),
+  //   subj: 1|2|null — nur gesetzt, wenn die Linie eine eigenständige Nullhöhe je Masse ist
+  //   (separate-Modus); bei einer für beide Massen gemeinsamen Referenzhöhe (y1/y2-Modus) null. }
   const lines = [];
   if (epZeroMode === 'separate') {
-    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false });
-    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true });   // m₂ ⇒ auch rechts (FAE7)
+    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false, subj: 1 });
+    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true,  subj: 2 });   // m₂ ⇒ auch rechts (FAE7)
   } else if (epZeroMode === 'y1') {
-    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false });
+    lines.push({ h: Y_MAX_M - y1_start_cm / CM_PER_M, right: false, subj: null });
   } else if (epZeroMode === 'y2') {
-    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true });   // Nulllinie der rechten Masse (FAE7)
+    lines.push({ h: Y_MAX_M - y2_start_cm / CM_PER_M, right: true,  subj: null });   // Nulllinie der rechten Masse (FAE7)
   } else if (epZeroMode === 'boden') {
-    lines.push({ h: 0, right: false });
+    lines.push({ h: 0, right: false, subj: null });
   } else if (epZeroMode === 'decke') {
-    lines.push({ h: Y_MAX_M, right: false });
+    lines.push({ h: Y_MAX_M, right: false, subj: null });
   }
   const x1 = X_LEFT - 38, x2 = X_RIGHT + 38;
-  for (const { h: h_m, right } of lines) {
+  for (const { h: h_m, right, subj } of lines) {
     const y = Y_FLOOR_SVG - h_m * PPM;
+    const label = subj ? `E_pot,${subj} = 0` : 'E_pot = 0';
     g.appendChild(el('line', { x1, y1: y, x2, y2: y, class: 'zero-line' }));
     if (right) {
       // Nulllinie der rechten Masse (m₂) ⇒ nur rechts beschriften (FAE7-Korrektur).
-      g.appendChild(textEl('E_pot = 0', x2 + 2, y - 3, 'start', 'zero-line-label'));
+      g.appendChild(textEl(label, x2 + 2, y - 3, 'start', 'zero-line-label'));
     } else {
-      g.appendChild(textEl('E_pot = 0', x1 - 2, y - 3, 'end', 'zero-line-label'));
+      g.appendChild(textEl(label, x1 - 2, y - 3, 'end', 'zero-line-label'));
     }
   }
 }

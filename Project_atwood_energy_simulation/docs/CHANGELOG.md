@@ -5,6 +5,20 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.13 — 2026-07-10
+
+E_pot-Nulllinien im separate-Modus mit Index 1/2 beschriftet. FAE14.
+
+### Features
+- **Index-Suffix bei getrennten E_pot-Nullpunkten (FAE14)**: Im
+  `separate`-Modus (je Masse eigene Starthöhe als E_pot-Nullpunkt) gibt
+  es zwei eigenständige Nulllinien — bisher beide identisch mit
+  „E_pot = 0" beschriftet, nur über die Position (links/rechts)
+  unterscheidbar. Jetzt „E_pot,1 = 0" (m₁, links) bzw. „E_pot,2 = 0"
+  (m₂, rechts). In `y1`/`y2`/`boden`/`decke`-Modus bleibt „E_pot = 0"
+  ohne Index, da dort eine einzelne Referenzhöhe für **beide** Massen
+  gilt (`hNull1 = hNull2`). *(PO-Wunsch 2026-07-10)*
+
 ## v1.2.12 — 2026-07-10
 
 E_pot-Nulllinie der rechten Masse (m₂) war doppelt beschriftet. Bugfix B16.
