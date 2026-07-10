@@ -1,5 +1,16 @@
 # Changelog — Schräger Wurf
 
+## v1.2.6 — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5 Cluster (Parameter, Diagramm,
+  Visualisierung, Legende Vektoren, Abspielgeschwindigkeit) einzeln
+  ein-/ausklappbar, kein Konsolidierungsbedarf. Nur „Abspielgeschwindigkeit"
+  default eingeklappt. Referenz: Kreis-/Spiralbewegung v1.3.0. Per
+  Playwright verifiziert.
+
 ## v1.2.5 — 2026-07-10
 
 Ball/Bahn/Vektoren konnten bei hohen, steilen Würfen hinter der Stoppuhr
