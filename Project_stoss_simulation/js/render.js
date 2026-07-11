@@ -8,6 +8,7 @@ import {
 import { store, DOM } from './state.js'
 import { getNiceTick, interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -29,14 +30,6 @@ export function physToScreen(x_m, y_m = 0) {
     x: SVG_W / 2 + (x_m - store.panOffsetM) * store.ppm,
     y: TRACK_Y - y_m * store.ppm,
   }
-}
-
-// Schaft um Marker-Länge kürzen (kanonische Pfeilspitzen-Geometrie, CLAUDE.md).
-function shortenEnd(x1, y1, x2, y2, by) {
-  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy)
-  if (len < 1e-6) return { x2, y2 }
-  const shaft = Math.max(len - by, 2)
-  return { x2: x1 + dx / len * shaft, y2: y1 + dy / len * shaft }
 }
 
 function setAxisLabel(textElObj, text) {

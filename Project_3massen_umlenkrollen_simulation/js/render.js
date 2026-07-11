@@ -10,6 +10,7 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { fmt } from '../../shared/js/format.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
 const VEC_STROKE = 2.1      // px — 0,7× des v1.0.1-Werts (Marker skaliert via markerUnits=strokeWidth)
@@ -24,15 +25,6 @@ const MARKER_ID = {
 }
 
 // ── Zahl-Formatierung (Komma-Dezimal) via shared/js/format.js (T6) ────────────
-
-// ── Kanonische Pfeilspitzen-Geometrie (CLAUDE.md): refX=0 + Schaft um ────────
-// Marker-Länge (markerWidth·strokeWidth) gekürzt → Spitze exakt auf Zielpunkt.
-function shortenEnd(x1, y1, x2, y2, by) {
-  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy)
-  if (len < 1e-6) return { x: x2, y: y2 }
-  const shaft = Math.max(len - by, 2)
-  return { x: x1 + (dx / len) * shaft, y: y1 + (dy / len) * shaft }
-}
 
 // ── Zentrale Koordinatentransformation ────────────────────────────────────────
 // Die Physik rechnet direkt in Bildschirm-Pixeln (Y ↓). physToScreen kapselt
@@ -95,7 +87,7 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   const end = shortenEnd(x1, y1, x2, y2, 5 * sw)
   const line = document.createElementNS(SVGNS, 'line')
   line.setAttribute('x1', x1); line.setAttribute('y1', y1)
-  line.setAttribute('x2', end.x); line.setAttribute('y2', end.y)
+  line.setAttribute('x2', end.x2); line.setAttribute('y2', end.y2)
   line.setAttribute('class', `vec ${VEC_CLASS[type]}`)
   line.setAttribute('stroke-width', sw)
   line.setAttribute('marker-end', `url(#${MARKER_ID[type]})`)

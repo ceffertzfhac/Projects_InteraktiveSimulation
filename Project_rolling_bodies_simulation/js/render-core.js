@@ -7,7 +7,8 @@
 
 import * as state from './state.js';
 import { fmt } from '../../shared/js/format.js';
-export { fmt };
+import { shortenEnd } from '../../shared/js/vectors.js';
+export { fmt, shortenEnd };
 
 // fmt() via shared/js/format.js (T6). fmtTech (Punkt-Dezimal für SVG-Attribute)
 // und fmtE (Energie mit ' J'-Suffix) bleiben Rolling-spezifisch (keine
@@ -33,19 +34,6 @@ export function svgEl(tag, attrs = {}) {
   const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (const k in attrs) el.setAttribute(k, attrs[k]);
   return el;
-}
-
-// Kanonische Pfeilspitzen-Geometrie (siehe CLAUDE.md): alle Vektor-Marker nutzen
-// refX=0 (Dreieck-Basis am Linien-Ende), der Schaft wird um die Marker-Länge
-// `by = markerWidth · strokeWidth` gekürzt → Spitze landet exakt auf dem
-// Zielpunkt, Schaft an der Basis vom deckenden Dreieck überdeckt. Kürzt (x2,y2)
-// entlang (x2−x1, y2−y1); behält einen 2px-Stub, damit orient="auto" auch bei
-// sehr kurzen Vektoren eine Richtung hat.
-export function shortenEnd(x1, y1, x2, y2, by) {
-  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-  if (len < 1e-6) return { x2, y2 };
-  const shaft = Math.max(len - by, 2);
-  return { x2: x1 + dx / len * shaft, y2: y1 + dy / len * shaft };
 }
 
 /**

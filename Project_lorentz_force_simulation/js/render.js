@@ -3,19 +3,9 @@
 import { SCALE, Y_COND1, Y_CEILING, COLORS, SVG_W, SPRING } from './constants.js'
 import { store, DOM } from './state.js'
 import { fmt } from '../../shared/js/format.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
-
-// Kanonische Pfeilspitzen-Geometrie (siehe CLAUDE.md): Marker mit refX=0
-// (Dreieck-Basis am Linien-Ende) + Schaft um Marker-Länge `by = markerWidth ·
-// strokeWidth` gekürzt → Spitze exakt auf dem Zielpunkt, kein Schaft-Überstand.
-// Kürzt (x2,y2) entlang (x2−x1,y2−y1); 2px-Stub für orient="auto" bei kurzen Pfeilen.
-function shortenEnd(x1, y1, x2, y2, by) {
-  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy)
-  if (len < 1e-6) return { x: x2, y: y2 }
-  const shaft = Math.max(len - by, 2)
-  return { x: x1 + dx / len * shaft, y: y1 + dy / len * shaft }
-}
 
 // Vektor-Label: Symbol kursiv via Serif-tspan + Vektor-Pfeil (Combining-Arrow
 // U+20D7), optional tiefgestellter Index. Referenz: 3-Massen-Sim (T8). Fill =
@@ -215,7 +205,7 @@ export function updateScene() {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       // Schaft um Marker-Länge (7·2) kürzen → refX=0-Spitze landet exakt bei labelX+20·dir.
       const cEnd = shortenEnd(labelX - 20 * dir, y, labelX + 20 * dir, y, 7 * 2)
-      path.setAttribute('d', `M ${labelX - 20 * dir} ${y} L ${cEnd.x} ${cEnd.y}`)
+      path.setAttribute('d', `M ${labelX - 20 * dir} ${y} L ${cEnd.x2} ${cEnd.y2}`)
       path.setAttribute('stroke', color); path.setAttribute('stroke-width', '2'); path.setAttribute('marker-end', marker)
       DOM.vectors_g.appendChild(path)
       const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text')
@@ -235,7 +225,7 @@ export function updateScene() {
     const fl_line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
     // Schaft um Marker-Länge (7·dynamicWidth) kürzen → refX=0-Spitze auf dem Kraft-Endpunkt.
     const flEnd = shortenEnd(forceX, y2 + fDir * ry, forceX, y2 + fDir * (ry + fl_len), 7 * dynamicWidth)
-    fl_line.setAttribute('x1', forceX); fl_line.setAttribute('y1', y2 + fDir * ry); fl_line.setAttribute('x2', flEnd.x); fl_line.setAttribute('y2', flEnd.y)
+    fl_line.setAttribute('x1', forceX); fl_line.setAttribute('y1', y2 + fDir * ry); fl_line.setAttribute('x2', flEnd.x2); fl_line.setAttribute('y2', flEnd.y2)
     fl_line.setAttribute('stroke', COLORS.FORCE_L); fl_line.setAttribute('stroke-width', dynamicWidth); fl_line.setAttribute('marker-end', 'url(#arr-fl)')
     DOM.vectors_g.appendChild(fl_line)
     // Kraft-Label F⃗_L (T8, 3-Massen-Notation) — nur Symbol mit Pfeil, kein Wert.
@@ -244,7 +234,7 @@ export function updateScene() {
     for (let x of [springX1, springX2]) {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
       const fsEnd = shortenEnd(x, y2 + sDir * ry, x, y2 + sDir * (ry + fs_len), 7 * dynamicWidth)
-      line.setAttribute('x1', x); line.setAttribute('y1', y2 + sDir * ry); line.setAttribute('x2', x); line.setAttribute('y2', fsEnd.y)
+      line.setAttribute('x1', x); line.setAttribute('y1', y2 + sDir * ry); line.setAttribute('x2', x); line.setAttribute('y2', fsEnd.y2)
       line.setAttribute('stroke', COLORS.FORCE_S); line.setAttribute('stroke-width', dynamicWidth); line.setAttribute('marker-end', 'url(#arr-fs)')
       DOM.vectors_g.appendChild(line)
       DOM.vectors_g.appendChild(vecLabel(x + 8, y2 + sDir * (ry + fs_len + 10), 'F', COLORS.FORCE_S, 'S'))

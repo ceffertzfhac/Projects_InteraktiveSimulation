@@ -17,6 +17,7 @@ import {
 import { store, DOM } from './state.js'
 import { getNiceTick, linePlotIndex, frequency } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
 
 // ── Layout-abhängige Geometrie (gestapelt ↔ nebeneinander) ───────────────────
@@ -43,15 +44,6 @@ const ARROW_LEN_MAIN = 5 * 2.5  // Hauptvektoren (Ort/Geschw./Beschl.), sw=2,5 �
 const ARROW_LEN_COMP = 5 * 2    // Komponenten-Vektoren, sw=2 → 10 px
 const ARROW_LEN_AXIS = 5 * 1.2   // Koordinatenachsen, sw=1,2 → 6 px
 
-// Endpunkt (x2,y2) um `by` px in Richtung (x2−x1, y2−y1) zurückziehen. Liefert
-// das gekürzte (x2,y2); bei by≤0 oder zu kurzem Vektor unverändert.
-function shortenEnd(x1, y1, x2, y2, by) {
-  if (!(by > 0)) return { x2, y2 }
-  const dx = x2 - x1, dy = y2 - y1
-  const len = Math.hypot(dx, dy)
-  if (len <= by) return { x2, y2 }
-  return { x2: x2 - (dx / len) * by, y2: y2 - (dy / len) * by }
-}
 // Zwei-Diagramm-Geometrie (isStacked): die beiden Diagramme liegen ORTHOGONAL zur
 // Sim/Diagramm-Aufteilung (kanonische Regel, s. CLAUDE.md) — die Mittellinie (Grid-
 // Partition) bleibt unangetastet, nur die Anordnung innerhalb der Diagrammzelle

@@ -11,6 +11,7 @@ import {
 import { store, DOM } from './state.js'
 import { niceStepLE, tAxisStep, interpolateAt, linePlotIndex, radiusAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -61,15 +62,6 @@ function setGraphTitle(textEl, text) {
   const sym = el('tspan', { 'font-style': 'italic' })
   sym.textContent = text.slice(sep + 1)
   textEl.appendChild(sym)
-}
-
-// Pfeilspitze kanonisch: refX=0 + Schaft um Marker-Länge kürzen → Spitze auf Ziel
-function shortenEnd(x1, y1, x2, y2, by) {
-  if (!(by > 0)) return { x2, y2 }
-  const dx = x2 - x1, dy = y2 - y1
-  const len = Math.hypot(dx, dy)
-  if (len <= by) return { x2, y2 }
-  return { x2: x2 - (dx / len) * by, y2: y2 - (dy / len) * by }
 }
 
 const ARROW_LEN_MAIN = 5 * 2.5    // Hauptvektoren sw=2,5 → 12,5 px
