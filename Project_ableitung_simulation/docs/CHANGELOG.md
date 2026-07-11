@@ -1,5 +1,17 @@
 # CHANGELOG — Die Ableitung als Grenzwert
 
+## [1.2.4] — 2026-07-10
+
+Akkordeon-Steuerungs-Sidebar (I8).
+
+### Features
+- **Akkordeon-Steuerungs-Sidebar**: 5→4 Cluster konsolidiert — „Funktion"
+  (Single-Control: Funktionsauswahl-Dropdown) in „Parameter" integriert
+  (Single-Control-Cluster-Regel), neuer Titel „Funktion & Parameter".
+  Alle 4 Cluster (kein Abspielgeschwindigkeit-Cluster in diesem Sim)
+  bleiben default offen. Referenz: Kreis-/Spiralbewegung v1.3.0. Per
+  Playwright verifiziert.
+
 ## [1.2.3] — 2026-07-08
 ### Behoben (δ-Semantik einheitlich)
 - **\(\delta\) bedeutet jetzt in beiden Modi dasselbe: den vollen Stützpunkt-

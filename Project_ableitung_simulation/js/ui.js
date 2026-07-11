@@ -113,6 +113,16 @@ function setupUI() {
     const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
     DOM.analysisToggle.setAttribute('aria-expanded', String(!collapsed))
   })
+
+  // Akkordeon-Steuerungs-Sidebar (I8): linke Cluster ein-/ausklappbar.
+  // .panel-label ist <button> → Enter/Space triggert click nativ.
+  document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.parentElement
+      const collapsed = section.classList.toggle('collapsed')
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+    })
+  })
 }
 
 // ── Funktionsauswahl-Dropdown befüllen ───────────────────────────────────────

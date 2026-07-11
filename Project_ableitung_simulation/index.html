@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Die Ableitung als Grenzwert
-    <span class="version">v1.2.3</span>
+    <span class="version">v1.2.4</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -41,13 +41,9 @@ window.MathJax = {
   <!-- ── LINKE SIDEBAR: Funktion · Parameter · Visualisierung · Legende ────── -->
   <aside class="panel left-panel">
 
-    <div class="panel-section">
-      <div class="panel-label">Funktion</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Funktion &amp; Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <select class="select-field" id="func_select"></select>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Parameter</div>
       <div class="slider-label">Stützstelle \(x_0\)</div>
       <div class="slider-row">
         <input type="range" id="x0_slider">
@@ -64,8 +60,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Visualisierung</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">Tangente \(f'(x_0)\)</span>
         <label class="toggle-switch">
@@ -93,8 +89,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Werte im Diagramm</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Werte im Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
         <span class="vis-label">\(\Delta x\)-, \(\Delta y\)-Werte</span>
         <label class="toggle-switch">
@@ -118,8 +114,8 @@ window.MathJax = {
       </div>
     </div>
 
-    <div class="panel-section">
-      <div class="panel-label">Legende</div>
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="legend-grid">
         <div class="legend-swatch" style="background:var(--c-func)"></div>
         <div class="legend-label">Funktion \(f(x)\)</div>
