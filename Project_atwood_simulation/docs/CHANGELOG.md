@@ -1,5 +1,15 @@
 # Changelog – Atwood-Maschine
 
+## v2.2.7 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`getNiceTick`** nutzen jetzt
+  `shared/js/svg-text.js` bzw. `shared/js/ticks.js` statt lokaler Kopien.
+  `getNiceTick` wird weiterhin direkt (ohne `tAxisStep`-Wrapper) für die
+  Werteachse importiert. Keine sichtbare Änderung.
+
 ## v2.2.6 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

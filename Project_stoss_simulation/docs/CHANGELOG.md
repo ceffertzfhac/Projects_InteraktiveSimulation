@@ -5,6 +5,19 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.3 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`shortenEnd`/`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`niceStepLE`**
+  nutzen jetzt `shared/js/vectors.js`, `shared/js/svg-text.js` bzw.
+  `shared/js/ticks.js` statt lokaler Kopien. `setAxisLabel`/`setGraphTitle`:
+  DOM-Form vereinheitlicht (bisher Text-Node statt `tspan` für einen Teil
+  des Labels) — keine sichtbare Änderung. `tAxisStep`: bisheriger
+  `minDivs=4`-Default jetzt explizit am Call-Site übergeben (kanonischer
+  Default ist repo-weit `3`) — unverändertes Verhalten.
+
 ## v1.0.2 — 2026-07-10
 
 Ruhende Gleiter „liefen" beim Verstellen der Federkonstante seitlich im

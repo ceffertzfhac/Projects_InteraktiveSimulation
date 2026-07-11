@@ -1,5 +1,13 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.5.8] - 2026-07-11
+### Geändert (T9 - shared/js-Helper konsolidieren)
+- **`shortenEnd`** nutzt jetzt `shared/js/vectors.js` statt einer lokalen
+  Kopie. Rückgabe-Keys von `{x,y}` auf `{x2,y2}` umgestellt (kanonisch,
+  Mehrheit der Sims); alle 3 Call-Sites angepasst. Keine sichtbare
+  Änderung - Algorithmus war bereits identisch mit der neuen shared
+  Funktion.
+
 ## [1.5.7] - 2026-07-07
 ### Behoben (B1 — RHO_CU-Duplikat in ui.js)
 - **`RHO_CU` jetzt aus `constants.js` importiert** statt als Magic Number `0.0178`

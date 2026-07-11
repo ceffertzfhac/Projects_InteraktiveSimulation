@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.16 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`getNiceTick`** nutzen jetzt
+  `shared/js/svg-text.js` bzw. `shared/js/ticks.js` statt lokaler Kopien.
+  `getNiceTick` wird weiterhin direkt (ohne `tAxisStep`-Wrapper) für die
+  Werteachse importiert. Keine sichtbare Änderung.
+
 ## v1.2.15 — 2026-07-10
 
 Massen-Beschriftung nahe der Blende verschwand dahinter. Bugfix B18.

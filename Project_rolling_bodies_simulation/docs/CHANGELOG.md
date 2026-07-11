@@ -2,6 +2,13 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.0.10] - 2026-07-11
+### Geändert (T9 - shared/js-Helper konsolidieren)
+- **`shortenEnd`** (in `render-core.js`, re-exportiert für
+  `render-scene.js`/`render-vectors.js`) nutzt jetzt `shared/js/vectors.js`
+  statt einer lokalen Kopie. Bereits identischer Algorithmus + identische
+  Rückgabe-Keys - reiner Import-Swap, keine sichtbare Änderung.
+
 ## [2.0.9] - 2026-07-10
 ### Hinzugefügt
 - **Akkordeon-Steuerungs-Sidebar (I8)**: die linke Sidebar war mit 7 Clustern

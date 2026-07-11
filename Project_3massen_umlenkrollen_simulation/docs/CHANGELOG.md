@@ -1,5 +1,12 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.5] — 2026-07-11
+### Geändert (T9 — shared/js-Helper konsolidieren)
+- **`shortenEnd`** nutzt jetzt `shared/js/vectors.js` statt einer lokalen
+  Kopie. Rückgabe-Keys von `{x,y}` auf `{x2,y2}` umgestellt (kanonisch,
+  Mehrheit der Sims); Call-Site angepasst. Keine sichtbare Änderung —
+  Algorithmus war bereits identisch mit der neuen shared Funktion.
+
 ## [1.2.4] — 2026-07-08
 ### Behoben (B6 — m₃-Default nach PO-Abnahme)
 - **`m₃`-Default 1,1 kg → 1,2 kg** (PO-Entscheidung 2026-07-08). Der v2-Prototyp

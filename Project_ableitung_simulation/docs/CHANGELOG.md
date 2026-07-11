@@ -1,5 +1,16 @@
 # CHANGELOG — Die Ableitung als Grenzwert
 
+## [1.2.5] — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`setAxisLabel`/`niceStepLE`** nutzen jetzt `shared/js/svg-text.js` bzw.
+  `shared/js/ticks.js` statt lokaler Kopien. Diese Sim war die kanonische
+  Quelle für `setAxisLabel` (Kursiv-Verhalten ohne „ / "-Trenner) — keine
+  sichtbare Änderung. `niceStepLE` bekommt zusätzlich einen Nullwert-Guard
+  (`range=0` → `1` statt `0`, Bugfix ohne praktische Auswirkung hier).
+
 ## [1.2.4] — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

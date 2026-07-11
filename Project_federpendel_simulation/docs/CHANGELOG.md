@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.15 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`niceStepLE`** nutzen jetzt
+  `shared/js/svg-text.js` bzw. `shared/js/ticks.js` statt lokaler Kopien.
+  Keine sichtbare Änderung.
+
 ## v1.0.14 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

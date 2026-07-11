@@ -5,6 +5,22 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.2 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Geändert
+- **`shortenEnd`/`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`niceStepLE`**
+  nutzen jetzt `shared/js/vectors.js`, `shared/js/svg-text.js` bzw.
+  `shared/js/ticks.js` statt lokaler Kopien. **`shortenEnd`**: Algorithmus
+  von hartem Cutoff auf garantierten 2px-Mindest-Schaft umgestellt
+  (Mehrheits-Variante, konsistent mit Stoß/Rolling/3-Massen/Lorentz) —
+  sichtbar nur bei Vektorlänge nahe 0 (z. B. \(v≈0\)); per Playwright
+  verifiziert (omega=0/5°/s: Nullvektor unverändert, bei 5°/s jetzt exakt
+  2px Mindest-Schaft statt vorherigem Cutoff-Wert). **`niceStepLE`**
+  bekommt zusätzlich einen Nullwert-Guard (Bugfix, keine praktische
+  Auswirkung).
+
 ## v1.1.1 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

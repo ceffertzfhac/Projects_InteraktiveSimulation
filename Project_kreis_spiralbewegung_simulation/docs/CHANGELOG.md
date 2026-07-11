@@ -3,6 +3,18 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.4.2] — 2026-07-11
+### Geändert (T9 — shared/js-Helper konsolidieren)
+- **`shortenEnd`/`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`niceStepLE`**
+  nutzen jetzt `shared/js/vectors.js`, `shared/js/svg-text.js` bzw.
+  `shared/js/ticks.js` statt lokaler Kopien (bisher teils in `physics.js`,
+  teils in `render.js`). **`shortenEnd`**: Algorithmus von hartem Cutoff auf
+  garantierten 2px-Mindest-Schaft umgestellt (Mehrheits-Variante,
+  konsistent mit Stoß/Rolling/3-Massen/Lorentz) — sichtbar nur bei
+  Vektorlänge nahe 0 (z. B. \(v≈0\)); per Playwright verifiziert
+  (omega0=0/5°/s: Nullvektor unverändert, bei 5°/s jetzt exakt 2px
+  Mindest-Schaft statt vorherigem Cutoff-Wert).
+
 ## [1.4.1] — 2026-07-10
 ### Behoben
 - **Punkt/Bahn/Vektoren bei weiten Spiralradien hinter Stoppuhr verdeckt

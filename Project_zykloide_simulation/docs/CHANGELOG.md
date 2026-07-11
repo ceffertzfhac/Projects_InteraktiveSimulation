@@ -1,5 +1,18 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.0.8 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Behoben
+- **Zeitachse zeigte teils zu wenige Ticks**: `tAxisStep` war ein
+  Einzeiler (`getNiceTickStep(tMax, 3)`), der den repo-weiten Vertrag
+  „garantiert ≥3 Divisionen / ≥4 Ticks inkl. 0" (CLAUDE.md) nicht erfüllte
+  — z. B. bei `t_max=10 s` (Standard-Diagrammfenster) nur 2 Divisionen/3
+  Ticks (0, 5, 10). Jetzt über `shared/js/ticks.js`s echten `tAxisStep`
+  (Nachkorrektur-Logik) ersetzt. Per Playwright verifiziert: Standard-
+  Diagrammfenster zeigt jetzt 6 Ticks (0, 2, 4, 6, 8, 10) statt vorher 3.
+
 ## v1.0.7 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

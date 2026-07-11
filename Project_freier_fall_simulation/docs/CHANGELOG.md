@@ -1,5 +1,20 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.7 — 2026-07-11
+
+T9 — shared/js-Helper konsolidieren.
+
+### Behoben
+- **`getNiceTick`-Nullwert-Guard**: die lokale Kopie hatte gar keinen Guard
+  für `range=0` (ergab `0` statt `1`, Divide-by-Zero-Risiko downstream).
+  Jetzt über `shared/js/ticks.js` behoben — betraf reale Randfälle nicht
+  (Aufrufer klammern `range` bereits vorher gegen 0 ab), war aber ein
+  latenter Bug.
+
+### Geändert
+- **`setAxisLabel`/`setGraphTitle`/`tAxisStep`** nutzen jetzt
+  `shared/js/svg-text.js` bzw. `shared/js/ticks.js` statt lokaler Kopien.
+
 ## v2.2.6 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).
