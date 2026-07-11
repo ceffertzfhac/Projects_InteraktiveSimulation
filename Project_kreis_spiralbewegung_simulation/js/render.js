@@ -12,6 +12,7 @@ import { store, DOM } from './state.js'
 import { niceStepLE, tAxisStep, interpolateAt, linePlotIndex, radiusAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
+import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -36,32 +37,6 @@ function createStyledSvgText(svgEl, text) {
       svgEl.appendChild(document.createTextNode(m[2]))
     }
   }
-}
-
-// Achsenbeschriftung: 'Größe / Einheit' → Größe italic, Einheit upright
-function setAxisLabel(textEl, text) {
-  while (textEl.firstChild) textEl.removeChild(textEl.firstChild)
-  const sep = text.indexOf(' / ')
-  if (sep === -1) { textEl.textContent = text; return }
-  const qty = el('tspan', { 'font-style': 'italic' })
-  qty.textContent = text.slice(0, sep)
-  textEl.appendChild(qty)
-  const unit = el('tspan', {})
-  unit.textContent = text.slice(sep)
-  textEl.appendChild(unit)
-}
-
-// Graph-Titel: letztes Wort (Symbol) italic
-function setGraphTitle(textEl, text) {
-  while (textEl.firstChild) textEl.removeChild(textEl.firstChild)
-  const sep = text.lastIndexOf(' ')
-  if (sep === -1) { textEl.textContent = text; return }
-  const main = el('tspan', {})
-  main.textContent = text.slice(0, sep + 1)
-  textEl.appendChild(main)
-  const sym = el('tspan', { 'font-style': 'italic' })
-  sym.textContent = text.slice(sep + 1)
-  textEl.appendChild(sym)
 }
 
 const ARROW_LEN_MAIN = 5 * 2.5    // Hauptvektoren sw=2,5 → 12,5 px

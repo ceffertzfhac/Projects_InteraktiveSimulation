@@ -10,6 +10,7 @@ import { G, PPM, PPN, CM_PER_M, Y_MAX_CM,
 import { store, DOM } from './state.js';
 import { svgY, massHalfPx, getAccel, pulleyEffMass, getNiceTick, interpolateAt } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
+import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js';
 export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -23,34 +24,6 @@ function textEl(content, x, y, anchor, cls) {
   t.setAttribute('x', String(x)); t.setAttribute('y', String(y));
   t.setAttribute('text-anchor', anchor); t.setAttribute('class', cls);
   t.textContent = content; return t;
-}
-
-// Achsenbeschriftung: Größe kursiv, Einheit aufrecht (Split bei ' / ').
-function setAxisLabel(textElObj, text) {
-  while (textElObj.firstChild) textElObj.removeChild(textElObj.firstChild);
-  const sep = text.indexOf(' / ');
-  if (sep === -1) { textElObj.textContent = text; return; }
-  const qty = document.createElementNS(NS, 'tspan');
-  qty.setAttribute('font-style', 'italic');
-  qty.textContent = text.slice(0, sep);
-  textElObj.appendChild(qty);
-  const unit = document.createElementNS(NS, 'tspan');
-  unit.textContent = text.slice(sep);
-  textElObj.appendChild(unit);
-}
-
-// Diagrammtitel: Klartext aufrecht, abschließendes Symbol kursiv (Split am letzten Leerzeichen).
-function setGraphTitle(textElObj, text) {
-  while (textElObj.firstChild) textElObj.removeChild(textElObj.firstChild);
-  const sep = text.lastIndexOf(' ');
-  if (sep === -1) { textElObj.textContent = text; return; }
-  const word = document.createElementNS(NS, 'tspan');
-  word.textContent = text.slice(0, sep + 1);
-  textElObj.appendChild(word);
-  const sym = document.createElementNS(NS, 'tspan');
-  sym.setAttribute('font-style', 'italic');
-  sym.textContent = text.slice(sep + 1);
-  textElObj.appendChild(sym);
 }
 
 // Fügt dem Graph-SVG den Achsenpfeil-Marker hinzu (einmalig).

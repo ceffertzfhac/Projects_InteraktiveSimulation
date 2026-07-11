@@ -7,6 +7,7 @@ import { G, PPM, PPN, CM_PER_M, Y_MAX_CM,
 import { store, DOM } from './state.js';
 import { svgY, massHalfPx, getAccel, getNiceTick, interpolateAt } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
+import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js';
 export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -14,36 +15,6 @@ function el(tag, attrs) {
   const e = document.createElementNS(NS, tag);
   for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
   return e;
-}
-
-// Renders axis label text with the quantity symbol italic and the unit upright.
-// Splits at ' / ': everything before is italic, ' / unit' stays upright.
-function setAxisLabel(textEl, text) {
-  while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
-  const sep = text.indexOf(' / ');
-  if (sep === -1) { textEl.textContent = text; return; }
-  const qty = document.createElementNS(NS, 'tspan');
-  qty.setAttribute('font-style', 'italic');
-  qty.textContent = text.slice(0, sep);
-  textEl.appendChild(qty);
-  const unit = document.createElementNS(NS, 'tspan');
-  unit.textContent = text.slice(sep);
-  textEl.appendChild(unit);
-}
-
-// Graph title: German descriptive word(s) upright, trailing symbol expression italic.
-// Splits at last space: "Position y₁(t)" → "Position " + italic "y₁(t)".
-function setGraphTitle(textEl, text) {
-  while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
-  const sep = text.lastIndexOf(' ');
-  if (sep === -1) { textEl.textContent = text; return; }
-  const word = document.createElementNS(NS, 'tspan');
-  word.textContent = text.slice(0, sep + 1);
-  textEl.appendChild(word);
-  const sym = document.createElementNS(NS, 'tspan');
-  sym.setAttribute('font-style', 'italic');
-  sym.textContent = text.slice(sep + 1);
-  textEl.appendChild(sym);
 }
 
 // fmt() via shared/js/format.js (T6) — re-export siehe Import oben

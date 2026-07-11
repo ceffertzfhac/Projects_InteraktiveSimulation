@@ -5,6 +5,7 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { fmt } from '../../shared/js/format.js'
+import { setAxisLabel } from '../../shared/js/svg-text.js'
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -29,25 +30,6 @@ function createStyledSvgText(textEl, text) {
       textEl.appendChild(document.createTextNode(m[2]))
     }
   }
-}
-
-// Achsen-Beschriftung: Größe kursiv, Einheit aufrecht (Trenner ' / '). Ohne
-// Trenner ist der ganze Text ein Symbol → kursiv (bei den unit-losen x-/y-Achsen).
-function setAxisLabel(textEl, text) {
-  while (textEl.firstChild) textEl.removeChild(textEl.firstChild)
-  const sep = text.indexOf(' / ')
-  if (sep === -1) {
-    const sym = el('tspan', { 'font-style': 'italic' })
-    sym.textContent = text
-    textEl.appendChild(sym)
-    return
-  }
-  const qty = el('tspan', { 'font-style': 'italic' })
-  qty.textContent = text.slice(0, sep)
-  textEl.appendChild(qty)
-  const unit = el('tspan', {})
-  unit.textContent = text.slice(sep)
-  textEl.appendChild(unit)
 }
 
 // Größter Nice-Step aus feiner 1-2-4-5-Folge, der ≤ range/minDivs ist → garantiert

@@ -9,6 +9,7 @@ import { store, DOM } from './state.js'
 import { getNiceTick, interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
+import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -30,30 +31,6 @@ export function physToScreen(x_m, y_m = 0) {
     x: SVG_W / 2 + (x_m - store.panOffsetM) * store.ppm,
     y: TRACK_Y - y_m * store.ppm,
   }
-}
-
-function setAxisLabel(textElObj, text) {
-  while (textElObj.firstChild) textElObj.removeChild(textElObj.firstChild)
-  const sep = text.indexOf(' / ')
-  if (sep === -1) { textElObj.textContent = text; return }
-  const qty = el('tspan', {})
-  qty.setAttribute('font-style', 'italic')
-  qty.textContent = text.slice(0, sep)
-  textElObj.appendChild(qty)
-  const unit = document.createTextNode(text.slice(sep))
-  textElObj.appendChild(unit)
-}
-
-function setGraphTitle(textElObj, text) {
-  while (textElObj.firstChild) textElObj.removeChild(textElObj.firstChild)
-  const sep = text.lastIndexOf(' ')
-  if (sep === -1) { textElObj.textContent = text; return }
-  const word = document.createTextNode(text.slice(0, sep + 1))
-  textElObj.appendChild(word)
-  const sym = el('tspan', {})
-  sym.setAttribute('font-style', 'italic')
-  sym.textContent = text.slice(sep + 1)
-  textElObj.appendChild(sym)
 }
 
 // ── Auto-Zoom/Pan: einmalig aus den precompute-Arrays berechnet, damit beide
