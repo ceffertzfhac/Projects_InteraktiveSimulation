@@ -14,8 +14,10 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
-         flightTime, maxHeight, range, impactAngle, getNiceTickStep, linePlotIndex } from './physics.js'
+         flightTime, maxHeight, range, impactAngle, linePlotIndex } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
+import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
+import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -28,7 +30,13 @@ function el(tag, attrs) {
 
 // fmt() via shared/js/format.js (T6)
 
-// SVG-Text mit gemischter Formatierung (normal/kursiv) aus HTML-<i>-Tags
+// SVG-Text mit gemischter Formatierung (normal/kursiv) aus HTML-<i>-Tags.
+// Bleibt lokal (T10): die Graph-Achsenbeschriftungen dieser Sim kombinieren
+// ein beschreibendes Wort + Symbol vor dem Trenner (z. B. "Wurfweite <i>x</i> / m"),
+// das die kanonische shared/js/svg-text.js::setAxisLabel (kursiv = alles vor
+// " / ") fälschlich mit italisieren würde ("Wurfweite" ist kein Symbol).
+// Für reine Symbol-Labels (kein Beschreibungswort) wird weiterhin setAxisLabel
+// verwendet (s. u., Koordinatensystem-Overlay + s. drawSingleGraph-Kommentar).
 function createStyledSvgText(svgEl, text) {
   const regex = /<i>(.*?)<\/i>|([^<>&]+)/g
   let m
@@ -132,11 +140,11 @@ export function drawAnimationCoordSystem() {
   const attrs = { class: 'coord-axis', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)', 'stroke-dasharray': '2,2' }
   DOM.animationCoordSystem.appendChild(el('line', { ...attrs, x1: ox, y1: oy, x2: ox + axisLen, y2: oy }))
   const xLab = el('text', { x: ox + axisLen + 5, y: oy + 14, class: 'coord-label' })
-  createStyledSvgText(xLab, '<i>x</i> / m')
+  setAxisLabel(xLab, 'x / m')
   DOM.animationCoordSystem.appendChild(xLab)
   DOM.animationCoordSystem.appendChild(el('line', { ...attrs, x1: ox, y1: oy, x2: ox, y2: oy + axisLen * yDir }))
   const yLab = el('text', { x: ox - 40, y: oy + axisLen * yDir - 5 * yDir, class: 'coord-label' })
-  createStyledSvgText(yLab, '<i>y</i> / m')
+  setAxisLabel(yLab, 'y / m')
   DOM.animationCoordSystem.appendChild(yLab)
 }
 
@@ -252,8 +260,11 @@ function getGraphTitleText(type, isStacked) {
   for (const groupLabel in singleGraphOptions) {
     for (const val in singleGraphOptions[groupLabel]) {
       if (val === type) {
+        // Nur Einheit-Suffix entfernen (kein "+ vs. Zeit" mehr, T10): der Titel
+        // endet dadurch konsistent auf "…(t)" wie im Stacked-Modus, kompatibel
+        // mit setGraphTitle (kursiv = letztes Wort nach dem letzten Leerzeichen).
         return stripHtml(singleGraphOptions[groupLabel][val])
-          .replace(/\s\/\s\(?m.*$/, '') + ' vs. Zeit'
+          .replace(/\s\/\s\(?m.*$/, '')
       }
     }
   }
@@ -311,7 +322,7 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   }
 
   if (Math.abs(yMin - yMax) < 1e-9) { yMin -= 1; yMax += 1 }
-  const yStep = getNiceTickStep(yMax - yMin, isStacked ? 4 : 8)
+  const yStep = niceStepLE(yMax - yMin, isStacked ? 4 : 6)
   yMin = Math.floor(yMin / yStep) * yStep
   yMax = Math.ceil(yMax / yStep) * yStep
   if (Math.abs(yMin - yMax) < 1e-9) { yMin -= yStep; yMax += yStep }
@@ -320,13 +331,14 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   const scY = v => padT + plotH - ((v - yMin) / (yMax - yMin || 1)) * plotH
   const y0 = scY(0)
 
-  const numXTicks = isTraj ? 5 : 10
-  for (let i = 0; i <= numXTicks; i++) {
-    const xv = (xMax / numXTicks) * i
+  // X-Ticks (T10): kanonischer tAxisStep statt fixer Teilstrich-Anzahl —
+  // garantiert ≥3 Divisionen mit runden Werten statt beliebiger Brüche.
+  const xStep = tAxisStep(xMax || 1)
+  for (let xv = 0; xv <= xMax + xStep * 1e-6; xv += xStep) {
     const xp = scX(xv)
     gridEl.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: padT + plotH, class: 'grid-line' }))
     const t = el('text', { x: xp, y: y0 + 15, 'text-anchor': 'middle', class: 'tick-label' })
-    t.textContent = xv.toFixed(1)
+    t.textContent = xv.toFixed(xStep % 1 === 0 ? 0 : 1)
     gridEl.appendChild(t)
   }
   for (let v = yMin; v <= yMax + 1e-9; v += yStep) {
@@ -364,7 +376,7 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   createStyledSvgText(yLab, finalLabel)
   gridEl.appendChild(yLab)
 
-  titleEl.textContent = getGraphTitleText(type, isStacked)
+  setGraphTitle(titleEl, getGraphTitleText(type, isStacked))
 
   const idx = linePlotIndex(plotTime)
   let p = ''
@@ -392,8 +404,6 @@ export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValue
 
   const sel = store.graphType
   if (isStacked) {
-    DOM.graphTitleTop.textContent = getGraphTitleText(`x-${sel}`, true)
-    DOM.graphTitleBottom.textContent = getGraphTitleText(`y-${sel}`, true)
     drawSingleGraph({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: `x-${sel}`, plotTime, plotValue: plotValueTop, useYAxisConfig: false })
     drawSingleGraph({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: `y-${sel}`, plotTime, plotValue: plotValueBottom, useYAxisConfig: true })
   } else {

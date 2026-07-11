@@ -1,5 +1,40 @@
 # Changelog — Schräger Wurf
 
+## v1.2.7 — 2026-07-11
+
+T10 — Typografie-/Tick-Konvention nachrüsten (Recon-Fund aus T9).
+
+### Behoben
+- **Diagrammtitel waren nie kursiv**: `titleEl.textContent = …` gesetzt statt
+  über `setGraphTitle` gesplittet — repo-weit einzige Sim ohne Titel-Kursivierung.
+  Jetzt über `shared/js/svg-text.js` behoben (z. B. „Höhe *y(t)*", „Bahnkurve
+  *y(x)*"). Dazu den bisherigen redundanten „… vs. Zeit"-Suffix entfernt
+  (Titel enden jetzt konsistent auf „…(t)" wie im Stacked-Modus — vorher
+  z. B. „Höhe y(t) vs. Zeit", was mit dem kanonischen Kursiv-Split
+  unvereinbar gewesen wäre, da „Zeit" statt des Symbols kursiv geworden wäre).
+- **Zeitachse zeigte beliebige Bruchzahlen statt runder Ticks**: fester
+  Teilstrich-Zähler (`numXTicks = isTraj ? 5 : 10`) erzeugte z. B.
+  `0, 0,342, 0,684, …` bei Flugzeit 3,42 s. Jetzt kanonischer `tAxisStep`
+  (garantiert ≥3 Divisionen mit runden 1-2-5-Werten). Per Playwright
+  verifiziert: Zeitachse zeigt jetzt z. B. `0,0 / 0,5 / 1,0 / 1,5 / 2,0`.
+- **Werteachse** (`getNiceTickStep`, Ziel-Tick-Zahl ohne Garantie) auf
+  kanonisches `niceStepLE` (garantiert ≥minDivs Teilstriche) umgestellt.
+
+### Geändert
+- **Koordinatensystem-Overlay-Labels** (`x / m`, `y / m` in der Animations-
+  szene) nutzen jetzt `setAxisLabel` aus `shared/js/svg-text.js` (reine
+  Symbol-Labels, 1:1 kompatibel).
+- **Graph-Achsenbeschriftungen** (z. B. „Wurfweite *x* / m") bleiben bewußt
+  bei der lokalen `createStyledSvgText`-Funktion — sie kombinieren ein
+  beschreibendes Wort mit dem Symbol vor dem Trenner, was die kanonische
+  `setAxisLabel` (kursiv = alles vor „ / ") fälschlich mitkursivieren würde.
+  Kein Bug, sondern eine dokumentierte, bewußte Ausnahme (s. Kommentar in
+  `render.js`).
+- Zwei redundante `DOM.graphTitleTop/Bottom.textContent`-Zuweisungen entfernt
+  (wurden unmittelbar danach von `drawSingleGraph()` überschrieben — bereits
+  vor diesem Fix wirkungslos).
+- `getNiceTickStep` aus `physics.js` entfernt (nach der Umstellung ungenutzt).
+
 ## v1.2.6 — 2026-07-10
 
 Akkordeon-Steuerungs-Sidebar (I8).

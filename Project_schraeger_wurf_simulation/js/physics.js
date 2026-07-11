@@ -42,20 +42,6 @@ export function impactAngle() {
   return Math.atan(Math.abs(vyImpact) / store.v0x) * 180 / Math.PI
 }
 
-// ── Nice-Tick (1-2-5-Serie) ──────────────────────────────────────────────────
-export function getNiceTickStep(range, ticks = 8) {
-  if (range < 1e-9) return 1
-  const m = range / ticks
-  const e = Math.floor(Math.log10(m))
-  const p = 10 ** e
-  let n = m / p
-  if (n <= 1) n = 1
-  else if (n <= 2) n = 2
-  else if (n <= 5) n = 5
-  else n = 10
-  return n * p
-}
-
 // ── Precompute: gesamte Flugbahn bis Aufprall (aus v47 precomputeFlightData) ─
 export function precompute() {
   store.tData = []; store.xtData = []; store.ytData = []
