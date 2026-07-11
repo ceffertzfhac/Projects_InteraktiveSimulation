@@ -3,23 +3,6 @@
 import { TIME_STEP, SIM_DURATION, quantities } from './constants.js'
 import { store } from './state.js'
 
-// Nice-Step (1-2-4-5-Serie): größter Nice-Step ≤ range/minDivs → garantiert
-// ≥ minDivs Teilstriche. Die 4er-Stufe schließt die Lücke zwischen 2 und 5
-// (CLAUDE.md „Achsen-Ticks"). Für Ordinate mit minDivs=4.
-export function niceStepLE(range, minDivs) {
-  if (range < 1e-9) return 1
-  const target = range / minDivs
-  const e = Math.floor(Math.log10(target))
-  const p = 10 ** e
-  const n = target / p
-  let f
-  if (n >= 5) f = 5
-  else if (n >= 4) f = 4
-  else if (n >= 2) f = 2
-  else f = 1
-  return f * p
-}
-
 
 // ── Precompute: gesamte Bewegung 0…SIM_DURATION (analytisch, geschlossen) ────
 // Kreis:  R(t)=R0, ω(t)=ω0, φ(t)=φ0+ω0·t

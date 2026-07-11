@@ -10,7 +10,7 @@ import { interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
-import { tAxisStep } from '../../shared/js/ticks.js'
+import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -287,23 +287,6 @@ const GRAPH_CFG = {
   a: { unit: 'm/s²', title: 'Beschleunigung a(t)', ylabel: 'a / (m/s²)' },
   p: { unit: 'kg·m/s', title: 'Impuls p(t)', ylabel: 'p / (kg·m/s)' },
   E: { unit: 'J', title: 'Energie E(t)', ylabel: 'E / J' },
-}
-
-// Größter Nice-Step (1-2-4-5-Serie), der noch ≥ minDivs Teilstriche liefert
-// (CLAUDE.md „Achsen-Ticks" — die 4er-Stufe schließt die Lücke zwischen 2 und
-// 5; bei Nulldurchgang-Achsen minDivs=4 → mindestens 5 Ticks inkl. 0).
-function niceStepLE(range, minDivs) {
-  if (range < 1e-9) return 1
-  const target = range / minDivs
-  const e = Math.floor(Math.log10(target))
-  const p = 10 ** e
-  const n = target / p
-  let f
-  if (n >= 5) f = 5
-  else if (n >= 4) f = 4
-  else if (n >= 2) f = 2
-  else f = 1
-  return f * p
 }
 
 export function updateGraph(t) {

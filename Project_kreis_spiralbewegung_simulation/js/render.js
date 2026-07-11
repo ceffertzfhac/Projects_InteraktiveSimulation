@@ -9,11 +9,11 @@ import {
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { niceStepLE, interpolateAt, linePlotIndex, radiusAt } from './physics.js'
+import { interpolateAt, linePlotIndex, radiusAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
-import { tAxisStep } from '../../shared/js/ticks.js'
+import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'

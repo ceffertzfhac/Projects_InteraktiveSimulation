@@ -17,7 +17,7 @@ import { store, DOM } from './state.js'
 import { linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
-import { tAxisStep } from '../../shared/js/ticks.js'
+import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -46,16 +46,6 @@ function createStyledSvgText(svgEl, text) {
   }
 }
 
-
-// Größter Nice-Step aus feiner 1-2-4-5-Folge, der ≤ range/minDivs ist → garantiert
-// ≥ minDivs Teilstriche. Die 4er-Stufe schließt die Lücke zwischen 2 und 5 (rein
-// 1-2-5 liefert sonst nur 3 oder 9 Ticks), so daß Achsen mit Nulldurchgang
-// saubere 5–9 beschriftete Ticks inkl. 0 bekommen (≥4 gefordert, ≤12 sinnvoll).
-function niceStepLE(range, minDivs) {
-  const ms = range / minDivs
-  const m = Math.pow(10, Math.floor(Math.log10(ms)))
-  return [5, 4, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m
-}
 
 // ── Feder (Zickzack-Polyline) ────────────────────────────────────────────────
 function drawSpring(startX, startY, endX, endY, numSegments = 20) {
