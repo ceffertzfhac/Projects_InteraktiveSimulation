@@ -5,9 +5,10 @@ import { G, PPM, PPN, CM_PER_M, Y_MAX_CM,
          Y_APERTURE_BOTTOM,
          SW_RADIUS, SW_HAND_LEN } from './constants.js';
 import { store, DOM } from './state.js';
-import { svgY, massHalfPx, getAccel, getNiceTick, interpolateAt } from './physics.js';
+import { svgY, massHalfPx, getAccel, interpolateAt } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js';
+import { getNiceTick, tAxisStep } from '../../shared/js/ticks.js';
 export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -199,17 +200,6 @@ function setVec(lineEl, x1, y1, x2, y2, vis) {
   // Only show if vector has meaningful length
   const len = Math.abs(y2 - y1) + Math.abs(x2 - x1);
   lineEl.setAttribute('visibility', vis === 'visible' && len > 1 ? 'visible' : 'hidden');
-}
-
-// Largest nice step (1-2-5 series) that still gives at least minDivs ticks
-function tAxisStep(range, minDivs = 3) {
-  let step = getNiceTick(range, 6);
-  if (Math.floor(range / step) < minDivs) {
-    const ms = range / minDivs;
-    const m  = Math.pow(10, Math.floor(Math.log10(ms)));
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m;
-  }
-  return step;
 }
 
 // ── Graph rendering ───────────────────────────────────────────────────────────

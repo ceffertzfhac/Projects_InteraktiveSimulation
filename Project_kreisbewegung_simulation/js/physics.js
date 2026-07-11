@@ -146,18 +146,5 @@ export function linePlotIndex(time) {
   return idx
 }
 
-// Nice-tick (1-2-5-Reihe) für ≥ minDivs Teilstriche
-export function getNiceTick(range, minDivs = 3) {
-  if (range < 1e-9) return 1
-  const m = range / minDivs
-  const e = Math.floor(Math.log10(m))
-  const p = 10 ** e
-  let n = m / p
-  if (n <= 1) n = 1
-  else if (n <= 2) n = 2
-  else if (n <= 5) n = 5
-  else n = 10
-  return n * p
-}
 
 export function frequency() { return store.T > 0 && Number.isFinite(store.T) ? 1 / store.T : 0 }

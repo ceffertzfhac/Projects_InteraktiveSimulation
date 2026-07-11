@@ -3,20 +3,6 @@
 import { TIME_STEP, SIM_DURATION, quantities } from './constants.js'
 import { store } from './state.js'
 
-// ── Nice-Tick (1-2-5-Serie) ──────────────────────────────────────────────────
-export function getNiceTickStep(range, ticks = 8) {
-  if (range < 1e-9) return 1
-  const m = range / ticks
-  const e = Math.floor(Math.log10(m))
-  const p = 10 ** e
-  let n = m / p
-  if (n <= 1) n = 1
-  else if (n <= 2) n = 2
-  else if (n <= 5) n = 5
-  else n = 10
-  return n * p
-}
-
 // Nice-Step (1-2-4-5-Serie): größter Nice-Step ≤ range/minDivs → garantiert
 // ≥ minDivs Teilstriche. Die 4er-Stufe schließt die Lücke zwischen 2 und 5
 // (CLAUDE.md „Achsen-Ticks"). Für Ordinate mit minDivs=4.
@@ -34,16 +20,6 @@ export function niceStepLE(range, minDivs) {
   return f * p
 }
 
-// t-Achsen-Schritt: größter Nice-Step ≤ t_max/minDivs → garantiert ≥ minDivs Teilstriche
-export function tAxisStep(tMax, minDivs = 3) {
-  let step = getNiceTickStep(tMax, 6)
-  if (Math.floor(tMax / step) < minDivs) {
-    const ms = tMax / minDivs
-    const m = Math.pow(10, Math.floor(Math.log10(ms)))
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m
-  }
-  return step
-}
 
 // ── Precompute: gesamte Bewegung 0…SIM_DURATION (analytisch, geschlossen) ────
 // Kreis:  R(t)=R0, ω(t)=ω0, φ(t)=φ0+ω0·t

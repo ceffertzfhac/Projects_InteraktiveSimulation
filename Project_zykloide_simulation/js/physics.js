@@ -25,9 +25,6 @@ export function getNiceTickStep(range, ticks = 8) {
   return n * p
 }
 
-// t-Achsen-Schritt: größter Nice-Schritt ≤ t_max/3 → garantiert ≥3 Teilstriche
-export const tAxisStep = tMax => getNiceTickStep(tMax, 3)
-
 // ── Precompute: gesamte Rollbewegung 0…60 s (aus v2.8 precomputeMotionData) ──
 export function precompute() {
   const fd = { t: [] }

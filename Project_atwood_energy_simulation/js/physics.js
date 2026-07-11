@@ -32,20 +32,6 @@ export function getAccel(m1, m2, FR, mEff = 0) {
   return { a, T1, T2, moving: true };
 }
 
-// Nice-Tick-Schritt für Wertebereich (Ziel ~n Ticks) — 1-2-5-Folge
-export function getNiceTick(range, n = 8) {
-  if (range <= 0) return 1;
-  const rough = range / n;
-  const mag   = Math.pow(10, Math.floor(Math.log10(rough)));
-  const fracs = [1, 2, 5, 10];
-  let best = fracs[fracs.length - 1] * mag;
-  for (const f of fracs) {
-    const cand = f * mag;
-    if (cand >= rough) { best = cand; break; }
-  }
-  return best;
-}
-
 export function precompute() {
   const { m1, m2, y1_start_cm, y2_start_cm, frictionForce, epZeroMode } = store;
   const y1_m0 = y1_start_cm / CM_PER_M;

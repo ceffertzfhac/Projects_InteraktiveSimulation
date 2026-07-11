@@ -15,10 +15,11 @@ import {
   graphTitles, graphAxisLabels, graphXAxisLabels,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { getNiceTick, linePlotIndex, frequency } from './physics.js'
+import { linePlotIndex, frequency } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
+import { tAxisStep } from '../../shared/js/ticks.js'
 export { fmt }
 
 // ── Layout-abhängige Geometrie (gestapelt ↔ nebeneinander) ───────────────────
@@ -86,17 +87,6 @@ function createStyledSvgText(svgEl, text) {
       svgEl.appendChild(document.createTextNode(m[2]))
     }
   }
-}
-
-// Größter Nice-Step (1-2-5), der noch ≥ minDivs Teilstriche liefert (Zeitachse)
-function tAxisStep(range, minDivs = 3) {
-  let step = getNiceTick(range, 6)
-  if (Math.floor(range / step) < minDivs) {
-    const ms = range / minDivs
-    const m = Math.pow(10, Math.floor(Math.log10(ms)))
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m
-  }
-  return step
 }
 
 // Größter Nice-Step aus feiner 1-2-4-5-Folge, der ≤ range/minDivs ist → garantiert

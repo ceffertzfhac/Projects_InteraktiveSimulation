@@ -2,9 +2,10 @@ import { G, PIXELS_PER_METER, GROUND_PX, BALL_X,
          WATCH_CX, WATCH_CY, WATCH_R, SDIAL_CX, SDIAL_CY, SDIAL_R,
          GRAPH_W, GRAPH_H, PIXELS_PER_VEL, PIXELS_PER_ACC, VEL_THRESHOLD } from './constants.js';
 import { store, DOM } from './state.js';
-import { scaleY, getDisplayY, getDisplayV, getDisplayA, flightTime, getNiceTick } from './physics.js';
+import { scaleY, getDisplayY, getDisplayV, getDisplayA, flightTime } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js';
+import { getNiceTick, tAxisStep } from '../../shared/js/ticks.js';
 export { fmt };
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -105,17 +106,6 @@ export function drawSubdialMarks() {
       class: 'sw-mark', 'stroke-width': 1,
     }));
   }
-}
-
-// Largest nice step (1-2-5 series) that still gives at least minDivs ticks
-function tAxisStep(range, minDivs = 3) {
-  let step = getNiceTick(range, 6);
-  if (Math.floor(range / step) < minDivs) {
-    const ms = range / minDivs;
-    const m  = Math.pow(10, Math.floor(Math.log10(ms)));
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m;
-  }
-  return step;
 }
 
 export function updateGraph() {

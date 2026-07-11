@@ -19,19 +19,6 @@ export function elasticFinalVelocities(m1, m2, v1, v2, m1Inf, m2Inf) {
   }
 }
 
-// ── Nice-Tick (1-2-5-Serie) ──────────────────────────────────────────────────
-export function getNiceTick(range, n = 6) {
-  if (range <= 0) return 1
-  const rough = range / n
-  const mag = Math.pow(10, Math.floor(Math.log10(rough)))
-  const fracs = [1, 2, 5, 10]
-  let best = fracs[fracs.length - 1] * mag
-  for (const f of fracs) {
-    const cand = f * mag
-    if (cand >= rough) { best = cand; break }
-  }
-  return best
-}
 
 // ── Precompute: gesamter Bewegungsablauf (geschlossene Lösung, drei Phasen) ─
 // Phase 1 (freier Flug vor Kontakt): x_i(t) = x_i0 + v_i0·t

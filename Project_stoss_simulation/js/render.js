@@ -6,10 +6,11 @@ import {
   SW_HAND_LEN, GRAPH_W, GRAPH_H, X1_START_M, X2_START_M,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { getNiceTick, interpolateAt } from './physics.js'
+import { interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
+import { tAxisStep } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -288,16 +289,6 @@ const GRAPH_CFG = {
   E: { unit: 'J', title: 'Energie E(t)', ylabel: 'E / J' },
 }
 
-function tAxisStep(range, minDivs = 4) {
-  let step = getNiceTick(range, 6)
-  if (Math.floor(range / step) < minDivs) {
-    const ms = range / minDivs
-    const m = Math.pow(10, Math.floor(Math.log10(ms)))
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m
-  }
-  return step
-}
-
 // Größter Nice-Step (1-2-4-5-Serie), der noch ≥ minDivs Teilstriche liefert
 // (CLAUDE.md „Achsen-Ticks" — die 4er-Stufe schließt die Lücke zwischen 2 und
 // 5; bei Nulldurchgang-Achsen minDivs=4 → mindestens 5 Ticks inkl. 0).
@@ -346,7 +337,7 @@ export function updateGraph(t) {
   }
 
   // X-Ticks
-  const tStep = tAxisStep(t_max)
+  const tStep = tAxisStep(t_max, 4)
   let tv = 0
   while (tv <= t_max + tStep * 0.01) {
     const px = scaleT(tv)

@@ -14,9 +14,10 @@ import {
   graphTitles, graphAxisLabels,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { getNiceTick, linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy } from './physics.js'
+import { linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
+import { tAxisStep } from '../../shared/js/ticks.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -45,17 +46,6 @@ function createStyledSvgText(svgEl, text) {
   }
 }
 
-
-// Größter Nice-Step (1-2-5), der noch ≥ minDivs Teilstriche liefert
-function tAxisStep(range, minDivs = 3) {
-  let step = getNiceTick(range, 6)
-  if (Math.floor(range / step) < minDivs) {
-    const ms = range / minDivs
-    const m = Math.pow(10, Math.floor(Math.log10(ms)))
-    step = [5, 2, 1].map(f => f * m).find(s => s <= ms + 1e-9) ?? m
-  }
-  return step
-}
 
 // Größter Nice-Step aus feiner 1-2-4-5-Folge, der ≤ range/minDivs ist → garantiert
 // ≥ minDivs Teilstriche. Die 4er-Stufe schließt die Lücke zwischen 2 und 5 (rein

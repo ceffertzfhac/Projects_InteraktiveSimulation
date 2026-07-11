@@ -22,10 +22,3 @@ export function flightTime() {
   return (v0 + Math.sqrt(v0 * v0 + 2 * G * h0)) / G;
 }
 
-export function getNiceTick(range, tgt = 8) {
-  const step0 = range / tgt;
-  const exp = Math.floor(Math.log10(step0));
-  const p = Math.pow(10, exp);
-  const f = step0 / p;
-  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
-}
