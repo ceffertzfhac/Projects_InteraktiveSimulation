@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreis- und Spiralbewegung
-    <span class="version">v1.5.0</span>
+    <span class="version">v1.6.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -220,6 +220,12 @@ window.MathJax = {
         <button class="btn step-btn" id="n_plus_btn">+</button>
         <span>· 90°</span>
       </div>
+      <!-- FX5: Auto-Stopp-Ziel jenseits des 120s-Precompute-Horizonts wird
+           sonst still verfehlt (Sim endet regulär bei SIM_DURATION, ohne daß
+           der Nutzer erfährt, daß n·90° nie erreicht wurde). -->
+      <div class="autostop-warning" id="autostop_warning" style="display:none">
+        ⚠ Ziel (n·90°) nicht erreicht — Simulationsdauer (120 s) zu kurz.
+      </div>
     </div>
 
   </aside>
@@ -259,6 +265,10 @@ window.MathJax = {
           <g id="stopwatch" transform="translate(84,-24) scale(0.595)" style="cursor:pointer">
             <circle id="stopwatch_circle" cx="280" cy="120" r="72"/>
             <g id="stopwatch_marks"></g>
+            <!-- FX2: Subdial (proportional zu WATCH_R, s. constants.js) -->
+            <circle id="stopwatch_subdial_face" cx="280" cy="150" r="15.6"/>
+            <g id="stopwatch_subdial_marks"></g>
+            <line id="stopwatch_sub_hand" x1="280" y1="150" x2="280" y2="134.4"/>
             <line id="stopwatch_main_hand" x1="280" y1="120"/>
           </g>
           <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle"></text>

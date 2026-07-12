@@ -60,6 +60,13 @@ function stopAnimation() {
   enableControls(true)
 }
 
+// FX5: Auto-Stopp-Ziel (n·90°) jenseits des Precompute-Horizonts (120s bzw.
+// effectiveDuration bei Spiral-Kollaps) wird sonst still verfehlt — die
+// regulären Sim-Ende-Guards stoppen zuerst, ohne daß der Nutzer erfährt,
+// daß n·90° nie erreicht wurde.
+function showAutoStopWarning() { DOM.autoStopWarning.style.display = '' }
+function hideAutoStopWarning() { DOM.autoStopWarning.style.display = 'none' }
+
 // ── Layout-Umschalter (Sim & Diagramm übereinander / nebeneinander — FX6) ────
 // Einheitlich mit Kreisbewegung: Topbar-Button #layout_toggle, Klasse
 // .layout-split an #center_area, Button-Text swap. Wechsel ist reiner Redraw,
@@ -83,6 +90,7 @@ function syncPills(groupEl) {
 // ── Reset (aus resetScene) ───────────────────────────────────────────────────
 function resetSim(isPlayTrigger = false) {
   stopAnimation()
+  hideAutoStopWarning()
 
   if (!isPlayTrigger) {
     store.simulatedTime = 0
@@ -236,12 +244,14 @@ function animate(ts) {
   if (store.simulatedTime >= store.effectiveDuration) {
     store.simulatedTime = store.effectiveDuration
     updateScene(store.simulatedTime)
+    if (store.isAutoStopping) showAutoStopWarning()
     stopAnimation()
     return
   }
   if (store.simulatedTime >= SIM_DURATION) {
     store.simulatedTime = SIM_DURATION
     updateScene(store.simulatedTime)
+    if (store.isAutoStopping) showAutoStopWarning()
     stopAnimation()
     return
   }
@@ -254,6 +264,7 @@ function animate(ts) {
 function startAnimation() {
   if (store.aniFrameId) return
   if (store.simulatedTime < 1e-6) resetSim(true)
+  hideAutoStopWarning()
 
   if (DOM.autoStopCheckbox.checked) {
     store.isAutoStopping = true

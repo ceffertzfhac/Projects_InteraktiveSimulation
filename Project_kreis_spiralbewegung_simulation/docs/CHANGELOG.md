@@ -3,6 +3,26 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.6.0] — 2026-07-12
+
+FX2 — Kanonischer Stoppuhr-Subdial nachgerüstet. FX5 — Auto-Stopp-
+Zielverfehlung jenseits des Precompute-Horizonts sichtbar gemacht.
+
+### Hinzugefügt
+- **Stoppuhr-Subdial** (10 Marken, Sub-Zeiger 1 U/s) — proportional zum
+  bestehenden, größeren Zifferblatt skaliert (`WATCH_SUBDIAL_R = WATCH_R ·
+  13/60`, `WATCH_SUBDIAL_OFFSET = WATCH_R · 25/60`, aus dem Atwood-Vorbild
+  mit `WATCH_R=60` hergeleitet). Kein Eingriff in den bestehenden Hauptzeiger.
+- **Auto-Stopp-Warnhinweis**: liegt das Ziel `n·90°` jenseits des
+  120 s-Precompute-Horizonts (bzw. des früheren Spiral-Kollaps-Endes), stoppte
+  die Animation bisher still am regulären Sim-Ende, ohne daß der Nutzer
+  erfuhr, daß das Ziel nie erreicht wurde. Neuer Warnhinweis unter dem
+  Auto-Stopp-Regler („⚠ Ziel (n·90°) nicht erreicht — Simulationsdauer
+  (120 s) zu kurz."), erscheint nur wenn `isAutoStopping` beim Sim-Ende noch
+  aktiv war; verschwindet automatisch bei Reset/neuem Start. Kein Cap auf
+  `nStop` (würde die quadratische Kreuzungszeit für jede Parameterkombination
+  vorab lösen müssen — unverhältnismäßig für den Nutzen).
+
 ## [1.5.0] — 2026-07-12
 
 I5 — Hover-Werte am Zeit-Diagramm (Rollout, letzte Sim, Abschluss des I5-Rollouts).

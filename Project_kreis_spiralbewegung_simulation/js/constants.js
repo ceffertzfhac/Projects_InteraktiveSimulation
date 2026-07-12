@@ -21,7 +21,7 @@ export const OMEGA_LEN_FACTOR = 0.02     // ISO: |ω_deg| · Faktor → Länge (
 export const ALPHA_LEN_FACTOR = 0.04     // ISO: |α_deg| · Faktor → Länge (m, entlang z)
 
 // ── Stoppuhr (kanonisches Design, Ref: Atwood v2.2.x / CLAUDE.md) ────────────
-// Hauptzifferblatt r=72, 60 Marken, Hauptzeiger 1 U/60 s. (Subdial → Backlog.)
+// Hauptzifferblatt r=72, 60 Marken, Hauptzeiger 1 U/60 s.
 export const WATCH_TX = 84               // Gruppen-Transform (translate)
 export const WATCH_TY = -24
 export const WATCH_SCALE = 0.595
@@ -31,6 +31,13 @@ export const WATCH_R = 72
 export const WATCH_HAND_LEN = 60
 export const ZOOM_TEXT_X = 250.6
 export const ZOOM_TEXT_Y = 108.24
+
+// FX2: Subdial (10 Marken, Sub-Zeiger 1 U/s) — proportional zu WATCH_R statt
+// der absoluten Atwood-Zahlen (dort WATCH_R=60), da dieses Zifferblatt mit
+// WATCH_R=72 größer ist; Verhältnis 13/60 bzw. 25/60 aus dem Atwood-Vorbild
+// (r=13, Versatz cy=25 bei r=60) übernommen, damit die Proportionen stimmen.
+export const WATCH_SUBDIAL_R = WATCH_R * 13 / 60
+export const WATCH_SUBDIAL_OFFSET = WATCH_R * 25 / 60
 
 // ── Diagramm-Geometrie ───────────────────────────────────────────────────────
 // Graph-Maße liegen in render.js (LAND_*/PORT_*): das Format schaltet je Zell-Form

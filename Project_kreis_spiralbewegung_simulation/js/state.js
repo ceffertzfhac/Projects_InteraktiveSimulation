@@ -98,6 +98,7 @@ export function initDOM() {
   DOM.nControlGroup = q('n_control_group')
   DOM.nMinusBtn = q('n_minus_btn'); DOM.nPlusBtn = q('n_plus_btn')
   DOM.nValueDisplay = q('n_value_display')
+  DOM.autoStopWarning = q('autostop_warning') // FX5
   DOM.diagramModeRadios = document.querySelectorAll('input[name="diagram_mode"]')
   DOM.diagramModeGroup = q('diagram_mode_group')
   DOM.speedGroup = q('speed_group')
@@ -134,6 +135,8 @@ export function initDOM() {
   DOM.stopwatch = q('stopwatch')
   DOM.stopwatchMarks = q('stopwatch_marks')
   DOM.mainHand = q('stopwatch_main_hand')
+  DOM.subdialMarks = q('stopwatch_subdial_marks') // FX2
+  DOM.subHand = q('stopwatch_sub_hand')
   DOM.zoomTextDisplay = q('zoom_text_display')
 
   // Diagramm

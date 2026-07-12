@@ -4,6 +4,7 @@ import {
   ANIM_CX, ANIM_CY, COORD_AXIS_LEN, DEFAULT_PIXELS_PER_METER,
   VEL_SCALE, ACC_SCALE, OMEGA_LEN_FACTOR, ALPHA_LEN_FACTOR, ISO_ANGLE,
   WATCH_TX, WATCH_TY, WATCH_SCALE, WATCH_CX, WATCH_CY, WATCH_R, WATCH_HAND_LEN,
+  WATCH_SUBDIAL_R, WATCH_SUBDIAL_OFFSET,
   ZOOM_TEXT_X, ZOOM_TEXT_Y,
   PAD_L, PAD_R, PAD_T, PAD_B,
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
@@ -112,6 +113,7 @@ export function drawBackground() {
   DOM.disk.style.transformOrigin = `${ANIM_CX}px ${ANIM_CY}px`
 
   drawStopwatchMarks()
+  drawSubdialMarks()
   DOM.trajectoryPath.setAttribute('d', '')
 }
 
@@ -124,6 +126,20 @@ function drawStopwatchMarks() {
       x1: WATCH_CX + rIn * Math.sin(a), y1: WATCH_CY - rIn * Math.cos(a),
       x2: WATCH_CX + WATCH_R * Math.sin(a), y2: WATCH_CY - WATCH_R * Math.cos(a),
       class: 'sw-mark', 'stroke-width': s % 5 === 0 ? 2 : 1,
+    }))
+  }
+}
+
+// FX2: Subdial (10 Marken, cy=WATCH_CY+WATCH_SUBDIAL_OFFSET, r=WATCH_SUBDIAL_R)
+function drawSubdialMarks() {
+  DOM.subdialMarks.innerHTML = ''
+  const scy = WATCH_CY + WATCH_SUBDIAL_OFFSET
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * 2 * Math.PI
+    DOM.subdialMarks.appendChild(el('line', {
+      x1: WATCH_CX + (WATCH_SUBDIAL_R - 3) * Math.sin(a), y1: scy - (WATCH_SUBDIAL_R - 3) * Math.cos(a),
+      x2: WATCH_CX + WATCH_SUBDIAL_R * Math.sin(a), y2: scy - WATCH_SUBDIAL_R * Math.cos(a),
+      class: 'sw-mark', 'stroke-width': 1,
     }))
   }
 }
@@ -672,6 +688,12 @@ export function updateScene(time) {
   const ma = (time % 60 / 60) * 2 * Math.PI
   DOM.mainHand.setAttribute('x2', WATCH_CX + WATCH_HAND_LEN * Math.sin(ma))
   DOM.mainHand.setAttribute('y2', WATCH_CY - WATCH_HAND_LEN * Math.cos(ma))
+
+  // FX2: Stoppuhr-Subzeiger (1 U/s)
+  const scy = WATCH_CY + WATCH_SUBDIAL_OFFSET
+  const sa = (time % 1) * 2 * Math.PI
+  DOM.subHand.setAttribute('x2', WATCH_CX + WATCH_SUBDIAL_R * Math.sin(sa))
+  DOM.subHand.setAttribute('y2', scy - WATCH_SUBDIAL_R * Math.cos(sa))
 
   updateAnalysisPanel(P)
   drawGraphs(time)
