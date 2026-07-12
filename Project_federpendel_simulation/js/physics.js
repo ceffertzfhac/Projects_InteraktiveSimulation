@@ -19,7 +19,7 @@ export function acceleration(t) { return -store.amplitude * store.omega * store.
 
 // Precompute: füllt die Zeitreihen für die gesamte Darstellungsdauer (≥4 T, ≥10 s).
 // Wird bei jeder Parameteränderung neu aufgerufen; während der Animation ggf.
-// erweitert (extendMotionData), wenn simulatedTime ans Ende stößt.
+// erweitert (extendMotionData), wenn visualTime ans Ende stößt.
 export function precompute() {
   store.tData = []
   store.xData = []

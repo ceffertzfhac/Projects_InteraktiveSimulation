@@ -59,9 +59,10 @@ function applyStopwatchMode() {
 // ── Reset ────────────────────────────────────────────────────────────────────
 function resetSim(isPlayTrigger = false) {
   stopAnimation()
-  if (!isPlayTrigger) { store.visualTime = 0; store.simulatedTime = 0 }
+  if (!isPlayTrigger) { store.visualTime = 0 }
   store.lastFrameTime = 0
   store.isTimingStarted = false
+  store.timingOffset = 0
 
   // Parameter aus UI lesen
   store.m = parseFloat(DOM.massSlider.value)
@@ -115,16 +116,20 @@ function animate(currentTime) {
   store.lastFrameTime = currentTime
 
   store.visualTime += deltaTime * store.speedFactor
-  let currentSimTime = 0
+
+  // B21: isActive = wird gemessen/angezeigt? currentSimTime ist die ANGEZEIGTE
+  // Zeit (Stoppuhr/Label/Diagrammachse) = visualTime - timingOffset, startet
+  // bei 0 im Moment des Klicks auf "Zeitmessung starten" (timingOffset =
+  // visualTime zu diesem Zeitpunkt). Physik-Lookups (interpolateAt) nutzen
+  // weiterhin die ABSOLUTE visualTime — sonst Phasensprung im Diagramm, da
+  // die Schwingung (Feder) beim Klick nicht bei Auslenkung=Amplitude steht.
+  const isActive = !store.isManualTiming || store.isTimingStarted
+  const currentSimTime = isActive ? store.visualTime - store.timingOffset : 0
   let currentGraphValue = null
 
-  if (!store.isManualTiming || store.isTimingStarted) {
-    store.simulatedTime += deltaTime * store.speedFactor
-    currentSimTime = store.simulatedTime
-    if (store.tData.length > 0 && store.simulatedTime >= store.tData[store.tData.length - 1]) {
-      extendMotionData(Math.max(4 * store.T, 10))
-      recalculateAxisLimits()
-    }
+  if (isActive && store.tData.length > 0 && store.visualTime >= store.tData[store.tData.length - 1]) {
+    extendMotionData(Math.max(4 * store.T, 10))
+    recalculateAxisLimits()
   }
 
   // Szene aus visualTime (Masse schwingt auch im manuellen Modus vor Start)
@@ -133,16 +138,16 @@ function animate(currentTime) {
   const a = acceleration(store.visualTime)
   updateScene(currentSimTime, x, v, a, store.centers)
 
-  // Diagrammwert aus precompute-Daten (interpoliert bei aktueller Sim-Zeit)
-  if ((!store.isManualTiming || store.isTimingStarted) && store.tData.length > 1) {
-    const interp = interpolateAt(currentSimTime)
+  // Diagrammwert aus precompute-Daten (interpoliert bei absoluter Zeit)
+  if (isActive && store.tData.length > 1) {
+    const interp = interpolateAt(store.visualTime)
     if (interp) {
       if (store.graphType === 'v_t') currentGraphValue = interp.v
       else if (store.graphType === 'a_t') currentGraphValue = interp.a
       else currentGraphValue = interp.x
     }
   }
-  updateGraph(currentSimTime, currentGraphValue)
+  updateGraph(isActive ? store.visualTime : 0, currentGraphValue, store.timingOffset)
 
   store.aniFrameId = requestAnimationFrame(animate)
 }
@@ -239,14 +244,16 @@ function setupUI() {
 
   DOM.playBtn.addEventListener('click', startAnimation)
   DOM.pauseBtn.addEventListener('click', stopAnimation)
-  DOM.resetBtn.addEventListener('click', () => { store.visualTime = 0; store.simulatedTime = 0; resetSim(false) })
+  DOM.resetBtn.addEventListener('click', () => { store.visualTime = 0; resetSim(false) })
   DOM.exportDiagram.addEventListener('click', exportDiagramCSV)
   DOM.exportAll.addEventListener('click', exportAllCSV)
 
-  // Manuelle Zeitmessung: Start setzt Sim-Zeit auf aktuelle Visualzeit
+  // Manuelle Zeitmessung (B21): Startpunkt der ANGEZEIGTEN Zeit merken, statt
+  // sie auf visualTime zu setzen — sonst würde die Anzeige sofort auf die
+  // bereits verstrichene Zeit springen statt bei 0 zu beginnen.
   DOM.startTimingButton.addEventListener('click', () => {
     store.isTimingStarted = true
-    store.simulatedTime = store.visualTime
+    store.timingOffset = store.visualTime
     DOM.startTimingContainer.style.visibility = 'hidden'
   })
 

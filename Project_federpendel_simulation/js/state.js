@@ -18,8 +18,11 @@ export const store = {
   T: Infinity,           // Periodendauer (s)
 
   // Timing
-  visualTime: 0,         // Visualisationszeit (s) — läuft immer
-  simulatedTime: 0,      // Sim-/Graphenzeit (s) — nur wenn nicht manuell oder nach Start
+  visualTime: 0,         // Visualisationszeit (s) — läuft immer, treibt Physik (Phase) durchgehend
+  timingOffset: 0,       // B21: visualTime-Wert beim Klick auf "Zeitmessung starten" —
+                          // angezeigte/gemessene Zeit = visualTime - timingOffset (startet bei 0),
+                          // während Physik-Lookups (interpolateAt) weiterhin die absolute
+                          // visualTime nutzen — sonst Phasensprung im Diagramm beim Start.
   isManualTiming: false,
   isTimingStarted: false,
   isDigitalDisplay: false,

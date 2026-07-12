@@ -418,7 +418,11 @@ export function updateKennwerte() {
 }
 
 // ── Diagramm zeichnen ────────────────────────────────────────────────────────
-export function updateGraph(time, value) {
+// time = absolute (visualTime-basierte) Zeit, offset = store.timingOffset
+// (B21: Startpunkt der manuellen Zeitmessung) — Plot-Position wird um offset
+// verschoben (0, solange keine manuelle Zeitmessung aktiv ist), während die
+// zugrundeliegenden precompute-Arrays (store.tData) absolut indiziert bleiben.
+export function updateGraph(time, value, offset = 0) {
   const limits = store.axisLimits[store.graphType]
   DOM.gridGroup.innerHTML = ''
   DOM.graphLine.setAttribute('points', '')
@@ -495,21 +499,25 @@ export function updateGraph(time, value) {
   DOM.graphTitle.setAttribute('x', graphW / 2)
   setGraphTitle(DOM.graphTitle, graphTitles[store.graphType])
 
-  // Daten-Polyline bis zum aktuellen Zeitpunkt
+  // Daten-Polyline bis zum aktuellen Zeitpunkt. store.tData ist absolut
+  // indiziert; Punkte vor dem Messstart (< offset) werden nicht gezeichnet,
+  // die übrigen um offset verschoben, damit die Messung bei 0 beginnt (B21).
   const idx = linePlotIndex(time)
   const data = limits.data
   let pts = ''
   for (let i = 0; i < idx && i < data.length; i++) {
-    pts += `${scX(store.tData[i])},${scY(data[i])} `
+    if (store.tData[i] < offset) continue
+    pts += `${scX(store.tData[i] - offset)},${scY(data[i])} `
   }
+  const displayTime = time - offset
   if (value !== null && idx <= data.length) {
-    pts += `${scX(time)},${scY(value)} `
+    pts += `${scX(displayTime)},${scY(value)} `
   }
   DOM.graphLine.setAttribute('points', pts)
 
   // Aktueller Punkt
   if (value !== null) {
-    DOM.graphPoint.setAttribute('cx', scX(time))
+    DOM.graphPoint.setAttribute('cx', scX(displayTime))
     DOM.graphPoint.setAttribute('cy', scY(value))
     DOM.graphPoint.style.visibility = 'visible'
   }

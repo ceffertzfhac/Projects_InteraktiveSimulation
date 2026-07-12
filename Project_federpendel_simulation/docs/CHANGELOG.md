@@ -5,6 +5,27 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.17 — 2026-07-12
+
+B21 — Nachbesserung: v1.0.16 behob nur die Sichtbarkeit, nicht die
+optische Kollision und nicht den eigentlichen Zeitmess-Bug (PO-Rückmeldung).
+
+### Behoben
+- **Zeitmessung startete nicht bei 0**: `resetSim()`/`animate()` nutzten
+  eine einzige Zeitvariable für sowohl die absolute, seit Play laufende
+  Physik-Zeit als auch die angezeigte Zeit — ein Klick auf „Zeitmessung
+  starten" übernahm den bereits verstrichenen Wert (z. B. 3–6 s) statt bei
+  0 zu beginnen. Neues `store.timingOffset` (`state.js`) entkoppelt beide:
+  Anzeige/Diagramm/Stoppuhr zeigen `visualTime − timingOffset`, während
+  `interpolateAt`/`displacement`/`velocity`/`acceleration` weiterhin mit der
+  rohen `visualTime` rechnen (kein Phasensprung im Diagramm). `updateGraph()`
+  (`render.js`) um `offset`-Parameter erweitert.
+- **Optische Kollision Button/Szene**: Button (oben links positioniert)
+  überlappte im Vertikal-Aufbau den Anker (fix top-mittig, 100px breit) —
+  links davon war nicht genug Platz. Auf oben **rechts** verschoben
+  (`.start-timing-overlay`), dort in beiden Ausrichtungen kollisionsfrei
+  (Anker/Stoppuhr/Szenen-Labels liegen mittig bzw. darunter).
+
 ## v1.0.16 — 2026-07-12
 
 B21 — Manuelle Zeitmessung nicht bedienbar (kritischer Bugfix).
