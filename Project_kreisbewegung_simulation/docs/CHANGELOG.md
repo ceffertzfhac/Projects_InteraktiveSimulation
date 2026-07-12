@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.3 — 2026-07-12
+
+FK1 — Vorzeichen-Klarstellung für ω im Live-Panel.
+
+### Hinzugefügt
+- Kleiner Hinweistext im „Umlaufgrößen"-Panel: das Vorzeichen von \(\omega\)
+  zeigt die Drehrichtung (negativ = gegen den Uhrzeigersinn), \(|\omega|\)
+  ist die Umlaufgeschwindigkeit. Reiner Text-Zusatz, keine Berechnungs-
+  änderung — `live_omega` zeigte den korrekt signierten Wert bereits vorher.
+
 ## v1.1.2 — 2026-07-11
 
 T9 — shared/js-Helper konsolidieren.
