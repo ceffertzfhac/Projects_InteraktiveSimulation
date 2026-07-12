@@ -13,4 +13,6 @@ Folge-Aufgaben dieser Sim: → **FX1** (Okabe-Ito-Farbpalette), → **FX2**
   erreichbar ( Spirale mit R→0 terminiert ohnehin früher). → **FX5**.
 - **CSV-Winkelgrößen** immer in Grad (unabhängig von der UI-Winkeleinheit) —
   um Vergleichbarkeit mit der Quelldatei zu wahren.
+- **Hover-Cursor (I5) nur auf bereits gezeichnetem Kurvenabschnitt**
+  (konsistent mit der Zykloide-Referenz und den anderen Rollout-Sims). → **I5**.
 - **Spiral-Modus** erzwingt v_r≠0; im Kreis-Modus wird v_r=0 erzwungen.

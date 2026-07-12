@@ -376,15 +376,29 @@ function plottedValueRange(qq, data, n, cf) {
 function drawGraph(idx, time, geom) {
   const group = idx === 1 ? DOM.graphGroup1 : DOM.graphGroup2
   group.innerHTML = ''
-  if (idx === 2 && !geom.dual) return
+  if (idx === 2 && !geom.dual) {
+    store.graphScale[2] = null
+    hideGraphHover(2)
+    return
+  }
 
   const qq = idx === 1 ? store.graphType1 : store.graphType2
   const limits = store.axisLimits[qq]
-  if (!limits) return
+  if (!limits) {
+    store.graphScale[idx] = null
+    hideGraphHover(idx)
+    return
+  }
 
   const G_W = geom.cellW
   const plotW = G_W - PAD_L - PAD_R
   const plotH = geom.cellH - PAD_T - PAD_B
+
+  // Hover-Werte (I5): Hit-Rect-Geometrie aus denselben Lokalen wie scaleT/scaleY.
+  DOM.graphHitRect[idx].setAttribute('x', PAD_L)
+  DOM.graphHitRect[idx].setAttribute('y', PAD_T)
+  DOM.graphHitRect[idx].setAttribute('width', plotW)
+  DOM.graphHitRect[idx].setAttribute('height', plotH)
 
   const isAngular = ['phi', 'omega', 'alpha'].includes(qq)
   const cf = (isAngular && store.angleUnit === 'rad') ? Math.PI / 180 : 1.0
@@ -424,6 +438,11 @@ function drawGraph(idx, time, geom) {
     valMin = yr.min; valMax = yr.max
   }
   if (tMaxAxis < 1e-6) tMaxAxis = T_PREVIEW || 1
+
+  // Hover-Werte (I5): einzige Quelle der Wahrheit für updateGraphHover() —
+  // tMaxAxis/valMin/valMax ändern sich mit dem Auto-Range (Vorschau/wachsend),
+  // nie separat neu berechnen (sonst Drift zur gerade gezeichneten Skala).
+  store.graphScale[idx] = { qq, cf, tMaxAxis, valMin, valMax }
 
   const scaleT = t => PAD_L + (t / (tMaxAxis || 1)) * plotW
   const scaleY = v => PAD_T + plotH - ((v - valMin) / ((valMax - valMin) || 1)) * plotH
@@ -497,6 +516,96 @@ function drawGraph(idx, time, geom) {
   const title = el('text', { x: G_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
   setGraphTitle(title, graphTitles[qq])
   group.appendChild(title)
+
+  // Hover-Werte (I5): bei offenem Hover jeden Frame mit der frischen Skala
+  // neu berechnen (Auto-Range wächst). Die RAF-Schleife bleibt hover-unwissend.
+  if (store.hoverActive[idx]) updateGraphHover(idx, store.hoverLocalX[idx])
+}
+
+function hideGraphHover(idx) {
+  DOM.hoverLine[idx].setAttribute('visibility', 'hidden')
+  DOM.hoverPoint[idx].setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip[idx].setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
+ * angegebenen Diagramm-Slot (1/2). Liest store.graphScale (von drawGraph()
+ * befüllt) statt eigene Skala zu berechnen.
+ */
+export function updateGraphHover(idx, localX) {
+  store.hoverActive[idx] = localX !== null
+  store.hoverLocalX[idx] = localX
+  const gs = store.graphScale[idx]
+  if (localX === null || !gs) { hideGraphHover(idx); return }
+
+  const { qq, cf, tMaxAxis, valMin, valMax } = gs
+  const geom = graphGeom()
+  const G_W = geom.cellW
+  const plotW = G_W - PAD_L - PAD_R
+  const plotH = geom.cellH - PAD_T - PAD_B
+  const xClamped = Math.max(PAD_L, Math.min(PAD_L + plotW, localX))
+  const rawT = (xClamped - PAD_L) / plotW * (tMaxAxis || 1)
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
+  const t = Math.max(0, Math.min(rawT, tMaxAxis, store.simulatedTime))
+
+  const data = store.fullData[`p_${qq}`]
+  const tArr = store.fullData.t
+  if (!data || !tArr || tArr.length === 0) { hideGraphHover(idx); return }
+  const plotIndex = linePlotIndex(t)
+  const i = Math.max(0, Math.min(plotIndex - 1, data.length - 2 < 0 ? 0 : data.length - 2))
+  const t1 = tArr[i], t2 = tArr[i + 1] || t1
+  const a = t2 > t1 ? (t - t1) / (t2 - t1) : 0
+  const rawVal = data[i] + a * ((data[i + 1] || data[i]) - data[i])
+  const val = rawVal * cf
+
+  const scaleT = tv => PAD_L + (tv / (tMaxAxis || 1)) * plotW
+  const scaleY = v => PAD_T + plotH - ((v - valMin) / ((valMax - valMin) || 1)) * plotH
+  const xPix = scaleT(t)
+
+  DOM.hoverLine[idx].setAttribute('x1', xPix); DOM.hoverLine[idx].setAttribute('x2', xPix)
+  DOM.hoverLine[idx].setAttribute('y1', PAD_T); DOM.hoverLine[idx].setAttribute('y2', PAD_T + plotH)
+  DOM.hoverLine[idx].setAttribute('visibility', 'visible')
+
+  DOM.hoverPoint[idx].setAttribute('cx', xPix)
+  DOM.hoverPoint[idx].setAttribute('cy', scaleY(val))
+  DOM.hoverPoint[idx].setAttribute('visibility', 'visible')
+
+  renderHoverTooltip(idx, qq, t, val, xPix, plotW)
+}
+
+function renderHoverTooltip(idx, qq, t, val, xPix, plotW) {
+  const textEl = DOM.hoverTooltipText[idx]
+  textEl.innerHTML = ''
+  const lineH = 15
+  const rows = [
+    { text: `t = ${fmt(t, 2)} s`, italic: true },
+    { text: `${quantitySymbols[qq]} = ${fmt(val, 2)} ${yUnitString(qq)}` },
+  ]
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = row.text
+    }
+    textEl.appendChild(tspan)
+  })
+
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg[idx].setAttribute('width', boxW)
+  DOM.hoverTooltipBg[idx].setAttribute('height', boxH)
+  DOM.hoverTooltipBg[idx].setAttribute('x', 0)
+  DOM.hoverTooltipBg[idx].setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(PAD_L, Math.min(PAD_L + plotW - boxW, tx))
+  DOM.hoverTooltip[idx].setAttribute('transform', `translate(${tx}, ${PAD_T + 6})`)
+  DOM.hoverTooltip[idx].setAttribute('visibility', 'visible')
 }
 
 function drawGraphs(time) {
@@ -508,6 +617,16 @@ function drawGraphs(time) {
   DOM.graphGroup1.setAttribute('transform', 'translate(0,0)')
   DOM.graphGroup2.setAttribute('transform', `translate(${geom.off2.x},${geom.off2.y})`)
   DOM.graphGroup2.style.visibility = geom.dual ? 'visible' : 'hidden'
+
+  // Hover-Werte (I5): Hover-Gruppen sind Geschwister von graph_group_1/2 (nicht
+  // Kinder — die werden von drawGraph() per innerHTML='' geleert) und müssen
+  // denselben Transform/Sichtbarkeits-Zustand tragen, damit ihre lokalen
+  // Koordinaten mit den Diagrammen übereinstimmen (CTM-auf-Hit-Rect-Trick).
+  DOM.graphHoverGroup[1].setAttribute('transform', 'translate(0,0)')
+  DOM.graphHoverGroup[2].setAttribute('transform', `translate(${geom.off2.x},${geom.off2.y})`)
+  DOM.graphHoverGroup[2].style.visibility = geom.dual ? 'visible' : 'hidden'
+  if (!geom.dual) { store.graphScale[2] = null; hideGraphHover(2) }
+
   drawGraph(1, time, geom)
   if (geom.dual) drawGraph(2, time, geom)
 }

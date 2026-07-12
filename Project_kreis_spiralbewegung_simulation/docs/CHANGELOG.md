@@ -3,6 +3,28 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.5.0] — 2026-07-12
+
+I5 — Hover-Werte am Zeit-Diagramm (Rollout, letzte Sim, Abschluss des I5-Rollouts).
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip auf dem Diagramm**: Mouseover über die Kurve zeigt
+  eine gestrichelte vertikale Führungslinie, einen hohlen Ring-Punkt und ein
+  Tooltip mit Zeitpunkt *t* und Symbol/Wert/Einheit der geplotteten Größe.
+  Funktioniert unabhängig in beiden Diagramm-Slots (Dual-Graph-Modus, I9).
+  **Strukturelle Besonderheit dieser Sim:** `drawGraph()` leert die gesamte
+  `graph_group_1`/`graph_group_2` per `innerHTML=''` bei jedem Aufruf (nicht
+  nur eine Unter-Gitter-Gruppe wie bei Zykloide/Rolling/Schräger Wurf) — das
+  Hit-Rect + Hover-Overlay lebt deshalb in eigenen Geschwister-Gruppen
+  (`graph_hover_group_1`/`_2`), deren Transform in `drawGraphs()` synchron
+  zu `graph_group_1`/`_2` gesetzt wird (inkl. Dual-Layout-Versatz `off2`).
+  `shared/js/hover.js` unverändert wiederverwendet. Selbstkorrektur greift
+  auch bei Format-Wechsel (Portrait/Landscape via `graphGeom()`), da die
+  Hit-Rect-Geometrie bei jedem `drawGraph()`-Aufruf neu synchronisiert wird.
+  Per Playwright verifiziert: Single- und Dual-Modus (unabhängige Slots),
+  Moduswechsel räumt den jeweils inaktiven Slot auf, Layout-Toggle bei
+  aktivem Hover (Selbstkorrektur) — keine Console-Errors.
+
 ## [1.4.2] — 2026-07-11
 ### Geändert (T9 — shared/js-Helper konsolidieren)
 - **`shortenEnd`/`setAxisLabel`/`setGraphTitle`/`tAxisStep`/`niceStepLE`**

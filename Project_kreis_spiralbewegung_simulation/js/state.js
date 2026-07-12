@@ -36,6 +36,11 @@ export const store = {
 
   // RAF-Bookkeeping
   aniFrameId: null, lastFrameTime: 0, simulatedTime: 0,
+
+  // Hover-Werte (I5): pro Diagramm-Slot (1/2, da Dual-Graph-Modus möglich).
+  graphScale: { 1: null, 2: null },
+  hoverActive: { 1: false, 2: false },
+  hoverLocalX: { 1: null, 2: null },
 }
 
 export const DOM = {}
@@ -134,6 +139,15 @@ export function initDOM() {
   // Diagramm
   DOM.graphSvg = q('graph_svg')
   DOM.graphGroup1 = q('graph_group_1'); DOM.graphGroup2 = q('graph_group_2')
+
+  // Hover-Werte (I5), pro Diagramm-Slot (1/2)
+  DOM.graphHoverGroup = { 1: q('graph_hover_group_1'), 2: q('graph_hover_group_2') }
+  DOM.graphHitRect = { 1: q('graph_hit_rect_1'), 2: q('graph_hit_rect_2') }
+  DOM.hoverLine = { 1: q('graph_hover_line_1'), 2: q('graph_hover_line_2') }
+  DOM.hoverPoint = { 1: q('graph_hover_point_1'), 2: q('graph_hover_point_2') }
+  DOM.hoverTooltip = { 1: q('graph_hover_tooltip_1'), 2: q('graph_hover_tooltip_2') }
+  DOM.hoverTooltipBg = { 1: q('graph_hover_tooltip_bg_1'), 2: q('graph_hover_tooltip_bg_2') }
+  DOM.hoverTooltipText = { 1: q('graph_hover_tooltip_text_1'), 2: q('graph_hover_tooltip_text_2') }
 
   // Live-Analyse (einzelner Partikel)
   DOM.live = {}

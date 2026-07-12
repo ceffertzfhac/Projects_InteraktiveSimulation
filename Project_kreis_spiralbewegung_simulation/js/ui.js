@@ -6,7 +6,8 @@ import {
 } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
 import { precompute, calculatePreciseStopTime } from './physics.js'
-import { fmt, drawBackground, updateScene } from './render.js'
+import { fmt, drawBackground, updateScene, updateGraphHover } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 const RAD = Math.PI / 180
 
@@ -437,6 +438,15 @@ let resizeRaf = null
 window.addEventListener('resize', () => {
   if (resizeRaf) cancelAnimationFrame(resizeRaf)
   resizeRaf = requestAnimationFrame(() => updateScene(store.simulatedTime))
+})
+
+// Hover-Werte am Diagramm (I5) — je ein Hit-Rect pro Diagramm-Slot (1/2),
+// da der Dual-Graph-Modus (I9) zwei unabhängige Diagramme zeigen kann.
+;[1, 2].forEach(idx => {
+  attachGraphHover(DOM.graphHitRect[idx], {
+    onMove: x => updateGraphHover(idx, x),
+    onLeave: () => updateGraphHover(idx, null),
+  })
 })
 
 resetSim(false)
