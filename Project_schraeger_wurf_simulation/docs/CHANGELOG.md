@@ -1,5 +1,26 @@
 # Changelog — Schräger Wurf
 
+## v1.3.0 — 2026-07-12
+
+I5 — Hover-Werte am Zeit-Diagramm (Rollout, 3. Sim nach Zykloide-Referenz).
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip auf dem Diagramm**: Mouseover über die Kurve zeigt
+  eine gestrichelte vertikale Führungslinie, einen hohlen Ring-Punkt (Farbe
+  wie Ball/Kurve, `--accent`) und ein Tooltip mit Zeitpunkt *t* und Wert.
+  Funktioniert unabhängig in allen 3 Diagramm-Slots (Single, Stacked-Top,
+  Stacked-Bottom) — je eigenes Hit-Rect + eigene Skala, da alle 3 Graph-
+  Gruppen in derselben `#main_svg` liegen (anders als bei der Zykloide-
+  Referenz mit eigener Graph-SVG). `shared/js/hover.js` unverändert
+  wiederverwendet — der CTM-auf-Hit-Rect-Trick funktioniert automatisch
+  korrekt für die transformierten `<g>`-Gruppen.
+  **Bewußt außen vor:** die Bahnkurve y(x)/x(y) (Single-Modus) — räumliche,
+  bei x(y) nicht-monotone Achse, siehe `docs/KNOWN_LIMITATIONS.md`. Cursor
+  bleibt zudem auf den bereits gezeichneten Kurvenabschnitt geklammert.
+  Per Playwright verifiziert: Hover bei Zeit-Diagramm, kein Hover bei
+  Bahnkurve, unabhängige Stacked-Top/Bottom-Slots, Moduswechsel räumt
+  Hover-Zustand des jeweils anderen Modus auf — keine Console-Errors.
+
 ## v1.2.7 — 2026-07-11
 
 T10 — Typografie-/Tick-Konvention nachrüsten (Recon-Fund aus T9).

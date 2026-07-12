@@ -29,6 +29,14 @@ export const store = {
   aniFrameId: null,
   lastFrameTime: 0,
   simulatedTime: 0,
+
+  // Hover-Werte (I5): pro Diagramm-Slot ('single'/'top'/'bottom'), da bis zu
+  // 3 Graph-Gruppen in derselben #main_svg existieren (Single- vs. Stacked-
+  // Modus). Nur bei Zeit-Achsen-Diagrammen aktiv (nicht bei der Bahnkurve
+  // y(x)/x(y) im Single-Modus — siehe render.js drawSingleGraph()).
+  graphScale: { single: null, top: null, bottom: null },
+  hoverActive: { single: false, top: false, bottom: false },
+  hoverLocalX: { single: null, top: null, bottom: null },
 }
 
 export const DOM = {}
@@ -92,6 +100,14 @@ export function initDOM() {
   DOM.gridGroupBottom = q('grid_group_bottom')
   DOM.graphLineBottom = q('graph_line_bottom')
   DOM.graphPointBottom = q('graph_point_bottom')
+
+  // Hover-Werte (I5), pro Diagramm-Slot
+  DOM.graphHitRect = { single: q('graph_hit_rect'), top: q('graph_hit_rect_top'), bottom: q('graph_hit_rect_bottom') }
+  DOM.hoverLine = { single: q('graph_hover_line'), top: q('graph_hover_line_top'), bottom: q('graph_hover_line_bottom') }
+  DOM.hoverPoint = { single: q('graph_hover_point'), top: q('graph_hover_point_top'), bottom: q('graph_hover_point_bottom') }
+  DOM.hoverTooltip = { single: q('graph_hover_tooltip'), top: q('graph_hover_tooltip_top'), bottom: q('graph_hover_tooltip_bottom') }
+  DOM.hoverTooltipBg = { single: q('graph_hover_tooltip_bg'), top: q('graph_hover_tooltip_bg_top'), bottom: q('graph_hover_tooltip_bg_bottom') }
+  DOM.hoverTooltipText = { single: q('graph_hover_tooltip_text'), top: q('graph_hover_tooltip_text_top'), bottom: q('graph_hover_tooltip_text_bottom') }
 
   // Topbar / Layout
   DOM.themeToggle = q('theme_toggle')

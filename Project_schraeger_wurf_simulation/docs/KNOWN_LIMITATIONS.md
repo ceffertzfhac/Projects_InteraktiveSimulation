@@ -8,5 +8,9 @@ Feature-Wünsche: → **FW1**–**FW7**; Querschnitts-Features → **I5**/**I6**
 - **LCD-Digitaluhr-Easteregg** wird per Klick auf die Stoppuhr umgeschaltet
   (wie v47); bei eingeklappter Analyse-Sidebar nicht sichtbar (in der SVG-Szene,
   nicht im Panel). → **FW7**.
-- **Graph-Titel als `textContent`** gesetzt (kein kursiver Tspan-Symbol); die
-  Achsenlabels verwenden `createStyledSvgText` (kursiv). Didaktisch ausreichend.
+- **Hover-Cursor (I5) nur bei Zeit-Achsen-Diagrammen** (Wert vs. *t*), nicht
+  bei der Bahnkurve y(x)/x(y) im Single-Modus — die x-Achse ist dort räumlich
+  und bei x(y) nicht-monoton (gleiche Höhe in Steig- und Fallphase), bräuchte
+  eine Nearest-Point-Suche statt der einfachen Pixel→Zeit-Umkehrung. Separates
+  Folge-Feature. Cursor bleibt zudem auf den bereits gezeichneten
+  Kurvenabschnitt geklammert (konsistent mit der Zykloide-Referenz). → **I5**.

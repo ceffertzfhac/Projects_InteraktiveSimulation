@@ -14,7 +14,7 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
-         flightTime, maxHeight, range, impactAngle, linePlotIndex } from './physics.js'
+         flightTime, maxHeight, range, impactAngle, linePlotIndex, interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
@@ -272,7 +272,7 @@ function getGraphTitleText(type, isStacked) {
 }
 
 // ── Diagramm zeichnen (aus v47 drawSingleGraph) ──────────────────────────────
-function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
+function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
                            plotTime, plotValue, useYAxisConfig, currentX, currentY }) {
   const isStacked = store.isStacked
   const graphWidth = GRAPH_W
@@ -280,6 +280,12 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   const padL = 45, padB = 35, padT = 10, padR = 10
   const plotW = graphWidth - padL - padR
   const plotH = graphHeight - padT - padB
+
+  // Hover-Werte (I5): Hit-Rect-Geometrie aus denselben Lokalen wie scX/scY.
+  DOM.graphHitRect[slot].setAttribute('x', padL)
+  DOM.graphHitRect[slot].setAttribute('y', padT)
+  DOM.graphHitRect[slot].setAttribute('width', plotW)
+  DOM.graphHitRect[slot].setAttribute('height', plotH)
 
   pointEl.style.visibility = 'hidden'
   pointEl.setAttribute('cx', -100)
@@ -296,6 +302,11 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   let xData, yData, xMax, yMin, yMax, xLabel, yLabel, plotX, plotY
 
   if (isTraj) {
+    // Hover-Werte (I5): Bahnkurve y(x)/x(y) bewusst außen vor (räumliche,
+    // teils nicht-monotone Achse — bräuchte Nearest-Point-Suche statt
+    // einfacher Pixel→Zeit-Umkehrung, s. KNOWN_LIMITATIONS → I5).
+    store.graphScale[slot] = null
+    hideGraphHover(slot)
     const yDisplay = store.ytData.map(getDisplayY)
     if (effType === 'yx') {
       xData = store.xtData; yData = yDisplay
@@ -314,7 +325,12 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
     const isYComp = ['yt', 'vyt', 'ayt'].includes(effType)
     const suffix = useYAxisConfig && isYComp ? '_display' : ''
     const limits = store.axisLimits[effType + suffix]
-    if (!limits) { lineEl.setAttribute('points', ''); return }
+    if (!limits) {
+      lineEl.setAttribute('points', '')
+      store.graphScale[slot] = null
+      hideGraphHover(slot)
+      return
+    }
     xData = store.tData; yData = limits.fullData
     xMax = limits.tMax; yMin = limits.min; yMax = limits.max
     xLabel = 'Zeit <i>t</i> / s'; yLabel = limits.yLabelText
@@ -326,6 +342,13 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
   yMin = Math.floor(yMin / yStep) * yStep
   yMax = Math.ceil(yMax / yStep) * yStep
   if (Math.abs(yMin - yMax) < 1e-9) { yMin -= yStep; yMax += yStep }
+
+  // Hover-Werte (I5): einzige Quelle der Wahrheit für updateGraphHover().
+  // Bei Bahnkurve (isTraj) bleibt graphScale[slot] auf dem oben gesetzten
+  // null — dieser Block überschreibt es dort bewusst nicht.
+  if (!isTraj) {
+    store.graphScale[slot] = { effType, suffix: useYAxisConfig && ['yt', 'vyt', 'ayt'].includes(effType) ? '_display' : '', xMax, yMin, yMax, yLabel }
+  }
 
   const scX = v => padL + (v / (xMax || 1)) * plotW
   const scY = v => padT + plotH - ((v - yMin) / (yMax - yMin || 1)) * plotH
@@ -393,6 +416,97 @@ function drawSingleGraph({ titleEl, gridEl, lineEl, pointEl, type,
     pointEl.setAttribute('cy', scY(plotY))
     pointEl.style.visibility = 'visible'
   }
+
+  // Hover-Werte (I5): bei offenem Hover jeden Frame mit der frischen Skala
+  // neu berechnen. Die RAF-Schleife selbst bleibt hover-unwissend.
+  if (store.hoverActive[slot]) updateGraphHover(slot, store.hoverLocalX[slot])
+}
+
+function hideGraphHover(slot) {
+  DOM.hoverLine[slot].setAttribute('visibility', 'hidden')
+  DOM.hoverPoint[slot].setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
+ * angegebenen Diagramm-Slot ('single'/'top'/'bottom'). Liest store.graphScale
+ * (von drawSingleGraph() befüllt) statt eigene Skala zu berechnen.
+ */
+export function updateGraphHover(slot, localX) {
+  store.hoverActive[slot] = localX !== null
+  store.hoverLocalX[slot] = localX
+  const gs = store.graphScale[slot]
+  if (localX === null || !gs) { hideGraphHover(slot); return }
+
+  const { effType, suffix, xMax, yMin, yMax, yLabel } = gs
+  const limits = store.axisLimits[effType + suffix]
+  if (!limits) { hideGraphHover(slot); return }
+
+  const padL = 45, padT = 10, padR = 10, padB = 35
+  const graphHeight = store.isStacked ? GRAPH_H_STACKED : GRAPH_H
+  const plotW = GRAPH_W - padL - padR
+  const plotH = graphHeight - padT - padB
+  const xClamped = Math.max(padL, Math.min(padL + plotW, localX))
+  const rawT = (xClamped - padL) / plotW * (xMax || 1)
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
+  const t = Math.max(0, Math.min(rawT, xMax, store.simulatedTime))
+
+  const s = interpolateAt(t)
+  if (!s) { hideGraphHover(slot); return }
+  const tArr = store.tData
+  const a = (s.i + 1 < tArr.length && tArr[s.i + 1] > tArr[s.i]) ? (t - tArr[s.i]) / (tArr[s.i + 1] - tArr[s.i]) : 0
+  const fd = limits.fullData
+  const val = fd[s.i] + (s.i + 1 < fd.length ? a * (fd[s.i + 1] - fd[s.i]) : 0)
+
+  const scX = v => padL + (v / (xMax || 1)) * plotW
+  const scY = v => padT + plotH - ((v - yMin) / ((yMax - yMin) || 1)) * plotH
+  const xPix = scX(t)
+
+  DOM.hoverLine[slot].setAttribute('x1', xPix); DOM.hoverLine[slot].setAttribute('x2', xPix)
+  DOM.hoverLine[slot].setAttribute('y1', padT); DOM.hoverLine[slot].setAttribute('y2', padT + plotH)
+  DOM.hoverLine[slot].setAttribute('visibility', 'visible')
+
+  DOM.hoverPoint[slot].setAttribute('cx', xPix)
+  DOM.hoverPoint[slot].setAttribute('cy', scY(val))
+  DOM.hoverPoint[slot].setAttribute('visibility', 'visible')
+
+  const unit = stripHtml(yLabel).split(' / ').pop()
+  renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT)
+}
+
+function renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT) {
+  const textEl = DOM.hoverTooltipText[slot]
+  textEl.innerHTML = ''
+  const lineH = 15
+  const rows = [
+    { text: `t = ${fmt(t, 2)} s`, italic: true },
+    { text: `${fmt(val, 2)} ${unit}` },
+  ]
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = row.text
+    }
+    textEl.appendChild(tspan)
+  })
+
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg[slot].setAttribute('width', boxW)
+  DOM.hoverTooltipBg[slot].setAttribute('height', boxH)
+  DOM.hoverTooltipBg[slot].setAttribute('x', 0)
+  DOM.hoverTooltipBg[slot].setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  DOM.hoverTooltip[slot].setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'visible')
 }
 
 export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValueBottom = null, currentX = null, currentY = null) {
@@ -402,12 +516,18 @@ export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValue
   DOM.graphGroupStackedBottom.style.visibility = isStacked ? 'visible' : 'hidden'
   if (isStacked) DOM.graphTitle.textContent = ''
 
+  // Hover-Werte (I5): beim Umschalten Single ↔ Stacked verschwindet der
+  // jeweils andere Modus komplett aus dem Sichtbereich — dessen Hover-
+  // Zustand mit verstecken, sonst bliebe ein Tooltip unsichtbar "offen".
+  if (isStacked) { store.graphScale.single = null; hideGraphHover('single') }
+  else { store.graphScale.top = null; store.graphScale.bottom = null; hideGraphHover('top'); hideGraphHover('bottom') }
+
   const sel = store.graphType
   if (isStacked) {
-    drawSingleGraph({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: `x-${sel}`, plotTime, plotValue: plotValueTop, useYAxisConfig: false })
-    drawSingleGraph({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: `y-${sel}`, plotTime, plotValue: plotValueBottom, useYAxisConfig: true })
+    drawSingleGraph({ slot: 'top', titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: `x-${sel}`, plotTime, plotValue: plotValueTop, useYAxisConfig: false })
+    drawSingleGraph({ slot: 'bottom', titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: `y-${sel}`, plotTime, plotValue: plotValueBottom, useYAxisConfig: true })
   } else {
-    drawSingleGraph({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: sel, plotTime, plotValue, useYAxisConfig: true, currentX, currentY })
+    drawSingleGraph({ slot: 'single', titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: sel, plotTime, plotValue, useYAxisConfig: true, currentX, currentY })
   }
 }
 

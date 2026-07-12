@@ -12,7 +12,8 @@ import { fmt, drawRuler, drawHorizontalRuler, drawStickFigure,
          drawAnimationCoordSystem, drawStopwatchMarks, drawSubdialMarks,
          initDigitalDisplaySegments, updateDigitalDisplay,
          updateGraphs, updateScene, updateKennwerte, updatePhysicsFormulas,
-         updateZoomDisplay, drawFrozenTrajectory } from './render.js'
+         updateZoomDisplay, drawFrozenTrajectory, updateGraphHover } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // ── Dropdown-Optionen (Single/Stacked) ───────────────────────────────────────
 function updateDropdownOptions(isModeChange) {
@@ -422,6 +423,15 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
     const section = btn.parentElement
     const collapsed = section.classList.toggle('collapsed')
     btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+  })
+})
+
+// Hover-Werte am Diagramm (I5) — je ein Hit-Rect pro Diagramm-Slot, da bis
+// zu 3 Graph-Gruppen (single/top/bottom) in derselben #main_svg existieren.
+;['single', 'top', 'bottom'].forEach(slot => {
+  attachGraphHover(DOM.graphHitRect[slot], {
+    onMove: x => updateGraphHover(slot, x),
+    onLeave: () => updateGraphHover(slot, null),
   })
 })
 
