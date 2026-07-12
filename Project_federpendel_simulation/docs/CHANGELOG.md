@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.16 — 2026-07-12
+
+B21 — Manuelle Zeitmessung nicht bedienbar (kritischer Bugfix).
+
+### Behoben
+- **„Zeitmessung starten"-Button unsichtbar/unklickbar**: lag als
+  `<foreignObject>` im skalierten `#main_svg` (`viewBox`+`preserveAspectRatio`)
+  — das reale CSS-Layout des HTML-Buttons skaliert nicht mit dem SVG-viewBox,
+  der Button rendierte dadurch weit außerhalb der sichtbaren Fläche
+  (`getBoundingClientRect()` zeigte u. a. `y≈-125px`). Die manuelle
+  Zeitmessung war dadurch komplett unbedienbar. Jetzt als HTML-Overlay-
+  Geschwister von `#main_svg` (`position:absolute`), analog zum
+  bestehenden `.time-label`-Muster. Per Playwright verifiziert (Horizontal-
+  und Vertikal-Modus): Button sichtbar, klickbar, Zeitmessung startet.
+
 ## v1.0.15 — 2026-07-11
 
 T9 — shared/js-Helper konsolidieren.

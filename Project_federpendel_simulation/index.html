@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Federpendel
-    <span class="version">v1.0.15</span>
+    <span class="version">v1.0.16</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -159,12 +159,6 @@ window.MathJax = {
           <line id="y_axis_arrow" stroke-width="1.5" marker-end="url(#arrowhead)" visibility="hidden"/>
           <text id="y_axis_label_text" text-anchor="middle" font-size="14px" visibility="hidden"></text>
 
-          <foreignObject id="start_timing_container" x="0" y="20" width="450" height="40" style="visibility:hidden">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="text-align:center">
-              <button id="start_timing_button" class="btn primary">Zeitmessung starten</button>
-            </div>
-          </foreignObject>
-
           <g id="stopwatch" transform="translate(220, 60) scale(0.595)">
             <circle cx="280" cy="120" r="72" stroke-width="2" id="stopwatch_circle"/>
             <g id="stopwatch_marks"></g>
@@ -179,6 +173,14 @@ window.MathJax = {
         </g>
       </svg>
       <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+      <!-- Bugfix (B#): war als <foreignObject> im main_svg verschachtelt — dessen
+           reales CSS-Layout (Button-Padding/Schriftgröße) skaliert nicht mit dem
+           SVG-viewBox, dadurch landete der Button weit außerhalb des sichtbaren
+           Bereichs (Ø unsichtbar/unklickbar). Jetzt als HTML-Overlay-Geschwister
+           von #main_svg, analog .time-label — reine CSS-Positionierung. -->
+      <div class="start-timing-overlay" id="start_timing_container" style="visibility:hidden">
+        <button id="start_timing_button" class="btn primary">Zeitmessung starten</button>
+      </div>
     </div>
 
     <div class="graph-wrapper">
