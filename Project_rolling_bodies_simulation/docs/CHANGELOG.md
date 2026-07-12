@@ -2,6 +2,25 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.1.0] - 2026-07-12
+
+I5 — Hover-Werte am Zeit-Diagramm (Rollout, 2. Sim nach Zykloide-Referenz).
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip auf dem Diagramm**: Mouseover über die Kurve zeigt
+  eine gestrichelte vertikale Führungslinie, hohle Ring-Punkte je aktivem
+  primären Subjekt (Farbe wie die Kurve, Kontur statt Füllung) und ein
+  Tooltip mit dem exakten Zeitpunkt *t* sowie den Werten. Nutzt die
+  bestehende `makeInterp(t)` (keine neue Interpolation). Cursor bleibt auf
+  den bereits gezeichneten Kurvenabschnitt geklammert.
+  **Vergleichskörper (Rennen-Modus) bewußt ausgeschlossen** — Hover zeigt
+  nur die primären Subjekte (SP/P1–P4), nie `compareActive`/`compareData`
+  (PO-Entscheidung). Funktioniert auch bei körperweiten Größen (ω, α_w).
+  Wiederverwendet das kanonische `shared/js/hover.js` aus der Zykloide-
+  Referenz-Implementierung. Per Playwright verifiziert: Hover während
+  Wiedergabe, mit aktivem Vergleichskörper (bleibt außen vor), bei
+  körperweiten Größen, `pointerleave` — keine Console-Errors.
+
 ## [2.0.10] - 2026-07-11
 ### Geändert (T9 - shared/js-Helper konsolidieren)
 - **`shortenEnd`** (in `render-core.js`, re-exportiert für

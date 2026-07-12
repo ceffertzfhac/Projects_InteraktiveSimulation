@@ -10,6 +10,7 @@ import {
   ALL_TYPES, GRAPH_OPTIONS, SUBJECTS, SUBJ_LABELS
 } from './constants.js';
 import { computeK, rollConditionMuMin, precompute } from './physics.js';
+import { attachGraphHover } from '../../shared/js/hover.js';
 
 export function setupUI() {
   // Theme aus lokalem Speicher laden (einheitlicher Key fh_theme, siehe CLAUDE.md)
@@ -24,6 +25,12 @@ export function setupUI() {
     gSel.appendChild(o);
   }
   gSel.addEventListener('change', () => render.updateGraph(state.store.simTime));
+
+  // Hover-Werte am Diagramm (I5)
+  attachGraphHover(state.DOM.graphHitRect, {
+    onMove: x => render.updateGraphHover(x),
+    onLeave: () => render.updateGraphHover(null),
+  });
 
   // Vector scale buttons
   document.querySelectorAll('.vec-scale-btn').forEach(btn => {

@@ -12,6 +12,11 @@ Tech-Schulden werden zentral in `../../BACKLOG.md` getrackt (siehe
   (Die frühere Meldung „SP-Spur unsichtbar" war *kein* Code-Defekt → **B2 ✅**
   in `BACKLOG.md`, verifiziert 2026-07-07.)
 
+- **Hover-Cursor (I5) nur auf bereits gezeichnetem Kurvenabschnitt** und nur
+  für primäre Subjekte — Vergleichskörper (Rennen-Modus) werden im Hover-
+  Tooltip bewußt nicht angezeigt (PO-Entscheidung, konsistent mit der
+  Zykloide-Referenz). → **I5**.
+
 ## Historie
 - Das frühere blog-stilige `issues.md`-Log (Zeitstempel-Einträge 2026-02-25,
   v1.8.0/1.9.2/1.9.3 etc.) wurde zurückgezogen — die Inhalte sind im

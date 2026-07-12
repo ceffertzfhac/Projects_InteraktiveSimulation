@@ -44,7 +44,7 @@ export { updateVectorsAndForces } from './render-vectors.js';
 export {
   rebuildAnalysis, updateAnalysis, buildRaceBars, buildCompareList, drawCompareObjects
 } from './render-analysis.js';
-export { getTransformedData, updateGraph } from './render-graph.js';
+export { getTransformedData, updateGraph, updateGraphHover } from './render-graph.js';
 
 // ── Privater Spur-Simplifyer (nur für updateScene) ───────────────────────────
 function douglasPeucker(pts, epsilon) {

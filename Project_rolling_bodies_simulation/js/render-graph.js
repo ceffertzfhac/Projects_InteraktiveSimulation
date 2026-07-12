@@ -10,7 +10,7 @@ import {
 } from './constants.js';
 
 import * as state from './state.js';
-import { svgEl, getNiceStep, fmt, fmtTech } from './render-core.js';
+import { svgEl, getNiceStep, fmt, fmtTech, makeInterp } from './render-core.js';
 
 // Transformiert eine Subjekt-/Körpergröße ins angezeigte Koordinatensystem
 // (Boden- vs. Ebenen-Align). Wird von updateGraph UND dem Diagramm-CSV-Export
@@ -74,9 +74,20 @@ export function updateGraph(t) {
   });
   for (let i = 0; i < 5; i++) document.getElementById(`gcmp_${i}`).setAttribute('points', '');
 
+  // Hover-Werte (I5): Hit-Rect-Geometrie aus denselben Konstanten wie
+  // scT/scV — keine Drift zwischen Klickfläche und tatsächlicher Plot-Fläche.
+  state.DOM.graphHitRect.setAttribute('x', GRAPH_PADDING.l);
+  state.DOM.graphHitRect.setAttribute('y', GRAPH_PADDING.t);
+  state.DOM.graphHitRect.setAttribute('width', SVG_W - GRAPH_PADDING.l - GRAPH_PADDING.r);
+  state.DOM.graphHitRect.setAttribute('height', SVG_H - GRAPH_PADDING.t - GRAPH_PADDING.b);
+
   const key = graphSel.value;
   const opt = GRAPH_OPTIONS[key];
-  if (!opt) return;
+  if (!opt) {
+    state.store.graphScale = null
+    hideGraphHover()
+    return
+  }
   const isBody = !!opt.body;
   const subjs = isBody ? ['sp'] : SUBJECTS.filter(s => state.store.activeSubjects.has(s));
   const cmpAvailable = CMP_KEYS.has(key);
@@ -113,6 +124,11 @@ export function updateGraph(t) {
   if (!isFinite(vMin)) { vMin = 0; vMax = 1; }
   if (Math.abs(vMax - vMin) < 1e-9) { vMin -= 0.5; vMax += 0.5; }
   else { const pad = (vMax - vMin) * 0.08; vMin -= pad; vMax += pad; }
+
+  // Hover-Werte (I5): einzige Quelle der Wahrheit für updateGraphHover() —
+  // nie separat neu berechnen (sonst Drift zur gerade gezeichneten Skala).
+  // Nur die primär aktiven Subjekte (subjs), keine Vergleichskörper (PO-Entscheidung).
+  state.store.graphScale = { key, isBody, subjs, vMin, vMax };
 
   const GW = SVG_W, GH = SVG_H;
   const scT = tv => GRAPH_PADDING.l + (tv / state.store.simDuration) * (GW - GRAPH_PADDING.l - GRAPH_PADDING.r);
@@ -246,4 +262,95 @@ export function updateGraph(t) {
       if (ct) addLeg(ct.color, ct.label, true);
     }
   }
+
+  // Hover-Werte (I5): bei offenem Hover jeden Frame mit der frischen Skala
+  // neu berechnen (Subjekt-Auswahl/Größe können sich ändern). Die RAF-
+  // Schleife selbst bleibt hover-unwissend — nur diese Rückkopplung hierher.
+  if (state.store.hoverActive) updateGraphHover(state.store.hoverLocalX)
+}
+
+function hideGraphHover() {
+  state.DOM.hoverLine.setAttribute('visibility', 'hidden')
+  SUBJECTS.forEach(s => state.DOM.hoverPoint[s].setAttribute('visibility', 'hidden'))
+  state.DOM.hoverTooltip.setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate
+ * (SVG-Koordinaten des #graph_svg-viewBox). Liest state.store.graphScale
+ * (von updateGraph() befüllt) statt eigene Skala zu berechnen.
+ */
+export function updateGraphHover(localX) {
+  state.store.hoverActive = localX !== null
+  state.store.hoverLocalX = localX
+  const gs = state.store.graphScale
+  if (localX === null || !gs || gs.subjs.length === 0) { hideGraphHover(); return }
+
+  const { key, isBody, subjs, vMin, vMax } = gs
+  const padL = GRAPH_PADDING.l, padT = GRAPH_PADDING.t
+  const plotW = SVG_W - GRAPH_PADDING.l - GRAPH_PADDING.r
+  const plotH = SVG_H - GRAPH_PADDING.t - GRAPH_PADDING.b
+  const xClamped = Math.max(padL, Math.min(padL + plotW, localX))
+  const rawT = (xClamped - padL) / plotW * state.store.simDuration
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
+  const t = Math.max(0, Math.min(rawT, state.store.simDuration, state.store.simTime))
+
+  const scT = tv => padL + (tv / state.store.simDuration) * plotW
+  const scV = v => padT + plotH * (1 - (v - vMin) / ((vMax - vMin) || 1))
+  const xPix = scT(t)
+  const interp = makeInterp(t)
+
+  state.DOM.hoverLine.setAttribute('x1', xPix); state.DOM.hoverLine.setAttribute('x2', xPix)
+  state.DOM.hoverLine.setAttribute('y1', padT); state.DOM.hoverLine.setAttribute('y2', padT + plotH)
+  state.DOM.hoverLine.setAttribute('visibility', 'visible')
+
+  const shown = isBody ? ['sp'] : subjs
+  const values = {}
+  SUBJECTS.forEach(s => {
+    if (!shown.includes(s)) { state.DOM.hoverPoint[s].setAttribute('visibility', 'hidden'); return }
+    const v = interp(getTransformedData(key, isBody ? null : s))
+    values[s] = v
+    state.DOM.hoverPoint[s].setAttribute('cx', xPix)
+    state.DOM.hoverPoint[s].setAttribute('cy', scV(v))
+    state.DOM.hoverPoint[s].setAttribute('visibility', 'visible')
+  })
+
+  renderHoverTooltip(isBody, shown, values, key, t, xPix, padL, plotW, padT)
+}
+
+function renderHoverTooltip(isBody, shown, values, key, t, xPix, padL, plotW, padT) {
+  const opt = GRAPH_OPTIONS[key]
+  const textEl = state.DOM.hoverTooltipText
+  textEl.innerHTML = ''
+  const lineH = 15
+  const rows = [{ text: `t = ${fmt(t, 2)} s`, color: null, italic: true }]
+  const labelFor = s => isBody ? 'Körper (SP)' : SUBJ_LABELS[s]
+  shown.forEach(s => rows.push({
+    label: labelFor(s), text: `${fmt(values[s], 2)} ${opt.unit}`, color: SUBJ_COLORS[s],
+  }))
+  rows.forEach((row, i) => {
+    const tspan = svgEl('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.color) tspan.style.fill = row.color
+    if (row.italic) {
+      const sym = svgEl('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = `${row.label}: ${row.text}`
+    }
+    textEl.appendChild(tspan)
+  })
+
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  state.DOM.hoverTooltipBg.setAttribute('width', boxW)
+  state.DOM.hoverTooltipBg.setAttribute('height', boxH)
+  state.DOM.hoverTooltipBg.setAttribute('x', 0)
+  state.DOM.hoverTooltipBg.setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  state.DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  state.DOM.hoverTooltip.setAttribute('visibility', 'visible')
 }

@@ -3,7 +3,7 @@
  * @module state
  */
 
-import { DEFAULT_DURATION } from './constants.js';
+import { DEFAULT_DURATION, SUBJECTS } from './constants.js';
 
 // ══════════════════════════════════════════════════════════════════
 //  STATE STORE (Mutable properties)
@@ -31,7 +31,13 @@ export const store = {
   coordSystemAlignment: 'plane', // 'plane' or 'ground'
   _visX0: 0,
   _visX1: 700,
-  _mjDebounceTimer: null
+  _mjDebounceTimer: null,
+
+  // Hover-Werte (I5): von updateGraph() befüllte Skalierungsparameter,
+  // von updateGraphHover() gelesen — siehe render-graph.js.
+  graphScale: null,
+  hoverActive: false,
+  hoverLocalX: null,
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -78,6 +84,15 @@ export function initDOMCache() {
   DOM.graphSel = document.getElementById('graph_sel');
   DOM.graphLegend = document.getElementById('graph_legend');
   DOM.graphCursor = document.getElementById('graph_cursor');
+
+  // Hover-Werte (I5)
+  DOM.graphHitRect = document.getElementById('graph_hit_rect');
+  DOM.hoverLine = document.getElementById('graph_hover_line');
+  DOM.hoverPoint = {};
+  SUBJECTS.forEach(s => { DOM.hoverPoint[s] = document.getElementById(`graph_hover_point_${s}`); });
+  DOM.hoverTooltip = document.getElementById('graph_hover_tooltip');
+  DOM.hoverTooltipBg = document.getElementById('graph_hover_tooltip_bg');
+  DOM.hoverTooltipText = document.getElementById('graph_hover_tooltip_text');
   
   // Time display
   DOM.timeLabel = document.getElementById('time_label');

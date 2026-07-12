@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Dynamik rollender Körper
-    <span class="version">v2.0.10</span>
+    <span class="version">v2.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -234,6 +234,19 @@ window.MathJax = {
       <circle id="gpt_p3" r="4" fill="var(--c-p3)" visibility="hidden"/>
       <circle id="gpt_p4" r="4" fill="var(--c-p4)" visibility="hidden"/>
       <line id="graph_cursor" x1="0" y1="0" x2="0" y2="0" stroke-width="1" stroke-dasharray="3,3"/>
+
+      <!-- Hover-Werte (I5): Cursor-Overlay + Tooltip, per JS positioniert -->
+      <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+      <circle id="graph_hover_point_sp" class="graph-hover-point" r="6" style="stroke:var(--c-sp)" visibility="hidden"/>
+      <circle id="graph_hover_point_p1" class="graph-hover-point" r="6" style="stroke:var(--c-p1)" visibility="hidden"/>
+      <circle id="graph_hover_point_p2" class="graph-hover-point" r="6" style="stroke:var(--c-p2)" visibility="hidden"/>
+      <circle id="graph_hover_point_p3" class="graph-hover-point" r="6" style="stroke:var(--c-p3)" visibility="hidden"/>
+      <circle id="graph_hover_point_p4" class="graph-hover-point" r="6" style="stroke:var(--c-p4)" visibility="hidden"/>
+      <g id="graph_hover_tooltip" visibility="hidden">
+        <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+        <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+      </g>
+      <rect id="graph_hit_rect" class="graph-hit-rect"/>
     </svg>
   </div>
 </main>
