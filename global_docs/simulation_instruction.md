@@ -381,11 +381,34 @@ Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); 
 - **`.graph-bg`-Rect wird oft bei jedem Redraw neu erzeugt** (`innerHTML=''`)
   — das Hit-Rect muß ein **stabiles Geschwister-Element außerhalb** dieser
   Wegwerf-Gruppe sein, sonst gehen die Event-Listener bei jedem Frame verloren.
+  **Prüfen, WELCHE Gruppe geleert wird:** manche Sims leeren nur eine innere
+  Unter-Gruppe (z. B. `grid_group`, wie Zykloide/Rolling/Schräger Wurf) — dort
+  reicht ein Hit-Rect als Geschwister *innerhalb* der äußeren Graph-Gruppe.
+  Andere (z. B. Kreis-/Spiralbewegung) leeren die **gesamte** Graph-Gruppe
+  (`graphGroup.innerHTML=''`) bei jedem Aufruf — dort muß das Hit-Rect/Overlay
+  in einer eigenen, **außerhalb** dieser Gruppe liegenden Geschwister-`<g>`
+  leben, deren `transform` (inkl. Dual-Layout-Versatz) in der äußeren
+  Orchestrierungsfunktion synchron zur Graph-Gruppe gesetzt wird — sonst wird
+  das Hit-Rect selbst bei jedem Frame mit zerstört.
 - **Dual-Graph-Sims** (Kreis-/Spiralbewegung) brauchen 2 unabhängige Hit-Rects
-  + 2 `store.graphScale`-Äquivalente (`graphScale1`/`graphScale2`) + 2
+  + 2 `store.graphScale`-Äquivalente (`graphScale[1]`/`graphScale[2]`, als
+  Objekt statt zweier separater Variablen — vermeidet Copy-Paste-Drift) + 2
   `attachGraphHover()`-Aufrufe — mechanische Duplikation, kein neues Muster.
+  Beim Umschalten Single↔Dual den jeweils ausgeblendeten Slot aufräumen
+  (`graphScale[2] = null` + Hover verstecken), sonst bleibt ein Tooltip im
+  unsichtbaren Slot "offen" und bläht beim nächsten Dual-Wechsel falsch auf.
 - **Vergleichs-/Mehrkörper-Modi** (Rollende Körper): Hover iteriert nur über
   die primär ausgewählten Subjekte, nicht über Vergleichskörper-Daten.
+- **Sims mit mehreren Diagramm-Slots in derselben Szene-`<svg>`** (Schräger
+  Wurf: Single/Stacked-Top/Stacked-Bottom als transformierte `<g>`s neben der
+  Animation): pro Slot ein eigenes Hit-Rect + `store.graphScale[slot]`-Eintrag
+  (String-Key statt Zahl, z. B. `'single'`/`'top'`/`'bottom'`), analog zum
+  Dual-Graph-Fall. Beim Wechsel zwischen Single- und Stacked-Modus den jeweils
+  ausgeblendeten Slot/die ausgeblendeten Slots aufräumen.
+- **Diagrammtypen mit räumlicher (nicht-Zeit-)Achse** (z. B. Bahnkurve y(x)
+  bei Schräger Wurf): `store.graphScale[slot] = null` setzen und Hover
+  verstecken, sobald dieser Diagrammtyp aktiv ist — die einfache Pixel→Zeit-
+  Umkehrung gilt nur für Zeit-Achsen-Diagramme (siehe UX-Regeln oben).
 
 ## 5. Implementierungs-Workflow
 
