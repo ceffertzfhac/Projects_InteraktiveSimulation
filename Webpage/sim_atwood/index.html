@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Atwood-Maschine – FH Aachen</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Atwood-Maschine
+    <span class="version">v2.2.7</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LEFT PANEL ────────────────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Massen<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Masse \(m_1\)</div>
+      <div class="slider-row">
+        <input type="range" id="m1_slider" min="1" max="10" value="5.2" step="0.1">
+        <span class="slider-val" id="m1_value">5,2 kg</span>
+      </div>
+      <div class="slider-label">Masse \(m_2\)</div>
+      <div class="slider-row">
+        <input type="range" id="m2_slider" min="1" max="10" value="4.8" step="0.1">
+        <span class="slider-val" id="m2_value">4,8 kg</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Startpositionen<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Modus</div>
+      <select id="height_mode_select" class="select-field">
+        <option value="y1y2">y₁ und y₂ unabhängig</option>
+        <option value="y1diff">y₁ und Δy = y₂ − y₁</option>
+      </select>
+      <div id="y1_group">
+        <div class="slider-label">Startposition \(y_1\)</div>
+        <div class="slider-row">
+          <input type="range" id="y1_slider" min="40" max="320" value="250" step="5">
+          <span class="slider-val" id="y1_value">250 cm</span>
+        </div>
+      </div>
+      <div id="y2_group">
+        <div class="slider-label">Startposition \(y_2\)</div>
+        <div class="slider-row">
+          <input type="range" id="y2_slider" min="40" max="320" value="250" step="5">
+          <span class="slider-val" id="y2_value">250 cm</span>
+        </div>
+      </div>
+      <div id="diff_group" style="display:none">
+        <div class="slider-label">Differenz \(\Delta y = y_2 - y_1\)</div>
+        <div class="slider-row">
+          <input type="range" id="diff_slider" min="-100" max="100" value="0" step="5">
+          <span class="slider-val" id="diff_value">0 cm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Kräfte \(F_G, F_S\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_forces" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Resultierende \(F_{\text{ges}}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_net_force" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Legende Kräfte<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-m1)"></div>
+        <div class="legend-label">Masse \(m_1\)</div>
+        <div class="legend-swatch" style="background:var(--c-m2)"></div>
+        <div class="legend-label">Masse \(m_2\)</div>
+        <div class="legend-swatch" style="background:var(--c-fg)"></div>
+        <div class="legend-label">Schwerkraft \(F_G\)</div>
+        <div class="legend-swatch" style="background:var(--c-fn)"></div>
+        <div class="legend-label">Seilkraft \(F_S\)</div>
+        <div class="legend-swatch" style="background:var(--c-fr)"></div>
+        <div class="legend-label">Resultierend \(F_{\text{ges}}\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation + Graph ───────────────────────────────────── -->
+  <main class="center-area">
+
+    <!-- Simulation SVG -->
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 -20 400 520" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- Arrowheads for force vectors -->
+          <marker id="arr-fg" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-fg-poly"/>
+          </marker>
+          <marker id="arr-ft" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-ft-poly"/>
+          </marker>
+          <marker id="arr-net" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-net-poly"/>
+          </marker>
+          <!-- Arrowhead for ruler direction -->
+          <marker id="arr-axis" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-axis-poly"/>
+          </marker>
+        </defs>
+
+        <!-- Background -->
+        <rect id="sim-bg" x="0" y="0" width="400" height="500"/>
+
+        <!-- Ceiling (20 px nach oben, Kante jetzt bei y=-10) -->
+        <rect id="ceiling" x="0" y="-20" width="400" height="10"/>
+
+        <!-- Pulley wheel -->
+        <circle id="pulley" cx="200" cy="50" r="40" stroke-width="2"/>
+
+        <!-- Floor -->
+        <rect id="floor" x="0" y="457.5" width="400" height="12.5"/>
+
+        <!-- Rope (dynamic, rendered under masses) -->
+        <path id="rope" fill="none" stroke-width="1.5" d=""/>
+
+        <!-- Mass 1 group (left side, x=160) -->
+        <g id="mass1_group">
+          <rect id="mass1_rect" rx="3" ry="3"/>
+          <text id="mass1_label" dominant-baseline="middle"></text>
+        </g>
+
+        <!-- Mass 2 group (right side, x=240) -->
+        <g id="mass2_group">
+          <rect id="mass2_rect" rx="3" ry="3"/>
+          <text id="mass2_label" dominant-baseline="middle"></text>
+        </g>
+
+        <!-- Force vectors: Gravity -->
+        <line id="force_g1_vector" class="force-g" visibility="hidden" marker-end="url(#arr-fg)"/>
+        <line id="force_g2_vector" class="force-g" visibility="hidden" marker-end="url(#arr-fg)"/>
+        <!-- Force vectors: Tension -->
+        <line id="force_t1_vector" class="force-t" visibility="hidden" marker-end="url(#arr-ft)"/>
+        <line id="force_t2_vector" class="force-t" visibility="hidden" marker-end="url(#arr-ft)"/>
+        <!-- Force vectors: Net / Resultant -->
+        <line id="force_net1_vector" class="force-net" visibility="hidden" marker-end="url(#arr-net)"/>
+        <line id="force_net2_vector" class="force-net" visibility="hidden" marker-end="url(#arr-net)"/>
+
+        <!-- Aperture shelf OVER masses (evenodd cutout = rope passes through holes) -->
+        <path id="aperture_path" fill-rule="evenodd"
+          d="M 0 100 H 400 V 107.5 H 0 Z M 156 100 H 164 V 107.5 H 156 Z M 236 100 H 244 V 107.5 H 236 Z"/>
+
+        <!-- Ruler OVER aperture (left edge, filled dynamically) -->
+        <g id="ruler_group"></g>
+
+        <!-- Stopwatch – FF-Design: Hauptzifferblatt + Hilfszifferblatt (Zehntel) -->
+        <g id="stopwatch_group" transform="translate(340, 55) scale(0.7)">
+          <circle id="sw-face" cx="0" cy="0" r="60" stroke-width="2.5"/>
+          <g id="stopwatch_marks"></g>
+          <!-- Subdial for tenths of a second -->
+          <circle id="sw-subdial-face" cx="0" cy="25" r="13" stroke-width="1.5"/>
+          <g id="stopwatch_subdial_marks"></g>
+          <line id="stopwatch_sub_hand" x1="0" y1="25" x2="0" y2="13"
+                stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Main hand -->
+          <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50"
+                stroke-width="3" stroke-linecap="round"/>
+          <circle id="sw-axle" cx="0" cy="0" r="4" class="sw-mark"/>
+        </g>
+
+        <!-- Pulley mount: Oberkante bei y=-10 (Deckenunterkante), 48 px breit → 12 px an der Nabe -->
+        <polygon id="pulley_mount" points="176,-10 224,-10 206,50 194,50"/>
+
+        <!-- Pulley axle (drawn last to appear on top) -->
+        <circle id="pulley_axle" cx="200" cy="50" r="5" stroke-width="1"/>
+
+      </svg>
+      <div class="time-label" id="time_label">t = 0,00 s</div>
+    </div>
+
+    <!-- Graph area (3 overlapping SVGs, JS controls visibility) -->
+    <div class="graph-wrapper">
+      <!-- Single graph mode -->
+      <svg id="graph_svg_single" viewBox="0 0 480 500" preserveAspectRatio="xMidYMid meet">
+        <g class="graph_grid"></g>
+        <polyline class="graph_line_1" fill="none" stroke-width="2" points=""/>
+        <polyline class="graph_line_2" fill="none" stroke-width="2" points=""/>
+        <circle class="graph_point_1" r="5" visibility="hidden"/>
+        <circle class="graph_point_2" r="5" visibility="hidden"/>
+        <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+      </svg>
+      <!-- Dual graph mode: top (m1) -->
+      <svg id="graph_svg_top" style="display:none"
+           viewBox="0 0 480 250" preserveAspectRatio="xMidYMid meet">
+        <g class="graph_grid"></g>
+        <polyline class="graph_line_1" fill="none" stroke-width="2" points=""/>
+        <polyline class="graph_line_2" fill="none" stroke-width="2" points=""/>
+        <circle class="graph_point_1" r="4" visibility="hidden"/>
+        <circle class="graph_point_2" r="4" visibility="hidden"/>
+        <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+      </svg>
+      <!-- Dual graph mode: bottom (m2) -->
+      <svg id="graph_svg_bottom" style="display:none"
+           viewBox="0 0 480 250" preserveAspectRatio="xMidYMid meet">
+        <g class="graph_grid"></g>
+        <polyline class="graph_line_1" fill="none" stroke-width="2" points=""/>
+        <polyline class="graph_line_2" fill="none" stroke-width="2" points=""/>
+        <circle class="graph_point_1" r="4" visibility="hidden"/>
+        <circle class="graph_point_2" r="4" visibility="hidden"/>
+        <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+      </svg>
+    </div>
+
+  </main>
+
+  <!-- ── RIGHT PANEL ───────────────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Physik (konstant)</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Beschl. \(a_1\)</div>
+          <div class="analysis-cell val" id="live_a1">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_2\)</div>
+          <div class="analysis-cell val" id="live_a2">— m/s²</div>
+          <div class="analysis-cell key">Seilkraft \(F_S\)</div>
+          <div class="analysis-cell val" id="live_tens">— N</div>
+          <div class="analysis-cell key">Schwerkraft \(F_{G,1}\)</div>
+          <div class="analysis-cell val" id="live_fg1">— N</div>
+          <div class="analysis-cell key">Schwerkraft \(F_{G,2}\)</div>
+          <div class="analysis-cell val" id="live_fg2">— N</div>
+          <div class="analysis-cell key">Resultierend \(F_{\text{ges},1}\)</div>
+          <div class="analysis-cell val" id="live_fnet1">— N</div>
+          <div class="analysis-cell key">Resultierend \(F_{\text{ges},2}\)</div>
+          <div class="analysis-cell val" id="live_fnet2">— N</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Geschw. \(v_1\)</div>
+          <div class="analysis-cell val" id="live_v1">0,000 m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_2\)</div>
+          <div class="analysis-cell val" id="live_v2">0,000 m/s</div>
+          <div class="analysis-cell key">Position \(y_1\)</div>
+          <div class="analysis-cell val" id="live_y1">— cm</div>
+          <div class="analysis-cell key">Position \(y_2\)</div>
+          <div class="analysis-cell val" id="live_y2">— cm</div>
+          <div class="analysis-cell key">Differenz \(\Delta y\)</div>
+          <div class="analysis-cell val" id="live_ydiff">— cm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Diagramm</div>
+      <div class="slider-label">Modus</div>
+      <div class="radio-group" id="graph_mode_group">
+        <label class="radio-pill"><input type="radio" name="graph_mode" value="single" checked><span>Einzeln</span></label>
+        <label class="radio-pill"><input type="radio" name="graph_mode" value="dual"><span>Geteilt</span></label>
+      </div>
+      <div id="subject_group">
+        <div class="slider-label">Anzeigen</div>
+        <select id="subject_select" class="select-field">
+          <option value="m1">Nur m₁</option>
+          <option value="m2">Nur m₂</option>
+          <option value="both">m₁ und m₂</option>
+        </select>
+      </div>
+      <div class="slider-label" id="graph_lbl1">Diagrammtyp</div>
+      <select id="graph_select_1" class="select-field">
+        <option value="y">Position</option>
+        <option value="yrel">Position relativ zum Start</option>
+        <option value="v">Geschwindigkeit</option>
+        <option value="a">Beschleunigung</option>
+        <option value="ydiff">Positionsdifferenz Δy</option>
+      </select>
+      <div id="graph_sel2_group" style="display:none">
+        <div class="slider-label">Unten (m₂)</div>
+        <select id="graph_select_2" class="select-field">
+          <option value="y">Position</option>
+          <option value="yrel">Position relativ zum Start</option>
+          <option value="v">Geschwindigkeit</option>
+          <option value="a">Beschleunigung</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Beschleunigung:</div>
+        <div>\[a = g\,\frac{m_1 - m_2}{m_1 + m_2}\]</div>
+        <div style="margin-top:6px">Seilkraft:</div>
+        <div>\[F_S = m_1\,(g - a) = \frac{2\,m_1\,m_2\,g}{m_1+m_2}\]</div>
+        <div style="margin-top:6px">Kinematik:</div>
+        <div>\[y_1(t) = y_{1,0} + \tfrac{1}{2}\,a\,t^2\]</div>
+        <div>\[v_1(t) = a\,t\]</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

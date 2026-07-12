@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Statisches Kräftegleichgewicht – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Statisches Kräftegleichgewicht
+    <span class="version">v1.2.5</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LINKE SIDEBAR: Parameter · Visualisierung · Legende ─────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section">
+      <div class="panel-label">Parameter</div>
+      <div class="slider-label">Masse links \(m_1\)</div>
+      <div class="slider-row">
+        <input type="range" id="m1_slider" value="1.9">
+        <span class="slider-val" id="m1_value">1,90 kg</span>
+      </div>
+      <div class="slider-label">Masse rechts \(m_3\)</div>
+      <div class="slider-row">
+        <input type="range" id="m3_slider" value="1.2">
+        <span class="slider-val" id="m3_value">1,20 kg</span>
+      </div>
+      <div class="slider-label">Masse Mitte \(m_2\)</div>
+      <div class="slider-row" style="grid-template-columns:1fr auto">
+        <div class="value-stepper" style="display:flex;align-items:center;gap:8px">
+          <button class="btn small" id="m2_minus_btn">−</button>
+          <span class="slider-val" id="m2_value">2,00 kg</span>
+          <button class="btn small" id="m2_plus_btn">+</button>
+        </div>
+      </div>
+      <div class="slider-label">Abstand der Rollen</div>
+      <div class="slider-row">
+        <input type="range" id="pulley_dist_slider" value="40">
+        <span class="slider-val" id="pulley_dist_value">40,0 cm</span>
+      </div>
+      <div class="slider-label">Länge der Seilsegmente</div>
+      <div class="slider-row">
+        <input type="range" id="rope_len_slider" value="50">
+        <span class="slider-val" id="rope_len_value">50,0 cm</span>
+      </div>
+      <div class="note" style="font-size:.7rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        Annahmen: ideales (masseloses) Seil, reibungsfreie Rollen. Die Ansicht zoomt
+        automatisch heraus, sobald etwas (auch ein Vektorpfeil) den Rand erreicht.
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Visualisierung</div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Gewichtskräfte \(\vec{F}_G\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="show_gravity_vectors">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Seilkräfte \(\vec{F}_S\) (gesamt)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="show_tension_vectors">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Komponentenzerlegung</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="show_component_vectors">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Vektorkomponenten anzeigen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="show_component_values">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Hintergrundraster</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="show_grid">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Legende</div>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-fg)"></div>
+        <div class="legend-label">Gewichtskraft \(F_G\)</div>
+        <div class="legend-swatch" style="background:var(--c-fn)"></div>
+        <div class="legend-label">Seilkraft \(F_S\)</div>
+        <div class="legend-swatch" style="background:var(--c-comp-h)"></div>
+        <div class="legend-label">Horizontalkomponente</div>
+        <div class="legend-swatch" style="background:var(--c-comp-v)"></div>
+        <div class="legend-label">Vertikalkomponente</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Simulation ─────────────────────────────────────────────── -->
+  <main class="center-area" id="center_area">
+    <div class="sim-wrapper">
+      <div id="zoom_readout" class="zoom-readout">Zoom: 1,00×</div>
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMin meet">
+        <defs>
+          <marker id="arrowhead-gravity" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-tension" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-comp-h"  markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-comp-v"  markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-coords"  markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+        </defs>
+
+        <g id="grid_group" style="visibility:hidden"></g>
+        <rect id="ceiling" x="0" y="20" width="900" height="20"/>
+        <polygon id="pulley_mount_left"/>
+        <polygon id="pulley_mount_right"/>
+        <circle id="pulley_left" cx="250" cy="40" r="15"/>
+        <circle id="pulley_right" cx="650" cy="40" r="15"/>
+        <circle id="pulley_left_center" cx="250" cy="40" r="3"/>
+        <circle id="pulley_right_center" cx="650" cy="40" r="3"/>
+        <path id="rope" fill="none" stroke-width="1.5"/>
+
+        <g id="mass_left_group"><rect id="mass_left" width="50" height="50" ry="4"/><text id="mass_left_label" x="25" y="25">m₁</text></g>
+        <g id="mass_right_group"><rect id="mass_right" width="50" height="50" ry="4"/><text id="mass_right_label" x="25" y="25">m₃</text></g>
+        <g id="mass_middle_group"><rect id="mass_middle" width="50" height="50" ry="4"/><text id="mass_middle_label" x="25" y="25">m₂</text></g>
+
+        <g id="force_vectors_group"></g>
+        <g id="angle_group"></g>
+
+        <!-- Koordinatensystem -->
+        <g id="coordinate_system_group">
+          <line x1="50" y1="450" x2="100" y2="450" class="coordinate-axis"/>
+          <line x1="50" y1="450" x2="50" y2="400" class="coordinate-axis"/>
+          <!-- Achsenpfeilspitze ragt Marker-Länge (5·1,5=7,5px) über das Linienende;
+               Labels 10px Abstand dahinter (x: rechts der Spitze, y: über der Spitze). -->
+          <text x="117.5" y="450" class="coordinate-label" style="text-anchor:start">x</text>
+          <text x="50" y="382.5" class="coordinate-label" style="dominant-baseline:auto">y</text>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ─────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+      <div class="panel-section">
+        <div class="panel-label">Gleichgewichtsanalyse</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Seilkraft links \(F_{S,1}\)</div>
+          <div class="analysis-cell val" id="left_force">—</div>
+          <div class="analysis-cell key">Winkel links \(\alpha_1\) (zur Horiz.)</div>
+          <div class="analysis-cell val" id="left_angle">—</div>
+          <div class="analysis-cell key">Seilkraft rechts \(F_{S,3}\)</div>
+          <div class="analysis-cell val" id="right_force">—</div>
+          <div class="analysis-cell key">Winkel rechts \(\alpha_3\) (zur Horiz.)</div>
+          <div class="analysis-cell val" id="right_angle">—</div>
+          <div class="analysis-cell key">Vertikalkräfte auf \(m_2\)</div>
+          <div class="analysis-cell val" id="vertical_forces_value">—</div>
+          <div class="analysis-cell key">Horizontalkräfte auf \(m_2\)</div>
+          <div class="analysis-cell val" id="horizontal_forces_value">—</div>
+        </div>
+        <div id="equilibrium_warning">Kein statisches Gleichgewicht möglich!</div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Physik</div>
+        <div class="formula-box">
+          <div>1. Newtonsches Gesetz: ist \(m_2\) in Ruhe, so ist die Summe aller Kräfte auf \(m_2\) null (Kräftegleichgewicht).</div>
+          <div>\[\sum\vec{F}=0=\vec{F}_{S,\mathrm{li}}+\vec{F}_{S,\mathrm{re}}+\vec{F}_{G,2}\]</div>
+          <div style="margin-top:6px">Seilkräfte (masseloses Seil, reibungsfreie Rollen):</div>
+          <div>\[F_{S,1}=m_1 g\]</div>
+          <div>\[F_{S,3}=m_3 g\]</div>
+          <div>\[F_{G,2}=m_2 g\]</div>
+          <div style="margin-top:6px">Winkel \(\gamma\) zur Senkrechten (Cosinus-Satz):</div>
+          <div>\[\cos\gamma_1=\tfrac{F_{S,1}^2+F_{G,2}^2-F_{S,3}^2}{2\,F_{S,1}F_{G,2}}\]</div>
+          <div>\[\cos\gamma_3=\tfrac{F_{S,3}^2+F_{G,2}^2-F_{S,1}^2}{2\,F_{S,3}F_{G,2}}\]</div>
+          <div style="margin-top:6px">\(\gamma\) ist der Seil-Neigungswinkel zur <b>Senkrechten</b>; der zur <b>Horizontalen</b> ist \(\alpha = 90^\circ-\gamma\) (in der Graphik an \(m_2\) als \(\alpha_1\)/\(\alpha_3\) eingetragen).</div>
+          <div style="margin-top:6px">Dreiecksungleichung (sonst kein Gleichgewicht):</div>
+          <div>\[F_{S,1}+F_{S,3}>F_{G,2}>|F_{S,1}-F_{S,3}|\]</div>
+        </div>
+      </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

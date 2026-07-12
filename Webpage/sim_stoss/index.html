@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elastischer Stoß auf der Luftkissenbahn</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <link rel="stylesheet" href="../shared/css/design-system.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="../index.html" class="back-btn" title="Zurück zur Übersicht">← Übersicht</a>
+      <div class="topbar-title">
+        Elastischer Stoß auf der Luftkissenbahn
+        <span class="version">v1.0.3</span>
+        <span class="inst">FH Aachen – FB 8 – Physik</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="theme-toggle-wrap">
+        <span style="font-size:.82rem">🌙</span>
+        <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+        <span style="font-size:.82rem">☀️</span>
+      </div>
+      <button class="btn primary" id="play_btn">▶ Play</button>
+      <button class="btn" id="pause_btn" disabled>⏸ Pause</button>
+      <button class="btn" id="reset_btn">↺ Reset</button>
+      <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+      <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+    </div>
+  </div>
+
+  <div class="app-layout analysis-collapsed">
+    <!-- ── LEFT PANEL ─────────────────────────────────────────────────── -->
+    <aside class="panel left-panel">
+      <div class="panel-body">
+
+        <div class="panel-section">
+          <div class="panel-label">Gleiter 1</div>
+          <div class="slider-label">Masse \(m_1\)</div>
+          <div class="slider-row">
+            <input type="range" id="m1_slider" min="0.5" max="5.5" step="0.1" value="0.5">
+            <span class="slider-val" id="m1_value">0,5 kg</span>
+          </div>
+          <div class="slider-label">Geschw. \(v_1\)</div>
+          <div class="slider-row">
+            <input type="range" id="v1_slider" min="-1.5" max="1.5" step="0.1" value="0.8">
+            <span class="slider-val" id="v1_value">0,8 m/s</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Gleiter 2</div>
+          <div class="slider-label">Masse \(m_2\)</div>
+          <div class="slider-row">
+            <input type="range" id="m2_slider" min="0.5" max="5.5" step="0.1" value="0.5">
+            <span class="slider-val" id="m2_value">0,5 kg</span>
+          </div>
+          <div class="slider-label">Geschw. \(v_2\)</div>
+          <div class="slider-row">
+            <input type="range" id="v2_slider" min="-1.5" max="1.5" step="0.1" value="-0.4">
+            <span class="slider-val" id="v2_value">-0,4 m/s</span>
+          </div>
+          <p class="hint-text">Massen ab 5,1 kg gelten als unendlich (feste Wand).</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Feder</div>
+          <div class="slider-label">Federkonstante \(k\)</div>
+          <div class="slider-row">
+            <input type="range" id="k_slider" min="5" max="205" step="5" value="50">
+            <span class="slider-val" id="k_value">50 N/m</span>
+          </div>
+          <p class="hint-text">Ab 205 N/m gilt die Feder als starr (Stoßdauer 0).</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Visualisierung</div>
+          <div class="vis-toggle-row">
+            <span class="slider-label" style="margin:0">Geschwindigkeitsvektoren</span>
+            <input type="checkbox" id="toggle_vectors" checked>
+          </div>
+          <div class="vis-toggle-row">
+            <span class="slider-label" style="margin:0">Schwerpunkt \(S\)</span>
+            <input type="checkbox" id="toggle_com" checked>
+          </div>
+          <div class="legend-grid" style="margin-top:8px">
+            <span class="legend-swatch" style="background:var(--c-m1)"></span>
+            <span class="legend-label">Gleiter 1</span>
+            <span class="legend-swatch" style="background:var(--c-m2)"></span>
+            <span class="legend-label">Gleiter 2</span>
+            <span class="legend-swatch" style="background:var(--c-eloss)"></span>
+            <span class="legend-label">Federenergie \(E_{\text{Feder}}\)</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Diagramm</div>
+          <div class="slider-label">Größe</div>
+          <select id="graph_select" class="select-field">
+            <option value="v" selected>Geschwindigkeit \(v(t)\)</option>
+            <option value="a">Beschleunigung \(a(t)\)</option>
+            <option value="p">Impuls \(p(t)\)</option>
+            <option value="E">Energie \(E(t)\)</option>
+          </select>
+          <div class="slider-label" style="margin-top:10px">Zeitlupe</div>
+          <div class="speed-pills">
+            <label class="speed-pill active"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+            <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+            <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+            <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ── CENTER: Simulation + Diagramm ──────────────────────────────── -->
+    <main class="center-area">
+      <svg id="main_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arr-v1" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto" markerUnits="strokeWidth">
+            <polygon points="0 0, 5 1.75, 0 3.5" class="arr-v1-poly"/>
+          </marker>
+          <marker id="arr-v2" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto" markerUnits="strokeWidth">
+            <polygon points="0 0, 5 1.75, 0 3.5" class="arr-v2-poly"/>
+          </marker>
+        </defs>
+
+        <g id="track_group"></g>
+
+        <path id="spring_path" fill="none" class="spring-path"/>
+        <rect id="bumper_left"  class="bumper" visibility="hidden"/>
+        <rect id="bumper_right" class="bumper" visibility="hidden"/>
+
+        <g id="glider1_group"><rect id="glider1_rect" rx="4" ry="4"/><text id="glider1_label" text-anchor="middle" class="glider-label"></text></g>
+        <g id="glider2_group"><rect id="glider2_rect" rx="4" ry="4"/><text id="glider2_label" text-anchor="middle" class="glider-label"></text></g>
+
+        <line id="v_vector1" class="vec-v1" visibility="hidden" marker-end="url(#arr-v1)"/>
+        <line id="v_vector2" class="vec-v2" visibility="hidden" marker-end="url(#arr-v2)"/>
+
+        <g id="com_marker" visibility="hidden">
+          <circle r="6" class="com-circle"/>
+          <line x1="-6" y1="0" x2="6" y2="0" class="com-cross"/>
+          <line x1="0" y1="-6" x2="0" y2="6" class="com-cross"/>
+          <text y="18" text-anchor="middle" class="com-label">S</text>
+        </g>
+
+        <g id="stopwatch_group" transform="translate(620, 55) scale(0.6)">
+          <circle id="sw-face" cx="0" cy="0" r="60" stroke-width="2.5"/>
+          <g id="stopwatch_marks"></g>
+          <circle id="sw-subdial-face" cx="0" cy="25" r="13" stroke-width="1.5"/>
+          <g id="stopwatch_subdial_marks"></g>
+          <line id="stopwatch_sub_hand" x1="0" y1="25" x2="0" y2="13" stroke-width="1.5" stroke-linecap="round"/>
+          <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50" stroke-width="3" stroke-linecap="round"/>
+          <circle id="sw-axle" cx="0" cy="0" r="4" class="sw-mark"/>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label">t = 0,000 s</div>
+
+      <svg id="graph_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+        <g class="graph_grid"></g>
+        <polyline id="line_v1" fill="none" class="graph-line-1" stroke-width="2"/>
+        <polyline id="line_v2" fill="none" class="graph-line-2" stroke-width="2"/>
+        <polyline id="line_es" fill="none" class="graph-line-es" stroke-width="2" stroke-dasharray="4,2"/>
+        <circle id="dot_v1" r="4" class="graph-dot-1" visibility="hidden"/>
+        <circle id="dot_v2" r="4" class="graph-dot-2" visibility="hidden"/>
+        <circle id="dot_es" r="4" class="graph-dot-es" visibility="hidden"/>
+        <text id="graph_title" class="graph-title-text"></text>
+      </svg>
+    </main>
+
+    <!-- ── RIGHT PANEL (Analyse) ──────────────────────────────────────── -->
+    <aside class="panel right-panel" id="right_panel">
+      <button class="panel-header" id="analysis_toggle" type="button"
+              title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+        <span class="ph-label">Analyse</span>
+        <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+        </svg>
+      </button>
+      <div class="panel-body">
+
+        <div class="panel-section">
+          <div class="panel-label">Live-Analyse</div>
+          <div class="analysis-grid">
+            <div class="analysis-cell key">Zeit \(t\)</div>
+            <div class="analysis-cell val" id="live_t">0,000 s</div>
+            <div class="analysis-cell key">Geschw. \(v_1\)</div>
+            <div class="analysis-cell val" id="live_v1">— m/s</div>
+            <div class="analysis-cell key">Geschw. \(v_2\)</div>
+            <div class="analysis-cell val" id="live_v2">— m/s</div>
+            <div class="analysis-cell key">Beschl. \(a_1\)</div>
+            <div class="analysis-cell val" id="live_a1">— m/s²</div>
+            <div class="analysis-cell key">Beschl. \(a_2\)</div>
+            <div class="analysis-cell val" id="live_a2">— m/s²</div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Stoß-Kennwerte</div>
+          <div class="analysis-grid">
+            <div class="analysis-cell key">Stoßdauer \(\Delta t\)</div>
+            <div class="analysis-cell val" id="live_dt">—</div>
+            <div class="analysis-cell key">Max. Kraft \(F_{\text{max}}\)</div>
+            <div class="analysis-cell val" id="live_fmax">—</div>
+            <div class="analysis-cell key">Endgeschw. \(v_1'\)</div>
+            <div class="analysis-cell val" id="live_v1_prime">—</div>
+            <div class="analysis-cell key">Endgeschw. \(v_2'\)</div>
+            <div class="analysis-cell val" id="live_v2_prime">—</div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Energie &amp; Impuls</div>
+          <div class="bar-row">
+            <div class="bar-label">Energie \(E\)</div>
+            <div class="bar-wrapper">
+              <div id="bar_e1" class="bar-e1"></div>
+              <div id="bar_e2" class="bar-e2"></div>
+              <div id="bar_es" class="bar-es"></div>
+            </div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Impuls \(p\)</div>
+            <div class="bar-wrapper">
+              <div class="bar-p-center"></div>
+              <div id="bar_p1" class="bar-p1"></div>
+              <div id="bar_p2" class="bar-p2"></div>
+            </div>
+          </div>
+          <p class="hint-text" id="momentum_note" style="display:none">Bei einer Wand (unendliche Masse) ist ihr Impulsanteil nicht darstellbar (Impulsübertrag auf die Wand).</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">Physik</div>
+          <div class="formula-box">
+            <div>Elastischer Stoß (allgemein):</div>
+            <div>\[v_1' = \frac{(m_1-m_2)v_1 + 2m_2 v_2}{m_1+m_2}\]</div>
+            <div>\[v_2' = \frac{(m_2-m_1)v_2 + 2m_1 v_1}{m_1+m_2}\]</div>
+            <div style="margin-top:6px">Stoßdauer &amp; Maximalkraft (Feder \(k\)):</div>
+            <div>\[\Delta t = \pi\sqrt{\mu / k}, \quad \mu = \frac{m_1 m_2}{m_1+m_2}\]</div>
+            <div>\[F_{\text{max}} = |v_1-v_2|\sqrt{k\,\mu}\]</div>
+            <div style="margin-top:6px">Erhaltungssätze:</div>
+            <div>\[p_{\text{ges}} = m_1v_1+m_2v_2 = \text{const.}\]</div>
+            <div>\[E_{\text{kin,ges}} = \text{const.} \text{ (elastisch)}\]</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

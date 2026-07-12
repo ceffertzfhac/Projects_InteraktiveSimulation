@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Die Ableitung als Grenzwert – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'local', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Die Ableitung als Grenzwert
+    <span class="version">v1.2.5</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LINKE SIDEBAR: Funktion · Parameter · Visualisierung · Legende ────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Funktion &amp; Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select class="select-field" id="func_select"></select>
+      <div class="slider-label">Stützstelle \(x_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="x0_slider">
+        <span class="slider-val" id="x0_value">12,50</span>
+      </div>
+      <div class="slider-label">Abstand \(\delta\)</div>
+      <div class="slider-row">
+        <input type="range" id="delta_slider">
+        <span class="slider-val" id="delta_value">2,50</span>
+      </div>
+      <div class="note" style="font-size:.7rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        \(\delta\) ist der Abstand der Sekanten-Stützpunkte. Zieht man \(\delta \to 0\),
+        geht die Sekante in die Tangente über — die Ableitung als Grenzwert.
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Tangente \(f'(x_0)\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_tangent" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Sekante + Steigungsdreieck</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_secant" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Zentrierter Modus</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_centered" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="note" style="font-size:.68rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        \(\delta\) ist stets der volle Abstand \(\Delta x\) der Stützpunkte.
+        Zentriert: symmetrisch \(x_0 \pm \tfrac{\delta}{2}\). Aus: vorwärts ab \(x_0\).
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Werte im Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">\(\Delta x\)-, \(\Delta y\)-Werte</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_delta_values" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Sekantensteigung \(m_s\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_secant_slope" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Tangentensteigung \(f'(x_0)\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_tangent_slope" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-func)"></div>
+        <div class="legend-label">Funktion \(f(x)\)</div>
+        <div class="legend-swatch" style="background:var(--c-pt)"></div>
+        <div class="legend-label">Stützstelle \(P_0\big(x_0,\,f(x_0)\big)\)</div>
+        <div class="legend-swatch" style="background:var(--c-tan)"></div>
+        <div class="legend-label">Tangente (Steigung \(f'(x_0)\))</div>
+        <div class="legend-swatch" style="background:var(--c-sec)"></div>
+        <div class="legend-label">Sekante (Steigung \(m_s\))</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Diagramm (die Darstellung selbst) ─────────────────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="graph_svg" viewBox="0 0 780 580" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <clipPath id="plot_clip"><rect id="plot_clip_rect" x="0" y="0" width="0" height="0"/></clipPath>
+        </defs>
+
+        <!-- Achsen, Gitter, Ticks, Funktionskurve (von drawGraph() befüllt) -->
+        <g id="grid_group"></g>
+
+        <!-- Datenlinien/Punkte, auf das Plot-Gebiet beschnitten -->
+        <g id="plot_group" clip-path="url(#plot_clip)">
+          <polyline id="func_line" points=""/>
+          <polyline id="tangent_line" points="" style="visibility:hidden"/>
+          <polyline id="secant_line" points="" style="visibility:hidden"/>
+          <line id="tri_h" style="visibility:hidden"/>
+          <line id="tri_v" style="visibility:hidden"/>
+          <circle id="p1_dot" r="4" style="visibility:hidden"/>
+          <circle id="p2_dot" r="4" style="visibility:hidden"/>
+          <circle id="point" r="5.5" style="visibility:hidden"/>
+        </g>
+
+        <!-- Δx/Δy-Labels (unbeschnitten, damit auch am Rand lesbar) -->
+        <text id="dx_text" class="delta-label" text-anchor="middle" style="visibility:hidden"></text>
+        <text id="dy_text" class="delta-label" text-anchor="start" style="visibility:hidden"></text>
+
+        <!-- Steigungs-Readout (Tangente/Sekante), oben links im Plot -->
+        <text id="tan_slope_text" class="slope-readout slope-tan" text-anchor="start" style="visibility:hidden"></text>
+        <text id="sec_slope_text" class="slope-readout slope-sec" text-anchor="start" style="visibility:hidden"></text>
+
+        <!-- Funktions-Titel: statisches MathJax, LETZTES SVG-Kind (z-Order-
+             Konvention) → wird über Gitter/Daten gerendert. x/width setzt
+             drawGraph() auf das Plot-Gebiet (zentriert über dem Plot, nicht über
+             der ganzen SVG). Das Wort „Funktion:" steht via \text{} INNERHALB der
+             MathJax-Formel → identischer Font/identische Größe wie die Gleichung
+             (kein Font-/Größen-Bruch). Funktion als f(x) = y = … bezeichnet. -->
+        <foreignObject id="graph_title_fo" x="0" y="6" width="780" height="42">
+          <div class="graph-title-html" xmlns="http://www.w3.org/1999/xhtml">
+            <div id="title_gerade">\(\text{Funktion:}\quad f(x) = y = 2x - 2\)</div>
+            <div id="title_parabel" style="display:none">\(\text{Funktion:}\quad f(x) = y = 0{,}1\,(x-12)^2 - 2\)</div>
+            <div id="title_kubisch" style="display:none">\(\text{Funktion:}\quad f(x) = y = 0{,}02\,(x-12{,}5)^3 - 2\,(x-12{,}5)\)</div>
+            <div id="title_komplex" style="display:none">\(\text{Funktion:}\quad f(x) = y = -5\sin\!\left(\tfrac{x}{2}\right) + 0{,}03\,x^2\)</div>
+          </div>
+        </foreignObject>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ───────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+      <div class="panel-section">
+        <div class="panel-label">Grenzwertanalyse</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Stützstelle \(x_0\)</div>
+          <div class="analysis-cell val" id="an_x0">—</div>
+          <div class="analysis-cell key">\(\Delta x\)</div>
+          <div class="analysis-cell val" id="an_dx">—</div>
+          <div class="analysis-cell key">\(\Delta y\)</div>
+          <div class="analysis-cell val" id="an_dy">—</div>
+          <div class="analysis-cell key">Sekantensteigung \(m_s\)</div>
+          <div class="analysis-cell val" id="an_msec">—</div>
+          <div class="analysis-cell key">Tangentensteigung \(f'(x_0)\)</div>
+          <div class="analysis-cell val" id="an_mtan">—</div>
+          <div class="analysis-cell key">Abweichung \(|m_s - f'(x_0)|\)</div>
+          <div class="analysis-cell val" id="an_diff">—</div>
+        </div>
+        <div class="limit-note">
+          Je kleiner \(\delta\), desto kleiner die Abweichung: \(m_s \to f'(x_0)\).
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Mathematik</div>
+        <div class="formula-box">
+          <div>Differenzenquotient (Sekantensteigung):</div>
+          <div id="diffq_centered">\[m_s = \frac{f\!\left(x_0+\tfrac{\delta}{2}\right) - f\!\left(x_0-\tfrac{\delta}{2}\right)}{\delta}\]</div>
+          <div id="diffq_forward" style="display:none">\[m_s = \frac{f(x_0+\delta) - f(x_0)}{\delta}\]</div>
+          <div style="margin-top:6px">Ableitung als Grenzwert (Differentialquotient):</div>
+          <div>\[f'(x_0) = \lim_{\delta \to 0} m_s\]</div>
+          <div style="margin-top:6px">Gewählte Funktion und ihre Ableitung:</div>
+          <div id="pf_gerade">\[f(x) = y = 2x - 2 \qquad f'(x) = 2\]</div>
+          <div id="pf_parabel" style="display:none">\[f(x) = y = 0{,}1\,(x-12)^2 - 2 \qquad f'(x) = 0{,}2\,(x-12)\]</div>
+          <div id="pf_kubisch" style="display:none">\[f(x) = y = 0{,}02\,(x-12{,}5)^3 - 2\,(x-12{,}5)\]\[f'(x) = 0{,}06\,(x-12{,}5)^2 - 2\]</div>
+          <div id="pf_komplex" style="display:none">\[f(x) = y = -5\sin\!\left(\tfrac{x}{2}\right) + 0{,}03\,x^2\]\[f'(x) = -2{,}5\cos\!\left(\tfrac{x}{2}\right) + 0{,}06\,x\]</div>
+        </div>
+      </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

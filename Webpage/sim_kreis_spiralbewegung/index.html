@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kreis- und Spiralbewegung – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+    <button class="btn layout-toggle-btn" id="layout_toggle" title="Layout: Simulation &amp; Diagramm übereinander / nebeneinander">▦ Nebeneinander</button>
+  </div>
+  <div class="topbar-title">
+    Kreis- und Spiralbewegung
+    <span class="version">v1.6.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Bewegungsparameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="parameter-grid">
+        <div class="slider-label">
+          <span id="radius_label_kreis">Radius \(R\)</span>
+          <span id="radius_label_spiral" style="display:none">Anfangsradius \(R_0\)</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="radius_slider" min="0.1" max="2.0" value="1.5" step="0.1">
+          <span class="slider-val" id="radius_value">1,5 m</span>
+        </div>
+
+        <div class="slider-label">Höhe \(h\)</div>
+        <div class="slider-row">
+          <input type="range" id="h_slider" min="-1.5" max="1.5" value="0" step="0.1" disabled>
+          <span class="slider-val" id="h_value">0,0 m</span>
+        </div>
+
+        <div id="vr_control_wrapper" style="display:none">
+          <div class="slider-label">Radialgeschw. \(v_r\)</div>
+          <div class="slider-row">
+            <input type="range" id="vr_slider" min="-1.0" max="1.0" value="0" step="0.05" disabled>
+            <span class="slider-val" id="vr_value">0,00 m/s</span>
+          </div>
+        </div>
+
+        <div class="slider-label">Anfangswinkel \(\varphi_0\)</div>
+        <div class="slider-row">
+          <input type="range" id="phi0_slider" min="0" max="360" value="0" step="1">
+          <span class="slider-val" id="phi0_value">0 °</span>
+        </div>
+
+        <div class="slider-label">Anfangswinkelgeschw. \(\omega_0\)</div>
+        <div class="slider-row">
+          <input type="range" id="omega0_slider" min="-180" max="180" value="60" step="5">
+          <span class="slider-val" id="omega0_value">60 °/s</span>
+        </div>
+
+        <div class="slider-label">Winkelbeschl. \(\alpha\)</div>
+        <div class="slider-row">
+          <input type="range" id="alpha_slider" min="-90" max="90" value="0" step="5">
+          <span class="slider-val" id="alpha_value">0 °/s²</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-control">
+        <span class="slider-label">Ansicht</span>
+        <select id="view_select" class="select-field">
+          <option value="2D" selected>2D (Draufsicht)</option>
+          <option value="ISO">3D (ISO-Ansicht)</option>
+        </select>
+      </div>
+
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-r)">Ortsvektor \(\vec{r}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_position_vector"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <fieldset class="decomp-fieldset" id="r_decomp_fieldset" style="display:none">
+        <legend>Zerlegung</legend>
+        <div class="radio-row"><input type="radio" name="r_decomp" value="none" checked><span>Keine</span></div>
+        <div class="radio-row"><input type="radio" name="r_decomp" value="xy"><span>Kartesisch (\(x,y\))</span></div>
+      </fieldset>
+
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-v)">Geschwindigkeit \(\vec{v}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_velocity_vector"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <fieldset class="decomp-fieldset" id="v_decomp_fieldset" style="display:none">
+        <legend>Zerlegung</legend>
+        <div class="radio-row"><input type="radio" name="v_decomp" value="none" checked><span>Keine</span></div>
+        <div class="radio-row"><input type="radio" name="v_decomp" value="xy"><span>Kartesisch (\(x,y\))</span></div>
+        <div class="radio-row"><input type="radio" name="v_decomp" value="polar"><span>Polar (\(r,t\))</span></div>
+      </fieldset>
+
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-a)">Beschleunigung \(\vec{a}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_acceleration_vector"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <fieldset class="decomp-fieldset" id="a_decomp_fieldset" style="display:none">
+        <legend>Zerlegung</legend>
+        <div class="radio-row"><input type="radio" name="a_decomp" value="none" checked><span>Keine</span></div>
+        <div class="radio-row"><input type="radio" name="a_decomp" value="xy"><span>Kartesisch (\(x,y\))</span></div>
+        <div class="radio-row"><input type="radio" name="a_decomp" value="polar"><span>Polar (\(r,t\))</span></div>
+        <div class="at-scaling-row"><label><input type="checkbox" id="toggle_at_scaling"> \(\vec{a}_t\) 10× vergrößern</label></div>
+      </fieldset>
+
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-omega)">Winkelgeschw. \(\vec{\omega}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_omega_vector" disabled><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-alpha)">Winkelbeschl. \(\vec{\alpha}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_alpha_vector" disabled><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row"><span class="vis-label" style="color:var(--c-phi)">Winkel \(\varphi \bmod 360^\circ\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_phi_arc"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row"><span class="vis-label">Bahnverlauf</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_trajectory"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-r)"></div><div class="legend-label">Ortsvektor \(\vec{r}\)</div>
+        <div class="legend-swatch" style="background:var(--c-v)"></div><div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-a)"></div><div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-omega)"></div><div class="legend-label">Winkelgeschw. \(\vec{\omega}\)</div>
+        <div class="legend-swatch" style="background:var(--c-alpha)"></div><div class="legend-label">Winkelbeschl. \(\vec{\alpha}\)</div>
+        <div class="legend-swatch" style="background:var(--c-phi)"></div><div class="legend-label">Winkel \(\varphi\)</div>
+        <div class="legend-swatch" style="background:var(--c-traj)"></div><div class="legend-label">Bahnverlauf</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramme<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
+      <div class="vis-control" style="margin-top:8px">
+        <span class="slider-label">Diagramm 1</span>
+        <select id="graph_select_1" class="select-field"></select>
+      </div>
+      <div class="vis-control" id="dual_graph_control" style="display:none">
+        <span class="slider-label">Diagramm 2</span>
+        <select id="graph_select_2" class="select-field"></select>
+      </div>
+      <div class="vis-control" style="margin-top:8px">
+        <span class="slider-label">Winkeleinheit</span>
+        <select id="angle_unit_select" class="select-field">
+          <option value="deg" selected>Grad (°)</option>
+          <option value="rad">Bogenmaß (rad)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Modus &amp; Szenarien<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-control">
+        <span class="slider-label">Modus</span>
+        <select id="motion_mode_select" class="select-field">
+          <option value="kreis" selected>Kreisbahn</option>
+          <option value="spirale">Spiralbahn</option>
+        </select>
+      </div>
+      <div class="vis-control">
+        <span class="slider-label">Szenario</span>
+        <select id="preset_select" class="select-field">
+          <option value="none" selected>Szenario laden …</option>
+          <option value="gleich">Gleichförmig</option>
+          <option value="start">Anfahren</option>
+          <option value="brems">Abbremsen</option>
+          <option value="spirale_aussen">Spirale (außen)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit &amp; Auto-Stopp<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="speed_group">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+      <div class="vis-toggle-row" style="margin-top:10px"><span class="vis-label">Auto-Stopp aktivieren</span>
+        <label class="toggle-switch"><input type="checkbox" id="auto_stop_checkbox"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="n-control" id="n_control_group" style="display:none">
+        <span>Stopp nach</span>
+        <button class="btn step-btn" id="n_minus_btn">−</button>
+        <span id="n_value_display">1</span>
+        <button class="btn step-btn" id="n_plus_btn">+</button>
+        <span>· 90°</span>
+      </div>
+      <!-- FX5: Auto-Stopp-Ziel jenseits des 120s-Precompute-Horizonts wird
+           sonst still verfehlt (Sim endet regulär bei SIM_DURATION, ohne daß
+           der Nutzer erfährt, daß n·90° nie erreicht wurde). -->
+      <div class="autostop-warning" id="autostop_warning" style="display:none">
+        ⚠ Ziel (n·90°) nicht erreicht — Simulationsdauer (120 s) zu kurz.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation + Diagramm (gestapelt) ─────────────────────── -->
+  <main class="center-area" id="center_area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-r" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-v" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-a" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-omega" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-alpha" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-phi" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5"/></marker>
+        </defs>
+
+        <g id="animation_group">
+          <g id="iso_view_elements" style="visibility:hidden">
+            <line id="iso_axis_z" marker-end="url(#arrowhead)"/>
+            <line id="iso_axis_x" marker-end="url(#arrowhead)"/>
+            <line id="iso_axis_y" marker-end="url(#arrowhead)"/>
+            <text id="iso_label_z">z</text>
+            <text id="iso_label_x">x</text>
+            <text id="iso_label_y">y</text>
+            <path id="iso_circle_path" fill-opacity="0.4"/>
+          </g>
+
+          <g id="view_2d_elements">
+            <g id="animation_coord_system_2d"></g>
+            <circle id="disk" fill-opacity="0.4"/>
+          </g>
+
+          <!-- Stoppuhr vor Bahn/Vektoren/Punkt, damit ihre deckende Fuellung
+               (Token surface) diese bei weiten Spiralradien nicht verdeckt (B20). -->
+          <g id="stopwatch" transform="translate(84,-24) scale(0.595)" style="cursor:pointer">
+            <circle id="stopwatch_circle" cx="280" cy="120" r="72"/>
+            <g id="stopwatch_marks"></g>
+            <!-- FX2: Subdial (proportional zu WATCH_R, s. constants.js) -->
+            <circle id="stopwatch_subdial_face" cx="280" cy="150" r="15.6"/>
+            <g id="stopwatch_subdial_marks"></g>
+            <line id="stopwatch_sub_hand" x1="280" y1="150" x2="280" y2="134.4"/>
+            <line id="stopwatch_main_hand" x1="280" y1="120"/>
+          </g>
+          <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle"></text>
+
+          <path id="trajectory_path" d="" fill="none"/>
+
+          <g id="phi_arc_group" style="visibility:hidden">
+            <path id="phi_arc" fill="none" marker-end="url(#arrow-phi)"/>
+            <text id="phi_label">φ</text>
+          </g>
+
+          <g id="vector_components_group">
+            <line id="position_vector_x" fill="none"/>
+            <line id="position_vector_y" fill="none"/>
+            <line id="velocity_vector_x" fill="none"/>
+            <line id="velocity_vector_y" fill="none"/>
+            <line id="velocity_vector_r" fill="none" marker-end="url(#arrow-v)"/>
+            <line id="velocity_vector_t" fill="none" marker-end="url(#arrow-v)"/>
+            <line id="acceleration_vector_x" fill="none"/>
+            <line id="acceleration_vector_y" fill="none"/>
+            <line id="acceleration_vector_r" fill="none" marker-end="url(#arrow-a)"/>
+            <line id="acceleration_vector_t" fill="none" marker-end="url(#arrow-a)"/>
+          </g>
+
+          <line id="position_vector" marker-end="url(#arrow-r)"/>
+          <line id="velocity_vector" marker-end="url(#arrow-v)"/>
+          <line id="acceleration_vector" marker-end="url(#arrow-a)"/>
+          <line id="omega_vector" marker-end="url(#arrow-omega)"/>
+          <line id="alpha_vector" marker-end="url(#arrow-alpha)"/>
+          <circle id="point" r="8"/>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+
+    <div class="graph-wrapper">
+      <svg id="graph_svg" viewBox="0 0 480 430" preserveAspectRatio="xMidYMid meet">
+        <g id="graph_group_1" transform="translate(0,0)"></g>
+        <g id="graph_group_2" transform="translate(0,215)" style="visibility:hidden"></g>
+
+        <!-- Hover-Werte (I5): eigene Geschwister-Gruppen außerhalb graph_group_1/2,
+             da drawGraph() dort group.innerHTML='' bei JEDEM Aufruf ausführt (würde
+             ein verschachteltes Hit-Rect jedes Mal zerstören). Transform wird in
+             drawGraphs() synchron zu graphGroup1/graphGroup2 gesetzt. -->
+        <g id="graph_hover_group_1" transform="translate(0,0)">
+          <line id="graph_hover_line_1" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_1" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_1" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_1" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_1" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_1" class="graph-hit-rect"/>
+        </g>
+        <g id="graph_hover_group_2" transform="translate(0,215)" style="visibility:hidden">
+          <line id="graph_hover_line_2" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_2" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_2" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_2" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_2" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_2" class="graph-hit-rect"/>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Ort \(x\)</div><div class="analysis-cell val" id="live_x">— m</div>
+        <div class="analysis-cell key">Ort \(y\)</div><div class="analysis-cell val" id="live_y">— m</div>
+        <div class="analysis-cell key">Geschw. \(v_x\)</div><div class="analysis-cell val" id="live_vx">— m/s</div>
+        <div class="analysis-cell key">Geschw. \(v_y\)</div><div class="analysis-cell val" id="live_vy">— m/s</div>
+        <div class="analysis-cell key">Beschl. \(a_x\)</div><div class="analysis-cell val" id="live_ax">— m/s²</div>
+        <div class="analysis-cell key">Beschl. \(a_y\)</div><div class="analysis-cell val" id="live_ay">— m/s²</div>
+        <div class="analysis-cell key">Winkel \(\varphi\)</div><div class="analysis-cell val" id="live_phi">— °</div>
+        <div class="analysis-cell key">Winkelgeschw. \(\omega\)</div><div class="analysis-cell val" id="live_omega">— °/s</div>
+        <div class="analysis-cell key">Winkelbeschl. \(\alpha\)</div><div class="analysis-cell val" id="live_alpha">— °/s²</div>
+        <div class="analysis-cell key">Zentripetal \(|a_r|\)</div><div class="analysis-cell val" id="live_ar">— m/s²</div>
+        <div class="analysis-cell key">Tangential \(|a_t|\)</div><div class="analysis-cell val" id="live_at">— m/s²</div>
+        <div class="analysis-cell key">Betrag \(|v|\)</div><div class="analysis-cell val" id="live_vabs">— m/s</div>
+        <div class="analysis-cell key">Betrag \(|a|\)</div><div class="analysis-cell val" id="live_aabs">— m/s²</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box" id="formulas_kreis">
+        <div>Kreisbahn (gleichförmig, \(\alpha=0\), \(v_r=0\)):</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t,\quad \omega(t)=\omega_0,\quad \alpha(t)=0\]</div>
+        <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
+        <div>\[v_x(t)=-R\,\omega(t)\,\sin\varphi(t),\quad v_y(t)=R\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R\,\omega^2(t)\cos\varphi(t),\quad a_y(t)=-R\,\omega^2(t)\sin\varphi(t)\]</div>
+        <div>\[|\vec{v}(t)|=R\,|\omega(t)|,\quad |\vec{a}(t)|=R\,\omega^2(t)\;\text{(rein Zentripetal)}\]</div>
+      </div>
+      <div class="formula-box" id="formulas_kreis_acc" style="display:none">
+        <div>Kreisbahn (ungleichförmig, \(\alpha\neq 0\), \(v_r=0\)):</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2\]</div>
+        <div>\[\omega(t)=\omega_0+\alpha\,t,\quad \alpha(t)=\alpha\]</div>
+        <div>\[x(t)=R\cos\varphi(t),\quad y(t)=R\sin\varphi(t)\]</div>
+        <div>\[v_x(t)=-R\,\omega(t)\,\sin\varphi(t),\quad v_y(t)=R\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R\,\omega^2(t)\cos\varphi(t)-R\,\alpha(t)\,\sin\varphi(t)\]</div>
+        <div>\[a_y(t)=-R\,\omega^2(t)\sin\varphi(t)+R\,\alpha(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_r(t)=R\,\omega^2(t)\;\text{(Zentripetal)},\quad a_t(t)=R\,|\alpha(t)|\;\text{(Tangential)}\]</div>
+        <div>\[|\vec{a}(t)|=R\sqrt{\omega^4(t)+\alpha^2(t)}\]</div>
+      </div>
+      <div class="formula-box" id="formulas_spiral" style="display:none">
+        <div>Spiralbahn (\(v_r\neq 0\), optional \(\alpha\neq 0\)):</div>
+        <div>\[R(t)=R_0+v_r\,t\]</div>
+        <div>\[\varphi(t)=\varphi_0+\omega_0\,t+\tfrac12\alpha\,t^2\]</div>
+        <div>\[\omega(t)=\omega_0+\alpha\,t,\quad \alpha(t)=\alpha\]</div>
+        <div>\[x(t)=R(t)\cos\varphi(t),\quad y(t)=R(t)\sin\varphi(t)\]</div>
+        <div>\[v_x(t)=v_r\cos\varphi(t)-R(t)\,\omega(t)\,\sin\varphi(t)\]</div>
+        <div>\[v_y(t)=v_r\sin\varphi(t)+R(t)\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[a_x(t)=-R(t)\,\omega^2(t)\cos\varphi(t)-R(t)\,\alpha(t)\,\sin\varphi(t)-2\,v_r\,\omega(t)\,\sin\varphi(t)\]</div>
+        <div>\[a_y(t)=-R(t)\,\omega^2(t)\sin\varphi(t)+R(t)\,\alpha(t)\,\cos\varphi(t)+2\,v_r\,\omega(t)\,\cos\varphi(t)\]</div>
+        <div>\[\vec{v}(t)=v_r\,\hat{e}_r+R(t)\,\omega(t)\,\hat{e}_t\]</div>
+        <div>\[\vec{a}(t)=-R(t)\,\omega^2(t)\hat{e}_r+R(t)\,\alpha(t)\,\hat{e}_t-2\,v_r\,\omega(t)\,\hat{e}_t\]</div>
+        <div style="margin-top:4px"><small>Der Coriolis-Term \(-2\,v_r\,\omega(t)\,\hat{e}_t\) wirkt nur bei \(v_r\neq 0\); hier ist \(R=R(t)\).</small></div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

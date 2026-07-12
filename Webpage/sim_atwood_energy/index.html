@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Atwood-Energie – FH Aachen</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+    <!-- FAE11: Layout-Umschalter ausgeblendet — in dieser Sim macht nur
+         Nebeneinander Sinn. Button + JS bleiben erhalten (null-sicher
+         geguarded), zum Reaktivieren nur diese Kommentare entfernen.
+    <button class="btn layout-toggle-btn" id="layout_toggle" title="Layout: Simulation &amp; Diagramm nebeneinander / übereinander">▦ Nebeneinander</button>
+    -->
+  </div>
+  <div class="topbar-title">
+    Atwood-Energie
+    <span class="version">v1.2.16</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LEFT PANEL (Akkordeon) ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section">
+      <button class="panel-label" type="button">Massen &amp; Rolle<span class="accordion-chevron">▾</span></button>
+      <div class="slider-label">Masse \(m_1\)</div>
+      <div class="slider-row">
+        <input type="range" id="m1_slider" min="1" max="10" value="5.2" step="0.1">
+        <span class="slider-val" id="m1_value">5,2 kg</span>
+      </div>
+      <div class="slider-label">Masse \(m_2\)</div>
+      <div class="slider-row">
+        <input type="range" id="m2_slider" min="1" max="10" value="4.8" step="0.1">
+        <span class="slider-val" id="m2_value">4,8 kg</span>
+      </div>
+      <div class="slider-label">Rollenmasse \(M_R\) (0 = masselos)</div>
+      <div class="slider-row">
+        <input type="range" id="pulley_mass_slider" min="0" max="2" value="0" step="0.05">
+        <span class="slider-val" id="pulley_mass_value">0,00 kg</span>
+      </div>
+      <div class="slider-label">Form (Außenradius \(R\) fix)</div>
+      <select id="pulley_shape_select" class="select-field">
+        <option value="voll" selected>Vollzylinder</option>
+        <option value="hohl">Hohlzylinder</option>
+      </select>
+      <div id="pulley_inner_group" style="display:none">
+        <div class="slider-label">Innenradius \(r/R\)</div>
+        <div class="slider-row">
+          <input type="range" id="pulley_inner_slider" min="0.1" max="0.9" value="0.5" step="0.05">
+          <span class="slider-val" id="pulley_inner_value">r/R = 0,50 (r = 20,0 cm)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="panel-label" type="button">Startpositionen<span class="accordion-chevron">▾</span></button>
+      <div class="slider-label">Modus</div>
+      <select id="height_mode_select" class="select-field">
+        <option value="y1y2">y₁ und y₂ unabhängig</option>
+        <option value="y1diff">y₁ und Δy = y₂ − y₁</option>
+      </select>
+      <div id="y1_group">
+        <div class="slider-label">Startposition \(y_1\)</div>
+        <div class="slider-row">
+          <input type="range" id="y1_slider" min="40" max="320" value="250" step="5">
+          <span class="slider-val" id="y1_value">250 cm</span>
+        </div>
+      </div>
+      <div id="y2_group">
+        <div class="slider-label">Startposition \(y_2\)</div>
+        <div class="slider-row">
+          <input type="range" id="y2_slider" min="40" max="320" value="250" step="5">
+          <span class="slider-val" id="y2_value">250 cm</span>
+        </div>
+      </div>
+      <div id="diff_group" style="display:none">
+        <div class="slider-label">Differenz \(\Delta y = y_2 - y_1\)</div>
+        <div class="slider-row">
+          <input type="range" id="diff_slider" min="-100" max="100" value="0" step="5">
+          <span class="slider-val" id="diff_value">0 cm</span>
+        </div>
+      </div>
+      <div class="slider-label">Nullpunkt \(E_{\text{pot}}\)</div>
+      <select id="ep_zero_select" class="select-field">
+        <option value="separate">je Masse eigene Starthöhe</option>
+        <option value="y1">Höhe von m₁-Start</option>
+        <option value="y2">Höhe von m₂-Start</option>
+        <option value="boden">Boden (h = 0)</option>
+        <option value="decke">Decke (oberes Ende)</option>
+      </select>
+    </div>
+
+
+
+    <div class="panel-section collapsed">
+      <button class="panel-label" type="button">Reibung<span class="accordion-chevron">▾</span></button>
+      <div class="slider-label">Reibungskraft \(F_R\) (Rollreibung)</div>
+      <div class="slider-row">
+        <input type="range" id="friction_slider" min="0" max="20" value="0" step="0.5">
+        <span class="slider-val" id="friction_value">0,0 N</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="panel-label" type="button">Visualisierung<span class="accordion-chevron">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Kräfte \(F_G, F_S\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_forces" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Resultierende \(F_{\text{ges}}\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_net_force" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row" id="friction_arrow_row">
+        <span class="vis-label">Reibungspfeil \(F_R\)</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_friction_arrow" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">\(E_{\text{pot}}\)-Nulllinien</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle_zero_lines" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="panel-label" type="button">Legende<span class="accordion-chevron">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-m1)"></div><div class="legend-label">Masse \(m_1\)</div>
+        <div class="legend-swatch" style="background:var(--c-m2)"></div><div class="legend-label">Masse \(m_2\)</div>
+        <div class="legend-swatch" style="background:var(--c-fg)"></div><div class="legend-label">Schwerkraft \(F_G\)</div>
+        <div class="legend-swatch" style="background:var(--c-fn)"></div><div class="legend-label">Seilkraft \(F_{S,1}, F_{S,2}\)</div>
+        <div class="legend-swatch" style="background:var(--c-fr)"></div><div class="legend-label">Resultierend \(F_{\text{ges}}\)</div>
+        <div class="legend-swatch" style="background:var(--c-eloss)"></div><div class="legend-label">Reibung \(F_R\)</div>
+        <div class="legend-swatch" style="background:var(--c-ekin)"></div><div class="legend-label">Kinetische \(E_{\text{kin}}\)</div>
+        <div class="legend-swatch" style="background:var(--c-epot)"></div><div class="legend-label">Potentielle \(E_{\text{pot}}\)</div>
+        <div class="legend-swatch" style="background:var(--c-etot)"></div><div class="legend-label">Gesamt \(E_{\text{ges}}\)</div>
+        <div class="legend-swatch" style="background:var(--c-eloss)"></div><div class="legend-label">Energieverlust \(E_V\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsed">
+      <button class="panel-label" type="button">Abspielgeschwindigkeit<span class="accordion-chevron">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation + Diagramm ────────────────────────────────── -->
+  <main class="center-area">
+
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 -20 400 520" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arr-fg" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto"><polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-fg-poly"/></marker>
+          <marker id="arr-ft" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto"><polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-ft-poly"/></marker>
+          <marker id="arr-net" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto"><polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-net-poly"/></marker>
+          <marker id="arr-fr" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" class="arr-fr-poly"/></marker>
+          <marker id="arr-axis" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto"><polygon points="0 0, 4.95 1.7325, 0 3.465" class="arr-axis-poly"/></marker>
+        </defs>
+
+        <rect id="sim-bg" x="0" y="0" width="400" height="500"/>
+        <rect id="ceiling" x="0" y="-20" width="400" height="10"/>
+        <circle id="pulley" cx="200" cy="50" r="40" stroke-width="2"/>
+        <circle id="pulley_inner" cx="200" cy="50" r="0" stroke-width="1.5" visibility="hidden"/>
+        <g id="pulley_rotor" transform="rotate(0 200 50)">
+          <line id="pulley_mark" x1="200" y1="50" x2="240" y2="50" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+        <rect id="floor" x="0" y="457.5" width="400" height="12.5"/>
+        <path id="rope" fill="none" stroke-width="1.5" d=""/>
+
+        <path id="aperture_path" fill-rule="evenodd"
+          d="M 0 100 H 400 V 107.5 H 0 Z M 156 100 H 164 V 107.5 H 156 Z M 236 100 H 244 V 107.5 H 236 Z"/>
+
+        <!-- Massen (inkl. Beschriftung) nach der Blende, sodaß sie beim Erreichen
+             des oberen Anschlags sichtbar über der Blende liegen, nicht dahinter (B18). -->
+        <g id="mass1_group"><rect id="mass1_rect" rx="3" ry="3"/><text id="mass1_label" dominant-baseline="middle"></text></g>
+        <g id="mass2_group"><rect id="mass2_rect" rx="3" ry="3"/><text id="mass2_label" dominant-baseline="middle"></text></g>
+
+        <line id="force_g1_vector" class="force-g" visibility="hidden" marker-end="url(#arr-fg)"/>
+        <line id="force_g2_vector" class="force-g" visibility="hidden" marker-end="url(#arr-fg)"/>
+        <line id="force_t1_vector" class="force-t" visibility="hidden" marker-end="url(#arr-ft)"/>
+        <line id="force_t2_vector" class="force-t" visibility="hidden" marker-end="url(#arr-ft)"/>
+        <line id="force_net1_vector" class="force-net" visibility="hidden" marker-end="url(#arr-net)"/>
+        <line id="force_net2_vector" class="force-net" visibility="hidden" marker-end="url(#arr-net)"/>
+
+        <path id="friction_arrow" visibility="hidden" marker-end="url(#arr-fr)"/>
+        <text id="friction_label" x="252" y="18" text-anchor="start" visibility="hidden"><tspan font-style="italic">F</tspan><tspan dy="2" font-size="0.78em">R</tspan></text>
+
+        <g id="zero_lines_group"></g>
+
+        <g id="ruler_group"></g>
+
+        <g id="stopwatch_group" transform="translate(340, 55) scale(0.7)">
+          <circle id="sw-face" cx="0" cy="0" r="60" stroke-width="2.5"/>
+          <g id="stopwatch_marks"></g>
+          <circle id="sw-subdial-face" cx="0" cy="25" r="13" stroke-width="1.5"/>
+          <g id="stopwatch_subdial_marks"></g>
+          <line id="stopwatch_sub_hand" x1="0" y1="25" x2="0" y2="13" stroke-width="1.5" stroke-linecap="round"/>
+          <line id="stopwatch_main_hand" x1="0" y1="0" x2="0" y2="-50" stroke-width="3" stroke-linecap="round"/>
+          <circle id="sw-axle" cx="0" cy="0" r="4" class="sw-mark"/>
+        </g>
+
+        <polygon id="pulley_mount" points="176,-10 224,-10 206,50 194,50"/>
+        <circle id="pulley_axle" cx="200" cy="50" r="5" stroke-width="1"/>
+      </svg>
+      <div class="time-label" id="time_label">t = 0,00 s</div>
+    </div>
+
+    <div class="graph-wrapper">
+      <!-- Diagrammsteuerung — direkt über dem Diagramm (FAE9) -->
+      <div class="diagram-controls-bar">
+        <div class="speed-pills" id="diagram_mode_group">
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="bars" checked><span>Energie-Balken</span></label>
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
+          <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+        </div>
+        <div id="line_options_group" class="diagram-line-opts" style="display:none">
+          <div class="diagram-opt"><span class="slider-label">Diagramm 1</span>
+            <select id="graph_select_1" class="select-field"></select></div>
+          <div class="diagram-opt"><span class="slider-label">Subjekt 1</span>
+            <select id="subject_select_1" class="select-field">
+              <option value="system" selected>System</option>
+              <option value="m1">Nur m₁</option>
+              <option value="m2">Nur m₂</option>
+            </select></div>
+          <div id="graph_sel2_group">
+            <div class="diagram-opt"><span class="slider-label">Diagramm 2</span>
+              <select id="graph_select_2" class="select-field"></select></div>
+            <div class="diagram-opt"><span class="slider-label">Subjekt 2</span>
+              <select id="subject_select_2" class="select-field">
+                <option value="system" selected>System</option>
+                <option value="m1">Nur m₁</option>
+                <option value="m2">Nur m₂</option>
+              </select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (Masse m₁ · Masse m₂ · Rolle · Gesamtsystem) -->
+      <div class="energy-bars-view" id="energy_bars_view">
+        <div class="ebar-title">Energiebilanz</div>
+
+        <div class="ebar-group-label">Masse \(m_1\)</div>
+        <div class="ebar-row" data-key="ek1"><span class="ebar-label">\(E_{k,1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep1"><span class="ebar-label">\(E_{p,1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="eges1"><span class="ebar-label">\(E_{\text{ges},1}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
+        <div class="ebar-group-label">Masse \(m_2\)</div>
+        <div class="ebar-row" data-key="ek2"><span class="ebar-label">\(E_{k,2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep2"><span class="ebar-label">\(E_{p,2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="eges2"><span class="ebar-label">\(E_{\text{ges},2}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
+        <div class="ebar-group-label">Rolle</div>
+        <div class="ebar-row" data-key="ek_rot"><span class="ebar-label">\(E_{\text{rot}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+
+        <div class="ebar-sep"></div>
+
+        <div class="ebar-group-label">Gesamtsystem</div>
+        <div class="ebar-row" data-key="ek_sum"><span class="ebar-label">\(E_{k,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill ekin" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="ep_sum"><span class="ebar-label">\(E_{p,\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill epot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="etot"><span class="ebar-label">\(E_{\text{ges}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill etot" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+        <div class="ebar-row" data-key="wr" data-neg="1"><span class="ebar-label">\(E_{\text{Verlust}}\)</span><div class="ebar-track"><svg class="ebar-svg" viewBox="0 0 100 16" preserveAspectRatio="none"><line class="ebar-center" x1="50" y1="0" x2="50" y2="16"/><rect class="ebar-fill eloss" x="50" y="0" width="0" height="16"/></svg></div><span class="ebar-value">0,00 J</span></div>
+      </div>
+
+      <!-- Achsendiagramme (1 oder 2 Liniengraphen) -->
+      <svg id="graph_svg" preserveAspectRatio="xMidYMid meet" style="display:none">
+        <g id="graph_group_1" transform="translate(0,0)">
+          <g class="graph_grid"></g>
+          <polyline class="graph_line_a" fill="none" stroke-width="2" points=""/>
+          <polyline class="graph_line_b" fill="none" stroke-width="2" points="" style="display:none"/>
+          <polyline class="graph_line_c" fill="none" stroke-width="2" points="" style="display:none"/>
+          <circle class="graph_point_a" r="4" visibility="hidden"/>
+          <circle class="graph_point_b" r="4" visibility="hidden"/>
+          <circle class="graph_point_c" r="4" visibility="hidden"/>
+          <text class="graph_title" text-anchor="middle"></text>
+        </g>
+        <g id="graph_group_2" transform="translate(0,0)" style="visibility:hidden">
+          <g class="graph_grid"></g>
+          <polyline class="graph_line_a" fill="none" stroke-width="2" points=""/>
+          <polyline class="graph_line_b" fill="none" stroke-width="2" points="" style="display:none"/>
+          <polyline class="graph_line_c" fill="none" stroke-width="2" points="" style="display:none"/>
+          <circle class="graph_point_a" r="4" visibility="hidden"/>
+          <circle class="graph_point_b" r="4" visibility="hidden"/>
+          <circle class="graph_point_c" r="4" visibility="hidden"/>
+          <text class="graph_title" text-anchor="middle"></text>
+        </g>
+      </svg>
+    </div>
+
+  </main>
+
+  <!-- ── RIGHT PANEL (Analyse) ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Energie (live)</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Kinetisch \(E_{\text{kin}}\)</div>
+          <div class="analysis-cell val" id="live_ekin">0,00 J</div>
+          <div class="analysis-cell key">Rotation \(E_{\text{rot}}\)</div>
+          <div class="analysis-cell val" id="live_erot">0,00 J</div>
+          <div class="analysis-cell key">Potentiell \(E_{\text{pot}}\)</div>
+          <div class="analysis-cell val" id="live_epot">0,00 J</div>
+          <div class="analysis-cell key">Gesamt \(E_{\text{ges}}\)</div>
+          <div class="analysis-cell val" id="live_etot">0,00 J</div>
+          <div class="analysis-cell key">Verlust \(E_V\)</div>
+          <div class="analysis-cell val" id="live_wr">0,00 J</div>
+        </div>
+      </div>
+      <div class="balance-line" id="balance1"><i>E</i><sub>kin</sub> + <i>E</i><sub>pot</sub> = <i>E</i><sub>ges</sub> = 0,00 J</div>
+      <div class="balance-line" id="balance2"><i>E</i><sub>ges</sub> + <i>E</i><sub>V</sub> = 0,00 J <span class="bal-const">(konstant)</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Kinematik &amp; Kräfte (live)</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Beschl. \(a_1\)</div>
+          <div class="analysis-cell val" id="live_a1">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_2\)</div>
+          <div class="analysis-cell val" id="live_a2">— m/s²</div>
+          <div class="analysis-cell key">Seilkraft \(F_{S,1}\)</div>
+          <div class="analysis-cell val" id="live_t1">— N</div>
+          <div class="analysis-cell key">Seilkraft \(F_{S,2}\)</div>
+          <div class="analysis-cell val" id="live_t2">— N</div>
+          <div class="analysis-cell key">Reibung \(F_R\)</div>
+          <div class="analysis-cell val" id="live_fr">0,00 N</div>
+          <div class="analysis-cell key">Geschw. \(v_1\)</div>
+          <div class="analysis-cell val" id="live_v1">0,000 m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_2\)</div>
+          <div class="analysis-cell val" id="live_v2">0,000 m/s</div>
+          <div class="analysis-cell key">Position \(y_1\)</div>
+          <div class="analysis-cell val" id="live_y1">— cm</div>
+          <div class="analysis-cell key">Position \(y_2\)</div>
+          <div class="analysis-cell val" id="live_y2">— cm</div>
+          <div class="analysis-cell key">Differenz \(\Delta y\)</div>
+          <div class="analysis-cell val" id="live_ydiff">— cm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Trägheitsmoment der Rolle:</div>
+        <div>\[I_{\text{voll}} = \tfrac{1}{2} M_R\,R^2\]</div>
+        <div>\[I_{\text{hohl}} = \tfrac{1}{2} M_R\,(R^2+r^2)\]</div>
+        <div style="margin-top:6px">Energien:</div>
+        <div>\[E_{\text{kin}} = \tfrac{1}{2} m\,v^2\]</div>
+        <div>\[E_{\text{rot}} = \tfrac{1}{2}\,\tfrac{I}{R^2}\,v^2\]</div>
+        <div>\[E_{\text{pot}} = m\,g\,(h-h_0)\]</div>
+        <div>\[E_{\text{ges}} = E_{\text{kin}} + E_{\text{rot}} + E_{\text{pot}}\]</div>
+        <div style="margin-top:6px">Reibungsarbeit:</div>
+        <div>\[E_V = F_R \cdot s\]</div>
+        <div style="margin-top:6px">Energieerhaltung:</div>
+        <div>\[E_{\text{ges}} + E_V = \text{konst.}\]</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Interferenz zweier Punktquellen – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'local', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Interferenz zweier Punktquellen
+    <span class="version">v1.0.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LINKE SIDEBAR: Systemparameter · Visualisierung · Legende ─────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Systemparameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Abstand \(d\)</div>
+      <div class="slider-row">
+        <input type="range" id="sl_dist">
+        <span class="slider-val" id="val_dist">3,0 cm</span>
+      </div>
+      <div class="slider-label">Wellenlänge \(\lambda\)</div>
+      <div class="slider-row">
+        <input type="range" id="sl_lambda">
+        <span class="slider-val" id="val_lambda">1,5 cm</span>
+      </div>
+      <div class="slider-label">Phase \(\delta_0\) (S₂)</div>
+      <div class="slider-row">
+        <input type="range" id="sl_phase">
+        <span class="slider-val" id="val_phase">0°</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="radio-group" style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px">
+        <label><input type="radio" name="mode" value="wave" checked> Wellenfeld (Momentan)</label>
+        <label><input type="radio" name="mode" value="intensity"> Intensität (Mittelwert)</label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Minima-Linien (Hyperbeln)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="chk_nodal">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Schirm anzeigen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="chk_screen">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="slider-label" style="margin-top:6px">Tempo</div>
+      <div class="slider-row">
+        <input type="range" id="sl_speed">
+        <span class="slider-val"></span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--accent)"></div>
+        <div class="legend-label">Quellen \(S_1, S_2\)</div>
+        <div class="legend-swatch" style="background:var(--c-detector)"></div>
+        <div class="legend-label">Detektor \(P\) (ziehbar)</div>
+        <div class="legend-swatch" style="background:var(--c-nodal)"></div>
+        <div class="legend-label">Minima-Linien</div>
+        <div class="legend-swatch" style="background:#ffffff; border:1px solid var(--border2)"></div>
+        <div class="legend-label">Schirm</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Wellenfeld (Canvas+SVG) + Diagramm ────────────────────────── -->
+  <main class="center-area">
+    <div class="wave-wrapper" id="vis_container">
+      <canvas id="wave_canvas"></canvas>
+      <svg id="overlay_svg" class="overlay" viewBox="0 0 400 400">
+        <defs>
+          <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5" fill="currentColor"/>
+          </marker>
+        </defs>
+        <g id="geometry_layer"></g>
+        <line id="screen_line" x1="0" y1="10" x2="400" y2="10" stroke="white" stroke-width="3" stroke-dasharray="5,3" visibility="hidden"/>
+        <circle id="source1" r="5" class="source-dot"/>
+        <circle id="source2" r="5" class="source-dot"/>
+        <text id="lbl_s1" class="source-label" dx="-15" dy="-8">S₁</text>
+        <text id="lbl_s2" class="source-label" dx="10" dy="-8">S₂</text>
+        <g id="detector_group" class="draggable">
+          <circle r="12" class="detector-halo"/>
+          <circle r="5" class="detector-dot"/>
+          <text x="8" y="-8" class="detector-label">P</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="graph-wrapper" id="graph_container">
+      <svg id="graph_svg" viewBox="0 0 400 400">
+        <text id="graph_title" x="200" y="25" text-anchor="middle" class="graph-title-text">Elongation am Punkt P</text>
+        <g id="graph_grid"></g>
+        <g id="time_graph_paths">
+          <path id="path_u1" class="path-u1"/>
+          <path id="path_u2" class="path-u2"/>
+          <path id="path_sum" class="path-sum"/>
+        </g>
+        <path id="path_intensity" class="path-intensity" visibility="hidden"/>
+        <g id="legend_time" transform="translate(60, 345)" font-size="12px">
+          <line x1="0" y1="0" x2="20" y2="0" class="path-u1"/>
+          <text x="25" y="4" class="graph-legend-text">\(u_1\) (S₁)</text>
+          <line x1="100" y1="0" x2="120" y2="0" class="path-u2"/>
+          <text x="125" y="4" class="graph-legend-text">\(u_2\) (S₂)</text>
+          <line x1="200" y1="0" x2="220" y2="0" class="path-sum"/>
+          <text x="225" y="4" class="graph-legend-text">\(u_{\text{ges}}\)</text>
+        </g>
+        <g id="legend_intensity" transform="translate(120, 345)" font-size="12px" visibility="hidden">
+          <rect x="0" y="-6" width="20" height="12" class="path-intensity"/>
+          <text x="30" y="4" class="graph-legend-text">Intensität \(I(x)\) am Schirm</text>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse am Punkt P (einklappbar) ─────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="panel-label">Analyse am Punkt P</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Weg \(r_1\) (von S₁)</div>
+          <div class="analysis-cell val" id="out_r1">—</div>
+          <div class="analysis-cell key">Weg \(r_2\) (von S₂)</div>
+          <div class="analysis-cell val" id="out_r2">—</div>
+          <div class="analysis-cell key">Wegunterschied \(\Delta s\)</div>
+          <div class="analysis-cell val" id="out_ds">—</div>
+          <div class="analysis-cell key">Verhältnis \(\Delta s / \lambda\)</div>
+          <div class="analysis-cell val" id="out_ratio">—</div>
+          <div class="analysis-cell key">Phasendiff. \(\Delta\varphi\)</div>
+          <div class="analysis-cell val" id="out_dphi">—</div>
+          <div class="analysis-cell key">Interferenz</div>
+          <div class="analysis-cell val" id="out_type">—</div>
+          <div class="analysis-cell key">Resultierende Ampl.</div>
+          <div class="analysis-cell val" id="out_amp">—</div>
+        </div>
+        <div class="limit-note">
+          Die Amplitude nimmt physikalisch korrekt mit \(1/\sqrt{r}\) ab.
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Physik</div>
+        <div class="formula-box">
+          <div>Superposition zweier Kreiswellen:</div>
+          <div>\[u_i(r,t) = \frac{1}{\sqrt{r}}\sin(kr - \omega t + \varphi_i),\quad k=\frac{2\pi}{\lambda}\]</div>
+          <div style="margin-top:6px">Zeitgemittelte Interferenz-Intensität:</div>
+          <div>\[I = A_1^2 + A_2^2 + 2A_1 A_2 \cos(\Delta\varphi)\]</div>
+        </div>
+      </div>
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

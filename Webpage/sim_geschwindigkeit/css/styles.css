@@ -1,0 +1,96 @@
+/*
+ * Geschwindigkeit als Steigung der Ort-Zeit-Kurve — simspezifische Ergänzungen.
+ * Tokens & Layout aus shared/css/design-system.css (vorher eingebunden).
+ */
+
+:root {
+  --graph-bg:  #ffffff;
+  --grid-line: #e8eaf0;
+  /* Kategorialfarben (colorblind-safe, Okabe-Ito-nah) — gleiche 4 Rollen wie
+     Project_ableitung_simulation (Funktion/Stützpunkt/Tangente/Sekante) */
+  --c-func: #8890a8;   /* Ort-Zeit-Kurve – neutral grau */
+  --c-tan:  #0072b2;   /* Tangente       – Blau  */
+  --c-sec:  #e69f00;   /* Sekante        – Orange */
+  --c-pt:   #cc79a7;   /* Stützpunkt P₀  – Mauve */
+}
+body.dark {
+  --graph-bg:  #161925;
+  --grid-line: #262c42;
+  --c-func: #8894b8;
+  --c-tan:  #56b4e9;
+  --c-sec:  #f0b23e;
+  --c-pt:   #e078c3;
+}
+
+/* ── Diagramm ────────────────────────────────────────────────── */
+#graph_svg { width: 100%; height: 100%; display: block; }
+
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); stroke-width: 1; }
+.axis-line  { stroke: var(--text); stroke-width: 1.5; }
+.axis-label { fill: var(--text); font-size: 15px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+
+#graph-arrowhead polygon { fill: var(--text); }
+
+/* Datenlinien & Punkte (Farben via Kategorial-Tokens) */
+#func_line    { fill: none; stroke: var(--c-func); stroke-width: 2.5; }
+#tangent_line { fill: none; stroke: var(--c-tan); stroke-width: 2; stroke-dasharray: 6 4; }
+#secant_line  { fill: none; stroke: var(--c-sec); stroke-width: 2; stroke-dasharray: 3 3; }
+#tri_h, #tri_v { stroke: var(--c-sec); stroke-width: 1.25; }
+#p1_dot, #p2_dot { fill: var(--c-sec); }
+#point        { fill: var(--c-pt); }
+
+/* Steigungsdreieck-Beschriftungen (eigene Klasse, KEIN stroke → kein Faux-Bold) */
+.delta-label {
+  fill: var(--c-sec); stroke: none;
+  font-size: 12px; font-family: var(--font-mono);
+}
+
+/* Steigungs-Readout im Diagramm (eigene, nicht-stroke-tragende Klassen) */
+.slope-readout { stroke: none; font-size: 13px; font-family: var(--font-ui); font-weight: 500; }
+.slope-tan { fill: var(--c-tan); }
+.slope-sec { fill: var(--c-sec); }
+
+/* Funktions-Titel (MathJax) über dem Plot */
+#graph_title_fo { pointer-events: none; }
+.graph-title-html {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--text);
+}
+
+/* ── Analyse-Panel: Grenzwert-Hinweis ────────────────────────── */
+.limit-note {
+  font-size: .7rem; color: var(--text3); line-height: 1.55; margin-top: 8px;
+}
+
+/* Zentrierte Sim-Fläche: Diagramm füllt die mittlere Spalte */
+.center-area { justify-content: center; align-items: stretch; padding: 8px 10px; }
+.sim-wrapper { display: flex; }
+
+/* Step-Buttons neben dem t₀-Slider (± feine Schrittweite) */
+.step-btn { padding: 2px 10px; font-weight: 700; line-height: 1.4; }
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. .panel-label wird zum Button;
+   Geschwister-Selector + !important blendet den Inhalt aus (dominiert
+   JS-gesteuerte display:block-Kinder). */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }

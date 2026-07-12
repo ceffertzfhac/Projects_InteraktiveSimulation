@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Schräger Wurf – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Schräger Wurf
+    <span class="version">v1.3.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Anfangshöhe \(h_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="h0_slider" min="1.8" max="25" value="10" step="0.1">
+        <span class="slider-val" id="h0_value">10,0 m</span>
+      </div>
+      <div class="slider-label">Anfangsgeschw. \(|\vec{v}_0|\)</div>
+      <div class="slider-row">
+        <input type="range" id="v0_slider" min="0" max="25" value="10" step="0.5">
+        <span class="slider-val" id="v0_value">10,0 m/s</span>
+      </div>
+      <div class="slider-label">Abwurfwinkel \(\alpha\)</div>
+      <div class="slider-row">
+        <input type="range" id="alpha_slider" min="0" max="90" value="45" step="1">
+        <span class="slider-val" id="alpha_value">45 °</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Diagrammtyp</div>
+      <select id="graph_select" class="select-field"></select>
+      <div class="slider-label">Y-Achsen-Konfiguration</div>
+      <select id="y_axis_config" class="select-field">
+        <option value="up_ground" selected>↑ positiv, Nullpunkt: Boden</option>
+        <option value="up_start">↑ positiv, Nullpunkt: Start</option>
+        <option value="down_ground">↓ positiv, Nullpunkt: Boden</option>
+        <option value="down_start">↓ positiv, Nullpunkt: Start</option>
+      </select>
+      <div class="vis-toggle-row">
+        <span class="vis-label">\(x\)/\(y\) gestapelt</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_xy_stacked">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschw.-Vektor \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_velocity_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">in \(v_x\)/\(v_y\) zerlegen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_velocity_components">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschl.-Vektor \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_acceleration_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Bahn anzeigen</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_trajectory">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Vergleichsbahn</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_compare_traj">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende Vektoren<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-vx)"></div>
+        <div class="legend-label">Horizontalkomponente \(v_x\)</div>
+        <div class="legend-swatch" style="background:var(--c-vy)"></div>
+        <div class="legend-label">Vertikalkomponente \(v_y\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-traj)"></div>
+        <div class="legend-label">Flugbahn</div>
+        <div class="legend-swatch" style="background:var(--c-traj);opacity:.35"></div>
+        <div class="legend-label">Vergleichsbahn (gespeichert)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation SVG ───────────────────────────────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-vel" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-acc" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-vx" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-vy" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+
+        <!-- Animationsbereich (x: 0–350) -->
+        <g id="animation_group">
+          <line id="ground_line" x1="0" y1="440" x2="350" y2="440" stroke-width="2"/>
+          <rect id="building" x="80" width="80"/>
+          <g id="horizontal_ruler_group"></g>
+          <g id="ruler_group"></g>
+          <g id="stick_figure"></g>
+
+          <!-- Stoppuhr vor Ball/Bahn/Vektoren, damit ihre deckende Füllung
+               (Token surface) diese bei hohen/steilen Würfen nicht verdeckt (B19). -->
+          <text id="zoom_text_display" x="250.6" y="108.24" text-anchor="middle" class="zoom-text"></text>
+          <g id="stopwatch" transform="translate(84, -24) scale(0.595)" style="cursor:pointer">
+            <circle id="stopwatch_circle" cx="280" cy="120" r="72" stroke-width="2"/>
+            <g id="stopwatch_marks"></g>
+            <g id="subdial">
+              <circle id="subdial-face" cx="280" cy="150" r="16" stroke-width="1"/>
+              <g id="subdial_marks"></g>
+              <line id="stopwatch_sub_hand" x1="280" y1="150" stroke-width="1.5"/>
+            </g>
+            <line id="stopwatch_main_hand" x1="280" y1="120" stroke-width="3"/>
+            <g id="digital_display_group" visibility="hidden"></g>
+          </g>
+
+          <polyline id="frozen_trajectory_line" fill="none" stroke-width="2" visibility="hidden"/>
+          <polyline id="trajectory_line" fill="none" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden"/>
+          <circle id="ball" r="5" cx="136" cy="200"/>
+          <g id="animation_coord_system"></g>
+          <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
+          <line id="velocity_vector" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <line id="velocity_vector_x" stroke-width="2" marker-end="url(#arrow-vx)" visibility="hidden" stroke-dasharray="4,4"/>
+          <line id="velocity_vector_y" stroke-width="2" marker-end="url(#arrow-vy)" visibility="hidden" stroke-dasharray="4,4"/>
+        </g>
+
+        <!-- Diagramm: Single -->
+        <g id="graph_group_single" transform="translate(400, 40)">
+          <g id="grid_group"></g>
+          <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point" r="5" visibility="hidden"/>
+          <text id="graph_title" x="240" y="-5" text-anchor="middle" class="graph-title-text"></text>
+          <!-- Hover-Werte (I5): nur bei Zeit-Achsen-Diagrammen aktiv, nicht bei der Bahnkurve -->
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
+        </g>
+
+        <!-- Diagramm: Stacked Top -->
+        <g id="graph_group_stacked_top" transform="translate(400, 20)" style="visibility:hidden">
+          <g id="grid_group_top"></g>
+          <polyline id="graph_line_top" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point_top" r="4" visibility="hidden"/>
+          <text id="graph_title_top" x="240" y="-5" text-anchor="middle" class="graph-title-text small"></text>
+          <line id="graph_hover_line_top" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_top" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_top" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_top" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_top" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_top" class="graph-hit-rect"/>
+        </g>
+
+        <!-- Diagramm: Stacked Bottom -->
+        <g id="graph_group_stacked_bottom" transform="translate(400, 255)" style="visibility:hidden">
+          <g id="grid_group_bottom"></g>
+          <polyline id="graph_line_bottom" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point_bottom" r="4" visibility="hidden"/>
+          <text id="graph_title_bottom" x="240" y="-5" text-anchor="middle" class="graph-title-text small"></text>
+          <line id="graph_hover_line_bottom" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_bottom" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_bottom" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_bottom" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_bottom" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_bottom" class="graph-hit-rect"/>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Zeit \(t\)</div>
+          <div class="analysis-cell val" id="live_t">0,00 s</div>
+          <div class="analysis-cell key">Wurfweite \(x\)</div>
+          <div class="analysis-cell val" id="live_x">0,00 m</div>
+          <div class="analysis-cell key">Höhe \(y\)</div>
+          <div class="analysis-cell val" id="live_y">10,00 m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_vx">0,00 m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_vy">0,00 m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_vabs">0,00 m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_ay">— m/s²</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Wurfkennwerte</div>
+      <div class="analysis-subject">
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Flugzeit \(t_{\text{fall}}\)</div>
+          <div class="analysis-cell val" id="live_tfall">— s</div>
+          <div class="analysis-cell key">Reichweite \(x_{\text{max}}\)</div>
+          <div class="analysis-cell val" id="live_xmax">— m</div>
+          <div class="analysis-cell key">Scheitelhöhe \(y_{\text{max}}\)</div>
+          <div class="analysis-cell val" id="live_ymax">— m</div>
+          <div class="analysis-cell key">Auftreffgeschw.</div>
+          <div class="analysis-cell val" id="live_vimpact">— m/s</div>
+          <div class="analysis-cell key">Auftreffwinkel \(\alpha_{\text{imp}}\)</div>
+          <div class="analysis-cell val" id="live_aimpact">— °</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Horizontale Bewegung (gleichförmig):</div>
+        <div>\[x(t) = v_0\cos(\alpha)\,t\]</div>
+        <div>\[v_x = v_0\cos(\alpha) = \text{const}\]</div>
+        <div style="margin-top:6px">Vertikale Bewegung:</div>
+        <div id="pf_up_ground">
+          <div>\[y(t) = h_0 + v_0\sin(\alpha)\,t - \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v_y(t) = v_0\sin(\alpha) - g\,t\]</div>
+          <div>\[a_y = -g = -9{,}8\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_up_start" style="display:none">
+          <div>\[s(t) = v_0\sin(\alpha)\,t - \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v_y(t) = v_0\sin(\alpha) - g\,t\]</div>
+          <div>\[a_y = -g = -9{,}8\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_down_ground" style="display:none">
+          <div>\[y(t) = -h_0 - v_0\sin(\alpha)\,t + \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v_y(t) = -v_0\sin(\alpha) + g\,t\]</div>
+          <div>\[a_y = +g = +9{,}8\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div id="pf_down_start" style="display:none">
+          <div>\[s(t) = -v_0\sin(\alpha)\,t + \tfrac{1}{2}\,g\,t^2\]</div>
+          <div>\[v_y(t) = -v_0\sin(\alpha) + g\,t\]</div>
+          <div>\[a_y = +g = +9{,}8\,\tfrac{\text{m}}{\text{s}^2}\]</div>
+        </div>
+        <div style="margin-top:8px">Flugzeit &amp; Reichweite:</div>
+        <div>\[t_{\text{fall}} = \frac{v_0\sin(\alpha) + \sqrt{(v_0\sin\alpha)^2 + 2g\,h_0}}{g}\]</div>
+        <div>\[x_{\text{max}} = v_0\cos(\alpha)\,t_{\text{fall}}\]</div>
+        <div>\[y_{\text{max}} = h_0 + \frac{(v_0\sin\alpha)^2}{2g}\]</div>
+        <div style="margin-top:8px">Auftreffwinkel (von der Horizontalen):</div>
+        <div>\[\alpha_{\text{imp}} = \arctan\!\left(\frac{|v_0\sin(\alpha) - g\,t_{\text{fall}}|}{v_0\cos(\alpha)}\right)\]</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

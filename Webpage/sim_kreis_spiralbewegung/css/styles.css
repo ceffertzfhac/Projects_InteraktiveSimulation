@@ -1,0 +1,218 @@
+/* ── SIM-SPEZIFISCHE TOKENS (ergänzen shared/css/design-system.css) ────────── */
+/* Kein :root-Remap shared Tokens (das bräche Dark Mode — CLAUDE.md).          */
+/* Vektorfarben Okabe-Ito-normalisiert (FX1, v1.2.1): v→--c-vel, a→--c-acc     */
+/* (shared), r/traj wie Schwester-Sim Kreisbewegung (amber/grau), α/φ Okabe-   */
+/* Farben. Löst Rot-Kollision (a,α,point waren rot) + mint-Kollision (ω,traj). */
+/* Komponenten-Vektoren (x/y/r/t) erben die Elternfarbe, unterschieden via     */
+/* Strichmuster (dashed/dotted) — d. h. Komponente = Elternfarbe, bewusst.    */
+:root {
+  --graph-bg:    #ffffff;
+  --grid-line:   #e8eaf0;
+  --disk-fill:   #e0e0e0;
+  --disk-stroke: #cccccc;
+
+  --c-r:      #b08010;   /* Ortsvektor r   – Bernstein (wie Kreisbewegung --c-r) */
+  --c-v:      var(--c-vel);   /* Geschw. v – Blau (shared Okabe-Ito) */
+  --c-a:      var(--c-acc);   /* Beschl. a – Rot (shared Okabe-Ito) */
+  --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
+  --c-alpha:  #cc79a7;   /* Winkelbeschl. α – Mauve (Okabe reddish-purple) */
+  --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
+  --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
+  --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
+}
+
+body.dark {
+  --graph-bg:    #161925;
+  --grid-line:   #262c42;
+  --disk-fill:   #2a3148;
+  --disk-stroke: #3d4766;
+
+  --c-r:      #ffcc33;
+  --c-v:      var(--c-vel);
+  --c-a:      var(--c-acc);
+  --c-omega:  var(--accent);
+  --c-alpha:  #e078c3;
+  --c-phi:    #55ee99;
+  --c-traj:   #9aa3b8;
+  --c-point:  #e6eaf5;
+}
+
+/* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */
+/* Marker-Fills (Polygon sonst schwarz) — kanonisch refX=0 + shortenEnd */
+#arrowhead polygon     { fill: var(--text); }
+#arrow-r polygon       { fill: var(--c-r); }
+#arrow-v polygon       { fill: var(--c-v); }
+#arrow-a polygon       { fill: var(--c-a); }
+#arrow-omega polygon   { fill: var(--c-omega); }
+#arrow-alpha polygon   { fill: var(--c-alpha); }
+#arrow-phi polygon     { fill: var(--c-phi); }
+
+/* Koordinatenachsen (ISO) */
+#iso_axis_x, #iso_axis_y, #iso_axis_z { stroke: var(--text); stroke-opacity: 0.5; stroke-width: 1.5; }
+#iso_label_x, #iso_label_y, #iso_label_z { fill: var(--text2); font-size: 12px; font-style: italic; }
+#iso_circle_path      { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
+
+/* Disk + Partikel */
+#disk                  { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
+#point                 { fill: var(--c-point); }
+
+/* Bahnkurve */
+#trajectory_path       { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; fill: none; }
+
+/* Phi-Bogen */
+#phi_arc               { stroke: var(--c-phi); stroke-width: 1.5; fill: none; }
+#phi_label             { fill: var(--c-phi); font-style: italic; font-size: 14px; }
+
+/* Hauptvektoren + Komponenten (Komponenten in Elternfarbe, dashed/dotted) */
+#position_vector       { stroke: var(--c-r); stroke-width: 2.5; }
+#position_vector_x     { stroke: var(--c-r); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#position_vector_y     { stroke: var(--c-r); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#velocity_vector       { stroke: var(--c-v); stroke-width: 2.5; }
+#velocity_vector_x     { stroke: var(--c-v); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#velocity_vector_y     { stroke: var(--c-v); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#velocity_vector_r     { stroke: var(--c-v); stroke-width: 2; }
+#velocity_vector_t     { stroke: var(--c-v); stroke-width: 2; }
+#acceleration_vector   { stroke: var(--c-a); stroke-width: 3; }
+#acceleration_vector_x { stroke: var(--c-a); stroke-width: 2.5; stroke-dasharray: 4,4; }
+#acceleration_vector_y { stroke: var(--c-a); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
+#acceleration_vector_r { stroke: var(--c-a); stroke-width: 2; }
+#acceleration_vector_t { stroke: var(--c-a); stroke-width: 2; }
+#omega_vector          { stroke: var(--c-omega); stroke-width: 2.5; }
+#alpha_vector          { stroke: var(--c-alpha); stroke-width: 2.5; }
+
+/* Stoppuhr (kanonisch: var(--surface)/var(--text) statt weiß/schwarz) */
+#stopwatch_circle      { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+.sw-mark               { stroke: var(--text); }
+#stopwatch_main_hand   { stroke: var(--text); stroke-width: 3; }
+#stopwatch_subdial_face { fill: var(--surface); stroke: var(--text2); stroke-width: 1.5; }
+#stopwatch_sub_hand     { stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; }
+
+#zoom_text_display     { fill: var(--text2); font-family: var(--font-mono); font-size: 14px; }
+
+/* Diagramm */
+.graph-bg              { fill: var(--graph-bg); }
+.grid-line             { stroke: var(--grid-line); }
+.axis-line             { stroke: var(--text); }
+.axis-label            { fill: var(--text); font-size: 13px; font-family: var(--font-ui); }
+.tick-label            { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text      { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
+.graph-line            { fill: none; stroke-width: 2; }
+.graph-line-1          { stroke: var(--accent); }
+.graph-line-2          { stroke: var(--c-v); }
+.graph-point           { fill: var(--c-point); }
+
+/* ── ANALYSE-PANEL: nur diese Sim 1,5× breiter (270 → 405 px) ──────────────── */
+/* Diese Sim hat viele Vektoren/Größen + Physik-Formelblock → mehr Platz als
+   der shared Default (270 px). Pro-Sim-Override der shared grid-Spalte; andere
+   Sims bleiben unberührt. Eingeklappt bleibt die 44-px-Schiene. Die
+   abseitige panel-Body-Typeset-Breite wird ebenfalls auf 405 gesetzt, sodaß
+   MathJax im Hintergrund exakt in der später sichtbaren Breite rendert (kein
+   Reflow beim Aufklappen). */
+.app-layout { grid-template-columns: 280px 1fr 405px; }
+.app-layout.analysis-collapsed .right-panel .panel-body { width: 405px; }
+
+/* ── CENTER-LAYOUT: Simulation + Diagramm (übereinander / nebeneinander) ──── */
+/* Einheitlich mit Kreisbewegung: .layout-split-Klasse am #center_area, gleiche
+   Spalten/Zeilen, Trennlinie rechts, @media-Fallback auf schmalen Viewports. */
+.center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
+.center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
+.center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
+#main_svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
+#graph_svg { width: 100%; height: 100%; display: block; }
+
+/* Schmale Viewports: immer übereinander (sonst wird es zu eng) — wie Kreisbewegung */
+@media (max-width: 1100px) {
+  .center-area, .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
+  .center-area.layout-split .graph-wrapper { padding-top: 4px; padding-left: 0; }
+}
+
+/* Topbar: Layout-Umschalter neben Back-Button (wie Kreisbewegung) */
+.topbar-left { gap: 8px; }
+.layout-toggle-btn { padding: 4px 10px; font-size: .72rem; }
+
+/* ── SIM-SPEZIFISCHE WIDGETS ───────────────────────────────────────────────── */
+/* Bewegungsparameter: kanonisches Muster (vgl. Freier Fall) — Label eigene Zeile
+   drüber (.slider-label, shared), dann .slider-row (grid 1fr auto) = Regler + Wert.
+   Regler wird so ~180 px breit statt ~36 px in der 280-px-Sidebar (B7).
+   #vr_control_wrapper umschließt Label+Reglerzeile der v_r-Zeile, sodaß
+   display:none im Kreis-Modus die ganze Zeile entfernt (kein Verschieben). */
+.parameter-grid { display: block; }
+.parameter-grid .slider-label { color: var(--text2); font-size: .8rem; margin-bottom: 3px; }
+.parameter-grid .slider-label span { display: inline; }
+.parameter-grid .slider-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin-bottom: 12px; }
+.parameter-grid .slider-val { font-family: var(--font-mono); font-size: .8rem; color: var(--accent); text-align: right; min-width: 56px; }
+#vr_control_wrapper .slider-row { margin-bottom: 12px; }
+
+/* Select-Zeile (Ansicht/Modus/Szenario/Winkeleinheit/Anordnung) — linksbündig,
+   Dropdown vollbreit & lesbar (B8). */
+.vis-control { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.vis-control .slider-label { min-width: 84px; flex: 0 0 auto; color: var(--text2); font-size: .82rem; text-align: left; }
+.vis-control .select-field { flex: 1 1 auto; width: auto; min-width: 0; margin-bottom: 0; font-size: .82rem; padding: 5px 8px; }
+
+/* Zerlegungs-Fieldset (nested) */
+.decomp-fieldset { border: 1px dashed var(--border); border-radius: var(--r); padding: 5px 10px 8px; margin: 4px 0 8px 18px; }
+.decomp-fieldset legend { font-weight: 400; font-size: .78rem; color: var(--text2); padding: 0 4px; }
+.decomp-fieldset .radio-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; font-size: .82rem; }
+.decomp-fieldset .at-scaling-row { padding-left: 18px; margin-top: 4px; font-size: .8rem; color: var(--text2); }
+
+/* Auto-Stopp n·90°-Stepper */
+.n-control { display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-left: 18px; }
+.n-control .step-btn { width: 26px; height: 26px; padding: 0; font-weight: 600; line-height: 1; }
+
+/* FX5: Auto-Stopp-Ziel jenseits des Precompute-Horizonts nicht erreicht */
+.autostop-warning {
+  margin: 8px 0 0 18px; padding: 6px 8px; font-size: .74rem; line-height: 1.4;
+  color: #9a6400; background: rgba(230, 159, 0, .12);
+  border: 1px solid rgba(230, 159, 0, .35); border-radius: 6px;
+}
+body.dark .autostop-warning { color: #f0b23e; background: rgba(240, 178, 62, .12); border-color: rgba(240, 178, 62, .35); }
+#n_value_display { font-family: var(--font-mono); font-size: .95rem; width: 20px; text-align: center; }
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (Prototyp) ──────────────────────────────── */
+/* Jedes .panel-section der linken Sidebar wird zum Cluster: .panel-label wird
+   zum klickbaren Header (Button + Chevron ▾), der Inhalt darunter per
+   Geschwister-Selector verbergen. !important dominiert JS-gesteuerte
+   display:block-Kinder (#n_control_group, #dual_graph_control, decomp-fieldsets),
+   sodaß im eingeklappten Zustand nichts „durchblitzt". Die shared .panel-label-
+   Typografie (uppercase Klein-Label) bleibt erhalten; hier nur Button-Reset +
+   Flex-Zeile + Chevron. */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
+
+/* ── FORMEL-BOX (Physik-Block im 270-px-Analyse-Panel) ─────────────────────── */
+/* Längere Display-Formeln (z. B. die Coriolis-Zerlegung |a⃗|=−Rω²ê_r+Rαê_t−2v_rωê_t
+   oder |a⃗|=R√(ω⁴+α²)) ragen als festbreite MathJax-SVG über den rechten Rand und
+   werden vom .panel{overflow-x:hidden} abgeschnitten → nicht sichtbar.
+   Lösung kanonisch vgl. 3massen (dasselbe 270-px-Panel, gleicher SVG-Output):
+   kleinere Schrift, damit mehr paßt, + horizontales Scrollen als Sicherheit, statt
+   Abschneiden. Display-Math linksbündig, sodaß bei Überlauf der Anfang erreichbar
+   bleibt (zentriert breite Glg. sonst links weggeschnitten). */
+.formula-box {
+  font-size: 0.72rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  line-height: 1.7;
+}
+.formula-box > div { overflow-wrap: break-word; }
+.formula-box mjx-container[display="true"] { text-align: left; margin: 0.35em 0; }

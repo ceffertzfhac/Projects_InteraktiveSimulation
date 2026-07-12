@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rollender Zylinder / Zykloide – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Rollender Zylinder / Zykloide
+    <span class="version">v1.1.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Systemparameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Zylinderradius \(R\)</div>
+      <div class="slider-row">
+        <input type="range" id="radius_slider" min="20" max="80" value="50" step="1">
+        <span class="slider-val" id="radius_value">50 cm</span>
+      </div>
+      <div class="slider-label">Schwerpunktgeschw. \(v_c\)</div>
+      <div class="slider-row">
+        <input type="range" id="velocity_slider" min="10" max="100" value="50" step="5">
+        <span class="slider-val" id="velocity_value">50 cm/s</span>
+      </div>
+      <p class="subject-note">Annahme: Reines Abrollen ohne Schlupf. Der Radius der Punkte ist fest auf \(r = 0{,}9 \cdot R\) gesetzt.</p>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Bahn Schwerpunkt</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_sp_trace">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Spuren der Punkte</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_traces" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Spuren im Vordergrund</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_trace_z_order">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschw.-Vektoren \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_v_vectors" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschl.-Vektoren \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_a_vectors">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Analyse-Objekte<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Schwerpunkt (SP)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="subject_sp" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Punkt 1</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="subject_p1">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Punkt 2</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="subject_p2">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Punkt 3</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="subject_p3">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Punkt 4</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="subject_p4">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-sp)"></div>
+        <div class="legend-label">Schwerpunkt (SP)</div>
+        <div class="legend-swatch" style="background:var(--c-p1)"></div>
+        <div class="legend-label">Punkt 1</div>
+        <div class="legend-swatch" style="background:var(--c-p2)"></div>
+        <div class="legend-label">Punkt 2</div>
+        <div class="legend-swatch" style="background:var(--c-p3)"></div>
+        <div class="legend-label">Punkt 3</div>
+        <div class="legend-swatch" style="background:var(--c-p4)"></div>
+        <div class="legend-label">Punkt 4</div>
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation + Diagramm (gestapelt wie Rollende Körper) ─── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow-vel" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+        </defs>
+
+        <!-- Animationsbereich (x: 0–400) -->
+        <g id="animation_group">
+          <g id="world_group">
+            <g id="background_group"></g>
+            <g id="traces_group"></g>
+            <g id="cylinder_group">
+              <circle id="cylinder_body" r="50"/>
+              <circle id="sp_point" r="5"/>
+              <circle id="p1_point" r="5"/>
+              <circle id="p2_point" r="5"/>
+              <circle id="p3_point" r="5"/>
+              <circle id="p4_point" r="5"/>
+            </g>
+            <line id="ground_line" x1="-10" y1="350" x2="6000" y2="350" stroke-width="2"/>
+            <g id="vectors_group"></g>
+          </g>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+
+    <div class="graph-wrapper">
+      <div class="graph-toolbar">
+        <select id="graph_select" class="graph-sel"></select>
+        <div class="graph-legend" id="graph_legend"></div>
+      </div>
+      <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+        <g id="grid_group"></g>
+        <polyline id="graph_line_sp" fill="none" stroke-width="2" points=""/>
+        <polyline id="graph_line_p1" fill="none" stroke-width="2" points=""/>
+        <polyline id="graph_line_p2" fill="none" stroke-width="2" points=""/>
+        <polyline id="graph_line_p3" fill="none" stroke-width="2" points=""/>
+        <polyline id="graph_line_p4" fill="none" stroke-width="2" points=""/>
+        <circle id="graph_point_sp" r="4" visibility="hidden"/>
+        <circle id="graph_point_p1" r="4" visibility="hidden"/>
+        <circle id="graph_point_p2" r="4" visibility="hidden"/>
+        <circle id="graph_point_p3" r="4" visibility="hidden"/>
+        <circle id="graph_point_p4" r="4" visibility="hidden"/>
+        <text id="graph_title" x="350" y="20" text-anchor="middle" class="graph-title-text"></text>
+
+        <!-- Hover-Werte (I5): Cursor-Overlay + Tooltip, per JS positioniert -->
+        <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+        <circle id="graph_hover_point_sp" class="graph-hover-point" r="6" visibility="hidden"/>
+        <circle id="graph_hover_point_p1" class="graph-hover-point" r="6" visibility="hidden"/>
+        <circle id="graph_hover_point_p2" class="graph-hover-point" r="6" visibility="hidden"/>
+        <circle id="graph_hover_point_p3" class="graph-hover-point" r="6" visibility="hidden"/>
+        <circle id="graph_hover_point_p4" class="graph-hover-point" r="6" visibility="hidden"/>
+        <g id="graph_hover_tooltip" visibility="hidden">
+          <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+          <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+        </g>
+        <rect id="graph_hit_rect" class="graph-hit-rect"/>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+
+      <div id="analysis_group_sp" class="analysis-subject">
+        <div class="analysis-subject-title" style="color:var(--c-sp)">Schwerpunkt (SP)</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Position \(x\)</div>
+          <div class="analysis-cell val" id="live_sp_x">— m</div>
+          <div class="analysis-cell key">Position \(y\)</div>
+          <div class="analysis-cell val" id="live_sp_y">— m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_sp_vx">— m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_sp_vy">— m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_sp_vabs">— m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_x\)</div>
+          <div class="analysis-cell val" id="live_sp_ax">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_sp_ay">— m/s²</div>
+          <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+          <div class="analysis-cell val" id="live_sp_aabs">— m/s²</div>
+        </div>
+      </div>
+
+      <div id="analysis_group_p1" class="analysis-subject" style="display:none">
+        <div class="analysis-subject-title" style="color:var(--c-p1)">Punkt 1</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Position \(x\)</div>
+          <div class="analysis-cell val" id="live_p1_x">— m</div>
+          <div class="analysis-cell key">Position \(y\)</div>
+          <div class="analysis-cell val" id="live_p1_y">— m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_p1_vx">— m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_p1_vy">— m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_p1_vabs">— m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_x\)</div>
+          <div class="analysis-cell val" id="live_p1_ax">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_p1_ay">— m/s²</div>
+          <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+          <div class="analysis-cell val" id="live_p1_aabs">— m/s²</div>
+        </div>
+      </div>
+
+      <div id="analysis_group_p2" class="analysis-subject" style="display:none">
+        <div class="analysis-subject-title" style="color:var(--c-p2)">Punkt 2</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Position \(x\)</div>
+          <div class="analysis-cell val" id="live_p2_x">— m</div>
+          <div class="analysis-cell key">Position \(y\)</div>
+          <div class="analysis-cell val" id="live_p2_y">— m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_p2_vx">— m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_p2_vy">— m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_p2_vabs">— m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_x\)</div>
+          <div class="analysis-cell val" id="live_p2_ax">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_p2_ay">— m/s²</div>
+          <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+          <div class="analysis-cell val" id="live_p2_aabs">— m/s²</div>
+        </div>
+      </div>
+
+      <div id="analysis_group_p3" class="analysis-subject" style="display:none">
+        <div class="analysis-subject-title" style="color:var(--c-p3)">Punkt 3</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Position \(x\)</div>
+          <div class="analysis-cell val" id="live_p3_x">— m</div>
+          <div class="analysis-cell key">Position \(y\)</div>
+          <div class="analysis-cell val" id="live_p3_y">— m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_p3_vx">— m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_p3_vy">— m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_p3_vabs">— m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_x\)</div>
+          <div class="analysis-cell val" id="live_p3_ax">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_p3_ay">— m/s²</div>
+          <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+          <div class="analysis-cell val" id="live_p3_aabs">— m/s²</div>
+        </div>
+      </div>
+
+      <div id="analysis_group_p4" class="analysis-subject" style="display:none">
+        <div class="analysis-subject-title" style="color:var(--c-p4)">Punkt 4</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Position \(x\)</div>
+          <div class="analysis-cell val" id="live_p4_x">— m</div>
+          <div class="analysis-cell key">Position \(y\)</div>
+          <div class="analysis-cell val" id="live_p4_y">— m</div>
+          <div class="analysis-cell key">Geschw. \(v_x\)</div>
+          <div class="analysis-cell val" id="live_p4_vx">— m/s</div>
+          <div class="analysis-cell key">Geschw. \(v_y\)</div>
+          <div class="analysis-cell val" id="live_p4_vy">— m/s</div>
+          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
+          <div class="analysis-cell val" id="live_p4_vabs">— m/s</div>
+          <div class="analysis-cell key">Beschl. \(a_x\)</div>
+          <div class="analysis-cell val" id="live_p4_ax">— m/s²</div>
+          <div class="analysis-cell key">Beschl. \(a_y\)</div>
+          <div class="analysis-cell val" id="live_p4_ay">— m/s²</div>
+          <div class="analysis-cell key">Betrag \(|\vec{a}|\)</div>
+          <div class="analysis-cell val" id="live_p4_aabs">— m/s²</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Rollbedingung (ohne Schlupf):</div>
+        <div>\[v_c = \omega\,R \quad\Rightarrow\quad \omega = \frac{v_c}{R}\]</div>
+        <div style="margin-top:6px">Schwerpunkt (geradlinig gleichförmig):</div>
+        <div>\[x_{\text{SP}}(t) = v_c\,t,\quad y_{\text{SP}} = R\]</div>
+        <div>\[\vec{v}_{\text{SP}} = (v_c,\,0),\quad \vec{a}_{\text{SP}} = \vec{0}\]</div>
+        <div style="margin-top:6px">Punkt auf dem inneren Kreis \(r = 0{,}9\,R\), Anfangswinkel \(\theta_0\):</div>
+        <div>\[\varphi(t) = \theta_0 - \omega\,t\]</div>
+        <div>\[x(t) = v_c\,t + r\cos\varphi(t)\]</div>
+        <div>\[y(t) = R + r\sin\varphi(t)\]</div>
+        <div>\[v_x = v_c + r\,\omega\sin\varphi(t)\]</div>
+        <div>\[v_y = -r\,\omega\cos\varphi(t)\]</div>
+        <div>\[a_x = -r\,\omega^2\cos\varphi(t)\]</div>
+        <div>\[a_y = -r\,\omega^2\sin\varphi(t)\]</div>
+        <div style="margin-top:6px">Punkte: \(\theta_0 \in \{0,\,\tfrac{\pi}{2},\,\pi,\,\tfrac{3\pi}{2}\}\) (P1–P4).</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

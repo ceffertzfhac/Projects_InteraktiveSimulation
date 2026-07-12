@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Grundbegriffe der Kinematik – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'local', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Grundbegriffe der Kinematik
+    <span class="version">v1.0.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LINKE SIDEBAR: Zeitpunkte · Visualisierung ─────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Zeitpunkte<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Zeitpunkt \(t_A\)</div>
+      <div class="slider-row">
+        <input type="range" id="tA_slider">
+        <span class="slider-val" id="tA_value">0,80 s</span>
+      </div>
+      <div class="slider-label">Zeitpunkt \(t_B\)</div>
+      <div class="slider-row">
+        <input type="range" id="tB_slider">
+        <span class="slider-val" id="tB_value">3,20 s</span>
+      </div>
+      <div class="note" style="font-size:.7rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        \(t_A\) kann \(t_B\) nicht überholen (und umgekehrt) — der jeweils
+        andere Regler zieht nach.
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+
+      <div class="vis-control-row" id="control_path_bg">
+        <input type="checkbox" id="toggle_path_bg" checked>
+        <span class="vis-control-label label-path">Ganze Strecke \(\vec{s}(t)\)</span>
+        <span class="vis-control-value"></span>
+      </div>
+      <div class="vis-control-row" id="control_sA">
+        <input type="checkbox" id="toggle_sA">
+        <span class="vis-control-label label-pos">Ortsvektor \(\vec{s}_A = \vec{s}(t_A)\)</span>
+        <span class="vis-control-value" id="val_sA"></span>
+      </div>
+      <div class="vis-control-row" id="control_sB">
+        <input type="checkbox" id="toggle_sB">
+        <span class="vis-control-label label-pos">Ortsvektor \(\vec{s}_B = \vec{s}(t_B)\)</span>
+        <span class="vis-control-value" id="val_sB"></span>
+      </div>
+      <div class="vis-control-row" id="control_weg">
+        <input type="checkbox" id="toggle_weg">
+        <span class="vis-control-label label-weg">Weglänge \(s_{AB}\)</span>
+        <span class="vis-control-value" id="val_weg"></span>
+      </div>
+      <div class="vis-control-row" id="control_verschiebung_BA">
+        <input type="checkbox" id="toggle_verschiebung_BA">
+        <span class="vis-control-label label-dba">Verschiebung \(\Delta\vec{s}_{BA}\) (A→B)</span>
+        <span class="vis-control-value" id="val_verschiebung_BA"></span>
+      </div>
+      <div class="vis-control-row" id="control_verschiebung_AB">
+        <input type="checkbox" id="toggle_verschiebung_AB">
+        <span class="vis-control-label label-dab">Verschiebung \(\Delta\vec{s}_{AB}\) (B→A)</span>
+        <span class="vis-control-value" id="val_verschiebung_AB"></span>
+      </div>
+      <div class="vis-control-row" id="control_abstand">
+        <input type="checkbox" id="toggle_abstand">
+        <span class="vis-control-label label-dba">Abstand \(|\Delta\vec{s}_{BA}|\)</span>
+        <span class="vis-control-value" id="val_abstand"></span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-path)"></div>
+        <div class="legend-label">Ganze Strecke \(\vec{s}(t)\)</div>
+        <div class="legend-swatch" style="background:var(--c-pos)"></div>
+        <div class="legend-label">Ortsvektoren \(\vec{s}_A,\vec{s}_B\)</div>
+        <div class="legend-swatch" style="background:var(--c-dba)"></div>
+        <div class="legend-label">Verschiebung \(\Delta\vec{s}_{BA}\) / Abstand</div>
+        <div class="legend-swatch" style="background:var(--c-dab)"></div>
+        <div class="legend-label">Verschiebung \(\Delta\vec{s}_{AB}\)</div>
+        <div class="legend-swatch" style="background:var(--c-weg)"></div>
+        <div class="legend-label">Weglänge \(s_{AB}\)</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Diagramm (die Darstellung selbst) ─────────────────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="graph_svg" viewBox="0 0 600 455" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrowhead-pos" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrowhead-dba" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrowhead-dab" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+        </defs>
+        <!-- Statisches Gitter/Achsen/Titel (drawGrid(), einmalig — Bounds
+             sind fest, da die Bahnkurve keine Funktionsvariante hat) -->
+        <g id="grid_group"></g>
+        <!-- Dynamischer Overlay (updateVisualization(), bei jeder
+             Reglerbewegung/Toggle neu befüllt) -->
+        <g id="plot_area"></g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Erklärungen (einklappbar, Default eingeklappt) ───── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Erklärung ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="panel-label">Erklärung</div>
+        <!-- Statisches MathJax: alle 8 Erklär-Varianten im DOM, JS schaltet
+             nur display um (kein typesetPromise zur Laufzeit). Umgezogen aus
+             dem SVG-<foreignObject> des Originals — vermeidet strukturell
+             den <foreignObject>-Skalierungsbug (s. Federpendel B21) und
+             folgt der repo-weiten Konvention „rechte Analyse-Sidebar für
+             Erklärtexte/Readouts". Hover über eine Steuerzeile links (oder
+             deren Checkbox-Klick) blendet die passende Variante ein. -->
+        <div class="analysis-variant" id="analysis_default">
+          <h3>Erklärung</h3>
+          <p>Wählen Sie einen Begriff aus der Liste links aus oder bewegen Sie die Zeit-Slider, um die Visualisierung zu ändern.</p>
+        </div>
+        <div class="analysis-variant" id="analysis_sA" style="display:none">
+          <h3>Ortsvektor \(\vec{s}_A = \vec{s}(t_A)\)</h3>
+          <p>Der Ortsvektor zeigt vom Ursprung zum Ort A zur Zeit \(t_A\). Er beschreibt die genaue Position als Spaltenvektor \((x_A, y_A)^T\).</p>
+        </div>
+        <div class="analysis-variant" id="analysis_sB" style="display:none">
+          <h3>Ortsvektor \(\vec{s}_B = \vec{s}(t_B)\)</h3>
+          <p>Der Ortsvektor zum Zeitpunkt \(t_B\). Der Vergleich von \(\vec{s}_A\) und \(\vec{s}_B\) zeigt die Bewegung des Objekts.</p>
+        </div>
+        <div class="analysis-variant" id="analysis_verschiebung_BA" style="display:none">
+          <h3>Verschiebung \(\Delta\vec{s}_{BA}\)</h3>
+          <p>Die Verschiebung von A nach B ist der Vektor, der direkt vom Startpunkt A zum Endpunkt B zeigt: \(\Delta\vec{s}_{BA} = \vec{s}_B - \vec{s}_A\). Er beschreibt die Netto-Ortsänderung.</p>
+        </div>
+        <div class="analysis-variant" id="analysis_verschiebung_AB" style="display:none">
+          <h3>Verschiebung \(\Delta\vec{s}_{AB}\)</h3>
+          <p>Die Verschiebung von B nach A ist der Gegenvektor zu \(\Delta\vec{s}_{BA}\). Er zeigt vom Endpunkt B zurück zum Startpunkt A: \(\Delta\vec{s}_{AB} = \vec{s}_A - \vec{s}_B = -\Delta\vec{s}_{BA}\).</p>
+        </div>
+        <div class="analysis-variant" id="analysis_abstand" style="display:none">
+          <h3>Abstand \(|\Delta\vec{s}_{BA}|\)</h3>
+          <p>Der Abstand ist der Betrag (die Länge) des Verschiebungsvektors. Er ist die direkte Distanz (Luftlinie) zwischen A und B und ist immer positiv: \(|\Delta\vec{s}_{BA}| = |\Delta\vec{s}_{AB}|\).</p>
+        </div>
+        <div class="analysis-variant" id="analysis_weg" style="display:none">
+          <h3>Weglänge \(s_{AB}\)</h3>
+          <p>Die Weglänge ist die Länge des tatsächlichen Pfades, den das Objekt zwischen A und B zurückgelegt hat. Sie ist immer größer oder gleich dem Abstand.</p>
+        </div>
+        <div class="analysis-variant" id="analysis_pathBg" style="display:none">
+          <h3>Strecke \(\vec{s}(t)\)</h3>
+          <p>Die Strecke (Bahnkurve) ist die Menge aller Orte, die das Objekt im Laufe der Zeit durchläuft — die „Spur", die die Bewegung hinterlässt.</p>
+        </div>
+      </div>
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

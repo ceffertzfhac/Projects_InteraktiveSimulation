@@ -1,0 +1,124 @@
+/* ── SIM-SPEZIFISCHE TOKENS (ergänzen shared/css/design-system.css) ────────── */
+:root {
+  --graph-bg:      #ffffff;
+  --building-fill: #d0d5e0;
+  --ruler-bg:      #f0f0f0;
+  --ruler-stroke:  #aab0be;
+  --grid-line:     #e8eaf0;
+
+  /* Geschwindigkeitskomponenten + Bahn (sim-spezifisch) */
+  --c-vx:    #b8860b;   /* Dunkelgelb für v_x */
+  --c-vy:    #c03030;   /* Rot für v_y */
+  --c-traj:  #0072b2;   /* Blau für Flugbahn (auch Vergleichsbahn) */
+
+  /* LCD-Digitaluhr (Easteregg) */
+  --lcd-bg:        #c0c4cc;
+  --lcd-seg-off:   #a8afb8;
+  --lcd-seg-on:    #333333;
+}
+
+body.dark {
+  --graph-bg:      #161925;
+  --building-fill: #2a3148;
+  --ruler-bg:      #1e2233;
+  --ruler-stroke:  #3d4766;
+  --grid-line:     #262c42;
+
+  --c-vx:    #ffcc33;
+  --c-vy:    #ff7777;
+  --c-traj:  #56b4e9;
+
+  --lcd-bg:        #2a3148;
+  --lcd-seg-off:   #3d4766;
+  --lcd-seg-on:    #e6eaf5;
+}
+
+/* ── SVG CSS-VAR TARGETS ──────────────────────────────────────────────────── */
+#arrowhead polygon   { fill: var(--text); }
+#arrow-vel polygon   { fill: var(--c-vel); }
+#arrow-acc polygon   { fill: var(--c-acc); }
+#arrow-vx polygon    { fill: var(--c-vx); }
+#arrow-vy polygon    { fill: var(--c-vy); }
+
+#ground_line { stroke: var(--text); }
+#building    { fill:   var(--building-fill); }
+#ball        { fill:   var(--accent); }
+
+#stopwatch_circle { fill: var(--surface); stroke: var(--text); }
+#subdial-face     { fill: var(--surface); stroke: var(--text); }
+#stopwatch_main_hand { stroke: var(--text); }
+#stopwatch_sub_hand  { stroke: var(--accent); }
+#velocity_vector     { stroke: var(--c-vel); }
+#velocity_vector_x   { stroke: var(--c-vx); }
+#velocity_vector_y   { stroke: var(--c-vy); }
+#acceleration_vector { stroke: var(--c-acc); }
+#trajectory_line     { stroke: var(--c-traj); }
+/* Vergleichsbahn: gleiche Farbe wie Flugbahn, 70 % transparent, gestrichelt */
+#frozen_trajectory_line { stroke: var(--c-traj); stroke-dasharray: 5,4; opacity: 0.3; }
+
+#graph_line  { stroke: var(--accent); }
+#graph_point { fill:   var(--accent); }
+/* Stacked-Modus (x/y gestapelt) — fehlte seit Einführung des Stapel-Features:
+   ohne stroke-Regel ist die Polyline unsichtbar (SVG-Default stroke:none),
+   ohne fill-Regel erscheint der Punkt als schwarzer Default-Circle. */
+#graph_line_top, #graph_line_bottom { stroke: var(--accent); }
+#graph_point_top, #graph_point_bottom { fill:   var(--accent); }
+/* Graph-Titel (Single + Stacked) — war ebenfalls ungestylt (Default schwarz,
+   im Dark Mode unsichtbar). An Freier Fall styles.css angelehnt. */
+.graph-title-text {
+  fill: var(--text); font-size: 15px;
+  font-family: var(--font-ui); font-weight: 600;
+}
+.graph-title-text.small { font-size: 13px; }
+
+/* Klassen (SVG-Elemente aus render.js) */
+.sf-line    { stroke: var(--text); fill: none; }
+.sf-head    { stroke: var(--text); fill: none; }
+.sw-mark    { stroke: var(--text); }
+.ruler-bg   { fill: var(--ruler-bg); stroke: var(--ruler-stroke); }
+.ruler-text { fill: var(--text2); font-size: 11px; font-family: var(--font-ui); }
+.ruler-tick { stroke: var(--text2); }
+.coord-axis { stroke: var(--c-traj); fill: none; }
+.coord-label{ fill: var(--c-traj); font-size: 12px; font-family: var(--font-ui); }
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 13px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
+.graph-title-text.small { font-size: 13px; }
+.zoom-text  { fill: var(--text2); font-family: var(--font-mono); font-size: 14px; }
+
+/* LCD-Digitaluhr */
+.lcd-frame    { fill: var(--lcd-bg); stroke: var(--text); }
+.lcd-seg-off  { fill: var(--lcd-seg-off); }
+.lcd-seg-on   { fill: var(--lcd-seg-on); }
+
+/* Ausgegraute Visualisierungs-Toggles (z. B. Vergleichsbahn ohne „Bahn anzeigen") */
+.vis-toggle-row:has(input:disabled) { cursor: not-allowed; }
+.vis-toggle-row:has(input:disabled) .vis-label { opacity: .45; }
+.vis-toggle-row:has(input:disabled) .toggle-switch { cursor: not-allowed; }
+.vis-toggle-row:has(input:disabled) .toggle-track { opacity: .45; }
+.vis-toggle-row:has(input:disabled) .toggle-thumb { opacity: .45; }
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. .panel-label wird zum Button;
+   Geschwister-Selector + !important blendet den Inhalt aus (dominiert
+   JS-gesteuerte display:block-Kinder). */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }

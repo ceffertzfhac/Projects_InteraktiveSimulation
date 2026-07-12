@@ -1,0 +1,118 @@
+/*
+ * Grundbegriffe der Kinematik — simspezifische Ergänzungen.
+ * Tokens & Layout aus shared/css/design-system.css (vorher eingebunden).
+ */
+
+:root {
+  --graph-bg:  #ffffff;
+  --grid-line: #e8eaf0;
+  /* Kategorialfarben (1:1 aus dem Original übernommen: Bahnkurve grau,
+     Ortsvektoren orange, Verschiebung A→B grün, Verschiebung B→A rot,
+     Abstand dieselbe grüne Farbe wie Verschiebung A→B — Abstand ist ja der
+     Betrag von Δs⃗_BA, dieselbe visuelle Rolle) */
+  --c-path: #aaaaaa;
+  --c-pos:  #e69f00;   /* Ortsvektoren sA/sB — Orange */
+  --c-dba:  #2ca02c;   /* Verschiebung Δs_BA / Abstand — Grün */
+  --c-dab:  #d62728;   /* Verschiebung Δs_AB — Rot */
+  --c-weg:  #0072b2;   /* Weglänge (Bahnsegment) — Blau */
+}
+body.dark {
+  --graph-bg:  #161925;
+  --grid-line: #262c42;
+  --c-path: #7d8296;
+  --c-pos:  #f0b23e;
+  --c-dba:  #4cd24c;
+  --c-dab:  #ff5c5c;
+  --c-weg:  #56b4e9;
+}
+
+/* ── Diagramm ────────────────────────────────────────────────── */
+#graph_svg { width: 100%; height: 100%; display: block; }
+
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); stroke-width: 1; }
+.axis-line  { stroke: var(--text); stroke-width: 1.5; }
+.axis-label { fill: var(--text); font-size: 15px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 12px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text); font-size: 17px; font-family: var(--font-ui); font-weight: 600; }
+
+#graph-arrowhead polygon { fill: var(--text); }
+#arrowhead-pos polygon { fill: var(--c-pos); }
+#arrowhead-dba polygon { fill: var(--c-dba); }
+#arrowhead-dab polygon { fill: var(--c-dab); }
+
+.path-bg-line { fill: none; stroke: var(--c-path); }
+.pos-vector   { stroke: var(--c-pos); }
+.dba-vector   { stroke: var(--c-dba); }
+.dab-vector   { stroke: var(--c-dab); }
+.weg-line     { fill: none; stroke: var(--c-weg); }
+.ab-point     { fill: var(--text); }
+
+/* Vektor-Labels — eigene Klasse OHNE stroke (kein Faux-Bold, s. CLAUDE.md) */
+.vector-label { stroke: none; font-size: 15px; font-family: var(--font-ui); }
+.pos-vector-label { fill: var(--c-pos); }
+.dba-vector-label { fill: var(--c-dba); }
+.dab-vector-label { fill: var(--c-dab); }
+
+.abstand-dim { stroke: var(--c-dba); fill: var(--c-dba); stroke-width: 1.2; }
+.abstand-projline { stroke: var(--text3); stroke-width: .8; stroke-dasharray: 2 2; }
+
+/* Zentrierte Sim-Fläche: Diagramm füllt die mittlere Spalte */
+.center-area { justify-content: center; align-items: stretch; padding: 8px 10px; }
+.sim-wrapper { display: flex; }
+
+/* ── Steuerzeilen (Checkbox + Label + Wertanzeige) ─────────────────────────
+   Ganze Zeile hoverbar/klickbar (Original-Verhalten: Klick neben der Checkbox
+   togglet sie, Hover zeigt die Erklärung + hebt das Element im Diagramm hervor). */
+.vis-control-row {
+  display: grid; grid-template-columns: 22px 1fr auto; align-items: center;
+  gap: 8px; padding: 6px 4px; border-radius: 6px; cursor: pointer;
+  transition: background-color .15s;
+}
+.vis-control-row:hover { background: var(--surface2, rgba(0,0,0,.04)); }
+.vis-control-row input[type="checkbox"] { margin: 0; }
+.vis-control-label { font-size: .92rem; }
+.vis-control-value {
+  font-family: var(--font-mono); font-size: .82rem; font-weight: 600;
+  justify-self: end; white-space: nowrap;
+}
+.label-path { color: var(--c-path); }
+.label-pos  { color: var(--c-pos); }
+.label-dba  { color: var(--c-dba); }
+.label-dab  { color: var(--c-dab); }
+.label-weg  { color: var(--c-weg); }
+
+/* Spaltenvektor-Anzeige (x,y) mit Klammern via ::before/::after (aus dem
+   Original übernommen — pädagogisch: Vektor als Spalte, nicht als Zeile). */
+.vector-display { display: inline-flex; align-items: center; gap: 4px; }
+.vector-display::before, .vector-display::after { font-size: 1.6em; font-weight: 100; }
+.vector-display::before { content: '\0028'; }
+.vector-display::after  { content: '\0029'; }
+.vector-components { display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+
+/* ── Rechte Analyse-Sidebar: Erklär-Varianten ─────────────────────────────
+   Umgezogen aus dem SVG-<foreignObject> des Originals (Bugfix-Vermeidung:
+   HTML-in-foreignObject skaliert nicht mit dem viewBox, s. Federpendel-B21). */
+.analysis-variant h3 { margin: 0 0 8px 0; color: var(--accent); font-size: 1rem; }
+.analysis-variant p { margin: 0; line-height: 1.6; font-size: .88rem; color: var(--text2); }
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }

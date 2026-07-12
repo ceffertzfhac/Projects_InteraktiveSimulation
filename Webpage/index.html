@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interaktive Physik-Simulationen – FH Aachen FB 8</title>
+  <link rel="stylesheet" href="shared/css/design-system.css">
+  <style>
+    :root {
+      --fh-mint-25: var(--fh-mint-dark);
+      --fh-mint-75: #003F3E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── HEADER ──────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 3px solid var(--fh-mint);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .header-brand { display: flex; flex-direction: column; gap: 2px; }
+    .header-brand-top {
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--fh-mint);
+    }
+    .header-brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+    .header-controls { display: flex; align-items: center; gap: 16px; }
+
+    /* Theme Toggle */
+    .theme-toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--text3); user-select: none; }
+    .theme-toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--surface2);
+      cursor: pointer; position: relative; transition: background .2s, border-color .2s;
+    }
+    .theme-toggle::before {
+      content: ''; position: absolute; left: 3px; top: 3px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--text3); transition: transform .2s, background .2s;
+    }
+    body.dark .theme-toggle { background: var(--fh-mint); border-color: var(--fh-mint); }
+    body.dark .theme-toggle::before { transform: translateX(16px); background: #fff; }
+
+    /* ── MAIN CONTENT ────────────────────────────────── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    /* ── CHAPTER SECTION ─────────────────────────────── */
+    .chapter { margin-bottom: 48px; }
+
+    .chapter-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--fh-mint);
+    }
+    .chapter-number {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--fh-mint);
+      background: color-mix(in srgb, var(--fh-mint) 12%, transparent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .chapter-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── CARD GRID ───────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.1);
+      border-color: var(--fh-mint);
+    }
+    .card a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Card Preview Image */
+    .card-preview {
+      height: 148px;
+      overflow: hidden;
+      background: var(--surface2);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .card-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .3s ease;
+    }
+    .card:hover .card-preview img { transform: scale(1.04); }
+
+    /* Placeholder (wenn kein Bild) */
+    .card-preview-placeholder {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--fh-mint-75) 0%, var(--fh-mint-25) 60%, var(--fh-mint) 100%);
+      gap: 8px;
+      padding: 16px;
+    }
+    .card-preview-placeholder .ph-icon {
+      font-size: 2rem;
+      opacity: .9;
+    }
+    .card-preview-placeholder .ph-label {
+      font-size: .75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* Badge für Qualitäts-Level */
+    .card-badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .badge-canonical {
+      background: rgba(0,177,172,.85);
+      color: #fff;
+    }
+    .badge-proto {
+      background: rgba(0,0,0,.35);
+      color: rgba(255,255,255,.8);
+    }
+
+    /* Card Body */
+    .card-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .card-desc {
+      font-size: .85rem;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      font-size: .78rem;
+      color: var(--text3);
+    }
+    footer a { color: var(--fh-mint); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-brand">
+      <span class="header-brand-top">FH Aachen University of Applied Sciences · FB 8 · Physik</span>
+      <span class="header-brand-title">Interaktive Physik-Simulationen</span>
+    </div>
+    <div class="header-controls">
+      <label class="theme-toggle-wrap" title="Dark Mode umschalten">
+        <span>Dark</span>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Dark Mode umschalten"></button>
+      </label>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Kapitel 0 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 0</span>
+        <h2 class="chapter-title">Mathematische Grundlagen</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_ableitung/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/ableitung.png" alt="Ableitung als Grenzwert">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Ableitung als Grenzwert</h3>
+              <p class="card-desc">Visualisierung des Grenzwertprozesses vom Differenzen- zum Differentialquotienten.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.1 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.1</span>
+        <h2 class="chapter-title">Kinematik in 1D, 2D und 3D</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_freier_fall/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/freier_fall_senkrechter_wurf.png" alt="Freier Fall &amp; Senkrechter Wurf">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Freier Fall &amp; Senkrechter Wurf</h3>
+              <p class="card-desc">Eindimensionale Bewegung im Gravitationsfeld: Anfangshöhe, Anfangsgeschwindigkeit, Weg-/Geschw.-/Beschl.-Zeit-Diagramm, Live-Analyse.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_federpendel/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/federschwingung.png" alt="Federschwingung">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Federschwingung</h3>
+              <p class="card-desc">Kinematik der Schwingung eines Federpendels. Darstellung von Auslenkung, Geschwindigkeit und Beschleunigung.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_geschwindigkeit/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/geschwindigkeit.png" alt="Geschwindigkeit">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Geschwindigkeit als Steigung der Ort-Zeit-Kurve</h3>
+              <p class="card-desc">Unterschied zwischen Durchschnitts- und Momentangeschwindigkeit.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_grundbegriffe_kinematik/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/grundbegriffe.png" alt="Grundbegriffe der Kinematik">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Grundbegriffe der Kinematik</h3>
+              <p class="card-desc">Visualisierung von Bahnkurve, Weg, Geschwindigkeit und Beschleunigung einer 2D-Bewegung.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_schraeger_wurf/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/schraeger_wurf.png" alt="Schräger Wurf">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Schräger Wurf</h3>
+              <p class="card-desc">Zweidimensionale Wurfbewegung: Vektorkomponenten, Flugbahn und Reichweite.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_kreisbewegung/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/kreisbewegung.png" alt="Kreisbewegung">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Ebene Kreisbewegung</h3>
+              <p class="card-desc">Gleichförmige Kreisbewegung: Orts-, Geschwindigkeits- und Zentripetalbeschleunigungsvektor.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.2 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.2</span>
+        <h2 class="chapter-title">Dynamik: Impuls und Kraft</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_3massen_umlenkrollen/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/3massen_umlenkrolle.png" alt="Statisches Kräftegleichgewicht">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Statisches Kräftegleichgewicht</h3>
+              <p class="card-desc">Statisches Kräftegleichgewicht mit Umlenkrollen und drei Massen — Winkel aus dem Kräftedreieck, Vektorzerlegung und Gleichgewichtsanalyse.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_atwood/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/atwood.png" alt="Atwood'sche Fallmaschine">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Die Atwood'sche Fallmaschine</h3>
+              <p class="card-desc">Beschleunigung, Seilkraft und Trajektorien zweier Massen über einer Rolle. Kräftevektoren, Diagramme und CSV-Export.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_zykloide/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/rollender_zylinder.png" alt="Rollender Zylinder / Zykloide">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Kinematik des rollenden Zylinders / Zykloide</h3>
+              <p class="card-desc">Visualisierung der Zykloide als Bahnkurve eines Punktes auf einem rollenden Körper.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.3 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.3</span>
+        <h2 class="chapter-title">Arbeit, Energie und Leistung</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_atwood_energy/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/atwood_energie.png" alt="Atwood mit Energiebilanz">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Atwood mit Energiebilanz</h3>
+              <p class="card-desc">Erweiterte Atwood-Simulation mit vollständiger kinetischer und potentieller Energiebilanz.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.4 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.4</span>
+        <h2 class="chapter-title">Dreh- und Kreisbewegung</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_kreis_spiralbewegung/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/drehundspiralbewegung.png" alt="Dreh- und Spiralbewegung">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Kreis- und Spiralbewegung</h3>
+              <p class="card-desc">Kinematik der Kreis- und Spiralbewegungen: Winkelgeschwindigkeit, Zentripetal- und Tangentialbeschleunigung.</p>
+            </div>
+          </a>
+        </div>
+        <div class="card">
+          <a href="sim_rolling_bodies/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/rollende_koerper.png" alt="Rollende Körper auf der schiefen Ebene">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Rollende Körper auf der schiefen Ebene</h3>
+              <p class="card-desc">Vergleich von Voll-/Hohlzylinder und -kugeln: Trägheitsmoment, Rollbedingung, Energiebilanz und Zykloiden-Analyse. Mit CSV-Export.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.8 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.8</span>
+        <h2 class="chapter-title">Stöße und Impulserhaltung</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_stoss/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/elastischer_stoss.png" alt="Elastischer Stoß">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Zentraler elastischer Stoß</h3>
+              <p class="card-desc">Stoß zweier Körper auf der Luftkissenbahn: Impuls- und Energieerhaltung im Vergleich.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 1.9 -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 1.9</span>
+        <h2 class="chapter-title">Schwingungen und Wellen</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_wellen/index.html">
+            <div class="card-preview">
+              <div class="card-preview-placeholder">
+                <span class="ph-icon">🌊</span>
+                <span class="ph-label">Wellen</span>
+              </div>
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Interferenz zweier Punktquellen</h3>
+              <p class="card-desc">Zweidimensionale Wellenausbreitung zweier kohärenter Punktquellen: konstruktive/destruktive Interferenz, Intensitätsverteilung am Schirm, verschiebbarer Detektor.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kapitel 2: Elektromagnetismus -->
+    <section class="chapter">
+      <div class="chapter-heading">
+        <span class="chapter-number">Kap. 2</span>
+        <h2 class="chapter-title">Elektromagnetismus</h2>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <a href="sim_lorentz_force/index.html">
+            <div class="card-preview">
+              <img src="Vorschaubilder/lorentzkraft.png" alt="Lorentzkraft zwischen parallelen Leitern">
+              <span class="card-badge badge-canonical">Modular</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Lorentzkraft zwischen parallelen Leitern</h3>
+              <p class="card-desc">Gleichgewicht zwischen Lorentzkraft und Federkraft bei zwei stromdurchflossenen Leitern. Referenzaufgabe WS 2025/26.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>&copy; <span id="yr"></span> C. Effertz · FH Aachen University of Applied Sciences · FB 8</p>
+  </footer>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    const toggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    const saved = localStorage.getItem('fh_theme');
+    if (saved === 'dark') body.classList.add('dark');
+
+    toggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('fh_theme', body.classList.contains('dark') ? 'dark' : 'light');
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Federpendel – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Federpendel
+    <span class="version">v1.0.17</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LEFT PANEL: Controls ─────────────────────────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Aufbau &amp; Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="radio-group" style="display:flex; gap:18px; margin-bottom:6px">
+        <label><input type="radio" name="orientation" value="horizontal" checked> Horizontal</label>
+        <label><input type="radio" name="orientation" value="vertical"> Vertikal</label>
+      </div>
+      <div class="slider-label">Masse \(m\)</div>
+      <div class="slider-row">
+        <input type="range" id="mass_slider" min="0.5" max="5.0" value="2.0" step="0.1">
+        <span class="slider-val" id="mass_value">2,0 kg</span>
+      </div>
+      <div class="slider-label">Federkonstante \(k\)</div>
+      <div class="slider-row">
+        <input type="range" id="k_slider" min="5" max="80" value="40" step="1">
+        <span class="slider-val" id="k_value">40 N/m</span>
+      </div>
+      <div class="slider-label" id="pos0_label">Anfangsauslenkung <i>x</i>₀</div>
+      <div class="slider-row">
+        <input type="range" id="pos0_slider" min="-1.5" max="1.5" value="0.8" step="0.05">
+        <span class="slider-val" id="pos0_value">0,80 m</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Auslenkungsvektor \(\vec{x}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_position_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschwindigkeitsvek. \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_velocity_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschleunigungsvek. \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_acceleration_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Manuelle Zeitmessung</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_manual_timing">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-sp)"></div>
+        <div class="legend-label">Auslenkung \(\vec{x}\)</div>
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--accent)"></div>
+        <div class="legend-label">Masse</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CENTER: Simulation + Diagramm (gestapelt) ────────────────────── -->
+  <main class="center-area" id="center_area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 450 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-pos" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-vel" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrowhead-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+        </defs>
+
+        <g id="animation_group">
+          <rect id="anchor_object" fill="#ccc" stroke="#888"/>
+          <line id="unstretched_length_line" stroke-dasharray="2,2" stroke="#aaa" stroke-width="1" visibility="hidden"/>
+          <text id="unstretched_length_label" text-anchor="middle" font-size="12px" class="ref-label"></text>
+          <line id="min_pos_line" stroke-dasharray="2,2" stroke-width="1" visibility="hidden"/>
+          <line id="max_pos_line" stroke-dasharray="2,2" stroke-width="1" visibility="hidden"/>
+          <text id="min_pos_label" text-anchor="middle" font-size="12px" class="ref-label"></text>
+          <text id="max_pos_label" text-anchor="middle" font-size="12px" class="ref-label"></text>
+          <line id="equilibrium_line" stroke-dasharray="4,4" stroke-width="1.5"/>
+          <polyline id="spring" fill="none" stroke="#555" stroke-width="2"/>
+          <rect id="mass" width="60" height="60" stroke="#333" stroke-width="1"/>
+          <line id="position_vector" stroke-width="2.5" marker-end="url(#arrowhead-pos)" visibility="hidden"/>
+          <line id="velocity_vector" stroke-width="2.5" marker-end="url(#arrowhead-vel)" visibility="hidden"/>
+          <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrowhead-acc)" visibility="hidden"/>
+          <text id="equilibrium_label" text-anchor="middle" font-size="14px" class="ref-label"></text>
+          <line id="surface" stroke-width="2" visibility="hidden"/>
+
+          <!-- Achsenpfeile und Labels -->
+          <line id="x_axis_arrow" stroke-width="1.5" marker-end="url(#arrowhead)" visibility="hidden"/>
+          <text id="x_axis_label_text" text-anchor="middle" font-size="14px" visibility="hidden"></text>
+          <line id="y_axis_arrow" stroke-width="1.5" marker-end="url(#arrowhead)" visibility="hidden"/>
+          <text id="y_axis_label_text" text-anchor="middle" font-size="14px" visibility="hidden"></text>
+
+          <g id="stopwatch" transform="translate(220, 60) scale(0.595)">
+            <circle cx="280" cy="120" r="72" stroke-width="2" id="stopwatch_circle"/>
+            <g id="stopwatch_marks"></g>
+            <g id="subdial">
+              <circle cx="280" cy="150" r="16" stroke-width="1" id="subdial_face"/>
+              <g id="subdial_marks"></g>
+              <line id="stopwatch_sub_hand" x1="280" y1="150" x2="280" y2="135" stroke-width="1.5"/>
+            </g>
+            <line id="stopwatch_main_hand" x1="280" y1="120" x2="280" y2="60" stroke-width="3"/>
+            <g id="digital_display_group" visibility="hidden"></g>
+          </g>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+      <!-- Bugfix (B#): war als <foreignObject> im main_svg verschachtelt — dessen
+           reales CSS-Layout (Button-Padding/Schriftgröße) skaliert nicht mit dem
+           SVG-viewBox, dadurch landete der Button weit außerhalb des sichtbaren
+           Bereichs (Ø unsichtbar/unklickbar). Jetzt als HTML-Overlay-Geschwister
+           von #main_svg, analog .time-label — reine CSS-Positionierung. -->
+      <div class="start-timing-overlay" id="start_timing_container" style="visibility:hidden">
+        <button id="start_timing_button" class="btn primary">Zeitmessung starten</button>
+      </div>
+    </div>
+
+    <div class="graph-wrapper">
+      <div class="graph-toolbar">
+        <select id="graph_select" class="graph-sel">
+          <option value="pos_t" selected>Auslenkung vs. Zeit</option>
+          <option value="v_t">Geschwindigkeit vs. Zeit</option>
+          <option value="a_t">Beschleunigung vs. Zeit</option>
+        </select>
+      </div>
+      <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+        <g id="grid_group"></g>
+        <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+        <circle id="graph_point" r="4" visibility="hidden"/>
+        <text id="graph_title" x="350" y="20" text-anchor="middle" class="graph-title-text"></text>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL: Analysis ─────────────────────────────────────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-label">Live-Analyse</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Zeit \(t\)</div>
+        <div class="analysis-cell val" id="live_t">0,00 s</div>
+        <div class="analysis-cell key">Auslenkung \(x\)</div>
+        <div class="analysis-cell val" id="live_x">0,00 m</div>
+        <div class="analysis-cell key">Geschw. \(v\)</div>
+        <div class="analysis-cell val" id="live_v">0,00 m/s</div>
+        <div class="analysis-cell key">Beschl. \(a\)</div>
+        <div class="analysis-cell val" id="live_a">0,00 m/s²</div>
+        <div class="analysis-cell key">Kinet. Energie \(E_{\text{kin}}\)</div>
+        <div class="analysis-cell val" id="live_ekin">0,000 J</div>
+        <div class="analysis-cell key">Pot. Energie \(E_{\text{pot}}\)</div>
+        <div class="analysis-cell val" id="live_epot">0,000 J</div>
+        <div class="analysis-cell key">Gesamtenergie \(E_{\text{ges}}\)</div>
+        <div class="analysis-cell val" id="live_etot">0,000 J</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Schwingungsgrößen</div>
+      <div class="analysis-grid">
+        <div class="analysis-cell key">Periodendauer \(T\)</div>
+        <div class="analysis-cell val" id="live_T">— s</div>
+        <div class="analysis-cell key">Kreisfrequenz \(\omega\)</div>
+        <div class="analysis-cell val" id="live_omega">— rad/s</div>
+        <div class="analysis-cell key">Frequenz \(f\)</div>
+        <div class="analysis-cell val" id="live_f">— Hz</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Physik</div>
+      <div class="formula-box">
+        <div>Ungedämpftes Feder-Masse-Pendel:</div>
+        <div>\[\omega = \sqrt{\frac{k}{m}},\quad T = \frac{2\pi}{\omega},\quad f = \frac{1}{T}\]</div>
+        <div style="margin-top:6px">Mit Anfangsauslenkung \(x_0\) und \(v(0)=0\):</div>
+        <div>\[x(t) = x_0 \cos(\omega t)\]</div>
+        <div>\[v(t) = -x_0\,\omega \sin(\omega t)\]</div>
+        <div>\[a(t) = -x_0\,\omega^2 \cos(\omega t) = -\omega^2 x(t)\]</div>
+        <div style="margin-top:6px">Energien (bei \(v(0)=0\) konstante Gesamtenergie):</div>
+        <div>\[E_{\text{kin}} = \tfrac{1}{2} m v^2,\quad E_{\text{pot}} = \tfrac{1}{2} k x^2\]</div>
+        <div>\[E_{\text{ges}} = \tfrac{1}{2} k x_0^2\]</div>
+      </div>
+    </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

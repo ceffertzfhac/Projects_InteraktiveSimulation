@@ -1,0 +1,149 @@
+/*
+ * Atwood-Maschine – sim-spezifische Styles
+ * Base-Tokens, Layout, Klapp-Sidebar und UI-Komponenten liegen in
+ * ../shared/css/design-system.css (vor dieser Datei eingebunden).
+ * Hier verbleiben nur Atwood-spezifische Tokens + SVG-Target-Regeln.
+ */
+
+/* ── SIM-SPEZIFISCHE TOKENS ──────────────────────────────────────────────── */
+:root {
+  /* Simulation */
+  --sim-bg:         #fafbfd;
+  --graph-bg:       #ffffff;
+  --ruler-bg:       #f0f0f0;
+  --ruler-stroke:   #aab0be;
+  --grid-line:      #e8eaf0;
+  --aperture-fill:  #d0d0d0;
+  --floor-fill:     #e0e0e0;
+  --ceiling-fill:   #e0e0e0;
+  --pulley-fill:    #b3b3b3;
+  --pulley-stroke:  #888888;
+
+  /* Massen (blau = m1, rot = m2) */
+  --c-m1: #2060d0;
+  --c-m2: #c03030;
+}
+
+body.dark {
+  --sim-bg:         #141920;
+  --graph-bg:       #161925;
+  --ruler-bg:       #1e2233;
+  --ruler-stroke:   #3d4766;
+  --grid-line:      #262c42;
+  --aperture-fill:  #2a3148;
+  --floor-fill:     #252b3b;
+  --ceiling-fill:   #252b3b;
+  --pulley-fill:    #3d4766;
+  --pulley-stroke:  #6b799e;
+
+  --c-m1: #66aaff;
+  --c-m2: #ff7777;
+}
+
+/* ── SVG CSS-VAR TARGETS ─────────────────────────────────────────────────── */
+/* Marker arrowheads */
+.arr-axis-poly { fill: var(--text); }
+.arr-fg-poly   { fill: var(--c-fg); }
+.arr-ft-poly   { fill: var(--c-fn); }
+.arr-net-poly  { fill: var(--c-fr); }
+
+/* Simulation elements */
+#sim-bg      { fill:   var(--sim-bg); }
+#ceiling     { fill:   var(--ceiling-fill); }
+#pulley      { fill:   var(--pulley-fill);  stroke: var(--pulley-stroke); }
+#pulley_mount { fill:  var(--pulley-fill);  stroke: var(--pulley-stroke); }
+#pulley_axle { fill:   var(--text2);        stroke: var(--text3); }
+#aperture_path { fill: var(--aperture-fill); }
+#floor       { fill:   var(--floor-fill); }
+#rope        { stroke: var(--text); }
+
+/* Mass rectangles */
+#mass1_rect  { fill: var(--c-m1); }
+#mass2_rect  { fill: var(--c-m2); }
+#mass1_label { fill: var(--c-m1); font-size: 10px; font-family: var(--font-ui);
+               font-weight: 600; pointer-events: none; }
+#mass2_label { fill: var(--c-m2); font-size: 10px; font-family: var(--font-ui);
+               font-weight: 600; pointer-events: none; }
+
+/* Force vectors */
+.force-g   { stroke: var(--c-fg); stroke-width: 2.5; }
+.force-t   { stroke: var(--c-fn); stroke-width: 2.5; }
+.force-net { stroke: var(--c-fr); stroke-width: 2.5; }
+
+/* Ruler */
+.ruler-bg   { fill: var(--ruler-bg); stroke: var(--ruler-stroke); }
+.ruler-text { fill: var(--text2); font-size: 9px; font-family: var(--font-mono); }
+.ruler-tick { stroke: var(--text2); stroke-width: 1; }
+
+/* Stopwatch */
+#sw-face              { fill: var(--surface); stroke: var(--text); }
+#sw-subdial-face      { fill: var(--surface); stroke: var(--text); }
+#sw-axle              { fill: var(--text2); stroke: none; }
+#stopwatch_main_hand  { stroke: var(--text); stroke-linecap: round; }
+#stopwatch_sub_hand   { stroke: var(--accent); stroke-linecap: round; }
+.sw-mark              { stroke: var(--text); }
+
+/* Graph elements */
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
+.graph_title { fill: var(--text); font-size: 13px; font-family: var(--font-ui); font-weight: 600; }
+
+/* ── RADIO GROUP (Diagramm-Modus) — nicht in shared ──────────────────────── */
+.radio-group { display: flex; gap: 4px; margin-bottom: 7px; flex-wrap: wrap; }
+.radio-pill {
+  flex: 1; padding: 4px 0; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface2); text-align: center; font-size: .72rem; color: var(--text2);
+  cursor: pointer; transition: all .15s; position: relative; user-select: none;
+}
+.radio-pill input { position: absolute; opacity: 0; inset: 0; pointer-events: none; }
+.radio-pill.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ── CENTER (Atwood: Sim links, Graph rechts — nicht das FF-Spaltenlayout) ─ */
+.center-area {
+  display: flex; flex-direction: row; overflow: hidden;
+  background: var(--bg); transition: background 0.3s;
+}
+.sim-wrapper {
+  flex: 0 0 44%; overflow: hidden; position: relative;
+  border-right: 1px solid var(--border);
+}
+#main_svg { width: 100%; height: 100%; display: block; }
+
+.graph-wrapper {
+  flex: 1; overflow: hidden; position: relative; background: var(--bg);
+}
+#graph_svg_single { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+#graph_svg_top    { position: absolute; top: 0;   left: 0; width: 100%; height: 50%; border-bottom: 1px solid var(--border); }
+#graph_svg_bottom { position: absolute; top: 50%; left: 0; width: 100%; height: 50%; }
+
+.time-label {
+  position: absolute; bottom: 7px; right: 10px;
+  font-family: var(--font-mono); font-size: .72rem;
+  color: var(--text3); pointer-events: none;
+}
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ────────────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. .panel-label wird zum Button;
+   Geschwister-Selector + !important blendet den Inhalt aus (dominiert
+   JS-gesteuerte display:block-Kinder wie #y1_group/#diff_group). */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }

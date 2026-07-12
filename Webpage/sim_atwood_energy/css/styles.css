@@ -1,0 +1,210 @@
+/*
+ * Atwood-Energie – sim-spezifische Styles
+ * Base-Tokens, Layout, Klapp-Sidebar und UI-Komponenten liegen in
+ * ../shared/css/design-system.css (vor dieser Datei eingebunden).
+ * Hier verbleiben Energie-spezifische Tokens + Layout-Umschalter +
+ * Akkordeon + SVG-Target-Regeln.
+ */
+
+/* ── SIM-SPEZIFISCHE TOKENS ──────────────────────────────────────────────── */
+:root {
+  --sim-bg:        #fafbfd;
+  --graph-bg:       #ffffff;
+  --ruler-bg:       #f0f0f0;
+  --ruler-stroke:   #aab0be;
+  --grid-line:      #e8eaf0;
+  --aperture-fill: #d0d0d0;
+  --floor-fill:    #e0e0e0;
+  --ceiling-fill:  #e0e0e0;
+  --pulley-fill:   #b3b3b3;
+  --pulley-stroke: #888888;
+
+  /* Massen (blau = m1, rot = m2) */
+  --c-m1: #2060d0;
+  --c-m2: #c03030;
+}
+
+body.dark {
+  --sim-bg:        #141920;
+  --graph-bg:      #161925;
+  --ruler-bg:      #1e2233;
+  --ruler-stroke: #3d4766;
+  --grid-line:     #262c42;
+  --aperture-fill: #2a3148;
+  --floor-fill:    #252b3b;
+  --ceiling-fill:  #252b3b;
+  --pulley-fill:   #3d4766;
+  --pulley-stroke: #6b799e;
+
+  --c-m1: #66aaff;
+  --c-m2: #ff7777;
+}
+
+/* ── SVG CSS-VAR TARGETS ─────────────────────────────────────────────────── */
+.arr-axis-poly { fill: var(--text); }
+.arr-fg-poly   { fill: var(--c-fg); }
+.arr-ft-poly   { fill: var(--c-fn); }
+.arr-net-poly  { fill: var(--c-fr); }
+.arr-fr-poly   { fill: var(--c-eloss); }
+
+#sim-bg      { fill:   var(--sim-bg); }
+#ceiling     { fill:   var(--ceiling-fill); }
+#pulley      { fill:   var(--pulley-fill);  stroke: var(--pulley-stroke); }
+#pulley_inner { fill: var(--sim-bg);        stroke: var(--pulley-stroke); }
+#pulley_mark { stroke: var(--accent); }
+#pulley_mount { fill:  var(--pulley-fill);  stroke: var(--pulley-stroke); }
+#pulley_axle { fill:   var(--text2);        stroke: var(--text3); }
+#aperture_path { fill: var(--aperture-fill); }
+#floor       { fill:   var(--floor-fill); }
+#rope        { stroke: var(--text); }
+
+#mass1_rect { fill: var(--c-m1); }
+#mass2_rect { fill: var(--c-m2); }
+#mass1_label { fill: var(--c-m1); font-size: 10px; font-family: var(--font-ui); font-weight: 600; pointer-events: none; }
+#mass2_label { fill: var(--c-m2); font-size: 10px; font-family: var(--font-ui); font-weight: 600; pointer-events: none; }
+
+.force-g   { stroke: var(--c-fg); stroke-width: 2.5; }
+.force-t   { stroke: var(--c-fn); stroke-width: 2.5; }
+.force-net { stroke: var(--c-fr); stroke-width: 2.5; }
+#friction_arrow { stroke: var(--c-eloss); stroke-width: 2.5; fill: none; }
+#friction_label { fill: var(--c-eloss); font-size: 10px; font-family: var(--font-ui); font-weight: 600; pointer-events: none; }
+
+.zero-line       { stroke: var(--c-epot); stroke-width: 1; stroke-dasharray: 5,4; opacity: .6; }
+.zero-line-label { fill: var(--c-epot); font-size: 9px; font-family: var(--font-ui); opacity: .85; pointer-events: none; }
+
+.ruler-bg   { fill: var(--ruler-bg); stroke: var(--ruler-stroke); }
+.ruler-text { fill: var(--text2); font-size: 9px; font-family: var(--font-mono); }
+.ruler-tick { stroke: var(--text2); stroke-width: 1; }
+
+#sw-face, #sw-subdial-face { fill: var(--surface); stroke: var(--text); }
+#sw-face              { stroke-width: 2.5; }
+#sw-subdial-face       { stroke-width: 1.5; }
+#sw-axle              { fill: var(--text2); stroke: none; }
+#stopwatch_main_hand  { stroke: var(--text); stroke-linecap: round; }
+#stopwatch_sub_hand   { stroke: var(--accent); stroke-linecap: round; }
+.sw-mark              { stroke: var(--text); }
+
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
+.tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
+.graph_title { fill: var(--text); font-size: 13px; font-family: var(--font-ui); font-weight: 600; }
+/* Basis-Regeln, damit Linien/Punkte sichtbar sind (SVG-Default stroke:none/fill:none) */
+.polyline-base { fill: none; stroke-width: 2; }
+
+/* ── CENTER: Layout-Umschalter (Nebeneinander ↔ Übereinander) ─────────────── */
+.center-area { display: flex; overflow: hidden; background: var(--bg); transition: background .3s; }
+/* Default = Übereinander (Spalte) */
+.center-area:not(.layout-split) { flex-direction: column; }
+.center-area:not(.layout-split) .sim-wrapper { flex: 0 0 54%; border-bottom: 1px solid var(--border); }
+.center-area:not(.layout-split) .graph-wrapper { flex: 1 1 auto; }
+/* Nebeneinander = Zeile */
+.center-area.layout-split { flex-direction: row; }
+.center-area.layout-split .sim-wrapper { flex: 0 0 44%; border-right: 1px solid var(--border); }
+.center-area.layout-split .graph-wrapper { flex: 1 1 auto; }
+
+.sim-wrapper { position: relative; overflow: hidden; min-height: 0; }
+#main_svg { width: 100%; height: 100%; display: block; }
+.time-label {
+  position: absolute; bottom: 7px; right: 12px;
+  font-family: var(--font-mono); font-size: .73rem;
+  color: var(--text3); pointer-events: none;
+}
+
+/* ── GRAPH-WRAPPER (Balken-Ansicht oder Liniengraph) ─────────────────────────── */
+.graph-wrapper { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+#graph_svg { flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; display: block; }
+
+/* ── DIAGRAMM-STEUERLEISTE (direkt über dem Diagramm, FAE9) ────────────────── */
+/* updateGraphSelectors() setzt display:'' zum Zeigen → fällt auf diesen
+   CSS-Default zurück; daher muß display:grid sein (sonst '' → block). */
+.diagram-controls-bar {
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;
+  padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--surface);
+}
+/* 2×2-Steuerheinheit: Diagramm 1 / Subjekt 1 in Zeile 1, Diagramm 2 / Subjekt 2
+   in Zeile 2 — gleiche Spaltenbreiten (1fr 1fr), selectors exakt untereinander.
+   #graph_sel2_group spannt beide Spalten und ist selbst 2-spaltig, sodaß D2
+   unter D1 und S2 unter S1 rücken (FAE10). */
+.diagram-line-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+#graph_sel2_group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; grid-column: 1 / -1; }
+.diagram-opt { display: flex; flex-direction: column; }
+.diagram-opt .slider-label { margin-bottom: 3px; }
+.diagram-opt .select-field { margin: 0; }   /* override des 8-px-Bottom-Margins */
+
+/* ── ENERGIE-BALKENDIAGRAMM (Default-Diagramm-Anzeige) ─────────────────────── */
+.energy-bars-view {
+  flex: 1 1 auto; overflow-y: auto; min-height: 0;
+  padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 3px;
+}
+.ebar-title {
+  font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 2px;
+}
+.ebar-group-label {
+  font-size: .72rem; font-weight: 600; color: var(--text2);
+  margin: 7px 0 1px; letter-spacing: .02em;
+}
+.ebar-row {
+  display: grid; grid-template-columns: 88px 1fr 74px;
+  align-items: center; gap: 8px;
+}
+.ebar-label {
+  text-align: right; font-size: .8rem; color: var(--text2); white-space: nowrap;
+}
+.ebar-track {
+  background: var(--surface2); border-radius: 3px; height: 16px; overflow: hidden;
+}
+.ebar-svg { width: 100%; height: 16px; display: block; }
+.ebar-center { stroke: var(--text3); stroke-width: 0.5; opacity: .55; }
+.ebar-fill.ekin  { fill: var(--c-ekin); }
+.ebar-fill.epot  { fill: var(--c-epot); }
+.ebar-fill.etot  { fill: var(--c-etot); }
+.ebar-fill.eloss { fill: var(--c-eloss); }
+.ebar-value {
+  font-family: var(--font-mono); font-size: .74rem; text-align: right;
+  color: var(--text); white-space: nowrap;
+}
+.ebar-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (I8) ─────────────────────────────────────── */
+.left-panel button.panel-label {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 11px;
+  font-family: var(--font-ui); text-align: left;
+}
+.accordion-chevron {
+  font-size: .8rem; color: var(--text3); transition: transform .2s ease; flex-shrink: 0;
+}
+.left-panel .panel-section.collapsed .accordion-chevron { transform: rotate(-90deg); }
+.left-panel .panel-section.collapsed > .panel-label ~ * { display: none !important; }
+
+/* ── LAYOUT-TOGGLE-BUTTON ─────────────────────────────────────────────────── */
+.layout-toggle-btn {
+  font-size: .72rem; color: var(--text2); padding: 5px 10px;
+  border: 1px solid var(--border); border-radius: var(--r);
+  background: var(--surface2); transition: all .15s; white-space: nowrap; cursor: pointer;
+}
+.layout-toggle-btn:hover { border-color: var(--border2); color: var(--text); }
+.layout-toggle-btn.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); }
+
+/* ── ENERGIE-BILANZZEILE ───────────────────────────────────────────────────── */
+.balance-line {
+  font-family: var(--font-mono); font-size: .76rem; color: var(--text);
+  padding: 6px 8px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 6px; line-height: 1.5;
+}
+.balance-line i { font-style: italic; }
+.bal-const { color: var(--accent); font-weight: 600; }
+
+/* ── REIBUNGSPFEIL-TOGGLE DEAKTIVIERT (FAE3) ───────────────────────────────── */
+/* Bei F_R = 0 ist der Pfeil ohnehin unsichtbar; Toggle + Beschriftung
+   ausgegraut und nicht aktivierbar (Checkbox via .disabled gesperrt). */
+.vis-toggle-row.is-disabled { opacity: .4; cursor: not-allowed; }
+.vis-toggle-row.is-disabled .toggle-switch { cursor: not-allowed; }
+.vis-toggle-row.is-disabled .vis-label { color: var(--text3); }
+
+/* ── PHYSIK-BOX: horizontale Sicherheit gegen Überlauf (FAE8) ─────────────── */
+/* Panel hat overflow-x:hidden (schneidet sonst zu breite Formeln ab);
+   overflow-x:auto macht die Box selbst scrollbar statt unsichtbar. */
+.formula-box { overflow-x: auto; }

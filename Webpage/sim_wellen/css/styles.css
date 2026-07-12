@@ -1,0 +1,95 @@
+/*
+ * Interferenz zweier Punktquellen — simspezifische Ergänzungen.
+ * Tokens & Layout aus shared/css/design-system.css (vorher eingebunden).
+ */
+
+:root {
+  --graph-bg:   #ffffff;
+  --grid-line:  #e0e0e0;
+  --c-detector: #ff7f0e;   /* Detektor P — Orange (Okabe-Ito) */
+  --c-nodal:    rgba(0,0,0,.4);
+  --c-u1:       #0072b2;  /* u1 (Quelle S1) — Blau */
+  --c-u2:       #d1002d;  /* u2 (Quelle S2) — Rot */
+  --c-sum:      #ff7f0e;  /* u_ges / Intensität — Orange */
+  --constructive: #28a745;
+  --destructive:  #dc3545;
+}
+body.dark {
+  --graph-bg:   #161925;
+  --grid-line:  #262c42;
+  --c-detector: #f0b23e;
+  --c-nodal:    rgba(255,255,255,.35);
+  --c-u1:       #56b4e9;
+  --c-u2:       #ff5c5c;
+  --c-sum:      #f0b23e;
+  --constructive: #4cd24c;
+  --destructive:  #ff5c5c;
+}
+
+/* ── Zentrierte Sim-Fläche: Wellenfeld + Diagramm nebeneinander ───────────── */
+.center-area { flex-direction: row; justify-content: center; align-items: flex-start; gap: 16px; padding: 16px; overflow: auto; }
+
+.wave-wrapper {
+  position: relative; width: 400px; height: 400px; flex: 0 0 auto;
+  border: 1px solid var(--border2); background: #000; cursor: crosshair;
+}
+#wave_canvas { display: block; width: 100%; height: 100%; }
+svg.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.graph-wrapper {
+  width: 400px; height: 400px; flex: 0 0 auto;
+  border: 1px solid var(--border2); background: var(--graph-bg);
+}
+#graph_svg { width: 100%; height: 100%; display: block; }
+
+/* ── Overlay-Elemente (SVG, über dem Canvas) ──────────────────────────────── */
+.dist-line { stroke: rgba(255,255,255,.5); stroke-dasharray: 3 3; }
+.nodal-line { fill: none; stroke: var(--c-nodal); stroke-width: 2; }
+.source-dot { fill: #fff; stroke: var(--accent); stroke-width: 2; }
+.source-label { fill: #fff; font-size: 12px; text-shadow: 0 0 2px #000; font-family: var(--font-ui); }
+.draggable { cursor: grab; pointer-events: all; }
+.draggable:active { cursor: grabbing; }
+.detector-halo { fill: rgba(255,127,14,.2); stroke: var(--c-detector); stroke-width: 1; stroke-dasharray: 2 2; }
+.detector-dot  { fill: var(--c-detector); stroke: #fff; stroke-width: 1; }
+.detector-label { fill: var(--c-detector); font-weight: 700; font-size: 14px; font-family: var(--font-ui); }
+
+/* ── Diagramm ──────────────────────────────────────────────────────────────── */
+.graph-bg { fill: var(--graph-bg); }
+.grid-line { stroke: var(--grid-line); }
+.axis-label { fill: var(--text2); font-size: 12px; font-family: var(--font-ui); }
+.graph-title-text { fill: var(--text); font-size: 16px; font-weight: 700; font-family: var(--font-ui); }
+.graph-legend-text { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
+.time-marker { stroke: var(--text2); stroke-dasharray: 2 2; }
+
+.path-u1  { fill: none; stroke: var(--c-u1); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .6; }
+.path-u2  { fill: none; stroke: var(--c-u2); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .6; }
+.path-sum { fill: none; stroke: var(--c-sum); stroke-width: 2.5; }
+.path-intensity { fill: rgba(255,127,14,.2); stroke: var(--c-sum); stroke-width: 2; }
+
+/* Analyse-Panel: Grenzwert-/Hinweis-Text */
+.limit-note { font-size: .7rem; color: var(--text3); line-height: 1.55; margin-top: 8px; }
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
+
+@media (max-width: 1100px) {
+  .center-area { flex-direction: column; align-items: center; }
+}

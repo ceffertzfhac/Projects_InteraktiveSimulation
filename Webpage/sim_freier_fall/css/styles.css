@@ -1,0 +1,301 @@
+/* ── DESIGN TOKENS ───────────────────────────────────────────────────────── */
+:root {
+  --fh-mint:      #00B1AC;
+  --fh-mint-dark: #008581;
+
+  --bg:       #f0f2f7;
+  --surface:  #ffffff;
+  --surface2: #f5f6fa;
+  --surface3: #eceef5;
+  --border:   #d8dce8;
+  --border2:  #c2c8d8;
+  --accent:   #00B1AC;
+  --text:     #1a1e2e;
+  --text2:    #4a5068;
+  --text3:    #8890a8;
+  --r:        6px;
+
+  /* Simulation */
+  --sim-bg:        #fafbfd;
+  --graph-bg:      #ffffff;
+  --building-fill: #d0d5e0;
+  --ruler-bg:      #f0f0f0;
+  --ruler-stroke:  #aab0be;
+  --grid-line:     #e8eaf0;
+
+  /* Physics vector colors */
+  --c-vel: #2060d0;
+  --c-acc: #c03030;
+}
+
+body.dark {
+  --bg:       #0f111a;
+  --surface:  #161925;
+  --surface2: #1e2233;
+  --surface3: #262c42;
+  --border:   #2d344d;
+  --border2:  #3d4766;
+  --accent:   #00CEC9;
+  --text:     #e6eaf5;
+  --text2:    #a0abc7;
+  --text3:    #6b799e;
+
+  --sim-bg:        #141920;
+  --graph-bg:      #161925;
+  --building-fill: #2a3148;
+  --ruler-bg:      #1e2233;
+  --ruler-stroke:  #3d4766;
+  --grid-line:     #262c42;
+
+  --c-vel: #66aaff;
+  --c-acc: #ff7777;
+}
+
+/* ── SVG CSS-VAR TARGETS ─────────────────────────────────────────────────── */
+#arrowhead polygon, #arrow-y polygon { fill: var(--text); }
+#arrow-vel polygon { fill: var(--c-vel); }
+#arrow-acc polygon { fill: var(--c-acc); }
+
+#ground-line { stroke: var(--text); }
+#building  { fill:   var(--building-fill); }
+#ball      { fill:   var(--accent); }
+
+#sw-face   { fill:   var(--surface); stroke: var(--text); }
+#sd-face   { fill:   var(--surface); stroke: var(--text); }
+#sw_main_hand { stroke: var(--text); }
+#sw_sub_hand  { stroke: var(--accent); }
+#vel_vector   { stroke: var(--c-vel); }
+#acc_vector   { stroke: var(--c-acc); }
+
+#graph_line  { stroke: var(--accent); }
+#graph_point { fill:   var(--accent); }
+
+.sf-line  { stroke: var(--text); fill: none; }
+.sf-head  { stroke: var(--text); fill: none; }
+.sw-mark  { stroke: var(--text); }
+.ruler-bg   { fill: var(--ruler-bg); stroke: var(--ruler-stroke); }
+.ruler-text { fill: var(--text2); font-size: 11px; font-family: 'DM Sans', sans-serif; }
+.ruler-tick { stroke: var(--text2); }
+.yad-line   { stroke: var(--text); }
+.yad-text   { fill: var(--text); font-size: 12px; font-family: 'DM Sans', sans-serif; }
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); }
+.axis-line  { stroke: var(--text); }
+.axis-label { fill: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; }
+.tick-label { fill: var(--text2); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.graph-title-text { fill: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+
+/* ── RESET ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', 'Verdana', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; height: 52px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; }
+.back-btn {
+  font-size: .75rem; color: var(--text2); text-decoration: none;
+  padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--r);
+  background: var(--surface2); transition: all .15s; white-space: nowrap;
+}
+.back-btn:hover { border-color: var(--border2); color: var(--text); }
+.topbar-title {
+  font-size: .95rem; font-weight: 700; letter-spacing: .04em; color: var(--accent);
+  text-align: center; flex: 1; padding: 0 12px;
+}
+.topbar-title .version {
+  color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px;
+}
+.topbar-title .inst {
+  color: var(--text2); font-weight: 400; font-size: .75rem; margin-left: 8px;
+}
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+
+/* Theme toggle */
+.theme-toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--text3); }
+.theme-toggle {
+  width: 34px; height: 18px; border-radius: 9px;
+  border: 1.5px solid var(--border2); background: var(--surface2);
+  cursor: pointer; position: relative; flex-shrink: 0; transition: background .2s;
+}
+.theme-toggle::before {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--text3); transition: transform .2s, background .2s;
+}
+body.dark .theme-toggle { background: var(--accent); border-color: var(--accent); }
+body.dark .theme-toggle::before { transform: translateX(16px); background: #fff; }
+
+/* Collapsible analysis panel — header toggle (best practice: control on panel, double-chevron, visible collapsed rail) */
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 12px 16px;
+  background: var(--surface2); border: none; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s, color .15s;
+  font-family: 'DM Sans', 'Verdana', sans-serif; color: var(--text2);
+}
+.panel-header:hover { background: var(--surface3); color: var(--text); }
+.panel-header:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ph-label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; color: var(--text3); text-transform: uppercase; }
+.ph-chevron { width: 15px; height: 15px; flex-shrink: 0; transition: transform .2s ease; }
+
+/* Collapsed: slim 44px vertical rail — keeps the panel discoverable & re-expandable */
+.app-layout.analysis-collapsed .panel-header {
+  flex-direction: column; justify-content: center; align-items: center;
+  height: 100%; padding: 14px 0; gap: 10px; border-bottom: none;
+}
+.app-layout.analysis-collapsed .ph-label { writing-mode: vertical-rl; transform: rotate(180deg); }
+.app-layout.analysis-collapsed .ph-chevron { transform: rotate(180deg); }
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
+.app-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 270px;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+  transition: grid-template-columns .25s ease;
+}
+.app-layout.analysis-collapsed { grid-template-columns: 280px 1fr 44px; }
+/* Off-screen statt display:none, damit MathJax die Formeln im Hintergrund typesetten kann. */
+.app-layout.analysis-collapsed .right-panel .panel-body {
+  position: fixed; left: -10000px; top: 0; width: 270px; pointer-events: none;
+}
+.panel {
+  background: var(--surface); overflow-y: auto; overflow-x: hidden;
+  transition: background 0.3s;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text2) 35%, transparent) transparent;
+}
+.panel::-webkit-scrollbar { width: 10px; height: 10px; }
+.panel::-webkit-scrollbar-track { background: transparent; }
+.panel::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text2) 35%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.panel::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text2) 55%, transparent);
+  background-clip: padding-box;
+}
+.panel::-webkit-scrollbar-corner { background: transparent; }
+.panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.panel-label {
+  font-size: .62rem; font-weight: 700; letter-spacing: .14em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 11px;
+}
+.left-panel  { border-right: 1px solid var(--border); }
+.right-panel { border-left:  1px solid var(--border); }
+
+/* ── SLIDERS ─────────────────────────────────────────────────────────────── */
+.slider-label { font-size: .73rem; color: var(--text2); margin-bottom: 3px; }
+.slider-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; margin-bottom: 10px; }
+.slider-val { font-family: 'JetBrains Mono', monospace; font-size: .76rem; color: var(--accent); text-align: right; min-width: 58px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 3px; background: var(--border2); border-radius: 2px; outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; transition: transform .1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+/* ── SELECT ──────────────────────────────────────────────────────────────── */
+.select-field {
+  width: 100%; padding: 6px 8px; margin-bottom: 8px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text);
+  font-family: 'DM Sans', 'Verdana', sans-serif; font-size: .75rem;
+  cursor: pointer; outline: none;
+}
+
+/* ── TOGGLE SWITCHES ─────────────────────────────────────────────────────── */
+.vis-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.vis-label { font-size: .73rem; color: var(--text2); }
+.toggle-switch { position: relative; width: 28px; height: 15px; cursor: pointer; flex-shrink: 0; }
+.toggle-switch input { display: none; }
+.toggle-track { position: absolute; inset: 0; background: var(--border2); border-radius: 8px; transition: background .15s; }
+.toggle-thumb { position: absolute; left: 2px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--text3); transition: all .15s; }
+.toggle-switch input:checked + .toggle-track { background: var(--accent); }
+.toggle-switch input:checked + .toggle-track + .toggle-thumb { left: 15px; background: #000; }
+
+/* ── SPEED PILLS ─────────────────────────────────────────────────────────── */
+.speed-pills { display: flex; gap: 5px; }
+.speed-pill {
+  flex: 1; padding: 5px 0; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface2); text-align: center; font-size: .72rem; color: var(--text2);
+  cursor: pointer; transition: all .15s; position: relative; user-select: none;
+}
+.speed-pill input { position: absolute; opacity: 0; inset: 0; pointer-events: none; }
+.speed-pill.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────────── */
+.btn {
+  padding: 6px 13px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text);
+  font-family: 'DM Sans', 'Verdana', sans-serif; font-size: .76rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { background: var(--surface3); }
+.btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn.primary:hover { background: var(--fh-mint-dark); }
+.btn.small { padding: 4px 9px; font-size: .7rem; }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn-row { display: flex; gap: 8px; margin-top: 4px; }
+.btn-icon { font-size: 1.8em; line-height: 1; vertical-align: middle; }
+
+/* ── CENTER ──────────────────────────────────────────────────────────────── */
+.center-area { overflow: hidden; background: var(--bg); transition: background 0.3s; display: flex; flex-direction: column; }
+.sim-wrapper { position: relative; overflow: hidden; flex: 1; min-height: 0; }
+#main_svg { width: 100%; height: 100%; display: block; }
+.time-label {
+  position: absolute; bottom: 7px; right: 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: .73rem;
+  color: var(--text3); pointer-events: none;
+}
+
+/* ── ANALYSIS GRID ───────────────────────────────────────────────────────── */
+.analysis-subject { margin-bottom: 8px; background: var(--surface2); border-radius: var(--r); overflow: hidden; border: 1px solid var(--border); }
+.analysis-grid { display: grid; grid-template-columns: auto 1fr; gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+.analysis-cell { background: var(--surface2); padding: 4px 8px; font-size: .68rem; }
+.analysis-cell.key { color: var(--text3); }
+.analysis-cell.val { font-family: 'JetBrains Mono', monospace; color: var(--text); text-align: right; }
+
+/* ── LEGEND ──────────────────────────────────────────────────────────────── */
+.legend-grid { display: grid; grid-template-columns: 14px 1fr; gap: 4px 7px; align-items: center; }
+.legend-swatch { width: 14px; height: 10px; border-radius: 2px; }
+.legend-label { font-size: .7rem; color: var(--text2); }
+
+/* ── FORMULA BOX ─────────────────────────────────────────────────────────── */
+.formula-box {
+  background: rgba(0,177,172,.04); border: 1px solid rgba(0,177,172,.18);
+  border-radius: var(--r); padding: 10px 12px; font-size: .75rem;
+  color: var(--text2); line-height: 1.8;
+}
+
+/* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
+   Referenz: Kreis-/Spiralbewegung v1.3.0. .panel-label wird zum Button;
+   Geschwister-Selector + !important blendet den Inhalt aus (dominiert
+   JS-gesteuerte display:block-Kinder). */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron {
+  flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
