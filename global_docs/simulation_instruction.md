@@ -250,6 +250,143 @@ function physToScreen(xLoc, yLoc) {
   (wie gehabt). Beim Bahnkurven-Sonderfall (gleichskalierte x/y-Achsen) bleibt der
   zentrierte quadratische Plot pro Diagramm erhalten. Keine CSS-Grid-Änderung.
 
+### Hover-Werte am Zeit-Diagramm (I5, Best Practice)
+
+Mouseover über ein Zeit-Diagramm (Wert vs. *t*) soll einen Cursor zeigen, der der
+gezeichneten Kurve folgt, plus ein Tooltip mit den exakten Werten zum gehoverten
+Zeitpunkt. Kanonische Referenzimplementierung: **`Project_zykloide_simulation/`
+ab v1.1.0**. Betrifft nur Sims mit `precompute()`-Zeitreihen und einem bereits
+vorhandenen `interpolateAt(t)`-Helfer (praktisch alle modularen Sims haben das).
+
+**UX-Regeln (best practice):**
+- Hover-Cursor ist **visuell unterscheidbar** vom Wiedergabe-Marker: Wiedergabe
+  = gefüllter Punkt, Hover = **hohler Ring-Punkt** (gleiche Farbe, nur Kontur).
+  Beide können gleichzeitig sichtbar sein (Hovern während die Sim läuft), ohne
+  verwechselt zu werden.
+- Cursor bleibt auf dem **bereits gezeichneten Kurvenabschnitt** geklammert
+  (`t ∈ [0, min(time_range, simulatedTime)]`) — kein Cursor auf leerer Fläche
+  jenseits des aktuellen Wiedergabepunkts, auch wenn die Daten bereits
+  precomputet sind.
+- Tooltip zeigt **nur die aktuell geplottete Größe** für alle aktiven Subjekte
+  (deckt sich mit den sichtbaren Kurven) — nicht das volle Live-Panel.
+- Tooltip wird **innerhalb der Plot-Fläche geklammert**, damit er am Rand nicht
+  abgeschnitten wird.
+- Räumliche/nicht-monotone Bahnkurven-Diagramme (z. B. Schräger Wurf y(x)/x(y))
+  sind **out of scope** — dort bräuchte man eine Nearest-Point-Suche statt der
+  einfachen Pixel→Zeit-Umkehrung; separates Folge-Feature.
+
+**Shared Helfer** (`shared/js/hover.js`):
+```javascript
+// Pointer-Event → lokale SVG-Koordinate. CTM wird auf dem Hit-Rect SELBST
+// aufgerufen (nie auf dem äußeren <svg>) — komponiert dadurch automatisch
+// alle Vorfahren-Transforms (z. B. eine <g transform="translate(...)"> bei
+// Dual-Graph-Slots), keine Sim-spezifische Sonderrechnung nötig.
+export function svgLocalPoint(referenceEl, evt) {
+  const svg = referenceEl.ownerSVGElement || referenceEl;
+  const ctm = referenceEl.getScreenCTM();
+  if (!ctm) return null;
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  const loc = pt.matrixTransform(ctm.inverse());
+  return { x: loc.x, y: loc.y };
+}
+
+export function attachGraphHover(hitRectEl, { onMove, onLeave }) {
+  const move = evt => { const loc = svgLocalPoint(hitRectEl, evt); if (loc) onMove(loc.x, loc.y); };
+  const leave = () => onLeave();
+  hitRectEl.addEventListener('pointermove', move);
+  hitRectEl.addEventListener('pointerleave', leave);
+  hitRectEl.addEventListener('pointercancel', leave);
+  return () => { /* Detach, s. Quelldatei */ };
+}
+```
+
+**HTML-Struktur** (`index.html`, innerhalb der Graph-`<svg>`, nach dem Titel):
+```html
+<line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+<circle id="graph_hover_point_sp" class="graph-hover-point" r="6" visibility="hidden"/>
+<!-- … ein <circle> je Subjekt … -->
+<g id="graph_hover_tooltip" visibility="hidden">
+  <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+  <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+</g>
+<rect id="graph_hit_rect" class="graph-hit-rect"/>   <!-- letztes Element: gewinnt Hit-Testing -->
+```
+`graph_hit_rect` bekommt **keine** `x/y/width/height` im HTML — die setzt die
+Zeichenfunktion bei jedem Aufruf aus denselben Lokalen, die auch `scaleT`/
+`scaleY` bestimmen (siehe unten). CSS: alle Hover-Overlay-Elemente
+`pointer-events:none`, nur `.graph-hit-rect { fill:none; pointer-events:all; }`.
+
+**JS-Rezept** (`render.js`):
+```javascript
+// In der Diagramm-Zeichenfunktion, nach Berechnung von padL/padT/plotW/plotH:
+DOM.graphHitRect.setAttribute('x', padL);
+DOM.graphHitRect.setAttribute('y', padT);
+DOM.graphHitRect.setAttribute('width', plotW);
+DOM.graphHitRect.setAttribute('height', plotH);
+// … und nach Berechnung der Werte-Range (val_min/val_max/time_range/quantity):
+store.graphScale = { padL, padT, plotW, plotH, time_range, val_min, val_max, quantity, active };
+// Ganz am Ende der Funktion — Selbstkorrektur bei offenem Hover:
+if (store.hoverActive) updateGraphHover(store.hoverLocalX);
+
+// Neue exportierte Funktion, liest NUR store.graphScale (keine eigene Range-
+// Berechnung — sonst Drift zwischen Zeichnung und Hover):
+export function updateGraphHover(localX) {
+  store.hoverActive = localX !== null;
+  store.hoverLocalX = localX;
+  const gs = store.graphScale;
+  if (localX === null || !gs || gs.active.length === 0) { /* alles verstecken */ return; }
+  const { padL, plotW, time_range } = gs;
+  const xClamped = Math.max(padL, Math.min(padL + plotW, localX));
+  const rawT = ((xClamped - padL) / plotW) * time_range;
+  const t = Math.max(0, Math.min(rawT, time_range, store.simulatedTime));
+  const interp = interpolateAt(t);   // bestehende Funktion, keine neue Interpolation
+  // … Cursor/Punkte/Tooltip positionieren, siehe Zykloide render.js für Details.
+}
+```
+```javascript
+// ui.js — Bootstrap, nahe anderen addEventListener-Aufrufen:
+attachGraphHover(DOM.graphHitRect, {
+  onMove: x => updateGraphHover(x),
+  onLeave: () => updateGraphHover(null),
+});
+```
+
+**CSS** (`shared/css/design-system.css`, Token-basiert, gilt für alle Rollout-Sims):
+```css
+.graph-hover-line { stroke: var(--text3); stroke-width: 1.5; stroke-dasharray: 4,3; pointer-events: none; }
+.graph-hover-point { fill: none; stroke-width: 2; pointer-events: none; }
+.graph-hover-tooltip-bg { fill: var(--surface2); stroke: var(--border2); stroke-width: 1; rx: 4; }
+.graph-hover-tooltip-text { fill: var(--text); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
+.graph-hit-rect { fill: none; pointer-events: all; cursor: crosshair; }
+```
+Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); }`
+(Farbkopplung analog dem bestehenden `#graph_point_${s} { fill: var(--c-${s}) }`-Muster).
+
+**Gotchas:**
+- **CTM auf dem Hit-Rect, nie auf dem äußeren `<svg>`** aufrufen — nur so
+  funktioniert dieselbe Funktion unverändert bei eigener Graph-`<svg>`
+  (Zykloide, Rollende Körper), bei einer Graph-Gruppe innerhalb einer
+  geteilten Szene-`<svg>` (Schräger Wurf) und bei transformierten Dual-Graph-
+  Slots (Kreis-/Spiralbewegung) — die CTM-Kette komponiert alle Vorfahren-
+  Transforms automatisch.
+- **Hit-Rect-Geometrie nie hartkodieren**, immer aus denselben Lokalen wie
+  `scaleT`/`scaleY` synchronisieren — sonst Drift zwischen Klickfläche und
+  tatsächlicher Plot-Fläche, besonders bei Sims mit dynamischer Geometrie
+  (Portrait/Landscape-Umschalter).
+- **Wachsende/scrollende Zeitfenster** (z. B. `time_range = max(WINDOW_S, t)`):
+  ohne die Selbstkorrektur (`if (store.hoverActive) updateGraphHover(...)` am
+  Ende jeder Zeichenfunktion) läuft ein offener Tooltip bei laufender
+  Wiedergabe aus dem Ruder, weil sich die Skala unter ihm ändert.
+- **`.graph-bg`-Rect wird oft bei jedem Redraw neu erzeugt** (`innerHTML=''`)
+  — das Hit-Rect muß ein **stabiles Geschwister-Element außerhalb** dieser
+  Wegwerf-Gruppe sein, sonst gehen die Event-Listener bei jedem Frame verloren.
+- **Dual-Graph-Sims** (Kreis-/Spiralbewegung) brauchen 2 unabhängige Hit-Rects
+  + 2 `store.graphScale`-Äquivalente (`graphScale1`/`graphScale2`) + 2
+  `attachGraphHover()`-Aufrufe — mechanische Duplikation, kein neues Muster.
+- **Vergleichs-/Mehrkörper-Modi** (Rollende Körper): Hover iteriert nur über
+  die primär ausgewählten Subjekte, nicht über Vergleichskörper-Daten.
+
 ## 5. Implementierungs-Workflow
 
 1.  **Definitionsphase:** Festlegen der Eingabeparameter und der gesuchten physikalischen Größen.

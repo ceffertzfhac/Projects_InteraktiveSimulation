@@ -298,3 +298,14 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
 
 /* ── MONO-ZAHLEN ─────────────────────────────────────────────── */
 .mono, .value { font-family: var(--font-mono); }
+
+/* ── GRAPH-HOVER (I5, kanonisches Rezept) ────────────────────────
+   Hohle Ring-Punkte (Hover-Vorschau) vs. gefüllte Punkte (Wiedergabe-
+   Marker) — bewußt unterscheidbar, beide können gleichzeitig sichtbar
+   sein. Hit-Rect ist unsichtbar (fill:none) und gewinnt Hit-Testing
+   unabhängig vom darunter Gezeichneten (pointer-events:all). */
+.graph-hover-line { stroke: var(--text3); stroke-width: 1.5; stroke-dasharray: 4,3; pointer-events: none; }
+.graph-hover-point { fill: none; stroke-width: 2; pointer-events: none; }
+.graph-hover-tooltip-bg { fill: var(--surface2); stroke: var(--border2); stroke-width: 1; rx: 4; }
+.graph-hover-tooltip-text { fill: var(--text); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
+.graph-hit-rect { fill: none; pointer-events: all; cursor: crosshair; }

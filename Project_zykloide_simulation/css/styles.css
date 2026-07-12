@@ -52,6 +52,13 @@ body.dark {
 #graph_point_p3 { fill: var(--c-p3); }
 #graph_point_p4 { fill: var(--c-p4); }
 
+/* Hover-Werte (I5): hohle Ring-Punkte je Subjekt (Farbe via stroke, nicht fill) */
+#graph_hover_point_sp { stroke: var(--c-sp); }
+#graph_hover_point_p1 { stroke: var(--c-p1); }
+#graph_hover_point_p2 { stroke: var(--c-p2); }
+#graph_hover_point_p3 { stroke: var(--c-p3); }
+#graph_hover_point_p4 { stroke: var(--c-p4); }
+
 /* Klassen (SVG-Elemente aus render.js) */
 .bg-grid     { stroke: var(--bg-grid); }
 .ruler-tick  { stroke: var(--text); }

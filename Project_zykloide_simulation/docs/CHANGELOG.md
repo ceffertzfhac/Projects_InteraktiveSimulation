@@ -1,5 +1,26 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.1.0 — 2026-07-12
+
+I5 — Hover-Werte am Zeit-Diagramm (Referenz-Implementierung, repo-weites Feature).
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip auf dem Diagramm**: Mouseover über die Kurve zeigt
+  eine gestrichelte vertikale Führungslinie, hohle Ring-Punkte je aktivem
+  Subjekt (Farbe wie die Kurve, aber Kontur statt Füllung — unterscheidbar
+  vom gefüllten Wiedergabe-Punkt) und ein Tooltip mit dem exakten Zeitpunkt
+  *t* sowie den Werten aller aktiven Subjekte für die aktuell geplottete
+  Größe. Nutzt die bestehende `interpolateAt(t)` (keine neue Interpolation).
+  Cursor bleibt auf den bereits gezeichneten Kurvenabschnitt geklammert
+  (→ `docs/KNOWN_LIMITATIONS.md`). Selbstkorrigierend bei laufender
+  Wiedergabe (wachsendes Zeitfenster) und bei Diagrammtyp-Wechsel während
+  Hover aktiv ist. Neues `shared/js/hover.js` (CTM-basierte Pixel→SVG-
+  Koordinaten-Umkehrung, wiederverwendbar für den geplanten Rollout auf
+  Rollende Körper, Schräger Wurf, Kreis-/Spiralbewegung). Per Playwright
+  verifiziert: Hover während/nach Wiedergabe, Tooltip-Randklammerung links/
+  rechts, leere Subjekt-Auswahl, Diagrammtyp-Wechsel bei aktivem Hover —
+  keine Console-Errors.
+
 ## v1.0.8 — 2026-07-11
 
 T9 — shared/js-Helper konsolidieren.

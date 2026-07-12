@@ -13,3 +13,8 @@ Feature-Wünsche: → **FZ1**–**FZ7**; Querschnitts-Features → **I5**/**I6**
 - **Live-Analyse-Subjekt-Gruppen** nutzen `display:none` für inaktive Subjekte
   (MathJax typset die Inline-Math beim Laden zuverlässig; Aufklappen zeigt
   fertige Formeln).
+- **Hover-Cursor (I5) nur auf bereits gezeichnetem Kurvenabschnitt**: Hover wird
+  auf `[0, min(time_range, simulatedTime)]` geklammert — es gibt keinen Cursor
+  auf noch nicht abgespielter (aber schon precomputeter) Fläche. Bewußte
+  Design-Entscheidung, damit der Cursor nie auf leerem Diagrammbereich landet.
+  Gilt als Konvention für den I5-Rollout auf die anderen 3 Sims. → **I5**.

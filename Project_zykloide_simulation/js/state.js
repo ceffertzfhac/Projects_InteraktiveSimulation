@@ -20,6 +20,12 @@ export const store = {
   aniFrameId: null,
   lastFrameTime: 0,
   simulatedTime: 0,
+
+  // Hover-Werte (I5): von drawGraph() befüllte Skalierungsparameter,
+  // von updateGraphHover() gelesen — siehe render.js.
+  graphScale: null,
+  hoverActive: false,
+  hoverLocalX: null,
 }
 
 export const DOM = {}
@@ -48,6 +54,15 @@ export function initDOM() {
     DOM.graphLine[s] = q(`graph_line_${s}`)
     DOM.graphPoint[s] = q(`graph_point_${s}`)
   })
+
+  // Hover-Werte (I5)
+  DOM.graphHitRect = q('graph_hit_rect')
+  DOM.hoverLine = q('graph_hover_line')
+  DOM.hoverPoint = {}
+  subjects.forEach(s => { DOM.hoverPoint[s] = q(`graph_hover_point_${s}`) })
+  DOM.hoverTooltip = q('graph_hover_tooltip')
+  DOM.hoverTooltipBg = q('graph_hover_tooltip_bg')
+  DOM.hoverTooltipText = q('graph_hover_tooltip_text')
 
   // Regler / Buttons
   DOM.radiusSlider = q('radius_slider')

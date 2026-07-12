@@ -6,6 +6,7 @@ import {
   V_VECTOR_SCALE, A_VECTOR_SCALE,
   GRAPH_W, GRAPH_H,
   subjects, quantities, quantityUnits, graphOptions, graphTitles, subjectLabels,
+  subjectColorVar,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { physToScreenX, physToScreenY, getNiceTickStep,
@@ -151,12 +152,25 @@ function drawGraph(time) {
   const plotW = GRAPH_W - padL - padR
   const plotH = GRAPH_H - padT - padB
 
+  // Hover-Werte (I5): Hit-Rect-Geometrie aus denselben Lokalen synchronisieren,
+  // die auch scaleT/scaleY bestimmen — keine Drift zwischen Klickfläche und
+  // tatsächlicher Plot-Fläche möglich.
+  DOM.graphHitRect.setAttribute('x', padL)
+  DOM.graphHitRect.setAttribute('y', padT)
+  DOM.graphHitRect.setAttribute('width', plotW)
+  DOM.graphHitRect.setAttribute('height', plotH)
+
   const active = subjects.filter(s => DOM.subjectCheckboxes[s].checked)
   // Legende im Graph-Toolbar (aktive Subjekte)
   DOM.graphLegend.innerHTML = active.map(s =>
     `<div class="graph-leg-item"><div class="graph-leg-dot" style="background:var(--c-${s})"></div>${subjectLabels[s]}</div>`
   ).join('')
-  if (active.length === 0) { title.textContent = ''; DOM.graphLegend.innerHTML = ''; return }
+  if (active.length === 0) {
+    title.textContent = ''; DOM.graphLegend.innerHTML = ''
+    store.graphScale = null
+    hideGraphHover()
+    return
+  }
 
   const quantity = store.graphType
   const t_max_display = Math.max(DIAGRAM_WINDOW_S, time)
@@ -176,6 +190,11 @@ function drawGraph(time) {
   const range = val_max - val_min
   if (range < 1e-9) { val_min -= 0.5; val_max += 0.5 }
   else { const p = range * 0.1; val_min -= p; val_max += p }
+
+  // Hover-Werte (I5): einzige Quelle der Wahrheit für updateGraphHover(), das
+  // unabhängig vom RAF-Loop per pointermove ausgelöst wird und dieselbe
+  // Skala braucht wie die gerade gezeichneten Kurven — nie separat berechnen.
+  store.graphScale = { padL, padT, plotW, plotH, time_range, val_min, val_max, quantity, active }
 
   // Hintergrund
   grid.appendChild(el('rect', { x: padL, y: padT, width: plotW, height: plotH, class: 'graph-bg' }))
@@ -253,6 +272,97 @@ function drawGraph(time) {
       DOM.graphPoint[s].style.visibility = 'visible'
     }
   })
+
+  // Hover-Werte (I5): time_range wächst mit der Wiedergabe (Scroll-Fenster) —
+  // bei offenem Hover jeden Frame mit der frischen Skala neu berechnen, sonst
+  // liefe der Tooltip aus dem Ruder. Die RAF-Schleife selbst bleibt hover-
+  // unwissend (kein Aufruf hier hinein, nur diese Rückkopplung von dort).
+  if (store.hoverActive) updateGraphHover(store.hoverLocalX)
+}
+
+function hideGraphHover() {
+  DOM.hoverLine.setAttribute('visibility', 'hidden')
+  subjects.forEach(s => DOM.hoverPoint[s].setAttribute('visibility', 'hidden'))
+  DOM.hoverTooltip.setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate
+ * (SVG-Koordinaten des #graph_svg-viewBox, von attachGraphHover() geliefert).
+ * Liest store.graphScale (von drawGraph() befüllt) statt eigene Skala zu
+ * berechnen — einzige Quelle der Wahrheit, siehe drawGraph()-Kommentar.
+ */
+export function updateGraphHover(localX) {
+  store.hoverActive = localX !== null
+  store.hoverLocalX = localX
+  const gs = store.graphScale
+  if (localX === null || !gs || gs.active.length === 0) { hideGraphHover(); return }
+
+  const { padL, padT, plotW, plotH, time_range, val_min, val_max, quantity, active } = gs
+  const xClamped = Math.max(padL, Math.min(padL + plotW, localX))
+  const rawT = ((xClamped - padL) / plotW) * time_range
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
+  const t = Math.max(0, Math.min(rawT, time_range, store.simulatedTime))
+
+  const interp = interpolateAt(t)
+  if (!interp) { hideGraphHover(); return }
+
+  const scaleT = tv => padL + (tv / (time_range || 1)) * plotW
+  const scaleY = v => padT + plotH - ((v - val_min) / ((val_max - val_min) || 1)) * plotH
+  const xPix = scaleT(t)
+
+  DOM.hoverLine.setAttribute('x1', xPix); DOM.hoverLine.setAttribute('x2', xPix)
+  DOM.hoverLine.setAttribute('y1', padT); DOM.hoverLine.setAttribute('y2', padT + plotH)
+  DOM.hoverLine.setAttribute('visibility', 'visible')
+
+  subjects.forEach(s => {
+    if (!active.includes(s)) { DOM.hoverPoint[s].setAttribute('visibility', 'hidden'); return }
+    const v = interp[s][quantity]
+    DOM.hoverPoint[s].setAttribute('cx', xPix)
+    DOM.hoverPoint[s].setAttribute('cy', scaleY(v))
+    DOM.hoverPoint[s].setAttribute('visibility', 'visible')
+  })
+
+  renderHoverTooltip(active, interp, quantity, t, xPix, padL, plotW, padT)
+}
+
+function renderHoverTooltip(active, interp, quantity, t, xPix, padL, plotW, padT) {
+  const textEl = DOM.hoverTooltipText
+  textEl.innerHTML = ''
+  const lineH = 15
+  const rows = [{ label: null, text: `t = ${fmt(t, 2)} s`, color: null, italic: true }]
+  active.forEach(s => rows.push({
+    label: subjectLabels[s], text: `${fmt(interp[s][quantity], 2)} ${quantityUnits[quantity]}`,
+    color: `var(${subjectColorVar[s]})`,
+  }))
+  rows.forEach((row, i) => {
+    const tspan = document.createElementNS(NS, 'tspan')
+    tspan.setAttribute('x', 8)
+    tspan.setAttribute('y', 16 + i * lineH)
+    if (row.color) tspan.style.fill = row.color
+    if (row.italic) {
+      const sym = document.createElementNS(NS, 'tspan')
+      sym.setAttribute('font-style', 'italic')
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = `${row.label}: ${row.text}`
+    }
+    textEl.appendChild(tspan)
+  })
+
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg.setAttribute('width', boxW)
+  DOM.hoverTooltipBg.setAttribute('height', boxH)
+  DOM.hoverTooltipBg.setAttribute('x', 0)
+  DOM.hoverTooltipBg.setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip.setAttribute('visibility', 'visible')
 }
 
 // ── Szene aktualisieren (Kamera, Zylinder, Punkte, Spuren, Vektoren) ─────────

@@ -6,7 +6,8 @@ import {
 } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
-import { fmt, drawBackground, updateTraceZOrder, updateScene } from './render.js'
+import { fmt, drawBackground, updateTraceZOrder, updateScene, updateGraphHover } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // ── Diagramm-Dropdown füllen ─────────────────────────────────────────────────
 function setupGraphSelect() {
@@ -195,6 +196,12 @@ DOM.togTraceZOrder.addEventListener('change', () => {
 // Subjekt-Checkboxen → Graph + Analyse aktualisieren
 subjects.forEach(s => {
   DOM.subjectCheckboxes[s].addEventListener('change', () => updateScene(store.simulatedTime))
+})
+
+// Hover-Werte am Diagramm (I5)
+attachGraphHover(DOM.graphHitRect, {
+  onMove: x => updateGraphHover(x),
+  onLeave: () => updateGraphHover(null),
 })
 
 DOM.playBtn.addEventListener('click', startAnimation)
