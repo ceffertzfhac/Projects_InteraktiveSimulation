@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Geschwindigkeit als Steigung der Ort-Zeit-Kurve – FH Aachen</title>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'local', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Geschwindigkeit als Steigung der Ort-Zeit-Kurve
+    <span class="version">v1.0.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed" id="app_layout">
+
+  <!-- ── LINKE SIDEBAR: Funktion · Parameter · Visualisierung · Legende ────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Funktion &amp; Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="radio-group" style="display:flex; gap:14px; margin-bottom:10px">
+        <label><input type="radio" name="func" value="gerade" checked> Gerade</label>
+        <label><input type="radio" name="func" value="parabel"> Parabel</label>
+        <label><input type="radio" name="func" value="komplex"> Komplex</label>
+      </div>
+      <div class="slider-label">Stützstelle \(t_0\)</div>
+      <div class="slider-row" style="display:flex; align-items:center; gap:6px">
+        <button type="button" id="t0_step_down" class="btn small step-btn">−</button>
+        <input type="range" id="t0_slider" style="flex:1">
+        <button type="button" id="t0_step_up" class="btn small step-btn">+</button>
+      </div>
+      <div class="slider-row" style="justify-content:flex-end">
+        <span class="slider-val" id="t0_value">10,00 s</span>
+      </div>
+      <div class="slider-label">\(\Delta t\)</div>
+      <div class="slider-row">
+        <input type="range" id="delta_slider">
+        <span class="slider-val" id="delta_value">1,00 s</span>
+      </div>
+      <div class="note" style="font-size:.7rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        \(\Delta t\) ist der (vorzeichenbehaftete) Abstand der Sekanten-Stützpunkte.
+        Zieht man \(\Delta t \to 0\), geht die Sekante in die Tangente über — die
+        Momentangeschwindigkeit als Grenzwert der Durchschnittsgeschwindigkeit.
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Tangente (Momentangeschw. \(v\))</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_tangent">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Sekante + Steigungsdreieck</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_secant">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Zentrierter Modus</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_centered" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="note" style="font-size:.68rem;color:var(--text3);margin-top:6px;line-height:1.5">
+        Zentriert: symmetrisch \(t_0 \pm \tfrac{\Delta t}{2}\). Vorwärts: ab \(t_0\)
+        (negatives \(\Delta t\) ergibt dort einen Rückwärts-Differenzenquotienten).
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-func)"></div>
+        <div class="legend-label">Ort \(x(t)\)</div>
+        <div class="legend-swatch" style="background:var(--c-pt)"></div>
+        <div class="legend-label">Stützpunkt \(P_0\big(t_0,\,x(t_0)\big)\)</div>
+        <div class="legend-swatch" style="background:var(--c-tan)"></div>
+        <div class="legend-label">Tangente (Steigung \(v\))</div>
+        <div class="legend-swatch" style="background:var(--c-sec)"></div>
+        <div class="legend-label">Sekante (Steigung \(\bar v\))</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Diagramm (die Darstellung selbst) ─────────────────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="graph_svg" viewBox="0 0 780 580" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <clipPath id="plot_clip"><rect id="plot_clip_rect" x="0" y="0" width="0" height="0"/></clipPath>
+        </defs>
+
+        <!-- Achsen, Gitter, Ticks, Ort-Zeit-Kurve (von drawGraph() befüllt) -->
+        <g id="grid_group"></g>
+
+        <!-- Datenlinien/Punkte, auf das Plot-Gebiet beschnitten -->
+        <g id="plot_group" clip-path="url(#plot_clip)">
+          <polyline id="func_line" points=""/>
+          <polyline id="tangent_line" points="" style="visibility:hidden"/>
+          <polyline id="secant_line" points="" style="visibility:hidden"/>
+          <line id="tri_h" style="visibility:hidden"/>
+          <line id="tri_v" style="visibility:hidden"/>
+          <circle id="p1_dot" r="4" style="visibility:hidden"/>
+          <circle id="p2_dot" r="4" style="visibility:hidden"/>
+          <circle id="point" r="5.5" style="visibility:hidden"/>
+        </g>
+
+        <!-- Δt/Δx-Labels (unbeschnitten, damit auch am Rand lesbar) -->
+        <text id="dt_text" class="delta-label" text-anchor="middle" style="visibility:hidden"></text>
+        <text id="dx_text" class="delta-label" text-anchor="start" style="visibility:hidden"></text>
+
+        <!-- Steigungs-Readout (Tangente/Sekante), oben links im Plot -->
+        <text id="tan_slope_text" class="slope-readout slope-tan" text-anchor="start" style="visibility:hidden"></text>
+        <text id="sec_slope_text" class="slope-readout slope-sec" text-anchor="start" style="visibility:hidden"></text>
+
+        <!-- Funktions-Titel: statisches MathJax, LETZTES SVG-Kind (z-Order-
+             Konvention) → wird über Gitter/Daten gerendert. JS schaltet nur
+             display um — kein typesetPromise zur Laufzeit. -->
+        <foreignObject id="graph_title_fo" x="0" y="6" width="780" height="42">
+          <div class="graph-title-html" xmlns="http://www.w3.org/1999/xhtml">
+            <div id="title_gerade">\(\text{Funktion:}\quad x(t) = 2\,\dfrac{\text{m}}{\text{s}}\cdot t - 5\,\text{m}\)</div>
+            <div id="title_parabel" style="display:none">\(\text{Funktion:}\quad x(t) = 1\,\dfrac{\text{m}}{\text{s}^2}\cdot (t - 5\,\text{s})^2 + 1\,\text{m}\)</div>
+            <div id="title_komplex" style="display:none">\(\text{Funktion:}\quad x(t) = \tfrac{1}{1000}\left(-4\,\dfrac{\text{m}}{\text{s}^2}(t+2\,\text{s})^2 - 4\,\dfrac{\text{m}}{\text{s}}(t+2\,\text{s}) - 20\,\text{m}\right)\sin\!\left(\dfrac{t}{1\,\text{s}}\right)\)</div>
+          </div>
+        </foreignObject>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ───────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/>
+        <path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+      <div class="panel-section">
+        <div class="panel-label">Geschwindigkeitsanalyse</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Stützstelle \(t_0\)</div>
+          <div class="analysis-cell val" id="an_t0">—</div>
+          <div class="analysis-cell key">\(\Delta t\)</div>
+          <div class="analysis-cell val" id="an_delta_t">—</div>
+          <div class="analysis-cell key">\(\Delta x\)</div>
+          <div class="analysis-cell val" id="an_dx">—</div>
+          <div class="analysis-cell key">Durchschnittsgeschw. \(\bar v\)</div>
+          <div class="analysis-cell val" id="an_msec">—</div>
+          <div class="analysis-cell key">Momentangeschw. \(v(t_0)\)</div>
+          <div class="analysis-cell val" id="an_mtan">—</div>
+          <div class="analysis-cell key">Abweichung \(|\bar v - v(t_0)|\)</div>
+          <div class="analysis-cell val" id="an_diff">—</div>
+        </div>
+        <div class="limit-note">
+          Je kleiner \(\Delta t\), desto kleiner die Abweichung: \(\bar v \to v(t_0)\).
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Mathematik</div>
+        <div class="formula-box">
+          <div>Differenzenquotient (Durchschnittsgeschwindigkeit):</div>
+          <div id="diffq_centered">\[\bar v = \frac{x\!\left(t_0+\tfrac{\Delta t}{2}\right) - x\!\left(t_0-\tfrac{\Delta t}{2}\right)}{\Delta t}\]</div>
+          <div id="diffq_forward" style="display:none">\[\bar v = \frac{x(t_0+\Delta t) - x(t_0)}{\Delta t}\]</div>
+          <div style="margin-top:6px">Momentangeschwindigkeit als Grenzwert (Differentialquotient):</div>
+          <div>\[v(t_0) = \lim_{\Delta t \to 0} \bar v\]</div>
+          <div style="margin-top:6px">Gewählte Funktion und ihre Ableitung:</div>
+          <div id="pf_gerade">\[x(t) = 2t - 5 \qquad v(t) = x'(t) = 2\]</div>
+          <div id="pf_parabel" style="display:none">\[x(t) = (t-5)^2 + 1 \qquad v(t) = x'(t) = 2(t-5)\]</div>
+          <div id="pf_komplex" style="display:none">\[x(t) = \tfrac{1}{1000}\Big(-4(t+2)^2-4(t+2)-20\Big)\sin(t)\]\[v(t) = x'(t) = \tfrac{1}{1000}\Big[(-8(t+2)-4)\sin(t) + \big(-4(t+2)^2-4(t+2)-20\big)\cos(t)\Big]\]</div>
+        </div>
+      </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
