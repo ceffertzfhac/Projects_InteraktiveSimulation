@@ -14,3 +14,7 @@ Feature-Wünsche: → **FW1**–**FW7**; Querschnitts-Features → **I5**/**I6**
   eine Nearest-Point-Suche statt der einfachen Pixel→Zeit-Umkehrung. Separates
   Folge-Feature. Cursor bleibt zudem auf den bereits gezeichneten
   Kurvenabschnitt geklammert (konsistent mit der Zykloide-Referenz). → **I5**.
+- **Kein Energie-Diagramm (bewußt)**: Der Schräge Wurf ist eine *Kinematik*-Simulation
+  (Bahn-, Geschwindigkeits- und Beschleunigungsverlauf unter konstanter Erdbeschleunigung);
+  eine Energiebilanz wäre eine *Dynamik*-Größe und paßt thematisch nicht zum
+  Schwerpunkt dieser Sim. Energie-Diagramme daher bewußt nicht angeboten. → **I7**.

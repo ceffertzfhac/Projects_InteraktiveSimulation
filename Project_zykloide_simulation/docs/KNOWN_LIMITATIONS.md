@@ -18,3 +18,7 @@ Feature-Wünsche: → **FZ1**–**FZ7**; Querschnitts-Features → **I5**/**I6**
   auf noch nicht abgespielter (aber schon precomputeter) Fläche. Bewußte
   Design-Entscheidung, damit der Cursor nie auf leerem Diagrammbereich landet.
   Gilt als Konvention für den I5-Rollout auf die anderen 3 Sims. → **I5**.
+- **Kein Energie-Diagramm (bewußt)**: Die Zykloide/Rollender Zylinder ist eine
+  *Kinematik*-Simulation (Bahn, Geschwindigkeit, Beschleunigung des rollenden
+  Punkts); eine Energiebilanz wäre eine *Dynamik*-Größe und paßt thematisch nicht
+  zum Schwerpunkt dieser Sim. Energie-Diagramme daher bewußt nicht angeboten. → **I7**.
