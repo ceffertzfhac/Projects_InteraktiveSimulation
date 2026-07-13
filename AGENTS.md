@@ -13,13 +13,17 @@ automatisierten Tests** — Verifikation erfolgt manuell im Browser.
 ## Repo Structure
 
 ```
-Project_<sim>_simulation/   # modulare Sims (je index.html + js/{constants,state,physics,render,ui}.js + css/ + docs/)
+Project_<sim>_simulation/   # modulare Sims (je index.html + js/{constants,state,physics,render,ui}.js + css/ + docs/) — 16 Stück
+Webpage/                   # deploybare statische Site (sim_<name>/, relative Pfade) — GitHub-Pages-Target
 AllAnimations/              # globale Übersichtsseite (index.html) + lauffähige Standalone-Prototypen + Vorschaubilder/
 Standalone Proto/           # historische Quellordner der Single-File-Prototypen (nicht kanonisch)
-shared/                     # shared/css/design-system.css (Design-Tokens, Layout, Klapp-Sidebar)
+shared/                     # shared/css/design-system.css (Design-Tokens, Layout, Klapp-Sidebar) + js-Helper
 global_docs/                # Architektur-Blueprint (simulation_instruction.md) + KI-Kontext
+ilias_probe/                # Testumgebung für ILIAS (relatives CSS, ES-Modul-Import, MathJax-CDN)
 CLAUDE.md                   # kanonischer Entwicklungsleitfaden (Architektur, Konventionen, Design-System)
 BACKLOG.md                  # repo-weites MoSCoW-Backlog
+NOTICE.md                   # Hinweis & Haftungsausschluss, Copyright
+README.md                   # Repo-Überblick (öffentliche Instanz, Struktur, Leitfäden)
 ```
 
 Jede modulare Sim folgt dem Sechs-Modul-Aufbau aus `global_docs/simulation_instruction.md`:
