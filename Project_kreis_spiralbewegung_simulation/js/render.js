@@ -196,6 +196,7 @@ function drawVectors(P, R_t) {
 
   const setMain = (lineEl, x1, y1, x2, y2, by) => {
     const s = shortenEnd(x1, y1, x2, y2, by)
+    if (!s) { lineEl.style.visibility = 'hidden'; return } // B23: Vektor kürzer als Spitze
     lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1)
     lineEl.setAttribute('x2', s.x2); lineEl.setAttribute('y2', s.y2)
     lineEl.style.visibility = 'visible'

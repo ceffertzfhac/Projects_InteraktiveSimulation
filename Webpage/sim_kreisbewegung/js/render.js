@@ -248,6 +248,7 @@ export function setupScene() {
 function setVec(lineEl, x1, y1, x2, y2, visible, markerLen = 0) {
   if (!visible) { lineEl.style.visibility = 'hidden'; return }
   const end = shortenEnd(x1, y1, x2, y2, markerLen)
+  if (!end) { lineEl.style.visibility = 'hidden'; return } // B23: Vektor kürzer als Spitze
   lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1)
   lineEl.setAttribute('x2', end.x2); lineEl.setAttribute('y2', end.y2)
   lineEl.style.visibility = 'visible'

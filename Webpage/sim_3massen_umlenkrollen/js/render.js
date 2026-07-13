@@ -87,7 +87,10 @@ function createForceVector(x1, y1, x2, y2, type, dashed = false) {
   const end = shortenEnd(x1, y1, x2, y2, 5 * sw)
   const line = document.createElementNS(SVGNS, 'line')
   line.setAttribute('x1', x1); line.setAttribute('y1', y1)
-  line.setAttribute('x2', end.x2); line.setAttribute('y2', end.y2)
+  // B23: Vektor kürzer als Pfeilspitze → verborgene Linie (Aufrufer appendChild
+  // unverändert nutzbar); sonst Schaft gekürzt, sodaß die refX=0-Spitze auf (x2,y2) landet.
+  if (!end) { line.setAttribute('x2', x2); line.setAttribute('y2', y2); line.setAttribute('display', 'none') }
+  else { line.setAttribute('x2', end.x2); line.setAttribute('y2', end.y2) }
   line.setAttribute('class', `vec ${VEC_CLASS[type]}`)
   line.setAttribute('stroke-width', sw)
   line.setAttribute('marker-end', `url(#${MARKER_ID[type]})`)

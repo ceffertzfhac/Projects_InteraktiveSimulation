@@ -121,6 +121,9 @@ export function updateVisualization(highlightId = null) {
   // Schaft-Kürzung (bekanntes, halb-falsches Muster, s. CLAUDE.md-Warnung).
   const vecLine = (id, cls, x1, y1, x2, y2, sw, markerId) => {
     const s = shortenEnd(x1, y1, x2, y2, 5 * sw)
+    // B23: Vektor kürzer als Pfeilspitze → verborgene Linie (Label bleibt
+    // sichtbar, Aufrufer appendChild unverändert nutzbar).
+    if (!s) return el('line', { id, x1, y1, x2, y2, class: cls, 'stroke-width': sw, 'marker-end': `url(#${markerId})`, display: 'none' })
     return el('line', { id, x1, y1, x2: s.x2, y2: s.y2, class: cls, 'stroke-width': sw, 'marker-end': `url(#${markerId})` })
   }
 

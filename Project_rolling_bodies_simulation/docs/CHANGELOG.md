@@ -2,6 +2,18 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.2.1] — 2026-07-13
+
+B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).
+
+### Behoben (B23)
+- **Vektor-Pfeillänge/Spitze:** Der shared-Helper `shortenEnd` erzwang bei
+  Vektorlängen ≤ Marker-Länge einen 2-px-Schaft-Stub, sodaß die refX=0-Spitze
+  über das Ziel hinausschoß. `shortenEnd` gibt jetzt `null` zurück, wenn der
+  Vektor kürzer als die Pfeilspitze ist; `drawArrow` bricht dann ab — kleine
+  Kräfte/Geschwindigkeiten werden sauber verborgen statt als Überschieß-Stub
+  gezeichnet.
+
 ## [2.2.0] — 2026-07-13
 
 I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export

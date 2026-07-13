@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.5 — 2026-07-13
+
+B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).
+
+### Behoben (B23)
+- **Vektor-Pfeillänge/Spitze:** Der shared-Helper `shortenEnd` erzwang bei
+  Vektorlängen ≤ Marker-Länge einen 2-px-Schaft-Stub, sodaß die refX=0-Spitze
+  über das Ziel hinausschoß. `shortenEnd` gibt jetzt `null` zurück, wenn der
+  Vektor kürzer als die Pfeilspitze ist; `drawVec` verbirgt Geschwindigkeits-
+  vektoren dann (ergänzt den bestehenden |v|<0,02-Guard) statt sie mit
+  Überschieß-Spitze zu zeichnen.
+
 ## v1.0.4 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

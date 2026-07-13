@@ -180,9 +180,10 @@ export function updateScene(t) {
   const vecY = gliderTop - 22
   const drawVec = (lineEl, px, v, mInf) => {
     if (mInf || Math.abs(v) < 0.02) { lineEl.setAttribute('visibility', 'hidden'); return }
-    lineEl.setAttribute('visibility', vis)
     const len = v * PIXELS_PER_VELOCITY_UNIT
     const end = shortenEnd(px, vecY, px + len, vecY, 5 * 2.5)
+    if (!end) { lineEl.setAttribute('visibility', 'hidden'); return } // B23: Vektor kürzer als Spitze
+    lineEl.setAttribute('visibility', vis)
     lineEl.setAttribute('x1', px); lineEl.setAttribute('y1', vecY)
     lineEl.setAttribute('x2', end.x2); lineEl.setAttribute('y2', end.y2)
   }

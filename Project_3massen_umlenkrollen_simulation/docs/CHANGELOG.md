@@ -1,5 +1,16 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.7] — 2026-07-13
+
+B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).
+
+### Behoben (B23)
+- **Vektor-Pfeillänge/Spitze:** Der shared-Helper `shortenEnd` erzwang bei
+  Vektorlängen ≤ Marker-Länge einen 2-px-Schaft-Stub, sodaß die refX=0-Spitze
+  über das Ziel hinausschoß. `shortenEnd` gibt jetzt `null` zurück, wenn der
+  Vektor kürzer als die Pfeilspitze ist; `createForceVector` verbirgt zu kurze
+  Kraftvektoren dann statt sie mit Überschieß-Spitze zu zeichnen.
+
 ## [1.2.6] — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

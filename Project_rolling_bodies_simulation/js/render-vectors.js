@@ -19,6 +19,7 @@ function drawArrow(parent, x1, y1, vx, vy, color, markerId, minLen = VEC_MIN_LEN
   // Schaft um Marker-Länge (markerWidth 7 · strokeWidth 2,2) kürzen → Spitze
   // (refX=0-Marker) landet exakt auf (x1+vx, y1+vy).
   const end = shortenEnd(x1, y1, x1 + vx, y1 + vy, 7 * 2.2);
+  if (!end) return; // B23: Vektor kürzer als Pfeilspitze (len < 7·2,2)
   const el = svgEl('line', {
     x1: fmtTech(x1), y1: fmtTech(y1),
     x2: fmtTech(end.x2), y2: fmtTech(end.y2),

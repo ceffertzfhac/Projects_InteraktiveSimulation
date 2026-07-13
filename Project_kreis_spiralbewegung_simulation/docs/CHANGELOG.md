@@ -3,6 +3,17 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.7.1] — 2026-07-13
+
+B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).
+
+### Behoben (B23)
+- **Vektor-Pfeillänge/Spitze:** Der shared-Helper `shortenEnd` erzwang bei
+  Vektorlängen ≤ Marker-Länge einen 2-px-Schaft-Stub, sodaß die refX=0-Spitze
+  über das Ziel hinausschoß. `shortenEnd` gibt jetzt `null` zurück, wenn der
+  Vektor kürzer als die Pfeilspitze ist; `setMain` verbirgt zu kurze
+  Hauptvektoren (Ort/Geschw./Beschl.) statt sie mit Überschieß-Spitze zu zeichnen.
+
 ## [1.7.0] — 2026-07-13
 
 I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export

@@ -5,6 +5,19 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.2 — 2026-07-13
+
+B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).
+
+### Behoben (B23)
+- **Vektor-Pfeillänge/Spitze:** Der shared-Helper `shared/js/vectors.js`
+  (`shortenEnd`) erzwang bei Vektorlängen ≤ Marker-Länge einen 2-px-Schaft-Stub,
+  sodaß die refX=0-Spitze um bis zu ~14 px über das Ziel hinausschoß — am
+  Federpendel beim Nulldurchgang von v/a und in der Ruhelage (x=0) sichtbar
+  (PO-Bug-Report). `shortenEnd` gibt jetzt `null` zurück, wenn der Vektor kürzer
+  als die Pfeilspitze ist; Position/Geschwindigkeits-/Beschleunigungsvektoren
+  werden dann verborgen statt mit fehlerhafter Überschieß-Spitze gezeichnet.
+
 ## v1.1.1 — 2026-07-13
 
 Energie-Diagramm (I7) + Vektor-Pfeilspitzen-Fix (B22).

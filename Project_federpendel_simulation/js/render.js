@@ -368,6 +368,10 @@ export function updateScene(t, x, v, a, centers) {
   const massSize = store.currentMassRenderSize
   const vecOffset = 0.5 * massSize + 5
   let massCx, massCy
+  // B23: shortenEnd gibt null zurück, wenn der Vektor kürzer als die Pfeilspitze
+  // ist (Nulldurchgang von v/a, Ruhelage bei x=0). Ein zu kurzer Vektor wird
+  // verborgen statt mit überschießender Spitze gezeichnet.
+  let posShort = false, velShort = false, accShort = false
 
   if (store.oscillationMode === 'horizontal') {
     massCx = animCenterX + scale(x)
@@ -376,52 +380,64 @@ export function updateScene(t, x, v, a, centers) {
       // B22: Schaft um Marker-Länge kürzen → Spitze landet exakt auf dem
       // Zielpunkt (Massenzentrum), nicht 12.5 px darüber hinaus.
       const e = shortenEnd(animCenterX, massCy + vecOffset, massCx, massCy + vecOffset, VEC_MARKER_LEN)
-      DOM.positionVector.setAttribute('x1', animCenterX)
-      DOM.positionVector.setAttribute('y1', massCy + vecOffset)
-      DOM.positionVector.setAttribute('x2', e.x2)
-      DOM.positionVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.positionVector.setAttribute('x1', animCenterX)
+        DOM.positionVector.setAttribute('y1', massCy + vecOffset)
+        DOM.positionVector.setAttribute('x2', e.x2)
+        DOM.positionVector.setAttribute('y2', e.y2)
+      } else posShort = true
     }
     if (DOM.togVelocity.checked) {
       const tx = massCx + v * PIXELS_PER_VELOCITY_UNIT
       const e = shortenEnd(massCx, massCy, tx, massCy, VEC_MARKER_LEN)
-      DOM.velocityVector.setAttribute('x1', massCx)
-      DOM.velocityVector.setAttribute('y1', massCy)
-      DOM.velocityVector.setAttribute('x2', e.x2)
-      DOM.velocityVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.velocityVector.setAttribute('x1', massCx)
+        DOM.velocityVector.setAttribute('y1', massCy)
+        DOM.velocityVector.setAttribute('x2', e.x2)
+        DOM.velocityVector.setAttribute('y2', e.y2)
+      } else velShort = true
     }
     if (DOM.togAcceleration.checked) {
       const tx = massCx + a * PIXELS_PER_ACCELERATION_UNIT
       const e = shortenEnd(massCx, massCy - vecOffset, tx, massCy - vecOffset, VEC_MARKER_LEN)
-      DOM.accelerationVector.setAttribute('x1', massCx)
-      DOM.accelerationVector.setAttribute('y1', massCy - vecOffset)
-      DOM.accelerationVector.setAttribute('x2', e.x2)
-      DOM.accelerationVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.accelerationVector.setAttribute('x1', massCx)
+        DOM.accelerationVector.setAttribute('y1', massCy - vecOffset)
+        DOM.accelerationVector.setAttribute('x2', e.x2)
+        DOM.accelerationVector.setAttribute('y2', e.y2)
+      } else accShort = true
     }
   } else {
     massCx = animCenterX
     massCy = animCenterY - scale(x) // y zeigt nach oben → positive Auslenkung verkleinert SVG-y
     if (DOM.togPosition.checked) {
       const e = shortenEnd(massCx + vecOffset, animCenterY, massCx + vecOffset, massCy, VEC_MARKER_LEN)
-      DOM.positionVector.setAttribute('x1', massCx + vecOffset)
-      DOM.positionVector.setAttribute('y1', animCenterY)
-      DOM.positionVector.setAttribute('x2', e.x2)
-      DOM.positionVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.positionVector.setAttribute('x1', massCx + vecOffset)
+        DOM.positionVector.setAttribute('y1', animCenterY)
+        DOM.positionVector.setAttribute('x2', e.x2)
+        DOM.positionVector.setAttribute('y2', e.y2)
+      } else posShort = true
     }
     if (DOM.togVelocity.checked) {
       const ty = massCy - v * PIXELS_PER_VELOCITY_UNIT
       const e = shortenEnd(massCx, massCy, massCx, ty, VEC_MARKER_LEN)
-      DOM.velocityVector.setAttribute('x1', massCx)
-      DOM.velocityVector.setAttribute('y1', massCy)
-      DOM.velocityVector.setAttribute('x2', e.x2)
-      DOM.velocityVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.velocityVector.setAttribute('x1', massCx)
+        DOM.velocityVector.setAttribute('y1', massCy)
+        DOM.velocityVector.setAttribute('x2', e.x2)
+        DOM.velocityVector.setAttribute('y2', e.y2)
+      } else velShort = true
     }
     if (DOM.togAcceleration.checked) {
       const ty = massCy - a * PIXELS_PER_ACCELERATION_UNIT
       const e = shortenEnd(massCx - vecOffset, massCy, massCx - vecOffset, ty, VEC_MARKER_LEN)
-      DOM.accelerationVector.setAttribute('x1', massCx - vecOffset)
-      DOM.accelerationVector.setAttribute('y1', massCy)
-      DOM.accelerationVector.setAttribute('x2', e.x2)
-      DOM.accelerationVector.setAttribute('y2', e.y2)
+      if (e) {
+        DOM.accelerationVector.setAttribute('x1', massCx - vecOffset)
+        DOM.accelerationVector.setAttribute('y1', massCy)
+        DOM.accelerationVector.setAttribute('x2', e.x2)
+        DOM.accelerationVector.setAttribute('y2', e.y2)
+      } else accShort = true
     }
   }
 
@@ -429,9 +445,9 @@ export function updateScene(t, x, v, a, centers) {
   DOM.mass.setAttribute('y', massCy - massSize / 2)
   drawSpring(springAttachX, springAttachY, massCx, massCy)
 
-  DOM.positionVector.style.visibility = DOM.togPosition.checked ? 'visible' : 'hidden'
-  DOM.velocityVector.style.visibility = DOM.togVelocity.checked ? 'visible' : 'hidden'
-  DOM.accelerationVector.style.visibility = DOM.togAcceleration.checked ? 'visible' : 'hidden'
+  DOM.positionVector.style.visibility = (DOM.togPosition.checked && !posShort) ? 'visible' : 'hidden'
+  DOM.velocityVector.style.visibility = (DOM.togVelocity.checked && !velShort) ? 'visible' : 'hidden'
+  DOM.accelerationVector.style.visibility = (DOM.togAcceleration.checked && !accShort) ? 'visible' : 'hidden'
 
   // Stoppuhr
   if (store.isDigitalDisplay) {
