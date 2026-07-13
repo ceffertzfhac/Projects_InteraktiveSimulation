@@ -138,6 +138,11 @@ Overlay (keine Überdeckung wichtiger Inhalte).
 
 ## 5. Taschenrechner (`Standalone Proto/Taschenrechner/`, R6)
 
+> **Nachtrag (S4, 2026-07-13):** Der Taschenrechner ist kein Physik-Thema und
+> wurde aus dem Standalone-Ordner herausgelöst (lokale Kopie im gitignore-ten
+> `_temp_archiv/Taschenrechner/`). Die folgenden S5-Punkte dokumentieren den
+> R6-Rollout-Stand zum Zeitpunkt der Abnahme (historisch).
+
 **S5.1** shared-CSS geladen (Pfad `../../shared/`), UI-Chrome schaltet
 im Dark Mode.
 **S5.2** Equals-Taste ist Mint (`var(--fh-mint)`), Hover dunkler Mint
