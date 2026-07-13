@@ -5,6 +5,41 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.1 — 2026-07-13
+
+Energie-Diagramm (I7) + Vektor-Pfeilspitzen-Fix (B22).
+
+### Hinzugefügt (I7 — Energie-Diagramm)
+- **Neue Diagrammtypen:** „Energie (E_kin, E_pot, E_ges)" (Composite, 3 Linien) sowie
+  die Einzeltypen „Kinetische Energie", „Potentielle Energie", „Gesamtenergie" im
+  Diagramm-Dropdown. Farben aus den kanonischen Energie-Tokens (`--c-ekin`/`-epot`/
+  `-etot`, s. `shared/css/design-system.css`).
+- **Physik:** `extendMotionData()` füllt zusätzlich `ekData`/`epData`/`egesData`
+  (`E_kin=½mv²`, `E_pot=½kx²`, `E_ges=E_kin+E_pot`). Invariante: `E_ges` konstant =
+  `½kA²` (Energieerhaltung des ungedämpften Pendels) — numerisch verifiziert (Drift
+  < 1e-14). `recalculateAxisLimits()` liefert für Energie-Typen den Bereich `[0, E_max·1.1]`
+  (Energien ≥0, nicht symmetrisch um 0 wie die Schwingungsgrößen).
+- **Render:** `updateGraph()` auf bis zu 3 Linien verallgemeinert (Composite);
+  aktueller Wert je Linie analytisch aus `displacement`/`velocity`/`acceleration`
+  (kein Interpolations-Rundungsfehler am Nulldurchgang). Schwingungsgrößen-Typen
+  bleiben wie bisher auf `var(--accent)` (keine Optikänderung).
+- **CSV:** „Diagramm (CSV)" exportiert beim Composite alle drei Energiespalten,
+  Einzeltypen je eine; „Alle Daten (CSV)" nutzt jetzt die precompute-Energie-Arrays
+  (DRY, zuvor inline neu berechnet).
+
+### Behoben (B22 — Vektor-Pfeilspitzen überschießen Zielpunkt)
+- **PO-Bug-Report 2026-07-13:** Die Simulations-Vektoren (Auslenkung, Geschwindigkeit,
+  Beschleunigung) enden nicht mit der Spitze auf dem Zielpunkt — der „typische
+  Längenfehler" aus CLAUDE.md. Marker `arrowhead-pos/-vel/-acc` haben `refX=0`
+  (Spitze läuft `markerWidth·strokeWidth = 5·2.5 = 12.5 px` über das Linien-Ende
+  hinaus), aber die Linien wurden **ohne `shortenEnd`** direkt auf den Zielpunkt
+  gesetzt → Spitze überschoß um 12.5 px. **Fix:** Linien-Endpunkt pro Vektor via
+  `shortenEnd(…, VEC_MARKER_LEN)` aus `shared/js/vectors.js` um die Marker-Länge
+  gekürzt (`VEC_MARKER_LEN = 12.5`, `constants.js`), sodaß die Spitze exakt auf dem
+  Zielpunkt landet (kanonische refX=0 + einmalige Schaft-Kürzung). Betrifft alle
+  drei Vektoren in beiden Aufbauten (horizontal/vertikal). Rein visuell, keine
+  Physikänderung.
+
 ## v1.0.18 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

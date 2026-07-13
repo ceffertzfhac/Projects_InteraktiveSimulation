@@ -9,6 +9,11 @@ export const TIME_STEP = 1 / 60               // Physik-Zeitschritt (60 Hz)
 // ── Vektor-Skalierung ────────────────────────────────────────────────────────
 export const PIXELS_PER_VELOCITY_UNIT = 30    // px pro (m/s)
 export const PIXELS_PER_ACCELERATION_UNIT = 5 // px pro (m/s²)
+// Kanonische Pfeilspitzen-Geometrie (CLAUDE.md): Marker refX=0 + Schaft-Kürzung
+// um markerWidth·strokeWidth. Vektor-Marker (arrowhead-pos/-vel/-acc): markerWidth=5,
+// stroke-width=2.5 (s. index.html) → Marker-Länge 12.5 px. B22.
+export const ARROW_MW = 5, VEC_STROKE = 2.5
+export const VEC_MARKER_LEN = ARROW_MW * VEC_STROKE  // 12.5 px
 
 // ── Animationsfläche (SVG-Koordinaten) ───────────────────────────────────────
 export const ANIM_W = 450
@@ -65,9 +70,13 @@ export const graphOptions = {
 
 // Kurze Titel je Graph-Typ (TextContent, letztes Symbol kursiv via setGraphTitle)
 export const graphTitles = {
-  pos_t: 'Auslenkung vs. Zeit x(t)',
-  v_t:   'Geschwindigkeit vs. Zeit v(t)',
-  a_t:   'Beschleunigung vs. Zeit a(t)',
+  pos_t:      'Auslenkung vs. Zeit x(t)',
+  v_t:        'Geschwindigkeit vs. Zeit v(t)',
+  a_t:        'Beschleunigung vs. Zeit a(t)',
+  ekin:       'Kinetische Energie E_kin(t)',
+  epot:       'Potentielle Energie E_pot(t)',
+  eges:       'Gesamtenergie E_ges(t)',
+  ecomposite: 'Energie (E_kin, E_pot, E_ges)',
 }
 
 // Y-Achsenlabel je Typ (für setAxisLabel: „Größe / Einheit")
@@ -76,11 +85,19 @@ export const graphAxisLabels = {
     pos_t: 'Auslenkung x / m',
     v_t:   'Geschw. v / (m/s)',
     a_t:   'Beschl. a / (m/s²)',
+    ekin:       'E_kin / J',
+    epot:       'E_pot / J',
+    eges:       'E_ges / J',
+    ecomposite: 'E / J',
   },
   vertical: {
     pos_t: 'Auslenkung y / m',
     v_t:   'Geschw. v / (m/s)',
     a_t:   'Beschl. a / (m/s²)',
+    ekin:       'E_kin / J',
+    epot:       'E_pot / J',
+    eges:       'E_ges / J',
+    ecomposite: 'E / J',
   },
 }
 

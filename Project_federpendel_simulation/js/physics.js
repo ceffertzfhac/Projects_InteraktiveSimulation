@@ -25,6 +25,9 @@ export function precompute() {
   store.xData = []
   store.vData = []
   store.aData = []
+  store.ekData = []
+  store.epData = []
+  store.egesData = []
   if (Math.abs(store.amplitude) < 1e-9 || store.T === Infinity) {
     recalculateAxisLimits()
     return
@@ -36,28 +39,51 @@ export function precompute() {
 export function extendMotionData(duration) {
   const lastT = store.tData.length > 0 ? store.tData[store.tData.length - 1] : 0
   for (let t = lastT + TIME_STEP; t <= lastT + duration + TIME_STEP; t += TIME_STEP) {
+    const x = store.amplitude * Math.cos(store.omega * t)
+    const v = -store.amplitude * store.omega * Math.sin(store.omega * t)
     store.tData.push(t)
-    store.xData.push(store.amplitude * Math.cos(store.omega * t))
-    store.vData.push(-store.amplitude * store.omega * Math.sin(store.omega * t))
+    store.xData.push(x)
+    store.vData.push(v)
     store.aData.push(-store.amplitude * store.omega * store.omega * Math.cos(store.omega * t))
+    // Energie-Zeitreihen (I7): E_kin = ½mv², E_pot = ½kx², E_ges = E_kin+E_pot
+    // (konstant = ½kA² = totalEnergy — starke Invariante, s. I3-Seed-Test).
+    const ek = 0.5 * store.m * v * v
+    const ep = 0.5 * store.k * x * x
+    store.ekData.push(ek)
+    store.epData.push(ep)
+    store.egesData.push(ek + ep)
   }
 }
 
 export function recalculateAxisLimits() {
   const tMax = store.tData.length > 0 ? store.tData[store.tData.length - 1] : 10
-  const datasets = {
+  // Schwingungsgrößen: symmetrischer Bereich um 0 (±maxAbs·1.1).
+  const osc = {
     pos_t: store.xData,
     v_t: store.vData,
     a_t: store.aData,
   }
-  for (const key in datasets) {
-    const data = datasets[key]
+  for (const key in osc) {
+    const data = osc[key]
     const maxAbs = data.length > 0 ? Math.max(...data.map(d => Math.abs(d))) : 1
     store.axisLimits[key] = {
       min: -maxAbs * 1.1,
       max: maxAbs * 1.1,
       tMax,
       data,
+    }
+  }
+  // Energie (I7): rein ≥0 → Bereich [0, E_max·1.1]. E_max = totalEnergy = ½kA²
+  // (E_ges konstant, E_kin/E_pot schwingen 0..E_max). Composite teilt sich diesen
+  // Bereich mit den Einzeltypen, sodaß alle drei Linien gemeinsam skalieren.
+  const eMax = totalEnergy()
+  const eTop = eMax > 0 ? eMax * 1.1 : 1
+  for (const key of ['ekin', 'epot', 'eges', 'ecomposite']) {
+    store.axisLimits[key] = {
+      min: 0,
+      max: eTop,
+      tMax,
+      data: store.egesData,
     }
   }
 }

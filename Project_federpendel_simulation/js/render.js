@@ -5,6 +5,7 @@ import {
   ANIM_W, ANIM_H, ANCHOR_OFFSET_FROM_EDGE, ANCHOR_THICKNESS, ANCHOR_CROSS_DIMENSION,
   INITIAL_MASS_SIZE, MIN_MASS_SIZE, MASS_MIN, MASS_MAX, K_MIN, K_MAX,
   PIXELS_PER_VELOCITY_UNIT, PIXELS_PER_ACCELERATION_UNIT,
+  VEC_MARKER_LEN,
   GRAPH_W, GRAPH_H,
   WATCH_CX, WATCH_CY, WATCH_R, SDIAL_CX, SDIAL_CY, SDIAL_R,
   SEG_THICK, SEG_LEN, DIGIT_SPACING, COLON_WIDTH, LCD_FRAME_PADDING,
@@ -14,10 +15,12 @@ import {
   graphTitles, graphAxisLabels,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy } from './physics.js'
+import { linePlotIndex, frequency, kineticEnergy, potentialEnergy, totalEnergy,
+         displacement, velocity, acceleration } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -26,6 +29,39 @@ function el(tag, attrs) {
   const e = document.createElementNS(NS, tag)
   for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v))
   return e
+}
+
+// ── Diagramm-Linien je Typ (I7: Energie-Composite = 3 Linien) ──────────────────
+// dataKey = Name des precompute-Arrays in store; color = Stroke-Farbe.
+// Schwingungsgrößen bleiben wie bisher auf var(--accent); Energie nutzt die
+// kanonischen Energie-Tokens (--c-ekin/-epot/-etot, s. shared design-system.css).
+const GRAPH_LINES = {
+  pos_t:      [{ dataKey: 'xData',    color: 'var(--accent)' }],
+  v_t:        [{ dataKey: 'vData',    color: 'var(--accent)' }],
+  a_t:        [{ dataKey: 'aData',    color: 'var(--accent)' }],
+  ekin:       [{ dataKey: 'ekData',   color: 'var(--c-ekin)' }],
+  epot:       [{ dataKey: 'epData',   color: 'var(--c-epot)' }],
+  eges:       [{ dataKey: 'egesData', color: 'var(--c-etot)' }],
+  ecomposite: [
+    { dataKey: 'ekData',   color: 'var(--c-ekin)' },
+    { dataKey: 'epData',   color: 'var(--c-epot)' },
+    { dataKey: 'egesData', color: 'var(--c-etot)' },
+  ],
+}
+
+// Aktueller Wert einer Linie zur absoluten Zeit t (exakt analytisch, kein
+// Interpolations-Rundungsfehler am Nulldurchgang — I7).
+function lineCurrentValue(dataKey, t) {
+  const x = displacement(t), v = velocity(t)
+  switch (dataKey) {
+    case 'xData':    return x
+    case 'vData':    return v
+    case 'aData':    return acceleration(t)
+    case 'ekData':   return kineticEnergy(x, v)
+    case 'epData':   return potentialEnergy(x)
+    case 'egesData': return kineticEnergy(x, v) + potentialEnergy(x)
+    default:         return 0
+  }
 }
 
 // fmt() via shared/js/format.js (T6)
@@ -337,43 +373,55 @@ export function updateScene(t, x, v, a, centers) {
     massCx = animCenterX + scale(x)
     massCy = animCenterY
     if (DOM.togPosition.checked) {
+      // B22: Schaft um Marker-Länge kürzen → Spitze landet exakt auf dem
+      // Zielpunkt (Massenzentrum), nicht 12.5 px darüber hinaus.
+      const e = shortenEnd(animCenterX, massCy + vecOffset, massCx, massCy + vecOffset, VEC_MARKER_LEN)
       DOM.positionVector.setAttribute('x1', animCenterX)
       DOM.positionVector.setAttribute('y1', massCy + vecOffset)
-      DOM.positionVector.setAttribute('x2', massCx)
-      DOM.positionVector.setAttribute('y2', massCy + vecOffset)
+      DOM.positionVector.setAttribute('x2', e.x2)
+      DOM.positionVector.setAttribute('y2', e.y2)
     }
     if (DOM.togVelocity.checked) {
+      const tx = massCx + v * PIXELS_PER_VELOCITY_UNIT
+      const e = shortenEnd(massCx, massCy, tx, massCy, VEC_MARKER_LEN)
       DOM.velocityVector.setAttribute('x1', massCx)
       DOM.velocityVector.setAttribute('y1', massCy)
-      DOM.velocityVector.setAttribute('x2', massCx + v * PIXELS_PER_VELOCITY_UNIT)
-      DOM.velocityVector.setAttribute('y2', massCy)
+      DOM.velocityVector.setAttribute('x2', e.x2)
+      DOM.velocityVector.setAttribute('y2', e.y2)
     }
     if (DOM.togAcceleration.checked) {
+      const tx = massCx + a * PIXELS_PER_ACCELERATION_UNIT
+      const e = shortenEnd(massCx, massCy - vecOffset, tx, massCy - vecOffset, VEC_MARKER_LEN)
       DOM.accelerationVector.setAttribute('x1', massCx)
       DOM.accelerationVector.setAttribute('y1', massCy - vecOffset)
-      DOM.accelerationVector.setAttribute('x2', massCx + a * PIXELS_PER_ACCELERATION_UNIT)
-      DOM.accelerationVector.setAttribute('y2', massCy - vecOffset)
+      DOM.accelerationVector.setAttribute('x2', e.x2)
+      DOM.accelerationVector.setAttribute('y2', e.y2)
     }
   } else {
     massCx = animCenterX
     massCy = animCenterY - scale(x) // y zeigt nach oben → positive Auslenkung verkleinert SVG-y
     if (DOM.togPosition.checked) {
+      const e = shortenEnd(massCx + vecOffset, animCenterY, massCx + vecOffset, massCy, VEC_MARKER_LEN)
       DOM.positionVector.setAttribute('x1', massCx + vecOffset)
       DOM.positionVector.setAttribute('y1', animCenterY)
-      DOM.positionVector.setAttribute('x2', massCx + vecOffset)
-      DOM.positionVector.setAttribute('y2', massCy)
+      DOM.positionVector.setAttribute('x2', e.x2)
+      DOM.positionVector.setAttribute('y2', e.y2)
     }
     if (DOM.togVelocity.checked) {
+      const ty = massCy - v * PIXELS_PER_VELOCITY_UNIT
+      const e = shortenEnd(massCx, massCy, massCx, ty, VEC_MARKER_LEN)
       DOM.velocityVector.setAttribute('x1', massCx)
       DOM.velocityVector.setAttribute('y1', massCy)
-      DOM.velocityVector.setAttribute('x2', massCx)
-      DOM.velocityVector.setAttribute('y2', massCy - v * PIXELS_PER_VELOCITY_UNIT)
+      DOM.velocityVector.setAttribute('x2', e.x2)
+      DOM.velocityVector.setAttribute('y2', e.y2)
     }
     if (DOM.togAcceleration.checked) {
+      const ty = massCy - a * PIXELS_PER_ACCELERATION_UNIT
+      const e = shortenEnd(massCx - vecOffset, massCy, massCx - vecOffset, ty, VEC_MARKER_LEN)
       DOM.accelerationVector.setAttribute('x1', massCx - vecOffset)
       DOM.accelerationVector.setAttribute('y1', massCy)
-      DOM.accelerationVector.setAttribute('x2', massCx - vecOffset)
-      DOM.accelerationVector.setAttribute('y2', massCy - a * PIXELS_PER_ACCELERATION_UNIT)
+      DOM.accelerationVector.setAttribute('x2', e.x2)
+      DOM.accelerationVector.setAttribute('y2', e.y2)
     }
   }
 
@@ -422,11 +470,13 @@ export function updateKennwerte() {
 // (B21: Startpunkt der manuellen Zeitmessung) — Plot-Position wird um offset
 // verschoben (0, solange keine manuelle Zeitmessung aktiv ist), während die
 // zugrundeliegenden precompute-Arrays (store.tData) absolut indiziert bleiben.
-export function updateGraph(time, value, offset = 0) {
+export function updateGraph(time, offset = 0, showCurrent = true) {
   const limits = store.axisLimits[store.graphType]
   DOM.gridGroup.innerHTML = ''
-  DOM.graphLine.setAttribute('points', '')
-  DOM.graphPoint.style.visibility = 'hidden'
+  const lineEls = [DOM.graphLine, DOM.graphLineB, DOM.graphLineC]
+  const pointEls = [DOM.graphPoint, DOM.graphPointB, DOM.graphPointC]
+  for (const le of lineEls) { if (!le) continue; le.setAttribute('points', ''); le.style.display = 'none' }
+  for (const pe of pointEls) { if (!pe) continue; pe.style.visibility = 'hidden' }
   if (!limits) return
 
   // Diagramm-Geometrie pro Aufbau: horizontal → Landscape (GRAPH_W×GRAPH_H),
@@ -499,28 +549,37 @@ export function updateGraph(time, value, offset = 0) {
   DOM.graphTitle.setAttribute('x', graphW / 2)
   setGraphTitle(DOM.graphTitle, graphTitles[store.graphType])
 
-  // Daten-Polyline bis zum aktuellen Zeitpunkt. store.tData ist absolut
-  // indiziert; Punkte vor dem Messstart (< offset) werden nicht gezeichnet,
-  // die übrigen um offset verschoben, damit die Messung bei 0 beginnt (B21).
+  // Daten-Polylinien bis zum aktuellen Zeitpunkt (I7: je Linie im Typ-Config).
+  // store.tData ist absolut indiziert; Punkte vor dem Messstart (< offset)
+  // werden nicht gezeichnet, die übrigen um offset verschoben, damit die
+  // Messung bei 0 beginnt (B21).
   const idx = linePlotIndex(time)
-  const data = limits.data
-  let pts = ''
-  for (let i = 0; i < idx && i < data.length; i++) {
-    if (store.tData[i] < offset) continue
-    pts += `${scX(store.tData[i] - offset)},${scY(data[i])} `
-  }
   const displayTime = time - offset
-  if (value !== null && idx <= data.length) {
-    pts += `${scX(displayTime)},${scY(value)} `
-  }
-  DOM.graphLine.setAttribute('points', pts)
-
-  // Aktueller Punkt
-  if (value !== null) {
-    DOM.graphPoint.setAttribute('cx', scX(displayTime))
-    DOM.graphPoint.setAttribute('cy', scY(value))
-    DOM.graphPoint.style.visibility = 'visible'
-  }
+  const lines = GRAPH_LINES[store.graphType] || [{ dataKey: 'xData', color: 'var(--accent)' }]
+  lines.forEach((ln, li) => {
+    const le = lineEls[li], pe = pointEls[li]
+    if (!le) return
+    const data = store[ln.dataKey]
+    if (!data) { le.style.display = 'none'; return }
+    let pts = ''
+    for (let i = 0; i < idx && i < data.length; i++) {
+      if (store.tData[i] < offset) continue
+      pts += `${scX(store.tData[i] - offset)},${scY(data[i])} `
+    }
+    if (showCurrent) {
+      const cv = lineCurrentValue(ln.dataKey, time)
+      pts += `${scX(displayTime)},${scY(cv)} `
+      if (pe) {
+        pe.setAttribute('cx', scX(displayTime))
+        pe.setAttribute('cy', scY(cv))
+        pe.style.fill = ln.color
+        pe.style.visibility = 'visible'
+      }
+    }
+    le.setAttribute('points', pts)
+    le.style.stroke = ln.color
+    le.style.display = 'block'
+  })
 }
 
 export { MASS_MIN, MASS_MAX, K_MIN, K_MAX, INITIAL_MASS_SIZE, MIN_MASS_SIZE }

@@ -9,7 +9,7 @@ export const store = {
   k: 40,                 // Federkonstante (N/m)
   amplitude: 0.8,        // Anfangsauslenkung (m)
   oscillationMode: 'horizontal', // 'horizontal' | 'vertical'
-  graphType: 'pos_t',    // 'pos_t' | 'v_t' | 'a_t'
+  graphType: 'pos_t',    // 'pos_t' | 'v_t' | 'a_t' | 'ekin' | 'epot' | 'eges' | 'ecomposite'
   speedFactor: 1.0,
   currentPixelsPerMeter: PIXELS_PER_METER, // B5: im vertikalen Modus dynamisch geclampt
 
@@ -38,6 +38,9 @@ export const store = {
   xData: [],
   vData: [],
   aData: [],
+  ekData: [],      // I7: Kinetische Energie pro Zeitschritt
+  epData: [],      // I7: Potentielle Energie pro Zeitschritt
+  egesData: [],    // I7: Gesamtenergie pro Zeitschritt (konstant = ½kA²)
   axisLimits: {},
 }
 
@@ -91,7 +94,11 @@ export function initDOM() {
   DOM.gridGroup = q('grid_group')
   DOM.graphTitle = q('graph_title')
   DOM.graphLine = q('graph_line')
+  DOM.graphLineB = q('graph_line_b')
+  DOM.graphLineC = q('graph_line_c')
   DOM.graphPoint = q('graph_point')
+  DOM.graphPointB = q('graph_point_b')
+  DOM.graphPointC = q('graph_point_c')
   DOM.graphSelect = q('graph_select')
 
   // Slider & Toggles

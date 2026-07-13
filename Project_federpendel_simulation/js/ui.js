@@ -7,7 +7,7 @@ import {
 } from './constants.js'
 import {
   recomputeDerived, precompute, extendMotionData, recalculateAxisLimits,
-  displacement, velocity, acceleration, interpolateAt, totalEnergy,
+  displacement, velocity, acceleration, totalEnergy,
 } from './physics.js'
 import {
   setupScene, updateScene, updateGraph, updateKennwerte,
@@ -91,8 +91,7 @@ function resetSim(isPlayTrigger = false) {
   // Diagramm bei t = 0 (im manuellen Modus vor Start: kein Punkt)
   const hasData = store.tData.length > 0
   const showGraph = !store.isManualTiming || store.isTimingStarted
-  const gVal = (showGraph && hasData) ? store.axisLimits[store.graphType].data[0] : null
-  updateGraph(0, gVal)
+  updateGraph(0, 0, showGraph && hasData)
 
   updateKennwerte()
 
@@ -125,7 +124,6 @@ function animate(currentTime) {
   // die Schwingung (Feder) beim Klick nicht bei Auslenkung=Amplitude steht.
   const isActive = !store.isManualTiming || store.isTimingStarted
   const currentSimTime = isActive ? store.visualTime - store.timingOffset : 0
-  let currentGraphValue = null
 
   if (isActive && store.tData.length > 0 && store.visualTime >= store.tData[store.tData.length - 1]) {
     extendMotionData(Math.max(4 * store.T, 10))
@@ -138,16 +136,10 @@ function animate(currentTime) {
   const a = acceleration(store.visualTime)
   updateScene(currentSimTime, x, v, a, store.centers)
 
-  // Diagrammwert aus precompute-Daten (interpoliert bei absoluter Zeit)
-  if (isActive && store.tData.length > 1) {
-    const interp = interpolateAt(store.visualTime)
-    if (interp) {
-      if (store.graphType === 'v_t') currentGraphValue = interp.v
-      else if (store.graphType === 'a_t') currentGraphValue = interp.a
-      else currentGraphValue = interp.x
-    }
-  }
-  updateGraph(isActive ? store.visualTime : 0, currentGraphValue, store.timingOffset)
+  // Diagramm: Linien + aktueller Punkt werden in render.js aus den
+  // precompute-Arrays + analytischen Funktionen gezeichnet (I7: bis zu
+  // 3 Linien für das Energie-Composite).
+  updateGraph(isActive ? store.visualTime : 0, store.timingOffset, isActive)
 
   store.aniFrameId = requestAnimationFrame(animate)
 }
@@ -196,15 +188,29 @@ function downloadCSV(filename, rows) {
 function exportDiagramCSV() {
   if (store.tData.length === 0) return
   const sym = store.oscillationMode === 'horizontal' ? 'x' : 'y'
+  // Energie-Composite exportiert alle drei Energiespalten (I7).
+  if (store.graphType === 'ecomposite') {
+    const rows = [['Zeit t (s)', 'E_kin (J)', 'E_pot (J)', 'E_ges (J)']]
+    for (let i = 0; i < store.tData.length; i++) {
+      rows.push([toCsv(store.tData[i]), toCsv(store.ekData[i], 3), toCsv(store.epData[i], 3), toCsv(store.egesData[i], 3)])
+    }
+    downloadCSV('federpendel_energie.csv', rows)
+    return
+  }
   const headers = {
     pos_t: `Zeit t (s);Auslenkung ${sym} (m)`,
     v_t:   `Zeit t (s);Geschwindigkeit v (m/s)`,
     a_t:   `Zeit t (s);Beschleunigung a (m/s²)`,
+    ekin:  `Zeit t (s);Kinetische Energie E_kin (J)`,
+    epot:  `Zeit t (s);Potentielle Energie E_pot (J)`,
+    eges:  `Zeit t (s);Gesamtenergie E_ges (J)`,
   }
-  const dataKey = { pos_t: 'xData', v_t: 'vData', a_t: 'aData' }[store.graphType]
+  const dataKey = { pos_t: 'xData', v_t: 'vData', a_t: 'aData',
+                    ekin: 'ekData', epot: 'epData', eges: 'egesData' }[store.graphType]
   const rows = [headers[store.graphType].split(';')]
+  const decimals = store.graphType.startsWith('e') ? 3 : 4
   for (let i = 0; i < store.tData.length; i++) {
-    rows.push([toCsv(store.tData[i]), toCsv(store[dataKey][i])])
+    rows.push([toCsv(store.tData[i]), toCsv(store[dataKey][i], decimals)])
   }
   downloadCSV(`federpendel_${store.graphType}.csv`, rows)
 }
@@ -217,12 +223,9 @@ function exportAllCSV() {
     'E_kin (J)', 'E_pot (J)', 'E_ges (J)',
   ]]
   for (let i = 0; i < store.tData.length; i++) {
-    const t = store.tData[i], x = store.xData[i], v = store.vData[i], a = store.aData[i]
-    const ekin = 0.5 * store.m * v * v
-    const epot = 0.5 * store.k * x * x
     rows.push([
-      toCsv(t), toCsv(x), toCsv(v), toCsv(a),
-      toCsv(ekin, 3), toCsv(epot, 3), toCsv(ekin + epot, 3),
+      toCsv(store.tData[i]), toCsv(store.xData[i]), toCsv(store.vData[i]), toCsv(store.aData[i]),
+      toCsv(store.ekData[i], 3), toCsv(store.epData[i], 3), toCsv(store.egesData[i], 3),
     ])
   }
   downloadCSV('federpendel_alle_daten.csv', rows)

@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Federpendel
-    <span class="version">v1.0.18</span>
+    <span class="version">v1.1.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -189,6 +189,10 @@ window.MathJax = {
           <option value="pos_t" selected>Auslenkung vs. Zeit</option>
           <option value="v_t">Geschwindigkeit vs. Zeit</option>
           <option value="a_t">Beschleunigung vs. Zeit</option>
+          <option value="ecomposite">Energie (E_kin, E_pot, E_ges)</option>
+          <option value="ekin">Kinetische Energie vs. Zeit</option>
+          <option value="epot">Potentielle Energie vs. Zeit</option>
+          <option value="eges">Gesamtenergie vs. Zeit</option>
         </select>
       </div>
       <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
@@ -198,8 +202,14 @@ window.MathJax = {
           </marker>
         </defs>
         <g id="grid_group"></g>
+        <!-- I7: bis zu 3 Linien (Energie-Composite E_kin/E_pot/E_ges);
+             graph_title bleibt letztes SVG-Kind (CLAUDE.md). -->
         <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+        <polyline id="graph_line_b" fill="none" stroke-width="2" points="" style="display:none"/>
+        <polyline id="graph_line_c" fill="none" stroke-width="2" points="" style="display:none"/>
         <circle id="graph_point" r="4" visibility="hidden"/>
+        <circle id="graph_point_b" r="4" visibility="hidden"/>
+        <circle id="graph_point_c" r="4" visibility="hidden"/>
         <text id="graph_title" x="350" y="20" text-anchor="middle" class="graph-title-text"></text>
       </svg>
     </div>
