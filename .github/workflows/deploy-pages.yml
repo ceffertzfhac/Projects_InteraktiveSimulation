@@ -8,6 +8,11 @@ name: Deploy Webpage to GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - 'Webpage/**'
+      - '.github/workflows/deploy-pages.yml'
+      - 'scripts/check-webpage-drift.sh'
+      - 'scripts/sync-webpage.sh'
   workflow_dispatch:
 
 permissions:
@@ -28,6 +33,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Webpage-Drift-Check
+        # Guard: Webpage/sim_*/ muß byte-identisch mit den kanonischen
+        # Project_*_simulation/-Quellen sein (index.html abzüglich der
+        # Back-Button-href). Schlägt bei Drift fehl → kein Deploy einer
+        # stehengebliebenen Webpage/. → BACKLOG I11.
+        run: bash scripts/check-webpage-drift.sh
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload Webpage/ als Pages-Artifact
