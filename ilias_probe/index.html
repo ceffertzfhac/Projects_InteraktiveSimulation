@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ILIAS-Probe</title>
+
+  <!-- Test 3: MathJax vom CDN (denselben Link, den die echten Sims nutzen) -->
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <!-- Test 1: relative CSS-Datei -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>ILIAS-Probe</h1>
+  <p>Diese Seite testet, was die ILIAS-Umgebung mit einer mehrteiligen
+     (modularen) Web-App macht. Jeder der drei Tests zeigt sein Ergebnis
+     sichtbar auf dieser Seite.</p>
+
+  <!-- Test 1: Box ist nur grün umrandet, wenn css/style.css geladen wurde -->
+  <div id="css-test" class="probe-box">
+    <strong>Test 1 — relative CSS-Datei:</strong><br>
+    Ist diese Box <em>grün umrandet</em> mit hellem Hintergrund?
+    Dann wurde <code>css/style.css</code> über einen relativen Pfad geladen.
+    Fehlt die Umrandung, wird CSS nicht ausgeliefert.
+  </div>
+
+  <!-- Test 2: Text erscheint nur, wenn js/main.js via import mod.js lief -->
+  <div id="module-test" class="probe-box">
+    <strong>Test 2 — ES-Modul-Import:</strong><br>
+    Modul-Status: <span id="mod-result">nicht geladen</span><br>
+    Steht hier „ES-Modul importiert ✓", wurde eine <code>.js</code>-Datei
+    per <code>import</code> aus einer zweiten Datei nachgeladen
+    (korrekter MIME-Typ, relative Pfade intakt). Bleibt es bei
+    „nicht geladen", erlaubt ILIAS keine ES-Modul-Imports.
+  </div>
+
+  <!-- Test 3: Formel rendert nur, wenn der MathJax-CDN erreichbar ist -->
+  <div id="mathjax-test" class="probe-box">
+    <strong>Test 3 — MathJax vom CDN:</strong><br>
+    Formel: \(E = m c^{2}\)<br>
+    Wird die Formel oben sauber gesetzt (kursive Buchstaben, hochgestelltes 2),
+    ist der CDN im FH-Netz erreichbar. Steht der Roh-Text
+    <code>\(E = m c^{2}\)</code> sichtbar, wird der CDN blockiert.
+  </div>
+
+  <!-- Test 2: ES-Modul aus separater Datei -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
