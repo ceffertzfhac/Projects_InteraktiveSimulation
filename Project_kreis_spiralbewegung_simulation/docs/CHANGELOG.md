@@ -3,6 +3,15 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.6.1] — 2026-07-13
+
+Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
+
+### Geändert
+- **Topbar:** Copyright-Marke „© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten" neben
+  dem Institutions-Span ergänzt. Keine Verhaltensänderung — rein rechtlicher Hinweis
+  (volle Fassung in repo-root `NOTICE.md` und auf der Übersichtsseite).
+
 ## [1.6.0] — 2026-07-12
 
 FX2 — Kanonischer Stoppuhr-Subdial nachgerüstet. FX5 — Auto-Stopp-

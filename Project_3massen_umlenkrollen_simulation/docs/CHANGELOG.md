@@ -1,5 +1,14 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.6] — 2026-07-13
+
+Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
+
+### Geändert
+- **Topbar:** Copyright-Marke „© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten" neben
+  dem Institutions-Span ergänzt. Keine Verhaltensänderung — rein rechtlicher Hinweis
+  (volle Fassung in repo-root `NOTICE.md` und auf der Übersichtsseite).
+
 ## [1.2.5] — 2026-07-11
 ### Geändert (T9 — shared/js-Helper konsolidieren)
 - **`shortenEnd`** nutzt jetzt `shared/js/vectors.js` statt einer lokalen

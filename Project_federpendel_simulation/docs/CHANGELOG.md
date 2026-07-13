@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.18 — 2026-07-13
+
+Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
+
+### Geändert
+- **Topbar:** Copyright-Marke „© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten" neben
+  dem Institutions-Span ergänzt. Keine Verhaltensänderung — rein rechtlicher Hinweis
+  (volle Fassung in repo-root `NOTICE.md` und auf der Übersichtsseite).
+
 ## v1.0.17 — 2026-07-12
 
 B21 — Nachbesserung: v1.0.16 behob nur die Sichtbarkeit, nicht die

@@ -1,5 +1,14 @@
 # Changelog — Schräger Wurf
 
+## v1.3.1 — 2026-07-13
+
+Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
+
+### Geändert
+- **Topbar:** Copyright-Marke „© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten" neben
+  dem Institutions-Span ergänzt. Keine Verhaltensänderung — rein rechtlicher Hinweis
+  (volle Fassung in repo-root `NOTICE.md` und auf der Übersichtsseite).
+
 ## v1.3.0 — 2026-07-12
 
 I5 — Hover-Werte am Zeit-Diagramm (Rollout, 3. Sim nach Zykloide-Referenz).
