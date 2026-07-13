@@ -17,3 +17,6 @@ test.txt
 # wird erst geleert/gelöscht, wenn das gesamte Projekt fertig + abgenommen ist UND
 # der PO es ausdrücklich bestätigt. Lokales Sicherheitsnetz — nicht committed.
 _temp_archiv/
+
+# Dev-Only-Test-Scaffold (Vitest, → BACKLOG I3) — nicht Teil der Auslieferung
+node_modules/

@@ -48,6 +48,10 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
 - **`Standalone Proto/`** — historische Quellordner der Single-File-Prototypen (nicht
   die kanonischen Versionen; die lauffähigen Kopien liegen in `AllAnimations/`).
 - **`_temp_archiv/`** — Zwischenstände / Archivmaterial, nicht für die Nutzung gedacht.
+- **`scripts/`** — `sync-webpage.sh` (spiegelt `Project_*` → `Webpage/`) und
+  `check-webpage-drift.sh` (Drift-Guard im Pages-Workflow).
+- **`test/`** — Vitest-Seed-Tests für Physik-Invarianten (dev-only; die Simulationen
+  selbst bleiben build-lose Browser-ES-Module ohne npm-Abhängigkeit).
 
 ## Starten (lokale Entwicklung)
 

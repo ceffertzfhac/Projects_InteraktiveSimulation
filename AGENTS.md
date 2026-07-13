@@ -19,6 +19,8 @@ AllAnimations/              # globale Übersichtsseite (index.html) + lauffähig
 Standalone Proto/           # historische Quellordner der Single-File-Prototypen (nicht kanonisch)
 shared/                     # shared/css/design-system.css (Design-Tokens, Layout, Klapp-Sidebar) + js-Helper
 scripts/                    # sync-webpage.sh (Project_*→Webpage spiegeln) + check-webpage-drift.sh (Guard)
+test/                       # Vitest-Seed-Tests für Physik-Invarianten (dev-only, → BACKLOG I3)
+package.json, vitest.config.js  # dev-only Test-Scaffold (node_modules/ gitignored, keine Auslieferung)
 global_docs/                # Architektur-Blueprint (simulation_instruction.md) + KI-Kontext
 ilias_probe/                # Testumgebung für ILIAS (relatives CSS, ES-Modul-Import, MathJax-CDN)
 CLAUDE.md                   # kanonischer Entwicklungsleitfaden (Architektur, Konventionen, Design-System)

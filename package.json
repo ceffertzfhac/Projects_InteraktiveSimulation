@@ -1,0 +1,14 @@
+{
+  "name": "interaktive-simulation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mono-Repo interaktiver Physik-Simulationen (FH Aachen FB 8). Dev-Only-Test-Scaffold (Vitest); die Simulationen selbst sind build-lose Browser-ES-Module ohne npm-Abhängigkeiten.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.10"
+  }
+}

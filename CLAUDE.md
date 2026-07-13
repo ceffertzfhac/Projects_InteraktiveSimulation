@@ -29,6 +29,8 @@ npx serve .
 
 Then open `http://localhost:8000`. No build, no install.
 
+> **Dev-Only-Test-Scaffold (→ BACKLOG I3):** `package.json` + `vitest.config.js` + `test/` enthalten ein Vitest-Seed-Set für Physik-Invarianten (6 Sims, 21 Tests). „Kein Build, kein npm" gilt für die **Simulationen** (laufen browser-nativ ohne Install); die Tests sind **dev-only** (`npm install` nur für die Entwicklung nötig, `node_modules/` ist gitignored) und beeinflussen die Auslieferung nicht. `npx vitest run` prüft die Invarianten. Die `physics.js` sind reine ES-Module und importierbar ohne DOM (`state.js` hält `document.*` in `initDOM()`-Body).
+
 ## Git Workflow
 
 Git hooks are active via `core.hooksPath = .githooks` (already configured in this repo):
