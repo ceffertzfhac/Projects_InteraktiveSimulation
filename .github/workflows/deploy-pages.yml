@@ -1,0 +1,39 @@
+name: Deploy Webpage to GitHub Pages
+
+# Stellt den Ordner Webpage/ als statische Site auf GitHub Pages bereit.
+# Veröffentlichungsort ist ILIAS (per Weblink im Kurs); Pages liefert nur die Bytes.
+# ILIAS-spezifisches: mehrteilige modulare Form (ES-Module + relatives CSS +
+# MathJax-CDN) wurde per ilias_probe/ empirisch als ILIAS-tauglich bestätigt.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nur ein gleichzeitiger Deploy; laufende werden abgelöst.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Webpage/ als Pages-Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: Webpage
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
