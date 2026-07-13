@@ -283,6 +283,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
 .analysis-cell { background: var(--surface2); padding: 4px 8px; font-size: .68rem; }
 .analysis-cell.key { color: var(--text3); }
 .analysis-cell.val { font-family: var(--font-mono); color: var(--text); text-align: right; }
+/* Wert (plain textContent) + Einheit (statisches MathJax-<span class="unit">) — s. T12. */
+.analysis-cell.val .unit { margin-left: .3em; }
 
 /* ── LEGEND ──────────────────────────────────────────────────── */
 .legend-grid { display: grid; grid-template-columns: 14px 1fr; gap: 4px 7px; align-items: center; }

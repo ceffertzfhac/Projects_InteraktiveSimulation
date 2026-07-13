@@ -40,13 +40,6 @@ export function rebuildAnalysis() {
       a: div.querySelector(`#ac_${s}_a`)
     };
   });
-
-  if (state.store._mjDebounceTimer) clearTimeout(state.store._mjDebounceTimer);
-  state.store._mjDebounceTimer = setTimeout(() => {
-    if (window._mjReady && window.MathJax && MathJax.typesetPromise) {
-      MathJax.typesetPromise([analysisArea]).catch(() => {});
-    }
-  }, 300);
 }
 
 export function updateAnalysis(interp) {

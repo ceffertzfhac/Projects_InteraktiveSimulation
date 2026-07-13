@@ -14,10 +14,11 @@ automatisierten Tests** — Verifikation erfolgt manuell im Browser.
 
 ```
 Project_<sim>_simulation/   # modulare Sims (je index.html + js/{constants,state,physics,render,ui}.js + css/ + docs/) — 16 Stück
-Webpage/                   # deploybare statische Site (sim_<name>/, relative Pfade) — GitHub-Pages-Target
+Webpage/                   # deploybare statische Site (sim_<name>/, relative Pfade) — GitHub-Pages-Target (Mirror von Project_*/, s. scripts/sync-webpage.sh)
 AllAnimations/              # globale Übersichtsseite (index.html) + lauffähige Standalone-Prototypen + Vorschaubilder/
 Standalone Proto/           # historische Quellordner der Single-File-Prototypen (nicht kanonisch)
 shared/                     # shared/css/design-system.css (Design-Tokens, Layout, Klapp-Sidebar) + js-Helper
+scripts/                    # sync-webpage.sh (Project_*→Webpage spiegeln) + check-webpage-drift.sh (Guard)
 global_docs/                # Architektur-Blueprint (simulation_instruction.md) + KI-Kontext
 ilias_probe/                # Testumgebung für ILIAS (relatives CSS, ES-Modul-Import, MathJax-CDN)
 CLAUDE.md                   # kanonischer Entwicklungsleitfaden (Architektur, Konventionen, Design-System)
