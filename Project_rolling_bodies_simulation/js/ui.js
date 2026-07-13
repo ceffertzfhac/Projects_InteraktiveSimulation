@@ -11,6 +11,7 @@ import {
 } from './constants.js';
 import { computeK, rollConditionMuMin, precompute } from './physics.js';
 import { attachGraphHover } from '../../shared/js/hover.js';
+import { exportSVG, exportPNG } from '../../shared/js/export-image.js';
 
 export function setupUI() {
   // Theme aus lokalem Speicher laden (einheitlicher Key fh_theme, siehe CLAUDE.md)
@@ -105,6 +106,8 @@ export function setupUI() {
   state.DOM.resetBtn.addEventListener('click', () => { state.store.simTime = 0; resetSim(); });
   state.DOM.exportAll.addEventListener('click', exportCSV);
   state.DOM.exportDiagram.addEventListener('click', exportGraphCSV);
+  state.DOM.exportSvg.addEventListener('click', () => exportSVG(state.DOM.graphSvg, 'rollende_koerper_diagramm.svg'));
+  state.DOM.exportPng.addEventListener('click', () => exportPNG(state.DOM.graphSvg, 'rollende_koerper_diagramm.png'));
 
   // Global event for resetting sim (to avoid circular dependencies)
   document.addEventListener('sim-reset-request', () => resetSim(true));

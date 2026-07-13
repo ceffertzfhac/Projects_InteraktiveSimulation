@@ -159,6 +159,8 @@ export function initDOMCache() {
   DOM.resetBtn = document.getElementById('reset_btn');
   DOM.exportAll = document.getElementById('export_all_btn');
   DOM.exportDiagram = document.getElementById('export_diagram_btn');
+  DOM.exportSvg = document.getElementById('export_svg_btn');
+  DOM.exportPng = document.getElementById('export_png_btn');
   DOM.themeToggle = document.getElementById('theme_toggle');
   
   // Toggles

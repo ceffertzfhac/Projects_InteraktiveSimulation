@@ -55,6 +55,8 @@ export function initDOM() {
   DOM.resetBtn = q('reset_btn')
   DOM.exportDiagram = q('export_diagram_btn')
   DOM.exportAll = q('export_all_btn')
+  DOM.exportSvg = q('export_svg_btn')
+  DOM.exportPng = q('export_png_btn')
   DOM.appLayout = document.querySelector('.app-layout')
   DOM.analysisToggle = q('analysis_toggle')
   DOM.timeLabel = q('time_label')

@@ -4,7 +4,9 @@ import { G, BALL_START_X_PX, GROUND_PX, ANIM_W, BALL_RADIUS_BASE_PX,
          DEFAULT_PIXELS_PER_METER, PIXELS_PER_VELOCITY_UNIT, PIXELS_PER_ACCELERATION_UNIT,
          SF_ARM_LENGTH_M, WATCH_CX, WATCH_CY, SDIAL_CX, SDIAL_CY,
          singleGraphOptions, stackedGraphOptions,
-         singleToStackedMap, stackedToSingleMap } from './constants.js'
+         singleToStackedMap, stackedToSingleMap,
+         GRAPH_SINGLE_TRANSLATE, GRAPH_STACKED_TOP_TRANSLATE,
+         GRAPH_STACKED_BOTTOM_TRANSLATE } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
          flightTime, precompute, interpolateAt } from './physics.js'
@@ -14,6 +16,7 @@ import { fmt, drawRuler, drawHorizontalRuler, drawStickFigure,
          updateGraphs, updateScene, updateKennwerte, updatePhysicsFormulas,
          updateZoomDisplay, drawFrozenTrajectory, updateGraphHover } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
+import { exportSVG, exportPNG, computeBBox } from '../../shared/js/export-image.js'
 
 // ── Dropdown-Optionen (Single/Stacked) ───────────────────────────────────────
 function updateDropdownOptions(isModeChange) {
@@ -411,6 +414,32 @@ DOM.stopwatch.addEventListener('click', () => {
 })
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false))
 DOM.exportAll.addEventListener('click', () => exportCSV(true))
+
+// Diagramm-Export als Bild (I6). Das Diagramm ist ein <g> *in* #main_svg (kein
+// separates #graph_svg) → exportiere main_svg zugeschnitten auf den Diagrammbereich.
+// cropViewBox = lokale BBox des aktiven Graph-<g> + dessen Translate (Single: eine
+// Gruppe; Stacked: Union aus top+bottom). computeBBox blendet visibility:hidden-
+// Hover-Elemente aus, damit der Zuschnitt nicht durch einen cursor-verfälschten
+// Tooltip verzerrt wird.
+function graphCropViewBox() {
+  if (store.isStacked) {
+    const t = GRAPH_STACKED_TOP_TRANSLATE, b = GRAPH_STACKED_BOTTOM_TRANSLATE
+    const bt = computeBBox(DOM.graphGroupStackedTop)
+    const bb = computeBBox(DOM.graphGroupStackedBottom)
+    const x = Math.min(bt.x + t.x, bb.x + b.x)
+    const y = Math.min(bt.y + t.y, bb.y + b.y)
+    const x2 = Math.max(bt.x + bt.width + t.x, bb.x + bb.width + b.x)
+    const y2 = Math.max(bt.y + bt.height + t.y, bb.y + bb.height + b.y)
+    return { x, y, w: x2 - x, h: y2 - y }
+  }
+  const s = GRAPH_SINGLE_TRANSLATE
+  const bs = computeBBox(DOM.graphGroupSingle)
+  return { x: bs.x + s.x, y: bs.y + s.y, w: bs.width, h: bs.height }
+}
+DOM.exportSvg.addEventListener('click', () =>
+  exportSVG(DOM.mainSvg, 'schraeger_wurf_diagramm.svg', { cropViewBox: graphCropViewBox() }))
+DOM.exportPng.addEventListener('click', () =>
+  exportPNG(DOM.mainSvg, 'schraeger_wurf_diagramm.png', 2, { cropViewBox: graphCropViewBox() }))
 DOM.analysisToggle.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
   DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')

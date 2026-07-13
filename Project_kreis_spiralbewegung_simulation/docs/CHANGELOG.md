@@ -3,6 +3,18 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.7.0] — 2026-07-13
+
+I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export
+um eine visuelle Bilddatei (kanonische Topbar-Buttonleiste).
+
+### Hinzugefügt
+- **Topbar:** zwei neue Buttons „Diagramm (SVG)" + „Diagramm (PNG)" nach den
+  CSV-Buttons. Nutzen den shared-Helper `shared/js/export-image.js` (Computed-Style-
+  Inlining für losgelöste SVG-Datei); Exportziel ist das separate `#graph_svg`.
+- **`js/state.js`:** DOM-Cache `exportSvg`/`exportPng` ergänzt (`graphSvg` bestand
+  bereits). → BACKLOG I6.
+
 ## [1.6.1] — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

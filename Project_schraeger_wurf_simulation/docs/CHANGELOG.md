@@ -1,5 +1,21 @@
 # Changelog — Schräger Wurf
 
+## v1.4.0 — 2026-07-13
+
+I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export
+um eine visuelle Bilddatei (kanonische Topbar-Buttonleiste).
+
+### Hinzugefügt
+- **Topbar:** zwei neue Buttons „Diagramm (SVG)" + „Diagramm (PNG)" nach den
+  CSV-Buttons. Das Diagramm ist hier ein `<g>` *in* `#main_svg` (kein separates
+  `#graph_svg`) → der shared-Helper `export-image.js` exportiert `#main_svg`
+  zugeschnitten auf den Diagrammbereich (`cropViewBox`), sodaß die elterlichen
+  `<defs>` (Achsenpfeil-Marker) erhalten bleiben. Der Zuschnitt wird aus der
+  BoundingBox des aktiven Graph-`<g>` + dessen Translate berechnet (Single: eine
+  Gruppe; Stacked: Union aus Top+Bottom); `computeBBox` blendet dabei
+  `visibility:hidden`-Hover-Elemente aus. → BACKLOG I6.
+- **`js/state.js`:** DOM-Cache `exportSvg`/`exportPng`/`mainSvg` ergänzt.
+
 ## v1.3.1 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

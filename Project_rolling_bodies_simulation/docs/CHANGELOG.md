@@ -2,6 +2,19 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.2.0] — 2026-07-13
+
+I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export
+um eine visuelle Bilddatei (kanonische Topbar-Buttonleiste).
+
+### Hinzugefügt
+- **Topbar:** zwei neue Buttons „Diagramm (SVG)" + „Diagramm (PNG)" nach den
+  CSV-Buttons. Nutzen den neuen shared-Helper `shared/js/export-image.js`, der vor
+  dem Serialisieren Computed-Styles als Inline-Attribute übernimmt (CSS-Variablen
+  und externe Stylesheets greifen in einer losgelösten SVG-Datei sonst nicht).
+- **`js/state.js`:** DOM-Cache `exportSvg`/`exportPng` ergänzt (`graphSvg` bestand
+  bereits). → BACKLOG I6.
+
 ## [2.1.2] — 2026-07-13
 
 T12 — MathJax-Runtime-Typeset entfernt. `rebuildAnalysis()` typesettete die

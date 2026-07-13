@@ -134,4 +134,7 @@ export function initDOM() {
   // Export
   DOM.exportDiagram = q('export_diagram_btn')
   DOM.exportAll = q('export_all_btn')
+  DOM.exportSvg = q('export_svg_btn')
+  DOM.exportPng = q('export_png_btn')
+  DOM.mainSvg = q('main_svg')
 }

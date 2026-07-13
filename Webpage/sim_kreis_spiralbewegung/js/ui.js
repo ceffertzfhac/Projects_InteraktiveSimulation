@@ -8,6 +8,7 @@ import { store, DOM, initDOM } from './state.js'
 import { precompute, calculatePreciseStopTime } from './physics.js'
 import { fmt, drawBackground, updateScene, updateGraphHover } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
+import { exportSVG, exportPNG } from '../../shared/js/export-image.js'
 
 const RAD = Math.PI / 180
 
@@ -425,6 +426,8 @@ DOM.resetBtn.addEventListener('click', () => {
 })
 DOM.exportDiagram.addEventListener('click', exportDiagramCSV)
 DOM.exportAll.addEventListener('click', exportAllCSV)
+DOM.exportSvg.addEventListener('click', () => exportSVG(DOM.graphSvg, 'kreis_spiralbewegung_diagramm.svg'))
+DOM.exportPng.addEventListener('click', () => exportPNG(DOM.graphSvg, 'kreis_spiralbewegung_diagramm.png'))
 
 DOM.analysisToggle.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')

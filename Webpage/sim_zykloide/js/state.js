@@ -35,6 +35,7 @@ export function initDOM() {
 
   // Szene
   DOM.mainSvg = q('main_svg')
+  DOM.graphSvg = q('graph_svg')
   DOM.worldGroup = q('world_group')
   DOM.backgroundGroup = q('background_group')
   DOM.tracesGroup = q('traces_group')
@@ -101,4 +102,6 @@ export function initDOM() {
   // Export
   DOM.exportAll = q('export_all_btn')
   DOM.exportDiagram = q('export_diagram_btn')
+  DOM.exportSvg = q('export_svg_btn')
+  DOM.exportPng = q('export_png_btn')
 }

@@ -8,6 +8,7 @@ import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
 import { fmt, drawBackground, updateTraceZOrder, updateScene, updateGraphHover } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
+import { exportSVG, exportPNG } from '../../shared/js/export-image.js'
 
 // ── Diagramm-Dropdown füllen ─────────────────────────────────────────────────
 function setupGraphSelect() {
@@ -209,6 +210,8 @@ DOM.pauseBtn.addEventListener('click', stopAnimation)
 DOM.resetBtn.addEventListener('click', resetSim)
 DOM.exportAll.addEventListener('click', exportCSV)
 DOM.exportDiagram.addEventListener('click', exportDiagramCSV)
+DOM.exportSvg.addEventListener('click', () => exportSVG(DOM.graphSvg, 'zykloide_diagramm.svg'))
+DOM.exportPng.addEventListener('click', () => exportPNG(DOM.graphSvg, 'zykloide_diagramm.png'))
 DOM.analysisToggle.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
   DOM.analysisToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')

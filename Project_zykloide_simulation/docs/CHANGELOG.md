@@ -1,5 +1,16 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.2.0 — 2026-07-13
+
+I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export
+um eine visuelle Bilddatei (kanonische Topbar-Buttonleiste).
+
+### Hinzugefügt
+- **Topbar:** zwei neue Buttons „Diagramm (SVG)" + „Diagramm (PNG)" nach den
+  CSV-Buttons. Nutzen den shared-Helper `shared/js/export-image.js` (Computed-Style-
+  Inlining für losgelöste SVG-Datei); Exportziel ist das separate `#graph_svg`.
+- **`js/state.js`:** DOM-Cache `graphSvg`/`exportSvg`/`exportPng` ergänzt. → BACKLOG I6.
+
 ## v1.1.1 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
