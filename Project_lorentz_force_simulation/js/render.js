@@ -250,12 +250,13 @@ export function updateScene() {
   DOM.i_gauge_fill.style.width = `${Math.min((store.current / maxI) * 100, 100)}%`
   DOM.v_gauge_val.textContent = fmt(store.voltage, 2) + ' V'; DOM.i_gauge_val.textContent = fmt(store.current, 2) + ' A'
   
-  DOM.res_val.innerHTML = `\\( ${fmt(store.resistance, 4)} \\, \\Omega \\)`
-  DOM.cur_val.innerHTML = `\\( ${fmt(store.current, 2)} \\, \\text{A} \\)`
-  DOM.force_val.innerHTML = `\\( ${fmt(store.forceL, 4)} \\, \\text{N} \\)`
-  DOM.dist_curr_val.innerHTML = `\\( ${fmt(store.distance, 1)} \\, \\text{mm} \\)`
-  DOM.delta_y_val.innerHTML = `\\( ${fmt(store.deltaY, 2)} \\, \\text{mm} \\)`
-  if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise()
+  // Live-Werte als plain textContent (Einheit ist statisches MathJax-<span class="unit">
+  // in index.html, einmalig beim Laden typesettet — kein Runtime-typesetPromise, s. T12).
+  DOM.res_val.textContent = fmt(store.resistance, 4)
+  DOM.cur_val.textContent = fmt(store.current, 2)
+  DOM.force_val.textContent = fmt(store.forceL, 4)
+  DOM.dist_curr_val.textContent = fmt(store.distance, 1)
+  DOM.delta_y_val.textContent = fmt(store.deltaY, 2)
   if (store.distance <= 10) { DOM.status_label.textContent = 'KOLLISION!'; DOM.status_label.style.color = 'var(--c-acc)' }
   else { DOM.status_label.textContent = 'STATISCH (GLEICHGEWICHT)'; DOM.status_label.style.color = 'var(--text3)' }
 }

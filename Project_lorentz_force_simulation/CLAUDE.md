@@ -57,7 +57,7 @@ Single `store` object holds all app state: electrical parameters (voltage, curre
 
 ### Rendering (`js/render.js`)
 
-Pure SVG manipulation — no canvas. `draw3DSpring()` renders a parametric helix with three layered passes (back arcs, front arcs with metallic gradient, highlight). Force arrows use logarithmic scaling for visibility across wide value ranges. MathJax is called to re-typeset formula elements after value updates.
+Pure SVG manipulation — no canvas. `draw3DSpring()` renders a parametric helix with three layered passes (back arcs, front arcs with metallic gradient, highlight). Force arrows use logarithmic scaling for visibility across wide value ranges. Live-Werte (R, I, F_L, d, Δy) werden als plain `textContent` in `<span class="num">`-Zellen aktualisiert; die Einheiten sind statische MathJax-`<span class="unit">` (einmalig beim Laden typesettet) — kein Runtime-`typesetPromise` (s. CLAUDE.md „MathJax statisch").
 
 ### Styling (`css/styles.css`)
 

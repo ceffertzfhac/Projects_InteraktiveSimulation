@@ -2,6 +2,17 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.1.2] — 2026-07-13
+
+T12 — MathJax-Runtime-Typeset entfernt. `rebuildAnalysis()` typesettete die
+dynamisch gebaute Analyse-Area debounced (300 ms) per `MathJax.typesetPromise`,
+obwohl diese Area kein LaTeX enthält (nur plain `x`/`y`/`|v|`/`|a|`-Keys +
+`textContent`-Zahlen) — toter Aufruf. Entfernt: debounce-Timer
+(`state._mjDebounceTimer`), `typesetPromise`-Block, der `window._mjReady`-Gate
+samt `startup.ready`-Override in `index.html` (MathJax nutzt nun Default-Startup;
+die statischen Formeln/Labels in `index.html` werden wie gewohnt einmalig beim
+Laden typesettet). Konform zur CLAUDE.md-Regel „MathJax statisch statt dynamisch".
+
 ## [2.1.1] — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

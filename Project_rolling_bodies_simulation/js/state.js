@@ -31,7 +31,6 @@ export const store = {
   coordSystemAlignment: 'plane', // 'plane' or 'ground'
   _visX0: 0,
   _visX1: 700,
-  _mjDebounceTimer: null,
 
   // Hover-Werte (I5): von updateGraph() befüllte Skalierungsparameter,
   // von updateGraphHover() gelesen — siehe render-graph.js.

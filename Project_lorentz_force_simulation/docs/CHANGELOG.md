@@ -1,5 +1,20 @@
 # CHANGELOG - Lorentzkraft Simulation
 
+## [1.6.0] — 2026-07-13
+
+T12 — MathJax-Runtime-Typeset entfernt (Konvention „statisch statt dynamisch").
+Bisher setzte `updateScene()` bei jedem Slider-Tick die 5 Live-Werte-Zellen
+(R, I, F_L, d, Δy) per `innerHTML = \( <zahl> \, <einheit> \)` und rief danach
+ein **Full-Doc**-`MathJax.typesetPromise()` (ohne Element-Argument) auf —
+Performance-Belastung und Konventionsverstoß. Jetzt: jede val-Zelle in
+`index.html` aufgespalten in `<span class="num">` (Zahl, plain `textContent`)
++ `<span class="unit">` (Einheit als statisches MathJax, einmalig beim Laden
+typesettet). `render.js` aktualisiert nur noch `DOM.<id>.textContent = fmt(…)`
+— kein `innerHTML`, kein `typesetPromise`. Statische Formeln/Labels in
+`index.html` werden wie gewohnt beim Laden typesettet. Minor-Bump (neues
+Rendering-Muster der Live-Werte; für Nutzer flackerfreiere Slider-Updates,
+keine Verhaltensänderung).
+
 ## [1.5.9] — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
