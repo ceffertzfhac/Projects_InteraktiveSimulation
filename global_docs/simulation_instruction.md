@@ -203,37 +203,35 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 ### Diagramm-Steuerung (Platzierung & Mechanik)
 
 Die Auswahl und Steuerung der Diagramme ist repo-weit **einheitlich** aufzubauen
-(Rollout/Angleichung offener Sims → BACKLOG **I12**). Kanonische Referenz für die
-Platzierung: **Kreis-/Spiralbewegung v1.3.0**. Grundprinzip: **Diagramm-*Inhalt*
-in die linke Sidebar, räumliche *Anordnung* in die Topbar** — zwei getrennte
-Belange, nicht vermischen.
+(Rollout/Angleichung offener Sims → BACKLOG **I12**). Kanonische Platzierung: die
+**Graph-Toolbar-Schule** (Referenz z. B. Zykloide, Kreisbewegung, Rollende Körper).
+Grundprinzip: **Diagramm-*Inhalt* direkt am Diagramm (Proximity), räumliche
+*Anordnung* in die Topbar** — zwei getrennte Belange, nicht vermischen.
 
 **Platzierung:**
-- **Inhalts-Steuerung** (Diagrammtyp-Picker, Mehrfach-Modus, Subjekt-Wahl) →
-  eigener Akkordeon-`.panel-section`-Cluster **„Diagramm"** in der linken Sidebar,
-  **direkt nach dem Paar Visualisierung → Legende** (Reihenfolge:
-  Parameter → Visualisierung → Legende → **Diagramm(e)** → Selteneres eingeklappt).
-  Grund: „Legende direkt nach Visualisierung" ist fix (§ Akkordeon), der Diagramm-
-  Konfig-Belang folgt unmittelbar; Auswahl + zugehörige Anzeigeoptionen bleiben
-  in **einem** Cluster (kein zweiter Standort). Der **Subjekt-Picker** gehört
-  *in* diesen Cluster (pro Diagramm), nicht als eigene Sektion.
+- **Inhalts-Steuerung** (Diagrammtyp-Picker, Mehrfach-Modus, Subjekt-Wahl) → in eine
+  **`.graph-toolbar` direkt am Diagramm** (im Center, unmittelbar über/neben dem
+  Graphen, zusammen mit der Graph-Legende `.graph-legend`). Grund: die Steuerung sitzt
+  **am beeinflussten Objekt** (Proximity) — Auswahl und Wirkung am selben Ort, kein
+  Blicksprung in eine entfernte Sidebar. Der **Subjekt-Picker** gehört in dieselbe
+  Toolbar (pro Diagramm). **Kein** linker Sidebar-Cluster „Diagramm" — Sims, die den
+  Picker noch in der Sidebar führen, ziehen in die Toolbar um (→ I12).
 - **Layout-/Anordnungs-Toggle** (Sim ↔ Diagramm nebeneinander/übereinander) →
   **Topbar** (`id="layout_toggle"`, `.btn.layout-toggle-btn`, „▦ Nebeneinander").
-  Grund: er layoutet die gesamte Center-Fläche um, wählt nicht den Diagramm-
-  *Inhalt* — daher bewusst getrennt vom Sidebar-Cluster.
+  Grund: er layoutet die gesamte Center-Fläche um, wählt nicht den Diagramm-*Inhalt*.
 
 **Mechanik (ein Kontrakt statt Dialekten):**
 - **Typ-Picker:** `<select>` mit `id="graph_select"` (bzw. `graph_select_1`/`_2`
-  bei Dual-fähigen), CSS-Klasse **`select-field`** (die Shared-Klasse — **nicht**
-  das lokale `graph-sel`). Optionen einheitlich **dynamisch aus einer
-  `GRAPH_OPTIONS`-Map** in `constants.js` befüllen (ein Wartungsmodell; Labels
-  aus Nutzerperspektive, § Konventionen), nicht teils statisch im HTML.
+  bei Dual-fähigen), **gemeinsame Graph-Toolbar-Select-Klasse aus `shared`** — die
+  heutige lokale `.graph-sel` (kompakt, toolbar-tauglich) wird nach
+  `shared/css/design-system.css` promoted statt in jeder Sim dupliziert; **nicht**
+  das Sidebar-`select-field` (`width:100%`, für die Toolbar zu breit). Optionen
+  einheitlich **dynamisch aus einer `GRAPH_OPTIONS`-Map** in `constants.js` befüllen
+  (ein Wartungsmodell; Labels aus Nutzerperspektive, § Konventionen), nicht statisch im HTML.
 - **Mehrfach-Modus (optional):** wo mehrere Subjekte/Größen den Vergleich lohnen,
   **ein** Kontrakt: Steuer-`name="diagram_mode"`, Widget-Klasse `speed-pill`,
-  Werte `1`/`2` mit Labels „Ein Diagramm"/„Zwei Diagramme". **Nicht** die
-  Atwood-Variante (`graph_mode`/`radio-pill`/`single`/`dual`/„Einzeln"/„Geteilt").
-- **Cluster-Label** an die Fähigkeit koppeln: **„Diagramm"** (Einzel) /
-  **„Diagramme"** (Dual-fähig).
+  Werte `1`/`2` mit Labels „Ein Diagramm"/„Zwei Diagramme" — in derselben Toolbar.
+  **Nicht** die Atwood-Variante (`graph_mode`/`radio-pill`/`single`/`dual`/„Einzeln"/„Geteilt").
 
 **Ausdrücklich erlaubte Abweichungen (dokumentierte Opt-outs, kein Verstoß):**
 - **Keine Diagramm-Steuerung** bei Sims *ohne* Zeit-Diagramm (statisches
