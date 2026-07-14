@@ -200,6 +200,54 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 - **Kein State-Verlust:** Slider-/Toggle-Werte bleiben erhalten (DOM bleibt, nur `display`) — Klappen löst kein `resetSim` aus.
 - **Pro Sim** neu entscheiden, welche Cluster default eingeklappt sind (Nutzungshäufigkeit) und ob Konsolidierung nötig ist — nicht die Kreis-Spiral-Zustände starr übernehmen.
 
+### Diagramm-Steuerung (Platzierung & Mechanik)
+
+Die Auswahl und Steuerung der Diagramme ist repo-weit **einheitlich** aufzubauen
+(Rollout/Angleichung offener Sims → BACKLOG **I12**). Kanonische Referenz für die
+Platzierung: **Kreis-/Spiralbewegung v1.3.0**. Grundprinzip: **Diagramm-*Inhalt*
+in die linke Sidebar, räumliche *Anordnung* in die Topbar** — zwei getrennte
+Belange, nicht vermischen.
+
+**Platzierung:**
+- **Inhalts-Steuerung** (Diagrammtyp-Picker, Mehrfach-Modus, Subjekt-Wahl) →
+  eigener Akkordeon-`.panel-section`-Cluster **„Diagramm"** in der linken Sidebar,
+  **direkt nach dem Paar Visualisierung → Legende** (Reihenfolge:
+  Parameter → Visualisierung → Legende → **Diagramm(e)** → Selteneres eingeklappt).
+  Grund: „Legende direkt nach Visualisierung" ist fix (§ Akkordeon), der Diagramm-
+  Konfig-Belang folgt unmittelbar; Auswahl + zugehörige Anzeigeoptionen bleiben
+  in **einem** Cluster (kein zweiter Standort). Der **Subjekt-Picker** gehört
+  *in* diesen Cluster (pro Diagramm), nicht als eigene Sektion.
+- **Layout-/Anordnungs-Toggle** (Sim ↔ Diagramm nebeneinander/übereinander) →
+  **Topbar** (`id="layout_toggle"`, `.btn.layout-toggle-btn`, „▦ Nebeneinander").
+  Grund: er layoutet die gesamte Center-Fläche um, wählt nicht den Diagramm-
+  *Inhalt* — daher bewusst getrennt vom Sidebar-Cluster.
+
+**Mechanik (ein Kontrakt statt Dialekten):**
+- **Typ-Picker:** `<select>` mit `id="graph_select"` (bzw. `graph_select_1`/`_2`
+  bei Dual-fähigen), CSS-Klasse **`select-field`** (die Shared-Klasse — **nicht**
+  das lokale `graph-sel`). Optionen einheitlich **dynamisch aus einer
+  `GRAPH_OPTIONS`-Map** in `constants.js` befüllen (ein Wartungsmodell; Labels
+  aus Nutzerperspektive, § Konventionen), nicht teils statisch im HTML.
+- **Mehrfach-Modus (optional):** wo mehrere Subjekte/Größen den Vergleich lohnen,
+  **ein** Kontrakt: Steuer-`name="diagram_mode"`, Widget-Klasse `speed-pill`,
+  Werte `1`/`2` mit Labels „Ein Diagramm"/„Zwei Diagramme". **Nicht** die
+  Atwood-Variante (`graph_mode`/`radio-pill`/`single`/`dual`/„Einzeln"/„Geteilt").
+- **Cluster-Label** an die Fähigkeit koppeln: **„Diagramm"** (Einzel) /
+  **„Diagramme"** (Dual-fähig).
+
+**Ausdrücklich erlaubte Abweichungen (dokumentierte Opt-outs, kein Verstoß):**
+- **Keine Diagramm-Steuerung** bei Sims *ohne* Zeit-Diagramm (statisches
+  Gleichgewicht: 3massen, Lorentz) und bei **Werkzeugen (§7)** — dort *ist* das
+  Diagramm die Darstellung (z. B. `func_select` = Funktionswahl, kein Typ-Picker).
+- **Kein Mehrfach-Modus** bei Einzel-Diagramm-Sims — der Modus ist opt-in.
+- **Kein Layout-Toggle**, wenn die Diagrammfläche zu klein/fix ist, um umgeordnet
+  zu werden.
+- **Räumliche Diagrammtypen** (Bahnkurve y(x), z. B. Schräger Wurf) dürfen im
+  Typ-Picker stehen (Hover dort out of scope, § Hover).
+- **Zusätzliche Nicht-Zeit-Ansichten** (z. B. Energie-Balken bei Atwood-Energie)
+  sind inhaltlich legitim, gehören aber als eigene *Ansicht* modelliert, nicht als
+  weiterer Wert im `diagram_mode`-Zähler.
+
 ## 4. Konventionen (Mandatorisch)
 
 > **Maßgeblich ist die Repo-Root `CLAUDE.md`** — bei Widersprüchen gilt sie. Dieser Blueprint fasst die Sim-Aufbau-Regeln zusammen; die vollständige Konventionsliste (inkl. der folgenden Punkte) steht dort:
