@@ -5,6 +5,30 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.6 — 2026-07-14
+
+I12.3 — Diagramm-Steuerung: Diagrammtyp-Picker aus der Sidebar in eine `.graph-toolbar` direkt am Diagramm verschoben; Center-Layout kanonisiert.
+
+### Geändert (I12.3)
+- **Diagramm-Typ-Picker** (`graph_select`, Größe v/a/p/E) aus dem linken
+  Sidebar-Cluster „Diagramm" in eine neue `.graph-toolbar` über dem Graphen
+  verschoben — Steuerung am beeinflussten Objekt (Proximity, → BACKLOG I12
+  / Blueprint §3). Klasse von Sidebar-`select-field` auf shared `.graph-sel`
+  (→ I12.1) umgestellt. Der verbleibende Sidebar-Cluster heißt jetzt
+  „Abspielgeschwindigkeit" (Label war als „Diagramm" obsolet geworden, da nur
+  noch die Zeitlupe-Pills darin verbleiben).
+- **Center-Layout kanonisiert:** #main_svg und #graph_svg waren bisher nackte
+  Flex-Kinder des (statischen) `center-area` — #main_svg mit shared
+  `height:100%` als Basis, #graph_svg intrinsisch (gequetscht), und
+  `.time-label` hing an `position:absolute` ohne positionierten Vorfahren.
+  Jetzt: #main_svg + time-label in shared `.sim-wrapper` (flex:1,
+  position:relative → time-label korrekt verankert), #graph_svg in lokaler
+  `.graph-wrapper` (flex:1, position:relative → sauberer 50/50-Sim/Diagramm-
+  Split, Graph bekommt definitive Größe). `.graph-toolbar` absolut am
+  Wrapper-Top-Left. Kanonische Zykloide-Referenz (separates #graph_svg),
+  kein getScreenCTM-Overlay nötig (anders als Freier Fall, in-SVG-Graph).
+  Optionen bleiben vorerst statisch (→ I12.5 `GRAPH_OPTIONS`-Map).
+
 ## v1.0.5 — 2026-07-13
 
 B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).

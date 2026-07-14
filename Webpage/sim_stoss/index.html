@@ -21,7 +21,7 @@
       <a href="../index.html" class="back-btn" title="Zurück zur Übersicht">← Übersicht</a>
       <div class="topbar-title">
         Elastischer Stoß auf der Luftkissenbahn
-        <span class="version">v1.0.5</span>
+        <span class="version">v1.0.6</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
       </div>
     </div>
@@ -104,15 +104,7 @@
         </div>
 
         <div class="panel-section">
-          <div class="panel-label">Diagramm</div>
-          <div class="slider-label">Größe</div>
-          <select id="graph_select" class="select-field">
-            <option value="v" selected>Geschwindigkeit \(v(t)\)</option>
-            <option value="a">Beschleunigung \(a(t)\)</option>
-            <option value="p">Impuls \(p(t)\)</option>
-            <option value="E">Energie \(E(t)\)</option>
-          </select>
-          <div class="slider-label" style="margin-top:10px">Zeitlupe</div>
+          <div class="panel-label">Abspielgeschwindigkeit</div>
           <div class="speed-pills">
             <label class="speed-pill active"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
             <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
@@ -126,6 +118,7 @@
 
     <!-- ── CENTER: Simulation + Diagramm ──────────────────────────────── -->
     <main class="center-area">
+      <div class="sim-wrapper">
       <svg id="main_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
         <defs>
           <marker id="arr-v1" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto" markerUnits="strokeWidth">
@@ -166,17 +159,31 @@
         </g>
       </svg>
       <div class="time-label" id="time_label">t = 0,000 s</div>
+      </div><!-- /.sim-wrapper -->
 
-      <svg id="graph_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
-        <g class="graph_grid"></g>
-        <polyline id="line_v1" fill="none" class="graph-line-1" stroke-width="2"/>
-        <polyline id="line_v2" fill="none" class="graph-line-2" stroke-width="2"/>
-        <polyline id="line_es" fill="none" class="graph-line-es" stroke-width="2" stroke-dasharray="4,2"/>
-        <circle id="dot_v1" r="4" class="graph-dot-1" visibility="hidden"/>
-        <circle id="dot_v2" r="4" class="graph-dot-2" visibility="hidden"/>
-        <circle id="dot_es" r="4" class="graph-dot-es" visibility="hidden"/>
-        <text id="graph_title" class="graph-title-text"></text>
-      </svg>
+      <div class="graph-wrapper">
+        <!-- Diagramm-Typ-Picker (I12.3): direkt am Diagramm (Proximity),
+             nicht in der Sidebar. Kanonische .graph-sel aus shared (→ I12.1).
+             Positionierung über .graph-wrapper (position:relative). -->
+        <div class="graph-toolbar" id="graph_toolbar">
+          <select id="graph_select" class="graph-sel">
+            <option value="v" selected>Geschwindigkeit \(v(t)\)</option>
+            <option value="a">Beschleunigung \(a(t)\)</option>
+            <option value="p">Impuls \(p(t)\)</option>
+            <option value="E">Energie \(E(t)\)</option>
+          </select>
+        </div>
+        <svg id="graph_svg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+          <g class="graph_grid"></g>
+          <polyline id="line_v1" fill="none" class="graph-line-1" stroke-width="2"/>
+          <polyline id="line_v2" fill="none" class="graph-line-2" stroke-width="2"/>
+          <polyline id="line_es" fill="none" class="graph-line-es" stroke-width="2" stroke-dasharray="4,2"/>
+          <circle id="dot_v1" r="4" class="graph-dot-1" visibility="hidden"/>
+          <circle id="dot_v2" r="4" class="graph-dot-2" visibility="hidden"/>
+          <circle id="dot_es" r="4" class="graph-dot-es" visibility="hidden"/>
+          <text id="graph_title" class="graph-title-text"></text>
+        </svg>
+      </div><!-- /.graph-wrapper -->
     </main>
 
     <!-- ── RIGHT PANEL (Analyse) ──────────────────────────────────────── -->
