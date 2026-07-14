@@ -435,22 +435,43 @@ Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); 
     - `updateScene(t)`: Animierte Elemente basierend auf Zeitstempel $t$.
 5.  **UI-Integration:** Slider mit `resetSim()` verknüpfen, um bei Parameteränderung die Physik neu zu berechnen.
 
+> Dies ist die **Kurzübersicht**. Der ausführliche Schritt-für-Schritt-Weg vom
+> leeren Ordner (bzw. von einer Physik-Übungsaufgabe) zur lauffähigen Sim —
+> inklusive kopierbarem Scaffold und einem durchgerechneten Beispiel
+> „Aufgabe → Parameter/State/`precompute`" — steht in **§9 Neubau-Workflow**.
+> §8 beschreibt den Sonderfall, eine bestehende Standalone-HTML zu migrieren.
+
 ## 6. Checkliste für neue Simulationen
-- [ ] Reagiert die Simulation auf alle Slider-Eingaben sofort (Live-Update, `resetSim()` je Änderung)?
-- [ ] Koordinatensystem-Konsistenz: Lineal = Diagramm = Regler-Label = Live-Panel (dieselbe physikalische Koordinate)?
-- [ ] Regler-Richtung intuitiv (rechts schieben = physikalisch größer)?
-- [ ] Vektoren beim Start sichtbar (Toggles `checked`, `updateScene(0,…)` in `resetSim`) und **Legende** für alle farbigen Objekte/Vektoren vorhanden?
-- [ ] Play/Pause/Reset **und** CSV-Export in der Topbar (`topbar-right`), nicht in der Sidebar?
-- [ ] Ist die Energiebilanz zu jedem Zeitpunkt konsistent (falls Energie-Ansicht)?
-- [ ] Werden im CSV-Export Kommas als Dezimaltrenner und Semicolons als Spaltentrenner genutzt (alle anzeigbaren Typen)?
-- [ ] Beide Achsen: ≥4 beschriftete Ticks inkl. 0 (`niceStepLE`/`tAxisStep`, 1-2-4-5-Folge)?
+
+Die Liste ist nach **Reihenfolge** gegliedert: erst eine physikalisch korrekte,
+bedienbare **v0.1** (Gruppe A), dann der **Feinschliff** vor der Abnahme
+(Gruppe B). Wer aus einer Übungsaufgabe startet, hakt Gruppe A ab, *bevor* er
+in die Politur geht — so wird nicht an Tick-Formaten gefeilt, während die
+Physik noch wackelt. „MVP" = ohne diesen Punkt ist die Sim **falsch oder
+unbedienbar**; „Politur" = Darstellung, Vollständigkeit, Konsistenz.
+
+### A · Pflicht für v0.1 (MVP — läuft & ist physikalisch korrekt)
+- [ ] **Live-Update:** jede Slider-/Toggle-Änderung ruft `resetSim()` → `precompute()`?
+- [ ] **Physik-Trennung:** `precompute()` füllt die Arrays, `updateScene(t)` **interpoliert nur** (keine Per-Frame-Physik)?
+- [ ] **Koordinatensystem-Konsistenz:** Lineal = Diagramm = Regler-Label = Live-Panel (dieselbe physikalische Koordinate)?
+- [ ] **Regler-Richtung** intuitiv (rechts = physikalisch größer); Anzeigewerte-Vorzeichen via `getDisplay*` (nie `Math.abs` auf gerichtete Größen)?
+- [ ] **Play/Pause/Reset in der Topbar**; Animation startet/pausiert/resettet sauber?
+- [ ] **Beide Achsen ≥4 Ticks inkl. 0** (`niceStepLE`/`tAxisStep`, 1-2-4-5-Folge), Datenkurve korrekt skaliert?
+- [ ] **Pfeilspitzen-Geometrie** korrekt (`refX=0` + `shortenEnd` + **null-Guard** B23) — kein Überschießen/seitliches Herausgucken?
+- [ ] **MathJax statisch** gerendert (kein Laufzeit-`typesetPromise`)?
+- [ ] **Dark Mode lesbar** (alle Farben via CSS Custom Properties, Umgebung/Objekte sichtbar)?
+
+### B · Politur (vor Abnahme/Auslieferung)
+- [ ] Vektoren beim Start sichtbar (Toggles `checked`, `updateScene(0,…)` in `resetSim`) und **Legende** für alle farbigen Objekte/Vektoren?
+- [ ] CSV-Export (beide Buttons) in der Topbar; `;`-Spaltentrenner, `,`-Dezimaltrenner, alle anzeigbaren Typen?
+- [ ] Energiebilanz zu jedem Zeitpunkt konsistent (falls Energie-Ansicht)?
 - [ ] Abszisse am Nulldurchgang bei Werten um 0 (z. B. Schwingungsgrößen)?
 - [ ] Diagramm-Format paßt zum Layout (Portrait bei nebeneinander, Landscape bei gestapelt)?
 - [ ] Diagrammtitel als **letztes** SVG-Kind, klar über weißem Hintergrund-Rechteck?
 - [ ] Dropdown-/Diagrammtyp-Labels aus Nutzerperspektive benannt (beschreibend, nicht intern-mathematisch)?
-- [ ] Sind alle Formeln via MathJax **statisch** (kein Laufzeit-`typesetPromise`) korrekt gerendert?
 - [ ] Physikalische Größen **überall kursiv** (`setAxisLabel`, `setGraphTitle`, `<i>`), Einheiten/Wörter aufrecht?
-- [ ] Dark Mode durchgängig lesbar (alle Farben via CSS Custom Properties, Umgebung/Objekte sichtbar)?
+- [ ] Einklappbare Analyse-Sidebar rechts (Default eingeklappt); Akkordeon-Cluster links bei langer Sidebar (§3, I8)?
+- [ ] Hover-Werte am Zeit-Diagramm (§4 / I5), falls sinnvoll?
 - [ ] Versionsnummer in `index.html` und `docs/CHANGELOG.md` synchron?
 
 ## 7. Werkzeug-Schale (Diagrammatische Werkzeuge)
@@ -573,3 +594,163 @@ modulare Architektur (§2) überführt. Referenzimplementierung:
   Ggf. zusammenführen oder Energie-/Zusatz-Ansichten als Diagrammtyp-Option
   in die bestehende modulare Sim aufnehmen statt eine zweite Sim anzulegen.
 - Ist es überhaupt eine Sim oder ein diagrammatisches Werkzeug (§7)?
+
+## 9. Neubau-Workflow: Von der Übungsaufgabe zur Simulation
+
+§8 migriert eine bestehende Standalone-HTML. Dieser Abschnitt ist das
+Gegenstück für den **echten Neubau** — z. B. wenn aus einer Physik-Übungs-
+aufgabe eine neue Sim entstehen soll und es **keine** Vorlage-HTML gibt.
+Nicht bei null anfangen: das lauffähige Skelett **`_scaffold_neue_sim/`**
+(Repo-Root) ist der Startpunkt.
+
+### 9.0 Warum ein Scaffold
+
+`_scaffold_neue_sim/` ist eine vollständige, minimal lauffähige Sim
+(gleichförmig beschleunigte 1-D-Bewegung) mit der kompletten kanonischen
+Schale: 6-Modul-Split, Topbar-Buttonleiste, 3-Spalten-Layout, einklappbare
+Analyse-Sidebar, Akkordeon-Cluster, `precompute()`+`interpolateAt()`,
+Shared-Helfer, Pfeilspitzen-Geometrie inkl. null-Guard, statisches MathJax,
+CSV-Export, Dark Mode. Der Ordner liegt **auf Repo-Ebene** (Geschwister der
+`Project_*`), damit die relativen Importpfade (`../../shared/js/…`) **exakt**
+denen einer echten Sim gleichen — Kopieren + Umbenennen läuft ohne Pfad-
+Anpassung. Er ist nicht in `AllAnimations/` verlinkt und kein `Project_*`,
+wird also von Sync-/Drift-/Deploy-Skripten ignoriert.
+
+### 9.1 Schritt für Schritt (parallel zu §8)
+
+1. **Scaffold kopieren:**
+   ```bash
+   cp -r _scaffold_neue_sim Project_<name>_simulation
+   ```
+   In `index.html` Titel + `<title>` + Version setzen; `docs/CHANGELOG.md`
+   auf `v0.1.0 — <name>` umschreiben; `AllAnimations/`-Karte kommt erst
+   ganz am Schluss dran (Schritt 8).
+2. **Modell festlegen (§9.2):** gegeben / gesucht / Modellannahmen aus der
+   Aufgabe herausziehen; Eingabeparameter (Slider) von abgeleiteten Größen
+   trennen; die geschlossene Lösung (bevorzugt) bzw. das numerische Schema
+   notieren. **Erst rechnen, dann coden.**
+3. **`constants.js`:** Geometrie (Bahn-/Bildkoordinaten), `PPM`/Skalen,
+   Zeitfenster (`T_MAX`, `DT`) für dein Problem. Physikalische Konstanten
+   (falls `g`, Federkonstante …) hierher.
+4. **`state.js`:** `store`-Felder — Eingaben **und** die `*_data`-Ergebnis-
+   Arrays + `t_end` + Laufzeitfelder (`aniFrameId`, `simulatedTime`). DOM-Cache
+   in `initDOM()`; **kein** `document.*` im Modul-Rumpf (hält `physics.js`
+   DOM-frei und in Node testbar, §9.3).
+5. **`physics.js`:** zentrale `physToScreen(x,y)` (bzw. `xToScreen`), das Modell
+   als reine Funktionen, `precompute()` (füllt die Arrays für den *ganzen*
+   Zeitverlauf, setzt `t_end` an der Randbedingung), `interpolateAt(arr,t)`
+   unverändert übernehmen.
+6. **`render.js`:** `drawBackground()` (statisch) + `drawGraph()` (Achsen/Gitter/
+   volle Kurve, legt Skalen in `store.gScale` ab) + `updateScene(t)` (Ball,
+   Vektoren via `shortenEnd`+null-Guard, Diagramm-Marker, Live-Panel — **nur
+   interpolieren**). Graph-Helfer `setAxisLabel`/`setGraphTitle`/`getNiceTick`/
+   `tAxisStep` aus `shared/js`.
+7. **`ui.js`:** Slider/Selects/Toggles an `resetSim()` hängen; Animations-Loop;
+   Play/Pause/Reset/Export; Theme; Sidebar-Klappmechanik. `resetSim()` liest
+   Parameter → `precompute()` → neu zeichnen → `updateScene(0)`.
+8. **Einhängen & Abschluss:** Karte in `AllAnimations/index.html` auf
+   `../Project_<name>_simulation/index.html`; `Vorschaubilder/<name>.png`
+   ergänzen; `bash scripts/sync-webpage.sh` + `bash scripts/check-webpage-drift.sh`;
+   **Checkliste §6** durchgehen (erst Gruppe A, dann B); Version in `index.html`
+   und `docs/CHANGELOG.md` synchron; Conventional-Commit
+   `feat(<scope>): <name> neu (vX.Y.Z)`.
+
+### 9.2 Durchgerechnetes Beispiel: Aufgabe → Parameter/State/`precompute`
+
+Dies ist genau das Modell, das in `_scaffold_neue_sim/` als Code steht — die
+Herleitung daneben macht sichtbar, *welche Aufgaben-Bestandteile wohin wandern*.
+
+**Aufgabe.** *„Ein Wagen startet am Anfang (x₀ = 0) einer 20 m langen
+Luftkissenbahn mit der Anfangsgeschwindigkeit v₀ und erfährt eine konstante
+Beschleunigung a. Stellen Sie Ort, Geschwindigkeit und Beschleunigung über der
+Zeit dar, bis der Wagen das Bahnende erreicht."*
+
+**(a) Aufgabe zerlegen** — gegeben / gesucht / Annahmen:
+
+| Rolle | Größe | wird zu … |
+|---|---|---|
+| **gegeben (frei einstellbar)** | v₀, a | **Slider** → `store.v0`, `store.a` |
+| **gegeben (fest, Randbedingung)** | Bahnlänge L = 20 m, x₀ = 0 | **Konstanten** → `TRACK_LEN_M`, x₀=0 |
+| **gesucht (über t)** | x(t), v(t), a(t) | **Ergebnis-Arrays** → `x_data`, `v_data`, `a_data` |
+| **abgeleitet** | Endzeit t_end (x erreicht L bzw. verlässt [0,L]) | in `precompute()` bestimmt |
+| **Modellannahme** | 1-D, a = const, reibungsfrei | geschlossene Lösung möglich |
+
+**(b) Analytische Lösung** (geschlossene Form bevorzugen — nur wenn keine
+existiert, numerisch integrieren):
+$$x(t) = v_0\,t + \tfrac12 a\,t^2,\qquad v(t) = v_0 + a\,t,\qquad a(t)=a.$$
+Randbedingung: die Bewegung endet, sobald `x` das Intervall `[0, L]` verlässt.
+Hier per **Scan-and-break** in der Zeitschleife bestimmt (dieselbe Idee wie die
+Kollisionszeit im Atwood-`precompute()`) — kein Quadratische-Gleichung-Lösen
+nötig, robust auch bei Umkehr (v₀>0, a<0).
+
+**(c) → `state.js`** (nur die Modell-relevanten Felder):
+```javascript
+export const store = {
+  v0: 2, a: 1, graphType: 'ort',      // Eingaben (Slider)
+  t_data: [], x_data: [], v_data: [], a_data: [], t_end: 0,  // precompute-Output
+  gScale: null, aniFrameId: null, lastFrameTime: 0, simulatedTime: 0,
+}
+```
+
+**(d) → `physics.js`** — Modell als reine Funktionen + `precompute()`:
+```javascript
+export const xOf = t => store.v0 * t + 0.5 * store.a * t * t
+export const vOf = t => store.v0 + store.a * t
+
+export function precompute() {
+  store.t_data = []; store.x_data = []; store.v_data = []; store.a_data = []
+  for (let t = 0; t <= T_MAX + 1e-9; t += DT) {
+    const x = xOf(t)
+    if (x < 0 || x > TRACK_LEN_M) break        // Randbedingung → t_end
+    store.t_data.push(t); store.x_data.push(x)
+    store.v_data.push(vOf(t)); store.a_data.push(store.a)
+  }
+  store.t_end = store.t_data.at(-1) ?? 0
+}
+```
+Die Animation rechnet danach **keine** Physik mehr — `updateScene(t)` zieht x,
+v über `interpolateAt(store.x_data, t)` aus den Arrays.
+
+**(e) Darstellung.** Animation: Ball auf der Bahn, v-Pfeil (blau) und a-Pfeil
+(rot) vom Ball; Diagramm: umschaltbar x(t)/v(t)/a(t). Genau das zeigt das
+Scaffold — vergleiche `_scaffold_neue_sim/js/{physics,render}.js`.
+
+**Verallgemeinerung.** Dasselbe Raster trägt für praktisch jede kinematische
+Aufgabe. Beispiel schiefer Wurf: **gegeben/Slider** v₀, α, h₀; **Konstante**
+g; **gesucht/Arrays** x(t), y(t), v(t); **Randbedingung** y = 0 (Aufprall) →
+t_end; **Modell** x=v₀cosα·t, y=h₀+v₀sinα·t−½g t². Nur `constants`/`state`/
+`physics` unterscheiden sich — Schale, Graph- und Vektor-Mechanik bleiben.
+
+### 9.3 MVP-first: Physik isoliert prüfen, dann Schale/Politur
+
+Weil `physics.js` **DOM-frei** ist (kein `document.*` im Modul-Rumpf, §9.1
+Schritt 4), lässt sich `precompute()` **ohne Browser** in Node testen — das ist
+der schnellste Weg, die Physik einer neuen Aufgabe abzusichern, *bevor* Zeit in
+Darstellung fließt (Checkliste §6, Gruppe A vor B):
+```bash
+node --input-type=module -e '
+import { store } from "./js/state.js";
+import { precompute } from "./js/physics.js";
+store.v0 = 2; store.a = 1; precompute();
+console.log(store.t_data.length, store.t_end, store.x_data.at(-1));
+'
+```
+Für dauerhafte Invarianten-Tests: an das Vitest-Seed-Set (`test/`, BACKLOG I3)
+anschließen — dieselbe DOM-freie Importbarkeit wird dort genutzt.
+
+**Reihenfolge:** erst v0.1 nach Gruppe A der Checkliste (§6) lauffähig +
+physikalisch korrekt machen, dann Gruppe B (Legende, Hover, Diagramm-Format,
+Kursiv-Typografie, …). Nicht an Tick-Formaten feilen, solange die Kurve noch
+falsch ist.
+
+### 9.4 Lokal starten (Stolperstein Serve-Wurzel)
+
+ES-Module brauchen HTTP (`file://` scheitert an CORS). Weil die Module
+`../../shared/js/…` importieren, **vom Repo-Root servieren**, nicht aus dem
+Sim-Ordner — ein im Sim-Ordner wurzelnder Server löst `../..` über seine
+Wurzel hinaus auf und liefert 404 für die Shared-Helfer:
+```bash
+# im Repo-Root:
+python3 -m http.server 8000
+# → http://localhost:8000/Project_<name>_simulation/
+```

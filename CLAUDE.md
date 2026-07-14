@@ -20,14 +20,16 @@ A mono-repo of interactive physics simulations for FH Aachen FB 8 Physik courses
 
 ES Modules require an HTTP server — `file://` protocol will fail due to CORS restrictions.
 
+**Serve from the repo root, not from a sim subfolder.** Every sim imports shared assets via `../shared/css/…` (from `index.html`) and `../../shared/js/…` (from its modules); a server rooted *inside* the sim folder resolves those paths above its own root and returns 404 for the shared helpers. Served from the repo root, both resolve to `/shared/…`.
+
 ```bash
-# From the project subfolder (e.g., Project_rolling_bodies_simulation/)
+# From the repo root (this directory):
 python3 -m http.server 8000
 # or
 npx serve .
 ```
 
-Then open `http://localhost:8000`. No build, no install.
+Then open `http://localhost:8000/Project_<name>_simulation/` (e.g. `.../Project_rolling_bodies_simulation/`). No build, no install.
 
 > **Dev-Only-Test-Scaffold (→ BACKLOG I3):** `package.json` + `vitest.config.js` + `test/` enthalten ein Vitest-Seed-Set für Physik-Invarianten (6 Sims, 21 Tests). „Kein Build, kein npm" gilt für die **Simulationen** (laufen browser-nativ ohne Install); die Tests sind **dev-only** (`npm install` nur für die Entwicklung nötig, `node_modules/` ist gitignored) und beeinflussen die Auslieferung nicht. `npx vitest run` prüft die Invarianten. Die `physics.js` sind reine ES-Module und importierbar ohne DOM (`state.js` hält `document.*` in `initDOM()`-Body).
 

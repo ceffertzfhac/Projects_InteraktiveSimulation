@@ -58,9 +58,10 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
 ES-Module brauchen einen HTTP-Server (`file://` scheitert an CORS):
 
 ```bash
-# im jeweiligen Projekt-Unterordner (oder Repo-Root für shared-Pfade)
+# Server im Repo-Root starten (nicht im Sim-Unterordner) — jede Sim importiert
+# ../shared/… bzw. ../../shared/…; ein im Sim-Ordner wurzelnder Server liefert 404.
 python3 -m http.server 8000
-# dann http://localhost:8000
+# dann http://localhost:8000/<sim>/index.html
 ```
 
 ## Leitfäden
