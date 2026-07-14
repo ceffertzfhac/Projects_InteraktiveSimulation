@@ -151,7 +151,7 @@ Shared CSS-Tokens: `shared/css/design-system.css` (für neue Sims und Übersicht
 
 ## Adding a New Simulation
 
-Follow the blueprint in `global_docs/simulation_instruction.md`. Scaffold the six-module structure above (per-sim docs = `docs/CHANGELOG.md` + optional `docs/KNOWN_LIMITATIONS.md`; bugs/features/tech-debt go in the repo-root `BACKLOG.md`, not per-sim files), then:
+Follow the blueprint in `global_docs/simulation_instruction.md`. The **`create-physics-sim` skill** (`.claude/skills/`) orchestrates this end-to-end — clarify-gate for vague requests, conditional `physics-model-researcher` subagent, then the build — and starts from the runnable `_scaffold_neue_sim/` template. Scaffold the six-module structure above (per-sim docs = `docs/CHANGELOG.md` + optional `docs/KNOWN_LIMITATIONS.md`; bugs/features/tech-debt go in the repo-root `BACKLOG.md`, not per-sim files), then:
 1. Define inputs/outputs in `constants.js`
 2. Register all mutable state in `state.js`
 3. Implement `precompute()` in `physics.js`
