@@ -6,9 +6,11 @@ Dieser Guide beschreibt den Aufbau, das Design und die technische Implementierun
 - **Kern:** HTML5, CSS3, Vanilla JavaScript (ES Modules).
 - **Grafik:** SVG (Scalable Vector Graphics) für Simulation und Graphen.
 - **Mathematik:** [MathJax 3](https://www.mathjax.org/) für Formeldarstellung.
-- **Typografie:** 
-  - `Syne`: Für Headlines und UI-Elemente.
+- **Typografie:**
+  - `DM Sans` (Fallback Verdana): Für UI-Text, Headlines und Labels.
   - `JetBrains Mono`: Für numerische Werte und Code-Elemente.
+  - *`Syne` ist abgelöst und wird **nicht mehr** verwendet.*
+- **Design-System:** Alle Tokens (Farben, Fonts, Layout) aus `shared/css/design-system.css` beziehen; Akzent = FH Aachen Mint `#00B1AC` (Dark Mode `#00CEC9`).
 
 ## 2. Projektstruktur (Modularer Aufbau)
 Jede Simulation muss strikt in folgende Module unterteilt werden:
@@ -24,22 +26,28 @@ Jede Simulation muss strikt in folgende Module unterteilt werden:
 
 ### Farben & Themes
 - **Standard:** Light Mode. **Optional:** Dark Mode.
-- Farben müssen über CSS-Variablen gesteuert werden (`--bg`, `--surface`, `--accent`).
-- Vektoren folgen einem festen Farbschema:
-  - Geschwindigkeit $v$: Blau (`#66aaff`)
-  - Beschleunigung $a$: Rot (`#ff7777`)
-  - Kräfte $F$: Violett/Grün/Orange je nach Typ.
+- Farben müssen über CSS-Variablen (Shared-Tokens) gesteuert werden (`--bg`, `--surface`, `--accent`) — **nie** feste Hex, damit Dark Mode greift.
+- Vektoren folgen einem festen Farbschema über Shared-Tokens (mit Dark-Mode-Varianten):
+  - Geschwindigkeit $v$: `--c-vel` (Blau; Light `#2060d0`, Dark `#66aaff`)
+  - Beschleunigung $a$: `--c-acc` (Rot; Light `#c03030`, Dark `#ff7777`)
+  - Kräfte — **colorblind-safe Okabe-Ito**, **nie** Violett+Grün+Orange zusammen (für Rot-Grün-Blinde ununterscheidbar):
+    - Schwerkraft $F_G$: `--c-fg` (Blau `#0072b2`)
+    - Seil-/Normalkraft $F_S$/$F_N$: `--c-fn` (Orange `#e69f00`)
+    - Resultierende $F_{\text{ges}}$: `--c-fr` (Mauve `#cc79a7`)
+  - Kraft-Namen: Seilkraft `F_S`, Resultierende `F_{\text{ges}}`, Schwerkraft `F_G` — **nicht** `F_T`/`F_{\text{res}}`.
 - **Vektor-Pfeilspitzen (kanonische Geometrie — eine konsistente Kombination):** Ziel: Pfeilspitze **exakt auf dem Zielpunkt** (nicht zu lang/kurz), kein Schaft seitlich aus der Spitze. Polygon `points="0 0, 5 1.75, 0 3.5"` → Basis bei local x=0, Spitze bei local x=markerWidth; `markerUnits=strokeWidth`, Marker-Länge = `markerWidth · strokeWidth` px. **Genau einmal kompensieren** mit beiden Stellschrauben zusammen:
   1. **Marker `refX = 0`** → Dreieck-Basis am Linien-Endpunkt, Spitze eine Marker-Länge nach vorn.
   2. **Schaft um Marker-Länge kürzen** via `shortenEnd(x1,y1,x2,y2, markerWidth·strokeWidth)` → gekürztes Ende = Zielpunkt − Marker-Länge.
   → Spitze exakt auf dem Zielpunkt, Schaft endet an der Dreieck-Basis, das deckend gefüllte Dreieck überdeckt die letzte Marker-Länge (kein Herausgucken). **FALSCH:** `refX=markerWidth` **plus** Kürzung = Doppelkompensation → Pfeil endet um eine Marker-Länge **zu kurz** (bekannter Halb-Fix in Lorentz/rolling_bodies/Kreisbewegung ≤v1.0.7). **Ausnahme:** Graph-Achsenpfeile (`#graph-arrowhead`) bleiben auf `refX=0` **ohne** Schaft-Kürzung (Graph-bg-Rect ist um die überstehende Spitze dimensioniert, „10 px past arrow tips"). Marker-Fills pro Vektorfarbe via CSS (`#<id> polygon { fill: var(--c-…) }`), da das Polygon sonst schwarz rendert.
+  - **Zu kurze Vektoren (`len ≤ by`, → BACKLOG B23):** `shortenEnd()` (in `shared/js/vectors.js`) gibt bei Vektorlängen ≤ Marker-Länge **`null`** zurück — mit festem Marker ist es geometrisch unmöglich, die Spitze aufs Ziel zu klemmen (der Schaft bräuchte negative Länge). Aufrufer **müssen** null abfangen und den Vektor verbergen (`if (!end) { el.style.visibility='hidden'; return }`, bzw. bei build-and-return-Helfern eine `display:'none'`-Linie zurückgeben) — kein Pfeil bei zu kurzem Vektor statt fehlerhafter Überschieß-Spitze. Ausnahme: Pfeile mit fester Länge ≫ Marker-Länge (Achsen, Legenden-Swatches, log-skalierte Lorentz-Kraft-/Strompfeile) erreichen `len ≤ by` nie und brauchen keinen null-Check.
 
 ### UI-Layout
-- **Sidebar (Links):** Parameter-Steuerung via Slider und Radio-Buttons.
+- **Topbar (oben, `topbar-right`):** kanonische Buttonleiste in fester Reihenfolge — Theme-Toggle · `▶ Play` (`.btn.primary`) · `⏸ Pause` · `↺ Reset` · `Diagramm (CSV)` · `Alle Daten (CSV)`. Play/Pause/Reset **gehören in die Topbar**, **nicht** in eine Sidebar-`.btn-row` (bei schmalem Viewport sonst am unteren Bildschirmrand verschüttet). Export-Buttons als `.btn` (nicht `.btn.small`). Sims ohne Zeit-Animation (Lorentz, statisches Gleichgewicht) führen nur Theme-Toggle + Reset.
+- **Sidebar (Links):** Parameter-Steuerung via Slider und Radio-Buttons, Visualisierungs-Toggles, **Legende** (`.legend-grid`) für alle farbcodierten Objekte/Vektoren.
 - **Main (Mitte):** 
   - Oben: SVG-Simulationsbereich.
   - Unten: SVG-Diagrammbereich.
-- **Panel (Rechts):** Live-Analyse, Energiebilanz (Balkendiagramme) und Formel-Erklärungen.
+- **Panel (Rechts):** Live-Analyse, Energiebilanz (Balkendiagramme) und Formel-Erklärungen (einklappbar, Default eingeklappt).
 
 ### Einklappbare Analyse-Sidebar (Best Practice)
 
@@ -193,6 +201,13 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 - **Pro Sim** neu entscheiden, welche Cluster default eingeklappt sind (Nutzungshäufigkeit) und ob Konsolidierung nötig ist — nicht die Kreis-Spiral-Zustände starr übernehmen.
 
 ## 4. Konventionen (Mandatorisch)
+
+> **Maßgeblich ist die Repo-Root `CLAUDE.md`** — bei Widersprüchen gilt sie. Dieser Blueprint fasst die Sim-Aufbau-Regeln zusammen; die vollständige Konventionsliste (inkl. der folgenden Punkte) steht dort:
+> - **Stoppuhr-Design** (kanonisch: Atwood v2.0.x) — Zweizeiger, Hauptzifferblatt `r=60` + Subdial, `translate(340,55) scale(0.7)`.
+> - **Faux-Bold-Bug:** SVG-`<text>`-Labels nie eine stroke-tragende `vec-*`-Klasse mit den Linien teilen (`.force-label`/`.comp-val` explizit `stroke:none`) — sonst 1-px-Kontur → „fett".
+> - **MathJax-Subscripts:** Wort-/Akronym-Indizes mit `\text{}` (`t_{\text{fall}}`, `F_{\text{ges}}`); numerische/Einzelbuchstaben-Indizes ohne (`y_1`).
+> - **Anzeigewerte-Vorzeichen:** nie `Math.abs()` auf gerichtete Größen — `getDisplayV()`/`getDisplayY()`/`getDisplayA()` gemäß Achsenrichtung.
+> - **Lineal-/Regler-/Diagramm-Konsistenz**, **Legende** für alle farbcodierten Objekte, **Standalone-Design-System-Anbindung** (Remap auf `body`, nicht `:root`), **Webpage-Deploy-Sync** (`scripts/sync-webpage.sh` vor Commit).
 
 ### Numerik & Notation
 - **Dezimaltrennzeichen:** In der UI (Texte, Slider, Labels) immer das **Komma (`,`)**.
@@ -421,14 +436,22 @@ Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); 
 5.  **UI-Integration:** Slider mit `resetSim()` verknüpfen, um bei Parameteränderung die Physik neu zu berechnen.
 
 ## 6. Checkliste für neue Simulationen
-- [ ] Reagiert die Simulation auf alle Slider-Eingaben sofort (Live-Update)?
-- [ ] Ist die Energiebilanz zu jedem Zeitpunkt konsistent?
-- [ ] Werden im CSV-Export Kommas als Dezimaltrenner und Semicolons als Spaltentrenner genutzt?
+- [ ] Reagiert die Simulation auf alle Slider-Eingaben sofort (Live-Update, `resetSim()` je Änderung)?
+- [ ] Koordinatensystem-Konsistenz: Lineal = Diagramm = Regler-Label = Live-Panel (dieselbe physikalische Koordinate)?
+- [ ] Regler-Richtung intuitiv (rechts schieben = physikalisch größer)?
+- [ ] Vektoren beim Start sichtbar (Toggles `checked`, `updateScene(0,…)` in `resetSim`) und **Legende** für alle farbigen Objekte/Vektoren vorhanden?
+- [ ] Play/Pause/Reset **und** CSV-Export in der Topbar (`topbar-right`), nicht in der Sidebar?
+- [ ] Ist die Energiebilanz zu jedem Zeitpunkt konsistent (falls Energie-Ansicht)?
+- [ ] Werden im CSV-Export Kommas als Dezimaltrenner und Semicolons als Spaltentrenner genutzt (alle anzeigbaren Typen)?
 - [ ] Beide Achsen: ≥4 beschriftete Ticks inkl. 0 (`niceStepLE`/`tAxisStep`, 1-2-4-5-Folge)?
 - [ ] Abszisse am Nulldurchgang bei Werten um 0 (z. B. Schwingungsgrößen)?
 - [ ] Diagramm-Format paßt zum Layout (Portrait bei nebeneinander, Landscape bei gestapelt)?
-- [ ] Sind alle Formeln via MathJax korrekt gerendert?
-- [ ] Ist die schiefe Ebene/Umgebung im Dark Mode gut sichtbar?
+- [ ] Diagrammtitel als **letztes** SVG-Kind, klar über weißem Hintergrund-Rechteck?
+- [ ] Dropdown-/Diagrammtyp-Labels aus Nutzerperspektive benannt (beschreibend, nicht intern-mathematisch)?
+- [ ] Sind alle Formeln via MathJax **statisch** (kein Laufzeit-`typesetPromise`) korrekt gerendert?
+- [ ] Physikalische Größen **überall kursiv** (`setAxisLabel`, `setGraphTitle`, `<i>`), Einheiten/Wörter aufrecht?
+- [ ] Dark Mode durchgängig lesbar (alle Farben via CSS Custom Properties, Umgebung/Objekte sichtbar)?
+- [ ] Versionsnummer in `index.html` und `docs/CHANGELOG.md` synchron?
 
 ## 7. Werkzeug-Schale (Diagrammatische Werkzeuge)
 
@@ -508,10 +531,11 @@ modulare Architektur (§2) überführt. Referenzimplementierung:
 2. **`shared/css/design-system.css` einbinden** vor der per-Sim `css/styles.css`
    (DRY). Per-Sim nur noch simspezifische Tokens + SVG-Target-Regeln.
 3. **Layout-Schale aufbauen** nach §3: 3-Spalten-App `280px 1fr 270px`,
-   Topbar (Back-Button, Titel+Version, Theme-Toggle), linke Sidebar
-   (Parameter, Visualisierungs-Toggles, **Legende** `.legend-grid`),
-   `.btn-row` mit `▶ Play / ⏸ Pause / ↺ Reset`, einklappbare rechte
-   Analyse-Sidebar (Default eingeklappt).
+   Topbar (Back-Button, Titel+Version, Theme-Toggle **+ kanonische
+   Buttonleiste `▶ Play / ⏸ Pause / ↺ Reset / Diagramm (CSV) / Alle
+   Daten (CSV)` in `topbar-right`** — nicht in einer Sidebar-`.btn-row`),
+   linke Sidebar (Parameter, Visualisierungs-Toggles, **Legende**
+   `.legend-grid`), einklappbare rechte Analyse-Sidebar (Default eingeklappt).
 4. **State extrahieren:** Alle mutablen Variablen aus dem Einzel-`<script>`
    in `state.js` → `store` + DOM-Cache (`initDOM()`).
 5. **Physik auf `precompute()` umstellen:** Per-Frame-Berechnung

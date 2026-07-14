@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Canonical guide is the repo-root [`../../CLAUDE.md`](../../CLAUDE.md)** (architecture, design system, conventions) plus the repo-wide [`../../BACKLOG.md`](../../BACKLOG.md) for issues/features/tech-debt. This per-sim file only covers Lorentz-specific details; on any conflict, the root file wins.
+
 ## Project Overview
 
 Interactive physics educational web application (FH Aachen - FB 8 - Physik) that simulates the Lorentz force between two parallel current-carrying conductors. One conductor is fixed to a table; a second hangs from the ceiling on two springs. Parallel currents attract, antiparallel currents repel, changing the spring equilibrium.
@@ -61,19 +63,20 @@ Pure SVG manipulation — no canvas. `draw3DSpring()` renders a parametric helix
 
 ### Styling (`css/styles.css`)
 
-CSS custom properties define the full color system. Dark mode is toggled by adding `.dark` to `<body>`. Key semantic color variables: `--c-current` (technical direction, gold), `--c-current-phys` (electron flow, orange), `--c-force-l` (Lorentz force, purple), `--c-force-s` (spring force, green).
+CSS custom properties define the full color system; the force/vector colors inherit the shared **Okabe-Ito** (colorblind-safe) tokens from `../../shared/css/design-system.css`. Dark mode is toggled by adding `.dark` to `<body>`. Key semantic color variables: `--c-current` (technical direction, gold), `--c-current-phys` (electron flow, orange), `--c-force-l` = `var(--c-fg)` (Lorentz force, **blue** `#0072b2`), `--c-force-s` = `var(--c-fn)` (spring force, **orange** `#e69f00`). *(Never purple/green — those were the pre-design-system values and are indistinguishable for red-green colorblind users.)*
 
 ## Key Implementation Notes
 
 - **Dual input modes:** "Voltage mode" computes I = U/R; "Current mode" takes I directly and back-computes U.
 - **Two current direction conventions:** "technical" (conventional current) and "physical" (electron flow) — affects arrow rendering and particle animation direction.
 - **Spring rendering fallback:** If spring length < ~5px, `draw3DSpring()` falls back to a straight line. A simpler fallback algorithm is documented in `docs/FALLBACK_RENDER_LOGIC.md`.
-- **No test suite** — manual browser testing only.
-- **No npm/package.json** — zero dependencies except CDN-loaded MathJax 3 and Google Fonts.
+- **No per-sim tests** — manual browser testing; the repo-root has a dev-only Vitest scaffold for physics invariants (`node_modules/` gitignored, not shipped — see root `CLAUDE.md`).
+- **No per-sim npm/package.json** — the simulation runs browser-native (only CDN-loaded MathJax 3 + Google Fonts); the dev-only test scaffold lives at repo root.
 
 ## Documentation
 
 - `docs/README.md` — physics model with LaTeX formulas and reference problem (WS 2025/26 assignment)
 - `docs/CHANGELOG.md` — version history
-- `docs/FEATURE_BACKLOG.md` — planned enhancements with priority labels
+- `docs/KNOWN_LIMITATIONS.md` — deliberate local limitations / scope decisions (with `→ <ID>` links to `BACKLOG.md`)
 - `docs/FALLBACK_RENDER_LOGIC.md` — alternative spring rendering algorithm
+- Bugs, features and tech debt are tracked **centrally** in the repo-root `../../BACKLOG.md` (the old per-sim `docs/FEATURE_BACKLOG.md`/`docs/issues.md` were retired 2026-07-08).

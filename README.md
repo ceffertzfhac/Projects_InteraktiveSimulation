@@ -73,5 +73,8 @@ python3 -m http.server 8000
 - **[`global_docs/simulation_instruction.md`](./global_docs/simulation_instruction.md)**
   — Blueprint zum Anlegen neuer Simulationen.
 
-> `AGENTS.md` ist historisch (pre-Migration-Ordnernamen) und nicht mehr maßgeblich;
-> siehe `CLAUDE.md` und `BACKLOG.md`.
+> **[`AGENTS.md`](./AGENTS.md)** — Kurzreferenz für Coding-Agenten (Repo-Struktur +
+> Konventionen in Kurzfassung), synchron zu `CLAUDE.md` gehalten; bei Widersprüchen
+> gilt `CLAUDE.md`.
+> **[`global_docs/GEMINI.md`](./global_docs/GEMINI.md)** — Einstiegs-Zeiger für den
+> Gemini-Assistenten auf `CLAUDE.md`/`BACKLOG.md`.
