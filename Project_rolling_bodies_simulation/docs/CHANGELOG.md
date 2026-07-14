@@ -2,6 +2,16 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.2.2] — 2026-07-14
+
+I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.
+
+### Geändert (I12.1)
+- **CSS:** Die lokale `.graph-sel`-Definition (Diagramm-Typ-Picker in der
+  `.graph-toolbar`) entfernt — kanonisch jetzt in `shared/css/design-system.css`
+  (→ BACKLOG I12, Toolbar-Select-Klasse). Dabei Schriftgröße von `.7rem` auf
+  den kanonischen `.72rem`-Wert normalisiert (imperzipibel, +0,02 rem).
+
 ## [2.2.1] — 2026-07-13
 
 B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).

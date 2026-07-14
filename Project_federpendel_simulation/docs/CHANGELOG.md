@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.3 — 2026-07-14
+
+I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.
+
+### Geändert (I12.1)
+- **CSS:** Die lokale `.graph-sel`-Definition (Diagramm-Typ-Picker in der
+  `.graph-toolbar`) entfernt — kanonisch jetzt in `shared/css/design-system.css`
+  (→ BACKLOG I12, Toolbar-Select-Klasse). Rein de-duplizierend, kein Sichtwechsel.
+
 ## v1.1.2 — 2026-07-13
 
 B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).

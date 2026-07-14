@@ -95,7 +95,6 @@ body.dark {
    top-mittig (Vertikal) bzw. links (Horizontal), Stoppuhr/Szenen-Labels liegen
    jeweils mittig/darunter, nie in der oberen rechten Ecke. */
 .start-timing-overlay { position: absolute; top: 8px; right: 12px; z-index: 10; }
-.graph-sel    { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 4px 8px; font-family: var(--font-mono); font-size: .72rem; color: var(--text); cursor: pointer; outline: none; max-width: 240px; }
 /* ── AKKORDEON-STEUERUNGS-SIDEBAR (links, I8) ──────────────────────────
    Referenz: Kreis-/Spiralbewegung v1.3.0. .panel-label wird zum Button;
    Geschwister-Selector + !important blendet den Inhalt aus (dominiert
