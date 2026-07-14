@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vorlage: Neue Simulation – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!-- Shared Design-Tokens ZUERST, dann sim-spezifisches CSS -->
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<!-- ── TOPBAR: kanonische Buttonleiste ─────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Vorlage: Neue Simulation
+    <span class="version">v0.1.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LINKE SIDEBAR: Steuerung (Akkordeon-Cluster) ──────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Parameter<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Anfangsgeschw. \(v_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="v0_slider" min="-8" max="8" value="2" step="0.5">
+        <span class="slider-val" id="v0_value">2,0 m/s</span>
+      </div>
+      <div class="slider-label">Beschleunigung \(a\)</div>
+      <div class="slider-row">
+        <input type="range" id="a_slider" min="-4" max="4" value="1" step="0.5">
+        <span class="slider-val" id="a_value">1,0 m/s²</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select id="graph_select" class="select-field">
+        <option value="ort" selected>Ort-Zeit \(x(t)\)</option>
+        <option value="geschw">Geschwindigkeit-Zeit \(v(t)\)</option>
+        <option value="beschl">Beschleunigung-Zeit \(a(t)\)</option>
+      </select>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschw.-Vektor \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_vel" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschl.-Vektor \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_acc" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Simulation (oben) + Diagramm (Teil derselben SVG, rechts) ───── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow-axis" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-vel" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+        </defs>
+
+        <!-- Animationsfläche (x: 0–430) -->
+        <g id="animation_group">
+          <line class="track-line" x1="60" y1="300" x2="410" y2="300"/>
+          <g id="ruler_group"></g>
+          <line id="acc_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
+          <line id="vel_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <circle id="ball" r="9" cx="60" cy="300"/>
+          <text class="vec-label" x="60" y="270" text-anchor="middle" fill="var(--c-vel)">v</text>
+          <text class="vec-label" x="60" y="345" text-anchor="middle" fill="var(--c-acc)">a</text>
+        </g>
+
+        <!-- Diagrammfläche (x: 450–870) -->
+        <g id="graph_group" transform="translate(450, 45)">
+          <g id="grid_group"></g>
+          <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
+          <circle id="graph_point" r="5" visibility="hidden"/>
+          <text id="graph_title" x="210" y="-22" text-anchor="middle" class="graph-title-text"></text>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ─────────── -->
+  <aside class="panel right-panel" id="right_panel">
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="panel-label">Live-Analyse</div>
+        <div class="analysis-subject">
+          <div class="analysis-grid">
+            <div class="analysis-cell key">Zeit \(t\)</div>
+            <div class="analysis-cell val" id="live_t">0,00 s</div>
+            <div class="analysis-cell key">Ort \(x(t)\)</div>
+            <div class="analysis-cell val" id="live_x">0,00 m</div>
+            <div class="analysis-cell key">Geschw. \(v(t)\)</div>
+            <div class="analysis-cell val" id="live_v">2,00 m/s</div>
+            <div class="analysis-cell key">Beschl. \(a\)</div>
+            <div class="analysis-cell val" id="live_a">1,00 m/s²</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Physik</div>
+        <div class="formula-box">
+          <div>Gleichförmig beschleunigte Bewegung:</div>
+          <div>\[x(t) = v_0\,t + \tfrac{1}{2}\,a\,t^2\]</div>
+          <div>\[v(t) = v_0 + a\,t\]</div>
+          <div>\[a(t) = a = \text{const}\]</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
