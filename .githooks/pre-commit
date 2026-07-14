@@ -19,4 +19,26 @@ if [ ${#blocked[@]} -gt 0 ]; then
   exit 1
 fi
 
+# ── Webpage-Deploy-Sync-Guard (BACKLOG I11) ────────────────────────────────────
+# Regel: nach Änderungen an Project_*/ oder shared/ muss Webpage/ synchron sein,
+# sonst driftet die öffentliche Pages-Site. Nur prüfen, wenn der Commit solche
+# Pfade berührt — reine Docs-/Skill-/Scaffold-Commits deployen ohnehin nicht und
+# bleiben ungebremst. Notfall-Umgehung: git commit --no-verify.
+if git diff --cached --name-only \
+     | grep -qE '^(Project_.*_simulation/(js/|css/|index\.html)|shared/|Webpage/)'; then
+  drift_script="scripts/check-webpage-drift.sh"
+  if [ -f "$drift_script" ]; then
+    drift_out="$(bash "$drift_script" 2>&1)"; drift_rc=$?
+    if [ $drift_rc -ne 0 ]; then
+      echo ""
+      echo "FEHLER: Webpage/ ist nicht synchron mit Project_*/shared/ (I11)."
+      echo "  → 'bash scripts/sync-webpage.sh' ausführen, dann erneut committen."
+      echo ""
+      printf '%s\n' "$drift_out" | sed 's/^/  /'
+      echo ""
+      exit 1
+    fi
+  fi
+fi
+
 exit 0
