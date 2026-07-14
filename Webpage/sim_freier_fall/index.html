@@ -25,7 +25,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Freier Fall / Senkrechter Wurf
-    <span class="version">v2.2.8</span>
+    <span class="version">v2.2.9</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -62,13 +62,7 @@ window.MathJax = {
     </div>
 
     <div class="panel-section collapsible">
-      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
-      <div class="slider-label">Diagrammtyp</div>
-      <select id="graph_select" class="select-field">
-        <option value="weg" selected>Weg-Zeit</option>
-        <option value="geschw">Geschwindigkeit-Zeit</option>
-        <option value="beschl">Beschleunigung-Zeit</option>
-      </select>
+      <button class="panel-label" type="button" aria-expanded="true">Koordinatensystem<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Y-Achsen-Konfiguration</div>
       <select id="y_axis_config" class="select-field">
         <option value="up_ground" selected>↑ positiv, Nullpunkt: Boden</option>
@@ -174,6 +168,17 @@ window.MathJax = {
         </g>
       </svg>
       <div class="time-label" id="time_label">t = 0,00 s</div>
+      <!-- Diagramm-Typ-Picker (I12.2): direkt am Diagramm, nicht in der Sidebar.
+           Position wird per getScreenCTM auf das Graphen-Top-Left gelegt (Graph
+           ist ein <g> in #main_svg, kein separates #graph_svg → HTML-Overlay
+           statt .graph-wrapper). -->
+      <div class="graph-toolbar" id="graph_toolbar">
+        <select id="graph_select" class="graph-sel">
+          <option value="weg" selected>Weg-Zeit</option>
+          <option value="geschw">Geschwindigkeit-Zeit</option>
+          <option value="beschl">Beschleunigung-Zeit</option>
+        </select>
+      </div>
     </div>
   </main>
 

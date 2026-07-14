@@ -6,6 +6,23 @@ import { fmt, drawRuler, drawStickFigure, drawYAxisDisplay,
          updateGraph, updateScene, updateKennwerte,
          updatePhysicsFormulas } from './render.js';
 
+// Diagramm-Typ-Picker-Toolbar positionieren (I12.2). Der Graph ist ein <g> in
+// #main_svg (kein separates #graph_svg), also HTML-Overlay über dem SVG.
+// getScreenCTM auf #graph_group liefert die Bildschirm-Position des Gruppen-
+// Ursprungs inkl. SVG-meet-Letterboxing → Toolbar robust am Graphen-Top-Left
+// (rechts der y-Achsen-Labels bei group-x<0, links des zentrierten Titels bei
+// group-x≈240) verankert. Ziel group-lokal (4, -14).
+function positionGraphToolbar() {
+  const { graphGroup, mainSvg, graphToolbar } = DOM;
+  if (!graphGroup || !mainSvg || !graphToolbar) return;
+  const m = graphGroup.getScreenCTM();
+  if (!m) return;
+  const wrapRect = mainSvg.parentElement.getBoundingClientRect();
+  const GX = 4, GY = -14;
+  graphToolbar.style.left = `${m.a * GX + m.c * GY + m.e - wrapRect.left}px`;
+  graphToolbar.style.top  = `${m.b * GX + m.d * GY + m.f - wrapRect.top}px`;
+}
+
 function stopAnimation() {
   if (store.aniFrameId) cancelAnimationFrame(store.aniFrameId);
   store.aniFrameId    = null;
@@ -49,6 +66,7 @@ function resetSim() {
   DOM.liveT.textContent     = '0,00 s';
   DOM.liveY.textContent     = `${fmt(getDisplayY(store.h0))} m`;
   DOM.liveV.textContent     = `${fmt(getDisplayV(store.v0))} m/s`;
+  positionGraphToolbar();
 }
 
 function animate(ts) {
@@ -185,6 +203,12 @@ document.getElementById('reset_btn').addEventListener('click', () => {
 
 updateSpeedPills();
 resetSim();
+
+// Diagramm-Typ-Picker-Toolbar (I12.2): Position init + bei jeder Größenänderung
+// des SVG nachführen (Window-Resize, Analyse-Sidebar ein-/ausklappen).
+const _graphToolbarRO = new ResizeObserver(positionGraphToolbar);
+_graphToolbarRO.observe(DOM.mainSvg);
+requestAnimationFrame(positionGraphToolbar);
 
 // MathJax rendert display:none-Elemente nicht — alle Formelvarianten kurz zeigen,
 // typesetten, dann die inaktiven ausblenden.

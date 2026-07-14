@@ -1,5 +1,24 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.2.9 — 2026-07-14
+
+I12.2 — Diagramm-Steuerung: Diagrammtyp-Picker aus der Sidebar in eine `.graph-toolbar` direkt am Diagramm verschoben (Referenz-Prototyp).
+
+### Geändert (I12.2)
+- **Diagramm-Typ-Picker** (`graph_select`, Weg-Zeit/Geschwindigkeit-Zeit/Beschleunigung-Zeit)
+  aus dem linken Sidebar-Cluster „Diagramm" in eine neue `.graph-toolbar` über
+  dem Graphen verschoben — Steuerung am beeinflussten Objekt (Proximity, → BACKLOG I12
+  / Blueprint §3). Klasse von Sidebar-`select-field` auf shared `.graph-sel` (→ I12.1)
+  umgestellt. Der verbleibende Sidebar-Cluster (nur noch Y-Achsen-Konfiguration) heißt
+  jetzt „Koordinatensystem" (Label war als „Diagramm" obsolet geworden).
+- **Technik (in-SVG-Graph):** freier_fall hat den Graphen als `<g id="graph_group">`
+  in `#main_svg` (kein separates `#graph_svg` wie die kanonische Zykloide-Referenz),
+  daher ist die Toolbar ein HTML-Overlay über dem SVG, positioniert per
+  `getScreenCTM()` auf das Graphen-Top-Left (robust gegen SVG-`meet`-Letterboxing);
+  nachgeführt via `ResizeObserver` (Window-Resize, Analyse-Sidebar ein-/ausklappen).
+  Etabliert das Muster für die andere in-SVG-Graph-Sim (Schräger Wurf, → I12.3).
+  Optionen bleiben vorerst statisch (→ I12.5 `GRAPH_OPTIONS`-Map).
+
 ## v2.2.8 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).
