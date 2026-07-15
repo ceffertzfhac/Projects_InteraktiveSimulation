@@ -20,3 +20,7 @@ _temp_archiv/
 
 # Dev-Only-Test-Scaffold (Vitest, → BACKLOG I3) — nicht Teil der Auslieferung
 node_modules/
+
+# Test-Eingaben für den create-physics-sim-Skill-Test (lokal, nicht Teil der
+# Auslieferung) — z. B. Übungsaufgaben, Skizzen, Specs als Input für neue Sims
+new_sim_input/
