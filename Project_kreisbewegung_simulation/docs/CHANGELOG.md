@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.7 — 2026-07-15
+
+I12.4 — Diagramm-Steuerung: Typ-Picker aus der `.graph-toolbar` am Diagramm in
+die linke Sidebar verschoben (kanonische „Sidebar-Schule", PO-Entscheidung
+2026-07-15, → BACKLOG I12).
+
+### Geändert (I12.4)
+- **Diagramm-Typ-Picker** (`graph_select`) aus der `.graph-toolbar` über dem
+  Graphen in einen neuen Sidebar-Cluster „Diagramm" verschoben (nach
+  „Parameter", vor „Visualisierung") — alle Diagramm-Steuerung an einem Ort in
+  der Sidebar. Klasse von shared `.graph-sel` zurück auf Sidebar-Standard
+  `.select-field`.
+- **Zwei-Diagramm-Toggle** (`toggle_xy_stacked`) aus dem Cluster „Visualisierung"
+  in den neuen Cluster „Diagramm" verschoben, direkt unter den Picker — bleibt
+  unverändert ein Toggle-Switch (kein Rename auf `diagram_mode`/`speed-pill`;
+  kein Umbau in diesem Schritt, → I12.8 betrifft nur atwood/atwood_energy).
+- **CSS:** `.graph-toolbar`-Regel aus `css/styles.css` entfernt (jetzt
+  ungenutzt).
+
 ## v1.1.6 — 2026-07-14
 
 I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.
