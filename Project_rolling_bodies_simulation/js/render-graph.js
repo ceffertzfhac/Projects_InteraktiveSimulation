@@ -64,7 +64,7 @@ export function getTransformedData(key, subject) {
 }
 
 export function updateGraph(t) {
-  const { graphSvg, graphBgG, graphAxesG, graphSel, graphLegend, graphCursor } = state.DOM;
+  const { graphSvg, graphBgG, graphAxesG, graphSelect, graphLegend, graphCursor } = state.DOM;
   graphBgG.innerHTML = '';
   graphAxesG.innerHTML = '';
   SUBJECTS.forEach(s => {
@@ -81,7 +81,7 @@ export function updateGraph(t) {
   state.DOM.graphHitRect.setAttribute('width', SVG_W - GRAPH_PADDING.l - GRAPH_PADDING.r);
   state.DOM.graphHitRect.setAttribute('height', SVG_H - GRAPH_PADDING.t - GRAPH_PADDING.b);
 
-  const key = graphSel.value;
+  const key = graphSelect.value;
   const opt = GRAPH_OPTIONS[key];
   if (!opt) {
     state.store.graphScale = null

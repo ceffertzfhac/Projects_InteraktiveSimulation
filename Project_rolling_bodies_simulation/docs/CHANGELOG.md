@@ -2,6 +2,32 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.3.0] — 2026-07-15
+
+I12 Sidebar-Rollout + I12.4 — Diagramm-Typ-Picker aus der `.graph-toolbar` am
+Diagramm in die linke Sidebar verlegt (kanonische „Sidebar-Schule", PO-Entscheidung
+2026-07-15). ID `graph_sel` → `graph_select`.
+
+### Geändert (I12, I12.4)
+- **`index.html`:** `.graph-toolbar`-Block am Diagramm entfernt. Neuer
+  `.panel-section.collapsible`-Cluster „Diagramm" in der linken Sidebar mit
+  `<select id="graph_select" class="select-field">` (Akkordeon-Stil wie die
+  bestehenden Cluster). Die dynamische `.graph-legend` (SP/P1–P4-Farben +
+  Vergleichskörper) bleibt am Diagramm — jetzt als eigenständiges Element
+  oben links im `.graph-wrapper`, ohne Toolbar-Wrapper. Topbar-Version
+  v2.2.2 → v2.3.0.
+- **`js/state.js`:** `DOM.graphSel` → `DOM.graphSelect` (`q('graph_sel')` →
+  `q('graph_select')`); `graphLegend` bleibt (Legende am Diagramm erhalten).
+- **`js/ui.js`:** Beide `state.DOM.graphSel`-Referenzen (populate + CSV-Export)
+  auf `graphSelect` umbenannt. Select wird weiterhin aus `GRAPH_OPTIONS`
+  (`constants.js`) befüllt.
+- **`js/render-graph.js`:** Destructuring `graphSel` → `graphSelect`,
+  `graphSel.value` → `graphSelect.value`.
+- **`css/styles.css`:** `.graph-toolbar`-Block entfernt. `.graph-legend` erhält
+  die Positionierung der bisherigen Toolbar (`position:absolute; top:8px;
+  left:12px`), `.graph-leg-item`/`.graph-leg-dot` bleiben unverändert.
+  `.select-field` (Sidebar-Standardklasse) statt `.graph-sel`.
+
 ## [2.2.2] — 2026-07-14
 
 I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.

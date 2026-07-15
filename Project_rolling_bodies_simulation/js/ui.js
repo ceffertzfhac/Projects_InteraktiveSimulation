@@ -18,7 +18,7 @@ export function setupUI() {
   document.body.className = localStorage.getItem('fh_theme') === 'dark' ? 'dark' : 'light'
 
   // Graph select options
-  const gSel = state.DOM.graphSel;
+  const gSel = state.DOM.graphSelect;
   for (const k in GRAPH_OPTIONS) {
     const o = document.createElement('option');
     o.value = k;
@@ -311,7 +311,7 @@ export function exportCSV() {
 // (keine Logikduplikation zur Diagramm-Anzeige).
 export function exportGraphCSV() {
   const btn = state.DOM.exportDiagram;
-  const key = state.DOM.graphSel.value;
+  const key = state.DOM.graphSelect.value;
   const opt = GRAPH_OPTIONS[key];
   if (!opt) return;
   const isBody = !!opt.body;

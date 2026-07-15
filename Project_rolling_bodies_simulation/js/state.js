@@ -80,7 +80,7 @@ export function initDOMCache() {
   // Graph elements
   DOM.graphBgG = DOM.graphSvg.querySelector('.graph-bg-g');
   DOM.graphAxesG = DOM.graphSvg.querySelector('.graph-axes-g');
-  DOM.graphSel = document.getElementById('graph_sel');
+  DOM.graphSelect = document.getElementById('graph_select');
   DOM.graphLegend = document.getElementById('graph_legend');
   DOM.graphCursor = document.getElementById('graph_cursor');
 
