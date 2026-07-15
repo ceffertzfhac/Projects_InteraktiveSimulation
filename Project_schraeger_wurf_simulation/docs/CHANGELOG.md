@@ -1,5 +1,25 @@
 # Changelog — Schräger Wurf
 
+## v1.6.0 — 2026-07-15
+
+Feature (→ BACKLOG I14): synchronisierter Hover zwischen Top- und
+Bottom-Diagramm im Zwei-Diagramm-Modus (Hover existierte bereits seit v1.3.0,
+aber unabhängig pro Slot).
+
+### Geändert
+- **I14: synchronisierter Dual-Hover.** Top- und Bottom-Slot teilen sich im
+  Zwei-Diagramm-Modus stets die Zeitachse (außer bei der Bahnkurve y(x)/x(y),
+  die weiterhin vom Hover ausgeschlossen bleibt) — Hover über ein Diagramm
+  zeigt jetzt automatisch denselben Zeitpunkt auch als Cursor/Punkt/Tooltip im
+  jeweils anderen Diagramm. Neu: `store.hoverSourceSlot`/`hoverT` +
+  `refreshHover()`, analog zum in dieser Session etablierten Muster
+  (Kreisbewegung v1.4.0, Freier Fall v2.5.0, Atwood v2.4.0, Atwood-Energie
+  v1.4.0).
+- **Hover-Refresh verschoben:** der Redraw des offenen Hover-Cursors passiert
+  jetzt einmalig am Ende von `updateGraphs()` (nach beiden Slots), nicht mehr
+  inline in `drawSingleGraph()` pro Slot — sonst würde der synchronisierte
+  andere Slot noch mit der Skala vom Vorframe gezeichnet.
+
 ## v1.5.2 — 2026-07-15
 
 UX-Fix (PO-Report nach visueller Abnahme): die deaktivierte „Zwei

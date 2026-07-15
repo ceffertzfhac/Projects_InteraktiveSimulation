@@ -4,8 +4,9 @@
 // index.html lädt dieses Modul via <script type="module" src="js/ui.js">.
 import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
-import { drawBackground, drawGraph, updateScene } from './render.js'
+import { drawBackground, drawGraph, updateScene, updateGraphHover } from './render.js'
 import { fmt } from '../../shared/js/format.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // ── Animations-Loop ────────────────────────────────────────────────────────────
 function stopAnimation() {
@@ -105,6 +106,13 @@ DOM.pauseBtn.addEventListener('click', () => { if (store.aniFrameId) stopAnimati
 DOM.resetBtn.addEventListener('click', () => { store.simulatedTime = 0; resetSim() })
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false))
 DOM.exportAll.addEventListener('click', () => exportCSV(true))
+
+// Hover-Werte am Diagramm (I13.1, §4): Pointer-Events auf dem Hit-Rect →
+// updateGraphHover lokalisiert über dieselbe Skala, die auch die Kurve zeichnet.
+attachGraphHover(DOM.graphHitRect, {
+  onMove: x => updateGraphHover(x),
+  onLeave: () => updateGraphHover(null),
+})
 
 // Rechte Analyse-Sidebar ein-/ausklappen (Default eingeklappt via HTML-Klasse)
 DOM.analysisToggle.addEventListener('click', () => {

@@ -44,6 +44,13 @@ export const store = {
   graphScale: { single: null, top: null, bottom: null },
   hoverActive: { single: false, top: false, bottom: false },
   hoverLocalX: { single: null, top: null, bottom: null },
+
+  // I14: Dual-Sync — hoverSourceSlot = der Slot, über dem die Maus tatsächlich
+  // steht (null = kein Hover); hoverT = daraus abgeleitete Zeit, geteilt mit
+  // dem jeweils anderen Slot im Zwei-Diagramm-Modus, sofern beide Slots eine
+  // Zeitachse haben (nicht bei der Bahnkurve).
+  hoverSourceSlot: null,
+  hoverT: null,
 }
 
 export const DOM = {}

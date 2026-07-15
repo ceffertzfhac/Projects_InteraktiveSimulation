@@ -3,6 +3,25 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.8.0] — 2026-07-15
+
+Feature (→ BACKLOG I14): synchronisierter Hover zwischen Diagramm 1/2 im
+Zwei-Diagramm-Modus (Hover existierte bereits seit v1.5.0, aber unabhängig
+pro Slot).
+
+### Geändert
+- **I14: synchronisierter Dual-Hover.** Beide Diagramm-Slots sind hier stets
+  Zeitreihen (keine Bahnkurve) und teilen sich im Zwei-Diagramm-Modus daher
+  immer dieselbe Zeitachse — Hover über Diagramm 1 zeigt jetzt automatisch
+  denselben Zeitpunkt auch als Cursor/Punkt/Tooltip in Diagramm 2 (und
+  umgekehrt). Neu: `store.hoverSourceSlot`/`hoverT` + `refreshHover()`, analog
+  zum in dieser Session etablierten Muster (Kreisbewegung v1.4.0, Freier Fall
+  v2.5.0, Atwood v2.4.0, Atwood-Energie v1.4.0, Schräger Wurf v1.6.0).
+- **Hover-Refresh verschoben:** der Redraw des offenen Hover-Cursors passiert
+  jetzt einmalig am Ende von `drawGraphs()` (nach beiden Slots), nicht mehr
+  inline in `drawGraph()` pro Slot — sonst würde der synchronisierte andere
+  Slot noch mit der Skala vom Vorframe gezeichnet.
+
 ## [1.7.1] — 2026-07-13
 
 B23 — Vektor-Pfeilspitzen bei zu kurzem Vektor (repo-weiter Fix des shared-Helpers `shortenEnd`).

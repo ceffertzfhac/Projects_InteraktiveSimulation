@@ -5,6 +5,29 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.4.0 — 2026-07-15
+
+Feature (→ BACKLOG I13.1/I14): Hover-Werte an den Achsendiagrammen (nicht im
+Energie-Balkendiagramm) + synchronisierter Hover zwischen Diagramm 1/2 im
+Zwei-Diagramm-Modus.
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip** an `graph_group_1`/`graph_group_2`: gestrichelte
+  Führungslinie, bis zu 3 hohle Ring-Punkte (ecomposite zeigt E_kin/E_pot/E_ges
+  gleichzeitig) und ein Tooltip mit exakten Werten zum gehoverten Zeitpunkt,
+  via bestehendem `interpolateAt()` — kanonisches Rezept aus
+  `global_docs/simulation_instruction.md` § „Hover-Werte am Zeit-Diagramm".
+  Hit-Rect-Geometrie wird bei jedem `drawSingleGraph()`-Aufruf aus denselben
+  Lokalen wie `scaleT`/`scaleY` synchronisiert; `store.graphScale['1'/'2']`
+  ist die einzige Quelle der Wahrheit für `updateGraphHover()`.
+- **I14: synchronisierter Dual-Hover.** Beide Diagramm-Slots teilen sich im
+  Zwei-Diagramm-Modus stets die Zeitachse — Hover über Diagramm 1 zeigt
+  automatisch denselben Zeitpunkt auch als Cursor/Punkt/Tooltip in Diagramm 2
+  (und umgekehrt), via `store.hoverSourceSlot`/`hoverT` + `refreshHover()`.
+- **Energiebilanz-Ausschluss:** Das Energie-Balkendiagramm (`graphType1 ===
+  'bars'`) hat keinen Linienplot — dort bleibt `graphScale[slot]` `null`,
+  Hover ist dort deaktiviert (kein Cursor/Tooltip möglich).
+
 ## v1.3.1 — 2026-07-15
 
 Fix (PO-Report nach visueller Abnahme, → BACKLOG I12.10): Diagramm-1-

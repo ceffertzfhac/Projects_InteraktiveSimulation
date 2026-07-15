@@ -219,14 +219,22 @@ export function updateGraphs(time) {
   DOM.graphSvgBottom.style.display = mode === '2' ? 'block' : 'none';
 
   if (mode === '1') {
-    drawSingleGraph(DOM.graphSvgSingle, time, type1, subject, false);
+    store.graphScale.top = null; store.graphScale.bottom = null;
+    hideGraphHover('top'); hideGraphHover('bottom');
+    drawSingleGraph(DOM.graphSvgSingle, time, type1, subject, false, 'single');
   } else {
-    drawSingleGraph(DOM.graphSvgTop,    time, type1, 'm1', true);
-    drawSingleGraph(DOM.graphSvgBottom, time, type2, 'm2', true);
+    store.graphScale.single = null;
+    hideGraphHover('single');
+    drawSingleGraph(DOM.graphSvgTop,    time, type1, 'm1', true, 'top');
+    drawSingleGraph(DOM.graphSvgBottom, time, type2, 'm2', true, 'bottom');
   }
+
+  // Hover-Werte (I13.1): bei offenem Hover jeden Frame mit der frischen
+  // Skala neu berechnen (inkl. I14-Sync).
+  refreshHover();
 }
 
-function drawSingleGraph(svgEl, time, type, subject, isStacked) {
+function drawSingleGraph(svgEl, time, type, subject, isStacked, slot) {
   if (!store.t_data.length) return;
   const vb     = svgEl.getAttribute('viewBox').split(' ');
   const SVG_W  = parseFloat(vb[2]);
@@ -392,4 +400,139 @@ function drawSingleGraph(svgEl, time, type, subject, isStacked) {
     return subject === 'm2' ? info.title2 : info.title1;
   })();
   setGraphTitle(titleEl, titleText);
+
+  // Hover-Werte (I13.1): Hit-Rect-Geometrie aus denselben Lokalen wie
+  // scaleT/scaleY synchronisieren; graphScale ist die einzige Quelle der
+  // Wahrheit für updateGraphHover().
+  DOM.graphHitRect[slot].setAttribute('x', P.left);
+  DOM.graphHitRect[slot].setAttribute('y', P.top);
+  DOM.graphHitRect[slot].setAttribute('width', PLOT_W);
+  DOM.graphHitRect[slot].setAttribute('height', PLOT_H);
+  const hoverLines = [{ key: key1, color: color1, label: subject === 'm2' ? info.label2 : info.label1 }];
+  if (key2 && lim2) hoverLines.push({ key: key2, color: 'var(--c-m2)', label: info.label2 });
+  store.graphScale[slot] = { P, PLOT_W, PLOT_H, SVG_H, t_max, nMin, nRange, lines: hoverLines, unit: info.unit, nowT: Math.min(time, t_max) };
+}
+
+// ── Hover-Werte (I13.1) + Dual-Sync (I14) ────────────────────────────────────
+function hideGraphHover(slot) {
+  DOM.hoverLine[slot].setAttribute('visibility', 'hidden');
+  DOM.hoverPoint[slot].forEach(p => p.setAttribute('visibility', 'hidden'));
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'hidden');
+}
+
+function otherSlot(slot) {
+  return slot === 'top' ? 'bottom' : slot === 'bottom' ? 'top' : null;
+}
+
+function drawHoverAtT(slot, t) {
+  const gs = store.graphScale[slot];
+  if (!gs) { hideGraphHover(slot); return; }
+  if (!store.t_data.length) { hideGraphHover(slot); return; }
+  const { P, PLOT_W, PLOT_H, SVG_H, t_max, nMin, nRange, lines, unit } = gs;
+  const scaleT = tt => t_max > 0 ? P.left + (Math.min(tt, t_max) / t_max) * PLOT_W : P.left;
+  const scaleY = v => SVG_H - P.bottom - ((v - nMin) / nRange) * PLOT_H;
+  const xPix = scaleT(t);
+
+  DOM.hoverLine[slot].setAttribute('x1', xPix); DOM.hoverLine[slot].setAttribute('x2', xPix);
+  DOM.hoverLine[slot].setAttribute('y1', P.top); DOM.hoverLine[slot].setAttribute('y2', SVG_H - P.bottom);
+  DOM.hoverLine[slot].setAttribute('visibility', 'visible');
+
+  const pointEls = DOM.hoverPoint[slot];
+  const rows = [{ text: `t = ${fmt(t, 2)} s`, italic: true }];
+  lines.forEach((ln, idx) => {
+    const pe = pointEls[idx];
+    if (!pe) return;
+    const arr = store.axisLimits[ln.key]?.full_data;
+    const v = arr ? interpolateAt(arr, t) : 0;
+    pe.setAttribute('cx', xPix);
+    pe.setAttribute('cy', scaleY(v));
+    pe.style.fill = ln.color;
+    pe.setAttribute('visibility', 'visible');
+    const label = lines.length > 1 ? `${ln.label}: ` : '';
+    rows.push({ text: `${label}${fmt(v, 3)} ${unit}`, color: ln.color });
+  });
+  for (let i = lines.length; i < pointEls.length; i++) pointEls[i].setAttribute('visibility', 'hidden');
+
+  renderHoverTooltip(slot, rows, xPix, P, PLOT_W);
+}
+
+function renderHoverTooltip(slot, rows, xPix, P, plotW) {
+  const textEl2 = DOM.hoverTooltipText[slot];
+  textEl2.innerHTML = '';
+  const lineH = 15;
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH });
+    if (row.color) tspan.style.fill = row.color;
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' });
+      sym.textContent = 't';
+      tspan.appendChild(sym);
+      tspan.appendChild(document.createTextNode(row.text.slice(1)));
+    } else {
+      tspan.textContent = row.text;
+    }
+    textEl2.appendChild(tspan);
+  });
+
+  const bbox = textEl2.getBBox();
+  const boxW = bbox.width + 16, boxH = bbox.height + 12;
+  DOM.hoverTooltipBg[slot].setAttribute('width', boxW);
+  DOM.hoverTooltipBg[slot].setAttribute('height', boxH);
+  DOM.hoverTooltipBg[slot].setAttribute('x', 0);
+  DOM.hoverTooltipBg[slot].setAttribute('y', 0);
+
+  let tx = xPix + 12;
+  tx = Math.max(P.left, Math.min(P.left + plotW - boxW, tx));
+  DOM.hoverTooltip[slot].setAttribute('transform', `translate(${tx}, ${P.top + 6})`);
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'visible');
+}
+
+// Zeichnet den Hover-Cursor im hoverSourceSlot neu (wächst mit der laufenden
+// Wiedergabe) und im Zwei-Diagramm-Modus zusätzlich im jeweils anderen Slot
+// bei derselben Zeit (I14: beide Slots teilen sich dort stets die Zeitachse).
+function refreshHover() {
+  const slot = store.hoverSourceSlot;
+  if (!slot) return;
+  const gs = store.graphScale[slot];
+  if (!gs) {
+    hideGraphHover(slot);
+    const o = otherSlot(slot);
+    if (o) hideGraphHover(o);
+    return;
+  }
+  const t = Math.max(0, Math.min(store.hoverT, gs.t_max, gs.nowT));
+  store.hoverT = t;
+  drawHoverAtT(slot, t);
+  if (store.graphCfg.mode === '2') {
+    const other = otherSlot(slot);
+    if (other) {
+      const gsOther = store.graphScale[other];
+      if (gsOther) drawHoverAtT(other, Math.max(0, Math.min(t, gsOther.t_max, gsOther.nowT)));
+      else hideGraphHover(other);
+    }
+  }
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
+ * angegebenen Diagramm-Slot ('single'/'top'/'bottom'). Liest store.graphScale
+ * (von drawSingleGraph() befüllt). Im Zwei-Diagramm-Modus wird zusätzlich der
+ * jeweils andere Slot synchronisiert (I14).
+ */
+export function updateGraphHover(slot, localX) {
+  if (localX === null) {
+    if (store.hoverSourceSlot === slot) {
+      store.hoverSourceSlot = null;
+      store.hoverT = null;
+      hideGraphHover('single'); hideGraphHover('top'); hideGraphHover('bottom');
+    }
+    return;
+  }
+  const gs = store.graphScale[slot];
+  if (!gs) { hideGraphHover(slot); return; }
+  const xClamped = Math.max(gs.P.left, Math.min(gs.P.left + gs.PLOT_W, localX));
+  const rawT = ((xClamped - gs.P.left) / gs.PLOT_W) * gs.t_max;
+  store.hoverSourceSlot = slot;
+  store.hoverT = Math.max(0, Math.min(rawT, gs.t_max, gs.nowT));
+  refreshHover();
 }

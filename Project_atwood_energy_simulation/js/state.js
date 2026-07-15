@@ -47,6 +47,15 @@ export const store = {
   ek_rot_data: [],  // Rotationsenergie der Rolle = ½(I/R²)v²
   axisLimits: {},
   energyBarMax: 1,   // Skalenmaximum Energie-Balken (precompute)
+
+  // Hover-Werte (I13.1) + Dual-Sync (I14): graphScale pro Slot ('1'/'2');
+  // null wenn der Slot 'bars' zeigt (kein Linienplot). hoverSourceSlot = der
+  // Slot, über dem die Maus tatsächlich steht (null = kein Hover); hoverT =
+  // daraus abgeleitete Zeit, geteilt mit dem jeweils anderen Slot im
+  // Zwei-Diagramm-Modus (beide teilen sich dort stets die Zeitachse).
+  graphScale: { 1: null, 2: null },
+  hoverSourceSlot: null,
+  hoverT: null,
 };
 
 export const DOM = {};
@@ -143,6 +152,17 @@ export function initDOM() {
   DOM.graphSvg     = document.getElementById('graph_svg');
   DOM.graphGroup1  = document.getElementById('graph_group_1');
   DOM.graphGroup2  = document.getElementById('graph_group_2');
+
+  // Hover-Werte (I13.1/I14), pro Diagramm-Slot ('1'/'2')
+  DOM.graphHitRect = { 1: document.getElementById('graph_hit_rect_1'), 2: document.getElementById('graph_hit_rect_2') };
+  DOM.hoverLine = { 1: document.getElementById('graph_hover_line_1'), 2: document.getElementById('graph_hover_line_2') };
+  DOM.hoverPoint = {
+    1: [document.getElementById('graph_hover_point_1a'), document.getElementById('graph_hover_point_1b'), document.getElementById('graph_hover_point_1c')],
+    2: [document.getElementById('graph_hover_point_2a'), document.getElementById('graph_hover_point_2b'), document.getElementById('graph_hover_point_2c')],
+  };
+  DOM.hoverTooltip = { 1: document.getElementById('graph_hover_tooltip_1'), 2: document.getElementById('graph_hover_tooltip_2') };
+  DOM.hoverTooltipBg = { 1: document.getElementById('graph_hover_tooltip_bg_1'), 2: document.getElementById('graph_hover_tooltip_bg_2') };
+  DOM.hoverTooltipText = { 1: document.getElementById('graph_hover_tooltip_text_1'), 2: document.getElementById('graph_hover_tooltip_text_2') };
 
   // Live-Analyse
   DOM.liveA1    = document.getElementById('live_a1');

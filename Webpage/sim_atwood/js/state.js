@@ -18,6 +18,15 @@ export const store = {
   ydiff_data: [],
   yrel1_data: [], yrel2_data: [],
   axisLimits: {},
+
+  // Hover-Werte (I13.1) + Dual-Sync (I14): graphScale pro Slot ('single'/
+  // 'top'/'bottom'); hoverSourceSlot = der Slot, über dem die Maus tatsächlich
+  // steht (null = kein Hover); hoverT = daraus abgeleitete Zeit, geteilt mit
+  // dem jeweils anderen Slot im Zwei-Diagramm-Modus (beide teilen sich dort
+  // stets die Zeitachse).
+  graphScale: { single: null, top: null, bottom: null },
+  hoverSourceSlot: null,
+  hoverT: null,
 };
 
 export const DOM = {};
@@ -84,6 +93,18 @@ export function initDOM() {
   DOM.graphSvgSingle = document.getElementById('graph_svg_single');
   DOM.graphSvgTop    = document.getElementById('graph_svg_top');
   DOM.graphSvgBottom = document.getElementById('graph_svg_bottom');
+
+  // Hover-Werte (I13.1/I14), pro Diagramm-Slot
+  DOM.graphHitRect = { single: document.getElementById('graph_hit_rect_single'), top: document.getElementById('graph_hit_rect_top'), bottom: document.getElementById('graph_hit_rect_bottom') };
+  DOM.hoverLine = { single: document.getElementById('graph_hover_line_single'), top: document.getElementById('graph_hover_line_top'), bottom: document.getElementById('graph_hover_line_bottom') };
+  DOM.hoverPoint = {
+    single: [document.getElementById('graph_hover_point_single_a'), document.getElementById('graph_hover_point_single_b')],
+    top:    [document.getElementById('graph_hover_point_top_a'),    document.getElementById('graph_hover_point_top_b')],
+    bottom: [document.getElementById('graph_hover_point_bottom_a'), document.getElementById('graph_hover_point_bottom_b')],
+  };
+  DOM.hoverTooltip = { single: document.getElementById('graph_hover_tooltip_single'), top: document.getElementById('graph_hover_tooltip_top'), bottom: document.getElementById('graph_hover_tooltip_bottom') };
+  DOM.hoverTooltipBg = { single: document.getElementById('graph_hover_tooltip_bg_single'), top: document.getElementById('graph_hover_tooltip_bg_top'), bottom: document.getElementById('graph_hover_tooltip_bg_bottom') };
+  DOM.hoverTooltipText = { single: document.getElementById('graph_hover_tooltip_text_single'), top: document.getElementById('graph_hover_tooltip_text_top'), bottom: document.getElementById('graph_hover_tooltip_text_bottom') };
 
   // Analysis display
   DOM.liveA1    = document.getElementById('live_a1');

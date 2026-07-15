@@ -39,3 +39,15 @@ CSV-Export-Button. Es gibt keinen diskreten, endlichen Datensatz zum
 Exportieren — das Wellenfeld ist ein kontinuierliches, live berechnetes
 Feld ohne feste Zeitreihen-Struktur (im Gegensatz zu z. B. Federpendel, wo
 `tData`/`xData`-Arrays eine natürliche CSV-Zeile pro Zeitschritt ergeben).
+
+## Kein Diagramm-Hover (noch nicht — kommt später, → BACKLOG I13.3)
+
+Der Detektor-Zeitgraph und der Intensitäts-Schirmgraph haben aktuell keinen
+Cursor-Hover (gestrichelte Führungslinie + hohle Ring-Punkte + Tooltip mit
+exakten Werten), wie er an den Zeit-Achsen-Sims dieser Repo existiert (→
+`shared/js/hover.js`, BACKLOG I5/I13.1). **Das ist ausdrücklich keine
+Won't-Entscheidung, sondern noch offen:** Wellen bekommt den Hover noch —
+BACKLOG I13.3, Termin offen (Nutzer-Vorgabe 2026-07-15). Besonderheit hier
+gegenüber den anderen Sims: Canvas+SVG-Mischmodell — das Hit-Rect muß gegen
+das Canvas-Wellenfeld synchronisiert werden, statt gegen ein reines
+SVG-Plot wie bei den Zeit-Achsen-Sims.
