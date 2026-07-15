@@ -1,5 +1,32 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.4.0 — 2026-07-15
+
+I12.10 — Zwei-Diagramm-Modus ergänzt (PO-Report: „Freier Fall hat gar keine
+2-Diagramm-Option", Nutzer-Entscheidung 2026-07-15). Vorbild: schraeger_wurf.
+
+### Hinzugefügt
+- **Zwei unabhängige Diagramm-Picker** (`graph_select_1`/`graph_select_2`)
+  im Sidebar-Cluster „Diagramm", umschaltbar über den kanonischen
+  `diagram_mode`-Kontrakt (`speed-pill`, „Ein Diagramm"/„Zwei Diagramme").
+  Beide Picker bieten immer das volle Optionsset (Weg-Zeit/Geschwindigkeit-
+  Zeit/Beschleunigung-Zeit) — anders als bei schraeger_wurf/kreisbewegung
+  gibt es hier keine Bahnkurve, daher kein Filtern nötig.
+- **SVG-Struktur:** `graph_group` → `graph_group_single` +
+  `graph_group_stacked_top`/`_bottom` (Portrait-Slots, gleiche Geometrie wie
+  schraeger_wurf: `GRAPH_H_STACKED=210`, Translate-Offsets `(400,20)`/
+  `(400,255)`).
+- **`render.js`:** `updateGraph()` in `drawGraphSlot({...type, graphHeight})`
+  (generisch, ein Aufruf pro Slot) + `updateGraphs()`-Wrapper (Sichtbarkeit
+  der drei Gruppen, ein oder zwei `drawGraphSlot`-Aufrufe) refaktoriert.
+- **`state.js`:** `store.graphType` → `store.graphType1`/`store.graphType2`
+  (Diagramm 2 nur im Zwei-Diagramm-Modus relevant).
+- **CSV-Diagramm-Export:** neuer Zweig für den Zwei-Diagramm-Fall (zwei
+  Datenspalten statt einer).
+- Verifiziert per Playwright-Smoke-Test (unabhängige Kombination
+  Beschleunigung-Zeit/Weg-Zeit, Play/Pause in beiden Modi, Moduswechsel,
+  CSV-Export einzeln + gestapelt) — keine Konsolenfehler.
+
 ## v2.3.0 — 2026-07-15
 
 I12 — Diagramm-Steuerung: Picker zurück in die linke Sidebar (Sidebar-Schule, PO-Entscheidung 2026-07-15). Kehrt I12.2 (v2.2.9) um.

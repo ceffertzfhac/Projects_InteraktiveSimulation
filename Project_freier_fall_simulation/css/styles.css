@@ -84,6 +84,12 @@ body.dark {
 .axis-label { fill: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; }
 .tick-label { fill: var(--text2); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
 .graph-title-text { fill: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+.graph-title-text.small { font-size: 13px; }
+
+/* ── Diagramm-1/2-Picker-Zeile (→ BACKLOG I12.9, Vorbild kreis_spiralbewegung) */
+.vis-control { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.vis-control .slider-label { min-width: 84px; flex: 0 0 auto; color: var(--text2); font-size: .82rem; text-align: left; }
+.vis-control .select-field { flex: 1 1 auto; width: auto; min-width: 0; margin-bottom: 0; font-size: .82rem; padding: 5px 8px; }
 
 /* ── RESET ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -3,15 +3,29 @@ import { store, DOM, initDOM } from './state.js';
 import { scaleY, flightTime, getDisplayY, getDisplayV, getDisplayA } from './physics.js';
 import { fmt, drawRuler, drawStickFigure, drawYAxisDisplay,
          drawStopwatchMarks, drawSubdialMarks,
-         updateGraph, updateScene, updateKennwerte,
+         updateGraphs, updateScene, updateKennwerte,
          updatePhysicsFormulas } from './render.js';
 
 // Diagramm-Typ-Picker aus GRAPH_OPTIONS befüllen (kanonisch, → BACKLOG I12
-// Sidebar-Schule; Pickers sitzt in der linken Sidebar, nicht am Diagramm).
-function populateGraphSelect() {
-  DOM.graphSelect.innerHTML = Object.entries(GRAPH_OPTIONS)
+// Sidebar-Schule). Zwei unabhängige Picker (→ I12.9): alle drei Typen
+// (weg/geschw/beschl) sind reine Zeitreihen ohne Bahnkurve — anders als bei
+// schraeger_wurf/kreisbewegung ist hier kein Filtern nötig, beide Picker
+// bieten immer dasselbe volle Optionsset.
+function populateGraphSelects() {
+  const options = Object.entries(GRAPH_OPTIONS)
     .map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
-  DOM.graphSelect.value = store.graphType;
+  DOM.graphSelect1.innerHTML = options;
+  DOM.graphSelect2.innerHTML = options;
+  DOM.graphSelect1.value = store.graphType1;
+  DOM.graphSelect2.value = store.graphType2;
+  DOM.dualGraphControl.style.display = store.isStacked ? '' : 'none';
+}
+
+// Mehrfach-Modus (Ein-/Zwei-Diagramm) aus dem kanonischen diagram_mode-speed-
+// pill (Werte 1|2) lesen (→ I12).
+function diagramModeIsStacked() {
+  const r = Array.from(DOM.diagramModeRadios).find(x => x.checked);
+  return r ? r.value === '2' : false;
 }
 
 function stopAnimation() {
@@ -27,7 +41,9 @@ function resetSim() {
   store.lastFrameTime  = 0;
   store.h0 = parseFloat(DOM.h0Slider.value);
   store.v0 = parseFloat(DOM.v0Slider.value);
-  store.graphType = DOM.graphSelect.value;
+  store.graphType1 = DOM.graphSelect1.value;
+  store.graphType2 = DOM.graphSelect2.value;
+  store.isStacked = diagramModeIsStacked();
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value); });
   const parts = DOM.yAxisSelect.value.split('_');
   store.yAxisConfig.direction = parts[0];
@@ -36,6 +52,8 @@ function resetSim() {
   DOM.h0Value.textContent = `${fmt(store.h0, 1)} m`;
   DOM.v0Value.textContent = `${store.v0} m/s`;
   store.t_data = []; store.y_data = []; store.v_data = []; store.a_data = [];
+
+  populateGraphSelects();
 
   const bhM = Math.max(0, store.h0 - 1.8);
   DOM.building.setAttribute('height', String(bhM * PIXELS_PER_METER));
@@ -49,7 +67,7 @@ function resetSim() {
 
   DOM.ball.setAttribute('cx', String(BALL_X));
   updateScene(0, store.h0, store.v0, -G);  // setzt Vektoren + Stoppuhr bei t=0
-  updateGraph();
+  updateGraphs();
   updateKennwerte();
   updatePhysicsFormulas();
 
@@ -75,7 +93,7 @@ function animate(ts) {
     store.v_data.push(getDisplayV(v));
     store.a_data.push(getDisplayA(a));
     updateScene(t, y, v, a);
-    updateGraph();
+    updateGraphs();
     store.aniFrameId = requestAnimationFrame(animate);
   } else {
     const tf = flightTime();
@@ -85,7 +103,7 @@ function animate(ts) {
     store.v_data.push(getDisplayV(vf));
     store.a_data.push(getDisplayA(-G));
     updateScene(tf, 0, vf, -G);
-    updateGraph();
+    updateGraphs();
     stopAnimation();
   }
 }
@@ -121,23 +139,28 @@ function setupTheme() {
 
 // ── CSV export ────────────────────────────────────────────────────────────────
 function exportCSV(all) {
-  const { t_data, y_data, v_data, a_data, graphType, yAxisConfig } = store;
+  const { t_data, y_data, v_data, a_data, graphType1, graphType2, isStacked, yAxisConfig } = store;
   if (!t_data.length) return;
 
   const posLabel = yAxisConfig.origin === 'start' ? 's / m' : 'y / m';
+  const colMap = {
+    weg:    { label: posLabel,       data: y_data },
+    geschw: { label: 'v / (m/s)',    data: v_data },
+    beschl: { label: 'a / (m/s²)',   data: a_data },
+  };
 
   let header, rows;
   if (all) {
     header = `sep=;\nt / s;${posLabel};v / (m/s);a / (m/s²)`;
     rows = t_data.map((_, i) =>
       [t_data[i], y_data[i], v_data[i], a_data[i]].map(v => fmt(v, 4)).join(';'));
+  } else if (isStacked) {
+    const col1 = colMap[graphType1] || colMap.weg;
+    const col2 = colMap[graphType2] || colMap.weg;
+    header = `sep=;\nt / s;${col1.label};${col2.label}`;
+    rows = t_data.map((_, i) => `${fmt(t_data[i], 4)};${fmt(col1.data[i], 4)};${fmt(col2.data[i], 4)}`);
   } else {
-    const colMap = {
-      weg:    { label: posLabel,       data: y_data },
-      geschw: { label: 'v / (m/s)',    data: v_data },
-      beschl: { label: 'a / (m/s²)',   data: a_data },
-    };
-    const col = colMap[graphType] || colMap.weg;
+    const col = colMap[graphType1] || colMap.weg;
     header = `sep=;\nt / s;${col.label}`;
     rows = t_data.map((_, i) => `${fmt(t_data[i], 4)};${fmt(col.data[i], 4)}`);
   }
@@ -158,7 +181,12 @@ setupTheme();
 
 DOM.h0Slider.addEventListener('input', resetSim);
 DOM.v0Slider.addEventListener('input', resetSim);
-DOM.graphSelect.addEventListener('change', resetSim);
+DOM.graphSelect1.addEventListener('change', resetSim);
+DOM.graphSelect2.addEventListener('change', resetSim);
+DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
+  updateSpeedPills();
+  resetSim();
+}));
 DOM.yAxisSelect.addEventListener('change', resetSim);
 DOM.togVel.addEventListener('change', resetSim);
 DOM.togAcc.addEventListener('change', resetSim);
@@ -192,7 +220,7 @@ document.getElementById('reset_btn').addEventListener('click', () => {
 });
 
 updateSpeedPills();
-populateGraphSelect();
+populateGraphSelects();
 resetSim();
 
 // MathJax rendert display:none-Elemente nicht — alle Formelvarianten kurz zeigen,

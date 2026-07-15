@@ -14,6 +14,10 @@ export const SDIAL_CY = 150;
 export const SDIAL_R = 16;
 export const GRAPH_W = 480;
 export const GRAPH_H = 410;
+export const GRAPH_H_STACKED = 210;
+export const GRAPH_SINGLE_TRANSLATE = { x: 400, y: 40 };
+export const GRAPH_STACKED_TOP_TRANSLATE = { x: 400, y: 20 };
+export const GRAPH_STACKED_BOTTOM_TRANSLATE = { x: 400, y: 255 };
 
 // Diagramm-Typ-Optionen (kanonisch, → BACKLOG I12 Sidebar-Schule). Labels aus
 // Nutzerperspektive; Schlüssel stimmen mit graphType/render.js überein.

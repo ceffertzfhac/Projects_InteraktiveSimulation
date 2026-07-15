@@ -1,6 +1,6 @@
 import { G, PIXELS_PER_METER, GROUND_PX, BALL_X,
          WATCH_CX, WATCH_CY, WATCH_R, SDIAL_CX, SDIAL_CY, SDIAL_R,
-         GRAPH_W, GRAPH_H, PIXELS_PER_VEL, PIXELS_PER_ACC, VEL_THRESHOLD } from './constants.js';
+         GRAPH_W, GRAPH_H, GRAPH_H_STACKED, PIXELS_PER_VEL, PIXELS_PER_ACC, VEL_THRESHOLD } from './constants.js';
 import { store, DOM } from './state.js';
 import { scaleY, getDisplayY, getDisplayV, getDisplayA, flightTime } from './physics.js';
 import { fmt } from '../../shared/js/format.js';
@@ -58,7 +58,7 @@ export function drawStickFigure(h_base) {
 
 export function drawYAxisDisplay() {
   DOM.yAxisDisplay.innerHTML = '';
-  const { yAxisConfig: { direction, origin }, h0, graphType } = store;
+  const { yAxisConfig: { direction, origin }, h0, graphType1: graphType } = store;
   const ax = 180;
   const yOrig = Math.max(10, Math.min(470, origin === 'ground' ? scaleY(0) : scaleY(h0)));
   const yEnd  = Math.max(10, Math.min(470, yOrig + (direction === 'up' ? -50 : 50)));
@@ -108,10 +108,12 @@ export function drawSubdialMarks() {
   }
 }
 
-export function updateGraph() {
-  const { h0, v0, graphType, yAxisConfig, t_data, y_data, v_data, a_data } = store;
-  DOM.gridGroup.innerHTML = '';
-  DOM.gridGroup.appendChild(el('rect', { x: 0, y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15, class: 'graph-bg' }));
+// Ein Diagramm-Slot zeichnen (parameterisiert für Single + Stacked Top/Bottom,
+// → BACKLOG I12.9: zwei unabhängige Picker statt fester Paarung).
+function drawGraphSlot({ gridEl, lineEl, pointEl, titleEl, type, graphHeight }) {
+  const { h0, v0, yAxisConfig, t_data, y_data, v_data, a_data } = store;
+  gridEl.innerHTML = '';
+  gridEl.appendChild(el('rect', { x: 0, y: -15, width: GRAPH_W + 15, height: graphHeight + 15, class: 'graph-bg' }));
 
   const tf   = (v0 + Math.sqrt(v0 * v0 + 2 * G * h0)) / G;
   const tMax = Math.max(tf, 1.0);
@@ -119,12 +121,12 @@ export function updateGraph() {
   const scX  = t => (t / tMax) * gw;
 
   let vMin, vMax, yLabel;
-  if (graphType === 'weg') {
+  if (type === 'weg') {
     const yMaxPhys = h0 + (v0 > 0 ? v0 * v0 / (2 * G) : 0);
     const d0 = getDisplayY(0), dM = getDisplayY(yMaxPhys);
     vMin = Math.min(d0, dM); vMax = Math.max(d0, dM);
     yLabel = yAxisConfig.origin === 'start' ? 's / m' : 'y / m';
-  } else if (graphType === 'geschw') {
+  } else if (type === 'geschw') {
     const vEnd = v0 - G * tMax;
     const dV0 = getDisplayV(v0), dVe = getDisplayV(vEnd);
     vMin = Math.min(dV0, dVe); vMax = Math.max(dV0, dVe);
@@ -147,7 +149,7 @@ export function updateGraph() {
   if (axMin === axMax) { axMin -= step; axMax += step; }
 
   const axRng = axMax - axMin || 1;
-  const scY   = v => GRAPH_H - 10 - ((v - axMin) / axRng) * (GRAPH_H - 30);
+  const scY   = v => graphHeight - 10 - ((v - axMin) / axRng) * (graphHeight - 30);
   const x0    = scX(0);
   const y0    = scY(0);
 
@@ -158,10 +160,10 @@ export function updateGraph() {
   while (tc <= tMax + tStep * 0.01) {
     const xp = scX(Math.min(tc, tMax));
     if (Math.abs(xp - x0) > 2)
-      DOM.gridGroup.appendChild(el('line', { x1: xp, y1: 5, x2: xp, y2: GRAPH_H - 5, class: 'grid-line' }));
+      gridEl.appendChild(el('line', { x1: xp, y1: 5, x2: xp, y2: graphHeight - 5, class: 'grid-line' }));
     const tv = el('text', { x: xp, y: y0 + 16, 'text-anchor': 'middle', class: 'tick-label' });
     tv.textContent = fmt(tc, tDecimals);
-    DOM.gridGroup.appendChild(tv);
+    gridEl.appendChild(tv);
     tc = Math.round((tc + tStep) * 1e6) / 1e6;
   }
 
@@ -172,41 +174,59 @@ export function updateGraph() {
     const v  = axMin + i * step;
     const yp = scY(v);
     if (Math.abs(yp - y0) > 2 || Math.abs(v) > 0.001)
-      DOM.gridGroup.appendChild(el('line', { x1: 0, y1: yp, x2: GRAPH_W, y2: yp, class: 'grid-line' }));
+      gridEl.appendChild(el('line', { x1: 0, y1: yp, x2: GRAPH_W, y2: yp, class: 'grid-line' }));
     const tv = el('text', { x: x0 - 5, y: yp + 4, 'text-anchor': 'end', class: 'tick-label' });
     tv.textContent = fmt(v, decimals);
-    DOM.gridGroup.appendChild(tv);
+    gridEl.appendChild(tv);
   }
 
   // Axis lines
-  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: y0, x2: GRAPH_W - 5, y2: y0,     class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }));
-  DOM.gridGroup.appendChild(el('line', { x1: x0, y1: GRAPH_H - 5, x2: x0, y2: 5,      class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }));
+  gridEl.appendChild(el('line', { x1: x0, y1: y0, x2: GRAPH_W - 5, y2: y0,     class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }));
+  gridEl.appendChild(el('line', { x1: x0, y1: graphHeight - 5, x2: x0, y2: 5, class: 'axis-line', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)' }));
 
   // Axis labels
   const tlX = el('text', { x: GRAPH_W / 2, y: y0 + 32, 'text-anchor': 'middle', class: 'axis-label' });
   setAxisLabel(tlX, 't / s');
-  DOM.gridGroup.appendChild(tlX);
-  const tlY = el('text', { x: x0 - 40, y: GRAPH_H / 2, transform: `rotate(-90 ${x0 - 40} ${GRAPH_H / 2})`, 'text-anchor': 'middle', class: 'axis-label' });
+  gridEl.appendChild(tlX);
+  const tlY = el('text', { x: x0 - 40, y: graphHeight / 2, transform: `rotate(-90 ${x0 - 40} ${graphHeight / 2})`, 'text-anchor': 'middle', class: 'axis-label' });
   setAxisLabel(tlY, yLabel);
-  DOM.gridGroup.appendChild(tlY);
+  gridEl.appendChild(tlY);
 
   // Graph title
   const posSymbol = yAxisConfig.origin === 'start' ? 's(t)' : 'y(t)';
   const titles = { weg: `Weg-Zeit ${posSymbol}`, geschw: 'Geschw.-Zeit v(t)', beschl: 'Beschl.-Zeit a(t)' };
-  setGraphTitle(DOM.graphTitle, titles[graphType] || '');
+  setGraphTitle(titleEl, titles[type] || '');
 
   // Data polyline
-  const dArr = graphType === 'weg' ? y_data : graphType === 'geschw' ? v_data : a_data;
+  const dArr = type === 'weg' ? y_data : type === 'geschw' ? v_data : a_data;
   let pts = '';
   for (let i = 0; i < t_data.length; i++) pts += `${scX(t_data[i])},${scY(dArr[i])} `;
-  DOM.graphLine.setAttribute('points', pts);
+  lineEl.setAttribute('points', pts);
 
   if (t_data.length > 0) {
-    DOM.graphPoint.setAttribute('cx', scX(t_data[t_data.length - 1]));
-    DOM.graphPoint.setAttribute('cy', scY(dArr[dArr.length - 1]));
-    DOM.graphPoint.setAttribute('visibility', 'visible');
+    pointEl.setAttribute('cx', scX(t_data[t_data.length - 1]));
+    pointEl.setAttribute('cy', scY(dArr[dArr.length - 1]));
+    pointEl.setAttribute('visibility', 'visible');
   } else {
-    DOM.graphPoint.setAttribute('visibility', 'hidden');
+    pointEl.setAttribute('visibility', 'hidden');
+  }
+}
+
+// Zwei unabhängige Diagramm-Picker (→ BACKLOG I12.9): graphType1 gehört immer
+// zum Single-Slot bzw. oberen Slot, graphType2 nur zum unteren Slot im
+// Zwei-Diagramm-Modus — frei kombinierbar, keine feste Paarung mehr.
+export function updateGraphs() {
+  const isStacked = store.isStacked;
+  DOM.graphGroupSingle.style.visibility = isStacked ? 'hidden' : 'visible';
+  DOM.graphGroupStackedTop.style.visibility = isStacked ? 'visible' : 'hidden';
+  DOM.graphGroupStackedBottom.style.visibility = isStacked ? 'visible' : 'hidden';
+  if (isStacked) DOM.graphTitle.textContent = '';
+
+  if (isStacked) {
+    drawGraphSlot({ gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, titleEl: DOM.graphTitleTop, type: store.graphType1, graphHeight: GRAPH_H_STACKED });
+    drawGraphSlot({ gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, titleEl: DOM.graphTitleBottom, type: store.graphType2, graphHeight: GRAPH_H_STACKED });
+  } else {
+    drawGraphSlot({ gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, titleEl: DOM.graphTitle, type: store.graphType1, graphHeight: GRAPH_H });
   }
 }
 
