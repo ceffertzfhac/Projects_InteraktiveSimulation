@@ -1,5 +1,42 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.5.0 — 2026-07-15
+
+I13.1 + I14 — Hover-Werte am Diagramm + synchronisierter Hover über
+Zwei-Diagramm-Modus (→ BACKLOG I13/I14, Nutzer-Vorgabe 2026-07-15).
+
+### Hinzugefügt
+- **Mouseover über ein Diagramm** (Single, Top oder Bottom) zeigt eine
+  gestrichelte Führungslinie, einen hohlen Ring-Punkt und ein Tooltip mit
+  dem exakten Wert zum gehoverten Zeitpunkt. Da diese Sim (anders als alle
+  übrigen) kein `interpolateAt(t)` hatte — die Kinematik ist geschlossen-
+  analytisch, `t_data`/`y_data`/`v_data`/`a_data` wachsen progressiv im
+  RAF-Loop statt vollständig vorausberechnet zu sein — wurde ein neues
+  `interpolateAt(arr, t)` in `physics.js` ergänzt (lineare Interpolation
+  über das jeweils bereits gewachsene Array, wie bei atwood/stoss). Eine rein
+  analytische Alternative wäre riskant gewesen: der Landungs-Clamp (y<0 in
+  `ui.js::animate`) kappt den Verlauf am Ende der Flugbahn, und die
+  Interpolation über die tatsächlich geplotteten Daten trifft diesen Fall
+  automatisch korrekt.
+- **I14 — synchronisierter Dual-Hover:** im Zwei-Diagramm-Modus zeigt Hovern
+  in Diagramm 1 automatisch auch den Cursor + Tooltip in Diagramm 2 beim
+  selben Zeitpunkt (und umgekehrt) — alle drei Typen (Weg/Geschwindigkeit/
+  Beschleunigung) sind reine Zeitreihen, daher immer synchronisierbar.
+- `shared/js/hover.js` (`attachGraphHover`) eingebunden.
+
+### Behoben
+- **Fehlender `shared/css/design-system.css`-Link** — als einzige Sim im
+  Repo band `index.html` das zentrale Design-System-Stylesheet nicht ein
+  (nur die lokale `css/styles.css`, die alle bis dahin benötigten Tokens/
+  Klassen redundant selbst definierte). Fiel bisher nicht auf, weil alles
+  bis dahin Verwendete lokal dupliziert war — aber die neuen Hover-Klassen
+  (`.graph-hit-rect`, `.graph-hover-*`) existieren nur zentral: das Hit-Rect
+  hatte dadurch `fill: black` (SVG-Initialwert) statt `fill: none` und
+  verdeckte das komplette Diagramm. Verlinkung ergänzt (vor der lokalen
+  `css/styles.css`, wie bei allen anderen Sims — lokale Regeln behalten bei
+  gleicher Spezifität Vorrang). Visuell in Light+Dark ohne Regressionen
+  verifiziert.
+
 ## v2.4.1 — 2026-07-15
 
 Bug-Report: im Zwei-Diagramm-Modus (v2.4.0) keine Linie sichtbar, beim

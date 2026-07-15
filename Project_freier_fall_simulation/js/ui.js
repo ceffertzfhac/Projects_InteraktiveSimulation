@@ -4,7 +4,8 @@ import { scaleY, flightTime, getDisplayY, getDisplayV, getDisplayA } from './phy
 import { fmt, drawRuler, drawStickFigure, drawYAxisDisplay,
          drawStopwatchMarks, drawSubdialMarks,
          updateGraphs, updateScene, updateKennwerte,
-         updatePhysicsFormulas } from './render.js';
+         updatePhysicsFormulas, updateGraphHover } from './render.js';
+import { attachGraphHover } from '../../shared/js/hover.js';
 
 // Diagramm-Typ-Picker aus GRAPH_OPTIONS befüllen (kanonisch, → BACKLOG I12
 // Sidebar-Schule). Zwei unabhängige Picker (→ I12.9): alle drei Typen
@@ -221,6 +222,16 @@ document.getElementById('reset_btn').addEventListener('click', () => {
 
 updateSpeedPills();
 populateGraphSelects();
+
+// Hover-Werte am Diagramm (I13.1) — je ein Hit-Rect pro Diagramm-Slot, da bis
+// zu 3 Graph-Gruppen (single/top/bottom) in derselben #main_svg existieren.
+;['single', 'top', 'bottom'].forEach(slot => {
+  attachGraphHover(DOM.graphHitRect[slot], {
+    onMove: x => updateGraphHover(slot, x),
+    onLeave: () => updateGraphHover(slot, null),
+  });
+});
+
 resetSim();
 
 // MathJax rendert display:none-Elemente nicht — alle Formelvarianten kurz zeigen,
