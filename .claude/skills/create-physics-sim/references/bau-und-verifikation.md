@@ -28,15 +28,32 @@ einsetzen. Mapping (Volltext: Blueprint §9.1 + §2–§4):
    `interpolateAt()`. **DOM-frei halten** (kein `document.*` im Modulrumpf).
 4. `render.js` — `drawBackground()` (statisch), `drawGraph()`, `updateScene(t)`
    (nur interpolieren); Shared-Helfer (`setAxisLabel`/`setGraphTitle`/`getNiceTick`/
-   `tAxisStep`/`shortenEnd`).
-5. `ui.js` — Slider/Selects/Toggles an `resetSim()`; Animations-Loop; Export; Theme.
-6. `index.html` — Titel/Version, Slider, Legende, **statische** MathJax-Formeln.
-   `css/styles.css` — nur sim-spezifische Farben/Klassen; Struktur bleibt shared.
+   `tAxisStep`/`shortenEnd`); `updateGraphHover()` + Hover-Overlay-Zeichnung
+   (§4/I13.1, `store.graphScale` als einzige Quelle der Wahrheit — Scaffold
+   v0.2.0 liefert es vorverdrahtet; nur anpassen falls Mehr-Subjekt/Dual).
+5. `ui.js` — Slider/Selects/Toggles an `resetSim()`; Animations-Loop; Export;
+   Theme; `attachGraphHover` (aus `shared/js/hover.js`) auf dem Hit-Rect.
+6. `index.html` — Titel/Version, Slider, Legende, **statische** MathJax-Formeln;
+   Diagramm-Steuerungs-Cluster in linker Sidebar (§3/I12); Hover-Overlay-Elemente
+   in der Graph-`<svg>`. `css/styles.css` — nur sim-spezifische Farben/Klassen
+   (inkl. `#graph_hover_point { stroke: … }` in Kurvenfarbe); Struktur bleibt shared.
+   — **2-Diagramm-Modus** (falls Vergleichsbedarf): `graph_select_2` +
+   `diagram_mode`/`speed-pill` (§3) + I14-Dual-Hover-Sync (§4, `refreshHover()`
+   am Ende der Orchestrierungsfunktion).
 
 Kritische Konventionen, die erfahrungsgemäß schieflaufen (Blueprint §3/§4):
 Pfeilspitzen `refX=0` + `shortenEnd` + **null-Guard** (B23); Diagrammtitel als
-letztes SVG-Kind; beide Achsen ≥4 Ticks inkl. 0; physikalische Größen kursiv;
-Koordinatensystem-Konsistenz Lineal = Diagramm = Regler = Live-Panel.
+letztes Daten-Kind (Hover-Overlay + Hit-Rect danach); beide Achsen ≥4 Ticks
+inkl. 0; physikalische Größen kursiv; Koordinatensystem-Konsistenz Lineal =
+Diagramm = Regler = Live-Panel; **Diagramm-Steuerung kanonisch (§3, I12)** —
+Typ-Picker `graph_select(_1/_2)` + `select-field` in linker Sidebar, Optionen
+aus `GRAPH_OPTIONS`, Mehrfach-Modus `diagram_mode`/`speed-pill` (nicht
+`.graph-sel`/Graph-Toolbar); **Hover-Werte (§4, I13.1)** erwartet — Scaffold
+liefert sie ab v0.2.0 (`attachGraphHover` + `updateGraphHover` +
+`store.graphScale` als einzige Quelle der Wahrheit); **I14 Dual-Sync** bei
+2-Diagramm-Modus (`hoverSourceSlot`/`hoverT` + `refreshHover()` am Ende der
+Orchestrierungsfunktion). Opt-outs: statische Sims/Werkzeuge §7 ohne Zeit-Diagramm
+→ kein Hover (Won't, I13.2); Wellen → I13.3 (kommt später).
 
 ## Phase 3 — Verifikation (billig, inline)
 

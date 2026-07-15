@@ -15,6 +15,8 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
 .graph-title-text { fill: var(--text);  font-size: 15px; font-weight: 600; font-family: var(--font-ui); }
 #graph_line       { stroke: var(--accent); }
 #graph_point      { fill: var(--accent); }
+/* Hover-Ring-Punkt: Kontur in Kurvenfarbe (fill:none via shared .graph-hover-point) */
+#graph_hover_point { stroke: var(--accent); }
 
 /* SVG-Simulationselemente */
 .track-line { stroke: var(--text2); stroke-width: 3; stroke-linecap: round; }

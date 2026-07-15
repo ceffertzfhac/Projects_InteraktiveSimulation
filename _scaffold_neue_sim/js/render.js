@@ -37,7 +37,8 @@ export function drawBackground() {
 
 // ── Statisches Diagramm: Achsen, Gitter, VOLLE Kurve (einmal je Reset) ──────────
 // precompute hat die Daten schon berechnet — hier wird die ganze Kurve gezeichnet
-// und die Skalen in store.gScale abgelegt, damit updateScene nur den Marker bewegt.
+// und die Skalen in store.graphScale abgelegt, damit updateScene nur den Marker
+// bewegt und updateGraphHover den Hover-Cursor zeichnet (eine Quelle der Wahrheit).
 export function drawGraph() {
   const { graphType, t_data, x_data, v_data, a_data, t_end } = store
   DOM.gridGroup.innerHTML = ''
@@ -109,10 +110,97 @@ export function drawGraph() {
   for (let i = 0; i < t_data.length; i++) pts += `${scX(t_data[i])},${scY(arr[i])} `
   DOM.graphLine.setAttribute('points', pts)
 
-  // Titel als LETZTES SVG-Kind, klar über dem weißen Rechteck (y=-22, group-relativ)
+  // Titel klar über dem weißen Rechteck (y=-22, group-relativ). Titel ist das
+  // letzte *Daten*-Kind; das Hover-Overlay + Hit-Rect kommen danach (s. u.).
   setGraphTitle(DOM.graphTitle, title)
 
-  store.gScale = { scX, scY, arr }
+  // Hover-Werte (I13.1, §4): Hit-Rect-Geometrie aus denselben Lokalen wie scX/scY
+  // synchronisieren (Breite = gw = echter Datenbereich, nicht die bis GRAPH_W-5
+  // reichende Achsenlinie). store.graphScale ist die EINZIGE Quelle der Wahrheit
+  // für updateGraphHover — keine eigene Range-Berechnung dort (sonst Drift).
+  DOM.graphHitRect.setAttribute('x', 0)
+  DOM.graphHitRect.setAttribute('y', 5)
+  DOM.graphHitRect.setAttribute('width', gw)
+  DOM.graphHitRect.setAttribute('height', GRAPH_H - 10)
+  store.graphScale = { tMax, gw, scX, scY, arr }
+
+  // Offenen Hover nach Redraw neu rechnen — die Skala kann sich geändert haben
+  // (Parameterwechsel während offenem Hover, §4 Gotcha „wachsendes Fenster").
+  if (store.hoverActive) updateGraphHover(store.hoverLocalX)
+}
+
+// ── Hover-Werte (I13.1, §4): Cursor + Tooltip zum gehoverten Zeitpunkt ──────────
+// Liest NUR store.graphScale (von drawGraph befüllt) + store.simulatedTime. t
+// wird aus denselben Lokalen invertiert wie scX (gw, tMax); der Cursor bleibt auf
+// dem bis zur Wiedergabe erreichten Kurvenabschnitt geklammert
+// (t ∈ [0, min(tMax, simulatedTime)] — kanonische UX, s. §4). Beim Ausbau zum
+// 2-Diagramm-Modus (I14) hier eine Slot-Dimension + refreshHover()-Sync
+// ergänzen (Hover in Slot A → selbe Zeit auch in Slot B), s. Anleitung §4 I14.
+export function updateGraphHover(localX) {
+  store.hoverActive = localX !== null
+  store.hoverLocalX = localX
+  const gs = store.graphScale
+  if (localX === null || !gs || !store.t_data.length) { hideGraphHover(); return }
+  const xClamped = Math.max(0, Math.min(gs.gw, localX))
+  const rawT = (xClamped / gs.gw) * gs.tMax
+  const t = Math.max(0, Math.min(rawT, gs.tMax, store.simulatedTime))
+  drawHoverAtT(gs, t)
+}
+
+function drawHoverAtT(gs, t) {
+  const xPix = gs.scX(t)
+  const val = interpolateAt(gs.arr, t)
+
+  DOM.hoverLine.setAttribute('x1', xPix); DOM.hoverLine.setAttribute('x2', xPix)
+  DOM.hoverLine.setAttribute('y1', 5); DOM.hoverLine.setAttribute('y2', GRAPH_H - 5)
+  DOM.hoverLine.setAttribute('visibility', 'visible')
+
+  DOM.hoverPoint.setAttribute('cx', xPix)
+  DOM.hoverPoint.setAttribute('cy', gs.scY(val))
+  DOM.hoverPoint.setAttribute('visibility', 'visible')
+
+  renderHoverTooltip(t, val, xPix, gs.gw)
+}
+
+function hideGraphHover() {
+  DOM.hoverLine.setAttribute('visibility', 'hidden')
+  DOM.hoverPoint.setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip.setAttribute('visibility', 'hidden')
+}
+
+function renderHoverTooltip(t, val, xPix, plotW) {
+  const unit = store.graphType === 'ort' ? 'm'
+             : store.graphType === 'geschw' ? 'm/s' : 'm/s²'
+  const textEl = DOM.hoverTooltipText
+  textEl.innerHTML = ''   // tspan-Kinder neu aufbauen (kein typesetPromise)
+  const rows = [
+    { sym: 't', rest: ` = ${fmt(t, 2)} s` },          // t kursiv, Rest aufrecht
+    { sym: null, text: `${fmt(val, 3)} ${unit}` },
+  ]
+  const lineH = 15
+  rows.forEach((row, i) => {
+    const tsp = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.sym) {
+      const s = el('tspan', { 'font-style': 'italic' })
+      s.textContent = row.sym
+      tsp.appendChild(s)
+      tsp.appendChild(document.createTextNode(row.rest))
+    } else {
+      tsp.textContent = row.text
+    }
+    textEl.appendChild(tsp)
+  })
+
+  // Box-Größe aus dem gerenderten Text, dann Tooltip in der Plot-Fläche klammern
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg.setAttribute('width', boxW)
+  DOM.hoverTooltipBg.setAttribute('height', boxH)
+  DOM.hoverTooltipBg.setAttribute('x', 0)
+  DOM.hoverTooltipBg.setAttribute('y', 0)
+  const tx = Math.max(0, Math.min(plotW - boxW, xPix + 12))
+  DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, 10)`)
+  DOM.hoverTooltip.setAttribute('visibility', 'visible')
 }
 
 // ── shortenEnd + null-Guard (kanonische Pfeilspitzen-Geometrie, B23) ───────────
@@ -140,10 +228,10 @@ export function updateScene(t) {
   drawVec(DOM.accVector, bx, TRACK_Y + 24, bx + a * PIXELS_PER_ACC, TRACK_Y + 24, DOM.togAcc.checked)
 
   // Diagramm-Marker auf der bereits gezeichneten Kurve
-  if (store.gScale) {
-    const val = interpolateAt(store.gScale.arr, tc)
-    DOM.graphPoint.setAttribute('cx', store.gScale.scX(tc))
-    DOM.graphPoint.setAttribute('cy', store.gScale.scY(val))
+  if (store.graphScale) {
+    const val = interpolateAt(store.graphScale.arr, tc)
+    DOM.graphPoint.setAttribute('cx', store.graphScale.scX(tc))
+    DOM.graphPoint.setAttribute('cy', store.graphScale.scY(val))
     DOM.graphPoint.setAttribute('visibility', 'visible')
   }
 

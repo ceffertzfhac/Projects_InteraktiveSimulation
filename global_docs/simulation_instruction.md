@@ -312,13 +312,25 @@ function physToScreen(xLoc, yLoc) {
   (wie gehabt). Beim Bahnkurven-Sonderfall (gleichskalierte x/y-Achsen) bleibt der
   zentrierte quadratische Plot pro Diagramm erhalten. Keine CSS-Grid-Änderung.
 
-### Hover-Werte am Zeit-Diagramm (I5, Best Practice)
+### Hover-Werte am Zeit-Diagramm (I5 / I13.1, Best Practice)
 
 Mouseover über ein Zeit-Diagramm (Wert vs. *t*) soll einen Cursor zeigen, der der
 gezeichneten Kurve folgt, plus ein Tooltip mit den exakten Werten zum gehoverten
 Zeitpunkt. Kanonische Referenzimplementierung: **`Project_zykloide_simulation/`
 ab v1.1.0**. Betrifft nur Sims mit `precompute()`-Zeitreihen und einem bereits
 vorhandenen `interpolateAt(t)`-Helfer (praktisch alle modularen Sims haben das).
+
+**Rollout-Status (→ BACKLOG I13):** Hover ist seit I13.1 (2026-07-15) kanonisch
+für **alle Zeit-Achsen-Sims** — nicht optional, sondern erwarteter Bestandteil
+(erstmalig gebaut als I5 in 4 Sims, dann I13.1 auf die übrigen 6 ausgerollt).
+**`_scaffold_neue_sim/` liefert Hover ab v0.2.0 voll verdrahtet** (s. dort
+`docs/CHANGELOG.md`) — eine neue Sim aus dem Scaffold hat Hover also ohne
+manuelles Nachrüsten. **Bewußt ohne Hover (Won't, I13.2):** die Werkzeuge §7
+(Ableitung, Geschwindigkeit, Grundbegriffe) — reaktive Diagramme ohne
+Zeitverlauf (jeweils in `docs/KNOWN_LIMITATIONS.md` notiert). **Noch offen
+(I13.3):** Wellen (Canvas+SVG-Mischmodell, kommt später). **Out of scope
+(I13.4):** räumliche Bahnkurven (brauchen Nearest-Point-Suche statt
+Pixel→Zeit-Umkehrung, s. u.).
 
 **UX-Regeln (best practice):**
 - Hover-Cursor ist **visuell unterscheidbar** vom Wiedergabe-Marker: Wiedergabe
@@ -374,6 +386,14 @@ export function attachGraphHover(hitRectEl, { onMove, onLeave }) {
 </g>
 <rect id="graph_hit_rect" class="graph-hit-rect"/>   <!-- letztes Element: gewinnt Hit-Testing -->
 ```
+**Z-Order vs. „Diagrammtitel als letztes SVG-Kind" (CLAUDE.md):** mit Hover ist
+der Titel das letzte **Daten**-Kind (über Gitter, Kurven, Punkten); danach
+folgen das Hover-Overlay und als ganz letztes das unsichtbare, nur
+pointer-aktive Hit-Rect. Kein Konflikt, weil der Hover-Cursor innerhalb der
+Plot-Fläche (y = 5 … `GRAPH_H`−5) bleibt und den Titelbereich (y = −22) nicht
+überdeckt — die Titel-Regel schützt vor Datenlinien/Hintergrund, nicht vor dem
+Hit-Rect. So geordnet in allen kanonischen Hover-Sims (Zykloide, Freier Fall,
+Schräger Wurf, Kreis-/Spiralbewegung).
 `graph_hit_rect` bekommt **keine** `x/y/width/height` im HTML — die setzt die
 Zeichenfunktion bei jedem Aufruf aus denselben Lokalen, die auch `scaleT`/
 `scaleY` bestimmen (siehe unten). CSS: alle Hover-Overlay-Elemente
@@ -388,6 +408,10 @@ DOM.graphHitRect.setAttribute('width', plotW);
 DOM.graphHitRect.setAttribute('height', plotH);
 // … und nach Berechnung der Werte-Range (val_min/val_max/time_range/quantity):
 store.graphScale = { padL, padT, plotW, plotH, time_range, val_min, val_max, quantity, active };
+// (Felder sind sim-spezifisch — die Invariante ist: drawGraph befüllt aus
+//  denselben Lokalen wie die Skalenfunktionen, updateGraphHover liest NUR
+//  daraus. Das Scaffold nutzt minimal `{ tMax, gw, scX, scY, arr }`, Zykloide
+//  das obige padL/plotW-Set, Freier Fall `{ tMax, gw, axMin, axMax, … }`.)
 // Ganz am Ende der Funktion — Selbstkorrektur bei offenem Hover:
 if (store.hoverActive) updateGraphHover(store.hoverLocalX);
 
@@ -418,7 +442,9 @@ attachGraphHover(DOM.graphHitRect, {
 ```css
 .graph-hover-line { stroke: var(--text3); stroke-width: 1.5; stroke-dasharray: 4,3; pointer-events: none; }
 .graph-hover-point { fill: none; stroke-width: 2; pointer-events: none; }
-.graph-hover-tooltip-bg { fill: var(--surface2); stroke: var(--border2); stroke-width: 1; rx: 4; }
+.graph-hover-tooltip-bg { fill: var(--surface2); fill-opacity: 0.3; stroke: var(--border2); stroke-width: 1; rx: 4; }
+/* fill-opacity (nicht opacity!) — nur die Füllung ist 70 % transparent, Rahmen
+   und Text bleiben scharf. Nutzer-Vorgabe 2026-07-15; greift repo-weit via shared. */
 .graph-hover-tooltip-text { fill: var(--text); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
 .graph-hit-rect { fill: none; pointer-events: all; cursor: crosshair; }
 ```
@@ -438,8 +464,12 @@ Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); 
   (Portrait/Landscape-Umschalter).
 - **Wachsende/scrollende Zeitfenster** (z. B. `time_range = max(WINDOW_S, t)`):
   ohne die Selbstkorrektur (`if (store.hoverActive) updateGraphHover(...)` am
-  Ende jeder Zeichenfunktion) läuft ein offener Tooltip bei laufender
-  Wiedergabe aus dem Ruder, weil sich die Skala unter ihm ändert.
+  Ende der Zeichenfunktion) läuft ein offener Tooltip bei laufender
+  Wiedergabe aus dem Ruder, weil sich die Skala unter ihm ändert. **Beim
+  2-Diagramm-Modus (I14) gehört der Redraw dagegen ans Ende der
+  Orchestrierungsfunktion** (`drawGraphs()`/`updateGraphs()`, *nach* beiden
+  Slots) — pro-Slot-inline würde den synchronisierten anderen Slot noch mit
+  der Skala vom Vorframe zeichnen (s. I14-Abschnitt unten).
 - **`.graph-bg`-Rect wird oft bei jedem Redraw neu erzeugt** (`innerHTML=''`)
   — das Hit-Rect muß ein **stabiles Geschwister-Element außerhalb** dieser
   Wegwerf-Gruppe sein, sonst gehen die Event-Listener bei jedem Frame verloren.
@@ -471,6 +501,80 @@ Pro Subjekt zusätzlich lokal `#graph_hover_point_${s} { stroke: var(--c-${s}); 
   bei Schräger Wurf): `store.graphScale[slot] = null` setzen und Hover
   verstecken, sobald dieser Diagrammtyp aktiv ist — die einfache Pixel→Zeit-
   Umkehrung gilt nur für Zeit-Achsen-Diagramme (siehe UX-Regeln oben).
+
+### Synchronisierter Dual-Hover (I14)
+
+Bei Sims mit **Zwei-Diagramm-Modus**, in dem **beide Slots dieselbe Abszisse**
+teilen (beide Wert-über-*t*, gemeinsame Zeitachse — z. B. Schräger Wurf
+gestapelt, Kreis-/Spiralbewegung I9-Dualgraph, Atwood Dual, Freier Fall, alle
+Atwood-Energie-Achsendiagramme), erscheint der Hover-Cursor beim Hovern in
+Diagramm A **automatisch auch in Diagramm B beim selben *t*** — nicht nur im
+gehoverten Diagramm. **Scope:** nur bei gemeinsamer Abszisse; bei unterschiedlichen
+Achsen (z. B. *t*-Diagramm + räumliche Bahnkurve *y(x)*) greift keine
+Synchronisation (→ I13.4 Nearest-Point-Suche). **Rollout 2026-07-15** über alle
+betroffenen Sims (→ BACKLOG I14 erledigt).
+
+**State-Erweiterung** (`state.js`) — Slot-Index statt Einzelobjekt:
+```javascript
+graphScale: { single: null, top: null, bottom: null },  // pro Slot ein Eintrag
+hoverSourceSlot: null,   // der Slot, über dem die Maus steht (null = kein Hover)
+hoverT: null,            // daraus abgeleitete Zeit, mit dem anderen Slot geteilt
+```
+DOM-Cache für die Hover-Elemente analog als Objekt mit Slot-Keys
+(`DOM.hoverLine = { single: q('graph_hover_line'), top: …, bottom: … }` etc.),
+im HTML pro Slot eigene `id`s (`graph_hover_line_top`/`_bottom`/`…`).
+
+**Orchestrierung** (`render.js`): die Single-gegenüber-Dual-Umschaltung
+(`updateGraphs()`/`drawGraphs()`) zeichnet den aktiven Slot(n) via der oben
+beschriebenen `drawGraph`/`drawGraphSlot`-Logik (die pro Slot `graphScale[slot]`
++ Hit-Rect setzt) und ruft **ganz am Ende, nach beiden Slots, einmalig**
+`refreshHover()` auf — *nicht* pro-Slot-inline (s. Gotcha oben: der
+synchronisierte andere Slot würde sonst mit der Skala vom Vorframe zeichnen).
+Beim Umschalten Single↔Dual die nun inaktiven Slots aufräumen
+(`graphScale[slot] = null`, Hover verstecken), sonst bleibt ein Tooltip im
+unsichtbaren Slot „offen" (Geisterpunkt, s. I12.10-Fix).
+
+**`refreshHover()` + `updateGraphHover(slot, localX)`** (kanonische Form,
+Referenz Freier Fall v2.5.0 / Schräger Wurf v1.6.0 / Kreis-Spiral v1.8.0):
+```javascript
+function refreshHover() {                         // Cursor im Source-Slot + Sync-Slot
+  const slot = store.hoverSourceSlot;
+  if (!slot) return;
+  const gs = store.graphScale[slot];
+  if (!gs) { hideGraphHover(slot); /* + other */ return; }
+  const t = Math.max(0, Math.min(store.hoverT, gs.tMax, gs.nowT));
+  store.hoverT = t;
+  drawHoverAtT(slot, t);                          // der gehoverte Slot
+  const other = otherSlot(slot);                 // I14: derselbe t-Wert im anderen Slot
+  if (other) {
+    const gsOther = store.graphScale[other];
+    if (gsOther) drawHoverAtT(other, Math.max(0, Math.min(t, gsOther.tMax, gsOther.nowT)));
+    else hideGraphHover(other);
+  }
+}
+
+export function updateGraphHover(slot, localX) {  // pro Slot angebunden (s. u.)
+  if (localX === null) {
+    if (store.hoverSourceSlot === slot) {
+      store.hoverSourceSlot = null; store.hoverT = null;
+      hideGraphHover('single'); hideGraphHover('top'); hideGraphHover('bottom');
+    }
+    return;
+  }
+  const gs = store.graphScale[slot];
+  if (!gs) { hideGraphHover(slot); return; }
+  const xClamped = Math.max(0, Math.min(gs.gw, localX));
+  const rawT = (xClamped / gs.gw) * gs.tMax;
+  store.hoverSourceSlot = slot;
+  store.hoverT = Math.max(0, Math.min(rawT, gs.tMax, gs.nowT));
+  refreshHover();
+}
+```
+**Anbindung** (`ui.js`): pro sichtbarem Slot ein `attachGraphHover`-Aufruf (das
+Hit-Rect des jeweiligen Slots), der `updateGraphHover(slot, x)` bzw.
+`updateGraphHover(slot, null)` reicht — mechanische Duplikation, kein neues
+Muster. `nowT` = bis zur Wiedergabe erreichte Zeit (`min(t_data[last], tMax)`),
+analog der `simulatedTime`-Klammerung im Einzel-Hover.
 
 ## 5. Implementierungs-Workflow
 
@@ -514,11 +618,13 @@ unbedienbar**; „Politur" = Darstellung, Vollständigkeit, Konsistenz.
 - [ ] Energiebilanz zu jedem Zeitpunkt konsistent (falls Energie-Ansicht)?
 - [ ] Abszisse am Nulldurchgang bei Werten um 0 (z. B. Schwingungsgrößen)?
 - [ ] Diagramm-Format paßt zum Layout (Portrait bei nebeneinander, Landscape bei gestapelt)?
-- [ ] Diagrammtitel als **letztes** SVG-Kind, klar über weißem Hintergrund-Rechteck?
+- [ ] Diagrammtitel als **letztes Daten-Kind** (über Gitter/Kurven/Punkten); Hover-Overlay + Hit-Rect folgen danach, §4?
 - [ ] Dropdown-/Diagrammtyp-Labels aus Nutzerperspektive benannt (beschreibend, nicht intern-mathematisch)?
 - [ ] Physikalische Größen **überall kursiv** (`setAxisLabel`, `setGraphTitle`, `<i>`), Einheiten/Wörter aufrecht?
 - [ ] Einklappbare Analyse-Sidebar rechts (Default eingeklappt); Akkordeon-Cluster links bei langer Sidebar (§3, I8)?
-- [ ] Hover-Werte am Zeit-Diagramm (§4 / I5), falls sinnvoll?
+- [ ] **Diagramm-Steuerung kanonisch (§3, I12):** Typ-Picker `graph_select(_1/_2)` + `select-field` in der linken Sidebar `panel-section` „Diagramm(e)", Optionen aus `GRAPH_OPTIONS`; Mehrfach-Modus via `diagram_mode`/`speed-pill` (1|2) — **nicht** `.graph-sel`/Graph-Toolbar-Dialekt? (Opt-out: statische Sims/Werkzeuge ohne Zeit-Diagramm.)
+- [ ] **Hover-Werte am Zeit-Diagramm (§4 / I13.1) — erwartet, nicht optional:** Cursor + Tooltip via `attachGraphHover` + `updateGraphHover`, `store.graphScale` als einzige Quelle der Wahrheit, Klammerung auf `min(tMax, simulatedTime)`. Scaffold liefert es ab v0.2.0. **Won't (I13.2):** Werkzeuge §7 ohne Zeitverlauf. **Offen (I13.3):** Wellen. **Out of scope (I13.4):** räumliche Bahnkurven (Nearest-Point-Suche).
+- [ ] **Synchronisierter Dual-Hover (§4 / I14):** falls 2-Diagramm-Modus mit gemeinsamer Abszisse — `hoverSourceSlot`/`hoverT` + `refreshHover()`, Redraw am Ende der Orchestrierungsfunktion (nicht pro Slot inline)?
 - [ ] Versionsnummer in `index.html` und `docs/CHANGELOG.md` synchron?
 
 ## 7. Werkzeug-Schale (Diagrammatische Werkzeuge)

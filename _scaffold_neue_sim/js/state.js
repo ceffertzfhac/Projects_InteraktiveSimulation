@@ -14,8 +14,15 @@ export const store = {
   t_data: [], x_data: [], v_data: [], a_data: [],
   t_end: 0,         // s — Endzeit (Bahnende erreicht oder T_MAX)
 
-  // — Zeichenskalen des Diagramms (von drawGraph gesetzt, von updateScene gelesen) —
-  gScale: null,     // { scX, scY, arr }
+  // — Zeichenskalen des Diagramms (von drawGraph befüllt, von updateScene für den
+  //   Wiedergabe-Marker und von updateGraphHover für den Hover-Cursor gelesen —
+  //   eine Quelle der Wahrheit, sonst Drift zwischen Zeichnung und Hover,
+  //   → BACKLOG I13.1 / Anleitung §4 „Hover-Werte am Zeit-Diagramm") —
+  graphScale: null,   // { tMax, gw, scX, scY, arr }
+
+  // — Hover-Werte (I13.1) —
+  hoverActive: false,
+  hoverLocalX: null,
 
   // — Animations-Laufzeit —
   aniFrameId: null,
@@ -58,6 +65,13 @@ export function initDOM() {
   DOM.graphLine  = q('graph_line')
   DOM.graphPoint = q('graph_point')
   DOM.graphTitle = q('graph_title')
+  // Hover-Werte (I13.1, §4): Cursor + Tooltip + Hit-Rect
+  DOM.graphHitRect     = q('graph_hit_rect')
+  DOM.hoverLine        = q('graph_hover_line')
+  DOM.hoverPoint       = q('graph_hover_point')
+  DOM.hoverTooltip     = q('graph_hover_tooltip')
+  DOM.hoverTooltipBg   = q('graph_hover_tooltip_bg')
+  DOM.hoverTooltipText = q('graph_hover_tooltip_text')
   // Live-Panel
   DOM.timeLabel = q('time_label')
   DOM.liveT = q('live_t')

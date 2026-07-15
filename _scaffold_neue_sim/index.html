@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Vorlage: Neue Simulation
-    <span class="version">v0.1.0</span>
+    <span class="version">v0.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -145,6 +145,16 @@ window.MathJax = {
           <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
           <circle id="graph_point" r="5" visibility="hidden"/>
           <text id="graph_title" x="210" y="-22" text-anchor="middle" class="graph-title-text"></text>
+          <!-- Hover-Werte (I13.1, §4): Cursor + Tooltip; Hit-Rect als letztes Kind
+               (gewinnt Hit-Testing). Titel bleibt letztes Daten-Kind, darüber
+               nur noch das unsichtbare, pointer-aktive Hit-Rect. -->
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point" class="graph-hover-point" r="6" visibility="hidden"/>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
         </g>
       </svg>
       <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>

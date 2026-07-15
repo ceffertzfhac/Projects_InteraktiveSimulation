@@ -16,8 +16,13 @@ weiter. Präzise Anfragen passieren das Gate ohne Rückfrage.
 | **Zielniveau** (MPM Physik 1. Sem. als Default) | Wertebereiche, Formeltiefe, Beschriftung |
 
 Nicht-blockierend, aber kurz mitnehmen, wenn unklar: Vergleichs-/Mehrkörper-
-Modus? Energieansicht? Layout nebeneinander/gestapelt? Diese haben sinnvolle
-Defaults und dürfen nachgezogen werden.
+Modus? **2-Diagramm-Vergleichsmodus** (zwei Größen gleichzeitig, treibt
+`diagram_mode`/`speed-pill` + I14-synchronisierten Dual-Hover, §3/§4)?
+Energieansicht? Layout nebeneinander/gestapelt? Diese haben sinnvolle Defaults
+und dürfen nachgezogen werden. — **Hover** ist für Zeit-Achsen-Sims *erwartet*
+(Scaffold v0.2.0 liefert es vorverdrahtet, §4/I13.1) und braucht i. d. R. keine
+Rückfrage; ausdrücklich **ohne Hover** nur Werkzeuge §7 (statisch, kein
+Zeitverlauf, I13.2 Won't) — „Sim vs. Werkzeug" (s. u.) entscheidet das.
 
 ## Wann gilt die Anfrage als „präzise genug" (Gate offen, direkt zu Phase 2)
 
