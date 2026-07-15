@@ -596,6 +596,122 @@ export function updateGraph(time, offset = 0, showCurrent = true) {
     le.style.stroke = ln.color
     le.style.display = 'block'
   })
+
+  // Hover-Werte (I13.1): Hit-Rect-Geometrie aus denselben Lokalen wie
+  // scX/scY synchronisieren; graphScale ist die einzige Quelle der Wahrheit
+  // für updateGraphHover(). offset/nowDisplayTime: s. B21-Kommentar oben —
+  // die Plot-x-Achse ist bereits offset-verschoben, ein gehoverter Pixel
+  // liefert daher displayTime; für lineCurrentValue() (absolute Zeit) muß
+  // offset wieder addiert werden.
+  DOM.graphHitRect.setAttribute('x', padL)
+  DOM.graphHitRect.setAttribute('y', padT)
+  DOM.graphHitRect.setAttribute('width', plotW)
+  DOM.graphHitRect.setAttribute('height', plotH)
+  store.graphScale = { padL, padT, plotW, plotH, tMax, offset, nowDisplayTime: showCurrent ? displayTime : 0, type: store.graphType }
+  if (store.hoverActive) updateGraphHover(store.hoverLocalX)
+}
+
+// ── Hover-Werte (I13.1) ──────────────────────────────────────────────────────
+const LINE_LABELS = {
+  xData: null, vData: null, aData: null, // Einzellinien-Typen: kein Label-Präfix (wie Zykloide)
+  ekData: 'E_kin', epData: 'E_pot', egesData: 'E_ges',
+}
+
+function unitFor(type) {
+  const label = graphAxisLabels[store.oscillationMode][type]
+  return label.split('/').pop().trim()
+}
+
+function hideGraphHover() {
+  DOM.hoverLine.setAttribute('visibility', 'hidden')
+  DOM.hoverPoint.setAttribute('visibility', 'hidden')
+  DOM.hoverPointB.setAttribute('visibility', 'hidden')
+  DOM.hoverPointC.setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip.setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate
+ * (SVG-Koordinaten des #graph_svg-viewBox). Liest store.graphScale (von
+ * updateGraph() befüllt) statt eigene Skala zu berechnen. Werte kommen aus
+ * lineCurrentValue() — exakt analytisch (Zykloide/I7-Rezept), kein
+ * Interpolations-Rundungsfehler.
+ */
+export function updateGraphHover(localX) {
+  store.hoverActive = localX !== null
+  store.hoverLocalX = localX
+  const gs = store.graphScale
+  if (localX === null || !gs) { hideGraphHover(); return }
+
+  const { padL, padT, plotW, plotH, tMax, offset, nowDisplayTime, type } = gs
+  const limits = store.axisLimits[type]
+  if (!limits) { hideGraphHover(); return }
+
+  const valMin = limits.min, valMax = limits.max
+  const valRng = (valMax - valMin) || 1
+  const scX = tv => padL + (tv / (tMax || 1)) * plotW
+  const scY = v => padT + plotH - ((v - valMin) / valRng) * plotH
+
+  const xClamped = Math.max(padL, Math.min(padL + plotW, localX))
+  const rawDisplayT = ((xClamped - padL) / plotW) * tMax
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5/I13).
+  const displayT = Math.max(0, Math.min(rawDisplayT, tMax, nowDisplayTime))
+  const absT = displayT + offset
+
+  const xPix = scX(displayT)
+  DOM.hoverLine.setAttribute('x1', xPix); DOM.hoverLine.setAttribute('x2', xPix)
+  DOM.hoverLine.setAttribute('y1', padT); DOM.hoverLine.setAttribute('y2', padT + plotH)
+  DOM.hoverLine.setAttribute('visibility', 'visible')
+
+  const lines = GRAPH_LINES[type] || [{ dataKey: 'xData', color: 'var(--accent)' }]
+  const pointEls = [DOM.hoverPoint, DOM.hoverPointB, DOM.hoverPointC]
+  const unit = unitFor(type)
+  const rows = [{ text: `t = ${fmt(displayT, 2)} s`, italic: true }]
+  lines.forEach((ln, li) => {
+    const pe = pointEls[li]
+    if (!pe) return
+    const v = lineCurrentValue(ln.dataKey, absT)
+    pe.setAttribute('cx', xPix)
+    pe.setAttribute('cy', scY(v))
+    pe.style.stroke = ln.color
+    pe.setAttribute('visibility', 'visible')
+    const label = LINE_LABELS[ln.dataKey]
+    rows.push({ text: `${label ? label + ': ' : ''}${fmt(v, 3)} ${unit}`, color: ln.color })
+  })
+  for (let i = lines.length; i < pointEls.length; i++) pointEls[i].setAttribute('visibility', 'hidden')
+
+  renderHoverTooltip(rows, xPix, padL, plotW, padT)
+}
+
+function renderHoverTooltip(rows, xPix, padL, plotW, padT) {
+  const textEl2 = DOM.hoverTooltipText
+  textEl2.innerHTML = ''
+  const lineH = 15
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.color) tspan.style.fill = row.color
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = row.text
+    }
+    textEl2.appendChild(tspan)
+  })
+
+  const bbox = textEl2.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg.setAttribute('width', boxW)
+  DOM.hoverTooltipBg.setAttribute('height', boxH)
+  DOM.hoverTooltipBg.setAttribute('x', 0)
+  DOM.hoverTooltipBg.setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip.setAttribute('visibility', 'visible')
 }
 
 export { MASS_MIN, MASS_MAX, K_MIN, K_MAX, INITIAL_MASS_SIZE, MIN_MASS_SIZE }

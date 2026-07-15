@@ -13,7 +13,9 @@ import {
 import {
   setupScene, updateScene, updateGraph, updateKennwerte,
   drawStopwatchMarks, drawSubdialMarks, initDigitalDisplaySegments, fmt,
+  updateGraphHover,
 } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // ── Diagramm-Typ-Picker aus graphOptions befüllen (kanonisch, → BACKLOG I12
 // Sidebar-Schule; Picker sitzt in der linken Sidebar, nicht am Diagramm).
@@ -312,6 +314,11 @@ function init() {
   initDigitalDisplaySegments()
   populateGraphSelect()
   setupUI()
+  // Hover-Werte am Diagramm (I13.1)
+  attachGraphHover(DOM.graphHitRect, {
+    onMove: x => updateGraphHover(x),
+    onLeave: () => updateGraphHover(null),
+  })
   resetSim(false)
 }
 

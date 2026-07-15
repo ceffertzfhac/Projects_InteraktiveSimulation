@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.0 — 2026-07-15
+
+I13.1 — Hover-Werte am Diagramm (→ BACKLOG I13, Rezept aus I5/Zykloide v1.1.0).
+
+### Hinzugefügt
+- **Mouseover über das Diagramm** zeigt eine gestrichelte Führungslinie, je
+  einen hohlen Ring-Punkt pro aktiver Kurve (bis zu 3 bei der Energie-
+  Composite-Ansicht E_kin/E_pot/E_ges) und ein Tooltip mit den exakten
+  Werten zum gehoverten Zeitpunkt — via bestehendem `lineCurrentValue()`
+  (exakt analytisch, kein Interpolations-Rundungsfehler, wie bei Zykloide).
+- Funktioniert unverändert in beiden Aufbauten (horizontal/vertikal, unter-
+  schiedliche viewBox-Orientierung) und respektiert den B21-Zeitversatz der
+  manuellen Zeitmessung (`store.timingOffset`): die Plot-x-Achse ist bereits
+  offset-verschoben, ein gehoverter Pixel liefert die angezeigte Zeit, für
+  `lineCurrentValue()` wird der Offset zur absoluten Zeit zurückaddiert.
+- `shared/js/hover.js` (`attachGraphHover`) eingebunden; Hit-Rect-Geometrie
+  wird bei jedem `updateGraph()`-Aufruf synchronisiert. Cursor bleibt auf
+  den bereits gezeichneten Kurvenabschnitt geklammert.
+
 ## v1.2.0 — 2026-07-15
 
 I12.2 — Diagramm-Typ-Picker aus der `.graph-toolbar` am Diagramm in die linke

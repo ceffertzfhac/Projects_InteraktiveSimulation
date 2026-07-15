@@ -42,6 +42,11 @@ export const store = {
   epData: [],      // I7: Potentielle Energie pro Zeitschritt
   egesData: [],    // I7: Gesamtenergie pro Zeitschritt (konstant = ½kA²)
   axisLimits: {},
+
+  // Hover-Werte (I13.1): einzige Diagramm-Instanz, daher kein Slot-Schlüssel.
+  graphScale: null,
+  hoverActive: false,
+  hoverLocalX: null,
 }
 
 // ── DOM-Cache ────────────────────────────────────────────────────────────────
@@ -100,6 +105,16 @@ export function initDOM() {
   DOM.graphPointB = q('graph_point_b')
   DOM.graphPointC = q('graph_point_c')
   DOM.graphSelect = q('graph_select')
+
+  // Hover-Werte (I13.1)
+  DOM.graphHitRect = q('graph_hit_rect')
+  DOM.hoverLine = q('graph_hover_line')
+  DOM.hoverPoint = q('graph_hover_point')
+  DOM.hoverPointB = q('graph_hover_point_b')
+  DOM.hoverPointC = q('graph_hover_point_c')
+  DOM.hoverTooltip = q('graph_hover_tooltip')
+  DOM.hoverTooltipBg = q('graph_hover_tooltip_bg')
+  DOM.hoverTooltipText = q('graph_hover_tooltip_text')
 
   // Slider & Toggles
   DOM.massSlider = q('mass_slider')
