@@ -82,6 +82,26 @@ function diagramModeIsStacked() {
   return r ? r.value === '2' : false
 }
 
+// ── Moduswechsel Ein↔Zwei Diagramme bei aktiver Bahnkurve ────────────────────
+// Die Bahnkurve (yx/xy) hat keine Zeitachse und kann daher nie in einem der
+// beiden Zwei-Diagramm-Slots stehen (populateGraphSelects filtert sie dort
+// generell). Statt den Zwei-Diagramm-Umschalter bei aktiver Bahnkurve zu
+// sperren (verwirrend — wirkt wie ein stiller Bug, Nutzer-Feedback), springt
+// Diagramm 1 beim Wechsel zu "Zwei Diagramme" automatisch auf einen
+// sinnvollen Zeit-Paar-Default (x oben, y unten) — die vorherige
+// Bahnkurven-Auswahl wird gemerkt und beim Zurückwechseln auf "Ein
+// Diagramm" wiederhergestellt.
+function handleDiagramModeSwitch(nowStacked) {
+  if (nowStacked && !store.isStacked && ['yx', 'xy'].includes(store.graphType1)) {
+    store.rememberedTrajType = store.graphType1
+    store.graphType1 = 'xt'
+    store.graphType2 = 'yt'
+  } else if (!nowStacked && store.isStacked && store.rememberedTrajType) {
+    store.graphType1 = store.rememberedTrajType
+    store.rememberedTrajType = null
+  }
+}
+
 // ── Reset (aus v47 resetScene) ───────────────────────────────────────────────
 function resetSim(isPlayTrigger = false) {
   stopAnimation()
@@ -203,20 +223,6 @@ function resetSim(isPlayTrigger = false) {
   const activeTypes = store.isStacked ? [store.graphType1, store.graphType2] : [store.graphType1]
   const isYRelevant = !isTraj && activeTypes.some(t => ['yt', 'vyt', 'ayt'].includes(t))
   DOM.yAxisSelect.disabled = !isYRelevant
-  // Bahnkurve (yx/xy) ist stets Einzeldiagramm → Zwei-Diagramm-Pill deaktiviert
-  // und auf „1 Diagramm" forciert. Tooltip erklärt den Grund (sonst wirkt die
-  // deaktivierte Pille wie ein stiller Bug statt einer bewussten Einschränkung).
-  const trajHint = 'Bei der Bahnkurve y(x)/x(y) nicht verfügbar (keine Zeitachse)'
-  DOM.diagramModeRadios.forEach(r => {
-    r.disabled = isTraj
-    const label = r.closest('label')
-    if (label) label.title = isTraj ? trajHint : ''
-  })
-  if (isTraj) {
-    DOM.diagramModeRadios.forEach(r => { r.checked = (r.value === '1') })
-    store.isStacked = false
-    updateSpeedPills()
-  }
 
   precompute()
   drawFrozenTrajectory()
@@ -395,7 +401,9 @@ DOM.togVelComp.addEventListener('change', () => resetSim())
 DOM.togAcc.addEventListener('change', () => resetSim())
 DOM.togTrajectory.addEventListener('change', () => resetSim())
 DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
-  store.isStacked = diagramModeIsStacked()
+  const nowStacked = diagramModeIsStacked()
+  handleDiagramModeSwitch(nowStacked)
+  store.isStacked = nowStacked
   updateSpeedPills()
   resetSim()
 }))
