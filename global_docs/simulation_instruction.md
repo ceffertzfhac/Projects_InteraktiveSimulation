@@ -204,33 +204,34 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 
 Die Auswahl und Steuerung der Diagramme ist repo-weit **einheitlich** aufzubauen
 (Rollout/Angleichung offener Sims → BACKLOG **I12**). Kanonische Platzierung: die
-**Graph-Toolbar-Schule** (Referenz z. B. Zykloide, Kreisbewegung, Rollende Körper).
-Grundprinzip: **Diagramm-*Inhalt* direkt am Diagramm (Proximity), räumliche
-*Anordnung* in die Topbar** — zwei getrennte Belange, nicht vermischen.
+**Sidebar-Schule** (Referenz: **Kreis-/Spiralbewegung**). Grundprinzip: **Diagramm-
+*Inhalt* in der linken Sidebar** (Typ-Picker + Mehrfach-Modus + Subjekt-Wahl in einem
+`panel-section`-Cluster), räumliche *Anordnung* in der Topbar — zwei getrennte
+Belange. (PO-Entscheidung 2026-07-15; kehrt die frühere „Graph-Toolbar-Schule" um,
+s. BACKLOG I12.)
 
 **Platzierung:**
-- **Inhalts-Steuerung** (Diagrammtyp-Picker, Mehrfach-Modus, Subjekt-Wahl) → in eine
-  **`.graph-toolbar` direkt am Diagramm** (im Center, unmittelbar über/neben dem
-  Graphen, zusammen mit der Graph-Legende `.graph-legend`). Grund: die Steuerung sitzt
-  **am beeinflussten Objekt** (Proximity) — Auswahl und Wirkung am selben Ort, kein
-  Blicksprung in eine entfernte Sidebar. Der **Subjekt-Picker** gehört in dieselbe
-  Toolbar (pro Diagramm). **Kein** linker Sidebar-Cluster „Diagramm" — Sims, die den
-  Picker noch in der Sidebar führen, ziehen in die Toolbar um (→ I12).
+- **Inhalts-Steuerung** (Diagrammtyp-Picker, Mehrfach-Modus, Subjekt-Wahl) → in die
+  **linke Sidebar**, in einen `panel-section`-Cluster „Diagramm(e)" (Akkordeon-fähig,
+  § Akkordeon-Steuerungs-Sidebar). Grund: alle Steuerung an einem Ort gebündelt — kein
+  Blicksprung zwischen Sidebar und Diagramm. Der **Subjekt-Picker** steht im selben
+  Cluster (im 1-Modus). **Keine** `.graph-toolbar` am Diagramm.
 - **Layout-/Anordnungs-Toggle** (Sim ↔ Diagramm nebeneinander/übereinander) →
   **Topbar** (`id="layout_toggle"`, `.btn.layout-toggle-btn`, „▦ Nebeneinander").
   Grund: er layoutet die gesamte Center-Fläche um, wählt nicht den Diagramm-*Inhalt*.
 
 **Mechanik (ein Kontrakt statt Dialekten):**
-- **Typ-Picker:** `<select>` mit `id="graph_select"` (bzw. `graph_select_1`/`_2`
-  bei Dual-fähigen), **gemeinsame Graph-Toolbar-Select-Klasse aus `shared`** — die
-  heutige lokale `.graph-sel` (kompakt, toolbar-tauglich) wird nach
-  `shared/css/design-system.css` promoted statt in jeder Sim dupliziert; **nicht**
-  das Sidebar-`select-field` (`width:100%`, für die Toolbar zu breit). Optionen
-  einheitlich **dynamisch aus einer `GRAPH_OPTIONS`-Map** in `constants.js` befüllen
-  (ein Wartungsmodell; Labels aus Nutzerperspektive, § Konventionen), nicht statisch im HTML.
+- **Typ-Picker:** `<select>` mit `id="graph_select_1"` und (im 2-Modus)
+  `graph_select_2`, Klasse `select-field` (Sidebar-Standard, vollbreit) — **nicht**
+  `.graph-sel`. Der zweite Picker sitzt in `#dual_graph_control` (`display:none` im
+  1-Modus). Im 2-Diagramm-Modus sind beide Slots **unabhängig** wählbar (Slot 1 = type1,
+  Slot 2 = type2, z. B. x(t) und v_y(t) frei mischbar) — keine feste x/y-Komponenten-
+  Paarung mehr. Optionen einheitlich **dynamisch aus einer `GRAPH_OPTIONS`-Map** in
+  `constants.js` befüllen (Labels aus Nutzerperspektive, § Konventionen), nicht statisch
+  im HTML.
 - **Mehrfach-Modus (optional):** wo mehrere Subjekte/Größen den Vergleich lohnen,
   **ein** Kontrakt: Steuer-`name="diagram_mode"`, Widget-Klasse `speed-pill`,
-  Werte `1`/`2` mit Labels „Ein Diagramm"/„Zwei Diagramme" — in derselben Toolbar.
+  Werte `1`/`2` mit Labels „Ein Diagramm"/„Zwei Diagramme" — im selben Sidebar-Cluster.
   **Nicht** die Atwood-Variante (`graph_mode`/`radio-pill`/`single`/`dual`/„Einzeln"/„Geteilt").
 
 **Ausdrücklich erlaubte Abweichungen (dokumentierte Opt-outs, kein Verstoß):**
@@ -241,10 +242,10 @@ Grundprinzip: **Diagramm-*Inhalt* direkt am Diagramm (Proximity), räumliche
 - **Kein Layout-Toggle**, wenn die Diagrammfläche zu klein/fix ist, um umgeordnet
   zu werden.
 - **Räumliche Diagrammtypen** (Bahnkurve y(x), z. B. Schräger Wurf) dürfen im
-  Typ-Picker stehen (Hover dort out of scope, § Hover).
+  Typ-Picker stehen und **erzwingen den 1-Modus** (Hover dort out of scope, § Hover).
 - **Zusätzliche Nicht-Zeit-Ansichten** (z. B. Energie-Balken bei Atwood-Energie)
-  sind inhaltlich legitim, gehören aber als eigene *Ansicht* modelliert, nicht als
-  weiterer Wert im `diagram_mode`-Zähler.
+  sind ein **Typ im Picker**, nur im Ein-Diagramm-Modus verfügbar — **kein** eigener
+  Wert im `diagram_mode`-Zähler (kein `bars`).
 
 ## 4. Konventionen (Mandatorisch)
 
