@@ -5,8 +5,9 @@ import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
 import {
   fmt, drawBackground, updateScene, updateGraph, fitCamera,
-  drawStopwatchMarks, drawSubdialMarks, ensureAxisMarker,
+  drawStopwatchMarks, drawSubdialMarks, ensureAxisMarker, updateGraphHover,
 } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // ── Diagramm-Typ-Picker aus GRAPH_OPTIONS befüllen (kanonisch, → BACKLOG I12
 //    Sidebar-Schule; Picker sitzt in der linken Sidebar, nicht am Diagramm).
@@ -175,6 +176,12 @@ DOM.exportAll.addEventListener('click', exportAllCSV)
 DOM.analysisToggle?.addEventListener('click', () => {
   const collapsed = DOM.appLayout.classList.toggle('analysis-collapsed')
   DOM.analysisToggle.setAttribute('aria-expanded', String(!collapsed))
+})
+
+// Hover-Werte am Diagramm (I13.1)
+attachGraphHover(DOM.graphHitRect, {
+  onMove: x => updateGraphHover(x),
+  onLeave: () => updateGraphHover(null),
 })
 
 resetSim()

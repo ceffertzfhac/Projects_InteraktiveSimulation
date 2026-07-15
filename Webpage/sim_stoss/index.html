@@ -21,7 +21,7 @@
       <a href="../index.html" class="back-btn" title="Zurück zur Übersicht">← Übersicht</a>
       <div class="topbar-title">
         Elastischer Stoß auf der Luftkissenbahn
-        <span class="version">v1.1.0</span>
+        <span class="version">v1.2.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
       </div>
     </div>
@@ -176,6 +176,17 @@
           <circle id="dot_v2" r="4" class="graph-dot-2" visibility="hidden"/>
           <circle id="dot_es" r="4" class="graph-dot-es" visibility="hidden"/>
           <text id="graph_title" class="graph-title-text"></text>
+
+          <!-- Hover-Werte (I13.1): Cursor-Overlay + Tooltip, per JS positioniert -->
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_dot_v1" class="graph-hover-point" r="6" style="stroke:var(--c-m1)" visibility="hidden"/>
+          <circle id="graph_hover_dot_v2" class="graph-hover-point" r="6" style="stroke:var(--c-m2)" visibility="hidden"/>
+          <circle id="graph_hover_dot_es" class="graph-hover-point" r="6" style="stroke:var(--c-eloss)" visibility="hidden"/>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
         </svg>
       </div><!-- /.graph-wrapper -->
     </main>

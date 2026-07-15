@@ -307,6 +307,14 @@ export function updateGraph(t) {
   const scaleT = tt => P.left + (Math.min(tt, t_max) / t_max) * PLOT_W
   const scaleY = v => P.top + PLOT_H - ((v - lim.min) / (lim.max - lim.min)) * PLOT_H
 
+  // Hover-Werte (I13.1): Hit-Rect-Geometrie aus denselben Lokalen wie
+  // scaleT/scaleY synchronisieren — keine Drift zur tatsächlichen Plot-Fläche.
+  DOM.graphHitRect.setAttribute('x', P.left)
+  DOM.graphHitRect.setAttribute('y', P.top)
+  DOM.graphHitRect.setAttribute('width', PLOT_W)
+  DOM.graphHitRect.setAttribute('height', PLOT_H)
+  store.graphScale = { P, PLOT_W, PLOT_H, t_max, lim, type }
+
   // Abszisse am Nulldurchgang (v/a/p symmetrisch um 0) oder am unteren Rand (E ≥ 0)
   const yZero = (lim.min <= 0 && lim.max >= 0) ? scaleY(0) : P.top + PLOT_H
 
@@ -390,6 +398,104 @@ export function updateGraph(t) {
   setGraphTitle(DOM.graphTitle, cfg.title)
   DOM.graphTitle.setAttribute('x', String(GRAPH_W / 2))
   DOM.graphTitle.setAttribute('y', '14')
+
+  // Hover-Werte (I13.1): t_max wächst mit der Wiedergabe — bei offenem Hover
+  // jeden Frame mit der frischen Skala neu berechnen.
+  if (store.hoverActive) updateGraphHover(store.hoverLocalX)
+}
+
+// ── Hover-Werte (I13.1) ──────────────────────────────────────────────────────
+function hideGraphHover() {
+  DOM.hoverLine.setAttribute('visibility', 'hidden')
+  DOM.hoverDotV1.setAttribute('visibility', 'hidden')
+  DOM.hoverDotV2.setAttribute('visibility', 'hidden')
+  DOM.hoverDotEs.setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip.setAttribute('visibility', 'hidden')
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate
+ * (SVG-Koordinaten des #graph_svg-viewBox, von attachGraphHover() geliefert).
+ * Liest store.graphScale (von updateGraph() befüllt) statt eigene Skala zu
+ * berechnen — einzige Quelle der Wahrheit.
+ */
+export function updateGraphHover(localX) {
+  store.hoverActive = localX !== null
+  store.hoverLocalX = localX
+  const gs = store.graphScale
+  if (localX === null || !gs) { hideGraphHover(); return }
+
+  const { P, PLOT_W, PLOT_H, t_max, lim, type } = gs
+  const xClamped = Math.max(P.left, Math.min(P.left + PLOT_W, localX))
+  const rawT = ((xClamped - P.left) / PLOT_W) * t_max
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5/I13).
+  const t = Math.max(0, Math.min(rawT, t_max, store.simulatedTime))
+
+  if (!store.t_data.length) { hideGraphHover(); return }
+
+  const scaleT = tt => P.left + (Math.min(tt, t_max) / t_max) * PLOT_W
+  const scaleY = v => P.top + PLOT_H - ((v - lim.min) / (lim.max - lim.min)) * PLOT_H
+  const xPix = scaleT(t)
+
+  DOM.hoverLine.setAttribute('x1', xPix); DOM.hoverLine.setAttribute('x2', xPix)
+  DOM.hoverLine.setAttribute('y1', P.top); DOM.hoverLine.setAttribute('y2', P.top + PLOT_H)
+  DOM.hoverLine.setAttribute('visibility', 'visible')
+
+  const key1 = type === 'v' ? 'v1_data' : type === 'a' ? 'a1_data' : type === 'p' ? 'p1_data' : 'ek1_data'
+  const key2 = type === 'v' ? 'v2_data' : type === 'a' ? 'a2_data' : type === 'p' ? 'p2_data' : 'ek2_data'
+  const val1 = interpolateAt(store[key1], t)
+  const val2 = interpolateAt(store[key2], t)
+  DOM.hoverDotV1.setAttribute('cx', xPix); DOM.hoverDotV1.setAttribute('cy', scaleY(val1))
+  DOM.hoverDotV1.setAttribute('visibility', 'visible')
+  DOM.hoverDotV2.setAttribute('cx', xPix); DOM.hoverDotV2.setAttribute('cy', scaleY(val2))
+  DOM.hoverDotV2.setAttribute('visibility', 'visible')
+
+  const rows = [
+    { text: `t = ${fmt(t, 3)} s`, italic: true },
+    { text: `Gleiter 1: ${fmt(val1, 3)} ${GRAPH_CFG[type].unit}`, color: 'var(--c-m1)' },
+    { text: `Gleiter 2: ${fmt(val2, 3)} ${GRAPH_CFG[type].unit}`, color: 'var(--c-m2)' },
+  ]
+  if (type === 'E') {
+    const valEs = interpolateAt(store.es_data, t)
+    DOM.hoverDotEs.setAttribute('cx', xPix); DOM.hoverDotEs.setAttribute('cy', scaleY(valEs))
+    DOM.hoverDotEs.setAttribute('visibility', 'visible')
+    rows.push({ text: `Feder: ${fmt(valEs, 3)} ${GRAPH_CFG[type].unit}`, color: 'var(--c-eloss)' })
+  } else {
+    DOM.hoverDotEs.setAttribute('visibility', 'hidden')
+  }
+
+  renderHoverTooltip(rows, xPix, P.left, PLOT_W, P.top)
+}
+
+function renderHoverTooltip(rows, xPix, padL, plotW, padT) {
+  const textEl2 = DOM.hoverTooltipText
+  textEl2.innerHTML = ''
+  const lineH = 15
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.color) tspan.style.fill = row.color
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = row.text
+    }
+    textEl2.appendChild(tspan)
+  })
+
+  const bbox = textEl2.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg.setAttribute('width', boxW)
+  DOM.hoverTooltipBg.setAttribute('height', boxH)
+  DOM.hoverTooltipBg.setAttribute('x', 0)
+  DOM.hoverTooltipBg.setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip.setAttribute('visibility', 'visible')
 }
 
 // Fügt dem Graph-SVG den Achsenpfeil-Marker hinzu (einmalig).

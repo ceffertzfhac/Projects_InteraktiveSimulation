@@ -45,6 +45,11 @@ export const store = {
   // Auto-Zoom/Pan (einmalig in resetSim aus den Precompute-Arrays berechnet)
   ppm: 90,
   panOffsetM: 0, // Weltkoordinate, die auf die SVG-Mitte abgebildet wird
+
+  // Hover-Werte (I13.1): einzige Diagramm-Instanz, daher kein Slot-Schlüssel.
+  graphScale: null,
+  hoverActive: false,
+  hoverLocalX: null,
 }
 
 export const DOM = {}
@@ -109,6 +114,16 @@ export function initDOM() {
   DOM.dotV1  = document.getElementById('dot_v1')
   DOM.dotV2  = document.getElementById('dot_v2')
   DOM.dotEs  = document.getElementById('dot_es')
+
+  // Hover-Werte (I13.1)
+  DOM.graphHitRect = document.getElementById('graph_hit_rect')
+  DOM.hoverLine = document.getElementById('graph_hover_line')
+  DOM.hoverDotV1 = document.getElementById('graph_hover_dot_v1')
+  DOM.hoverDotV2 = document.getElementById('graph_hover_dot_v2')
+  DOM.hoverDotEs = document.getElementById('graph_hover_dot_es')
+  DOM.hoverTooltip = document.getElementById('graph_hover_tooltip')
+  DOM.hoverTooltipBg = document.getElementById('graph_hover_tooltip_bg')
+  DOM.hoverTooltipText = document.getElementById('graph_hover_tooltip_text')
 
   // Energie-/Impuls-Balken
   DOM.barE1 = document.getElementById('bar_e1')

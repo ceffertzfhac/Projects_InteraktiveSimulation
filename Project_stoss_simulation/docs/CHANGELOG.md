@@ -5,6 +5,24 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-07-15
+
+I13.1 — Hover-Werte am Diagramm (→ BACKLOG I13, Rezept aus I5/Zykloide v1.1.0).
+
+### Hinzugefügt
+- **Mouseover über das Diagramm** zeigt eine gestrichelte Führungslinie, je
+  einen hohlen Ring-Punkt auf Gleiter-1/Gleiter-2-Kurve (bei Energie-Ansicht
+  zusätzlich Federenergie) und ein Tooltip mit den exakten Werten zum
+  gehoverten Zeitpunkt — via bestehendem `interpolateAt(arr, t)`, keine neue
+  Interpolationslogik.
+- `shared/js/hover.js` (`attachGraphHover`) eingebunden; Hit-Rect-Geometrie
+  wird bei jedem `updateGraph()`-Aufruf aus denselben Lokalen (`P`, `PLOT_W`,
+  `PLOT_H`) synchronisiert, die auch `scaleT`/`scaleY` bestimmen — keine
+  Drift zwischen Klickfläche und Plot-Fläche. Cursor bleibt auf den bereits
+  gezeichneten Kurvenabschnitt geklammert (`t ∈ [0, min(t_max, simulatedTime)]`).
+  `store.graphScale` (einzige Diagramm-Instanz, kein Slot-Schlüssel) ist die
+  einzige Quelle der Wahrheit für `updateGraphHover()`.
+
 ## v1.1.0 — 2026-07-15
 
 I12 — Diagramm-Steuerung: Typ-Picker zurück in die linke Sidebar
