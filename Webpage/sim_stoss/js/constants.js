@@ -38,3 +38,12 @@ export const SW_HAND_LEN = 50
 // Diagramm
 export const GRAPH_W = 700
 export const GRAPH_H = 320
+
+// Diagramm-Typ-Optionen (kanonisch, → BACKLOG I12 Sidebar-Schule). Labels aus
+// Nutzerperspektive; Schlüssel stimmen mit graphType/render.js überein.
+export const GRAPH_OPTIONS = {
+  v: { label: 'Geschwindigkeit v(t)' },
+  a: { label: 'Beschleunigung a(t)' },
+  p: { label: 'Impuls p(t)' },
+  E: { label: 'Energie E(t)' },
+}

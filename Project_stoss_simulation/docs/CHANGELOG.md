@@ -5,6 +5,31 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.0 — 2026-07-15
+
+I12 — Diagramm-Steuerung: Typ-Picker zurück in die linke Sidebar
+(kehrt I12.3 um). PO-Entscheidung 2026-07-15: kanonische „Sidebar-Schule"
+statt Proximity-Toolbar am Diagramm.
+
+### Geändert (kehrt I12.3 um)
+- **Diagramm-Typ-Picker** (`graph_select`, Größe v/a/p/E) aus der
+  `.graph-toolbar` am Diagramm zurück in die linke Sidebar verschoben —
+  neuer Akkordeon-Cluster „Diagramm" (`panel-section collapsible` mit
+  `<button class="panel-label">` + `acc-chevron`), eingefügt vor
+  „Abspielgeschwindigkeit". Klasse von shared `.graph-sel` zurück auf
+  Sidebar-Standard `.select-field` (vollbreit). Die lokalen
+  `.sim-wrapper`/`.graph-wrapper`-Layout-Wrapper aus I12.3 bleiben
+  (reine Layout-Funktion, picker-unabhängig).
+- **Optionen dynamisch aus `GRAPH_OPTIONS`:** neue Map in
+  `js/constants.js` (`export const GRAPH_OPTIONS = { v: {label: …}, … }`),
+  in `js/ui.js` befüllt eine neue `populateGraphSelect()` den Select beim
+  Bootstrap und setzt `store.graphType`. Labels als Klartext (MathJax
+  rendert nicht in `<option>`).
+- **Aufräum:** `.graph-toolbar`-Block incl. `#graph_toolbar` aus
+  `index.html` und `css/styles.css` entfernt. Akkordeon-CSS
+  (`.panel-section.collapsible`/`.acc-chevron`) in `css/styles.css`
+  ergänzt (bisher hatte stoss keine Akkordeon-Cluster).
+
 ## v1.0.6 — 2026-07-14
 
 I12.3 — Diagramm-Steuerung: Diagrammtyp-Picker aus der Sidebar in eine `.graph-toolbar` direkt am Diagramm verschoben; Center-Layout kanonisiert.

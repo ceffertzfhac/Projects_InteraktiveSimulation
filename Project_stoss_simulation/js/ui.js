@@ -1,12 +1,20 @@
 'use strict'
 
-import { INFINITE_MASS_THRESHOLD, INFINITE_K_THRESHOLD } from './constants.js'
+import { INFINITE_MASS_THRESHOLD, INFINITE_K_THRESHOLD, GRAPH_OPTIONS } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
 import {
   fmt, drawBackground, updateScene, updateGraph, fitCamera,
   drawStopwatchMarks, drawSubdialMarks, ensureAxisMarker,
 } from './render.js'
+
+// ── Diagramm-Typ-Picker aus GRAPH_OPTIONS befüllen (kanonisch, → BACKLOG I12
+//    Sidebar-Schule; Picker sitzt in der linken Sidebar, nicht am Diagramm).
+function populateGraphSelect() {
+  DOM.graphSelect.innerHTML = Object.entries(GRAPH_OPTIONS)
+    .map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')
+  DOM.graphSelect.value = store.graphType
+}
 
 // ── Reset ─────────────────────────────────────────────────────────────────────
 function resetSim() {
@@ -141,6 +149,7 @@ setupTheme()
 drawStopwatchMarks()
 drawSubdialMarks()
 ensureAxisMarker(DOM.graphSvg)
+populateGraphSelect()
 
 DOM.m1Slider.addEventListener('input', resetSim)
 DOM.m2Slider.addEventListener('input', resetSim)
