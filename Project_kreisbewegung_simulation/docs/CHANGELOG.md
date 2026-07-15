@@ -5,6 +5,22 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.2 — 2026-07-15
+
+Bug-Fix (im Zuge des gleichen Reports bei freier_fall gefunden, → BACKLOG
+I12.9): beim Zurückwechseln von „Zwei Diagramme" zu „Ein Diagramm" blieb
+gelegentlich ein Geisterpunkt der zuletzt aktiven Stacked-Slots sichtbar.
+
+### Behoben
+- **Geisterpunkt beim Moduswechsel:** ein Punkt-Element mit eigenem
+  `visibility`-Wert bleibt sichtbar, auch wenn die Eltern-Gruppe per
+  `style.visibility="hidden"` versteckt wird (CSS-Vererbung wird von einem
+  explizit am Kind gesetzten Wert blockiert). Da `drawGraphSlot()` nur für
+  die gerade aktiven Slots aufgerufen wird, behielt der zuletzt gezeichnete
+  Punkt des jetzt inaktiven Modus seine Sichtbarkeit. Fix: `updateGraph()`
+  versteckt beim Moduswechsel jetzt explizit die Punkte der neu inaktiven
+  Slot(s), bevor die aktiven neu gezeichnet werden.
+
 ## v1.3.1 — 2026-07-15
 
 UX-Fix (PO-Report nach visueller Abnahme): die deaktivierte „Zwei

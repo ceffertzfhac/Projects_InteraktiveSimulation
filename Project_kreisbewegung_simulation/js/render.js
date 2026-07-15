@@ -497,6 +497,12 @@ export function updateGraph(time) {
   // gestapelt (viewBox-Höhe 2·Slot+Gap). Mittellinie (Grid-Partition) unangetastet.
   if (store.isStacked) {
     DOM.graphGroupSingle.style.visibility = 'hidden'
+    // Eigene visibility="visible" auf dem Punkt-Element übersteuert eine per
+    // Gruppen-style vererbte visibility:hidden (CSS-Vererbung wird von einem
+    // explizit gesetzten Wert am Kind blockiert) — sonst bleibt der zuletzt
+    // gezeichnete Punkt als "Geisterpunkt" sichtbar, wenn man später
+    // zurückwechselt (Bug-Report).
+    DOM.graphPoint.style.visibility = 'hidden'
     DOM.graphGroupStackedTop.style.visibility = 'visible'
     DOM.graphGroupStackedBottom.style.visibility = 'visible'
     const dg = stackedDualGeom()
@@ -510,6 +516,9 @@ export function updateGraph(time) {
   } else {
     DOM.graphGroupStackedTop.style.visibility = 'hidden'
     DOM.graphGroupStackedBottom.style.visibility = 'hidden'
+    // s. o.: Geisterpunkte in den jetzt inaktiven Stacked-Slots verstecken.
+    DOM.graphPointTop.style.visibility = 'hidden'
+    DOM.graphPointBottom.style.visibility = 'hidden'
     DOM.graphGroupSingle.style.visibility = 'visible'
     DOM.graphGroupSingle.setAttribute('transform', 'translate(0, 0)')
     DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
