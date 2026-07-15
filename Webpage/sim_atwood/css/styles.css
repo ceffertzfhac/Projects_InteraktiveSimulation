@@ -91,16 +91,6 @@ body.dark {
 .tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
 .graph_title { fill: var(--text); font-size: 13px; font-family: var(--font-ui); font-weight: 600; }
 
-/* ── RADIO GROUP (Diagramm-Modus) — nicht in shared ──────────────────────── */
-.radio-group { display: flex; gap: 4px; margin-bottom: 7px; flex-wrap: wrap; }
-.radio-pill {
-  flex: 1; padding: 4px 0; border: 1px solid var(--border); border-radius: 20px;
-  background: var(--surface2); text-align: center; font-size: .72rem; color: var(--text2);
-  cursor: pointer; transition: all .15s; position: relative; user-select: none;
-}
-.radio-pill input { position: absolute; opacity: 0; inset: 0; pointer-events: none; }
-.radio-pill.active { background: rgba(0,177,172,.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-
 /* ── CENTER (Atwood: Sim links, Graph rechts — nicht das FF-Spaltenlayout) ─ */
 .center-area {
   display: flex; flex-direction: row; overflow: hidden;

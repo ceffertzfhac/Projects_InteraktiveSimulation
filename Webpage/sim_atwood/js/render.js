@@ -214,11 +214,11 @@ const GRAPH_TYPE_INFO = {
 export function updateGraphs(time) {
   const { mode, type1, type2, subject } = store.graphCfg;
 
-  DOM.graphSvgSingle.style.display = mode === 'single' ? 'block' : 'none';
-  DOM.graphSvgTop.style.display    = mode === 'dual'   ? 'block' : 'none';
-  DOM.graphSvgBottom.style.display = mode === 'dual'   ? 'block' : 'none';
+  DOM.graphSvgSingle.style.display = mode === '1' ? 'block' : 'none';
+  DOM.graphSvgTop.style.display    = mode === '2' ? 'block' : 'none';
+  DOM.graphSvgBottom.style.display = mode === '2' ? 'block' : 'none';
 
-  if (mode === 'single') {
+  if (mode === '1') {
     drawSingleGraph(DOM.graphSvgSingle, time, type1, subject, false);
   } else {
     drawSingleGraph(DOM.graphSvgTop,    time, type1, 'm1', true);

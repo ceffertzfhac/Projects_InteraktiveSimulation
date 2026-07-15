@@ -31,3 +31,14 @@ export const X_RIGHT = PULLEY_X + PULLEY_R; // 240
 export const SW_TRANSFORM = 'translate(340, 55) scale(0.7)';
 export const SW_RADIUS    = 60;
 export const SW_HAND_LEN  = 50;
+
+// Diagramm-Typ-Optionen (kanonisch, → BACKLOG I12.7). 'ydiff' wird in ui.js
+// nur bedingt angeboten (Einzel-Modus, Subjekt ≠ 'both'), daher kein simples
+// <select>-Optionsset wie bei den Einzel-Diagramm-Sims, sondern ein Label-Pool.
+export const GRAPH_OPTIONS = {
+  y:     { label: 'Position' },
+  v:     { label: 'Geschwindigkeit' },
+  a:     { label: 'Beschleunigung' },
+  yrel:  { label: 'Verschiebung ab Start' },
+  ydiff: { label: 'Abstand der Massen Δy' },
+}

@@ -1,5 +1,36 @@
 # Changelog – Atwood-Maschine
 
+## v2.3.0 — 2026-07-15
+
+I12.7 + I12.8 — Diagramm-Steuerung: Optionen zentralisiert + Mehrfach-Modus-
+Dialekt vereinheitlicht (→ BACKLOG I12).
+
+### Geändert (I12.7)
+- **Diagrammtyp-Optionen zentralisiert:** neue `GRAPH_OPTIONS`-Map in
+  `js/constants.js` (Label je Typ-Schlüssel `y`/`v`/`a`/`yrel`/`ydiff`).
+  `updateGraphSelectors()` in `ui.js` baut die Options-Listen jetzt aus dieser
+  Map statt aus hartkodierten Label-Strings. Die (bereits zuvor toten, da bei
+  jedem Laden von `populateSelect()` sofort überschriebenen) statischen
+  `<option>`-Elemente in `graph_select_1`/`graph_select_2` in `index.html`
+  entfernt.
+
+### Geändert
+- **Mehrfach-Modus-Kontrakt kanonisiert:** der bisher eigene Dialekt
+  `graph_mode`/`.radio-pill`/`single`\|`dual` ersetzt durch den repo-weiten
+  Kontrakt `diagram_mode`/`.speed-pill`/`1`\|`2` (Labels „Ein Diagramm"/„Zwei
+  Diagramme" statt „Einzeln"/„Geteilt") — gleiche Widget-Klasse wie
+  Abspielgeschwindigkeit, Atwood-Energie und die übrigen Sims mit
+  Zwei-Diagramm-Modus. Sidebar-Platzierung war bereits kanonisch (Atwood
+  bleibt Sidebar, → I12.4) und ist von dieser Änderung nicht betroffen.
+- **CSS:** die lokale `.radio-group`/`.radio-pill`-Definition entfernt
+  (ungenutzt, jetzt shared `.speed-pills`/`.speed-pill`).
+- **JS:** `updateModePills()` (identisch zu `updateSpeedPills()`, nur mit
+  `.radio-pill`-Selektor) entfernt — `updateSpeedPills()` deckt jetzt beide
+  Pill-Gruppen ab (generischer `.speed-pill`-Selektor).
+- Rein internes Verhalten (`store.graphCfg.mode` intern weiterhin `'1'`/`'2'`
+  statt `'single'`/`'dual'`); keine funktionale Änderung an Diagrammauswahl,
+  CSV-Export oder Render-Logik.
+
 ## v2.2.8 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.2.8</span>
+    <span class="version">v2.3.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -322,9 +322,9 @@ window.MathJax = {
     <div class="panel-section">
       <div class="panel-label">Diagramm</div>
       <div class="slider-label">Modus</div>
-      <div class="radio-group" id="graph_mode_group">
-        <label class="radio-pill"><input type="radio" name="graph_mode" value="single" checked><span>Einzeln</span></label>
-        <label class="radio-pill"><input type="radio" name="graph_mode" value="dual"><span>Geteilt</span></label>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
       </div>
       <div id="subject_group">
         <div class="slider-label">Anzeigen</div>
@@ -335,21 +335,10 @@ window.MathJax = {
         </select>
       </div>
       <div class="slider-label" id="graph_lbl1">Diagrammtyp</div>
-      <select id="graph_select_1" class="select-field">
-        <option value="y">Position</option>
-        <option value="yrel">Position relativ zum Start</option>
-        <option value="v">Geschwindigkeit</option>
-        <option value="a">Beschleunigung</option>
-        <option value="ydiff">Positionsdifferenz Δy</option>
-      </select>
+      <select id="graph_select_1" class="select-field"></select>
       <div id="graph_sel2_group" style="display:none">
         <div class="slider-label">Unten (m₂)</div>
-        <select id="graph_select_2" class="select-field">
-          <option value="y">Position</option>
-          <option value="yrel">Position relativ zum Start</option>
-          <option value="v">Geschwindigkeit</option>
-          <option value="a">Beschleunigung</option>
-        </select>
+        <select id="graph_select_2" class="select-field"></select>
       </div>
     </div>
 

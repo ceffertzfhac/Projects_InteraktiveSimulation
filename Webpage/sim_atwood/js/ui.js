@@ -1,4 +1,4 @@
-import { Y_MAX_CM, CM_PER_M } from './constants.js';
+import { Y_MAX_CM, CM_PER_M, GRAPH_OPTIONS } from './constants.js';
 import { store, DOM, initDOM } from './state.js';
 import { precompute, interpolateAt } from './physics.js';
 import { fmt, drawRuler, drawStopwatchMarks, updateScene, updateGraphs } from './render.js';
@@ -81,21 +81,16 @@ function populateSelect(sel, opts) {
 }
 
 function updateGraphSelectors() {
-  const mode    = DOM.graphModeRadios.find(r => r.checked)?.value || 'single';
+  const mode    = DOM.graphModeRadios.find(r => r.checked)?.value || '1';
   const subject = DOM.subjectSelect.value;
 
-  DOM.subjectGroup.style.display   = mode === 'single' ? '' : 'none';
-  DOM.graphSel2Group.style.display = mode === 'dual'   ? '' : 'none';
+  DOM.subjectGroup.style.display   = mode === '1' ? '' : 'none';
+  DOM.graphSel2Group.style.display = mode === '2' ? '' : 'none';
 
-  const baseOpts = [
-    { val: 'y',    label: 'Position' },
-    { val: 'v',    label: 'Geschwindigkeit' },
-    { val: 'a',    label: 'Beschleunigung' },
-    { val: 'yrel', label: 'Verschiebung ab Start' },
-  ];
+  const baseOpts = ['y', 'v', 'a', 'yrel'].map(val => ({ val, label: GRAPH_OPTIONS[val].label }));
   const singleOpts = [...baseOpts];
-  if (mode === 'single' && subject !== 'both') {
-    singleOpts.push({ val: 'ydiff', label: 'Abstand der Massen Δy' });
+  if (mode === '1' && subject !== 'both') {
+    singleOpts.push({ val: 'ydiff', label: GRAPH_OPTIONS.ydiff.label });
   }
 
   populateSelect(DOM.graphSelect1, singleOpts);
@@ -104,7 +99,7 @@ function updateGraphSelectors() {
   store.graphCfg.mode    = mode;
   store.graphCfg.type1   = DOM.graphSelect1.value;
   store.graphCfg.type2   = DOM.graphSelect2.value;
-  store.graphCfg.subject = mode === 'single' ? subject : 'both';
+  store.graphCfg.subject = mode === '1' ? subject : 'both';
 }
 
 // ── Full reset ────────────────────────────────────────────────────────────────
@@ -141,12 +136,6 @@ function resetSim() {
 // ── Pill active-state sync ────────────────────────────────────────────────────
 function updateSpeedPills() {
   document.querySelectorAll('.speed-pill').forEach(p => {
-    p.classList.toggle('active', p.querySelector('input').checked);
-  });
-}
-
-function updateModePills() {
-  document.querySelectorAll('.radio-pill').forEach(p => {
     p.classList.toggle('active', p.querySelector('input').checked);
   });
 }
@@ -205,7 +194,7 @@ function exportCSV(all) {
        a1_data[i], a2_data[i], ydiff_data[i]].map(v => fmt(v, 4)).join(';'));
   } else {
     const { mode, type1, type2, subject } = graphCfg;
-    if (mode === 'single') {
+    if (mode === '1') {
       const isYdiff = type1 === 'ydiff';
       const key1 = isYdiff ? 'ydiff' : `${type1}${subject === 'm2' ? '2' : '1'}`;
       const key2 = (!isYdiff && subject === 'both') ? `${type1}2` : null;
@@ -258,7 +247,7 @@ DOM.togForces.addEventListener('change', () => { store.showForces = DOM.togForce
 DOM.togNet.addEventListener('change',    () => { store.showNetForce = DOM.togNet.checked; resetSim(); });
 
 DOM.graphModeRadios.forEach(r => r.addEventListener('change', () => {
-  updateModePills(); updateGraphSelectors(); updateGraphs(store.simulatedTime);
+  updateSpeedPills(); updateGraphSelectors(); updateGraphs(store.simulatedTime);
 }));
 DOM.graphSelect1.addEventListener('change', () => {
   store.graphCfg.type1 = DOM.graphSelect1.value;
@@ -287,5 +276,4 @@ DOM.exportDiagram.addEventListener('click', () => exportCSV(false));
 DOM.exportAll.addEventListener('click',     () => exportCSV(true));
 
 updateSpeedPills();
-updateModePills();
 resetSim();

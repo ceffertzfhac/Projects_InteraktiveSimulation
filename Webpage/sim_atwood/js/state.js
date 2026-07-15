@@ -10,7 +10,7 @@ export const store = {
   t_end: 0,
   showForces:  true,
   showNetForce: true,
-  graphCfg: { mode: 'single', type1: 'y', type2: 'v', subject: 'm1' },
+  graphCfg: { mode: '1', type1: 'y', type2: 'v', subject: 'm1' }, // mode '1'/'2' (kanonisch, → BACKLOG I12.8)
   // Precomputed arrays (filled by physics.precompute)
   t_data: [], y1_data: [], y2_data: [],
   v1_data: [], v2_data: [],
@@ -40,7 +40,7 @@ export function initDOM() {
   DOM.diffGroup   = document.getElementById('diff_group');
 
   DOM.speedRadios   = [...document.querySelectorAll('input[name="speed"]')];
-  DOM.graphModeRadios = [...document.querySelectorAll('input[name="graph_mode"]')];
+  DOM.graphModeRadios = [...document.querySelectorAll('input[name="diagram_mode"]')];
   DOM.graphSelect1  = document.getElementById('graph_select_1');
   DOM.graphSelect2  = document.getElementById('graph_select_2');
   DOM.subjectSelect = document.getElementById('subject_select');
