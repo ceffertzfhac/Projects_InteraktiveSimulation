@@ -9,7 +9,10 @@ export const store = {
   v0y: 0,
   speedFactor: 1.0,
   yAxisConfig: { direction: 'up', origin: 'ground' },
-  graphType: 'yt',
+  // Zwei unabhängige Diagramm-Picker (→ BACKLOG I12.9); graphType2 nur im
+  // Zwei-Diagramm-Modus (isStacked) relevant.
+  graphType1: 'yt',
+  graphType2: 'xt',
   isStacked: false,
   isDigitalDisplay: false,
 
@@ -72,7 +75,9 @@ export function initDOM() {
   DOM.v0Value = q('v0_value')
   DOM.alphaValue = q('alpha_value')
   DOM.speedRadios = document.querySelectorAll('input[name="speed"]')
-  DOM.graphSelect = q('graph_select')
+  DOM.graphSelect1 = q('graph_select_1')
+  DOM.graphSelect2 = q('graph_select_2')
+  DOM.dualGraphControl = q('dual_graph_control')
   DOM.yAxisSelect = q('y_axis_config')
   DOM.togVel = q('toggle_velocity_vector')
   DOM.togVelComp = q('toggle_velocity_components')

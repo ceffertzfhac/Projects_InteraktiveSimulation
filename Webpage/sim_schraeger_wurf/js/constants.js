@@ -74,7 +74,11 @@ export const DIGIT_SEGMENTS_MAP = {
 }
 
 // ── Diagramm-Optionen (Nutzerperspektive, HTML-kodiert mit <i> für Symbole) ──
-export const singleGraphOptions = {
+// Ein Optionsset für beide Picker (Diagramm 1 + 2, → BACKLOG I12.9) — zwei
+// unabhängige, frei kombinierbare Diagramme statt fester x/y-Paarung. Die
+// Bahnkurve (yx/xy) hat keine Zeitachse und wird im Zwei-Diagramm-Modus aus
+// beiden Pickern gefiltert (ui.js::populateGraphSelects).
+export const graphOptions = {
   'Bahnkurve': {
     yx: 'Bahn <i>y</i>(<i>x</i>)',
     xy: 'Bahn <i>x</i>(<i>y</i>)',
@@ -93,18 +97,3 @@ export const singleGraphOptions = {
     vabs: 'Betrag der Geschw. |<i>v</i>(<i>t</i>)| / (m/s)',
   },
 }
-
-export const stackedGraphOptions = {
-  'Analyse': {
-    pos: 'Ort (<i>x</i>/<i>y</i>)',
-    vel: 'Geschwindigkeit (<i>v</i>ₓ/<i>v</i>ᵧ)',
-    acc: 'Beschleunigung (<i>a</i>ₓ/<i>a</i>ᵧ)',
-  },
-}
-
-// Modus-Übersetzung zwischen Single- und Stacked-Ansicht
-export const singleToStackedMap = {
-  yt: 'pos', xt: 'pos', vyt: 'vel', vxt: 'vel', vabs: 'vel',
-  ayt: 'acc', axt: 'acc', yx: 'pos', xy: 'pos',
-}
-export const stackedToSingleMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' }

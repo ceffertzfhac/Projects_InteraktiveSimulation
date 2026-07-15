@@ -3,8 +3,7 @@
 import { G, BALL_START_X_PX, GROUND_PX, ANIM_W, BALL_RADIUS_BASE_PX,
          DEFAULT_PIXELS_PER_METER, PIXELS_PER_VELOCITY_UNIT, PIXELS_PER_ACCELERATION_UNIT,
          SF_ARM_LENGTH_M, WATCH_CX, WATCH_CY, SDIAL_CX, SDIAL_CY,
-         singleGraphOptions, stackedGraphOptions,
-         singleToStackedMap, stackedToSingleMap,
+         graphOptions,
          GRAPH_SINGLE_TRANSLATE, GRAPH_STACKED_TOP_TRANSLATE,
          GRAPH_STACKED_BOTTOM_TRANSLATE } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
@@ -18,37 +17,51 @@ import { fmt, drawRuler, drawHorizontalRuler, drawStickFigure,
 import { attachGraphHover } from '../../shared/js/hover.js'
 import { exportSVG, exportPNG, computeBBox } from '../../shared/js/export-image.js'
 
-// ── Dropdown-Optionen (Single/Stacked) ───────────────────────────────────────
-function updateDropdownOptions(isModeChange) {
-  const isStacked = store.isStacked
-  const options = isStacked ? stackedGraphOptions : singleGraphOptions
-  let sel = store.graphType
-  const isTraj = ['yx', 'xy'].includes(sel)
-
-  if (isModeChange && isTraj) {
-    sel = 'yt'
-  } else if (isModeChange) {
-    sel = isStacked ? (singleToStackedMap[sel] || 'pos') : (stackedToSingleMap[sel] || sel || 'yt')
-  }
-
-  DOM.graphSelect.innerHTML = ''
-  for (const groupLabel in options) {
-    const group = document.createElement('optgroup')
-    group.label = groupLabel
-    for (const value in options[groupLabel]) {
-      if (isStacked && (value === 'yx' || value === 'xy')) continue
-      const option = document.createElement('option')
-      option.value = value
-      option.innerHTML = options[groupLabel][value]
-      group.appendChild(option)
+// ── Diagramm-Dropdowns füllen (zwei unabhängige Picker, → BACKLOG I12.9) ─────
+// Beide Picker teilen sich dasselbe Optionsset; die Bahnkurve (yx/xy) hat
+// keine Zeitachse und ist daher im Zwei-Diagramm-Modus in keinem der beiden
+// Picker wählbar (Diagramm 2 filtert sie generell, da nie sinnvoll neben
+// einem zweiten Zeit-Diagramm).
+function populateGraphSelects() {
+  const dual = store.isStacked
+  ;[[DOM.graphSelect1, true], [DOM.graphSelect2, false]].forEach(([sel, allowTraj]) => {
+    sel.innerHTML = ''
+    for (const groupLabel in graphOptions) {
+      const group = document.createElement('optgroup')
+      group.label = groupLabel
+      for (const value in graphOptions[groupLabel]) {
+        if ((!allowTraj || dual) && ['yx', 'xy'].includes(value)) continue
+        const option = document.createElement('option')
+        option.value = value
+        option.innerHTML = graphOptions[groupLabel][value]
+        group.appendChild(option)
+      }
+      if (group.children.length) sel.appendChild(group)
     }
-    DOM.graphSelect.appendChild(group)
-  }
-  if (!sel || !Array.from(DOM.graphSelect.options).some(o => o.value === sel)) {
-    sel = isStacked ? 'pos' : 'yt'
-  }
-  DOM.graphSelect.value = sel
-  store.graphType = sel
+  })
+  if (!Array.from(DOM.graphSelect1.options).some(o => o.value === store.graphType1)) store.graphType1 = 'yt'
+  if (!Array.from(DOM.graphSelect2.options).some(o => o.value === store.graphType2)) store.graphType2 = 'xt'
+  DOM.graphSelect1.value = store.graphType1
+  DOM.graphSelect2.value = store.graphType2
+  DOM.dualGraphControl.style.display = dual ? '' : 'none'
+}
+
+// ── Achsenlimits für einen Diagrammtyp (y-Komponenten respektieren yAxisConfig) ─
+function limitsFor(type) {
+  const isYComp = ['yt', 'vyt', 'ayt'].includes(type)
+  return store.axisLimits[type + (isYComp ? '_display' : '')]
+}
+
+// Interpolierter Plot-Wert für einen Diagrammtyp zum Zeitpunkt t (Index i in
+// tData bereits bekannt, z. B. aus interpolateAt). null bei Bahnkurve (yx/xy,
+// keine Zeitachse) oder fehlenden Daten.
+function interpValueAt(type, t, i) {
+  if (['yx', 'xy'].includes(type)) return null
+  const limits = limitsFor(type)
+  if (!limits) return null
+  const fd = limits.fullData
+  const a = t === store.tData[i] ? 0 : (t - store.tData[i]) / (store.tData[i + 1] - store.tData[i])
+  return fd[i] + (i + 1 < fd.length ? a * (fd[i + 1] - fd[i]) : 0)
 }
 
 // ── Animation stoppen ────────────────────────────────────────────────────────
@@ -70,7 +83,7 @@ function diagramModeIsStacked() {
 }
 
 // ── Reset (aus v47 resetScene) ───────────────────────────────────────────────
-function resetSim(isModeChange = false, isPlayTrigger = false) {
+function resetSim(isPlayTrigger = false) {
   stopAnimation()
   store.simulatedTime = 0
 
@@ -91,7 +104,7 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
     DOM.h0Value.textContent = `${fmt(store.h0, 1)} m`
     DOM.v0Value.textContent = `${fmt(store.v0, 1)} m/s`
     DOM.alphaValue.textContent = `${store.alphaDeg} °`
-    updateDropdownOptions(isModeChange)
+    populateGraphSelects()
   }
 
   const alphaRad = store.alphaDeg * Math.PI / 180
@@ -183,11 +196,12 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
     DOM.subHand.setAttribute('x2', SDIAL_CX); DOM.subHand.setAttribute('y2', SDIAL_CY - 15)
   }
 
-  // Y-Achsen-Konfig-Dropdown: bei y-Zeitdiagramm (Einzelfeld) UND im gestapelten
-  // Modus — dort nutzt der untere y-Komponenten-Teilgraph (y/v_y/a_y) yAxisConfig
+  // Y-Achsen-Konfig-Dropdown: relevant, sobald einer der aktiven Diagramm-Typen
+  // eine y-Komponente ist (y/v_y/a_y) — dort nutzt der Teilgraph yAxisConfig
   // (render.js drawSingleGraph … useYAxisConfig:true; ui.js _display-Daten).
-  const isTraj = ['yx', 'xy'].includes(store.graphType)
-  const isYRelevant = !isTraj && (store.isStacked || ['yt', 'vyt', 'ayt'].includes(store.graphType))
+  const isTraj = ['yx', 'xy'].includes(store.graphType1)
+  const activeTypes = store.isStacked ? [store.graphType1, store.graphType2] : [store.graphType1]
+  const isYRelevant = !isTraj && activeTypes.some(t => ['yt', 'vyt', 'ayt'].includes(t))
   DOM.yAxisSelect.disabled = !isYRelevant
   // Bahnkurve (yx/xy) ist stets Einzeldiagramm → Zwei-Diagramm-Pill deaktiviert
   // und auf „1 Diagramm" forciert.
@@ -201,22 +215,13 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   precompute()
   drawFrozenTrajectory()
 
-  // Initialer Graph-Wert
-  let initVal, initValTop, initValBottom
-  const sel = store.graphType
+  // Initialer Graph-Wert (zwei unabhängige Picker, → BACKLOG I12.9)
+  let initVal1, initVal2
   if (store.tData.length > 0) {
-    if (store.isStacked) {
-      const topMap = { pos: 'xt', vel: 'vxt', acc: 'axt' }
-      const bottomMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' }
-      initValTop = store.axisLimits[topMap[sel]].fullData[0]
-      initValBottom = store.axisLimits[bottomMap[sel] + '_display'].fullData[0]
-    } else if (!isTraj) {
-      const isYComp = ['yt', 'vyt', 'ayt'].includes(sel)
-      const suffix = isYComp ? '_display' : ''
-      initVal = store.axisLimits[sel + suffix].fullData[0]
-    }
+    initVal1 = interpValueAt(store.graphType1, 0, 0)
+    if (store.isStacked) initVal2 = interpValueAt(store.graphType2, 0, 0)
   }
-  updateGraphs(0, initVal, initValTop, initValBottom, 0, store.h0)
+  updateGraphs(0, initVal1, initVal2, 0, store.h0)
   updateKennwerte()
   updatePhysicsFormulas()
 
@@ -242,28 +247,11 @@ function animate(ts) {
   const s = interpolateAt(store.simulatedTime)
   if (!s) { stopAnimation(); return }
 
-  let graphVal, graphValTop, graphValBottom
-  const sel = store.graphType
-  if (store.isStacked) {
-    const topMap = { pos: 'xt', vel: 'vxt', acc: 'axt' }
-    const bottomMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' }
-    const topData = store.axisLimits[topMap[sel]].fullData
-    const bottomData = store.axisLimits[bottomMap[sel] + '_display'].fullData
-    const a = s.t === store.tData[s.i] ? 0 : (store.simulatedTime - store.tData[s.i]) / (store.tData[s.i + 1] - store.tData[s.i])
-    graphValTop = topData[s.i] + (s.i + 1 < topData.length ? a * (topData[s.i + 1] - topData[s.i]) : 0)
-    graphValBottom = bottomData[s.i] + (s.i + 1 < bottomData.length ? a * (bottomData[s.i + 1] - bottomData[s.i]) : 0)
-  } else if (!['yx', 'xy'].includes(sel)) {
-    const isYComp = ['yt', 'vyt', 'ayt'].includes(sel)
-    const suffix = isYComp ? '_display' : ''
-    const limits = store.axisLimits[sel + suffix]
-    if (limits) {
-      const a = s.t === store.tData[s.i] ? 0 : (store.simulatedTime - store.tData[s.i]) / (store.tData[s.i + 1] - store.tData[s.i])
-      graphVal = limits.fullData[s.i] + (s.i + 1 < limits.fullData.length ? a * (limits.fullData[s.i + 1] - limits.fullData[s.i]) : 0)
-    }
-  }
+  const graphVal1 = interpValueAt(store.graphType1, store.simulatedTime, s.i)
+  const graphVal2 = store.isStacked ? interpValueAt(store.graphType2, store.simulatedTime, s.i) : null
 
   updateScene(s.t, s.x, s.y, s.vx, s.vy)
-  updateGraphs(store.simulatedTime, graphVal, graphValTop, graphValBottom, s.x, s.y)
+  updateGraphs(store.simulatedTime, graphVal1, graphVal2, s.x, s.y)
 
   if (store.simulatedTime >= store.tData[store.tData.length - 1]) {
     stopAnimation()
@@ -274,7 +262,7 @@ function animate(ts) {
 
 function startAnimation() {
   if (store.aniFrameId) return
-  resetSim(false, true)
+  resetSim(true)
   if (DOM.togTrajectory.checked && store.tData.length > 0) {
     DOM.trajectoryLine.setAttribute('points', `${scaleX(store.xtData[0])},${scaleY(store.ytData[0])} `)
     DOM.trajectoryLine.style.visibility = 'visible'
@@ -296,7 +284,7 @@ function stripLabel(s) {
 }
 
 function exportCSV(all) {
-  const { tData, xtData, ytData, vxtData, vytData, vabsData, axtData, aytData, graphType, isStacked } = store
+  const { tData, xtData, ytData, vxtData, vytData, vabsData, axtData, aytData, graphType1, graphType2, isStacked } = store
   if (!tData.length) return
 
   const row = arr => arr.map(v => fmt(v, 4)).join(';')
@@ -311,30 +299,25 @@ function exportCSV(all) {
     header = `sep=;\n${cols.map(c => c[0]).join(';')}`
     rows = tData.map((_, i) => row(cols.map(c => c[1][i])))
     fileName = 'schräger_wurf_alle_daten.csv'
-  } else if (['yx', 'xy'].includes(graphType)) {
-    if (graphType === 'yx') {
+  } else if (['yx', 'xy'].includes(graphType1)) {
+    if (graphType1 === 'yx') {
       header = 'sep=;\nWurfweite x / m;Höhe y / m'
       rows = tData.map((_, i) => `${fmt(xtData[i], 4)};${fmt(getDisplayY(ytData[i]), 4)}`)
     } else {
       header = 'sep=;\nHöhe y / m;Wurfweite x / m'
       rows = tData.map((_, i) => `${fmt(getDisplayY(ytData[i]), 4)};${fmt(xtData[i], 4)}`)
     }
-    fileName = `bahn_${graphType}_daten.csv`
+    fileName = `bahn_${graphType1}_daten.csv`
   } else if (isStacked) {
-    const topMap = { pos: 'xt', vel: 'vxt', acc: 'axt' }
-    const bottomMap = { pos: 'yt', vel: 'vyt', acc: 'ayt' }
-    const topL = store.axisLimits[topMap[graphType]]
-    const bottomL = store.axisLimits[bottomMap[graphType] + '_display']
-    header = `sep=;\nt / s;${stripLabel(topL.yLabelText)};${stripLabel(bottomL.yLabelText)}`
-    rows = tData.map((_, i) => `${fmt(tData[i], 4)};${fmt(topL.fullData[i], 4)};${fmt(bottomL.fullData[i], 4)}`)
-    fileName = `${graphType}_gestapelt_daten.csv`
+    const l1 = limitsFor(graphType1), l2 = limitsFor(graphType2)
+    header = `sep=;\nt / s;${stripLabel(l1.yLabelText)};${stripLabel(l2.yLabelText)}`
+    rows = tData.map((_, i) => `${fmt(tData[i], 4)};${fmt(l1.fullData[i], 4)};${fmt(l2.fullData[i], 4)}`)
+    fileName = `${graphType1}_${graphType2}_gestapelt_daten.csv`
   } else {
-    const isYComp = ['yt', 'vyt', 'ayt'].includes(graphType)
-    const suffix = isYComp ? '_display' : ''
-    const limits = store.axisLimits[graphType + suffix]
+    const limits = limitsFor(graphType1)
     header = `sep=;\nt / s;${stripLabel(limits.yLabelText)}`
     rows = tData.map((_, i) => `${fmt(tData[i], 4)};${fmt(limits.fullData[i], 4)}`)
-    fileName = `${graphType}_daten.csv`
+    fileName = `${graphType1}_daten.csv`
   }
 
   const csv = [header, ...rows].join('\n')
@@ -381,14 +364,18 @@ initDOM()
 setupTheme()
 initDigitalDisplaySegments()
 
-DOM.h0Slider.addEventListener('input', () => resetSim(false))
-DOM.v0Slider.addEventListener('input', () => resetSim(false))
-DOM.alphaSlider.addEventListener('input', () => resetSim(false))
-DOM.graphSelect.addEventListener('change', () => {
-  store.graphType = DOM.graphSelect.value
-  resetSim(false)
+DOM.h0Slider.addEventListener('input', () => resetSim())
+DOM.v0Slider.addEventListener('input', () => resetSim())
+DOM.alphaSlider.addEventListener('input', () => resetSim())
+DOM.graphSelect1.addEventListener('change', () => {
+  store.graphType1 = DOM.graphSelect1.value
+  resetSim()
 })
-DOM.yAxisSelect.addEventListener('change', () => resetSim(false))
+DOM.graphSelect2.addEventListener('change', () => {
+  store.graphType2 = DOM.graphSelect2.value
+  resetSim()
+})
+DOM.yAxisSelect.addEventListener('change', () => resetSim())
 DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
   DOM.speedRadios.forEach(rad => { if (rad.checked) store.speedFactor = parseFloat(rad.value) })
   updateSpeedPills()
@@ -396,17 +383,17 @@ DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
 DOM.togVel.addEventListener('change', () => {
   DOM.togVelComp.disabled = !DOM.togVel.checked
   if (!DOM.togVel.checked) DOM.togVelComp.checked = false
-  resetSim(false)
+  resetSim()
 })
-DOM.togVelComp.addEventListener('change', () => resetSim(false))
-DOM.togAcc.addEventListener('change', () => resetSim(false))
-DOM.togTrajectory.addEventListener('change', () => resetSim(false))
+DOM.togVelComp.addEventListener('change', () => resetSim())
+DOM.togAcc.addEventListener('change', () => resetSim())
+DOM.togTrajectory.addEventListener('change', () => resetSim())
 DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
   store.isStacked = diagramModeIsStacked()
   updateSpeedPills()
-  resetSim(true)
+  resetSim()
 }))
-DOM.resetBtn.addEventListener('click', () => resetSim(false))
+DOM.resetBtn.addEventListener('click', () => resetSim())
 DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)
 DOM.togCompare.addEventListener('change', () => {
@@ -415,19 +402,19 @@ DOM.togCompare.addEventListener('change', () => {
     // „Bahn anzeigen" aktiv und eine Bahn vorhanden ist).
     if (store.tData.length > 0) {
       store.frozenTraj = { x: [...store.xtData], y: [...store.ytData] }
-      resetSim(false) // Zoom neu fitten (beide Bahnen)
+      resetSim() // Zoom neu fitten (beide Bahnen)
     } else {
       DOM.togCompare.checked = false
     }
   } else {
     // Deaktivieren: gespeicherte Bahn löschen.
     store.frozenTraj = null
-    resetSim(false) // Zoom neu fitten (nur noch aktuelle Bahn)
+    resetSim() // Zoom neu fitten (nur noch aktuelle Bahn)
   }
 })
 DOM.stopwatch.addEventListener('click', () => {
   store.isDigitalDisplay = !store.isDigitalDisplay
-  resetSim(false)
+  resetSim()
 })
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false))
 DOM.exportAll.addEventListener('click', () => exportCSV(true))
@@ -482,4 +469,4 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 })
 
 updateSpeedPills()
-resetSim(false)
+resetSim()

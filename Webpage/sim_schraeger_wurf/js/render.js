@@ -10,7 +10,7 @@ import {
   SEG_THICK, SEG_LEN, DIGIT_WIDTH, DIGIT_HEIGHT, DIGIT_SPACING, COLON_WIDTH,
   COLON_DOT_SIZE, LCD_FRAME_PADDING, DIGITAL_FRAME_X, DIGITAL_FRAME_Y,
   DIGITAL_FRAME_WIDTH, DIGITAL_FRAME_HEIGHT, DIGIT_SEGMENTS_MAP,
-  singleGraphOptions,
+  graphOptions,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
@@ -245,25 +245,16 @@ function stripHtml(s) {
   return s.replace(/<\/?i>/g, '').replace(/ₓ/g, 'x').replace(/ᵧ/g, 'y')
 }
 
-function getGraphTitleText(type, isStacked) {
+function getGraphTitleText(type) {
   if (['yx', 'xy'].includes(type)) {
     return type === 'yx' ? 'Bahnkurve y(x)' : 'Bahnkurve x(y)'
   }
-  if (isStacked) {
-    if (type === 'x-pos') return 'Ort x(t)'
-    if (type === 'y-pos') return 'Ort y(t)'
-    if (type === 'x-vel') return 'Geschwindigkeit vx(t)'
-    if (type === 'y-vel') return 'Geschwindigkeit vy(t)'
-    if (type === 'x-acc') return 'Beschleunigung ax(t)'
-    if (type === 'y-acc') return 'Beschleunigung ay(t)'
-  }
-  for (const groupLabel in singleGraphOptions) {
-    for (const val in singleGraphOptions[groupLabel]) {
+  for (const groupLabel in graphOptions) {
+    for (const val in graphOptions[groupLabel]) {
       if (val === type) {
         // Nur Einheit-Suffix entfernen (kein "+ vs. Zeit" mehr, T10): der Titel
-        // endet dadurch konsistent auf "…(t)" wie im Stacked-Modus, kompatibel
-        // mit setGraphTitle (kursiv = letztes Wort nach dem letzten Leerzeichen).
-        return stripHtml(singleGraphOptions[groupLabel][val])
+        // endet dadurch konsistent auf "…(t)".
+        return stripHtml(graphOptions[groupLabel][val])
           .replace(/\s\/\s\(?m.*$/, '')
       }
     }
@@ -295,9 +286,7 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
     class: 'graph-bg',
   }))
 
-  const typeMap = { 'y-pos': 'yt', 'y-vel': 'vyt', 'y-acc': 'ayt', 'x-pos': 'xt', 'x-vel': 'vxt', 'x-acc': 'axt' }
-  const effType = typeMap[type] || type
-  const isTraj = ['yx', 'xy'].includes(effType)
+  const isTraj = ['yx', 'xy'].includes(type)
 
   let xData, yData, xMax, yMin, yMax, xLabel, yLabel, plotX, plotY
 
@@ -308,7 +297,7 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
     store.graphScale[slot] = null
     hideGraphHover(slot)
     const yDisplay = store.ytData.map(getDisplayY)
-    if (effType === 'yx') {
+    if (type === 'yx') {
       xData = store.xtData; yData = yDisplay
       xMax = store.axisLimits.xt.max
       yMin = store.axisLimits.yt_display.min; yMax = store.axisLimits.yt_display.max
@@ -322,9 +311,9 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
       plotX = currentY !== null ? getDisplayY(currentY) : null; plotY = currentX
     }
   } else {
-    const isYComp = ['yt', 'vyt', 'ayt'].includes(effType)
+    const isYComp = ['yt', 'vyt', 'ayt'].includes(type)
     const suffix = useYAxisConfig && isYComp ? '_display' : ''
-    const limits = store.axisLimits[effType + suffix]
+    const limits = store.axisLimits[type + suffix]
     if (!limits) {
       lineEl.setAttribute('points', '')
       store.graphScale[slot] = null
@@ -347,7 +336,7 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
   // Bei Bahnkurve (isTraj) bleibt graphScale[slot] auf dem oben gesetzten
   // null — dieser Block überschreibt es dort bewusst nicht.
   if (!isTraj) {
-    store.graphScale[slot] = { effType, suffix: useYAxisConfig && ['yt', 'vyt', 'ayt'].includes(effType) ? '_display' : '', xMax, yMin, yMax, yLabel }
+    store.graphScale[slot] = { effType: type, suffix: useYAxisConfig && ['yt', 'vyt', 'ayt'].includes(type) ? '_display' : '', xMax, yMin, yMax, yLabel }
   }
 
   const scX = v => padL + (v / (xMax || 1)) * plotW
@@ -384,22 +373,10 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
     'text-anchor': 'middle', transform: `rotate(-90, ${yLabX}, ${yLabY})`,
     x: yLabX, y: yLabY, class: 'axis-label',
   })
-  let finalLabel = yLabel
-  if (isStacked) {
-    const labelMap = {
-      'x-pos': singleGraphOptions['Horizontale Bewegung'].xt,
-      'y-pos': singleGraphOptions['Vertikale Bewegung'].yt,
-      'x-vel': singleGraphOptions['Horizontale Bewegung'].vxt,
-      'y-vel': singleGraphOptions['Vertikale Bewegung'].vyt,
-      'x-acc': singleGraphOptions['Horizontale Bewegung'].axt,
-      'y-acc': singleGraphOptions['Vertikale Bewegung'].ayt,
-    }
-    finalLabel = labelMap[type] || yLabel
-  }
-  createStyledSvgText(yLab, finalLabel)
+  createStyledSvgText(yLab, yLabel)
   gridEl.appendChild(yLab)
 
-  setGraphTitle(titleEl, getGraphTitleText(type, isStacked))
+  setGraphTitle(titleEl, getGraphTitleText(type))
 
   const idx = linePlotIndex(plotTime)
   let p = ''
@@ -509,7 +486,10 @@ function renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT) {
   DOM.hoverTooltip[slot].setAttribute('visibility', 'visible')
 }
 
-export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValueBottom = null, currentX = null, currentY = null) {
+// Zwei unabhängige Diagramm-Picker (→ BACKLOG I12.9): plotValue1 gehört immer
+// zu store.graphType1 (Single-Slot ODER oberer Slot im Zwei-Diagramm-Modus),
+// plotValue2 zu store.graphType2 (nur im Zwei-Diagramm-Modus, unterer Slot).
+export function updateGraphs(plotTime, plotValue1, plotValue2 = null, currentX = null, currentY = null) {
   const isStacked = store.isStacked
   DOM.graphGroupSingle.style.visibility = isStacked ? 'hidden' : 'visible'
   DOM.graphGroupStackedTop.style.visibility = isStacked ? 'visible' : 'hidden'
@@ -522,12 +502,11 @@ export function updateGraphs(plotTime, plotValue, plotValueTop = null, plotValue
   if (isStacked) { store.graphScale.single = null; hideGraphHover('single') }
   else { store.graphScale.top = null; store.graphScale.bottom = null; hideGraphHover('top'); hideGraphHover('bottom') }
 
-  const sel = store.graphType
   if (isStacked) {
-    drawSingleGraph({ slot: 'top', titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: `x-${sel}`, plotTime, plotValue: plotValueTop, useYAxisConfig: false })
-    drawSingleGraph({ slot: 'bottom', titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: `y-${sel}`, plotTime, plotValue: plotValueBottom, useYAxisConfig: true })
+    drawSingleGraph({ slot: 'top', titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: store.graphType1, plotTime, plotValue: plotValue1, useYAxisConfig: true })
+    drawSingleGraph({ slot: 'bottom', titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: store.graphType2, plotTime, plotValue: plotValue2, useYAxisConfig: true })
   } else {
-    drawSingleGraph({ slot: 'single', titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: sel, plotTime, plotValue, useYAxisConfig: true, currentX, currentY })
+    drawSingleGraph({ slot: 'single', titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType1, plotTime, plotValue: plotValue1, useYAxisConfig: true, currentX, currentY })
   }
 }
 

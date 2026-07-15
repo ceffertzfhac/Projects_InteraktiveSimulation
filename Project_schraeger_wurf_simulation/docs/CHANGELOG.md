@@ -1,5 +1,45 @@
 # Changelog — Schräger Wurf
 
+## v1.5.0 — 2026-07-15
+
+I12.9 — Diagramm-Steuerung: zwei unabhängige, frei kombinierbare Diagramm-
+Picker statt fester x/y-Paarung im Zwei-Diagramm-Modus (→ BACKLOG I12,
+Vorbild kreis_spiralbewegung).
+
+### Geändert (I12.9)
+- **Zwei unabhängige Picker** (`graph_select_1`/`graph_select_2`) ersetzen den
+  bisherigen Mechanismus, bei dem der Zwei-Diagramm-Modus automatisch ein
+  festes Paar zeigte (z. B. „Ort" → oben *x*(*t*), unten *y*(*t*)). Jetzt
+  wählt man für Diagramm 1 und Diagramm 2 unabhängig **jeden** Typ aus
+  demselben Optionsset (z. B. *v*ₓ(*t*) oben und *a*ᵧ(*t*) unten). Beide
+  Picker sitzen im Sidebar-Cluster „Diagramm"; Diagramm 2 blendet sich per
+  `#dual_graph_control` ein/aus, wie bei kreis_spiralbewegung.
+- **Bahnkurve (yx/xy) aus dem Zwei-Diagramm-Modus gefiltert:** sie hat keine
+  Zeitachse und ist daher in keinem der beiden Picker wählbar, sobald „Zwei
+  Diagramme" aktiv ist; Diagramm 2 bietet sie generell nie an. Wechselt man
+  in den Zwei-Diagramm-Modus, während Diagramm 1 eine Bahnkurve zeigt,
+  springt es automatisch auf „Höhe *y*(*t*)".
+- **Render-Vereinfachung:** die alte Übersetzungsschicht zwischen den
+  synthetischen Stacked-Schlüsseln (`x-pos`/`y-vel`/…) und den echten
+  Achsen-Typen (`xt`/`vyt`/…) in `render.js::drawSingleGraph` entfällt
+  ersatzlos — jeder Diagramm-Slot (Single, Top, Bottom) bekommt jetzt direkt
+  seinen eigenen, echten Typ übergeben und berechnet Titel/Achsenlabel/
+  Y-Achsen-Skalierung unabhängig und automatisch korrekt (kein manuelles
+  Label-Mapping mehr nötig).
+- **`constants.js`:** `stackedGraphOptions`/`singleToStackedMap`/
+  `stackedToSingleMap` entfernt (ersatzlos, keine feste Paarung mehr);
+  `singleGraphOptions` in `graphOptions` umbenannt (ein Optionsset für beide
+  Picker).
+- **`state.js`:** `store.graphType` (ein Feld) → `store.graphType1`/
+  `store.graphType2` (zwei unabhängige Felder). `store.isStacked` bleibt
+  unverändert als reines Layout-Flag (Ein-/Zwei-Diagramm-Anordnung).
+- **CSV-Export:** der Export im Zwei-Diagramm-Modus liest jetzt
+  `graphType1`/`graphType2` statt der festen Paar-Zuordnung; Dateiname
+  `<typ1>_<typ2>_gestapelt_daten.csv` spiegelt die frei gewählte Kombination.
+- Verifiziert per Playwright-Smoke-Test (unabhängige Kombination
+  *v*ₓ(*t*)/*a*ᵧ(*t*), Play/Pause, Moduswechsel, Bahnkurve-Guard, CSV-Export)
+  — keine Konsolenfehler.
+
 ## v1.4.1 — 2026-07-15
 
 I12.4 — Diagramm-Steuerung: Typ-Picker + Mehrfach-Modus in die linke Sidebar
