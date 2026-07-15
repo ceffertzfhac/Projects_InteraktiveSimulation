@@ -533,10 +533,6 @@ function drawGraph(idx, time, geom) {
   const title = el('text', { x: G_W / 2, y: 20, 'text-anchor': 'middle', class: 'graph-title-text' })
   setGraphTitle(title, graphTitles[qq])
   group.appendChild(title)
-
-  // Hover-Werte (I5): bei offenem Hover jeden Frame mit der frischen Skala
-  // neu berechnen (Auto-Range wächst). Die RAF-Schleife bleibt hover-unwissend.
-  if (store.hoverActive[idx]) updateGraphHover(idx, store.hoverLocalX[idx])
 }
 
 function hideGraphHover(idx) {
@@ -545,26 +541,21 @@ function hideGraphHover(idx) {
   DOM.hoverTooltip[idx].setAttribute('visibility', 'hidden')
 }
 
-/**
- * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
- * angegebenen Diagramm-Slot (1/2). Liest store.graphScale (von drawGraph()
- * befüllt) statt eigene Skala zu berechnen.
- */
-export function updateGraphHover(idx, localX) {
-  store.hoverActive[idx] = localX !== null
-  store.hoverLocalX[idx] = localX
-  const gs = store.graphScale[idx]
-  if (localX === null || !gs) { hideGraphHover(idx); return }
+// I14: beide Slots teilen sich im Zwei-Diagramm-Modus stets die Zeitachse
+// (hier keine Bahnkurve wie bei anderen Sims — alle Größen sind Zeitreihen).
+function otherSlot(idx) {
+  return idx === 1 ? 2 : idx === 2 ? 1 : null
+}
 
+// Zeichnet den Hover-Cursor + Tooltip im angegebenen Slot bei Zeit t. Liest
+// store.graphScale[idx] (von drawGraph() befüllt) statt eigene Skala zu
+// berechnen — einzige Quelle der Wahrheit für updateGraphHover()/refreshHover().
+function drawHoverAtT(idx, gs, t) {
   const { qq, cf, tMaxAxis, valMin, valMax } = gs
   const geom = graphGeom()
   const G_W = geom.cellW
   const plotW = G_W - PAD_L - PAD_R
   const plotH = geom.cellH - PAD_T - PAD_B
-  const xClamped = Math.max(PAD_L, Math.min(PAD_L + plotW, localX))
-  const rawT = (xClamped - PAD_L) / plotW * (tMaxAxis || 1)
-  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
-  const t = Math.max(0, Math.min(rawT, tMaxAxis, store.simulatedTime))
 
   const data = store.fullData[`p_${qq}`]
   const tArr = store.fullData.t
@@ -589,6 +580,65 @@ export function updateGraphHover(idx, localX) {
   DOM.hoverPoint[idx].setAttribute('visibility', 'visible')
 
   renderHoverTooltip(idx, qq, t, val, xPix, plotW)
+}
+
+// Zeichnet den Hover-Cursor im hoverSourceSlot neu (Auto-Range wächst mit der
+// laufenden Wiedergabe) und im Zwei-Diagramm-Modus zusätzlich im jeweils
+// anderen Slot bei derselben Zeit (I14: beide Slots teilen sich dort stets
+// die Zeitachse).
+function refreshHover() {
+  const idx = store.hoverSourceSlot
+  if (!idx) return
+  const gs = store.graphScale[idx]
+  if (!gs) {
+    hideGraphHover(idx)
+    const o = otherSlot(idx)
+    if (o) hideGraphHover(o)
+    return
+  }
+  const t = Math.max(0, Math.min(store.hoverT, gs.tMaxAxis, store.simulatedTime))
+  store.hoverT = t
+  drawHoverAtT(idx, gs, t)
+  if (graphGeom().dual) {
+    const other = otherSlot(idx)
+    if (other) {
+      const gsOther = store.graphScale[other]
+      if (gsOther) drawHoverAtT(other, gsOther, Math.max(0, Math.min(t, gsOther.tMaxAxis, store.simulatedTime)))
+      else hideGraphHover(other)
+    }
+  }
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
+ * angegebenen Diagramm-Slot (1/2). Liest store.graphScale (von drawGraph()
+ * befüllt). Im Zwei-Diagramm-Modus wird zusätzlich der jeweils andere Slot
+ * synchronisiert (I14).
+ */
+export function updateGraphHover(idx, localX) {
+  store.hoverActive[idx] = localX !== null
+  store.hoverLocalX[idx] = localX
+  if (localX === null) {
+    if (store.hoverSourceSlot === idx) {
+      store.hoverSourceSlot = null
+      store.hoverT = null
+      hideGraphHover(1); hideGraphHover(2)
+    } else {
+      hideGraphHover(idx)
+    }
+    return
+  }
+  const gs = store.graphScale[idx]
+  if (!gs) { hideGraphHover(idx); return }
+
+  const geom = graphGeom()
+  const plotW = geom.cellW - PAD_L - PAD_R
+  const xClamped = Math.max(PAD_L, Math.min(PAD_L + plotW, localX))
+  const rawT = (xClamped - PAD_L) / plotW * (gs.tMaxAxis || 1)
+  // Cursor nur auf dem bereits gezeichneten Kurvenabschnitt (KNOWN_LIMITATIONS → I5).
+  store.hoverSourceSlot = idx
+  store.hoverT = Math.max(0, Math.min(rawT, gs.tMaxAxis, store.simulatedTime))
+  refreshHover()
 }
 
 function renderHoverTooltip(idx, qq, t, val, xPix, plotW) {
@@ -646,6 +696,11 @@ function drawGraphs(time) {
 
   drawGraph(1, time, geom)
   if (geom.dual) drawGraph(2, time, geom)
+
+  // Hover-Werte (I5): bei offenem Hover jeden Frame mit der frischen Skala
+  // neu berechnen (inkl. I14-Sync) — erst NACH beiden Slots, sonst würde der
+  // synchronisierte andere Slot noch mit der Skala vom Vorframe gezeichnet.
+  refreshHover()
 }
 
 // ── Szene aktualisieren ──────────────────────────────────────────────────────

@@ -41,6 +41,13 @@ export const store = {
   graphScale: { 1: null, 2: null },
   hoverActive: { 1: false, 2: false },
   hoverLocalX: { 1: null, 2: null },
+
+  // I14: Dual-Sync — hoverSourceSlot = der Slot, über dem die Maus tatsächlich
+  // steht (null = kein Hover); hoverT = daraus abgeleitete Zeit, geteilt mit
+  // dem jeweils anderen Slot im Zwei-Diagramm-Modus (beide sind hier stets
+  // Zeitreihen, keine Bahnkurve wie bei anderen Sims).
+  hoverSourceSlot: null,
+  hoverT: null,
 }
 
 export const DOM = {}
