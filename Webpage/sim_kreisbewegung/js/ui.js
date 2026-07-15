@@ -62,14 +62,36 @@ function populateGraphSelects() {
   DOM.dualGraphControl.style.display = dual ? '' : 'none'
 }
 
-// ── Stacked-Toggle-Verfügbarkeit: bei Bahnkurven deaktiviert ─────────────────
+// Mehrfach-Modus (Ein-/Zwei-Diagramm) aus dem kanonischen diagram_mode-speed-
+// pill (Werte 1|2) lesen (→ I12).
+function diagramModeIsStacked() {
+  const r = Array.from(DOM.diagramModeRadios).find(x => x.checked)
+  return r ? r.value === '2' : false
+}
+
+// ── Pill active-state sync (kanonisch, → BACKLOG I12) ────────────────────────
+function updateSpeedPills() {
+  document.querySelectorAll('.speed-pill').forEach(p => {
+    p.classList.toggle('active', p.querySelector('input').checked)
+  })
+}
+
+// ── diagram_mode-Verfügbarkeit: bei Bahnkurven deaktiviert ───────────────────
 function updateStackedAvailability() {
   const isTraj = ['yx', 'xy'].includes(store.graphType1)
   if (isTraj && store.isStacked) {
     store.isStacked = false
-    DOM.togStacked.checked = false
+    DOM.diagramModeRadios.forEach(r => { r.checked = (r.value === '1') })
+    updateSpeedPills()
   }
-  DOM.togStacked.disabled = isTraj
+  // Tooltip erklärt den Grund (sonst wirkt die deaktivierte Pille wie ein
+  // stiller Bug statt einer bewussten Einschränkung).
+  const trajHint = 'Bei der Bahnkurve y(x)/x(y) nicht verfügbar (keine Zeitachse)'
+  DOM.diagramModeRadios.forEach(r => {
+    r.disabled = isTraj
+    const label = r.closest('label')
+    if (label) label.title = isTraj ? trajHint : ''
+  })
 }
 
 // ── Live-Objekte für updateScene bauen ───────────────────────────────────────
@@ -121,7 +143,7 @@ function resetSim(isPlayTrigger = false) {
   store.R = parseFloat(DOM.radiusSlider.value)
   store.phi0Deg = parseFloat(DOM.phi0Slider.value)
   store.omegaDeg = parseFloat(DOM.omegaSlider.value)
-  store.isStacked = DOM.togStacked.checked
+  store.isStacked = diagramModeIsStacked()
   store.showPositionVector = DOM.togPositionVector.checked
   store.showPositionComponents = DOM.togPositionComponents.checked
   store.showVelocityVector = DOM.togVelocityVector.checked
@@ -290,10 +312,11 @@ function setupUI() {
     resetSim(false)
   })
 
-  DOM.togStacked.addEventListener('change', () => {
-    store.isStacked = DOM.togStacked.checked
+  DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
+    store.isStacked = diagramModeIsStacked()
+    updateSpeedPills()
     resetSim(false)
-  })
+  }))
 
   const visToggles = [
     [DOM.togPositionVector, 'showPositionVector'],
@@ -355,6 +378,7 @@ function init() {
   drawSubdialMarks()
   initDigitalDisplaySegments()
   setupUI()
+  updateSpeedPills()
   resetSim(false)
 }
 

@@ -5,6 +5,28 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.0 — 2026-07-15
+
+I12.8-Nachzügler (PO-Report nach visueller Abnahme, → BACKLOG I12): der
+Mehrfach-Modus-Umschalter war der letzte verbliebene uneinheitliche Fall
+repo-weit — ein eigenständiger Toggle-Switch (`toggle_xy_stacked`) statt des
+kanonischen `diagram_mode`/`speed-pill`/`1`\|`2`-Kontrakts, den alle anderen
+Sims mit Zwei-Diagramm-Modus verwenden.
+
+### Geändert
+- **`toggle_xy_stacked`/Toggle-Switch → `diagram_mode`/`speed-pill`** (Werte
+  `1`/`2`, Labels „Ein Diagramm"/„Zwei Diagramme") — identischer Kontrakt wie
+  schraeger_wurf/atwood/atwood_energy/kreis_spiralbewegung.
+- **Tooltip ergänzt:** die „Zwei Diagramme"-Pille bekommt bei aktiver
+  Bahnkurve (yx/xy) ein `title`-Attribut, das erklärt, warum sie deaktiviert
+  ist (keine Zeitachse) — vorher wirkte das wie ein stiller Bug.
+- **`updateSpeedPills()` ergänzt** (fehlte bisher komplett in dieser Sim) —
+  toggelt jetzt korrekt die `.active`-Klasse für alle `.speed-pill`-Gruppen
+  inkl. der bereits vorhandenen Abspielgeschwindigkeit-Pillen (die dadurch
+  als Nebeneffekt jetzt ebenfalls ihren aktiven Zustand visuell anzeigen —
+  vorher taten sie das nie, da keine Sim-Funktion die `.active`-Klasse
+  setzte).
+
 ## v1.2.0 — 2026-07-15
 
 I12.9 — Diagramm-Steuerung: zwei unabhängige, frei kombinierbare Diagramm-

@@ -133,7 +133,7 @@ export function initDOM() {
   DOM.togAccelerationVector = q('toggle_acceleration_vector')
   DOM.togAccelerationComponents = q('toggle_acceleration_components')
   DOM.togTrajectory = q('toggle_trajectory')
-  DOM.togStacked = q('toggle_xy_stacked')
+  DOM.diagramModeRadios = document.querySelectorAll('input[name="diagram_mode"]')
 
   // Topbar
   DOM.playBtn = q('play_btn')
