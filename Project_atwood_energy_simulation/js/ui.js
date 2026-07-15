@@ -88,6 +88,7 @@ function updatePulleyParams() {
 }
 
 // ── Diagramm-Auswahl ──────────────────────────────────────────────────────────
+const BARS_OPT = { val: 'bars', label: 'Energiebilanz (Balkendiagramm)' };
 const ENERGY_OPTS = [
   { val: 'ecomposite', label: 'Energie (E_kin, E_pot, E_ges)' },
   { val: 'ekin', label: 'Kinetische Energie E_kin' },
@@ -102,7 +103,11 @@ const KIN_OPTS = [
   { val: 'a', label: 'Beschleunigung a' },
   { val: 'ydiff', label: 'Abstand der Massen Δy' },
 ];
-const ALL_OPTS = [...ENERGY_OPTS, ...KIN_OPTS];
+// Liniengraph-Optionen (Diagramm 2 sieht nie das Energie-Balkendiagramm, → I12.8).
+const LINE_OPTS = [...ENERGY_OPTS, ...KIN_OPTS];
+// Diagramm 1 im Einzel-Modus zusätzlich mit dem Energie-Balkendiagramm als
+// wählbarem Typ (ersetzt den alten eigenen diagram_mode-Wert 'bars').
+const SINGLE_OPTS = [BARS_OPT, ...LINE_OPTS];
 
 function populateSelect(sel, opts) {
   const cur = sel.value;
@@ -116,17 +121,13 @@ function populateSelect(sel, opts) {
 }
 
 function updateGraphSelectors() {
-  const mode = DOM.graphModeRadios.find(r => r.checked)?.value || 'bars';
+  const mode = DOM.graphModeRadios.find(r => r.checked)?.value || '1';
   store.diagramMode = mode;
-  // Balken-Modus braucht keine Achsen-Optionen; 1/2-Modus zeigt Subjekt + Diagramm-Auswahl.
-  if (mode === 'bars') {
-    DOM.lineOptionsGroup.style.display = 'none';
-  } else {
-    DOM.lineOptionsGroup.style.display = '';
-    DOM.graphSel2Group.style.display = mode === '2' ? '' : 'none';
-  }
-  populateSelect(DOM.graphSelect1, ALL_OPTS);
-  populateSelect(DOM.graphSelect2, ALL_OPTS);
+  DOM.graphSel2Group.style.display = mode === '2' ? '' : 'none';
+  // Energie-Balkendiagramm nur in Diagramm 1 und nur im Einzel-Modus wählbar
+  // (→ BACKLOG I12.8: ersetzt den alten eigenen diagram_mode-Wert 'bars').
+  populateSelect(DOM.graphSelect1, mode === '1' ? SINGLE_OPTS : LINE_OPTS);
+  populateSelect(DOM.graphSelect2, LINE_OPTS);
   DOM.graphSelect1.value = store.graphType1;
   DOM.graphSelect2.value = store.graphType2;
   store.graphType1 = DOM.graphSelect1.value;
@@ -136,6 +137,9 @@ function updateGraphSelectors() {
   DOM.subjectSelect2.value = store.subject2;
   store.subject1 = DOM.subjectSelect1.value;
   store.subject2 = DOM.subjectSelect2.value;
+  // Subjekt-Auswahl 1 ist bei der Energiebilanz (Balken) irrelevant — dort sind
+  // alle Subjekte (m₁, m₂, Rolle, System) gleichzeitig sichtbar.
+  DOM.subjectSelect1.closest('.diagram-opt').style.display = store.graphType1 === 'bars' ? 'none' : '';
 }
 
 // ── Layout-Umschalter (Nebeneinander ↔ Übereinander) ──────────────────────────
@@ -252,6 +256,23 @@ function exportCSV(all) {
 
   // Diagramm-Export: sichtbare Typen
   const mode = store.diagramMode;
+
+  // Energiebilanz (Balkendiagramm, → I12.8) hat keinen getLineConfig-Eintrag —
+  // exportiert stattdessen alle Balken-Reihen direkt aus den *_data-Arrays.
+  if (store.graphType1 === 'bars') {
+    const barCols = [
+      ['ek1', 'E_k,1 / J'], ['ep1', 'E_p,1 / J'], ['eges1', 'E_ges,1 / J'],
+      ['ek2', 'E_k,2 / J'], ['ep2', 'E_p,2 / J'], ['eges2', 'E_ges,2 / J'],
+      ['ek_rot', 'E_rot / J'],
+      ['ek_sum', 'E_k,ges / J'], ['ep_sum', 'E_p,ges / J'], ['etot', 'E_ges / J'], ['wr', 'E_Verlust / J'],
+    ];
+    const cols = barCols.map(([key]) => energyCols(key));
+    const headers = ['t / s', ...barCols.map(([, label]) => label)];
+    const rows = t_data.map((_, i) => [t_data[i], ...cols.map(c => c[i])].map(v => fmt(v, 4)).join(';'));
+    download([`sep=;\n${headers.join(';')}`, ...rows].join('\n'), 'atwood_energy_diagramm.csv');
+    return;
+  }
+
   const cols = [];
   const headers = ['t / s'];
   const addType = (type, subject) => {

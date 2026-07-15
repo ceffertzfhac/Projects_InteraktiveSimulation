@@ -233,8 +233,9 @@ function graphGeom() {
 
 // ── Graph-Update ─────────────────────────────────────────────────────────────
 export function updateGraphs(time) {
-  // Default-Modus: Energie-Balkendiagramm (horizontal, zentriert).
-  if (store.diagramMode === 'bars') {
+  // Energie-Balkendiagramm (horizontal, zentriert) — ein Diagrammtyp im Picker,
+  // nur im Einzel-Modus wählbar (→ BACKLOG I12.8), kein eigener diagram_mode-Wert.
+  if (store.graphType1 === 'bars') {
     DOM.graphSvg.style.display = 'none';
     DOM.energyBarsView.style.display = '';
     updateEnergyBars(time);

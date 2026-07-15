@@ -5,6 +5,41 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.0 — 2026-07-15
+
+I12.4 + I12.8 — Diagramm-Steuerung: Steuerleiste aus dem Diagramm in die linke
+Sidebar verschoben (kanonische „Sidebar-Schule", PO-Entscheidung 2026-07-15, →
+BACKLOG I12) **und** der eigene `diagram_mode`-Wert `bars` entfernt — das
+Energie-Balkendiagramm ist jetzt ein Typ im Diagramm-1-Picker, nur im
+Einzel-Modus wählbar (kanonischer I12-Kontrakt: `diagram_mode` nur noch `1`/`2`).
+
+### Geändert
+- **Diagramm-Steuerung in die Sidebar:** die komplette Steuerleiste (Mehrfach-
+  Modus-Pills, Diagrammtyp- + Subjekt-Picker für Diagramm 1/2) aus der
+  `.diagram-controls-bar` direkt über dem Diagramm in einen neuen Sidebar-
+  Cluster „Diagramm" verschoben (nach „Visualisierung", vor „Legende").
+- **`bars` kein `diagram_mode`-Wert mehr:** die Pills zeigen jetzt nur noch
+  „Ein Diagramm"/„Zwei Diagramme" (Werte `1`/`2`). Das Energie-Balkendiagramm
+  ist ein neuer Eintrag „Energiebilanz (Balkendiagramm)" ganz oben im
+  Diagramm-1-Picker — nur im Einzel-Modus im Options-Set enthalten (Diagramm 2
+  und der Zwei-Diagramm-Modus zeigen es nie, da eine Balkenübersicht sich nicht
+  neben einem zweiten Liniengraphen sinnvoll platzieren läßt). Wechselt man in
+  den Zwei-Diagramm-Modus, während Diagramm 1 die Balken zeigt, springt
+  Diagramm 1 automatisch auf den ersten Linientyp (Energie-Komposit).
+- **Subjekt-1-Auswahl ausgeblendet**, solange Diagramm 1 die Energiebilanz
+  zeigt — die Balken stellen ohnehin alle Subjekte (m₁, m₂, Rolle, System)
+  gleichzeitig dar, eine Subjekt-Filterung ergibt dort keinen Sinn.
+- **Diagramm-Export (CSV):** neuer Zweig für den Fall „Diagramm 1 = Balken" —
+  exportiert alle 11 Balken-Reihen direkt aus den zugrundeliegenden
+  `*_data`-Arrays (vorher wäre der Export beim (nicht mehr existierenden)
+  `diagramMode === 'bars'`-Fall nie erreicht worden, da `graphType1` immer ein
+  gültiger Linientyp war; jetzt kann `graphType1` selbst `'bars'` sein und
+  bräuchte sonst einen Fallback über `getLineConfig`, der die falschen Daten
+  exportiert hätte).
+- **CSS:** `.diagram-controls-bar`-Regel entfernt (jetzt in der Sidebar, kein
+  eigenes Leisten-Layout mehr nötig); `.diagram-line-opts`/`#graph_sel2_group`/
+  `.diagram-opt` (2×2-Grid) bleiben und wirken jetzt im Sidebar-Kontext.
+
 ## v1.2.17 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

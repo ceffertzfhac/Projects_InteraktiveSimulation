@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Energie
-    <span class="version">v1.2.17</span>
+    <span class="version">v1.3.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -151,6 +151,34 @@ window.MathJax = {
     </div>
 
     <div class="panel-section">
+      <button class="panel-label" type="button">Diagramm<span class="accordion-chevron">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
+      <div class="diagram-line-opts">
+        <div class="diagram-opt"><span class="slider-label">Diagramm 1</span>
+          <select id="graph_select_1" class="select-field"></select></div>
+        <div class="diagram-opt"><span class="slider-label">Subjekt 1</span>
+          <select id="subject_select_1" class="select-field">
+            <option value="system" selected>System</option>
+            <option value="m1">Nur m₁</option>
+            <option value="m2">Nur m₂</option>
+          </select></div>
+        <div id="graph_sel2_group" style="display:none">
+          <div class="diagram-opt"><span class="slider-label">Diagramm 2</span>
+            <select id="graph_select_2" class="select-field"></select></div>
+          <div class="diagram-opt"><span class="slider-label">Subjekt 2</span>
+            <select id="subject_select_2" class="select-field">
+              <option value="system" selected>System</option>
+              <option value="m1">Nur m₁</option>
+              <option value="m2">Nur m₂</option>
+            </select></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
       <button class="panel-label" type="button">Legende<span class="accordion-chevron">▾</span></button>
       <div class="legend-grid">
         <div class="legend-swatch" style="background:var(--c-m1)"></div><div class="legend-label">Masse \(m_1\)</div>
@@ -240,35 +268,6 @@ window.MathJax = {
     </div>
 
     <div class="graph-wrapper">
-      <!-- Diagrammsteuerung — direkt über dem Diagramm (FAE9) -->
-      <div class="diagram-controls-bar">
-        <div class="speed-pills" id="diagram_mode_group">
-          <label class="speed-pill"><input type="radio" name="diagram_mode" value="bars" checked><span>Energie-Balken</span></label>
-          <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
-          <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
-        </div>
-        <div id="line_options_group" class="diagram-line-opts" style="display:none">
-          <div class="diagram-opt"><span class="slider-label">Diagramm 1</span>
-            <select id="graph_select_1" class="select-field"></select></div>
-          <div class="diagram-opt"><span class="slider-label">Subjekt 1</span>
-            <select id="subject_select_1" class="select-field">
-              <option value="system" selected>System</option>
-              <option value="m1">Nur m₁</option>
-              <option value="m2">Nur m₂</option>
-            </select></div>
-          <div id="graph_sel2_group">
-            <div class="diagram-opt"><span class="slider-label">Diagramm 2</span>
-              <select id="graph_select_2" class="select-field"></select></div>
-            <div class="diagram-opt"><span class="slider-label">Subjekt 2</span>
-              <select id="subject_select_2" class="select-field">
-                <option value="system" selected>System</option>
-                <option value="m1">Nur m₁</option>
-                <option value="m2">Nur m₂</option>
-              </select></div>
-          </div>
-        </div>
-      </div>
-
       <!-- Default-Anzeige: horizontales Energie-Balkendiagramm (Masse m₁ · Masse m₂ · Rolle · Gesamtsystem) -->
       <div class="energy-bars-view" id="energy_bars_view">
         <div class="ebar-title">Energiebilanz</div>

@@ -116,18 +116,14 @@ body.dark {
 .graph-wrapper { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 #graph_svg { flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; display: block; }
 
-/* ── DIAGRAMM-STEUERLEISTE (direkt über dem Diagramm, FAE9) ────────────────── */
+/* ── DIAGRAMM-STEUERUNG (Sidebar-Cluster „Diagramm", → BACKLOG I12.4) ───────── */
 /* updateGraphSelectors() setzt display:'' zum Zeigen → fällt auf diesen
-   CSS-Default zurück; daher muß display:grid sein (sonst '' → block). */
-.diagram-controls-bar {
-  flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;
-  padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--surface);
-}
-/* 2×2-Steuerheinheit: Diagramm 1 / Subjekt 1 in Zeile 1, Diagramm 2 / Subjekt 2
+   CSS-Default zurück; daher muß display:grid sein (sonst '' → block).
+   2×2-Steuerheinheit: Diagramm 1 / Subjekt 1 in Zeile 1, Diagramm 2 / Subjekt 2
    in Zeile 2 — gleiche Spaltenbreiten (1fr 1fr), selectors exakt untereinander.
    #graph_sel2_group spannt beide Spalten und ist selbst 2-spaltig, sodaß D2
    unter D1 und S2 unter S1 rücken (FAE10). */
-.diagram-line-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+.diagram-line-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 8px; }
 #graph_sel2_group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; grid-column: 1 / -1; }
 .diagram-opt { display: flex; flex-direction: column; }
 .diagram-opt .slider-label { margin-bottom: 3px; }

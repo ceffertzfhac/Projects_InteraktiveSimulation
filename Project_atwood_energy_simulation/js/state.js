@@ -15,8 +15,9 @@ export const store = {
   pulleyInnerRatio: 0.5, // η = r/R, 0.1–0.9 (Außenradius R fix)
   speedFactor: 1.0,
   layoutSplit: true,   // true = Nebeneinander, false = Übereinander
-  diagramMode: 'bars', // 'bars' = Energie-Balken (Default), '1'/'2' = Achsendiagramme
-  graphType1: 'ecomposite',
+  diagramMode: '1',    // '1'/'2' = ein/zwei Achsendiagramme (→ BACKLOG I12.8)
+  graphType1: 'bars',  // 'bars' = Energie-Balken (Default); nur im Modus '1' wählbar
+
   graphType2: 'wr',
   subject1: 'system',  // Subjekt für Diagramm 1: 'system' | 'm1' | 'm2'
   subject2: 'system',  // Subjekt für Diagramm 2 (nur Modus „Zwei Diagramme")
@@ -92,7 +93,6 @@ export function initDOM() {
   DOM.subjectSelect1 = document.getElementById('subject_select_1');
   DOM.subjectSelect2 = document.getElementById('subject_select_2');
   DOM.graphSel2Group = document.getElementById('graph_sel2_group');
-  DOM.lineOptionsGroup = document.getElementById('line_options_group');
   DOM.energyBarsView = document.getElementById('energy_bars_view');
 
   // Visualisierung
