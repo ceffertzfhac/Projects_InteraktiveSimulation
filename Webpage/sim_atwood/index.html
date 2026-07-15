@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.3.1</span>
+    <span class="version">v2.4.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -261,6 +261,14 @@ window.MathJax = {
         <circle class="graph_point_1" r="5" visibility="hidden"/>
         <circle class="graph_point_2" r="5" visibility="hidden"/>
         <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+        <line id="graph_hover_line_single" class="graph-hover-line" visibility="hidden"/>
+        <circle id="graph_hover_point_single_a" class="graph-hover-point" r="5" visibility="hidden"/>
+        <circle id="graph_hover_point_single_b" class="graph-hover-point" r="5" visibility="hidden"/>
+        <g id="graph_hover_tooltip_single" visibility="hidden">
+          <rect id="graph_hover_tooltip_bg_single" class="graph-hover-tooltip-bg"/>
+          <text id="graph_hover_tooltip_text_single" class="graph-hover-tooltip-text"></text>
+        </g>
+        <rect id="graph_hit_rect_single" class="graph-hit-rect"/>
       </svg>
       <!-- Dual graph mode: top (m1) -->
       <svg id="graph_svg_top" style="display:none"
@@ -271,6 +279,14 @@ window.MathJax = {
         <circle class="graph_point_1" r="4" visibility="hidden"/>
         <circle class="graph_point_2" r="4" visibility="hidden"/>
         <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+        <line id="graph_hover_line_top" class="graph-hover-line" visibility="hidden"/>
+        <circle id="graph_hover_point_top_a" class="graph-hover-point" r="4" visibility="hidden"/>
+        <circle id="graph_hover_point_top_b" class="graph-hover-point" r="4" visibility="hidden"/>
+        <g id="graph_hover_tooltip_top" visibility="hidden">
+          <rect id="graph_hover_tooltip_bg_top" class="graph-hover-tooltip-bg"/>
+          <text id="graph_hover_tooltip_text_top" class="graph-hover-tooltip-text"></text>
+        </g>
+        <rect id="graph_hit_rect_top" class="graph-hit-rect"/>
       </svg>
       <!-- Dual graph mode: bottom (m2) -->
       <svg id="graph_svg_bottom" style="display:none"
@@ -281,6 +297,14 @@ window.MathJax = {
         <circle class="graph_point_1" r="4" visibility="hidden"/>
         <circle class="graph_point_2" r="4" visibility="hidden"/>
         <text class="graph_title" x="240" y="10" text-anchor="middle"></text>
+        <line id="graph_hover_line_bottom" class="graph-hover-line" visibility="hidden"/>
+        <circle id="graph_hover_point_bottom_a" class="graph-hover-point" r="4" visibility="hidden"/>
+        <circle id="graph_hover_point_bottom_b" class="graph-hover-point" r="4" visibility="hidden"/>
+        <g id="graph_hover_tooltip_bottom" visibility="hidden">
+          <rect id="graph_hover_tooltip_bg_bottom" class="graph-hover-tooltip-bg"/>
+          <text id="graph_hover_tooltip_text_bottom" class="graph-hover-tooltip-text"></text>
+        </g>
+        <rect id="graph_hit_rect_bottom" class="graph-hit-rect"/>
       </svg>
     </div>
 

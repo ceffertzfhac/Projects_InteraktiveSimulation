@@ -1,5 +1,30 @@
 # Changelog – Atwood-Maschine
 
+## v2.4.0 — 2026-07-15
+
+Feature (→ BACKLOG I13.1/I14): Hover-Werte an allen drei Diagramm-SVGs
+(single/top/bottom) + synchronisierter Hover zwischen den Diagrammen im
+Zwei-Diagramm-Modus.
+
+### Hinzugefügt
+- **Hover-Cursor + Tooltip** an `graph_svg_single`/`_top`/`_bottom`:
+  gestrichelte Führungslinie, hohle Ring-Punkte (bis zu 2 — Einzel-Modus mit
+  Subjekt „beide" zeigt m₁ **und** m₂ gleichzeitig) und ein Tooltip mit
+  exakten Werten zum gehoverten Zeitpunkt, via bestehendem `interpolateAt()`.
+  Da hier — anders als bei anderen Sims — drei **separate** `<svg>`-Elemente
+  statt verschobener `<g>`-Gruppen in einer gemeinsamen SVG existieren, leben
+  Hit-Rect + Hover-Overlay als direkte Kinder jedes `<svg>` (Geschwister von
+  `.graph_grid`, nicht von dessen `innerHTML=''`-Löschung betroffen). Hit-Rect-
+  Geometrie wird bei jedem `drawSingleGraph()`-Aufruf aus denselben Lokalen wie
+  `scaleT`/`scaleY` synchronisiert; `store.graphScale['single'/'top'/'bottom']`
+  ist die einzige Quelle der Wahrheit für `updateGraphHover()`.
+- **I14: synchronisierter Dual-Hover.** Im Zwei-Diagramm-Modus teilen sich
+  Top- und Bottom-Slot stets die Zeitachse — Hover über ein Diagramm zeigt
+  automatisch denselben Zeitpunkt auch als Cursor/Punkt/Tooltip im jeweils
+  anderen Diagramm, via `store.hoverSourceSlot`/`hoverT` + `refreshHover()`.
+  Beim Wechsel Einzel- ↔ Zwei-Diagramm-Modus wird die Skala des jetzt
+  inaktiven Slots genullt und dessen Hover-Overlay versteckt.
+
 ## v2.3.1 — 2026-07-15
 
 Fix (PO-Report nach visueller Abnahme, → BACKLOG I12.10): der Sidebar-Cluster

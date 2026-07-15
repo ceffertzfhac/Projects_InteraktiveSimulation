@@ -1,7 +1,8 @@
 import { Y_MAX_CM, CM_PER_M, GRAPH_OPTIONS } from './constants.js';
 import { store, DOM, initDOM } from './state.js';
 import { precompute, interpolateAt } from './physics.js';
-import { fmt, drawRuler, drawStopwatchMarks, updateScene, updateGraphs } from './render.js';
+import { fmt, drawRuler, drawStopwatchMarks, updateScene, updateGraphs, updateGraphHover } from './render.js';
+import { attachGraphHover } from '../../shared/js/hover.js';
 
 // ── Animation control ─────────────────────────────────────────────────────────
 function stopAnimation() {
@@ -274,6 +275,15 @@ document.getElementById('reset_btn').addEventListener('click', () => {
 
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false));
 DOM.exportAll.addEventListener('click',     () => exportCSV(true));
+
+// Hover-Werte am Diagramm (I13.1) — je ein Hit-Rect pro Diagramm-Slot, da bis
+// zu 3 separate Graph-SVGs (single/top/bottom) existieren.
+;['single', 'top', 'bottom'].forEach(slot => {
+  attachGraphHover(DOM.graphHitRect[slot], {
+    onMove: x => updateGraphHover(slot, x),
+    onLeave: () => updateGraphHover(slot, null),
+  });
+});
 
 updateSpeedPills();
 resetSim();
