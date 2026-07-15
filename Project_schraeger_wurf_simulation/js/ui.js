@@ -62,6 +62,13 @@ function stopAnimation() {
   DOM.alphaSlider.disabled = false
 }
 
+// Mehrfach-Modus (Ein-/Zwei-Diagramm) aus dem kanonischen diagram_mode-speed-
+// pill (Werte 1|2) lesen (→ I12). Wert '2' = gestapelt (x/y).
+function diagramModeIsStacked() {
+  const r = Array.from(DOM.diagramModeRadios).find(x => x.checked)
+  return r ? r.value === '2' : false
+}
+
 // ── Reset (aus v47 resetScene) ───────────────────────────────────────────────
 function resetSim(isModeChange = false, isPlayTrigger = false) {
   stopAnimation()
@@ -80,7 +87,7 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
     store.alphaDeg = parseFloat(DOM.alphaSlider.value)
     const [dir, ori] = DOM.yAxisSelect.value.split('_')
     store.yAxisConfig = { direction: dir, origin: ori }
-    store.isStacked = DOM.togStacked.checked
+    store.isStacked = diagramModeIsStacked()
     DOM.h0Value.textContent = `${fmt(store.h0, 1)} m`
     DOM.v0Value.textContent = `${fmt(store.v0, 1)} m/s`
     DOM.alphaValue.textContent = `${store.alphaDeg} °`
@@ -182,8 +189,14 @@ function resetSim(isModeChange = false, isPlayTrigger = false) {
   const isTraj = ['yx', 'xy'].includes(store.graphType)
   const isYRelevant = !isTraj && (store.isStacked || ['yt', 'vyt', 'ayt'].includes(store.graphType))
   DOM.yAxisSelect.disabled = !isYRelevant
-  DOM.togStacked.disabled = isTraj
-  if (isTraj) DOM.togStacked.checked = false
+  // Bahnkurve (yx/xy) ist stets Einzeldiagramm → Zwei-Diagramm-Pill deaktiviert
+  // und auf „1 Diagramm" forciert.
+  DOM.diagramModeRadios.forEach(r => { r.disabled = isTraj })
+  if (isTraj) {
+    DOM.diagramModeRadios.forEach(r => { r.checked = (r.value === '1') })
+    store.isStacked = false
+    updateSpeedPills()
+  }
 
   precompute()
   drawFrozenTrajectory()
@@ -388,7 +401,11 @@ DOM.togVel.addEventListener('change', () => {
 DOM.togVelComp.addEventListener('change', () => resetSim(false))
 DOM.togAcc.addEventListener('change', () => resetSim(false))
 DOM.togTrajectory.addEventListener('change', () => resetSim(false))
-DOM.togStacked.addEventListener('change', () => { store.isStacked = DOM.togStacked.checked; resetSim(true) })
+DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
+  store.isStacked = diagramModeIsStacked()
+  updateSpeedPills()
+  resetSim(true)
+}))
 DOM.resetBtn.addEventListener('click', () => resetSim(false))
 DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', stopAnimation)

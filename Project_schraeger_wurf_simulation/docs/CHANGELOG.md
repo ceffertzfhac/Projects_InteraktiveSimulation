@@ -1,5 +1,28 @@
 # Changelog — Schräger Wurf
 
+## v1.4.1 — 2026-07-15
+
+I12.4 — Diagramm-Steuerung: Typ-Picker + Mehrfach-Modus in die linke Sidebar
+verschoben (kanonische „Sidebar-Schule", PO-Entscheidung 2026-07-15, →
+BACKLOG I12). Ersetzt einen unveröffentlichten Zwischenstand nach I12.3
+(Toolbar-Schule), der nie committet wurde.
+
+### Geändert (I12.4 Sidebar-Rollout)
+- **Diagramm-Typ-Picker** (`graph_select`) sitzt weiterhin im Sidebar-Cluster
+  „Diagramm" (`select-field`, dynamisch aus Single-/Stacked-Optionsset befüllt
+  wie bisher) — keine Verschiebung an den Graphen (Toolbar-Schule verworfen).
+- **Mehrfach-Modus kanonisch als `diagram_mode`-speed-pill (1|2):** der alte
+  Toggle-Switch „x/y gestapelt" (`toggle_xy_stacked`) wurde durch den
+  kanonischen I12-Kontrakt ersetzt: `<input name="diagram_mode">` · `.speed-pill`
+  · Werte `1`/`2`, beschriftet „Ein Diagramm"/„Zwei Diagramme"
+  (`updateSpeedPills()` toggelt `.active` wie bei den Zeitlupe-Pills), jetzt
+  ebenfalls im Sidebar-Cluster „Diagramm" statt als eigener Toggle im Cluster
+  „Koordinatensystem". Bei Bahnkurve (yx/xy) ist die Zwei-Diagramm-Pill
+  deaktiviert und auf „Ein Diagramm" forciert.
+- **Cluster „Koordinatensystem"** enthält jetzt nur noch die
+  Y-Achsen-Konfiguration (Label war als „Diagramm" obsolet — wie beim Freien
+  Fall).
+
 ## v1.4.0 — 2026-07-13
 
 I6 — Diagramm-Export als SVG- bzw. PNG-Datei. Ergänzt den bestehenden CSV-Export

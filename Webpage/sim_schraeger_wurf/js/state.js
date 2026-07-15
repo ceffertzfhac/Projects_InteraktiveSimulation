@@ -79,7 +79,7 @@ export function initDOM() {
   DOM.togAcc = q('toggle_acceleration_vector')
   DOM.togTrajectory = q('toggle_trajectory')
   DOM.togCompare = q('toggle_compare_traj')
-  DOM.togStacked = q('toggle_xy_stacked')
+  DOM.diagramModeRadios = document.querySelectorAll('input[name="diagram_mode"]')
   DOM.playBtn = q('play_btn')
   DOM.pauseBtn = q('pause_btn')
   DOM.resetBtn = q('reset_btn')
