@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Atwood-Maschine
-    <span class="version">v2.3.0</span>
+    <span class="version">v2.3.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -106,6 +106,28 @@ window.MathJax = {
           <span class="toggle-track"></span>
           <span class="toggle-thumb"></span>
         </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
+      </div>
+      <div id="subject_group">
+        <div class="slider-label">Anzeigen</div>
+        <select id="subject_select" class="select-field">
+          <option value="m1">Nur m₁</option>
+          <option value="m2">Nur m₂</option>
+          <option value="both">m₁ und m₂</option>
+        </select>
+      </div>
+      <div class="slider-label" id="graph_lbl1">Diagrammtyp</div>
+      <select id="graph_select_1" class="select-field"></select>
+      <div id="graph_sel2_group" style="display:none">
+        <div class="slider-label">Unten (m₂)</div>
+        <select id="graph_select_2" class="select-field"></select>
       </div>
     </div>
 
@@ -316,29 +338,6 @@ window.MathJax = {
           <div class="analysis-cell key">Differenz \(\Delta y\)</div>
           <div class="analysis-cell val" id="live_ydiff">— cm</div>
         </div>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-label">Diagramm</div>
-      <div class="slider-label">Modus</div>
-      <div class="speed-pills" id="diagram_mode_group">
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1" checked><span>Ein Diagramm</span></label>
-        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2"><span>Zwei Diagramme</span></label>
-      </div>
-      <div id="subject_group">
-        <div class="slider-label">Anzeigen</div>
-        <select id="subject_select" class="select-field">
-          <option value="m1">Nur m₁</option>
-          <option value="m2">Nur m₂</option>
-          <option value="both">m₁ und m₂</option>
-        </select>
-      </div>
-      <div class="slider-label" id="graph_lbl1">Diagrammtyp</div>
-      <select id="graph_select_1" class="select-field"></select>
-      <div id="graph_sel2_group" style="display:none">
-        <div class="slider-label">Unten (m₂)</div>
-        <select id="graph_select_2" class="select-field"></select>
       </div>
     </div>
 

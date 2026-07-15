@@ -1,5 +1,20 @@
 # Changelog – Atwood-Maschine
 
+## v2.3.1 — 2026-07-15
+
+Fix (PO-Report nach visueller Abnahme, → BACKLOG I12.10): der Sidebar-Cluster
+„Diagramm" (Mehrfach-Modus-Pills, Subjekt- und Diagrammtyp-Picker) stand
+versehentlich im **rechten** Analyse-Panel statt in der linken Steuerungs-
+Sidebar — ein Platzierungsfehler, der bei I12.7/I12.8 unbemerkt blieb (diese
+Schritte änderten nur den Mehrfach-Modus-Dialekt und die Options-Quelle,
+nicht die Platzierung; die Verifikation prüfte nur Funktion, nicht Position).
+
+### Behoben
+- **„Diagramm"-Cluster in die linke Sidebar verschoben** (nach
+  „Visualisierung", vor „Legende Kräfte"), als `panel-section.collapsible`
+  mit `<button>`+`acc-chevron` wie die übrigen linken Cluster (vorher ein
+  plain `<div class="panel-label">` im rechten Panel, ohne Akkordeon).
+
 ## v2.3.0 — 2026-07-15
 
 I12.7 + I12.8 — Diagramm-Steuerung: Optionen zentralisiert + Mehrfach-Modus-
