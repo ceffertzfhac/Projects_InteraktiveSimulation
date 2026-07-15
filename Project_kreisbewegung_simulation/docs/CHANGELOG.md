@@ -5,6 +5,49 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-07-15
+
+I12.9 — Diagramm-Steuerung: zwei unabhängige, frei kombinierbare Diagramm-
+Picker statt fester x/y-Paarung im Zwei-Diagramm-Modus (→ BACKLOG I12,
+Vorbild kreis_spiralbewegung).
+
+### Geändert (I12.9)
+- **Zwei unabhängige Picker** (`graph_select_1`/`graph_select_2`) ersetzen den
+  bisherigen Mechanismus, bei dem der Zwei-Diagramm-Toggle automatisch ein
+  festes Paar zeigte (z. B. „Ort" → oben *x*(*t*), unten *y*(*t*)). Jetzt
+  wählt man für Diagramm 1 und Diagramm 2 unabhängig **jeden** Typ aus
+  demselben Optionsset (z. B. Winkel *φ*(*t*) und Beschleunigungsbetrag
+  |*a*|(*t*)). Beide Picker sitzen im Sidebar-Cluster „Diagramm"; Diagramm 2
+  blendet sich per `#dual_graph_control` ein/aus.
+- **Toggle-Label korrigiert:** „x/y gestapelt" → „Zwei Diagramme" (war seit
+  dieser Änderung sachlich falsch, da die beiden Diagramme keine feste x/y-
+  Bedeutung mehr haben). Widget bleibt bewusst ein Toggle-Switch (kein
+  Rename auf `diagram_mode`/`speed-pill` — das ist eine separate, hier nicht
+  beauftragte Änderung, → I12.8 betraf nur atwood/atwood_energy).
+- **Bahnkurve (yx/xy) aus dem Zwei-Diagramm-Modus gefiltert:** sie hat keine
+  Zeitachse und ist daher in keinem der beiden Picker wählbar, sobald „Zwei
+  Diagramme" aktiv ist; Diagramm 2 bietet sie generell nie an.
+- **Render-Vereinfachung:** `render.js::updateGraph` ruft `drawGraphSlot`
+  jetzt für jeden Slot (Single, Top, Bottom) direkt mit dem jeweils echten,
+  unabhängigen Typ auf — `drawGraphSlot` war bereits vollständig generisch
+  (Titel/Achsenlabel/Skalierung kommen aus `graphTitles`/`graphAxisLabels`/
+  `axisLimits[type]`), sodass kein Übersetzungs- oder Mapping-Code nötig war.
+- **`constants.js`:** `stackedGraphOptions`/`stackedToTypes`/
+  `singleToStackedMap`/`stackedToSingleMap` entfernt (ersatzlos, keine feste
+  Paarung mehr); `singleGraphOptions` in `graphOptions` umbenannt (ein
+  Optionsset für beide Picker).
+- **`state.js`:** `store.graphType`/`store.stackedType` (zwei getrennte
+  Felder für Single/Stacked) → `store.graphType1`/`store.graphType2` (zwei
+  unabhängige, modusübergreifende Felder). `store.isStacked` bleibt
+  unverändert als reines Layout-Flag.
+- **CSV-Export:** der Export im Zwei-Diagramm-Modus liest jetzt
+  `graphType1`/`graphType2` statt der festen Paar-Zuordnung; Dateiname
+  `kreisbewegung_gestapelt_<typ1>_<typ2>.csv` spiegelt die frei gewählte
+  Kombination.
+- Verifiziert per Playwright-Smoke-Test (unabhängige Kombination
+  *φ*(*t*)/|*a*|(*t*), Play/Pause, Layout-Umschalter im Zwei-Diagramm-Modus,
+  Bahnkurve-Guard, CSV-Export) — keine Konsolenfehler.
+
 ## v1.1.7 — 2026-07-15
 
 I12.4 — Diagramm-Steuerung: Typ-Picker aus der `.graph-toolbar` am Diagramm in

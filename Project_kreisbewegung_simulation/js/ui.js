@@ -2,8 +2,7 @@
 
 import { store, DOM, initDOM } from './state.js'
 import {
-  singleGraphOptions, stackedGraphOptions,
-  singleToStackedMap, stackedToSingleMap,
+  graphOptions,
   ANIM_CX, ANIM_CY_STACK, ANIM_CY_SPLIT,
 } from './constants.js'
 import {
@@ -34,28 +33,38 @@ function setupTheme() {
   })
 }
 
-// ── Dropdown-Optionen aufbauen ────────────────────────────────────────────────
-function updateDropdownOptions() {
-  const options = store.isStacked ? stackedGraphOptions : singleGraphOptions
-  const sel = store.isStacked ? store.stackedType : store.graphType
-  DOM.graphSelect.innerHTML = ''
-  for (const group in options) {
-    const og = document.createElement('optgroup')
-    og.label = group
-    for (const val in options[group]) {
-      const o = document.createElement('option')
-      o.value = val
-      o.innerHTML = options[group][val]
-      og.appendChild(o)
+// ── Diagramm-Dropdowns füllen (zwei unabhängige Picker, → BACKLOG I12.9) ─────
+// Beide Picker teilen sich dasselbe Optionsset; die Bahnkurve (yx/xy) hat
+// keine Zeitachse und ist daher im Zwei-Diagramm-Modus in keinem der beiden
+// Picker wählbar (Diagramm 2 filtert sie generell, da nie sinnvoll neben
+// einem zweiten Zeit-Diagramm).
+function populateGraphSelects() {
+  const dual = store.isStacked
+  ;[[DOM.graphSelect1, true], [DOM.graphSelect2, false]].forEach(([sel, allowTraj]) => {
+    sel.innerHTML = ''
+    for (const group in graphOptions) {
+      const og = document.createElement('optgroup')
+      og.label = group
+      for (const val in graphOptions[group]) {
+        if ((!allowTraj || dual) && ['yx', 'xy'].includes(val)) continue
+        const o = document.createElement('option')
+        o.value = val
+        o.innerHTML = graphOptions[group][val]
+        og.appendChild(o)
+      }
+      if (og.children.length) sel.appendChild(og)
     }
-    DOM.graphSelect.appendChild(og)
-  }
-  DOM.graphSelect.value = sel
+  })
+  if (!Array.from(DOM.graphSelect1.options).some(o => o.value === store.graphType1)) store.graphType1 = 'yt'
+  if (!Array.from(DOM.graphSelect2.options).some(o => o.value === store.graphType2)) store.graphType2 = 'xt'
+  DOM.graphSelect1.value = store.graphType1
+  DOM.graphSelect2.value = store.graphType2
+  DOM.dualGraphControl.style.display = dual ? '' : 'none'
 }
 
 // ── Stacked-Toggle-Verfügbarkeit: bei Bahnkurven deaktiviert ─────────────────
 function updateStackedAvailability() {
-  const isTraj = ['yx', 'xy'].includes(store.graphType)
+  const isTraj = ['yx', 'xy'].includes(store.graphType1)
   if (isTraj && store.isStacked) {
     store.isStacked = false
     DOM.togStacked.checked = false
@@ -122,14 +131,9 @@ function resetSim(isPlayTrigger = false) {
   store.showTrajectory = DOM.togTrajectory.checked
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
 
-  // Stacked-Zustand aus Dropdown, falls beides konsistent (Dropdown ist
-  // dynamisch — erst aufbauen, dann aktuellen Wert zurücklesen, sonst
-  // überschreibt der leere Init-Wert die Store-Vorgabe).
   recomputeDerived()
   updateStackedAvailability()
-  updateDropdownOptions()
-  if (store.isStacked) store.stackedType = DOM.graphSelect.value
-  else store.graphType = DOM.graphSelect.value
+  populateGraphSelects()
 
   DOM.radiusValue.textContent = `${store.R.toFixed(1)} m`
   DOM.phi0Value.textContent = `${store.phi0Deg.toFixed(0)} °`
@@ -234,16 +238,15 @@ function exportAllCSV() {
 function exportDiagramCSV() {
   if (store.tData.length === 0) return
   if (store.isStacked) {
-    const [topType, bottomType] = stackedTypes(store.stackedType)
-    const topL = store.axisLimits[topType], botL = store.axisLimits[bottomType]
+    const topL = store.axisLimits[store.graphType1], botL = store.axisLimits[store.graphType2]
     const rows = [[`Zeit t (s)`, stripLabel(topL.yLabel), stripLabel(botL.yLabel)]]
     for (let i = 0; i < store.tData.length; i++) {
       rows.push([toCsv(store.tData[i]), toCsv(topL.yArr[i]), toCsv(botL.yArr[i])])
     }
-    downloadCSV(`kreisbewegung_gestapelt_${store.stackedType}.csv`, rows)
+    downloadCSV(`kreisbewegung_gestapelt_${store.graphType1}_${store.graphType2}.csv`, rows)
     return
   }
-  const type = store.graphType
+  const type = store.graphType1
   const limits = store.axisLimits[type]
   if (!limits) return
   if (limits.xIsTime) {
@@ -262,11 +265,6 @@ function exportDiagramCSV() {
   }
 }
 
-function stackedTypes(stackedType) {
-  const map = { pos: ['xt', 'yt'], vel: ['vxt', 'vyt'], acc: ['axt', 'ayt'] }
-  return map[stackedType] ?? ['xt', 'yt']
-}
-
 // ── Event-Wiring ─────────────────────────────────────────────────────────────
 function setupUI() {
   DOM.radiusSlider.addEventListener('input', () => {
@@ -283,22 +281,17 @@ function setupUI() {
   })
   DOM.speedRadios.forEach(r => r.addEventListener('change', () => { store.speedFactor = parseFloat(r.value) }))
 
-  DOM.graphSelect.addEventListener('change', () => {
-    const val = DOM.graphSelect.value
-    if (store.isStacked) store.stackedType = val
-    else store.graphType = val
+  DOM.graphSelect1.addEventListener('change', () => {
+    store.graphType1 = DOM.graphSelect1.value
+    resetSim(false)
+  })
+  DOM.graphSelect2.addEventListener('change', () => {
+    store.graphType2 = DOM.graphSelect2.value
     resetSim(false)
   })
 
   DOM.togStacked.addEventListener('change', () => {
-    const nowStacked = DOM.togStacked.checked
-    if (nowStacked) {
-      store.isStacked = true
-      store.stackedType = singleToStackedMap[store.graphType] ?? 'pos'
-    } else {
-      store.isStacked = false
-      store.graphType = stackedToSingleMap[store.stackedType] ?? 'yx'
-    }
+    store.isStacked = DOM.togStacked.checked
     resetSim(false)
   })
 

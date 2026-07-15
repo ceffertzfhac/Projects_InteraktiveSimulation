@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreisbewegung
-    <span class="version">v1.1.7</span>
+    <span class="version">v1.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -67,13 +67,20 @@ window.MathJax = {
 
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
-      <select id="graph_select" class="select-field"></select>
       <div class="vis-toggle-row">
-        <span class="vis-label">\(x\)/\(y\) gestapelt</span>
+        <span class="vis-label">Zwei Diagramme</span>
         <label class="toggle-switch">
           <input type="checkbox" id="toggle_xy_stacked">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
+      </div>
+      <div class="vis-control" style="margin-top:8px">
+        <span class="slider-label">Diagramm 1</span>
+        <select id="graph_select_1" class="select-field"></select>
+      </div>
+      <div class="vis-control" id="dual_graph_control" style="display:none">
+        <span class="slider-label">Diagramm 2</span>
+        <select id="graph_select_2" class="select-field"></select>
       </div>
     </div>
 

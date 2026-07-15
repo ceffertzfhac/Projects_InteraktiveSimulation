@@ -66,7 +66,11 @@ export const DIGIT_SEGMENTS_MAP = {
 }
 
 // ── Diagramm-Optionen (Nutzerperspektive, HTML-kodiert mit <i> für Symbole) ──
-export const singleGraphOptions = {
+// Ein Optionsset für beide Picker (Diagramm 1 + 2, → BACKLOG I12.9) — zwei
+// unabhängige, frei kombinierbare Diagramme statt fester x/y-Paarung. Die
+// Bahnkurve (yx/xy) hat keine Zeitachse und wird im Zwei-Diagramm-Modus aus
+// beiden Pickern gefiltert (ui.js::populateGraphSelects).
+export const graphOptions = {
   'Bahnkurve': {
     yx: 'Bahn <i>y</i>(<i>x</i>)',
     xy: 'Bahn <i>x</i>(<i>y</i>)',
@@ -89,31 +93,6 @@ export const singleGraphOptions = {
     phit: 'Winkel <i>φ</i>(<i>t</i>) / °',
   },
 }
-
-export const stackedGraphOptions = {
-  'Analyse': {
-    pos: 'Ort (<i>x</i>/<i>y</i>)',
-    vel: 'Geschwindigkeit (<i>v</i>ₓ/<i>v</i>ᵧ)',
-    acc: 'Beschleunigung (<i>a</i>ₓ/<i>a</i>ᵧ)',
-  },
-}
-
-// Stacked-Modus: je gewählter Größe → (top, bottom) Einzeltypen
-export const stackedToTypes = {
-  pos: ['xt', 'yt'],
-  vel: ['vxt', 'vyt'],
-  acc: ['axt', 'ayt'],
-}
-
-// Modus-Übersetzung Single↔Stacked (für Dropdown-Umschaltung)
-export const singleToStackedMap = {
-  xt: 'pos', yt: 'pos',
-  vxt: 'vel', vyt: 'vel',
-  axt: 'acc', ayt: 'acc',
-  yx: 'pos', xy: 'pos',
-  vabs: 'vel', aabs: 'acc', phit: 'pos',
-}
-export const stackedToSingleMap = { pos: 'xt', vel: 'vxt', acc: 'axt' }
 
 // Kurze Titel je Graph-Typ (TextContent, letztes Symbol kursiv via setGraphTitle)
 export const graphTitles = {

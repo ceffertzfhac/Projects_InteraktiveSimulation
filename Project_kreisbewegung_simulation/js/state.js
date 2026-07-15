@@ -9,8 +9,10 @@ export const store = {
   phi0Deg: 0,           // Anfangswinkel (°)
   omegaDeg: 60,         // Winkelgeschwindigkeit (°/s)
   speedFactor: 1.0,
-  graphType: 'yx',      // Single-Modus-Typ
-  stackedType: 'pos',   // Stacked-Modus-Gruppe
+  // Zwei unabhängige Diagramm-Picker (→ BACKLOG I12.9); graphType2 nur im
+  // Zwei-Diagramm-Modus (isStacked) relevant.
+  graphType1: 'yx',
+  graphType2: 'yt',
   isStacked: false,
   isDigitalDisplay: false,
   layoutSplit: false,   // Probe-Layout: Sim & Diagramm nebeneinander (true) statt übereinander (false)
@@ -112,7 +114,9 @@ export function initDOM() {
   DOM.graphLineBottom = q('graph_line_bottom')
   DOM.graphPointBottom = q('graph_point_bottom')
 
-  DOM.graphSelect = q('graph_select')
+  DOM.graphSelect1 = q('graph_select_1')
+  DOM.graphSelect2 = q('graph_select_2')
+  DOM.dualGraphControl = q('dual_graph_control')
 
   // Slider & Toggles
   DOM.radiusSlider = q('radius_slider')

@@ -486,8 +486,10 @@ function currentInterpForTrajectory(type) {
 }
 
 // ── Diagramm aktualisieren (Single oder Stacked) ─────────────────────────────
+// Zwei unabhängige Diagramm-Picker (→ BACKLOG I12.9): graphType1 gehört immer
+// zum Single-Slot bzw. oberen Slot, graphType2 nur zum unteren Slot im
+// Zwei-Diagramm-Modus — frei kombinierbar, keine feste x/y-Paarung mehr.
 export function updateGraph(time) {
-  const interp = currentInterpValue(store.graphType, time)
   // Graph-ViewBox layout- & modus-abhängig. SINGLE: volles Format (gestapelt
   // landscape 700×410, Split portrait 410×700). STACKED (zwei Diagramme): die
   // Diagramme liegen orthogonal zur Sim/Diagramm-Aufteilung — übereinander-Layout
@@ -499,12 +501,11 @@ export function updateGraph(time) {
     DOM.graphGroupStackedBottom.style.visibility = 'visible'
     const dg = stackedDualGeom()
     DOM.graphSvg.setAttribute('viewBox', `0 0 ${dg.vbW} ${dg.vbH}`)
-    const [topType, bottomType] = stackedTypes(store.stackedType)
-    const topVal = currentInterpValue(topType, time)
-    const botVal = currentInterpValue(bottomType, time)
-    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: topType, graphHeight: dg.slotH, currentTime: time, currentValue: topVal })
+    const topVal = currentInterpValue(store.graphType1, time)
+    const botVal = currentInterpValue(store.graphType2, time)
+    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: store.graphType1, graphHeight: dg.slotH, currentTime: time, currentValue: topVal })
     DOM.graphGroupStackedTop.setAttribute('transform', 'translate(0, 0)')
-    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: bottomType, graphHeight: dg.slotH, currentTime: time, currentValue: botVal })
+    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: store.graphType2, graphHeight: dg.slotH, currentTime: time, currentValue: botVal })
     DOM.graphGroupStackedBottom.setAttribute('transform', `translate(${dg.off2.x}, ${dg.off2.y})`)
   } else {
     DOM.graphGroupStackedTop.style.visibility = 'hidden'
@@ -512,7 +513,8 @@ export function updateGraph(time) {
     DOM.graphGroupSingle.style.visibility = 'visible'
     DOM.graphGroupSingle.setAttribute('transform', 'translate(0, 0)')
     DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
-    drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
+    const interp = currentInterpValue(store.graphType1, time)
+    drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType1, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
   }
 }
 
@@ -534,10 +536,4 @@ function currentInterpValue(type, time) {
   if (type === 'yx') return store.yData[i]
   if (type === 'xy') return store.xData[i]
   return null
-}
-
-// Stacked-Gruppe → (top, bottom) Einzeltypen
-function stackedTypes(stackedType) {
-  const map = { pos: ['xt', 'yt'], vel: ['vxt', 'vyt'], acc: ['axt', 'ayt'] }
-  return map[stackedType] ?? ['xt', 'yt']
 }
