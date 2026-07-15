@@ -12,8 +12,9 @@ import {
 import {
   setupScene, updateScene, updateGraph, updateKennwerte,
   drawStopwatchMarks, drawSubdialMarks, initDigitalDisplaySegments,
-  fmt,
+  fmt, updateGraphHover,
 } from './render.js'
+import { attachGraphHover } from '../../shared/js/hover.js'
 
 // Sim-Zentrum layout-abhängig (gestapelt CY=260, Split CY=360); cx bleibt 225.
 function animCenter() {
@@ -382,6 +383,14 @@ function init() {
   initDigitalDisplaySegments()
   setupUI()
   updateSpeedPills()
+  // Hover-Werte am Diagramm (I13.1) — je ein Hit-Rect pro Diagramm-Slot, da
+  // bis zu 3 Graph-Gruppen (single/top/bottom) in derselben #graph_svg existieren.
+  ;['single', 'top', 'bottom'].forEach(slot => {
+    attachGraphHover(DOM.graphHitRect[slot], {
+      onMove: x => updateGraphHover(slot, x),
+      onLeave: () => updateGraphHover(slot, null),
+    })
+  })
   resetSim(false)
 }
 

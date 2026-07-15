@@ -341,14 +341,14 @@ export function updateKennwerte() {
 }
 
 // ── Ein Graph-Slot zeichnen (parameterisiert für Single + beide Stacked) ─────
-// attrs: { titleEl, gridEl, lineEl, pointEl, type, graphHeight, currentTime, currentValue }
+// attrs: { slot, titleEl, gridEl, lineEl, pointEl, type, graphHeight, currentTime, currentValue }
 function drawGraphSlot(attrs) {
-  const { titleEl, gridEl, lineEl, pointEl, type, graphHeight, currentTime, currentValue } = attrs
+  const { slot, titleEl, gridEl, lineEl, pointEl, type, graphHeight, currentTime, currentValue } = attrs
   const limits = store.axisLimits[type]
   gridEl.innerHTML = ''
   lineEl.setAttribute('points', '')
   pointEl.style.visibility = 'hidden'
-  if (!limits) return
+  if (!limits) { store.graphScale[slot] = null; hideGraphHover(slot); return }
 
   const gW = graphW()
   const gH = graphHeight
@@ -434,6 +434,24 @@ function drawGraphSlot(attrs) {
   titleEl.setAttribute('y', plotT - 10)
   setGraphTitle(titleEl, graphTitles[type] ?? type)
 
+  // Hover-Werte (I13.1): nur bei Zeit-Achsen-Diagrammen — die Bahnkurve (yx/xy)
+  // hat keine Zeitachse und bräuchte eine Nearest-Point-Suche statt der
+  // einfachen Pixel→Zeit-Umkehrung (KNOWN_LIMITATIONS → I13.4). Hit-Rect-
+  // Geometrie wird aus denselben Lokalen wie scX/scY synchronisiert.
+  if (!limits.xIsTime) {
+    store.graphScale[slot] = null
+    hideGraphHover(slot)
+  } else {
+    DOM.graphHitRect[slot].setAttribute('x', plotL)
+    DOM.graphHitRect[slot].setAttribute('y', plotT)
+    DOM.graphHitRect[slot].setAttribute('width', plotW)
+    DOM.graphHitRect[slot].setAttribute('height', plotH)
+    store.graphScale[slot] = {
+      plotL, plotT, plotW, plotH, xMin, xMax, yMin, yMax, type,
+      nowT: Math.min(currentTime, xMax),
+    }
+  }
+
   // Daten-Polyline
   const xArr = limits.xArr, yArr = limits.yArr
   let pts = ''
@@ -509,9 +527,9 @@ export function updateGraph(time) {
     DOM.graphSvg.setAttribute('viewBox', `0 0 ${dg.vbW} ${dg.vbH}`)
     const topVal = currentInterpValue(store.graphType1, time)
     const botVal = currentInterpValue(store.graphType2, time)
-    drawGraphSlot({ titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: store.graphType1, graphHeight: dg.slotH, currentTime: time, currentValue: topVal })
+    drawGraphSlot({ slot: 'top', titleEl: DOM.graphTitleTop, gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, type: store.graphType1, graphHeight: dg.slotH, currentTime: time, currentValue: topVal })
     DOM.graphGroupStackedTop.setAttribute('transform', 'translate(0, 0)')
-    drawGraphSlot({ titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: store.graphType2, graphHeight: dg.slotH, currentTime: time, currentValue: botVal })
+    drawGraphSlot({ slot: 'bottom', titleEl: DOM.graphTitleBottom, gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, type: store.graphType2, graphHeight: dg.slotH, currentTime: time, currentValue: botVal })
     DOM.graphGroupStackedBottom.setAttribute('transform', `translate(${dg.off2.x}, ${dg.off2.y})`)
   } else {
     DOM.graphGroupStackedTop.style.visibility = 'hidden'
@@ -523,8 +541,12 @@ export function updateGraph(time) {
     DOM.graphGroupSingle.setAttribute('transform', 'translate(0, 0)')
     DOM.graphSvg.setAttribute('viewBox', `0 0 ${graphW()} ${graphHFull()}`)
     const interp = currentInterpValue(store.graphType1, time)
-    drawGraphSlot({ titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType1, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
+    drawGraphSlot({ slot: 'single', titleEl: DOM.graphTitle, gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, type: store.graphType1, graphHeight: graphHFull(), currentTime: time, currentValue: interp })
   }
+
+  // Hover-Werte (I13.1): time_range wächst mit der Wiedergabe — bei offenem
+  // Hover jeden Frame mit der frischen Skala neu berechnen (inkl. I14-Sync).
+  refreshHover()
 }
 
 // Wert je Typ aus precompute-Daten (interpoliert) für den Graphenpunkt
@@ -545,4 +567,124 @@ function currentInterpValue(type, time) {
   if (type === 'yx') return store.yData[i]
   if (type === 'xy') return store.xData[i]
   return null
+}
+
+// ── Hover-Werte (I13.1) + Dual-Sync (I14) ────────────────────────────────────
+function hideGraphHover(slot) {
+  DOM.hoverLine[slot].setAttribute('visibility', 'hidden')
+  DOM.hoverPoint[slot].setAttribute('visibility', 'hidden')
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'hidden')
+}
+
+function otherSlot(slot) {
+  return slot === 'top' ? 'bottom' : slot === 'bottom' ? 'top' : null
+}
+
+function drawHoverAtT(slot, t) {
+  const gs = store.graphScale[slot]
+  if (!gs) { hideGraphHover(slot); return }
+  const { plotL, plotT, plotW, plotH, xMin, xMax, yMin, yMax, type } = gs
+  const xRng = (xMax - xMin) || 1
+  const yRng = (yMax - yMin) || 1
+  const scX = v => plotL + ((v - xMin) / xRng) * plotW
+  const scY = v => plotT + plotH - ((v - yMin) / yRng) * plotH
+  const val = currentInterpValue(type, t)
+  if (val === null) { hideGraphHover(slot); return }
+  const xPix = scX(t)
+
+  DOM.hoverLine[slot].setAttribute('x1', xPix); DOM.hoverLine[slot].setAttribute('x2', xPix)
+  DOM.hoverLine[slot].setAttribute('y1', plotT); DOM.hoverLine[slot].setAttribute('y2', plotT + plotH)
+  DOM.hoverLine[slot].setAttribute('visibility', 'visible')
+
+  DOM.hoverPoint[slot].setAttribute('cx', xPix)
+  DOM.hoverPoint[slot].setAttribute('cy', scY(val))
+  DOM.hoverPoint[slot].setAttribute('visibility', 'visible')
+
+  const unit = (store.axisLimits[type]?.yLabel || '').split(' / ').pop()
+  renderHoverTooltip(slot, t, val, unit, xPix, plotL, plotW, plotT)
+}
+
+function renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT) {
+  const textEl = DOM.hoverTooltipText[slot]
+  textEl.innerHTML = ''
+  const lineH = 15
+  const rows = [
+    { text: `t = ${fmt(t, 2)} s`, italic: true },
+    { text: `${fmt(val, 3)} ${unit}` },
+  ]
+  rows.forEach((row, i) => {
+    const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
+    if (row.italic) {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tspan.appendChild(sym)
+      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+    } else {
+      tspan.textContent = row.text
+    }
+    textEl.appendChild(tspan)
+  })
+
+  const bbox = textEl.getBBox()
+  const boxW = bbox.width + 16, boxH = bbox.height + 12
+  DOM.hoverTooltipBg[slot].setAttribute('width', boxW)
+  DOM.hoverTooltipBg[slot].setAttribute('height', boxH)
+  DOM.hoverTooltipBg[slot].setAttribute('x', 0)
+  DOM.hoverTooltipBg[slot].setAttribute('y', 0)
+
+  let tx = xPix + 12
+  tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
+  DOM.hoverTooltip[slot].setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip[slot].setAttribute('visibility', 'visible')
+}
+
+// Zeichnet den Hover-Cursor im hoverSourceSlot neu (wächst mit der laufenden
+// Wiedergabe) und im Zwei-Diagramm-Modus zusätzlich im jeweils anderen Slot
+// bei derselben Zeit (I14: beide Slots teilen sich dort die Zeitachse).
+function refreshHover() {
+  const slot = store.hoverSourceSlot
+  if (!slot) return
+  const gs = store.graphScale[slot]
+  if (!gs) {
+    hideGraphHover(slot)
+    if (store.isStacked) { const o = otherSlot(slot); if (o) hideGraphHover(o) }
+    return
+  }
+  const t = Math.max(0, Math.min(store.hoverT, gs.xMax, gs.nowT))
+  store.hoverT = t
+  drawHoverAtT(slot, t)
+  if (store.isStacked) {
+    const other = otherSlot(slot)
+    if (other) {
+      const gsOther = store.graphScale[other]
+      if (gsOther) drawHoverAtT(other, Math.max(0, Math.min(t, gsOther.xMax, gsOther.nowT)))
+      else hideGraphHover(other)
+    }
+  }
+}
+
+/**
+ * Hover-Cursor + Tooltip für die aktuell gehoverte lokale x-Koordinate im
+ * angegebenen Diagramm-Slot ('single'/'top'/'bottom'). Liest store.graphScale
+ * (von drawGraphSlot() befüllt) statt eigene Skala zu berechnen. Im
+ * Zwei-Diagramm-Modus wird zusätzlich der jeweils andere Slot synchronisiert
+ * (I14), da beide dort stets dieselbe Zeitachse teilen (Bahnkurven sind im
+ * Dual-Modus generell gefiltert, s. drawGraphSlot).
+ */
+export function updateGraphHover(slot, localX) {
+  if (localX === null) {
+    if (store.hoverSourceSlot === slot) {
+      store.hoverSourceSlot = null
+      store.hoverT = null
+      hideGraphHover('single'); hideGraphHover('top'); hideGraphHover('bottom')
+    }
+    return
+  }
+  const gs = store.graphScale[slot]
+  if (!gs) { hideGraphHover(slot); return }
+  const xClamped = Math.max(gs.plotL, Math.min(gs.plotL + gs.plotW, localX))
+  const rawT = ((xClamped - gs.plotL) / gs.plotW) * gs.xMax
+  store.hoverSourceSlot = slot
+  store.hoverT = Math.max(0, Math.min(rawT, gs.xMax, gs.nowT))
+  refreshHover()
 }

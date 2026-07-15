@@ -24,7 +24,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Kreisbewegung
-    <span class="version">v1.3.2</span>
+    <span class="version">v1.4.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -246,6 +246,14 @@ window.MathJax = {
           <polyline id="graph_line" fill="none" stroke-width="2" points=""/>
           <circle id="graph_point" r="4" fill="var(--accent)" visibility="hidden"/>
           <text id="graph_title" x="350" y="18" text-anchor="middle" class="graph-title-text"></text>
+          <!-- Hover-Werte (I13.1/I14): nur bei Zeit-Achsen-Diagrammen aktiv, nicht bei der Bahnkurve -->
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
         </g>
 
         <!-- Diagramm: Stacked Top -->
@@ -254,6 +262,13 @@ window.MathJax = {
           <polyline id="graph_line_top" fill="none" stroke-width="2" points=""/>
           <circle id="graph_point_top" r="3" fill="var(--accent)" visibility="hidden"/>
           <text id="graph_title_top" x="350" y="14" text-anchor="middle" class="graph-title-text small"></text>
+          <line id="graph_hover_line_top" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_top" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_top" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_top" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_top" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_top" class="graph-hit-rect"/>
         </g>
 
         <!-- Diagramm: Stacked Bottom -->
@@ -262,6 +277,13 @@ window.MathJax = {
           <polyline id="graph_line_bottom" fill="none" stroke-width="2" points=""/>
           <circle id="graph_point_bottom" r="3" fill="var(--accent)" visibility="hidden"/>
           <text id="graph_title_bottom" x="350" y="14" text-anchor="middle" class="graph-title-text small"></text>
+          <line id="graph_hover_line_bottom" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point_bottom" class="graph-hover-point" r="6" style="stroke:var(--accent)" visibility="hidden"/>
+          <g id="graph_hover_tooltip_bottom" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_bottom" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_bottom" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_bottom" class="graph-hit-rect"/>
         </g>
       </svg>
     </div>

@@ -5,7 +5,30 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
-## v1.3.2 — 2026-07-15
+## v1.4.0 — 2026-07-15
+
+I13.1 + I14 — Hover-Werte am Diagramm + synchronisierter Hover über
+Zwei-Diagramm-Modus mit gemeinsamer Abszisse (→ BACKLOG I13/I14, Nutzer-
+Vorgabe 2026-07-15).
+
+### Hinzugefügt
+- **Mouseover über ein Diagramm** (Single, Top oder Bottom) zeigt eine
+  gestrichelte Führungslinie, einen hohlen Ring-Punkt und ein Tooltip mit
+  dem exakten Wert zum gehoverten Zeitpunkt — via bestehendem
+  `currentInterpValue(type, t)`. Die Bahnkurve (yx/xy) ist bewusst
+  ausgenommen (keine Zeitachse, `limits.xIsTime === false` — bräuchte
+  Nearest-Point-Suche statt einfacher Pixel→Zeit-Umkehrung, → I13.4).
+- **I14 — synchronisierter Dual-Hover:** im Zwei-Diagramm-Modus zeigt Hovern
+  in Diagramm 1 automatisch auch den Cursor + Tooltip in Diagramm 2 beim
+  selben Zeitpunkt (und umgekehrt) — beide Slots teilen sich dort stets die
+  Zeitachse, da die Bahnkurve im Dual-Modus ohnehin aus beiden Pickern
+  gefiltert ist. `store.hoverSourceSlot`/`store.hoverT` verfolgen nur den
+  Slot, über dem die Maus tatsächlich steht; der jeweils andere Slot wird
+  bei jeder Aktualisierung aus demselben `t` über seine eigene
+  `store.graphScale[slot]` neu projiziert.
+- `shared/js/hover.js` (`attachGraphHover`) eingebunden, je ein Hit-Rect pro
+  Slot; Hit-Rect-Geometrie wird bei jedem `drawGraphSlot()`-Aufruf aus
+  denselben Lokalen synchronisiert, die auch `scX`/`scY` bestimmen.
 
 Bug-Fix (im Zuge des gleichen Reports bei freier_fall gefunden, → BACKLOG
 I12.9): beim Zurückwechseln von „Zwei Diagramme" zu „Ein Diagramm" blieb
