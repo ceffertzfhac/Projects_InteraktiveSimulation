@@ -137,8 +137,15 @@ function updateGraphSelectors() {
   DOM.subjectSelect2.value = store.subject2;
   store.subject1 = DOM.subjectSelect1.value;
   store.subject2 = DOM.subjectSelect2.value;
-  // Subjekt-Auswahl 1 ist bei der Energiebilanz (Balken) irrelevant — dort sind
-  // alle Subjekte (m₁, m₂, Rolle, System) gleichzeitig sichtbar.
+  updateSubject1Visibility();
+}
+
+// Subjekt-Auswahl 1 ist bei der Energiebilanz (Balken) irrelevant — dort sind
+// alle Subjekte (m₁, m₂, Rolle, System) gleichzeitig sichtbar. Sonst immer
+// wählbar (Bug B: wurde nach einem Diagrammtyp-Wechsel weg von 'bars' nicht
+// mehr eingeblendet, da nur updateGraphSelectors() das setzte, aber der
+// graph_select_1-Change-Handler updateGraphSelectors() nie aufrief).
+function updateSubject1Visibility() {
   DOM.subjectSelect1.closest('.diagram-opt').style.display = store.graphType1 === 'bars' ? 'none' : '';
 }
 
@@ -342,7 +349,11 @@ DOM.togZeroLines.addEventListener('change', () => { store.showZeroLines = DOM.to
 DOM.graphModeRadios.forEach(r => r.addEventListener('change', () => {
   updateAllPills(); updateGraphSelectors(); updateGraphs(store.simulatedTime);
 }));
-DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateGraphs(store.simulatedTime); });
+DOM.graphSelect1.addEventListener('change', () => {
+  store.graphType1 = DOM.graphSelect1.value;
+  updateSubject1Visibility();
+  updateGraphs(store.simulatedTime);
+});
 DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graphSelect2.value; updateGraphs(store.simulatedTime); });
 DOM.subjectSelect1.addEventListener('change', () => { store.subject1 = DOM.subjectSelect1.value; updateGraphs(store.simulatedTime); });
 DOM.subjectSelect2.addEventListener('change', () => { store.subject2 = DOM.subjectSelect2.value; updateGraphs(store.simulatedTime); });

@@ -5,6 +5,22 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.1 — 2026-07-15
+
+Fix (PO-Report nach visueller Abnahme, → BACKLOG I12.10): Diagramm-1-
+Subjektauswahl blieb nach einem Diagrammtyp-Wechsel weg von der Energiebilanz
+(Balken) dauerhaft ausgeblendet.
+
+### Behoben
+- **`updateSubject1Visibility()` extrahiert** und zusätzlich im
+  `graph_select_1`-Change-Handler aufgerufen. Vorher setzte nur
+  `updateGraphSelectors()` (aufgerufen bei Mehrfach-Modus-Wechsel/Reset) die
+  Sichtbarkeit der Subjekt-1-Zeile; der `graph_select_1`-Change-Handler rief
+  `updateGraphSelectors()` nie auf, sondern nur `updateGraphs()` — die Zeile
+  blieb dadurch, einmal auf `display:none` gesetzt (Default `graphType1 =
+  'bars'`), für die gesamte Sitzung unsichtbar, auch nachdem man einen
+  normalen Linientyp gewählt hatte.
+
 ## v1.3.0 — 2026-07-15
 
 I12.4 + I12.8 — Diagramm-Steuerung: Steuerleiste aus dem Diagramm in die linke
