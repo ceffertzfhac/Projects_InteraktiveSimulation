@@ -11,6 +11,15 @@ Bugs, Features und Tech-Schulden werden zentral in `../../BACKLOG.md` getrackt
   Theme-Toggle + Reset (Sim-Schale analog Lorentz / 3-Massen-Umlenkrollen).
   Die Umsetzung erfolgte auf ausdrücklichen Wunsch trotzdem als **volle modulare
   Migration** (§8) statt als In-place-Werkzeug (§7).
+- **Kein Diagramm-Hover (→ BACKLOG I13.2 — Won't):** Diese Werkzeug-Sim
+  bekommt **bewusst keinen** Cursor-Hover am Diagramm (gestrichelte
+  Führungslinie + hohle Ring-Punkte + Tooltip mit exakten Werten), wie er an
+  den Zeit-Achsen-Sims dieser Repo existiert (→ `shared/js/hover.js`,
+  BACKLOG I5/I13.1). Grund: reaktives Diagramm ohne Zeitverlauf — ein
+  Hover-at-x mit adaptiertem Tooltip (f(x)/f'(x) bzw. Sekanten-Anstieg statt
+  „Wert bei t") wurde im Rahmen von I13.2 erwogen und auf ausdrückliche
+  Nutzer-Entscheidung (2026-07-15) verworfen. Dies ist eine bewusste
+  Scope-Entscheidung, keine Lücke.
 - **Fester Definitionsbereich \(x \in [0, 25]\)** mit vier fest hinterlegten
   Funktionen (Gerade, Parabel, Kubisch, Komplex). Keine freie Funktionseingabe —
   bewußt didaktisch reduziert. Der Prototyp hatte drei Funktionen; das kubische
