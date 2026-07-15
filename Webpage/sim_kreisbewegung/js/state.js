@@ -14,6 +14,10 @@ export const store = {
   graphType1: 'yx',
   graphType2: 'yt',
   isStacked: false,
+  // Merkt sich eine Bahnkurven-Auswahl (yx/xy) beim Wechsel zu "Zwei
+  // Diagramme" (dort nicht darstellbar, keine Zeitachse) — wird beim
+  // Zurückwechseln zu "Ein Diagramm" wiederhergestellt.
+  rememberedTrajType: null,
   isDigitalDisplay: false,
   layoutSplit: false,   // Probe-Layout: Sim & Diagramm nebeneinander (true) statt übereinander (false)
 

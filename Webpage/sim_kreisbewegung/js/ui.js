@@ -76,22 +76,24 @@ function updateSpeedPills() {
   })
 }
 
-// ── diagram_mode-Verfügbarkeit: bei Bahnkurven deaktiviert ───────────────────
-function updateStackedAvailability() {
-  const isTraj = ['yx', 'xy'].includes(store.graphType1)
-  if (isTraj && store.isStacked) {
-    store.isStacked = false
-    DOM.diagramModeRadios.forEach(r => { r.checked = (r.value === '1') })
-    updateSpeedPills()
+// ── Moduswechsel Ein↔Zwei Diagramme bei aktiver Bahnkurve ────────────────────
+// Die Bahnkurve (yx/xy) hat keine Zeitachse und kann daher nie in einem der
+// beiden Zwei-Diagramm-Slots stehen (populateGraphSelects filtert sie dort
+// generell). Statt den Zwei-Diagramm-Umschalter bei aktiver Bahnkurve zu
+// sperren (verwirrend — wirkt wie ein stiller Bug, Nutzer-Feedback), springt
+// Diagramm 1 beim Wechsel zu "Zwei Diagramme" automatisch auf einen
+// sinnvollen Zeit-Paar-Default (x oben, y unten) — die vorherige
+// Bahnkurven-Auswahl wird gemerkt und beim Zurückwechseln auf "Ein
+// Diagramm" wiederhergestellt.
+function handleDiagramModeSwitch(nowStacked) {
+  if (nowStacked && !store.isStacked && ['yx', 'xy'].includes(store.graphType1)) {
+    store.rememberedTrajType = store.graphType1
+    store.graphType1 = 'xt'
+    store.graphType2 = 'yt'
+  } else if (!nowStacked && store.isStacked && store.rememberedTrajType) {
+    store.graphType1 = store.rememberedTrajType
+    store.rememberedTrajType = null
   }
-  // Tooltip erklärt den Grund (sonst wirkt die deaktivierte Pille wie ein
-  // stiller Bug statt einer bewussten Einschränkung).
-  const trajHint = 'Bei der Bahnkurve y(x)/x(y) nicht verfügbar (keine Zeitachse)'
-  DOM.diagramModeRadios.forEach(r => {
-    r.disabled = isTraj
-    const label = r.closest('label')
-    if (label) label.title = isTraj ? trajHint : ''
-  })
 }
 
 // ── Live-Objekte für updateScene bauen ───────────────────────────────────────
@@ -154,7 +156,6 @@ function resetSim(isPlayTrigger = false) {
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
 
   recomputeDerived()
-  updateStackedAvailability()
   populateGraphSelects()
 
   DOM.radiusValue.textContent = `${store.R.toFixed(1)} m`
@@ -313,7 +314,9 @@ function setupUI() {
   })
 
   DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
-    store.isStacked = diagramModeIsStacked()
+    const nowStacked = diagramModeIsStacked()
+    handleDiagramModeSwitch(nowStacked)
+    store.isStacked = nowStacked
     updateSpeedPills()
     resetSim(false)
   }))

@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.1 — 2026-07-15
+
+UX-Fix (PO-Report nach visueller Abnahme): die deaktivierte „Zwei
+Diagramme"-Pille bei gewählter Bahnkurve fühlte sich trotz Tooltip (v1.3.0)
+immer noch wie eine Sackgasse an — Nutzer-Vorgabe: umschalten soll immer
+möglich sein, mit sinnvollem Automatik-Ersatz statt Sperre.
+
+### Geändert
+- **Zwei-Diagramm-Pille nie mehr deaktiviert.** Beim Wechsel zu „Zwei
+  Diagramme" während eine Bahnkurve (yx/xy) gewählt ist, springt Diagramm 1
+  automatisch auf `xt` (oben) und Diagramm 2 auf `yt` (unten) — ein
+  sinnvoller Zeit-Paar-Default, da die Bahnkurve selbst keine Zeitachse hat
+  und in keinem Zwei-Diagramm-Slot darstellbar ist. Die vorherige
+  Bahnkurven-Auswahl wird in `store.rememberedTrajType` gemerkt und beim
+  Zurückwechseln zu „Ein Diagramm" automatisch wiederhergestellt.
+- **`updateStackedAvailability()` entfernt** (disable/tooltip-Logik aus
+  v1.3.0 obsolet) zugunsten von `handleDiagramModeSwitch()`, das nur beim
+  tatsächlichen Moduswechsel-Event greift statt bei jedem Reset.
+
 ## v1.3.0 — 2026-07-15
 
 I12.8-Nachzügler (PO-Report nach visueller Abnahme, → BACKLOG I12): der
