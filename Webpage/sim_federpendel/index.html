@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Federpendel
-    <span class="version">v1.1.3</span>
+    <span class="version">v1.2.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -66,6 +66,11 @@ window.MathJax = {
         <input type="range" id="pos0_slider" min="-1.5" max="1.5" value="0.8" step="0.05">
         <span class="slider-val" id="pos0_value">0,80 m</span>
       </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select id="graph_select" class="select-field"></select>
     </div>
 
     <div class="panel-section collapsible">
@@ -184,17 +189,6 @@ window.MathJax = {
     </div>
 
     <div class="graph-wrapper">
-      <div class="graph-toolbar">
-        <select id="graph_select" class="graph-sel">
-          <option value="pos_t" selected>Auslenkung vs. Zeit</option>
-          <option value="v_t">Geschwindigkeit vs. Zeit</option>
-          <option value="a_t">Beschleunigung vs. Zeit</option>
-          <option value="ecomposite">Energie (E_kin, E_pot, E_ges)</option>
-          <option value="ekin">Kinetische Energie vs. Zeit</option>
-          <option value="epot">Potentielle Energie vs. Zeit</option>
-          <option value="eges">Gesamtenergie vs. Zeit</option>
-        </select>
-      </div>
       <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
         <defs>
           <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">

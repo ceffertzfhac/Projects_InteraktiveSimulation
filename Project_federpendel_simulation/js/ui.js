@@ -4,6 +4,7 @@ import { store, DOM, initDOM } from './state.js'
 import {
   MASS_MIN, MASS_MAX, K_MIN, K_MAX,
   INITIAL_MASS_SIZE, MIN_MASS_SIZE,
+  graphOptions,
 } from './constants.js'
 import {
   recomputeDerived, precompute, extendMotionData, recalculateAxisLimits,
@@ -13,6 +14,25 @@ import {
   setupScene, updateScene, updateGraph, updateKennwerte,
   drawStopwatchMarks, drawSubdialMarks, initDigitalDisplaySegments, fmt,
 } from './render.js'
+
+// ── Diagramm-Typ-Picker aus graphOptions befüllen (kanonisch, → BACKLOG I12
+// Sidebar-Schule; Picker sitzt in der linken Sidebar, nicht am Diagramm).
+// Optgroup-Struktur wie Zykloide: eine Gruppe je Map-Schlüssel.
+function populateGraphSelect() {
+  DOM.graphSelect.innerHTML = ''
+  for (const groupLabel in graphOptions) {
+    const group = document.createElement('optgroup')
+    group.label = groupLabel
+    for (const value in graphOptions[groupLabel]) {
+      const opt = document.createElement('option')
+      opt.value = value
+      opt.innerHTML = graphOptions[groupLabel][value]
+      group.appendChild(opt)
+    }
+    DOM.graphSelect.appendChild(group)
+  }
+  DOM.graphSelect.value = store.graphType
+}
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
 function setupTheme() {
@@ -290,6 +310,7 @@ function init() {
   drawStopwatchMarks()
   drawSubdialMarks()
   initDigitalDisplaySegments()
+  populateGraphSelect()
   setupUI()
   resetSim(false)
 }

@@ -60,11 +60,20 @@ export const DIGIT_SEGMENTS_MAP = {
 }
 
 // ── Diagramm-Optionen (Nutzerperspektive, HTML-kodiert mit <i> für Symbole) ──
+// I12.2: Energie-Linientypen (ekin/epot/eges/ecomposite) in den Picker
+// aufgenommen — sie existierten bisher nur in graphTitles/graphAxisLabels,
+// nicht im Dropdown. Schlüssel stimmen mit GRAPH_LINES in render.js überein.
 export const graphOptions = {
   'Verlauf': {
     pos_t: 'Auslenkung <i>x</i>(<i>t</i>) / m',
     v_t:   'Geschw. <i>v</i>(<i>t</i>) / (m/s)',
     a_t:   'Beschl. <i>a</i>(<i>t</i>) / (m/s²)',
+  },
+  'Energie': {
+    ekin:       'Kinetische Energie <i>E</i><sub>kin</sub>(<i>t</i>) / J',
+    epot:       'Potentielle Energie <i>E</i><sub>pot</sub>(<i>t</i>) / J',
+    eges:       'Gesamtenergie <i>E</i><sub>ges</sub>(<i>t</i>) / J',
+    ecomposite: 'Energie (<i>E</i><sub>kin</sub>, <i>E</i><sub>pot</sub>, <i>E</i><sub>ges</sub>)',
   },
 }
 

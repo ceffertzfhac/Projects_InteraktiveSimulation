@@ -5,6 +5,38 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-07-15
+
+I12.2 — Diagramm-Typ-Picker aus der `.graph-toolbar` am Diagramm in die linke
+Sidebar verschoben (kanonische „Sidebar-Schule", PO-Entscheidung 2026-07-15,
+→ BACKLOG I12). Zusätzlich die Energie-Linientypen in die `graphOptions`-Map
+aufgenommen, sodaß sie im Picker wählbar sind (sie existierten bisher nur in
+`graphTitles`/`graphAxisLabels`, nicht im Dropdown).
+
+### Geändert (I12.2 — Sidebar-Schule)
+- **Diagramm-Typ-Picker in die linke Sidebar verschoben:** der `<select>` sitzt
+  jetzt in einem `panel-section.collapsible`-Cluster „Diagramm" (Akkordeon-
+  Stil wie die übrigen Cluster) als `.select-field` (Sidebar-Standard), nicht
+  mehr als `.graph-sel` in einer `.graph-toolbar` direkt am Diagramm. Die
+  `.graph-toolbar` und der Hartcode-`<option>`-Block wurden aus `index.html`
+  entfernt; die lokale `.graph-toolbar`-Regel aus `css/styles.css` gestrichen.
+  Vorbild: Freier Fall v2.x (gleiche Umstellung).
+- **Picker aus `graphOptions` befüllt:** neue `populateGraphSelect()`-Funktion
+  in `ui.js` erzeugt die `<option>`s dynamisch aus der `graphOptions`-Map in
+  `constants.js` (optgroup-Struktur wie Zykloide: eine `<optgroup>` je
+  Map-Schlüssel). `store.graphType` wird nach dem Befüllen als aktiver Wert
+  gesetzt. Bisher waren die Optionen hartkodiert im HTML.
+
+### Hinzugefügt (Energie-Typen im Picker)
+- **Energie-Gruppe in `graphOptions`:** neue optgroup „Energie" mit den vier
+  Linientypen `ekin`/`epot`/`eges`/`ecomposite` (Kinetische / Potentielle /
+  Gesamtenergie / Energie-Composite mit allen drei Linien). Die Schlüssel
+  stimmen exakt mit den Einträgen in `GRAPH_LINES` in `render.js` überein,
+  sodaß jeder wählbare Option-Eintrag auch wirklich gerendert wird — keine
+  toten Optionen. Labels aus Nutzerperspektive, HTML-kodiert mit `<i>` für
+  Symbolschrift und `<sub>` für die Indizes (kin/pot/ges), analog der
+  bestehenden „Verlauf"-Gruppe.
+
 ## v1.1.3 — 2026-07-14
 
 I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.
