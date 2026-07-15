@@ -1,5 +1,26 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.4.1 — 2026-07-15
+
+Bug-Report: im Zwei-Diagramm-Modus (v2.4.0) keine Linie sichtbar, beim
+Zurückwechseln zu „Ein Diagramm" blieb ein schwarzer Kreis stehen.
+
+### Behoben
+- **Fehlende CSS-Regeln:** `#graph_line_top`/`#graph_line_bottom` (stroke)
+  und `#graph_point_top`/`#graph_point_bottom` (fill) hatten beim
+  I12.9-Rework keine Farbregel bekommen — Linie ohne `stroke` ist per
+  SVG-Default unsichtbar (`none`), Punkt ohne `fill` erscheint schwarz
+  (SVG-Initialwert). Analog zu schraeger_wurf ergänzt.
+- **Geisterpunkt beim Moduswechsel:** ein Punkt-Element mit eigenem
+  `visibility="visible"`-Attribut bleibt sichtbar, auch wenn die
+  Eltern-Gruppe per `style.visibility="hidden"` versteckt wird (CSS-
+  Vererbung wird von einem explizit am Kind gesetzten Wert blockiert,
+  unabhängig von der Herkunft/Priorität dieses Werts). Da `drawGraphSlot()`
+  nur für die gerade aktiven Slots aufgerufen wird, behielt der zuletzt
+  gezeichnete Punkt des jetzt inaktiven Modus seine Sichtbarkeit. Fix:
+  `updateGraphs()` versteckt beim Moduswechsel jetzt explizit die Punkte
+  der neu inaktiven Slot(s), bevor die aktiven neu gezeichnet werden.
+
 ## v2.4.0 — 2026-07-15
 
 I12.10 — Zwei-Diagramm-Modus ergänzt (PO-Report: „Freier Fall hat gar keine

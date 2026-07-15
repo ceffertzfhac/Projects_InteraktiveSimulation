@@ -69,6 +69,8 @@ body.dark {
 
 #graph_line  { stroke: var(--accent); }
 #graph_point { fill:   var(--accent); }
+#graph_line_top, #graph_line_bottom { stroke: var(--accent); }
+#graph_point_top, #graph_point_bottom { fill: var(--accent); }
 
 .sf-line  { stroke: var(--text); fill: none; }
 .sf-head  { stroke: var(--text); fill: none; }

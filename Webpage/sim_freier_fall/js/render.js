@@ -223,9 +223,18 @@ export function updateGraphs() {
   if (isStacked) DOM.graphTitle.textContent = '';
 
   if (isStacked) {
+    // Eigene visibility="visible" auf dem Punkt-Element übersteuert eine per
+    // Gruppen-style vererbte visibility:hidden (CSS-Vererbung wird von einem
+    // explizit gesetzten Wert am Kind blockiert) — sonst bleibt der zuletzt
+    // gezeichnete Punkt als "Geisterpunkt" sichtbar, wenn man später
+    // zurückwechselt (Bug-Report).
+    DOM.graphPoint.setAttribute('visibility', 'hidden');
     drawGraphSlot({ gridEl: DOM.gridGroupTop, lineEl: DOM.graphLineTop, pointEl: DOM.graphPointTop, titleEl: DOM.graphTitleTop, type: store.graphType1, graphHeight: GRAPH_H_STACKED });
     drawGraphSlot({ gridEl: DOM.gridGroupBottom, lineEl: DOM.graphLineBottom, pointEl: DOM.graphPointBottom, titleEl: DOM.graphTitleBottom, type: store.graphType2, graphHeight: GRAPH_H_STACKED });
   } else {
+    // s. o.: Geisterpunkte in den jetzt inaktiven Stacked-Slots verstecken.
+    DOM.graphPointTop.setAttribute('visibility', 'hidden');
+    DOM.graphPointBottom.setAttribute('visibility', 'hidden');
     drawGraphSlot({ gridEl: DOM.gridGroup, lineEl: DOM.graphLine, pointEl: DOM.graphPoint, titleEl: DOM.graphTitle, type: store.graphType1, graphHeight: GRAPH_H });
   }
 }
