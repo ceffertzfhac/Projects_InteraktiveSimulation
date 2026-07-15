@@ -22,7 +22,6 @@ export function initDOM() {
   DOM.gridGroup     = q('grid_group');
   DOM.graphGroup    = q('graph_group');
   DOM.mainSvg       = q('main_svg');
-  DOM.graphToolbar  = q('graph_toolbar');
   DOM.graphTitle    = q('graph_title');
   DOM.graphLine     = q('graph_line');
   DOM.graphPoint    = q('graph_point');

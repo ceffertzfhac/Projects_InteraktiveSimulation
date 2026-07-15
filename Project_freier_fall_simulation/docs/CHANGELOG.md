@@ -1,5 +1,24 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.3.0 — 2026-07-15
+
+I12 — Diagramm-Steuerung: Picker zurück in die linke Sidebar (Sidebar-Schule, PO-Entscheidung 2026-07-15). Kehrt I12.2 (v2.2.9) um.
+
+### Geändert (I12 Sidebar-Rollout)
+- **Diagramm-Typ-Picker** (`graph_select`) aus der `.graph-toolbar` am Diagramm zurück
+  in einen eigenen Sidebar-Cluster „Diagramm" verschoben (linke Leiste, nach Parameter,
+  vor Koordinatensystem) — alle Diagramm-Steuerung an einem Ort, nicht am Diagramm
+  (→ BACKLOG I12, Blueprint §3 „Diagramm-Steuerung"). Klasse von shared `.graph-sel`
+  zurück auf Sidebar-`select-field`.
+- **In-SVG-Graph-Overlay entfernt:** der Graph bleibt ein `<g id="graph_group">` in
+  `#main_svg`, aber das HTML-Overlay (Toolbar per `getScreenCTM()` + `ResizeObserver`
+  auf das Graphen-Top-Left positioniert) ist obsolet und komplett entfernt
+  (`positionGraphToolbar`, `DOM.graphToolbar`, ResizeObserver). Kein Letterboxing-Hack
+  mehr nötig — der Picker sitzt in der Sidebar.
+- **Optionen dynamisch aus `GRAPH_OPTIONS`:** neue Map in `constants.js`
+  (Weg-Zeit/Geschwindigkeit-Zeit/Beschleunigung-Zeit), Select wird in `ui.js` per
+  `populateGraphSelect()` befüllt — nicht mehr statisch im HTML (→ I12.7).
+
 ## v2.2.9 — 2026-07-14
 
 I12.2 — Diagramm-Steuerung: Diagrammtyp-Picker aus der Sidebar in eine `.graph-toolbar` direkt am Diagramm verschoben (Referenz-Prototyp).

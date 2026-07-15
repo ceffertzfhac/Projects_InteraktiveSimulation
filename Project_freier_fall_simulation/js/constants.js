@@ -14,3 +14,11 @@ export const SDIAL_CY = 150;
 export const SDIAL_R = 16;
 export const GRAPH_W = 480;
 export const GRAPH_H = 410;
+
+// Diagramm-Typ-Optionen (kanonisch, → BACKLOG I12 Sidebar-Schule). Labels aus
+// Nutzerperspektive; Schlüssel stimmen mit graphType/render.js überein.
+export const GRAPH_OPTIONS = {
+  weg:    { label: 'Weg-Zeit' },
+  geschw: { label: 'Geschwindigkeit-Zeit' },
+  beschl: { label: 'Beschleunigung-Zeit' },
+};
