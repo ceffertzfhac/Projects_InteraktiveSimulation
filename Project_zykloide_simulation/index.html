@@ -23,7 +23,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Rollender Zylinder / Zykloide
-    <span class="version">v1.2.1</span>
+    <span class="version">v1.3.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
   </div>
   <div class="topbar-right">
@@ -60,6 +60,11 @@ window.MathJax = {
         <span class="slider-val" id="velocity_value">50 cm/s</span>
       </div>
       <p class="subject-note">Annahme: Reines Abrollen ohne Schlupf. Der Radius der Punkte ist fest auf \(r = 0{,}9 \cdot R\) gesetzt.</p>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select id="graph_select" class="select-field"></select>
     </div>
 
     <div class="panel-section collapsible">
@@ -206,10 +211,7 @@ window.MathJax = {
     </div>
 
     <div class="graph-wrapper">
-      <div class="graph-toolbar">
-        <select id="graph_select" class="graph-sel"></select>
-        <div class="graph-legend" id="graph_legend"></div>
-      </div>
+      <div class="graph-legend" id="graph_legend"></div>
       <svg id="graph_svg" viewBox="0 0 700 410" preserveAspectRatio="xMidYMid meet">
         <defs>
           <marker id="arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">

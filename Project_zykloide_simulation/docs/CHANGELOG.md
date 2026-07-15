@@ -1,5 +1,26 @@
 # Changelog — Rollender Zylinder / Zykloide
 
+## v1.3.0 — 2026-07-15
+
+I12 — Diagramm-Steuerung: Typ-Picker aus der `.graph-toolbar` am Diagramm zurück
+in die linke Sidebar verschoben (Sidebar-Schule, PO-Entscheidung 2026-07-15).
+
+### Geändert (I12 Sidebar-Rollout)
+- **Diagramm-Typ-Picker** (`graph_select`) aus der `.graph-toolbar` über dem
+  Graphen in einen eigenen Sidebar-Cluster „Diagramm" verschoben (linke Leiste,
+  nach Systemparameter, vor Visualisierung) — alle Diagramm-Steuerung an einem
+  Ort in der Sidebar, nicht am Diagramm (→ BACKLOG I12, Blueprint §3
+  „Diagramm-Steuerung"). Klasse von shared `.graph-sel` zurück auf Sidebar-
+  `.select-field`. Optionen bleiben dynamisch aus der `graphOptions`-Map in
+  `constants.js` (per `setupGraphSelect` in `ui.js` befüllt, wie bisher).
+- **Legende der aktiven Subjekte** bleibt am Diagramm: die dynamische
+  `graph_legend` (Farbpunkte der aktivierten Subjekte) war bisher gemeinsam mit
+  dem Select in der `.graph-toolbar` untergebracht; sie wird nach Entfernen der
+  Toolbar zum direkten Kind des `.graph-wrapper` und übernimmt dessen absolute
+  Positionierung (`top: 8px; left: 12px`). Kein Funktionsverlust.
+- **CSS:** `.graph-toolbar`-Block entfernt; die Positionierungs-Regel auf
+  `.graph-legend` übertragen. `.select-field` (Sidebar-Standard) bleibt kanonisch.
+
 ## v1.2.1 — 2026-07-14
 
 I12.1 — Diagramm-Steuerung vereinheitlichen: lokale `.graph-sel` in shared CSS überführt.
