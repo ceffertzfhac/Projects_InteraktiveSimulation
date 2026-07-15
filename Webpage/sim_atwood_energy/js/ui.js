@@ -3,7 +3,8 @@
 import { Y_MAX_CM, CM_PER_M, PULLEY_R, PPM } from './constants.js';
 import { store, DOM, initDOM } from './state.js';
 import { precompute, interpolateAt } from './physics.js';
-import { fmt, drawRuler, drawStopwatchMarks, drawZeroLines, updateScene, updateGraphs, getLineConfig } from './render.js';
+import { fmt, drawRuler, drawStopwatchMarks, drawZeroLines, updateScene, updateGraphs, getLineConfig, updateGraphHover } from './render.js';
+import { attachGraphHover } from '../../shared/js/hover.js';
 
 // ── Animations-Steuerung ──────────────────────────────────────────────────────
 function stopAnimation() {
@@ -382,6 +383,14 @@ DOM.resetBtn.addEventListener('click', () => { store.simulatedTime = 0; resetSim
 // Export
 DOM.exportDiagram.addEventListener('click', () => exportCSV(false));
 DOM.exportAll.addEventListener('click', () => exportCSV(true));
+
+// Hover-Werte am Diagramm (I13.1) — je ein Hit-Rect pro Diagramm-Slot ('1'/'2').
+;['1', '2'].forEach(slot => {
+  attachGraphHover(DOM.graphHitRect[slot], {
+    onMove: x => updateGraphHover(slot, x),
+    onLeave: () => updateGraphHover(slot, null),
+  });
+});
 
 updateAllPills();
 resetSim();
