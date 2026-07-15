@@ -1,6 +1,6 @@
 # Projekt-Backlog: Interaktive Physik-Simulationen
 
-Stand: 2026-07-04 | Priorisierung: MoSCoW (ausstehend)
+Stand: 2026-07-15 | Priorisierung: MoSCoW (ausstehend)
 
 ---
 
