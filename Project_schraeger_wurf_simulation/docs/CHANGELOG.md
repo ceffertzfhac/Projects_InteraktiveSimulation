@@ -1,5 +1,16 @@
 # Changelog — Schräger Wurf
 
+## v1.5.1 — 2026-07-15
+
+UX-Fix (PO-Report nach visueller Abnahme, → BACKLOG I12.10): die deaktivierte
+„Zwei Diagramme"-Pille bei gewählter Bahnkurve (yx/xy) wirkte ohne Erklärung
+wie ein stiller Bug statt einer bewussten Einschränkung.
+
+### Geändert
+- **Tooltip ergänzt:** beide `diagram_mode`-Pillen bekommen bei aktiver
+  Bahnkurve ein `title`-Attribut („Bei der Bahnkurve y(x)/x(y) nicht
+  verfügbar (keine Zeitachse)"), sonst leer.
+
 ## v1.5.0 — 2026-07-15
 
 I12.9 — Diagramm-Steuerung: zwei unabhängige, frei kombinierbare Diagramm-

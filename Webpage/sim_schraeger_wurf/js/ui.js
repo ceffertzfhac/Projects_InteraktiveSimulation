@@ -204,8 +204,14 @@ function resetSim(isPlayTrigger = false) {
   const isYRelevant = !isTraj && activeTypes.some(t => ['yt', 'vyt', 'ayt'].includes(t))
   DOM.yAxisSelect.disabled = !isYRelevant
   // Bahnkurve (yx/xy) ist stets Einzeldiagramm → Zwei-Diagramm-Pill deaktiviert
-  // und auf „1 Diagramm" forciert.
-  DOM.diagramModeRadios.forEach(r => { r.disabled = isTraj })
+  // und auf „1 Diagramm" forciert. Tooltip erklärt den Grund (sonst wirkt die
+  // deaktivierte Pille wie ein stiller Bug statt einer bewussten Einschränkung).
+  const trajHint = 'Bei der Bahnkurve y(x)/x(y) nicht verfügbar (keine Zeitachse)'
+  DOM.diagramModeRadios.forEach(r => {
+    r.disabled = isTraj
+    const label = r.closest('label')
+    if (label) label.title = isTraj ? trajHint : ''
+  })
   if (isTraj) {
     DOM.diagramModeRadios.forEach(r => { r.checked = (r.value === '1') })
     store.isStacked = false
