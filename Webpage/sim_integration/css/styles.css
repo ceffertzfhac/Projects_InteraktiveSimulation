@@ -31,7 +31,11 @@ body.dark {
                background: var(--bg); display: flex; flex-direction: column; }
 .center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
 .center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
-#main_svg   { width: 100%; display: block; flex: 1 1 auto; min-height: 0; }
+/* flex-basis 0 (nicht auto): die Höhe darf NICHT vom intrinsischen Seiten-
+   verhältnis der viewBox abhängen — diese wird jetzt aus der gemessenen Zelle
+   abgeleitet (B36), und eine Rückkopplung Zelle → viewBox → Zelle könnte
+   oszillieren. Mit basis 0 ist die Höhe allein vom Grid/Flex-Layout bestimmt. */
+#main_svg   { width: 100%; display: block; flex: 1 1 0; min-height: 0; }
 .graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 #graph_svg  { width: 100%; height: 100%; display: block; }
 
@@ -65,7 +69,14 @@ body.dark {
 /* ── Hauptbild: Kurve, Grenzen, exakte Fläche ─────────────────────────────── */
 .func-line     { fill: none; stroke: var(--c-func); stroke-width: 2.6; }
 .func-line-dim { fill: none; stroke: var(--c-func); stroke-width: 1.4; opacity: .28; }
-.exact-area    { fill: var(--c-exact); fill-opacity: .06; stroke: none; }
+/* Die Schattierung liegt UNTER den Streifen. Bei .06 war sie mit beiden Summen
+   an praktisch unsichtbar (Mischfarbe verschob sich um ~8/255 — an der
+   Wahrnehmungsschwelle, der Toggle wirkte wie ein Blindschalter, B34). .13
+   verschiebt die Mischfarbe um ~17/255 — ohne Streifen klar als Fläche lesbar,
+   mit Streifen sichtbar, ohne die Untersumme ins Teal kippen zu lassen. Der
+   Preis: im Obersummen-Band trennt die Kurve zwei Farbtöne (innerhalb/außerhalb
+   der wahren Fläche) — didaktisch vertretbar, und abschaltbar. */
+.exact-area    { fill: var(--c-exact); fill-opacity: .13; stroke: none; }
 .limit-line    { stroke: var(--c-exact); stroke-width: 1.6; stroke-dasharray: 5 4; }
 /* Eigene, NICHT-stroke-tragende Textklassen (Faux-Bold-Bug vermeiden) */
 .limit-label   { fill: var(--c-exact); font-size: 14px; font-family: var(--font-ui); stroke: none; }
@@ -80,6 +91,13 @@ body.dark {
 .strip-under { fill: var(--c-under); fill-opacity: .45; stroke: var(--c-under); stroke-opacity: .7; stroke-width: .6; }
 .strip-over-outline { fill: none; stroke: var(--c-over); stroke-opacity: .8; stroke-width: .9; }
 .strip-mid   { fill: none; stroke: var(--c-mid); stroke-width: 1.1; }
+
+/* Dichte Zerlegung (B33): schmaler als STRIP_OUTLINE_MIN_PX → die Konturen
+   überdecken die Füllung und die Zeichnung wird zum Strichcode. Dann nur noch
+   Fläche; die Mittelpunkts-Rechtecke (sonst reine Konturen) werden gefüllt. */
+.strips-dense .strip-over,
+.strips-dense .strip-under { stroke: none; }
+.strips-dense .strip-mid   { fill: var(--c-mid); fill-opacity: .3; stroke: none; }
 .mid-dot     { fill: var(--c-mid); stroke: none; }
 .dx-bar      { stroke: var(--text2); stroke-width: 1.4; }
 .dx-label    { fill: var(--text2); font-size: 12px; font-family: var(--font-ui); stroke: none; }
@@ -96,6 +114,10 @@ body.dark {
 .series-dot.series-over  { fill: var(--c-over); }
 .series-dot.series-mid   { fill: var(--c-mid); }
 .series-dot.series-exact { fill: var(--c-exact); }
+
+/* Deckende Unterlage für Beschriftungen innerhalb der Plotfläche (B38) */
+.inplot-label-bg  { fill: var(--graph-bg); fill-opacity: .95; stroke: none; rx: 2; }
+.empty-note       { fill: var(--text3); font-size: 13px; font-family: var(--font-ui); stroke: none; }
 
 .exact-line       { stroke: var(--c-exact); stroke-width: 1.6; stroke-dasharray: 6 4; }
 .exact-line-label { fill: var(--c-exact); font-size: 11px; font-family: var(--font-mono); stroke: none; }

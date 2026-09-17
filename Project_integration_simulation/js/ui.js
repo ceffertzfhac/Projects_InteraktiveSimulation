@@ -5,7 +5,8 @@ import { store, DOM, initDOM } from './state.js'
 import { precompute, clampLimits, sums, cumulative, integralFunction } from './physics.js'
 import { drawBackground, updateScene, updateGraphHover } from './render.js'
 import { FUNCS, GRAPH_OPTIONS, N_SEQUENCE, STEP_DWELL, N_MIN, N_MAX, N_DEFAULT,
-         A_MIN, A_MAX, B_MIN, B_MAX, AB_STEP, A_DEFAULT, B_DEFAULT } from './constants.js'
+         N_VIEW_MIN, A_MIN, A_MAX, B_MIN, B_MAX, AB_STEP,
+         A_DEFAULT, B_DEFAULT } from './constants.js'
 import { fmt } from '../../shared/js/format.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
 
@@ -28,10 +29,12 @@ function setN(n) {
   updateScene()
 }
 
+// Kleinster Stufenindex, dessen n MINDESTENS dem aktuellen n entspricht (B42).
+// Zuvor wurde die größte Stufe ≤ n gewählt; bei einem per Slider gesetzten
+// Zwischenwert (z. B. n = 5) sprang Play dadurch erst einmal zurück auf 4.
 function syncStepIndex(n) {
-  let idx = 0
-  for (let i = 0; i < N_SEQUENCE.length; i++) if (N_SEQUENCE[i] <= n) idx = i
-  store.stepIndex = idx
+  const idx = N_SEQUENCE.findIndex(v => v >= n)
+  store.stepIndex = idx < 0 ? N_SEQUENCE.length - 1 : idx
 }
 
 function animate(ts) {
@@ -154,9 +157,12 @@ function exportDiagram() {
     download('integration_integralfunktion.csv', [head, ...rows].join('\n'))
     return
   }
+  // Denselben n-Bereich exportieren, den das Diagramm zeigt (B39): dort wächst
+  // die Abszisse erst ab N_VIEW_MIN mit, bei n = 3 standen also 8 Punkte im Bild
+  // und nur 3 Zeilen in der Datei.
   const head = 'sep=;\nn;U(n);O(n);M(n);exakt'
   const rows = []
-  for (let k = 1; k <= Math.max(n, 1); k++)
+  for (let k = 1; k <= Math.max(n, N_VIEW_MIN); k++)
     rows.push([k, U_data[k], O_data[k], M_data[k], exact].map((v, i) => i === 0 ? String(v) : fmt(v, 6)).join(';'))
   download('integration_konvergenz.csv', [head, ...rows].join('\n'))
 }

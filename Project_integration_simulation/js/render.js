@@ -1,10 +1,13 @@
 'use strict'
 
 import { X_MIN, X_MAX, FUNCS, N_LABEL_LIMIT, N_MIDDOT_LIMIT, N_VIEW_MIN,
-         MAIN_LAND_W, MAIN_LAND_H, MAIN_PORT_W, MAIN_PORT_H,
+         STRIP_OUTLINE_MIN_PX,
+         MAIN_LAND_H, MAIN_LAND_W_MIN, MAIN_LAND_W_MAX,
+         MAIN_PORT_W, MAIN_PORT_H_MIN, MAIN_PORT_H_MAX,
          MAIN_PAD_L, MAIN_PAD_R, MAIN_PAD_T, MAIN_PAD_B,
-         GRAPH_LAND_W, GRAPH_LAND_H, GRAPH_PORT_W, GRAPH_PORT_H,
-         GRAPH_PORT_SLOT_DUAL, DUAL_GAP, PAD_L, PAD_R, PAD_T, PAD_B } from './constants.js'
+         GRAPH_LAND_H, GRAPH_LAND_W_MIN, GRAPH_LAND_W_MAX,
+         GRAPH_PORT_W, GRAPH_PORT_H_MIN, GRAPH_PORT_H_MAX,
+         DUAL_GAP, PAD_L, PAD_R, PAD_T, PAD_B } from './constants.js'
 import { store, DOM } from './state.js'
 import { strips, cumulative, integralFunction, interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
@@ -22,38 +25,52 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 const decFor = s => (s >= 1 ? 0 : s >= 0.1 ? 1 : s >= 0.01 ? 2 : 3)
 const otherSlot = s => (s === 1 ? 2 : 1)
 
-// ── Zellform → Orientierung ──────────────────────────────────────────────────
+// ── Zellform → Orientierung und viewBox ──────────────────────────────────────
 // Aus der TATSÄCHLICHEN Zellform abgeleitet (nicht nur aus store.layoutSplit),
 // damit der @media-Fallback auf schmalen Viewports automatisch mitzieht.
-function isLandscape(svgEl) {
+// `cellShape()` liest den Rect EINMAL — Orientierung und Seitenverhältnis
+// müssen aus derselben Messung stammen, sonst können sie auseinanderlaufen.
+function cellShape(svgEl) {
   const r = svgEl.getBoundingClientRect()
-  if (!r.width || !r.height) return !store.layoutSplit
-  return r.width >= r.height
+  if (!r.width || !r.height) {
+    const landscape = !store.layoutSplit
+    return { landscape, aspect: landscape ? 1.9 : 0.78, measured: false }
+  }
+  return { landscape: r.width >= r.height, aspect: r.width / r.height, measured: true }
 }
 
+// Kurze Seite festhalten, lange aus dem Zellverhältnis ableiten (B36): so füllt
+// die Zeichnung die Zelle, statt per preserveAspectRatio=„meet" zu letterboxen.
 function mainGeom() {
-  return isLandscape(DOM.mainSvg)
-    ? { w: MAIN_LAND_W, h: MAIN_LAND_H }
-    : { w: MAIN_PORT_W, h: MAIN_PORT_H }
+  const c = cellShape(DOM.mainSvg)
+  if (c.landscape) {
+    const h = MAIN_LAND_H
+    return { w: Math.round(clamp(h * c.aspect, MAIN_LAND_W_MIN, MAIN_LAND_W_MAX)), h }
+  }
+  const w = MAIN_PORT_W
+  return { w, h: Math.round(clamp(w / c.aspect, MAIN_PORT_H_MIN, MAIN_PORT_H_MAX)) }
 }
 
 // Zwei-Diagramm-Anordnung ORTHOGONAL zur Sim/Diagramm-Aufteilung (CLAUDE.md):
-// breite Zelle → Slots nebeneinander, hohe Zelle → Slots übereinander.
+// breite Zelle → Slots nebeneinander, hohe Zelle → Slots übereinander. Die
+// GESAMT-viewBox folgt der Zellform (B36/B37); der Slot ist im Dual-Modus die
+// halbe lange Seite abzüglich des Zwischenraums.
 function graphGeom() {
   const dual = store.diagramMode === '2'
-  const landscape = isLandscape(DOM.graphSvg)
-  if (!dual) {
-    const w = landscape ? GRAPH_LAND_W : GRAPH_PORT_W
-    const h = landscape ? GRAPH_LAND_H : GRAPH_PORT_H
-    return { w, h, cellW: w, cellH: h, dual: false, off2: { x: 0, y: 0 } }
-  }
-  if (landscape) {
-    const cw = GRAPH_LAND_W, ch = GRAPH_LAND_H
-    return { w: cw * 2 + DUAL_GAP, h: ch, cellW: cw, cellH: ch, dual: true,
+  const c = cellShape(DOM.graphSvg)
+  if (c.landscape) {
+    const h = GRAPH_LAND_H
+    const w = Math.round(clamp(h * c.aspect, GRAPH_LAND_W_MIN, GRAPH_LAND_W_MAX))
+    if (!dual) return { w, h, cellW: w, cellH: h, dual: false, off2: { x: 0, y: 0 } }
+    const cw = Math.round((w - DUAL_GAP) / 2)
+    return { w: cw * 2 + DUAL_GAP, h, cellW: cw, cellH: h, dual: true,
              off2: { x: cw + DUAL_GAP, y: 0 } }
   }
-  const cw = GRAPH_PORT_W, ch = GRAPH_PORT_SLOT_DUAL
-  return { w: cw, h: ch * 2 + DUAL_GAP, cellW: cw, cellH: ch, dual: true,
+  const w = GRAPH_PORT_W
+  const h = Math.round(clamp(w / c.aspect, GRAPH_PORT_H_MIN, GRAPH_PORT_H_MAX))
+  if (!dual) return { w, h, cellW: w, cellH: h, dual: false, off2: { x: 0, y: 0 } }
+  const ch = Math.round((h - DUAL_GAP) / 2)
+  return { w, h: ch * 2 + DUAL_GAP, cellW: w, cellH: ch, dual: true,
            off2: { x: 0, y: ch + DUAL_GAP } }
 }
 
@@ -122,6 +139,23 @@ function drawFrame(group, c) {
   return { sx, sy, axisY, bottom }
 }
 
+// Text mit deckender Unterlage (B38): Beschriftungen, die IM Plotbereich liegen,
+// treffen sonst zwangsläufig irgendwann auf eine Kurve. Die Unterlage wird aus
+// der gemessenen Textbox gebaut, darum muß der Text zuerst im DOM hängen.
+function labelWithBg(group, attrs, content, bgCls = 'inplot-label-bg') {
+  const t = txt(attrs, content)
+  group.appendChild(t)
+  let bb
+  try { bb = t.getBBox() } catch { bb = null }
+  if (!bb || !bb.width) return t
+  const pad = 3
+  group.insertBefore(el('rect', {
+    x: bb.x - pad, y: bb.y - pad + 1,
+    width: bb.width + 2 * pad, height: bb.height + 2 * pad - 2, class: bgCls,
+  }), t)
+  return t
+}
+
 const polyPoints = (xsArr, ysArr, sx, sy, from = 0, to = -1) => {
   const end = to < 0 ? xsArr.length : to
   let p = ''
@@ -151,7 +185,12 @@ export function drawBackground() {
     xStep: tAxisStep(X_MAX - X_MIN), yStep: niceStepLE(yMax - yMin, 4),
     xLabel: 'x', yLabel: 'y', markerId: 'main-arrowhead', labelAtTip: true,
   })
-  store.mainScale = { sx, sy, plotW, plotH, yMin, yMax, w: g.w, h: g.h }
+  // pxPerUnit: Umrechnung viewBox-Einheit → echtes Bildschirmpixel. Die
+  // Dichte-Schwelle der Streifen (B33) muß in Pixeln urteilen, nicht in
+  // viewBox-Einheiten — deren Maßstab hängt von der Zellgröße ab.
+  const mr = DOM.mainSvg.getBoundingClientRect()
+  const pxPerUnit = (mr.width && mr.height) ? Math.min(mr.width / g.w, mr.height / g.h) : 1
+  store.mainScale = { sx, sy, plotW, plotH, yMin, yMax, w: g.w, h: g.h, pxPerUnit }
 
   // Exakte Fläche unter der Kurve zwischen a und b (schattiert)
   DOM.mainExact.innerHTML = ''
@@ -216,6 +255,15 @@ function drawStrips() {
     x, y: Math.min(yA, yB), width: w, height: Math.abs(yB - yA), class: cls,
   })
 
+  // Dichte Zerlegung (B33): sind die Streifen schmaler als STRIP_OUTLINE_MIN_PX,
+  // überdecken die Konturen die Füllungen und das Bild wird zum Strichcode —
+  // dann nur noch füllen. `.strips-dense` schaltet die Rechteck-Strokes per CSS
+  // ab und macht die Mittelpunkts-Rechtecke (sonst reine Konturen) zur Fläche.
+  const wPix = n > 0 ? ((S.sx(b) - S.sx(a)) / n) * (S.pxPerUnit || 1) : 0
+  const dense = wPix < STRIP_OUTLINE_MIN_PX
+  for (const g of [DOM.stripsOver, DOM.stripsUnder, DOM.stripsMid])
+    g.classList.toggle('strips-dense', dense)
+
   for (const s of st) {
     const xL = S.sx(s.xl)
     const w = Math.max(S.sx(s.xr) - xL, 0.4)
@@ -228,7 +276,8 @@ function drawStrips() {
     // würde durch die darunterliegende Obersummenfüllung verfälscht.
     if (store.showOber) {
       DOM.stripsOver.appendChild(box(xL, w, yHi, both ? yLo : y0, 'strip-over'))
-      if (both) DOM.stripsOutline.appendChild(box(xL, w, yHi, y0, 'strip-over-outline'))
+      if (both && !dense)
+        DOM.stripsOutline.appendChild(box(xL, w, yHi, y0, 'strip-over-outline'))
     }
     if (store.showUnter) DOM.stripsUnder.appendChild(box(xL, w, yLo, y0, 'strip-under'))
     if (store.showMittel) DOM.stripsMid.appendChild(box(xL, w, S.sy(s.fm), y0, 'strip-mid'))
@@ -240,7 +289,9 @@ function drawStrips() {
     for (const s of st)
       DOM.mainMarks.appendChild(el('circle', { cx: S.sx(s.xm), cy: S.sy(s.fm), r: 2.6, class: 'mid-dot' }))
 
-  if (n <= N_LABEL_LIMIT) {
+  // Der Δx-Maßstrich bemaßt die gezeichnete Zerlegung — ohne sichtbare Streifen
+  // bemaßt er nichts (B41). Nur zeigen, wenn mindestens ein Verfahren aktiv ist.
+  if (n <= N_LABEL_LIMIT && (store.showUnter || store.showOber || store.showMittel)) {
     const s0 = st[0]
     const yb = y0 - 11
     const xl = S.sx(s0.xl), xr = S.sx(s0.xr), xm = (xl + xr) / 2
@@ -249,8 +300,10 @@ function drawStrips() {
       DOM.mainMarks.appendChild(el('line', { x1: x, y1: yb - 4, x2: x, y2: yb + 4, class: 'dx-bar' }))
     DOM.mainMarks.appendChild(el('rect',
       { x: xm - 13, y: yb - 25, width: 26, height: 15, class: 'dx-label-bg' }))
+    // „Δ" ist ein Operator (aufrecht), nur das Variablensymbol x wird kursiv.
     const lbl = el('text', { x: xm, y: yb - 14, 'text-anchor': 'middle', class: 'dx-label' })
-    const sym = el('tspan', { 'font-style': 'italic' }); sym.textContent = 'Δx'
+    lbl.appendChild(document.createTextNode('Δ'))
+    const sym = el('tspan', { 'font-style': 'italic' }); sym.textContent = 'x'
     lbl.appendChild(sym)
     DOM.mainMarks.appendChild(lbl)
   }
@@ -324,7 +377,12 @@ function buildKonvergenzSlot(group, plotW, plotH) {
   let lo = exact, hi = exact
   for (const s of active)
     for (let k = 1; k <= nView; k++) { lo = Math.min(lo, s.arr[k]); hi = Math.max(hi, s.arr[k]) }
-  const span = hi - lo || Math.max(Math.abs(exact) * 0.1, 1)
+  // Ohne aktives Verfahren kollabiert der Wertebereich auf den exakten Wert; die
+  // Ordinate spreizte dann eine Handvoll Tausendstel und beschriftete Achsen,
+  // zu denen es keine Daten gibt (B35). Statt eines leeren Rahmens: sinnvoller
+  // Bereich um den Grenzwert + Hinweis, welcher Schalter fehlt.
+  const emptyState = active.length === 0
+  const span = hi - lo || Math.max(Math.abs(exact) * 0.35, 1)
   const yMin = lo - span * 0.12
   const yMax = hi + span * 0.12
 
@@ -339,8 +397,19 @@ function buildKonvergenzSlot(group, plotW, plotH) {
   // Grenzwert-Linie: der exakte Integralwert
   group.appendChild(el('line',
     { x1: sx(0), y1: sy(exact), x2: sx(nView), y2: sy(exact), class: 'exact-line' }))
-  group.appendChild(txt({ x: sx(nView) - 4, y: sy(exact) - 7, 'text-anchor': 'end',
-    class: 'exact-line-label' }, `exakt = ${fmt(exact, 4)}`))
+  // Label in die OBERE RECHTE Plotecke (B38). Zuvor saß es am rechten Ende der
+  // Grenzwertlinie — genau dort, wo O(n) in sie einläuft; am linken Ende kreuzt
+  // es die steil steigende U(n)-Kurve. Die obere rechte Ecke ist hier
+  // konstruktionsbedingt frei: O(n) fällt monoton (ihr Maximum, das yMax setzt,
+  // liegt bei n = 1 ganz links), U(n) und M(n) nähern sich von unten. Die
+  // deckende Unterlage sichert den Rest ab.
+  labelWithBg(group, { x: PAD_L + plotW - 8, y: PAD_T + 17, 'text-anchor': 'end',
+    class: 'exact-line-label' }, `exakt = ${fmt(exact, 4)}`)
+
+  if (emptyState)
+    group.appendChild(txt({ x: PAD_L + plotW / 2, y: PAD_T + plotH / 2 + 24,
+      'text-anchor': 'middle', class: 'empty-note' },
+      'Kein Verfahren eingeblendet — U(n), O(n) oder M(n) einschalten'))
 
   // Näherungsfolgen bis zur aktuellen Stufe
   for (const s of active) {
@@ -415,7 +484,9 @@ function buildIntegralSlot(group, plotW, plotH) {
       rows.push({ sym: 'U', rest: ` = ${fmt(v, 4)}`, cls: 'txt-under' })
       pts.push({ y: sy(v), cls: 'series-under' })
     }
-    rows.push({ sym: 'F', rest: `(x) = ${fmt(Fv, 4)}`, cls: 'txt-exact' })
+    // Nur „F" als Symbol — ein „(x)" im aufrechten Rest-Text hätte das
+    // Variablensymbol x aufrecht gesetzt; die Stelle x steht ohnehin in Zeile 1.
+    rows.push({ sym: 'F', rest: ` = ${fmt(Fv, 4)}`, cls: 'txt-exact' })
     pts.push({ y: sy(Fv), cls: 'series-exact' })
     if (store.showOber) {
       const v = interpolateAt(cum.xs, cum.cumO, x)
@@ -512,7 +583,7 @@ function updateReadouts() {
 
   DOM.valueBox.style.display = store.showValues ? '' : 'none'
   if (store.showValues) {
-    const parts = [`<i>n</i> = ${n}`, `<i>Δx</i> = ${fmt(dx, 4)}`]
+    const parts = [`<i>n</i> = ${n}`, `Δ<i>x</i> = ${fmt(dx, 4)}`]
     const chain = []
     if (store.showUnter) chain.push(`<span class="v-under"><i>U</i> = ${fmt(U, 4)}</span>`)
     chain.push(`<span class="v-exact">∫ = ${fmt(exact, 4)}</span>`)
@@ -526,12 +597,14 @@ function updateReadouts() {
   DOM.anDx.textContent = fmt(dx, 4)
   DOM.anU.textContent = fmt(U, 5)
   DOM.anO.textContent = fmt(O, 5)
-  DOM.anM.textContent = store.showMittel ? fmt(M, 5) : '—'
+  // Das Analyse-Panel ist eine Datenanzeige: M(n) ist immer berechnet und wird
+  // immer gezeigt — der Toggle steuert die ZEICHNUNG, nicht die Rechnung (B40).
+  DOM.anM.textContent = fmt(M, 5)
   DOM.anSpan.textContent = fmt(O - U, 5)
   DOM.anExact.textContent = fmt(exact, 5)
   DOM.anErrU.textContent = fmt(Math.abs(U - exact), 5)
   DOM.anErrO.textContent = fmt(Math.abs(O - exact), 5)
-  DOM.anErrM.textContent = store.showMittel ? fmt(Math.abs(M - exact), 5) : '—'
+  DOM.anErrM.textContent = fmt(Math.abs(M - exact), 5)
 }
 
 // ── updateScene(n): alles, was sich mit der Verfeinerungsstufe ändert ────────

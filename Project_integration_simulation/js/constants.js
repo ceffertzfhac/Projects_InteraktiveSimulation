@@ -36,6 +36,16 @@ export const STEP_DWELL = 0.75         // s je Stufe bei 1× Tempo
 export const N_LABEL_LIMIT = 16
 export const N_MIDDOT_LIMIT = 40
 
+// Ab welcher Streifenbreite (in echten Bildschirmpixeln) die Streifen-Konturen
+// entfallen (B33): ein Streifen trägt ~0,6 px Füllungs-Kontur plus 0,9 px
+// Obersummen-Kontur, also rund 1,5 px „Tinte" unabhängig von seiner Breite.
+// Bei n = 200 (Streifen ~4,4 px) sind das ein Drittel der Fläche — die Zeichnung
+// wird zum orange-blauen Strichcode und die Aussage „die Lücke O − U schließt
+// sich" ist genau im Moment des Grenzübergangs unsichtbar. Unter 7 px zeichnen
+// deshalb nur noch die Füllungen (Klasse `strips-dense`); die Konturen blenden
+// sich damit zwischen n ≈ 96 und n ≈ 128 aus.
+export const STRIP_OUTLINE_MIN_PX = 7
+
 // ── Auswählbare Funktionen ────────────────────────────────────────────────────
 // f: Funktion · F: analytische Stammfunktion (Hauptsatz: ∫ₐᵇ f = F(b) − F(a))
 // crit: Nullstellen von f' im Definitionsbereich. Damit lassen sich Infimum und
@@ -89,15 +99,28 @@ export const N_VIEW_MIN = 8
 // Format paßt sich dem Layout an (CLAUDE.md „Diagramm-Format pro Layout"):
 // übereinander-Layout → breite, flache Zelle → Landscape; nebeneinander-Layout
 // → hohe, schmale Zelle → Portrait.
-export const MAIN_LAND_W = 900, MAIN_LAND_H = 470
-export const MAIN_PORT_W = 560, MAIN_PORT_H = 720
+//
+// ADAPTIV statt fest (B36): ein starres Format letterboxt per
+// `preserveAspectRatio="meet"` in jeder Zelle, deren Seitenverhältnis nicht
+// zufällig paßt — bei 1680 px Fensterbreite ist die gestapelte Sim-Zelle
+// 1356×414 (Verhältnis 3,27), das alte 900×470 (1,92) füllte davon nur 58 % der
+// Breite. Deshalb wird die KURZE Seite festgehalten und die lange aus dem
+// tatsächlichen Zellverhältnis abgeleitet: die Zeichnung füllt die Zelle, und
+// weil der Maßstab dabei ~1:1 bleibt, behalten Schriftgrößen ihre Pixelgröße.
+// Die *_MIN/_MAX-Schranken fangen extreme Fensterformate ab.
+export const MAIN_LAND_H = 470, MAIN_LAND_W_MIN = 640, MAIN_LAND_W_MAX = 2000
+export const MAIN_PORT_W = 560, MAIN_PORT_H_MIN = 520, MAIN_PORT_H_MAX = 1400
 export const MAIN_PAD_L = 66, MAIN_PAD_R = 48, MAIN_PAD_T = 66, MAIN_PAD_B = 54
 
 // ── Geometrie: Diagramm-Slots ────────────────────────────────────────────────
 // Zwei-Diagramm-Anordnung ORTHOGONAL zur Sim/Diagramm-Aufteilung (CLAUDE.md,
 // Referenz Kreis-/Spiralbewegung): Landscape-Zelle → Slots nebeneinander,
-// Portrait-Zelle → Slots übereinander.
-export const GRAPH_LAND_W = 700, GRAPH_LAND_H = 410
-export const GRAPH_PORT_W = 470, GRAPH_PORT_H = 700, GRAPH_PORT_SLOT_DUAL = 345
+// Portrait-Zelle → Slots übereinander. Gleiche Adaptiv-Logik wie oben (B36) —
+// sie behebt zugleich die unlesbaren Diagramme auf schmalen Viewports (B37):
+// dort wurde die feste Dual-viewBox 1412×410 in eine 676×380-Zelle gequetscht
+// (Maßstab 0,48 → 5-px-Tick-Labels). Mit zellrichtiger viewBox bleibt der
+// Maßstab bei ~1 und die Beschriftung lesbar.
+export const GRAPH_LAND_H = 410, GRAPH_LAND_W_MIN = 520, GRAPH_LAND_W_MAX = 2400
+export const GRAPH_PORT_W = 470, GRAPH_PORT_H_MIN = 520, GRAPH_PORT_H_MAX = 1600
 export const DUAL_GAP = 12
 export const PAD_L = 62, PAD_R = 44, PAD_T = 48, PAD_B = 52

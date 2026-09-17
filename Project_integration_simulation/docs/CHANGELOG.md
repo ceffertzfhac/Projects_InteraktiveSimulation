@@ -1,5 +1,86 @@
 # CHANGELOG — Die Integration als Grenzwert
 
+## [1.1.0] — 2026-09-17
+
+Politur-Release nach kritischem Review (→ BACKLOG **B33**–**B43**). Die Physik
+war unverändert korrekt; behoben wurden Darstellungsfehler, von denen drei den
+didaktischen Kern trafen.
+
+### Behoben — Darstellung des Grenzübergangs
+- **Strichcode bei dichter Zerlegung (B33).** Jeder Streifen trug ~1,5 px
+  „Tinte" an Konturen (0,6 px Füllungs-Stroke + 0,9 px Obersummen-Kontur),
+  unabhängig von seiner Breite. Bei \(n = 200\) sind das ein Drittel der
+  Streifenfläche — das Bild wurde zum orange-blauen Strichcode, und die Aussage
+  „die Lücke \(O-U\) schließt sich" war ausgerechnet am Ende des
+  Verfeinerungslaufs unsichtbar. Unterhalb von `STRIP_OUTLINE_MIN_PX` = 7 **echten
+  Bildschirmpixeln** Streifenbreite zeichnen jetzt nur noch die Füllungen
+  (Klasse `strips-dense`); die Konturen blenden sich zwischen \(n \approx 96\)
+  und \(n \approx 128\) aus. Die Schwelle urteilt in Pixeln, nicht in
+  viewBox-Einheiten — dafür liefert `store.mainScale.pxPerUnit` den Maßstab.
+- **„Exakte Fläche schattieren" war ein Blindschalter (B34).** Die Schattierung
+  liegt unter den Streifen; bei `fill-opacity: .06` verschob sie die Mischfarbe
+  um ~8/255 — an der Wahrnehmungsschwelle, mit beiden Summen eingeblendet also
+  wirkungslos. Jetzt `.13` (~17/255): ohne Streifen klar als Fläche lesbar, mit
+  Streifen sichtbar, ohne die Untersumme ins Teal kippen zu lassen.
+- **Leeres Konvergenzdiagramm (B35).** Waren alle drei Verfahren ausgeblendet,
+  kollabierte der Wertebereich auf den exakten Wert, die Ordinate spreizte eine
+  Handvoll Tausendstel und beschriftete Achsen, zu denen es keine Daten gab.
+  Jetzt sinnvoller Bereich um den Grenzwert plus Hinweis, welcher Schalter fehlt.
+
+### Behoben — Flächennutzung und Lesbarkeit
+- **Letterboxing (B36).** Die festen Formate (900×470 bzw. 700×410) paßten zu
+  keiner realen Zellform: bei 1680 px Fensterbreite ist die gestapelte Sim-Zelle
+  1356×414 (Verhältnis 3,27 gegen 1,92), `preserveAspectRatio="meet"` skalierte
+  auf 58 % der Breite und ließ 563 px leer. Jetzt wird die **kurze Seite
+  festgehalten und die lange aus dem gemessenen Zellverhältnis abgeleitet**
+  (`cellShape()`); alle vier Konstellationen (gestapelt/geteilt × ein/zwei
+  Diagramme) füllen die Zelle zu 100 %. Da der Maßstab dabei nahe 1 bleibt,
+  behalten Schriftgrößen ihre Pixelgröße. `*_MIN`/`*_MAX`-Schranken fangen
+  extreme Fensterformate ab; `#main_svg` bekommt `flex-basis: 0`, damit die
+  Zellhöhe nicht vom viewBox-Seitenverhältnis abhängt (keine Rückkopplung).
+- **Unlesbare Diagramme auf schmalem Viewport (B37).** Fällt der `@media`-Zweig
+  auf gestapeltes Layout zurück, wurde die feste Dual-viewBox 1412×410 in eine
+  676×380-Zelle gequetscht (Maßstab 0,48 → **5,3 px** Tick-Labels, darunter
+  180 px toter Raum). Mit zellrichtiger viewBox liegt der Maßstab bei 0,93 und
+  die Beschriftung bei 10,2 px.
+- **`exakt = …` lag auf den Daten (B38).** Das Label saß am rechten Ende der
+  Grenzwertlinie — genau dort, wo \(O(n)\) in sie einläuft. Jetzt in der oberen
+  rechten Plotecke, die hier konstruktionsbedingt frei ist (\(O(n)\) fällt
+  monoton, ihr Maximum liegt bei \(n = 1\) ganz links), plus deckende
+  Unterlage (`labelWithBg()`, Klasse `.inplot-label-bg`).
+
+### Behoben — Daten, Panel, Kleinteile
+- **CSV-Bereich ≠ Diagrammbereich (B39).** „Diagramm (CSV)" exportierte
+  \(k = 1 \dots n\), das Konvergenzdiagramm zeigt aber \(1 \dots
+  \max(n, N_{\text{VIEW MIN}})\) — bei \(n = 3\) standen 8 Punkte im Bild und
+  3 Zeilen in der Datei. Jetzt deckungsgleich.
+- **Analyse-Panel blendete berechnete Werte aus (B40).** \(M(n)\) und
+  \(|M-I|\) zeigten „—", wenn der *Visualisierungs*-Toggle aus war. Das Panel
+  ist eine Datenanzeige — der Toggle steuert die Zeichnung, nicht die Rechnung.
+- **Δx-Maßstrich ohne Zerlegung (B41).** Er wurde auch gezeichnet, wenn kein
+  Verfahren eingeblendet war, und bemaßte dann nichts Sichtbares.
+- **Play sprang zurück (B42).** `syncStepIndex()` wählte die größte Stufe
+  \(\le n\); bei einem per Slider gesetzten Zwischenwert (z. B. \(n = 5\))
+  sprang der Lauf erst einmal auf 4 zurück. Jetzt die kleinste Stufe \(\ge n\).
+- **Typografie (B43).** \(\Delta\) ist ein Operator und steht aufrecht, nur
+  das Variablensymbol \(x\) kursiv — im Δx-Maßstrich-Label und im Werte-Overlay
+  (vorher beides kursiv). Die Tooltip-Zeile der Integralfunktion heißt jetzt
+  \(F = \dots\) statt \(F(x) = \dots\); das aufrechte „(x)" im Rest-Text
+  hätte das Variablensymbol aufrecht gesetzt, und die Stelle \(x\) steht
+  ohnehin in der ersten Tooltip-Zeile.
+
+### Verifikation
+- Vitest unverändert 28/28 grün (Physik nicht berührt).
+- Playwright-Regression (headless Chromium): 23 gezielte Prüfungen zu den
+  Einzelbefunden, dazu Verfeinerungslauf bis \(n = 200\), alle vier Funktionen,
+  Grenzen-Guard, Hover in beiden Slots, Dark Mode, CSV-Download — ohne
+  Konsolen-/Seitenfehler.
+- **Oszillations-Check** zur adaptiven Geometrie: fünf Viewport-Größen
+  (1024…1680 px) und achtmaliges Layout-Toggeln liefern stabile, driftfreie
+  viewBoxen — die Rückkopplung Zelle → viewBox → Zelle schwingt nicht.
+- Fuzz über alle Controls (80 Runden): kein `NaN`/`Infinity` in SVG-Attributen
+  oder Panel-Werten.
+
 ## [1.0.0] — 2026-09-17
 
 Neue Simulation (→ BACKLOG **N8**). Schwester-Simulation zu „Die Ableitung als

@@ -54,7 +54,36 @@ Bugs, Features und Tech-Schulden werden zentral in `../../BACKLOG.md` getrackt
 
 - **\(\Delta x\)-Maßstrich und Mittelpunkt-Marker nur bis \(n = 16\) bzw.
   \(n = 40\).** Darüber liefen die Beschriftungen ineinander; die Zahlen stehen
-  weiterhin im Werte-Overlay und im Analyse-Panel.
+  weiterhin im Werte-Overlay und im Analyse-Panel. Seit v1.1.0 erscheint der
+  Maßstrich zusätzlich nur, wenn überhaupt ein Verfahren eingeblendet ist
+  (→ `BACKLOG.md` B41) — sonst bemaßte er eine nicht gezeichnete Zerlegung.
+
+- **Streifen-Konturen entfallen bei dichter Zerlegung** (ab v1.1.0, →
+  `BACKLOG.md` B33). Unterhalb von 7 echten Bildschirmpixeln Streifenbreite
+  (etwa \(n \gtrsim 128\) bei den Standardgrenzen) zeichnen nur noch die
+  Füllungen. Die Konturen tragen eine von der Streifenbreite **unabhängige**
+  Strichstärke und würden die Fläche sonst überdecken — das Bild wurde zum
+  Strichcode, gerade dort, wo der Grenzübergang sichtbar werden soll. Folge: bei
+  sehr feiner Zerlegung sind die einzelnen Streifen nicht mehr abzählbar. Das
+  ist beabsichtigt — ab dieser Feinheit ist die *Fläche* die Aussage, nicht der
+  einzelne Streifen; \(n\) und \(\Delta x\) stehen weiter im Werte-Overlay.
+
+- **Die exakte Fläche färbt die Streifen leicht ein** (ab v1.1.0, →
+  `BACKLOG.md` B34). Die Schattierung liegt unter den Streifen und muß kräftig
+  genug sein, um durch sie hindurch sichtbar zu bleiben (vorher war der Toggle
+  mit beiden Summen ein Blindschalter). Sichtbarer Nebeneffekt: im
+  Obersummen-Band trennt die Kurve zwei Farbtöne — innerhalb und außerhalb der
+  wahren Fläche. Bewußt in Kauf genommen (die Unterscheidung ist didaktisch
+  korrekt und eher hilfreich); wer das reine Einschachtelungsband sehen will,
+  schaltet „Exakte Fläche schattieren" ab.
+
+- **Diagrammformate folgen der Zellform statt festen Maßen** (ab v1.1.0, →
+  `BACKLOG.md` B36/B37). Die viewBox wird aus dem gemessenen Seitenverhältnis
+  der Zelle abgeleitet, damit die Zeichnung sie füllt. Folge: die Plotbreite ist
+  fenstergrößenabhängig, und die \(*\_MIN\)/\(*\_MAX\)-Schranken in
+  `constants.js` greifen bei extremen Fensterformaten (dann wird wieder
+  letterboxt — bewußt, statt unbrauchbar verzerrte Seitenverhältnisse
+  zuzulassen).
 
 - **Streifenzahl gedeckelt auf \(n = 200\).** `precompute()` berechnet die
   Näherungsfolge für alle \(n\) von 1 bis 200 (≈ 20 000 Teilintervalle) — das
