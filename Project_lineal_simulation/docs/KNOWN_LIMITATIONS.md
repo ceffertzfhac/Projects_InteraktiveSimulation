@@ -35,3 +35,17 @@ verlinkt auf den zugehörigen `BACKLOG.md`-Eintrag (→ <ID>).
 - **Loop-Sprung bei extremer Divergenz:** das Wiedergabefenster ist *N*·*T*;
   wird es an `T_WINDOW_MAX` geplafondet (sehr kleines *s*), schließt es nicht
   mehr mit einer ganzzahligen Periodenanzahl ab → minimaler Sprung am Loop.
+
+## Veröffentlichungsstand
+
+- **Nicht auf der öffentlichen Pages-/ILIAS-Site (PO-Entscheidung 2026-09-17,
+  → `BACKLOG.md` I15).** Die Sim ist in `scripts/sync-webpage.sh` und
+  `scripts/check-webpage-drift.sh` unter `NICHT_OEFFENTLICH` geführt: sie wird
+  **nicht** nach `Webpage/sim_lineal/` gespiegelt und ist in
+  `Webpage/index.html` nicht verlinkt. Der Drift-Check wirkt als Guard und
+  bricht den Deploy ab, falls sie doch im Bundle auftaucht. Auf der internen
+  Übersicht `AllAnimations/index.html` bleibt sie erreichbar.
+- **Das ändert nichts an der Sichtbarkeit des Quellcodes.** Das Repository ist
+  öffentlich; `Project_lineal_simulation/` ist damit auf GitHub lesbar. Soll
+  auch das nicht sein, muß das Repo auf privat gestellt oder die Sim aus dem
+  veröffentlichten Branch entfernt werden — beides eine PO-Entscheidung.
