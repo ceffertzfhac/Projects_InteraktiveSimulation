@@ -18,7 +18,7 @@ cd "$(dirname "$0")/.."
 
 SIMS=(
   3massen_umlenkrollen ableitung atwood atwood_energy federpendel freier_fall
-  geschwindigkeit grundbegriffe_kinematik kreis_spiralbewegung kreisbewegung
+  geschwindigkeit grundbegriffe_kinematik integration kreis_spiralbewegung kreisbewegung
   lineal lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
 

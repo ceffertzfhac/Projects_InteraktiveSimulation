@@ -1,0 +1,147 @@
+/*
+ * Die Integration als Grenzwert — simspezifische Ergänzungen.
+ * Tokens & Layout aus shared/css/design-system.css (vorher eingebunden).
+ * Kategorialfarben colorblind-safe (Okabe-Ito), analog zur Schwester-Sim
+ * „Die Ableitung als Grenzwert".
+ */
+
+:root {
+  --graph-bg:  #ffffff;
+  --grid-line: #e8eaf0;
+  --c-func:  #2b3242;   /* Funktionskurve f(x)   – dunkles Graublau */
+  --c-under: #0072b2;   /* Untersumme U(n)       – Blau   */
+  --c-over:  #e69f00;   /* Obersumme O(n)        – Orange */
+  --c-mid:   #cc79a7;   /* Mittelpunktsumme M(n) – Mauve  */
+  --c-exact: #00b1ac;   /* exakter Wert / Fläche – FH-Mint */
+}
+body.dark {
+  --graph-bg:  #161925;
+  --grid-line: #262c42;
+  --c-func:  #dfe4f0;
+  --c-under: #56b4e9;
+  --c-over:  #f0b23e;
+  --c-mid:   #e078c3;
+  --c-exact: #00cec9;
+}
+
+/* ── CENTER-LAYOUT: Darstellung + Diagramme (übereinander / nebeneinander) ─── */
+.center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background .3s; }
+.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden;
+               background: var(--bg); display: flex; flex-direction: column; }
+.center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
+.center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
+#main_svg   { width: 100%; display: block; flex: 1 1 auto; min-height: 0; }
+.graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
+#graph_svg  { width: 100%; height: 100%; display: block; }
+
+/* Schmale Viewports: immer übereinander (sonst wird es zu eng) */
+@media (max-width: 1100px) {
+  .center-area, .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
+  .center-area.layout-split .graph-wrapper { padding-top: 4px; padding-left: 0; }
+}
+
+.topbar-left { gap: 8px; }
+.layout-toggle-btn { padding: 4px 10px; font-size: .72rem; }
+
+/* ── Achsenkreuz (Hauptbild + Diagramm-Slots teilen dieselben Klassen) ─────── */
+.graph-bg   { fill: var(--graph-bg); }
+.grid-line  { stroke: var(--grid-line); stroke-width: 1; }
+.axis-line  { stroke: var(--text); stroke-width: 2; }
+.axis-label { fill: var(--text);  font-size: 15px; font-family: var(--font-ui); stroke: none; }
+.tick-label { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); stroke: none; }
+.graph-title-text { fill: var(--text); font-size: 15px; font-weight: 600; font-family: var(--font-ui); stroke: none; }
+
+#main-arrowhead  polygon { fill: var(--text); }
+#graph-arrowhead polygon { fill: var(--text); }
+
+/* MathJax-Funktionstitel im foreignObject über dem Hauptbild */
+.graph-title-html {
+  font-family: var(--font-ui); color: var(--text);
+  font-size: 15px; text-align: center; line-height: 1.2;
+}
+
+/* ── Hauptbild: Kurve, Grenzen, exakte Fläche ─────────────────────────────── */
+.func-line     { fill: none; stroke: var(--c-func); stroke-width: 2.6; }
+.func-line-dim { fill: none; stroke: var(--c-func); stroke-width: 1.4; opacity: .28; }
+.exact-area    { fill: var(--c-exact); fill-opacity: .06; stroke: none; }
+.limit-line    { stroke: var(--c-exact); stroke-width: 1.6; stroke-dasharray: 5 4; }
+/* Eigene, NICHT-stroke-tragende Textklassen (Faux-Bold-Bug vermeiden) */
+.limit-label   { fill: var(--c-exact); font-size: 14px; font-family: var(--font-ui); stroke: none; }
+
+/* ── Hauptbild: Streifen der Zerlegung ────────────────────────────────────── */
+/* Sind beide Summen sichtbar, füllt die Obersumme nur das Band zwischen
+   Infimum und Supremum — das ist genau die Einschachtelungsdifferenz
+   O(n) − U(n); das volle Obersummen-Rechteck bis zur Achse zeigt die Kontur.
+   So überlagern sich keine zwei halbtransparenten Füllungen (die Untersumme
+   erschiene sonst teal statt blau). */
+.strip-over  { fill: var(--c-over);  fill-opacity: .34; stroke: var(--c-over);  stroke-opacity: .7; stroke-width: .6; }
+.strip-under { fill: var(--c-under); fill-opacity: .45; stroke: var(--c-under); stroke-opacity: .7; stroke-width: .6; }
+.strip-over-outline { fill: none; stroke: var(--c-over); stroke-opacity: .8; stroke-width: .9; }
+.strip-mid   { fill: none; stroke: var(--c-mid); stroke-width: 1.1; }
+.mid-dot     { fill: var(--c-mid); stroke: none; }
+.dx-bar      { stroke: var(--text2); stroke-width: 1.4; }
+.dx-label    { fill: var(--text2); font-size: 12px; font-family: var(--font-ui); stroke: none; }
+
+/* ── Diagramm-Slots: Näherungsfolgen & Integralfunktion ───────────────────── */
+.series-line  { fill: none; stroke-width: 2.2; }
+.cum-line     { stroke-width: 1.8; stroke-dasharray: 5 3; }
+.series-dot   { stroke: none; }
+.series-under { stroke: var(--c-under); }
+.series-over  { stroke: var(--c-over); }
+.series-mid   { stroke: var(--c-mid); }
+.series-exact { stroke: var(--c-exact); stroke-width: 2.6; }
+.series-dot.series-under { fill: var(--c-under); }
+.series-dot.series-over  { fill: var(--c-over); }
+.series-dot.series-mid   { fill: var(--c-mid); }
+.series-dot.series-exact { fill: var(--c-exact); }
+
+.exact-line       { stroke: var(--c-exact); stroke-width: 1.6; stroke-dasharray: 6 4; }
+.exact-line-label { fill: var(--c-exact); font-size: 11px; font-family: var(--font-mono); stroke: none; }
+
+/* Tooltip-Zeilen: reine Füllfarben, ausdrücklich stroke:none */
+.txt-under { fill: var(--c-under); stroke: none; }
+.txt-over  { fill: var(--c-over);  stroke: none; }
+.txt-mid   { fill: var(--c-mid);   stroke: none; }
+.txt-exact { fill: var(--c-exact); stroke: none; }
+
+/* ── Werte-Overlay unten links im Hauptbild ───────────────────────────────── */
+.value-box {
+  flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px 22px;
+  justify-content: center; align-items: baseline;
+  padding: 6px 12px; border-top: 1px solid var(--border);
+  background: var(--surface); line-height: 1.5;
+  font-family: var(--font-mono); font-size: .78rem; color: var(--text2);
+  pointer-events: none;
+}
+.value-box .v-under { color: var(--c-under); }
+.value-box .v-over  { color: var(--c-over); }
+.value-box .v-mid   { color: var(--c-mid); }
+.value-box .v-exact { color: var(--c-exact); font-weight: 600; }
+
+/* ── Sidebar-Kleinteile ───────────────────────────────────────────────────── */
+.note { font-size: .69rem; color: var(--text3); margin-top: 8px; line-height: 1.55; }
+.limit-note { font-size: .69rem; color: var(--text3); margin-top: 8px; line-height: 1.55; }
+#dual_graph_control { display: block; }
+
+/* ── Akkordeon-Steuerungs-Sidebar links (per-Sim, Blueprint §3 / I8) ───────── */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron { flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1; transition: transform .2s ease; }
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+/* !important: schlägt JS-gesetzte display:block-Kinder im eingeklappten Zustand */
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
+
+/* Δx-Maßstrich liegt über den Streifen → schmale Unterlage für das Label */
+.dx-label-bg { fill: var(--graph-bg); fill-opacity: .92; stroke: none; rx: 2; }
