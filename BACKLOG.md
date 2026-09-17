@@ -19,7 +19,7 @@ Werkzeug-Schale · `R#` Rollout.
 
 **Sim-Feature-Präfixe:** `FL` Lorentzkraft · `FR` Rollende Körper · `FA` Atwood · `FAE` Atwood-Energie
 · `FF` Freier Fall · `FP` Federpendel · `F3` 3-Massen-Umlenkrollen · `FK`
-Kreisbewegung · `FX` Kreis-/Spiralbewegung · `FW` Schräger Wurf · `FZ` Zykloide.
+Kreisbewegung · `FX` Kreis-/Spiralbewegung · `FW` Schräger Wurf · `FZ` Zykloide · `FLI` Lineal.
 
 **Status-Marker:** `✅` erledigt (Originaltext in `~~Durchstreich~~` erhalten);
 sonst *offen*. **Prio-Spalte** (MoSCoW): Must / Should / Could / Won't.
@@ -102,6 +102,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 
 | ID | Projekt | Prio | Titel | Beschreibung |
 |----|---------|------|-------|--------------|
+| FLI1 | Lineal | Could | Vorschaubild für Übersichtskarte | `AllAnimations`-Karte nutzt derzeit den CSS-Placeholder (kein `Vorschaubilder/lineal.png` vorhanden). Bild bei Lieferung durch den Product Owner einsetzen (`AllAnimations/Vorschaubilder/lineal.png`) — kein Emoji-Platzhalter (CLAUDE.md). → `docs/KNOWN_LIMITATIONS.md`. |
 | FL1 | Lorentzkraft | Should | Dynamische Einschwingung | Gedämpfte Schwingung beim Ein-/Ausschalten des Stroms (DGL 2. Ordnung lösen). Aktuell springt der Leiter sofort ins Gleichgewicht. Didaktisch der wichtigste fehlende Aspekt. |
 | FL2 | Lorentzkraft | Should | Magnetfeld-Visualisierung | B-Feld-Linien/-vektoren zwischen den Leitern, physikalisch korrekt am Ort des betroffenen Leiters (war früher implementiert, dann entfernt). |
 | FL3 | Lorentzkraft | Could | Kraft-Abstands-Diagramm | Interaktives Diagramm: F_L(d) und F_s(d) gemeinsam; Schnittpunkte markieren die Gleichgewichtslagen (stabil/instabil). |
@@ -198,6 +199,7 @@ Repo-weite Querschnitts-Features (Hover, PNG/SVG-Export, Energie-Diagramm) →
 | N4 | Elektrisches Feld / Kondensator | 2.x | Feldlinien, Äquipotentiallinien, Plattenkondensator. Kapitel Elektrostatik fehlt komplett. |
 | N5 | Magnetfeld eines geraden Leiters | 2.x | Biot-Savart-Visualisierung — sinnvoller Vorläufer zur Lorentzkraft-Simulation. |
 | N6 | Gedämpfte / erzwungene Schwingung | 1.x | Erweiterung der Federschwingung um Dämpfung und Resonanz. |
+| N7 | ✅ Schwingendes Lineal (physikalisches Pendel) | 1.4 | **Erledigt (2026-07-15, `Project_lineal_simulation` v1.0.0).** Aus der Lineal-Aufgabe (`new_sim_input/Lineal/`): Plastiklineal schwingt reibungsfrei um eine Achse durch ein Loch nahe dem oberen Rand. Trägheitsmoment *I*_S=⅟₁₂·*m*·(*l*²+*b*²) + Steiner, ω₀=√(*g*·*s*/(⅟₁₂(*l*²+*b*²)+*s*²)), *T*=2π/ω₀ (Masse kürzt). Zwei Modelle umschaltbar: kleine-Winkel-Näherung (geschlossene Lösung) vs. exakt nichtlinear (RK4 + elliptisches Integral via AGM). Slider: Lochposition, Länge, Breite, Anfangsauslenkung, Masse; Diagramme φ/ω/α (Abszisse am Nulldurchgang) + Energie (E_kin/E_pot/E_ges); Hover (→ I13.1), kanonische Diagramm-Steuerung (→ I12). Sanity: *T*≈0,902 s für die Aufgabenvorgabe. Folgen: FLI1 (Vorschaubild fehlt). |
 
 ---
 
