@@ -16,14 +16,37 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
+# Öffentlich: wird nach Webpage/sim_*/ gespiegelt und mit Pages deployt.
 SIMS=(
   3massen_umlenkrollen ableitung atwood atwood_energy federpendel freier_fall
-  geschwindigkeit grundbegriffe_kinematik kreis_spiralbewegung kreisbewegung
+  geschwindigkeit grundbegriffe_kinematik integration kreis_spiralbewegung kreisbewegung
   lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
 
+# NICHT öffentlich (PO-Entscheidung): bleibt als Project_*_simulation/ im Repo
+# und auf der internen Übersicht AllAnimations/, wird aber NICHT nach Webpage/
+# gespiegelt und geht damit nicht auf die Pages-Site. Zum Freigeben: Namen hier
+# entfernen, oben in SIMS aufnehmen, Webpage/sim_<name>/ anlegen, Karte in
+# Webpage/index.html ergänzen, sync + Drift-Check. → BACKLOG I15.
+NICHT_OEFFENTLICH=( lineal )
+
 status=0
 drifts=()
+
+# Harter Publikations-Guard: Eine als NICHT_OEFFENTLICH geführte Sim darf weder
+# als Verzeichnis im Deploy-Bundle liegen noch von Webpage/index.html verlinkt
+# sein. Dieser Check läuft im Deploy-Workflow VOR dem Upload — schlägt er fehl,
+# gibt es keinen Deploy. Damit kann die Sim nicht versehentlich live gehen.
+for s in "${NICHT_OEFFENTLICH[@]}"; do
+  if [ -d "Webpage/sim_${s}" ]; then
+    drifts+=("NICHT ÖFFENTLICH: Webpage/sim_${s}/ darf nicht im Deploy-Bundle liegen")
+    status=1
+  fi
+  if grep -q "sim_${s}/" Webpage/index.html 2>/dev/null; then
+    drifts+=("NICHT ÖFFENTLICH: Webpage/index.html verlinkt sim_${s}/")
+    status=1
+  fi
+done
 
 for s in "${SIMS[@]}"; do
   src="Project_${s}_simulation"
@@ -86,10 +109,10 @@ for f in shared/css/design-system.css shared/js/*.js; do
 done
 
 if [ $status -eq 0 ]; then
-  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + shared)."
+  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
   exit 0
 else
-  echo "FEHLER: Webpage-Drift erkannt — bitte 'bash scripts/sync-webpage.sh' ausführen:" >&2
+  echo "FEHLER: Webpage-Drift bzw. Publikations-Verstoß erkannt:" >&2
   printf '  %s\n' "${drifts[@]}" >&2
   exit 1
 fi

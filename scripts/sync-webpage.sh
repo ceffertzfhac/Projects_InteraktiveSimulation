@@ -17,11 +17,31 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Öffentlich: wird nach Webpage/sim_*/ gespiegelt und mit Pages deployt.
 SIMS=(
   3massen_umlenkrollen ableitung atwood atwood_energy federpendel freier_fall
-  geschwindigkeit grundbegriffe_kinematik kreis_spiralbewegung kreisbewegung
+  geschwindigkeit grundbegriffe_kinematik integration kreis_spiralbewegung kreisbewegung
   lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
+
+# NICHT öffentlich (PO-Entscheidung): bleibt als Project_*_simulation/ im Repo
+# und auf der internen Übersicht AllAnimations/, wird aber NICHT nach Webpage/
+# gespiegelt und geht damit nicht auf die Pages-Site. Zum Freigeben: Namen hier
+# entfernen, oben in SIMS aufnehmen, Webpage/sim_<name>/ anlegen, Karte in
+# Webpage/index.html ergänzen, sync + Drift-Check. → BACKLOG I15.
+NICHT_OEFFENTLICH=( lineal )
+
+# Ausgeschlossene Sims dürfen im Deploy-Bundle gar nicht erst liegen. Nicht
+# stillschweigend löschen — lieber laut abbrechen, als unbemerkt zu publizieren
+# oder unbemerkt Arbeit wegzuwerfen.
+for s in "${NICHT_OEFFENTLICH[@]}"; do
+  if [ -d "Webpage/sim_${s}" ]; then
+    echo "FEHLER: Webpage/sim_${s}/ existiert, ist aber als NICHT_OEFFENTLICH geführt." >&2
+    echo "        Verzeichnis entfernen (git rm -r Webpage/sim_${s}) oder den Namen" >&2
+    echo "        aus NICHT_OEFFENTLICH nach SIMS verschieben." >&2
+    exit 1
+  fi
+done
 
 for s in "${SIMS[@]}"; do
   src="Project_${s}_simulation"
@@ -43,5 +63,5 @@ done
 cp shared/css/design-system.css Webpage/shared/css/design-system.css
 cp shared/js/*.js Webpage/shared/js/
 
-echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + shared)."
+echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
 echo "Drift prüfen:  bash scripts/check-webpage-drift.sh"

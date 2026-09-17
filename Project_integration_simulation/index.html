@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Die Integration als Grenzwert – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'local', scale: 0.9 },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<!-- ── TOPBAR: kanonische Buttonleiste ───────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+    <button class="btn layout-toggle-btn" id="layout_toggle" title="Layout: Darstellung &amp; Diagramme übereinander / nebeneinander">▦ Nebeneinander</button>
+  </div>
+  <div class="topbar-title">
+    Die Integration als Grenzwert
+    <span class="version">v1.1.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span><span class="copyright" style="font-size:.78em;opacity:.65;margin-left:.6em;white-space:nowrap">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LINKE SIDEBAR: Steuerung (Akkordeon-Cluster, I8) ────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Funktion &amp; Grenzen<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select class="select-field" id="func_select"></select>
+      <div class="slider-label">Untere Grenze \(a\)</div>
+      <div class="slider-row">
+        <input type="range" id="a_slider">
+        <span class="slider-val" id="a_value">1,0</span>
+      </div>
+      <div class="slider-label">Obere Grenze \(b\)</div>
+      <div class="slider-row">
+        <input type="range" id="b_slider">
+        <span class="slider-val" id="b_value">8,0</span>
+      </div>
+      <div class="note">
+        Gesucht ist der Flächeninhalt zwischen Kurve und \(x\)-Achse über \([a,\,b]\)
+        — das bestimmte Integral \(\int_a^b f(x)\,\mathrm{d}x\).
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Zerlegung &amp; Verfahren<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Streifenzahl \(n\)</div>
+      <div class="slider-row">
+        <input type="range" id="n_slider">
+        <span class="slider-val" id="n_value">6</span>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Untersumme \(U(n)\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_unter" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Obersumme \(O(n)\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_ober" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Mittelpunktsregel \(M(n)\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_mittel">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="note">
+        Die Untersumme bleibt stets <em>unter</em> der Kurve, die Obersumme ragt
+        <em>über</em> sie hinaus. Sie schachteln den exakten Wert ein — mit
+        \(n \to \infty\) schließt sich die Lücke. ▶ Play verfeinert automatisch.
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramme<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="diagram_mode_group">
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="1"><span>Ein Diagramm</span></label>
+        <label class="speed-pill"><input type="radio" name="diagram_mode" value="2" checked><span>Zwei Diagramme</span></label>
+      </div>
+      <div class="slider-label" style="margin-top:10px">Diagramm 1</div>
+      <select id="graph_select_1" class="select-field"></select>
+      <div id="dual_graph_control">
+        <div class="slider-label" style="margin-top:8px">Diagramm 2</div>
+        <select id="graph_select_2" class="select-field"></select>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Exakte Fläche schattieren</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_exact" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Werte am Bild einblenden</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_values" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-func)"></div>
+        <div class="legend-label">Funktion \(f(x)\)</div>
+        <div class="legend-swatch" style="background:var(--c-under)"></div>
+        <div class="legend-label">Untersumme \(U(n)\)</div>
+        <div class="legend-swatch" style="background:var(--c-over)"></div>
+        <div class="legend-label">Obersumme \(O(n)\)</div>
+        <div class="legend-swatch" style="background:var(--c-mid)"></div>
+        <div class="legend-label">Mittelpunktsumme \(M(n)\)</div>
+        <div class="legend-swatch" style="background:var(--c-exact)"></div>
+        <div class="legend-label">Exakter Wert \(\int_a^b f(x)\,\mathrm{d}x\)</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills" id="speed_group">
+        <label class="speed-pill"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Kurve mit Streifen (oben) + Diagramme (unten) ────────────────── -->
+  <main class="center-area" id="center_area">
+
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 470" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="main-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+        <g id="main_grid"></g>
+        <g id="main_exact"></g>
+        <g id="strips_over"></g>
+        <g id="strips_under"></g>
+        <g id="strips_outline"></g>
+        <g id="strips_mid"></g>
+        <g id="main_curve"></g>
+        <g id="main_marks"></g>
+        <!-- Funktionstitel: statisches MathJax, LETZTES SVG-Kind (z-Order) -->
+        <foreignObject id="main_title_fo" x="8" y="2" width="884" height="32">
+          <div class="graph-title-html" xmlns="http://www.w3.org/1999/xhtml">
+            <div id="title_gerade" style="display:none">\(\text{Funktion:}\quad f(x) = y = 0{,}4\,x + 1\)</div>
+            <div id="title_parabel">\(\text{Funktion:}\quad f(x) = y = 0{,}12\,(x-5)^2 + 1\)</div>
+            <div id="title_kubisch" style="display:none">\(\text{Funktion:}\quad f(x) = y = 0{,}02\,(x-5)^3 - 0{,}3\,(x-5) + 3\)</div>
+            <div id="title_welle" style="display:none">\(\text{Funktion:}\quad f(x) = y = 2 + 1{,}5\,\sin x\)</div>
+          </div>
+        </foreignObject>
+      </svg>
+      <div class="value-box" id="value_box"></div>
+    </div>
+
+    <div class="graph-wrapper">
+      <svg id="graph_svg" viewBox="0 0 1412 410" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="graph-arrowhead" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+
+        <!-- Diagramm-Slots (von drawGraphs() befüllt) -->
+        <g id="graph_group_1"></g>
+        <g id="graph_group_2"></g>
+
+        <!-- Hover-Overlay je Slot: eigene GESCHWISTER-Gruppen (die Slot-Gruppen
+             werden per innerHTML='' vollständig geleert). Hit-Rect ist letztes
+             Kind seiner Gruppe → gewinnt das Hit-Testing; die Gruppen-Transform
+             liefert getScreenCTM() automatisch den richtigen Slot-Versatz. -->
+        <g id="graph_hover_group_1">
+          <line id="graph_hover_line_1" class="graph-hover-line" visibility="hidden"/>
+          <g id="graph_hover_points_1" visibility="hidden"></g>
+          <g id="graph_hover_tooltip_1" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_1" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_1" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_1" class="graph-hit-rect"/>
+        </g>
+        <g id="graph_hover_group_2">
+          <line id="graph_hover_line_2" class="graph-hover-line" visibility="hidden"/>
+          <g id="graph_hover_points_2" visibility="hidden"></g>
+          <g id="graph_hover_tooltip_2" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg_2" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text_2" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect_2" class="graph-hit-rect"/>
+        </g>
+      </svg>
+    </div>
+
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ──────────── -->
+  <aside class="panel right-panel" id="right_panel">
+
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+
+      <div class="panel-section">
+        <div class="panel-label">Grenzwertanalyse</div>
+        <div class="analysis-grid">
+          <div class="analysis-cell key">Streifenzahl \(n\)</div>
+          <div class="analysis-cell val" id="an_n">—</div>
+          <div class="analysis-cell key">Streifenbreite \(\Delta x\)</div>
+          <div class="analysis-cell val" id="an_dx">—</div>
+          <div class="analysis-cell key">Untersumme \(U(n)\)</div>
+          <div class="analysis-cell val" id="an_u">—</div>
+          <div class="analysis-cell key">Obersumme \(O(n)\)</div>
+          <div class="analysis-cell val" id="an_o">—</div>
+          <div class="analysis-cell key">Mittelpunktsumme \(M(n)\)</div>
+          <div class="analysis-cell val" id="an_m">—</div>
+          <div class="analysis-cell key">Einschachtelung \(O(n)-U(n)\)</div>
+          <div class="analysis-cell val" id="an_span">—</div>
+          <div class="analysis-cell key">Exakter Wert \(\int_a^b f\,\mathrm{d}x\)</div>
+          <div class="analysis-cell val" id="an_exact">—</div>
+          <div class="analysis-cell key">Fehler \(|U(n)-I|\)</div>
+          <div class="analysis-cell val" id="an_err_u">—</div>
+          <div class="analysis-cell key">Fehler \(|O(n)-I|\)</div>
+          <div class="analysis-cell val" id="an_err_o">—</div>
+          <div class="analysis-cell key">Fehler \(|M(n)-I|\)</div>
+          <div class="analysis-cell val" id="an_err_m">—</div>
+        </div>
+        <div class="limit-note">
+          Je feiner die Zerlegung, desto schmaler das Einschachtelungsband
+          \(O(n)-U(n)\): \(U(n) \to I \leftarrow O(n)\).
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Mathematik</div>
+        <div class="formula-box">
+          <div>Zerlegung des Intervalls:</div>
+          <div>\[\Delta x = \frac{b-a}{n}, \qquad x_k = a + k\,\Delta x\]</div>
+          <div style="margin-top:6px">Unter- und Obersumme:</div>
+          <div>\[U(n) = \sum_{k=1}^{n} \Big(\inf_{[x_{k-1},x_k]} f\Big)\,\Delta x\]</div>
+          <div>\[O(n) = \sum_{k=1}^{n} \Big(\sup_{[x_{k-1},x_k]} f\Big)\,\Delta x\]</div>
+          <div style="margin-top:6px">Einschachtelung:</div>
+          <div>\[U(n) \;\le\; \int_a^b f(x)\,\mathrm{d}x \;\le\; O(n)\]</div>
+          <div style="margin-top:6px">Integral als Grenzwert:</div>
+          <div>\[\int_a^b f(x)\,\mathrm{d}x = \lim_{n\to\infty} U(n) = \lim_{n\to\infty} O(n)\]</div>
+          <div style="margin-top:6px">Mittelpunktsregel:</div>
+          <div>\[M(n) = \sum_{k=1}^{n} f\!\left(\frac{x_{k-1}+x_k}{2}\right)\Delta x\]</div>
+          <div style="margin-top:6px">Hauptsatz der Differential- und Integralrechnung:</div>
+          <div>\[\int_a^b f(x)\,\mathrm{d}x = F(b) - F(a), \qquad F'(x) = f(x)\]</div>
+          <div style="margin-top:6px">Gewählte Funktion und ihre Stammfunktion:</div>
+          <div id="pf_gerade" style="display:none">\[f(x) = 0{,}4\,x + 1 \qquad F(x) = 0{,}2\,x^2 + x\]</div>
+          <div id="pf_parabel">\[f(x) = 0{,}12\,(x-5)^2 + 1\]\[F(x) = 0{,}04\,(x-5)^3 + x\]</div>
+          <div id="pf_kubisch" style="display:none">\[f(x) = 0{,}02\,(x-5)^3 - 0{,}3\,(x-5) + 3\]\[F(x) = 0{,}005\,(x-5)^4 - 0{,}15\,(x-5)^2 + 3x\]</div>
+          <div id="pf_welle" style="display:none">\[f(x) = 2 + 1{,}5\,\sin x \qquad F(x) = 2x - 1{,}5\,\cos x\]</div>
+        </div>
+      </div>
+
+    </div><!-- /.panel-body -->
+
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

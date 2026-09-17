@@ -34,9 +34,11 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
 
   Aktuelle Versionsnummern stehen im jeweiligen `docs/CHANGELOG.md`.
 
-- **`Webpage/`** — deploybare Kopie aller Simulationen als statische Site (relative
-  Pfade, `sim_<name>/`), deployt via GitHub Actions zu GitHub Pages. Build-Target der
-  öffentlichen Instanz oben.
+- **`Webpage/`** — deploybare Kopie der **öffentlichen** Simulationen als statische
+  Site (relative Pfade, `sim_<name>/`), deployt via GitHub Actions zu GitHub Pages.
+  Build-Target der öffentlichen Instanz oben. Sims, die (noch) nicht öffentlich sein
+  sollen, stehen in `scripts/sync-webpage.sh` unter `NICHT_OEFFENTLICH` und werden
+  nicht gespiegelt; `check-webpage-drift.sh` blockt sie als Guard vom Deploy.
 - **`AllAnimations/`** — in-repo Übersichtsseite (`index.html`) als Karten-Liste aller
   Simulationen; hier liegen auch die lauffähigen Standalone-Prototypen und
   `Vorschaubilder/`.
