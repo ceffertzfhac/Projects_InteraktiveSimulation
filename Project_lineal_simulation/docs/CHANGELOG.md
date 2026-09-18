@@ -5,6 +5,36 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-09-18
+
+Kräftebild am Schwerpunkt, progressive Diagrammwiedergabe und PO-Korrekturen.
+
+### Physik / Vektoren
+- **Kräfte am Schwerpunkt** (neue Vektoren, über Toggles wählbar):
+  - **Normalkraft \(\vec{F}_N\)** (Achsenkraft, entlang des Lineals):
+    \(F_N = m\,(s\,\omega^2 + g\cos\varphi)\) in Richtung der Achse — am
+    Umkehrpunkt am größten, zeigt dort nach oben (Lineal „zieht" an der Achse).
+  - **Resultierende Kraft \(\vec{F}_\text{res} = m\vec{a}\)**: Zusammensetzung aus
+    Zentripetal- (\(s\,\omega^2\), radial zur Achse) und Tangentialbeschleunigung
+    (\(s\,\ddot\varphi\), tangential zur Bahn).
+  - **Beschleunigung \(\vec{a}\)**: richtungsgleich zu \(\vec{F}_\text{res}\)
+    (massenunabhängig), Skalareferenz \(|a|=g\).
+- **Vektor-Skalierungsfaktor** (Slider 0,5×–4×, Default 1×): skaliert alle
+  Vektoren (F_G als Referenz \(|F_G|=mg\), F_N/F_res darauf bezogen, a auf g).
+  Wirkt sofort, ohne Neu-Integration.
+- Vektor-Toggles (Visualisierungs-Panel): F_G, v, F_N (Default an),
+  F_res, a (Default aus). Legende entsprechend ergänzt (Farben:
+  --c-fn Orange, --c-fr Mauve, --c-acc Rot — Okabe-Ito, colorblind-safe).
+
+### Wiedergabe
+- **Progressive Diagrammkurve** (analog Schräger Wurf / Kreisbewegung):
+  die Kurve baut sich mit der Wiedergabe auf (nur bis zur aktuellen Zeit),
+  der Wiedergabe-Marker markiert das Kurvenende.
+- **Bugfix Abspielgeschwindigkeit:** der `change`-Handler der Tempo-Radios
+  aktualisierte `store.speedFactor` nie → Tempo-Wahl wirkte nicht.
+- **Info-Button/Modal entfernt** (Gestaltung wie die anderen Sims; die
+  Formeln stehen bereits im Analyse-Panel).
+
 ## v1.1.0 — 2026-09-18
 
 Abarbeitung des Review-Backlogs (kritisches Technik-/Physik-/UI-/UX-/Didaktik-
