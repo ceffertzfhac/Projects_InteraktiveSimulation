@@ -182,15 +182,15 @@ export function drawGraph() {
   const yl = el('text', { x: x0 - 44, y: GRAPH_H / 2, transform: `rotate(-90 ${x0 - 44} ${GRAPH_H / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(yl, opt.yLabel); DOM.gridGroup.appendChild(yl)
 
-  // Datenkurven (eine Polyline je Serie; stride-gedownsamplet — s. downsampleIndices)
+  // Datenkurven (eine Polyline je Serie; stride-gedownsamplet — s. downsampleIndices).
+  // Progressive Wiedergabe (analog z. B. Schräger Wurf / Kreisbewegung): die Punkte
+  // werden hier nur erzeugt, updateScene() füllt die Polyline bis zur aktuellen Zeit.
   DOM.graphLines.innerHTML = ''
   const tN = store.t_data.length
   const keep = downsampleIndices(tN, gw)
   for (const s of series) {
-    let pts = ''
-    for (const i of keep) pts += `${scX(store.t_data[i])},${scY(s.toPlot(s.arr[i]))} `
     DOM.graphLines.appendChild(el('polyline', {
-      fill: 'none', 'stroke-width': 2, points: pts,
+      fill: 'none', 'stroke-width': 2, points: '',
       class: 'graph-line', style: `stroke: var(${s.color})`,
     }))
   }
@@ -232,7 +232,7 @@ export function drawGraph() {
   DOM.graphHitRect.setAttribute('y', plotTop)
   DOM.graphHitRect.setAttribute('width', gw)
   DOM.graphHitRect.setAttribute('height', plotH)
-  store.graphScale = { tMax, gw, scX, scY, series, symmetric: opt.symmetric }
+  store.graphScale = { tMax, gw, scX, scY, series, symmetric: opt.symmetric, keep }
 
   if (store.hoverActive) updateGraphHover(store.hoverLocalX)
 }
@@ -366,11 +366,19 @@ export function updateScene(t) {
     DOM.angleLabel.style.visibility = 'hidden'
   }
 
-  // Diagramm-Marker auf den bereits gezeichneten Kurven
+  // Diagramm: Kurven progressiv bis zur aktuellen Zeit aufbauen (analog andere
+  // Sims) — Wiedergabe-Marker markiert das aktuelle Kurvenende.
   if (store.graphScale) {
     const gs = store.graphScale
     gs.series.forEach((s, i) => {
+      let pts = ''
+      for (const idx of gs.keep) {
+        if (store.t_data[idx] > tc) break
+        pts += `${gs.scX(store.t_data[idx])},${gs.scY(s.toPlot(s.arr[idx]))} `
+      }
       const v = s.toPlot(interpolateAt(s.arr, tc))
+      pts += `${gs.scX(tc)},${gs.scY(v)} `
+      DOM.graphLines.children[i].setAttribute('points', pts)
       const m = DOM.graphMarkers.children[i]
       m.setAttribute('cx', gs.scX(tc))
       m.setAttribute('cy', gs.scY(v))
