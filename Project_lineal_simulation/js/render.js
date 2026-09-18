@@ -7,7 +7,7 @@
  * (precompute-Arrays), Interpolation über interpolateAt().
  */
 
-import { PPM, PIVOT_X, PIVOT_Y, RULER_RX, HOLE_R,
+import { G, ACC_REF_LEN, PPM, PIVOT_X, PIVOT_Y, RULER_RX, HOLE_R,
          PIXELS_PER_VEL, GRAV_VEC_LEN, VEC_MARKER_LEN,
          GRAPH_W, GRAPH_H, GRAPH_OPTIONS, GRAPH_TITLES, ENERGY_COLORS, ENERGY_LABELS } from './constants.js'
 import { store, DOM } from './state.js'
