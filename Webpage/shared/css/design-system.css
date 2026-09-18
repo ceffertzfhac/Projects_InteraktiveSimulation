@@ -52,6 +52,7 @@
   --c-epot:  #009e73;   /* Potentielle Energie  – Grün    */
   --c-etot:  #999999;   /* Gesamtenergie        – Grau     */
   --c-eloss: #56b4e9;   /* Energieverlust       – Himmelblau */
+  --tooltip-bg: rgba(255,255,255,0.9); /* Light‑mode tooltip background */
 
   /* Punkt-Farben für Zykloiden-Analyse */
   --c-sp:    #222222;
@@ -101,10 +102,18 @@ body.dark {
   --c-epot:  #4dd9a0;
   --c-etot:  #c0c4d0;
   --c-eloss: #9ad4f5;
+  --tooltip-bg: rgba(0,0,0,0.85); /* Dark‑mode tooltip background */
 }
 
 /* ── BASE RESET ──────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Globale Tastatur-Fokusanzeige: alle interaktiven Elemente bekommen einen
+   sichtbaren Outline, wenn sie per Tastatur fokussiert sind (nicht per Maus). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 body {
   font-family: var(--font-ui);
@@ -308,6 +317,6 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
    unabhängig vom darunter Gezeichneten (pointer-events:all). */
 .graph-hover-line { stroke: var(--text3); stroke-width: 1.5; stroke-dasharray: 4,3; pointer-events: none; }
 .graph-hover-point { fill: none; stroke-width: 2; pointer-events: none; }
-.graph-hover-tooltip-bg { fill: var(--surface2); fill-opacity: 0.3; stroke: var(--border2); stroke-width: 1; rx: 4; }
+.graph-hover-tooltip-bg { fill: var(--tooltip-bg); fill-opacity: 0.9; stroke: var(--border2); stroke-width: 1; rx: 4; }
 .graph-hover-tooltip-text { fill: var(--text); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
 .graph-hit-rect { fill: none; pointer-events: all; cursor: crosshair; }
