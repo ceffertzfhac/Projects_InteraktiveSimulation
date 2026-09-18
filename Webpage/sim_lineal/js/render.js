@@ -40,14 +40,14 @@ const TO_PLOT = {
   eges:  v => v * 1e6,
   fgrav: v => v * 1e3,
   fnorm: v => v * 1e3,
-  fres:  v => v * 1e3,
+  fges:  v => v * 1e3,
   fsusp: v => v * 1e3,
 }
 const RAW_ARR = {
   phi: () => store.phi_data, omega: () => store.omega_data, alpha: () => store.alpha_data,
   ekin: () => store.ekin_data, epot: () => store.epot_data, eges: () => store.eges_data,
   fgrav: () => store.fgrav_data, fnorm: () => store.fnorm_data,
-  fres: () => store.fres_data, fsusp: () => store.fsusp_data,
+  fges: () => store.fges_data, fsusp: () => store.fsusp_data,
 }
 
 // Stride-Downsampling: bei kleinem Δt (bis 20 000 Punkte) mehr als ein Punkt pro
@@ -332,7 +332,7 @@ function hideGraphHover() {
 
 // Tooltip-Zeilen: „t = … s" plus je Serie „Wert Einheit" (mit Serien-Kürzel).
 const SERIES_SYM = { phi: 'φ', omega: 'ω', alpha: 'α', ekin: 'E_kin', epot: 'E_pot', eges: 'E_ges',
-                     fgrav: '|F_G|', fnorm: '|F_N|', fres: '|F_res|', fsusp: '|F_Aufh|' }
+                     fgrav: '|F_G|', fnorm: '|F_N|', fges: '|F_ges|', fsusp: '|F_Aufh|' }
 
 function renderHoverTooltip(gs, t, xPix) {
   const opt = GRAPH_OPTIONS[store.graphType]
@@ -395,7 +395,7 @@ export function updateScene(t) {
 
   // ── Vektoren (alle × store.vecScale) ────────────────────────────────────────
   // Kraftskala: |F_G| = m·g ↔ GRAV_VEC_LEN px (vecScale = 1); Längskraft F_N
-  // auf m·g bezogen. a und F_res = m·a sind auf die Fenster-Maximalbeschleunigung
+  // auf m·g bezogen. a und F_ges = m·a sind auf die Fenster-Maximalbeschleunigung
   // store.aMax bezogen (|a| = aMax ↔ ACC_REF_LEN px): die Pendel-Beschleunigung
   // ist klein (≈ 0,2 g), bei g-Bezug wäre der Vektor kürzer als die Pfeilspitze.
   // Bildkoordinaten: y nach unten. r̂ = (sin φ, cos φ) (Achse→SP), t̂ = (cos φ, −sin φ).
@@ -431,14 +431,14 @@ export function updateScene(t) {
     drawVec(DOM.normVector, 0, 0, 0, 0, false)
   }
 
-  // Resultierende Kraft am Schwerpunkt: F_res = m·a
-  if (DOM.togRes.checked && store.stable) {
-    drawVec(DOM.resVector, cmx, cmy, cmx + ax * kA, cmy + ay * kA, true)
+  // Resultierende Kraft am Schwerpunkt: F_ges = m·a
+  if (DOM.togGes.checked && store.stable) {
+    drawVec(DOM.gesVector, cmx, cmy, cmx + ax * kA, cmy + ay * kA, true)
   } else {
-    drawVec(DOM.resVector, 0, 0, 0, 0, false)
+    drawVec(DOM.gesVector, 0, 0, 0, 0, false)
   }
 
-  // Beschleunigungsvervektor am Schwerpunkt (richtungsgleich zu F_res)
+  // Beschleunigungsvervektor am Schwerpunkt (richtungsgleich zu F_ges)
   if (DOM.togAcc.checked && store.stable) {
     drawVec(DOM.accVector, cmx, cmy, cmx + ax * kA, cmy + ay * kA, true)
   } else {

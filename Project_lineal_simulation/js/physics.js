@@ -97,7 +97,7 @@ export function precompute() {
   recomputeDerived()
   store.t_data = []; store.phi_data = []; store.omega_data = []; store.alpha_data = []
   store.ekin_data = []; store.epot_data = []; store.eges_data = []
-  store.fgrav_data = []; store.fnorm_data = []; store.fres_data = []; store.fsusp_data = []
+  store.fgrav_data = []; store.fnorm_data = []; store.fges_data = []; store.fsusp_data = []
 
   const T = activePeriod()
   const phi0 = store.phi0
@@ -143,10 +143,10 @@ export function precompute() {
     const amag = Math.hypot(ax, ay)
     if (amag > aMax) aMax = amag
     // Kraftbeträge (N): F_G = m g; F_N = m(s ω² + g cos φ) (Längskraft zur Achse);
-    // F_res = m|a|; F_Aufh = |F_G + F_res| (Reaktion des Lineals auf die Aufhängung)
+    // F_ges = m|a|; F_Aufh = |F_G + F_ges| (Reaktion des Lineals auf die Aufhängung)
     store.fgrav_data.push(m * G)
     store.fnorm_data.push(m * (aRad + G * Math.cos(phi)))
-    store.fres_data.push(m * amag)
+    store.fges_data.push(m * amag)
     store.fsusp_data.push(m * Math.hypot(ax, G + ay))
   }
 

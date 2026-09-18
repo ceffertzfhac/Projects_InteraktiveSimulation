@@ -18,7 +18,7 @@ export const store = {
   speedFactor: 1.0, // Abspieltempo
   timeMode: 'continuous', // 'auto' | 'continuous'
   vecScale: 1.0,    // × — Vektor-Skalierungsfaktor (Slider 0,5×–4×, Referenz = 1)
-  aMax: 0,          // m/s² — Maximal-Beschleunigung im Fenster (Skala für a/F_res)
+  aMax: 0,          // m/s² — Maximal-Beschleunigung im Fenster (Skala für a/F_ges)
 
   // — Abgeleitete Größen (recomputeDerived in physics.js) —
   s: 0,             // m — Abstand Achse→Schwerpunkt = l/2 − a
@@ -33,7 +33,7 @@ export const store = {
   // — precompute()-Ergebnis-Arrays (gefüllt in physics.js) —
   t_data: [], phi_data: [], omega_data: [], alpha_data: [],
   ekin_data: [], epot_data: [], eges_data: [],
-  fgrav_data: [], fnorm_data: [], fres_data: [], fsusp_data: [],
+  fgrav_data: [], fnorm_data: [], fges_data: [], fsusp_data: [],
   t_end: 0,         // s — Precompute-Fensterende (auto: 8 s; continuous: max. N·T,
                     //   mindestens 8 s, cap 600 s). Continuous läuft darüber hinaus
                     //   periodisch weiter — kein Loop-Reset, kein Auto-Stopp (s. ui.js)
@@ -88,7 +88,7 @@ export function initDOM() {
   DOM.togGrav     = q('tog_grav')
   DOM.togVel      = q('tog_vel')
   DOM.togNorm     = q('tog_norm')
-  DOM.togRes      = q('tog_res')
+  DOM.togGes      = q('tog_ges')
   DOM.togAcc      = q('tog_acc')
   DOM.togSusp     = q('tog_susp')
   DOM.togPrev     = q('tog_prev')
@@ -112,7 +112,7 @@ export function initDOM() {
   DOM.gravVector  = q('grav_vector')
   DOM.velVector   = q('vel_vector')
   DOM.normVector  = q('norm_vector')
-  DOM.resVector   = q('res_vector')
+  DOM.gesVector   = q('ges_vector')
   DOM.accVector   = q('acc_vector')
   DOM.suspVector  = q('susp_vector')
   // SVG-Diagramm

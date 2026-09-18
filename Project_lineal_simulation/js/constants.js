@@ -34,7 +34,7 @@ export const HOLE_R = 4          // px — Loch-Radius am Drehpunkt
 // Alle Vektoren werden mit store.vecScale (Slider 0,5×–4×) multipliziert.
 // F_G dient als Referenz: |F_G| = m·g entspricht exakt GRAV_VEC_LEN px bei 1×.
 // Die übrigen Kraftvektoren sind auf m·g bezogen (massenunabhängige Verhältnisse).
-// a und F_res = m·a sind auf die Maximal-Beschleunigung des Fensters bezogen
+// a und F_ges = m·a sind auf die Maximal-Beschleunigung des Fensters bezogen
 // (|a| = store.aMax → ACC_REF_LEN px): die Pendel-Beschleunigung ist klein
 // (≈ 0,2 g), bei g-Bezug wäre der Vektor kürzer als die Pfeilspitze.
 export const PIXELS_PER_VEL = 70          // px pro (m/s) — Bahngeschwindigkeit des Schwerpunkts
@@ -56,7 +56,7 @@ export const GRAPH_OPTIONS = {
   omega:  { title: 'Winkelgeschwindigkeit ω(t)',   yLabel: 'ω / (rad/s)',  unit: 'rad/s', symmetric: true,  keys: ['omega'] },
   alpha:  { title: 'Winkelbeschleunigung α(t)',    yLabel: 'α / (rad/s²)', unit: 'rad/s²',symmetric: true,  keys: ['alpha'] },
   energy: { title: 'Energie vs. Zeit E(t)',        yLabel: 'E / µJ',       unit: 'µJ',    symmetric: false, keys: ['ekin', 'epot', 'eges'] },
-  forces: { title: 'Kraftbeträge vs. Zeit |F|(t)', yLabel: '|F| / mN',     unit: 'mN',    symmetric: false, keys: ['fgrav', 'fnorm', 'fres', 'fsusp'] },
+  forces: { title: 'Kraftbeträge vs. Zeit |F|(t)', yLabel: '|F| / mN',     unit: 'mN',    symmetric: false, keys: ['fgrav', 'fnorm', 'fges', 'fsusp'] },
 }
 
 // Kurztitel je Typ (letztes Symbol kursiv via setGraphTitle)
@@ -77,10 +77,10 @@ export const ENERGY_LABELS = {
 }
 
 // Kraftbetrags-Kurven (Farben = Vektorfarben der Szene)
-export const FORCE_COLORS = { fgrav: '--c-fg', fnorm: '--c-fn', fres: '--c-fr', fsusp: '--c-epot' }
+export const FORCE_COLORS = { fgrav: '--c-fg', fnorm: '--c-fn', fges: '--c-fr', fsusp: '--c-epot' }
 export const FORCE_LABELS = {
   fgrav: 'Schwerkraft |F_G|',
   fnorm: 'Längskraft |F_N|',
-  fres:  'Resultierende |F_res|',
+  fges:  'Resultierende |F_ges|',
   fsusp: 'Kraft auf Aufhängung |F_Aufh|',
 }

@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Schwingendes Lineal
-    <span class="version">v1.3.0</span>
+    <span class="version">v1.3.1</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -106,7 +106,7 @@ window.MathJax = {
         <option value="omega" title="Winkelgeschwindigkeit ω = dφ/dt — Sinus-Verlauf, am größten in der Ruhelage">Winkelgeschwindigkeit \(\omega(t)\)</option>
         <option value="alpha" title="Winkelbeschleunigung α = d²φ/dt² — antiphase zu φ, am größten in der Umkehrlage">Winkelbeschleunigung \(\alpha(t)\)</option>
         <option value="energy" title="Kinetische, potentielle und Gesamtenergie — E_ges bleibt konstant (reibungslos)">Energie (\(E_\text{kin}, E_\text{pot}, E_\text{ges}\))</option>
-        <option value="forces" title="Beträge der Kräfte F_G, F_N, F_res und Kraft auf die Aufhängung über der Zeit">Kraftbeträge (\(|\vec{F}|\))</option>
+        <option value="forces" title="Beträge der Kräfte F_G, F_N, F_ges und Kraft auf die Aufhängung über der Zeit">Kraftbeträge (\(|\vec{F}|\))</option>
       </select>
     </div>
 
@@ -134,9 +134,9 @@ window.MathJax = {
         </label>
       </div>
       <div class="vis-toggle-row">
-        <span class="vis-label">Resultierende \(\vec{F}_\text{res}\)</span>
+        <span class="vis-label">Resultierende \(\vec{F}_\text{ges}\)</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="tog_res">
+          <input type="checkbox" id="tog_ges">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
@@ -178,7 +178,7 @@ window.MathJax = {
         <div class="legend-swatch" style="background:var(--c-fn)"></div>
         <div class="legend-label">Normalkraft \(\vec{F}_N\)</div>
         <div class="legend-swatch" style="background:var(--c-fr)"></div>
-        <div class="legend-label">Resultierende \(\vec{F}_\text{res}\)</div>
+        <div class="legend-label">Resultierende \(\vec{F}_\text{ges}\)</div>
         <div class="legend-swatch" style="background:var(--c-acc)"></div>
         <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
         <div class="legend-swatch" style="background:var(--c-epot)"></div>
@@ -227,7 +227,7 @@ window.MathJax = {
           <marker id="arrow-norm" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
             <polygon points="0 0, 5 1.75, 0 3.5"/>
           </marker>
-          <marker id="arrow-res" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+          <marker id="arrow-ges" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
             <polygon points="0 0, 5 1.75, 0 3.5"/>
           </marker>
           <marker id="arrow-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
@@ -247,7 +247,7 @@ window.MathJax = {
           <line id="grav_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-grav)" visibility="hidden"/>
           <line id="vel_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
           <line id="norm_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-norm)" visibility="hidden"/>
-          <line id="res_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-res)" visibility="hidden"/>
+          <line id="ges_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-ges)" visibility="hidden"/>
           <line id="acc_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
           <line id="susp_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-susp)" visibility="hidden"/>
         </g>
@@ -320,7 +320,7 @@ window.MathJax = {
           <div>\[T = \frac{4}{\omega_0}\,K\!\left(\sin\tfrac{\varphi_0}{2}\right)\]</div>
           <div class="hint-box">Die Masse kürzt in \(T\) heraus &mdash; sie beeinflu&szlig;t nur die Kräfte und die Energie.</div>
           <div>Kräfte am Schwerpunkt (nur \(\vec{F}_G\) und die Achsenkraft \(\vec{F}_\text{A}\)):</div>
-          <div>\[\vec{F}_\text{res} = \vec{F}_G + \vec{F}_\text{A} = m\,\vec{a}\]</div>
+          <div>\[\vec{F}_\text{ges} = \vec{F}_G + \vec{F}_\text{A} = m\,\vec{a}\]</div>
           <div>radialer Anteil (Längskraft entlang des Lineals):</div>
           <div>\[F_N = m\,(s\,\omega^2 + g\cos\varphi)\]</div>
           <div>Kraft auf die Aufhängung (Reaktion, Newton&nbsp;3):</div>

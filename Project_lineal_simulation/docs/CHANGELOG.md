@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.1 — 2026-09-18
+
+### Konventionen
+- **Resultierende Kraft heißt jetzt \(\vec{F}_\text{ges}\)** statt
+  \(\vec{F}_\text{res}\) (FB-8-Namenskonvention, s. `CLAUDE.md`): Toggle,
+  Legende, Formeln im Analyse-Panel, Diagramm-Legende/Hover/CSV-Symbol sowie
+  interne Schlüssel (`fges_data`, `ges_vector`, `tog_ges`, `arrow-ges`).
+
+### Übersicht
+- Vorschaubild `Vorschaubilder/lineal.png` ergänzt (ersetzt den
+  CSS-Placeholder auf beiden Übersichten).
+
 ## v1.3.0 — 2026-09-18
 
 Kraft auf die Aufhängung, Kraftbetrags-Diagramm, Referenzkurve und Zeitmodus.
