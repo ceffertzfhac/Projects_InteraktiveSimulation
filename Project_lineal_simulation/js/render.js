@@ -25,6 +25,7 @@ const el = (tag, attrs) => {
   return e
 }
 const DEG = 180 / Math.PI
+const ENVELOPE_PX = 6  // px je Periode, unter denen die Kurve als Min/Max-Hüllkurve gezeichnet wird
 const PX_PER_CM = PPM / 100     // px pro cm (PPM ist px pro Meter)
 const ARC_R = 36                // px — Radius des Winkelbogens am Drehpunkt
 
@@ -49,6 +50,11 @@ const RAW_ARR = {
   fgrav: () => store.fgrav_data, fnorm: () => store.fnorm_data,
   fges: () => store.fges_data, fsusp: () => store.fsusp_data,
 }
+
+// Rechter Rand der Zeitachse: Auto-Stopp = Fenster (8 s); Kontinuierlich wächst
+// die Achse mit der Wiedergabezeit über das Precompute-Fenster hinaus.
+const graphTMax = () => store.timeMode === 'continuous'
+  ? Math.max(store.t_end, store.simulatedTime) : store.t_end
 
 // Wert zur ABSOLUTEN Zeit t: im Kontinuierlich-Modus periodisch fortgesetzt
 // (über t_end hinaus), sonst am Fensterende geklemmt.
@@ -187,10 +193,10 @@ export function drawGraph() {
     { x: 0, y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15, class: 'graph-bg' }))
 
   // Zeitfenster: aktueller Precompute-Horizont, ggf. erweitert um die Referenzkurve.
-  // Kontinuierlich-Modus: das Diagramm blättert seitenweise — Seite k zeigt die
-  // absolute Zeit [k·t_end, (k+1)·t_end]; tOff ist der Versatz der Seite.
-  const tMax = Math.max(prev ? prev.tMax : 0, store.t_end, 0.5)
-  const tOff = store.timeMode === 'continuous' ? store.graphPage * store.t_end : 0
+  // Kontinuierlich-Modus: die Zeitachse beginnt immer bei 0 und WÄCHST mit der
+  // Wiedergabezeit mit (tMax = max(t_end, t), analog Zykloide) — updateScene ruft
+  // drawGraph dafür jeden Frame neu auf, sobald t > t_end.
+  const tMax = Math.max(prev ? prev.tMax : 0, graphTMax(), 0.5)
   const gw = GRAPH_W - 20
   const scX = t => (t / tMax) * gw
 
@@ -198,8 +204,13 @@ export function drawGraph() {
   // UND Ticks — keine Divergenz; die Referenz wird damit nie abgeschnitten)
   const plotTop = 10, plotBottom = GRAPH_H - 10
   const plotH = plotBottom - plotTop
+  // Der Bereich hängt nur von Parametern/Typ/Referenz ab, nicht von der Zeit —
+  // gecacht (store.graphYCache), weil drawGraph beim Mitskalieren jeden Frame läuft.
+  const yKey = `${store.graphType}|${prev ? 'p' : ''}`
   let axMin, axMax, vStep
-  if (opt.symmetric) {
+  if (store.graphYCache && store.graphYCache.key === yKey) {
+    ;({ axMin, axMax, vStep } = store.graphYCache)
+  } else if (opt.symmetric) {
     let maxAbs = 1
     for (const s of axisSeries) for (const v of s.arr) maxAbs = Math.max(maxAbs, Math.abs(s.toPlot(v)))
     maxAbs *= 1.1
@@ -216,6 +227,7 @@ export function drawGraph() {
     axMax = Math.ceil(maxVal / vStep) * vStep
     axMin = 0
   }
+  store.graphYCache = { key: yKey, axMin, axMax, vStep }
   const axRng = axMax - axMin || 1
   const scY = v => plotBottom - ((v - axMin) / axRng) * plotH
   const x0 = scX(0), y0 = scY(0)
@@ -223,22 +235,12 @@ export function drawGraph() {
   // Vertikale Gitterlinien + Zeit-Ticks (≥4 Ticks inkl. 0; Labels am unteren Rand)
   const tStep = tAxisStep(tMax)
   const tDec = tStep >= 1 ? 1 : tStep >= 0.1 ? 2 : 3
-  // Ticks in ABSOLUTER Zeit (Seitenversatz tOff): erster Tick = erstes Vielfaches
-  // von tStep ≥ tOff, Position relativ zum Seitenanfang.
-  const tFirst = Math.ceil(tOff / tStep - 1e-9) * tStep
-  // Folgeseiten: Seitenanfang zusätzlich beschriften (liegt i. d. R. nicht auf
-  // einem runden Tick), sofern er dem ersten Tick nicht zu nahe kommt.
-  if (tOff > 0 && tFirst - tOff > 0.4 * tStep) {
-    const tv = el('text', { x: scX(0), y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
-    tv.textContent = fmt(tOff, tDec)
-    DOM.gridGroup.appendChild(tv)
-  }
-  for (let ta = tFirst; ta <= tOff + tMax + tStep * 0.01; ta = Math.round((ta + tStep) * 1e6) / 1e6) {
-    const xp = scX(Math.min(ta - tOff, tMax))
+  for (let tc = 0; tc <= tMax + tStep * 0.01; tc = Math.round((tc + tStep) * 1e6) / 1e6) {
+    const xp = scX(Math.min(tc, tMax))
     if (Math.abs(xp - x0) > 2)
       DOM.gridGroup.appendChild(el('line', { x1: xp, y1: plotTop, x2: xp, y2: plotBottom, class: 'grid-line' }))
     const tv = el('text', { x: xp, y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
-    tv.textContent = fmt(ta, tDec)
+    tv.textContent = fmt(tc, tDec)
     DOM.gridGroup.appendChild(tv)
   }
 
@@ -298,7 +300,7 @@ export function drawGraph() {
   for (const s of series) {
     DOM.graphMarkers.appendChild(el('circle', {
       r: 5, class: 'graph-marker', style: `fill: var(${s.color})`,
-      cx: scX(0), cy: scY(s.toPlot(sampleAt(s.arr, tOff))),
+      cx: scX(0), cy: scY(s.toPlot(s.arr[0] ?? 0)),
     }))
   }
 
@@ -343,7 +345,7 @@ export function drawGraph() {
   DOM.graphHitRect.setAttribute('y', plotTop)
   DOM.graphHitRect.setAttribute('width', gw)
   DOM.graphHitRect.setAttribute('height', plotH)
-  store.graphScale = { tMax, tOff, gw, scX, scY, series, symmetric: opt.symmetric, keep }
+  store.graphScale = { tMax, gw, scX, scY, series, symmetric: opt.symmetric, keep }
 
   if (store.hoverActive) updateGraphHover(store.hoverLocalX)
 }
@@ -356,8 +358,8 @@ export function updateGraphHover(localX) {
   if (localX === null || !gs || !store.t_data.length) { hideGraphHover(); return }
   const xClamped = Math.max(0, Math.min(gs.gw, localX))
   const rawT = (xClamped / gs.gw) * gs.tMax
-  // Lokale Seitenzeit, geklammert auf den bereits gezeichneten Kurvenabschnitt
-  const t = Math.max(0, Math.min(rawT, gs.tMax, store.simulatedTime - gs.tOff))
+  // Geklammert auf den bereits gezeichneten Kurvenabschnitt
+  const t = Math.max(0, Math.min(rawT, gs.tMax, store.simulatedTime))
   drawHoverAtT(gs, t)
 }
 
@@ -368,7 +370,7 @@ function drawHoverAtT(gs, t) {
   DOM.hoverLine.setAttribute('visibility', 'visible')
 
   gs.series.forEach((s, i) => {
-    const v = s.toPlot(sampleAt(s.arr, gs.tOff + t))
+    const v = s.toPlot(sampleAt(s.arr, t))
     const ring = DOM.hoverPoints.children[i]
     ring.setAttribute('cx', xPix)
     ring.setAttribute('cy', gs.scY(v))
@@ -391,9 +393,9 @@ function renderHoverTooltip(gs, t, xPix) {
   const lineH = 15
   // Jede Zeile ist ein eigenes <text>-Kind-tspan-Paket: ein Zeilen-tspan mit
   // fester x/y trägt die Symbol-tspans (Index per baseline-shift) + Wert.
-  const rows = [{ key: null, rest: ` = ${fmt(gs.tOff + t, 2)} s` }]
+  const rows = [{ key: null, rest: ` = ${fmt(t, 2)} s` }]
   for (const s of gs.series) {
-    const v = s.toPlot(sampleAt(s.arr, gs.tOff + t))
+    const v = s.toPlot(sampleAt(s.arr, t))
     rows.push({ key: s.key, rest: ` = ${fmt(v, 3)} ${opt.unit}` })
   }
   rows.forEach((row, i) => {
@@ -428,6 +430,37 @@ function drawVec(lineEl, x1, y1, x2, y2, on) {
   lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1)
   lineEl.setAttribute('x2', end.x2); lineEl.setAttribute('y2', end.y2)
   lineEl.style.visibility = 'visible'
+}
+
+// Min/Max-Hüllkurve je Pixelspalte über [0, tc] (Kontinuierlich-Modus bei stark
+// gestauchter Zeitachse). Spalten ≥ eine Periode lang → Min/Max der ganzen
+// Periode; kürzere Spalten → 9 Stichproben. Reihenfolge min/max je Spalte
+// alternierend, damit die Polyline ohne lange Rücksprung-Diagonalen als Band füllt.
+function envelopePoints(gs, s, tc, T) {
+  let pMin = Infinity, pMax = -Infinity
+  for (let i = 0; i < store.t_data.length && store.t_data[i] <= T; i++) {
+    const v = s.toPlot(s.arr[i])
+    if (v < pMin) pMin = v
+    if (v > pMax) pMax = v
+  }
+  const cols = Math.max(1, Math.round(gs.scX(tc)))
+  const dt = tc / cols
+  let pts = ''
+  for (let c = 0; c < cols; c++) {
+    let lo = pMin, hi = pMax
+    if (dt < T) {
+      lo = Infinity; hi = -Infinity
+      for (let k = 0; k <= 8; k++) {
+        const v = s.toPlot(sampleAt(s.arr, (c + k / 8) * dt))
+        if (v < lo) lo = v
+        if (v > hi) hi = v
+      }
+    }
+    const x = gs.scX((c + 0.5) * dt)
+    const [a, b] = c % 2 ? [hi, lo] : [lo, hi]
+    pts += `${x},${gs.scY(a)} ${x},${gs.scY(b)} `
+  }
+  return pts
 }
 
 // ── Animierte Elemente (jeder Frame): NUR indizieren/interpolieren, nie rechnen ─
@@ -534,29 +567,42 @@ export function updateScene(t) {
 
   // Diagramm: Kurven progressiv bis zur aktuellen Zeit aufbauen (analog andere
   // Sims) — Wiedergabe-Marker markiert das aktuelle Kurvenende.
-  // Kontinuierlich: ist die aktuelle Diagrammseite voll, auf die nächste Seite
-  // blättern (drawGraph zeichnet Achsen mit dem neuen Zeitversatz neu).
-  if (cont && store.t_end > 0) {
-    const page = Math.floor(tc / store.t_end)
-    if (page !== store.graphPage) { store.graphPage = page; drawGraph() }
-  }
+  // Kontinuierlich: über das Precompute-Fenster hinaus wächst die Zeitachse mit
+  // (drawGraph skaliert tMax = t neu; Ordinate ist gecacht).
+  if (cont && tc > store.t_end && store.graphScale && tc > store.graphScale.tMax - 1e-9) drawGraph()
   if (store.graphScale) {
     const gs = store.graphScale
-    const tLoc = tc - gs.tOff            // Zeit relativ zum Seitenanfang
+    // Innerhalb des Fensters: Rohwerte der downgesampelten Indizes. Darüber hinaus
+    // (Achse wächst mit): gleichmäßig über [0, t] periodisch abtasten (24 Punkte je
+    // Periode, Spitzenfehler < 1 %); ist eine Periode schmaler als ENVELOPE_PX,
+    // Min/Max je Pixelspalte (Oszilloskop-Hüllkurve) — sonst Aliasing-Bögen.
+    const T = activePeriod()
+    const periodic = Number.isFinite(T) && T > 0
+    const beyond = tc > store.t_end
+    const nUniform = periodic ? Math.ceil(24 * tc / T) : gs.gw
+    const envelope = beyond && periodic && gs.scX(T) < ENVELOPE_PX
     gs.series.forEach((s, i) => {
       let pts = ''
-      for (const idx of gs.keep) {
-        const tl = store.t_data[idx]
-        if (tl > tLoc) break
-        // Seite 0: Rohwert direkt; Folgeseiten: periodisch fortgesetzt
-        const raw = gs.tOff ? sampleAt(s.arr, gs.tOff + tl) : s.arr[idx]
-        pts += `${gs.scX(tl)},${gs.scY(s.toPlot(raw))} `
+      if (envelope) {
+        pts = envelopePoints(gs, s, tc, T)
+      } else if (beyond) {
+        const n = Math.max(gs.gw, nUniform)
+        for (let k = 0; k <= n; k++) {
+          const tl = (k / n) * tc
+          pts += `${gs.scX(tl)},${gs.scY(s.toPlot(sampleAt(s.arr, tl)))} `
+        }
+      } else {
+        for (const idx of gs.keep) {
+          const tl = store.t_data[idx]
+          if (tl > tc) break
+          pts += `${gs.scX(tl)},${gs.scY(s.toPlot(s.arr[idx]))} `
+        }
       }
       const v = s.toPlot(sampleAt(s.arr, tc))
-      pts += `${gs.scX(tLoc)},${gs.scY(v)} `
+      pts += `${gs.scX(tc)},${gs.scY(v)} `
       DOM.graphLines.children[i].setAttribute('points', pts)
       const m = DOM.graphMarkers.children[i]
-      m.setAttribute('cx', gs.scX(tLoc))
+      m.setAttribute('cx', gs.scX(tc))
       m.setAttribute('cy', gs.scY(v))
     })
   }

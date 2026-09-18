@@ -5,6 +5,19 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.3 — 2026-09-18
+
+### Bugfix
+- **Zeitmodus „Kontinuierlich": Zeitachse wächst mit (B45).** Das
+  Seitenblättern aus v1.3.2 ist ersetzt: die Achse beginnt immer bei 0 und
+  skaliert laufend mit der Wiedergabezeit (\(t_\text{max} = \max(t_\text{end}, t)\),
+  wie bei der Zykloide) — die gesamte bisherige Kurve bleibt sichtbar.
+- Bei stark gestauchter Achse (Periode < 6 px) wird die Schwingung als
+  Min/Max-Hüllkurve je Pixelspalte gezeichnet (wie ein Oszilloskop) — keine
+  Aliasing-Bögen, Amplitude bleibt exakt; davor periodische Abtastung mit
+  24 Punkten je Periode.
+- Ordinatenbereich gecacht, damit das Neuskalieren pro Frame flüssig bleibt.
+
 ## v1.3.2 — 2026-09-18
 
 ### Bugfixes
