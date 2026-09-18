@@ -45,6 +45,7 @@ export const store = {
   graphScale: null,   // { tMax, gw, scX, scY, series:[{arr,color,unit}] , symmetric }
 
   // — Hover-Werte (I13.1) —
+  graphPage: 0,       // Kontinuierlich-Modus: aktuelle Diagrammseite k (Zeit ab k·t_end)
   hoverActive: false,
   hoverLocalX: null,
 

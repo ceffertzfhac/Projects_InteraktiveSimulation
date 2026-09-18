@@ -20,6 +20,9 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
 .graph-prev-line  { fill: none; stroke: var(--text3); stroke-width: 1.6;
                     stroke-dasharray: 6 5; stroke-linejoin: round; stroke-linecap: round; }
 .graph-marker     { stroke: none; }
+/* Serien-Legende im Diagramm (Energie / Kraftbeträge, B44) */
+.graph-legend-bg   { fill: var(--graph-bg); fill-opacity: 0.92; stroke: var(--grid-line); stroke-width: 1; }
+.graph-legend-text { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
 /* Hover-Ring-Punkt: Kontur in Kurvenfarbe (fill:none via shared .graph-hover-point) */
 #graph_hover_points .graph-hover-point { fill: none; stroke-width: 2; }
 
