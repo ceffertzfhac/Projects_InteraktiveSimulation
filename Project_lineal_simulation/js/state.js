@@ -17,6 +17,7 @@ export const store = {
   graphType: 'phi', // 'phi' | 'omega' | 'alpha' | 'energy'
   speedFactor: 1.0, // Abspieltempo
   DT: 0.01,         // s — Schrittweite der Zeitreihen (UI-justierbar)
+  vecScale: 1.0,    // × — Vektor-Skalierungsfaktor (Slider 0,5×–4×, Referenz = 1)
 
   // — Abgeleitete Größen (recomputeDerived in physics.js) —
   s: 0,             // m — Abstand Achse→Schwerpunkt = l/2 − a
@@ -62,18 +63,23 @@ export function initDOM() {
   DOM.phi0Slider  = q('phi0_slider')
   DOM.mSlider     = q('m_slider')
   DOM.dtSlider    = q('dt_slider')
+  DOM.vecScaleSlider = q('vec_scale_slider')
   DOM.aValue      = q('a_value')
   DOM.lValue      = q('l_value')
   DOM.bValue      = q('b_value')
   DOM.phi0Value   = q('phi0_value')
   DOM.mValue      = q('m_value')
   DOM.dtValue     = q('dt_value')
+  DOM.vecScaleValue = q('vec_scale_value')
   // Modell-Umschaltung
   DOM.modelRadios = document.querySelectorAll('input[name="model"]')
   // Diagramm & Visualisierung
   DOM.graphSelect = q('graph_select')
   DOM.togGrav     = q('tog_grav')
   DOM.togVel      = q('tog_vel')
+  DOM.togNorm     = q('tog_norm')
+  DOM.togRes      = q('tog_res')
+  DOM.togAcc      = q('tog_acc')
   DOM.speedRadios = document.querySelectorAll('input[name="speed"]')
   // Topbar
   DOM.playBtn      = q('play_btn')
@@ -92,6 +98,9 @@ export function initDOM() {
   DOM.angleLabel  = q('angle_label')
   DOM.gravVector  = q('grav_vector')
   DOM.velVector   = q('vel_vector')
+  DOM.normVector  = q('norm_vector')
+  DOM.resVector   = q('res_vector')
+  DOM.accVector   = q('acc_vector')
   // SVG-Diagramm
   DOM.gridGroup    = q('grid_group')
   DOM.graphLines   = q('graph_lines')          // <g> mit einer <polyline> je Serie

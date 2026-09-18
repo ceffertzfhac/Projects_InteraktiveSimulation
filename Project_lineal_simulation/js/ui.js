@@ -64,6 +64,8 @@ function resetSim() {
   // Zeitschritt‑Slider – Schrittweite lebt im store (mutable), physics.js liest sie
   store.DT = parseFloat(DOM.dtSlider.value)
   DOM.dtValue.textContent = `${fmt(parseFloat(DOM.dtSlider.value), 3)} s`
+  store.vecScale = parseFloat(DOM.vecScaleSlider.value)
+  DOM.vecScaleValue.textContent = `${fmt(store.vecScale, 1)}×`
 
   DOM.aValue.textContent    = `${fmt(store.a_cm, 1)} cm`
   DOM.lValue.textContent    = `${fmt(store.l_cm, 1)} cm`
@@ -73,7 +75,7 @@ function resetSim() {
 
   // ARIA-Attribute der Slider mit dem aktuellen Wert synchron halten
   const syncAria = s => { if (s) s.setAttribute('aria-valuenow', s.value) }
-  ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(syncAria)
+  ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider, DOM.vecScaleSlider].forEach(syncAria)
 
   // Warnung: lineares Modell bei großer Anfangsauslenkung (Näherungsgültigkeit)
   const warn = document.getElementById('phi0_warn')
@@ -151,6 +153,14 @@ setupTheme()
 
 ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(s => s.addEventListener('input', resetSim))
 ;[DOM.graphSelect, DOM.togGrav, DOM.togVel].forEach(s => s.addEventListener('change', resetSim))
+// Vektor-Visibility + Skalierung: keine Neu-Integration nötig — nur Szene neu zeichnen
+;[DOM.togNorm, DOM.togRes, DOM.togAcc].forEach(s => s.addEventListener('change', () => updateScene(store.simulatedTime)))
+DOM.vecScaleSlider.addEventListener('input', () => {
+  store.vecScale = parseFloat(DOM.vecScaleSlider.value)
+  DOM.vecScaleValue.textContent = `${fmt(store.vecScale, 1)}×`
+  DOM.vecScaleSlider.setAttribute('aria-valuenow', DOM.vecScaleSlider.value)
+  updateScene(store.simulatedTime)
+})
 DOM.modelRadios.forEach(r => r.addEventListener('change', () => { syncPills('model'); resetSim() }))
 DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
   syncPills('speed')

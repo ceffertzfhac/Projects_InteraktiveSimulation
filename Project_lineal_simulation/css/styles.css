@@ -34,11 +34,17 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
 /* Vektoren */
 #grav_vector  { stroke: var(--c-fg); }
 #vel_vector   { stroke: var(--c-vel); }
+#norm_vector  { stroke: var(--c-fn); }
+#res_vector   { stroke: var(--c-fr); }
+#acc_vector   { stroke: var(--c-acc); }
 
 /* Marker-Fills pro Vektorfarbe (Polygon rendert sonst schwarz) */
 #arrow-axis polygon { fill: var(--text); }
 #arrow-grav  polygon { fill: var(--c-fg); }
 #arrow-vel   polygon { fill: var(--c-vel); }
+#arrow-norm  polygon { fill: var(--c-fn); }
+#arrow-res   polygon { fill: var(--c-fr); }
+#arrow-acc   polygon { fill: var(--c-acc); }
 
 /* Zeit-Label als Overlay unten links im Sim-Bereich */
 .time-label {

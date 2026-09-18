@@ -111,24 +111,51 @@ window.MathJax = {
     </div>
 
     <div class="panel-section collapsible">
-      <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
-<div class="vis-toggle-row">
-      <span class="vis-label">Schwerkraft \(\vec{F}_G\)</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="tog_grav" checked>
-        <span class="toggle-track"></span><span class="toggle-thumb"></span>
-      </label>
-    </div>
-    <div class="slider-row">
-      <input type="range" id="dt_slider" min="0.001" max="0.05" step="0.001" value="0.01" aria-label="Zeitschritt Δt (s)" aria-valuemin="0.001" aria-valuemax="0.05" aria-valuenow="0.01">
-      <span class="slider-val" id="dt_value">0,01 s</span>
-    </div>
+      <button class="panel-label" type="button" aria-expanded="true">Vektoren &amp; Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Schwerkraft \(\vec{F}_G\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_grav" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
       <div class="vis-toggle-row">
         <span class="vis-label">Geschwindigkeit \(\vec{v}\)</span>
         <label class="toggle-switch">
           <input type="checkbox" id="tog_vel" checked>
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Normalkraft \(\vec{F}_N\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_norm" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Resultierende \(\vec{F}_\text{res}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_res">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschleunigung \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_acc">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="slider-label">Vektor-Skalierung \(\times\)</div>
+      <div class="slider-row">
+        <input type="range" id="vec_scale_slider" min="0.5" max="4.0" step="0.1" value="1.0" aria-label="Vektor-Skalierungsfaktor (×)" aria-valuemin="0.5" aria-valuemax="4.0" aria-valuenow="1.0">
+        <span class="slider-val" id="vec_scale_value">1,0×</span>
+      </div>
+      <div class="slider-label">Zeitschritt \(\Delta t\)</div>
+      <div class="slider-row">
+        <input type="range" id="dt_slider" min="0.001" max="0.05" step="0.001" value="0.01" aria-label="Zeitschritt Δt (s)" aria-valuemin="0.001" aria-valuemax="0.05" aria-valuenow="0.01">
+        <span class="slider-val" id="dt_value">0,01 s</span>
       </div>
     </div>
 
@@ -139,6 +166,12 @@ window.MathJax = {
         <div class="legend-label">Schwerkraft \(\vec{F}_G\)</div>
         <div class="legend-swatch" style="background:var(--c-vel)"></div>
         <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-fn)"></div>
+        <div class="legend-label">Normalkraft \(\vec{F}_N\)</div>
+        <div class="legend-swatch" style="background:var(--c-fr)"></div>
+        <div class="legend-label">Resultierende \(\vec{F}_\text{res}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
         <div class="legend-swatch" style="background:var(--c-sp)"></div>
         <div class="legend-label">Schwerpunkt \(S\)</div>
         <div class="legend-swatch legend-dash"></div>
@@ -171,6 +204,15 @@ window.MathJax = {
           <marker id="arrow-vel" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
             <polygon points="0 0, 5 1.75, 0 3.5"/>
           </marker>
+          <marker id="arrow-norm" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-res" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
         </defs>
 
         <!-- Animationsfläche (x: 0–430) -->
@@ -181,6 +223,9 @@ window.MathJax = {
           <text id="angle_label" class="angle-label" visibility="hidden">0°</text>
           <line id="grav_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-grav)" visibility="hidden"/>
           <line id="vel_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <line id="norm_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-norm)" visibility="hidden"/>
+          <line id="res_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-res)" visibility="hidden"/>
+          <line id="acc_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
         </g>
 
         <!-- Diagrammfläche (x: 450–870) -->

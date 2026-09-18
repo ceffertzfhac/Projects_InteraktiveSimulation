@@ -30,9 +30,17 @@ export const RULER_RX = 4        // px — Eckradius des Lineals
 export const HOLE_R = 4          // px — Loch-Radius am Drehpunkt
 
 // Vektor-Skalierung (nur Darstellung)
+// Alle Vektoren werden mit store.vecScale (Slider 0,5×–4×) multipliziert.
+// F_G dient als Referenz: |F_G| = m·g entspricht exakt GRAV_VEC_LEN px bei 1×.
+// Die übrigen Kraftvektoren sind auf m·g bezogen (massenunabhängige Verhältnisse),
+// der Beschleunigungsvektor auf g (a = g → ACC_REF_LEN px).
 export const PIXELS_PER_VEL = 70          // px pro (m/s) — Bahngeschwindigkeit des Schwerpunkts
-export const GRAV_VEC_LEN = 48            // px — feste Länge des Schwerkraft-Vektors (Richtung)
+export const GRAV_VEC_LEN = 48            // px — Referenzlänge: |F_G| = m·g bei vecScale = 1
+export const ACC_REF_LEN  = 48            // px — Referenzlänge: |a| = g bei vecScale = 1
 export const VEC_MARKER_LEN = 12.5        // px = markerWidth(5) · strokeWidth(2.5)
+
+// Vektor-Skalierungsfaktor (UI-Einheit: ×, Referenz = 1)
+export const VEC_SCALE_MIN = 0.5, VEC_SCALE_MAX = 4.0, VEC_SCALE_DEFAULT = 1.0
 
 // ── Diagrammfläche (Graph-Gruppe bei translate(450,45)) ───────────────────────
 export const GRAPH_W = 420

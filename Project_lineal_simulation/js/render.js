@@ -333,18 +333,57 @@ export function updateScene(t) {
   const cmx = PIVOT_X + sPx * Math.sin(phi)
   const cmy = PIVOT_Y + sPx * Math.cos(phi)
 
-  // Schwerkraft (immer senkrecht nach unten ab Schwerpunkt)
-  drawVec(DOM.gravVector, cmx, cmy, cmx, cmy + GRAV_VEC_LEN, DOM.togGrav.checked && store.stable)
+  // ── Vektoren am Schwerpunkt (alle × store.vecScale) ────────────────────────
+  // Kraftskala: |F_G| = m·g ↔ GRAV_VEC_LEN px (vecScale = 1). übrige Kraftvektoren
+  // auf m·g bezogen (massenunabhängig), a auf g bezogen (a = g ↔ ACC_REF_LEN px).
+  // Tangential t̂ = (cos φ, −sin φ) (Richtung wachsendes φ), radial r̂ = (sin φ, cos φ)
+  // (von der Achse zum Schwerpunkt, zeigt nach unten). a_Rad/a_Tang sind Betrags-
+  // beziehungsweise t̂-Betrag: a_Rad = s·ω² (zentripetal, nach −r̂), a_Tang = s·φ̈.
+  const vs = store.vecScale
+  const ref = GRAV_VEC_LEN * vs               // px für |F| = m·g
+  const aRad  = om * om * store.s             // Zentripetal-Betrag (m/s²), nach −r̂
+  const aTang = al * store.s                  // Tangentialbetrag (m/s²), entlang t̂
+  // Beschleunigungsvervektor: a = aRad·(−r̂) + aTang·t̂
+  const ax = -aRad * Math.sin(phi) + aTang * Math.cos(phi)
+  const ay = -aRad * Math.cos(phi) - aTang * Math.sin(phi)
 
-  // Bahngeschwindigkeit des Schwerpunkts (tangential, |v| = |ω·s|)
+  // Schwerkraft (immer senkrecht nach unten)
+  drawVec(DOM.gravVector, cmx, cmy, cmx, cmy + ref, DOM.togGrav.checked && store.stable)
+
+  // Bahngeschwindigkeit des Schwerpunkts (tangential, v = ω·s·t̂)
   const v = om * store.s                      // m/s
-  const vLen = Math.abs(v) * PIXELS_PER_VEL
-  if (DOM.togVel.checked && store.stable && vLen > 1) {
-    const dir = Math.sign(om) || 1
+  if (DOM.togVel.checked && store.stable) {
     drawVec(DOM.velVector, cmx, cmy,
-      cmx + dir * Math.cos(phi) * vLen, cmy - dir * Math.sin(phi) * vLen, true)
+      cmx + v * Math.cos(phi) * PIXELS_PER_VEL * vs, cmy - v * Math.sin(phi) * PIXELS_PER_VEL * vs, true)
   } else {
     drawVec(DOM.velVector, 0, 0, 0, 0, false)
+  }
+
+  // Achsenkraft (als „Normalkraft" entlang des Lineals): F_A = m·(s·ω² + g·cos φ)
+  // in Richtung der Achse (−r̂); zeigt nach oben, wenn das Lineal die Achse „zieht"
+  // (typisch im größten Teil der Schwingung, |F_A| ist am Umkehrpunkt am größten).
+  if (DOM.togNorm.checked && store.stable) {
+    const faRef = (aRad / G + Math.cos(phi))   // Betrag relativ zu m·g
+    drawVec(DOM.normVector, cmx, cmy,
+      cmx - faRef * ref * Math.sin(phi), cmy - faRef * ref * Math.cos(phi), true)
+  } else {
+    drawVec(DOM.normVector, 0, 0, 0, 0, false)
+  }
+
+  // Resultierende Kraft F_res = m·a (a wie oben in px skaliert: a = g ↔ ACC_REF_LEN)
+  if (DOM.togRes.checked && store.stable) {
+    const k = ACC_REF_LEN * vs / G             // px pro (m/s²)
+    drawVec(DOM.resVector, cmx, cmy, cmx + ax * k, cmy + ay * k, true)
+  } else {
+    drawVec(DOM.resVector, 0, 0, 0, 0, false)
+  }
+
+  // Beschleunigungsvervektor a
+  if (DOM.togAcc.checked && store.stable) {
+    const k = ACC_REF_LEN * vs / G             // px pro (m/s²)
+    drawVec(DOM.accVector, cmx, cmy, cmx + ax * k, cmy + ay * k, true)
+  } else {
+    drawVec(DOM.accVector, 0, 0, 0, 0, false)
   }
 
   // Winkelbogen φ am Drehpunkt (Ruhelage → aktuelle Auslenkung)
