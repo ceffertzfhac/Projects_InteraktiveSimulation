@@ -9,9 +9,10 @@
 
 import { G, ACC_REF_LEN, PPM, PIVOT_X, PIVOT_Y, RULER_RX, HOLE_R,
          PIXELS_PER_VEL, GRAV_VEC_LEN, VEC_MARKER_LEN,
-         GRAPH_W, GRAPH_H, GRAPH_OPTIONS, GRAPH_TITLES, ENERGY_COLORS, ENERGY_LABELS } from './constants.js'
+         GRAPH_W, GRAPH_H, GRAPH_OPTIONS, GRAPH_TITLES, ENERGY_COLORS, ENERGY_LABELS,
+         FORCE_COLORS, FORCE_LABELS } from './constants.js'
 import { store, DOM } from './state.js'
-import { interpolateAt, activePeriod } from './physics.js'
+import { interpolateAt, interpolatePeriodic, activePeriod } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
@@ -27,8 +28,9 @@ const DEG = 180 / Math.PI
 const PX_PER_CM = PPM / 100     // px pro cm (PPM ist px pro Meter)
 const ARC_R = 36                // px — Radius des Winkelbogens am Drehpunkt
 
-// Rohwert (rad / J) → Plot-Wert (° / rad/s / rad/s² / µJ). Eine Quelle der
-// Wahrheit: drawGraph, updateScene und updateGraphHover wenden dieselbe Transformation an.
+// Rohwert (rad / J / N) → Plot-Wert (° / rad/s / rad/s² / µJ / mN). Eine
+// Quelle der Wahrheit: drawGraph, updateScene und updateGraphHover wenden
+// dieselbe Transformation an.
 const TO_PLOT = {
   phi:   v => v * DEG,
   omega: v => v,
@@ -36,10 +38,16 @@ const TO_PLOT = {
   ekin:  v => v * 1e6,
   epot:  v => v * 1e6,
   eges:  v => v * 1e6,
+  fgrav: v => v * 1e3,
+  fnorm: v => v * 1e3,
+  fres:  v => v * 1e3,
+  fsusp: v => v * 1e3,
 }
 const RAW_ARR = {
   phi: () => store.phi_data, omega: () => store.omega_data, alpha: () => store.alpha_data,
   ekin: () => store.ekin_data, epot: () => store.epot_data, eges: () => store.eges_data,
+  fgrav: () => store.fgrav_data, fnorm: () => store.fnorm_data,
+  fres: () => store.fres_data, fsusp: () => store.fsusp_data,
 }
 
 // Stride-Downsampling: bei kleinem Δt (bis 20 000 Punkte) mehr als ein Punkt pro
@@ -108,29 +116,65 @@ export function drawBackground() {
 export function drawGraph() {
   const opt = GRAPH_OPTIONS[store.graphType]
   const multi = opt.keys.length > 1
+  // Farblegende je Diagrammtyp (Energie: ENERGY_*, Kräfte: FORCE_*, sonst Accent)
+  const COLOR_MAP = store.graphType === 'forces' ? FORCE_COLORS
+    : store.graphType === 'energy' ? ENERGY_COLORS : null
+  const LABEL_MAP = store.graphType === 'forces' ? FORCE_LABELS
+    : store.graphType === 'energy' ? ENERGY_LABELS : null
   const series = opt.keys.map(k => ({
     key: k,
     arr: RAW_ARR[k](),
-    color: multi ? ENERGY_COLORS[k] : '--accent',
+    color: multi ? COLOR_MAP[k] : '--accent',
     toPlot: TO_PLOT[k],
-    label: multi ? ENERGY_LABELS[k] : '',
+    label: multi ? LABEL_MAP[k] : '',
   }))
+
+  // Referenzkurve: persistenter Snapshot (store.prevGraph).
+  //  • Beim ersten Aktivieren des Toggles wird die aktuelle Kurve als Referenz
+  //    gespeichert (einmalig).
+  //  • Bei jeder Folge-Zeichnung (z. B. nach einer Parameteränderung → resetSim)
+  //    bleibt derselbe Snapshot bestehen und wird nur mit der AKTUELLEN Skala
+  //    (scX/scY, erweiterte Achsen) neu gezeichnet → sie skaliert mit, verschwindet
+  //    aber NIE, solange der Toggle aktiv ist. Parameter-Änderungen löschen sie also
+  //    nicht; sie werden lediglich mit der neuen Achsenskalierung überlagert.
+  //  • Ein Diagrammtyp-Wechsel löscht den Snapshot ebenfalls NICHT — er wird dann
+  //    einfach nicht gezeichnet (andere Einheiten/Kurven), und beim Zurückwechseln
+  //    taucht er wieder auf. Nur das Deaktivieren des Toggles (ui.js) wirft ihn weg.
+  let prev = null
+  if (store.prevShown) {
+    if (store.prevGraph && store.prevGraph.graphType === store.graphType) {
+      prev = store.prevGraph
+    } else if (!store.prevGraph) {
+      store.prevGraph = {
+        graphType: store.graphType,
+        tMax: store.t_end,
+        t: store.t_data.slice(),
+        series: series.map(s => ({ key: s.key, arr: s.arr.slice(), toPlot: s.toPlot, color: s.color })),
+      }
+      prev = store.prevGraph
+    }
+  }
+  const axisSeries = prev
+    ? series.concat(prev.series.map(p => ({ key: p.key, arr: p.arr, toPlot: p.toPlot })))
+    : series
 
   DOM.gridGroup.innerHTML = ''
   DOM.gridGroup.appendChild(el('rect',
     { x: 0, y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15, class: 'graph-bg' }))
 
-  const tMax = Math.max(store.t_end, 0.5)
+  // Zeitfenster: aktueller Precompute-Horizont, ggf. erweitert um die Referenzkurve
+  const tMax = Math.max(prev ? prev.tMax : 0, store.t_end, 0.5)
   const gw = GRAPH_W - 20
   const scX = t => (t / tMax) * gw
 
-  // Ordinaten-Bereich (ein Nice-Step für Bereich UND Ticks — keine Divergenz)
+  // Ordinaten-Bereich über AKTUELLE + REFERENZ-Serien (ein Nice-Step für Bereich
+  // UND Ticks — keine Divergenz; die Referenz wird damit nie abgeschnitten)
   const plotTop = 10, plotBottom = GRAPH_H - 10
   const plotH = plotBottom - plotTop
   let axMin, axMax, vStep
   if (opt.symmetric) {
     let maxAbs = 1
-    for (const s of series) for (const v of s.arr) maxAbs = Math.max(maxAbs, Math.abs(s.toPlot(v)))
+    for (const s of axisSeries) for (const v of s.arr) maxAbs = Math.max(maxAbs, Math.abs(s.toPlot(v)))
     maxAbs *= 1.1
     vStep = niceStepLE(2 * maxAbs, 4)
     const nSteps = Math.max(2, Math.ceil(maxAbs / vStep))
@@ -138,7 +182,7 @@ export function drawGraph() {
     axMax = nSteps * vStep
   } else {
     let maxVal = 1
-    for (const s of series) for (const v of s.arr) maxVal = Math.max(maxVal, s.toPlot(v))
+    for (const s of axisSeries) for (const v of s.arr) maxVal = Math.max(maxVal, s.toPlot(v))
     maxVal *= 1.1
     vStep = niceStepLE(maxVal, 4)
     axMax = Math.ceil(maxVal / vStep) * vStep
@@ -195,6 +239,22 @@ export function drawGraph() {
     }))
   }
 
+  // Referenzkurve (persistent): mit der AKTUELLEN Skala (scX/scY) gezeichnet,
+  // gestrichelt in Neutralton — dadurch skaliert sie mit dem neuen Diagramm,
+  // verschwindet aber nie, solange der Toggle aktiv ist.
+  DOM.graphPrevLines.innerHTML = ''
+  if (prev) {
+    const pKeep = downsampleIndices(prev.t.length, gw)
+    for (const p of prev.series) {
+      let pts = ''
+      for (const idx of pKeep) pts += `${scX(prev.t[idx])},${scY(p.toPlot(p.arr[idx]))} `
+      DOM.graphPrevLines.appendChild(el('polyline', {
+        fill: 'none', 'stroke-width': 1.6, points: pts,
+        class: 'graph-prev-line',
+      }))
+    }
+  }
+
   // Wiedergabe-Marker (eine Circle je Serie)
   DOM.graphMarkers.innerHTML = ''
   for (const s of series) {
@@ -206,14 +266,13 @@ export function drawGraph() {
 
   // Titel (letztes Daten-Kind vor Hover-Overlay + Hit-Rect)
   setGraphTitle(DOM.graphTitle, GRAPH_TITLES[store.graphType])
-  // Energy‑Legend (nur für energy‑Graph‑Typ) – Farbcodes aus ENERGY_COLORS
-  if (store.graphType === 'energy') {
-    const legendGroup = el('g', { id: 'energy_legend', transform: `translate(${gw - 120} ${plotTop + 10})` })
-    const keys = opt.keys
-    keys.forEach((k, i) => {
+  // Legende für Mehrserien-Diagramme (Energie / Kraftbeträge)
+  if (COLOR_MAP) {
+    const legendGroup = el('g', { id: 'series_legend', transform: `translate(${gw - 150} ${plotTop + 10})` })
+    series.forEach((s, i) => {
       const y = i * 20
-      legendGroup.appendChild(el('rect', { x: 0, y, width: 12, height: 12, fill: `var(${ENERGY_COLORS[k]})` }))
-      legendGroup.appendChild(el('text', { x: 16, y: y + 10, 'text-anchor': 'start', class: 'axis-label', 'font-size': '10px' })).textContent = ENERGY_LABELS[k]
+      legendGroup.appendChild(el('rect', { x: 0, y, width: 12, height: 12, fill: `var(${s.color})` }))
+      legendGroup.appendChild(el('text', { x: 16, y: y + 10, 'text-anchor': 'start', class: 'axis-label', 'font-size': '10px' })).textContent = s.label
     })
     DOM.gridGroup.appendChild(legendGroup)
   }
@@ -272,7 +331,8 @@ function hideGraphHover() {
 }
 
 // Tooltip-Zeilen: „t = … s" plus je Serie „Wert Einheit" (mit Serien-Kürzel).
-const SERIES_SYM = { phi: 'φ', omega: 'ω', alpha: 'α', ekin: 'E_kin', epot: 'E_pot', eges: 'E_ges' }
+const SERIES_SYM = { phi: 'φ', omega: 'ω', alpha: 'α', ekin: 'E_kin', epot: 'E_pot', eges: 'E_ges',
+                     fgrav: '|F_G|', fnorm: '|F_N|', fres: '|F_res|', fsusp: '|F_Aufh|' }
 
 function renderHoverTooltip(gs, t, xPix) {
   const opt = GRAPH_OPTIONS[store.graphType]
@@ -333,21 +393,23 @@ export function updateScene(t) {
   const cmx = PIVOT_X + sPx * Math.sin(phi)
   const cmy = PIVOT_Y + sPx * Math.cos(phi)
 
-  // ── Vektoren am Schwerpunkt (alle × store.vecScale) ────────────────────────
-  // Kraftskala: |F_G| = m·g ↔ GRAV_VEC_LEN px (vecScale = 1). übrige Kraftvektoren
-  // auf m·g bezogen (massenunabhängig), a auf g bezogen (a = g ↔ ACC_REF_LEN px).
-  // Tangential t̂ = (cos φ, −sin φ) (Richtung wachsendes φ), radial r̂ = (sin φ, cos φ)
-  // (von der Achse zum Schwerpunkt, zeigt nach unten). a_Rad/a_Tang sind Betrags-
-  // beziehungsweise t̂-Betrag: a_Rad = s·ω² (zentripetal, nach −r̂), a_Tang = s·φ̈.
+  // ── Vektoren (alle × store.vecScale) ────────────────────────────────────────
+  // Kraftskala: |F_G| = m·g ↔ GRAV_VEC_LEN px (vecScale = 1); Längskraft F_N
+  // auf m·g bezogen. a und F_res = m·a sind auf die Fenster-Maximalbeschleunigung
+  // store.aMax bezogen (|a| = aMax ↔ ACC_REF_LEN px): die Pendel-Beschleunigung
+  // ist klein (≈ 0,2 g), bei g-Bezug wäre der Vektor kürzer als die Pfeilspitze.
+  // Bildkoordinaten: y nach unten. r̂ = (sin φ, cos φ) (Achse→SP), t̂ = (cos φ, −sin φ).
   const vs = store.vecScale
   const ref = GRAV_VEC_LEN * vs               // px für |F| = m·g
+  const aRef = store.aMax > 1e-9 ? store.aMax : 1e-9
+  const kA = ACC_REF_LEN * vs / aRef          // px pro (m/s²)
   const aRad  = om * om * store.s             // Zentripetal-Betrag (m/s²), nach −r̂
   const aTang = al * store.s                  // Tangentialbetrag (m/s²), entlang t̂
   // Beschleunigungsvervektor: a = aRad·(−r̂) + aTang·t̂
   const ax = -aRad * Math.sin(phi) + aTang * Math.cos(phi)
   const ay = -aRad * Math.cos(phi) - aTang * Math.sin(phi)
 
-  // Schwerkraft (immer senkrecht nach unten)
+  // Schwerkraft am Schwerpunkt (immer senkrecht nach unten)
   drawVec(DOM.gravVector, cmx, cmy, cmx, cmy + ref, DOM.togGrav.checked && store.stable)
 
   // Bahngeschwindigkeit des Schwerpunkts (tangential, v = ω·s·t̂)
@@ -359,31 +421,37 @@ export function updateScene(t) {
     drawVec(DOM.velVector, 0, 0, 0, 0, false)
   }
 
-  // Achsenkraft (als „Normalkraft" entlang des Lineals): F_A = m·(s·ω² + g·cos φ)
-  // in Richtung der Achse (−r̂); zeigt nach oben, wenn das Lineal die Achse „zieht"
-  // (typisch im größten Teil der Schwingung, |F_A| ist am Umkehrpunkt am größten).
+  // Längskraft am Schwerpunkt (Achsenkraft auf das Lineal): F_N = m·(s·ω² + g·cos φ)
+  // in Richtung der Achse (−r̂); zeigt nach oben, wenn das Lineal an der Achse „zieht".
   if (DOM.togNorm.checked && store.stable) {
-    const faRef = (aRad / G + Math.cos(phi))   // Betrag relativ zu m·g
+    const fnRef = (aRad / G + Math.cos(phi))   // Betrag relativ zu m·g
     drawVec(DOM.normVector, cmx, cmy,
-      cmx - faRef * ref * Math.sin(phi), cmy - faRef * ref * Math.cos(phi), true)
+      cmx - fnRef * ref * Math.sin(phi), cmy - fnRef * ref * Math.cos(phi), true)
   } else {
     drawVec(DOM.normVector, 0, 0, 0, 0, false)
   }
 
-  // Resultierende Kraft F_res = m·a (a wie oben in px skaliert: a = g ↔ ACC_REF_LEN)
+  // Resultierende Kraft am Schwerpunkt: F_res = m·a
   if (DOM.togRes.checked && store.stable) {
-    const k = ACC_REF_LEN * vs / G             // px pro (m/s²)
-    drawVec(DOM.resVector, cmx, cmy, cmx + ax * k, cmy + ay * k, true)
+    drawVec(DOM.resVector, cmx, cmy, cmx + ax * kA, cmy + ay * kA, true)
   } else {
     drawVec(DOM.resVector, 0, 0, 0, 0, false)
   }
 
-  // Beschleunigungsvervektor a
+  // Beschleunigungsvervektor am Schwerpunkt (richtungsgleich zu F_res)
   if (DOM.togAcc.checked && store.stable) {
-    const k = ACC_REF_LEN * vs / G             // px pro (m/s²)
-    drawVec(DOM.accVector, cmx, cmy, cmx + ax * k, cmy + ay * k, true)
+    drawVec(DOM.accVector, cmx, cmy, cmx + ax * kA, cmy + ay * kA, true)
   } else {
     drawVec(DOM.accVector, 0, 0, 0, 0, false)
+  }
+
+  // Kraft auf die Aufhängung am Drehpunkt (Newton 3, Reaktion der Achsenkraft):
+  // F_Aufh = −(m·a − m·g) = m·(−a_x, g − a_y); wirkt also in das Bild nach unten.
+  if (DOM.togSusp.checked && store.stable) {
+    drawVec(DOM.suspVector, PIVOT_X, PIVOT_Y,
+      PIVOT_X + (-ax / G) * ref, PIVOT_Y + ((G - ay) / G) * ref, true)
+  } else {
+    drawVec(DOM.suspVector, 0, 0, 0, 0, false)
   }
 
   // Winkelbogen φ am Drehpunkt (Ruhelage → aktuelle Auslenkung)

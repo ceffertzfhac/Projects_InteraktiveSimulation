@@ -11,6 +11,7 @@
 // index.html lädt dieses Modul via <script type="module" src="js/ui.js">.
 import { store, DOM, initDOM } from './state.js'
 import { precompute } from './physics.js'
+import { AUTO_STOP_T } from './constants.js'
 import { drawBackground, drawGraph, updateScene, updateGraphHover } from './render.js'
 import { fmt } from '../../shared/js/format.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
@@ -30,16 +31,27 @@ function animate(ts) {
   store.simulatedTime += (ts - store.lastFrameTime) / 1000 * store.speedFactor
   store.lastFrameTime = ts
 
-  // Schwingung ist periodisch: am Fensterende umbiegen statt stoppen
-  if (store.t_end > 0 && store.simulatedTime >= store.t_end) {
-    store.simulatedTime -= store.t_end
+  // Auto‑Stopp‑Modus: nach 8 s anhalten
+  if (store.timeMode === 'auto' && store.simulatedTime >= AUTO_STOP_T) {
+    store.simulatedTime = AUTO_STOP_T
+    updateScene(store.simulatedTime)
+    stopAnimation()
+    return
   }
+
+  // Kontinuierlich-Modus: kein Auto-Reset / kein Loop — die Wiedergabe läuft
+  // einfach weiter (updateScene nutzt interpolatePeriodic über t_end hinaus).
   updateScene(store.simulatedTime)
   store.aniFrameId = requestAnimationFrame(animate)
 }
 
 function startAnimation() {
   if (store.aniFrameId) return
+  // Auto‑Stopp‑Modus: nach dem Anhalten bei 8 s von vorn neu abspielen
+  if (store.timeMode === 'auto' && store.simulatedTime >= AUTO_STOP_T - 1e-6) {
+    store.simulatedTime = 0
+    updateScene(0)
+  }
   DOM.playBtn.disabled = true
   DOM.pauseBtn.disabled = false
   store.lastFrameTime = 0
@@ -61,9 +73,8 @@ function resetSim() {
   store.graphType = DOM.graphSelect.value
   DOM.modelRadios.forEach(r => { if (r.checked) store.model = r.value })
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
-  // Zeitschritt‑Slider – Schrittweite lebt im store (mutable), physics.js liest sie
-  store.DT = parseFloat(DOM.dtSlider.value)
-  DOM.dtValue.textContent = `${fmt(parseFloat(DOM.dtSlider.value), 3)} s`
+  // Zeitmodus aus Radiobuttons
+  DOM.timeModeRadios.forEach(r => { if (r.checked) store.timeMode = r.value })
   store.vecScale = parseFloat(DOM.vecScaleSlider.value)
   DOM.vecScaleValue.textContent = `${fmt(store.vecScale, 1)}×`
 
@@ -75,7 +86,7 @@ function resetSim() {
 
   // ARIA-Attribute der Slider mit dem aktuellen Wert synchron halten
   const syncAria = s => { if (s) s.setAttribute('aria-valuenow', s.value) }
-  ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider, DOM.vecScaleSlider].forEach(syncAria)
+  ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.vecScaleSlider].forEach(syncAria)
 
   // Warnung: lineares Modell bei großer Anfangsauslenkung (Näherungsgültigkeit)
   const warn = document.getElementById('phi0_warn')
@@ -151,10 +162,19 @@ function syncPills(name) {
 initDOM()
 setupTheme()
 
-;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(s => s.addEventListener('input', resetSim))
+;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider].forEach(s => s.addEventListener('input', resetSim))
 ;[DOM.graphSelect, DOM.togGrav, DOM.togVel].forEach(s => s.addEventListener('change', resetSim))
 // Vektor-Visibility + Skalierung: keine Neu-Integration nötig — nur Szene neu zeichnen
-;[DOM.togNorm, DOM.togRes, DOM.togAcc].forEach(s => s.addEventListener('change', () => updateScene(store.simulatedTime)))
+;[DOM.togNorm, DOM.togRes, DOM.togAcc, DOM.togSusp].forEach(s => s.addEventListener('change', () => updateScene(store.simulatedTime)))
+// Referenzkurve: Toggle speichert beim Aktivieren den Snapshot (in drawGraph) und
+// zeichnet das Diagramm neu. Beim Deaktivieren wird der Snapshot verworfen (die
+// Kurve verschwindet dann erst, nicht schon bei jeder Parameteränderung).
+DOM.togPrev.addEventListener('change', () => {
+  store.prevShown = DOM.togPrev.checked
+  if (!store.prevShown) store.prevGraph = null
+  drawGraph()
+  updateScene(store.simulatedTime)
+})
 DOM.vecScaleSlider.addEventListener('input', () => {
   store.vecScale = parseFloat(DOM.vecScaleSlider.value)
   DOM.vecScaleValue.textContent = `${fmt(store.vecScale, 1)}×`
@@ -165,6 +185,11 @@ DOM.modelRadios.forEach(r => r.addEventListener('change', () => { syncPills('mod
 DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
   syncPills('speed')
   if (r.checked) store.speedFactor = parseFloat(r.value)
+}))
+// Zeitmodus: Fensterlänge + Wiedergabe-Ende hängen vom Modus ab → Re-Precompute
+DOM.timeModeRadios.forEach(r => r.addEventListener('change', () => {
+  syncPills('timeMode')
+  resetSim()
 }))
 
 DOM.playBtn.addEventListener('click', startAnimation)

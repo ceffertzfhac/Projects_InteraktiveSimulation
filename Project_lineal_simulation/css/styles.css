@@ -15,6 +15,10 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
 .tick-label       { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
 .graph-title-text { fill: var(--text);  font-size: 15px; font-weight: 600; font-family: var(--font-ui); }
 .graph-line       { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+/* Referenzkurve (persistent): gestrichelt in neutraler Textfarbe, unter der
+   aktuellen Kurve (graph_prev_lines liegt vor graph_lines). */
+.graph-prev-line  { fill: none; stroke: var(--text3); stroke-width: 1.6;
+                    stroke-dasharray: 6 5; stroke-linejoin: round; stroke-linecap: round; }
 .graph-marker     { stroke: none; }
 /* Hover-Ring-Punkt: Kontur in Kurvenfarbe (fill:none via shared .graph-hover-point) */
 #graph_hover_points .graph-hover-point { fill: none; stroke-width: 2; }

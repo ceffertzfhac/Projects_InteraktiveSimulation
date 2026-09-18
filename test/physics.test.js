@@ -1,7 +1,9 @@
 // Vitest tests for physics module of Lineal simulation
 import { expect, test, beforeEach } from 'vitest'
 import { store } from '../Project_lineal_simulation/js/state.js'
-import { recomputeDerived, precompute, activePeriod, interpolateAt } from '../Project_lineal_simulation/js/physics.js'
+import { recomputeDerived, precompute, activePeriod, interpolateAt, interpolatePeriodic }
+  from '../Project_lineal_simulation/js/physics.js'
+import { DT, AUTO_STOP_T } from '../Project_lineal_simulation/js/constants.js'
 
 // Helper to set store parameters quickly
 function setParams({a, l, b, phi0deg, m, model = 'linear'}) {
@@ -49,14 +51,31 @@ test('instability (a > l/2) disables animation', () => {
   expect(store.T_linear).toBe(Infinity)
 })
 
-test('precompute honours store.DT (UI-adjustable timestep)', () => {
-  store.DT = 0.05
+test('precompute nutzt die feste Schrittweite DT', () => {
   recomputeDerived()
   precompute()
-  // erste Zeitdifferenz muss ≈ store.DT sein
   const dt = store.t_data[1] - store.t_data[0]
-  expect(dt).toBeCloseTo(0.05, 6)
-  store.DT = 0.01 // zurücksetzen
+  expect(dt).toBeCloseTo(DT, 9)
+})
+
+test('Zeitmodus: auto → 8-s-Fenster, continuous → ganzzahliges Vielfaches von T', () => {
+  store.timeMode = 'auto'
+  precompute()
+  expect(store.t_end).toBe(AUTO_STOP_T)
+  store.timeMode = 'continuous'
+  precompute()
+  const T = activePeriod()
+  expect(store.t_end).toBeGreaterThanOrEqual(AUTO_STOP_T)
+  expect(store.t_end / T).toBeCloseTo(Math.round(store.t_end / T), 6)
+})
+
+test('interpolatePeriodic setzt die Schwingung über t_end hinaus nahtlos fort', () => {
+  store.timeMode = 'continuous'
+  precompute()
+  const T = activePeriod()
+  const t = 0.37 * T
+  expect(interpolatePeriodic(store.phi_data, store.t_end + t))
+    .toBeCloseTo(interpolateAt(store.phi_data, t), 6)
 })
 
 test('interpolateAt (binary search) matches linear scan on random times', () => {

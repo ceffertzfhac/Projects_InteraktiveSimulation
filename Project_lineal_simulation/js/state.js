@@ -14,10 +14,11 @@ export const store = {
   phi0: 20 * Math.PI / 180,  // Anfangsauslenkung [rad]
   m_g: 8.5,         // Masse [g]
   model: 'linear',  // 'linear' (kleine-Winkel-Näherung) | 'exact' (nichtlinear)
-  graphType: 'phi', // 'phi' | 'omega' | 'alpha' | 'energy'
+  graphType: 'phi', // 'phi' | 'omega' | 'alpha' | 'energy' | 'forces'
   speedFactor: 1.0, // Abspieltempo
-  DT: 0.01,         // s — Schrittweite der Zeitreihen (UI-justierbar)
+  timeMode: 'continuous', // 'auto' | 'continuous'
   vecScale: 1.0,    // × — Vektor-Skalierungsfaktor (Slider 0,5×–4×, Referenz = 1)
+  aMax: 0,          // m/s² — Maximal-Beschleunigung im Fenster (Skala für a/F_res)
 
   // — Abgeleitete Größen (recomputeDerived in physics.js) —
   s: 0,             // m — Abstand Achse→Schwerpunkt = l/2 − a
@@ -32,7 +33,10 @@ export const store = {
   // — precompute()-Ergebnis-Arrays (gefüllt in physics.js) —
   t_data: [], phi_data: [], omega_data: [], alpha_data: [],
   ekin_data: [], epot_data: [], eges_data: [],
-  t_end: 0,         // s — Fensterende = N·T (Schwingung periodisch → Loop)
+  fgrav_data: [], fnorm_data: [], fres_data: [], fsusp_data: [],
+  t_end: 0,         // s — Precompute-Fensterende (auto: 8 s; continuous: max. N·T,
+                    //   mindestens 8 s, cap 600 s). Continuous läuft darüber hinaus
+                    //   periodisch weiter — kein Loop-Reset, kein Auto-Stopp (s. ui.js)
 
   // — Zeichenskalen des Diagramms (von drawGraph befüllt, von updateScene für den
   //   Wiedergabe-Marker und von updateGraphHover für den Hover-Cursor gelesen —
@@ -43,6 +47,14 @@ export const store = {
   // — Hover-Werte (I13.1) —
   hoverActive: false,
   hoverLocalX: null,
+
+  // — Referenzkurve: Snapshot der Kurve aus dem Moment der Aktivierung —
+  //   persistent: bleibt über Parameteränderungen sichtbar und wird nur mit der
+  //   aktuellen Diagramm-Skala neu skaliert (drawGraph), nie gelöscht — solange
+  //   der Toggle aktiv ist. Nur ein Diagrammtypwechsel ersetzt den Snapshot.
+  prevGraph: null,       // { graphType, tMax, t, series:[{arr,toPlot,color,key}] } oder null
+  prevShown: false,      // Toggle „Vorherige Kurve als Referenz"
+  lastParamKey: null,    // Signatur der zuletzt gezeigten Parameter (Vergleichstrigger)
 
   // — Animations-Laufzeit —
   aniFrameId: null,
@@ -62,14 +74,12 @@ export function initDOM() {
   DOM.bSlider     = q('b_slider')
   DOM.phi0Slider  = q('phi0_slider')
   DOM.mSlider     = q('m_slider')
-  DOM.dtSlider    = q('dt_slider')
   DOM.vecScaleSlider = q('vec_scale_slider')
   DOM.aValue      = q('a_value')
   DOM.lValue      = q('l_value')
   DOM.bValue      = q('b_value')
   DOM.phi0Value   = q('phi0_value')
   DOM.mValue      = q('m_value')
-  DOM.dtValue     = q('dt_value')
   DOM.vecScaleValue = q('vec_scale_value')
   // Modell-Umschaltung
   DOM.modelRadios = document.querySelectorAll('input[name="model"]')
@@ -80,7 +90,10 @@ export function initDOM() {
   DOM.togNorm     = q('tog_norm')
   DOM.togRes      = q('tog_res')
   DOM.togAcc      = q('tog_acc')
+  DOM.togSusp     = q('tog_susp')
+  DOM.togPrev     = q('tog_prev')
   DOM.speedRadios = document.querySelectorAll('input[name="speed"]')
+  DOM.timeModeRadios = document.querySelectorAll('input[name="timeMode"]')
   // Topbar
   DOM.playBtn      = q('play_btn')
   DOM.pauseBtn     = q('pause_btn')
@@ -101,8 +114,10 @@ export function initDOM() {
   DOM.normVector  = q('norm_vector')
   DOM.resVector   = q('res_vector')
   DOM.accVector   = q('acc_vector')
+  DOM.suspVector  = q('susp_vector')
   // SVG-Diagramm
   DOM.gridGroup    = q('grid_group')
+  DOM.graphPrevLines = q('graph_prev_lines')   // <g> mit Referenzkurven (vorherige Parameter)
   DOM.graphLines   = q('graph_lines')          // <g> mit einer <polyline> je Serie
   DOM.graphMarkers = q('graph_markers')        // <g> mit einem Wiedergabe-Marker je Serie
   DOM.graphTitle   = q('graph_title')

@@ -5,6 +5,42 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.0 — 2026-09-18
+
+Kraft auf die Aufhängung, Kraftbetrags-Diagramm, Referenzkurve und Zeitmodus.
+Freigabe für die öffentliche Übersicht (→ BACKLOG I15).
+
+### Physik / Vektoren
+- **Kraft auf die Aufhängung \(\vec{F}_\text{Aufh} = m\,(\vec{g} - \vec{a})\)**
+  (Reaktion nach Newton 3) als neuer Vektor (Toggle, Default aus), Farbe
+  `--c-epot`; Legende und Formelteil im Analyse-Panel ergänzt.
+- **\(\vec{a}\) und \(\vec{F}_\text{res}\) auf die Maximal-Beschleunigung des
+  Fensters skaliert** (`store.aMax`) statt auf *g*: die Pendelbeschleunigung
+  ist klein (≈ 0,2 g), bei g-Bezug war der Vektor kürzer als die Pfeilspitze.
+
+### Diagramm
+- Neuer Diagrammtyp **„Kraftbeträge (|F|)"**: |F_G|, |F_N|, |F_res|, |F_Aufh|
+  über der Zeit in mN (Kurvenfarben = Vektorfarben der Szene).
+- **„Vorherige Kurve als Referenz"** (Toggle): friert die aktuelle Kurve als
+  gestrichelte Referenz ein; sie bleibt bei Parameteränderungen sichtbar und
+  wird mit der neuen Achsenskala mitskaliert. Ein Wechsel des Diagrammtyps
+  ersetzt sie.
+
+### Wiedergabe
+- **Zeitmodus** (neuer Cluster, default eingeklappt): „Auto-Stopp (8 s)" hält
+  nach 8 s an (Play startet von vorn), „Kontinuierlich" (Default) läuft ohne
+  Loop-Sprung weiter — über das Precompute-Fenster hinaus periodisch
+  fortgesetzt (`interpolatePeriodic`). Das Fenster ist jetzt ein ganzzahliges
+  Vielfaches von *T* (Obergrenze 600 s).
+- Zeitschritt-Slider \(\Delta t\) entfernt: feste Schrittweite `DT = 0,01 s`
+  (didaktisch ohne Mehrwert, verwirrte bei großen Werten).
+
+### Sonstiges
+- Hinweis „Masse kürzt in *T* heraus" aus der Steuerung ins Analyse-Panel
+  verschoben (dort bei den Formeln).
+- Vitest: DT-Slider-Test durch Tests für feste Schrittweite, Zeitmodus-Fenster
+  und periodische Fortsetzung ersetzt.
+
 ## v1.2.0 — 2026-09-18
 
 Kräftebild am Schwerpunkt, progressive Diagrammwiedergabe und PO-Korrekturen.
