@@ -18,7 +18,7 @@ import { attachGraphHover } from '../../shared/js/hover.js'
 
 const DEG = Math.PI / 180
 
-// ── Animations-Loop (periodisch → nahtloses Loop am Fensterende = N·T) ────────
+// ── Animations-Loop (Auto-Stopp bei 8 s bzw. kontinuierlich ohne Loop-Reset) ──
 function stopAnimation() {
   if (store.aniFrameId) cancelAnimationFrame(store.aniFrameId)
   store.aniFrameId = null
@@ -96,6 +96,7 @@ function resetSim() {
   }
 
   precompute()
+  store.graphPage = 0   // Kontinuierlich-Modus: Diagramm wieder auf Seite 0
   drawBackground()
   drawGraph()
   updateScene(0)
@@ -124,19 +125,24 @@ function setupTheme() {
 
 // ── CSV-Export (Semikolon-Trenner, Komma-Dezimal) ──────────────────────────────
 function exportCSV(all) {
-  const { t_data, phi_data, omega_data, alpha_data, ekin_data, epot_data, eges_data, graphType } = store
+  const { t_data, phi_data, omega_data, alpha_data, ekin_data, epot_data, eges_data,
+          fgrav_data, fnorm_data, fges_data, fsusp_data, graphType } = store
   if (!t_data.length) return
   const cols = {
     phi:    [['φ / rad', phi_data]],
     omega:  [['ω / (rad/s)', omega_data]],
     alpha:  [['α / (rad/s²)', alpha_data]],
     energy: [['E_kin / J', ekin_data], ['E_pot / J', epot_data], ['E_ges / J', eges_data]],
+    forces: [['|F_G| / N', fgrav_data], ['|F_N| / N', fnorm_data], ['|F_ges| / N', fges_data],
+             ['|F_Aufh| / N', fsusp_data]],
   }
   let header, rows
   if (all) {
-    header = `sep=;\nt / s;φ / rad;ω / (rad/s);α / (rad/s²);E_kin / J;E_pot / J;E_ges / J`
+    header = 'sep=;\nt / s;φ / rad;ω / (rad/s);α / (rad/s²);E_kin / J;E_pot / J;E_ges / J;' +
+      '|F_G| / N;|F_N| / N;|F_ges| / N;|F_Aufh| / N'
     rows = t_data.map((_, i) =>
-      [t_data[i], phi_data[i], omega_data[i], alpha_data[i], ekin_data[i], epot_data[i], eges_data[i]]
+      [t_data[i], phi_data[i], omega_data[i], alpha_data[i], ekin_data[i], epot_data[i], eges_data[i],
+       fgrav_data[i], fnorm_data[i], fges_data[i], fsusp_data[i]]
         .map(x => fmt(x, 6)).join(';'))
   } else {
     const series = cols[graphType]

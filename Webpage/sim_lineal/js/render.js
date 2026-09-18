@@ -10,7 +10,7 @@
 import { G, ACC_REF_LEN, PPM, PIVOT_X, PIVOT_Y, RULER_RX, HOLE_R,
          PIXELS_PER_VEL, GRAV_VEC_LEN, VEC_MARKER_LEN,
          GRAPH_W, GRAPH_H, GRAPH_OPTIONS, GRAPH_TITLES, ENERGY_COLORS, ENERGY_LABELS,
-         FORCE_COLORS, FORCE_LABELS } from './constants.js'
+         FORCE_COLORS, FORCE_LABELS, SERIES_SYM } from './constants.js'
 import { store, DOM } from './state.js'
 import { interpolateAt, interpolatePeriodic, activePeriod } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
@@ -48,6 +48,30 @@ const RAW_ARR = {
   ekin: () => store.ekin_data, epot: () => store.epot_data, eges: () => store.eges_data,
   fgrav: () => store.fgrav_data, fnorm: () => store.fnorm_data,
   fges: () => store.fges_data, fsusp: () => store.fsusp_data,
+}
+
+// Wert zur ABSOLUTEN Zeit t: im Kontinuierlich-Modus periodisch fortgesetzt
+// (über t_end hinaus), sonst am Fensterende geklemmt.
+const sampleAt = (arr, t) =>
+  store.timeMode === 'continuous' ? interpolatePeriodic(arr, t) : interpolateAt(arr, t)
+
+// Formelzeichen als tspans anhängen: Symbol kursiv, Index tiefgestellt und
+// aufrecht, optional Betragsstriche (FB-8-Typografie; ersetzt „F_G"-Klartext, B44).
+function appendSym(parent, key) {
+  const d = SERIES_SYM[key]
+  if (d.abs) parent.appendChild(document.createTextNode('|'))
+  const sym = el('tspan', { 'font-style': 'italic' })
+  sym.textContent = d.s
+  parent.appendChild(sym)
+  if (d.sub) {
+    const sub = el('tspan', { 'baseline-shift': 'sub', 'font-size': '75%' })
+    sub.textContent = d.sub
+    parent.appendChild(sub)
+  }
+  if (d.abs) {
+    // Nach dem Index die Grundlinie zurücksetzen (baseline-shift wirkt nur im tspan)
+    parent.appendChild(document.createTextNode('|'))
+  }
 }
 
 // Stride-Downsampling: bei kleinem Δt (bis 20 000 Punkte) mehr als ein Punkt pro
@@ -162,8 +186,11 @@ export function drawGraph() {
   DOM.gridGroup.appendChild(el('rect',
     { x: 0, y: -15, width: GRAPH_W + 15, height: GRAPH_H + 15, class: 'graph-bg' }))
 
-  // Zeitfenster: aktueller Precompute-Horizont, ggf. erweitert um die Referenzkurve
+  // Zeitfenster: aktueller Precompute-Horizont, ggf. erweitert um die Referenzkurve.
+  // Kontinuierlich-Modus: das Diagramm blättert seitenweise — Seite k zeigt die
+  // absolute Zeit [k·t_end, (k+1)·t_end]; tOff ist der Versatz der Seite.
   const tMax = Math.max(prev ? prev.tMax : 0, store.t_end, 0.5)
+  const tOff = store.timeMode === 'continuous' ? store.graphPage * store.t_end : 0
   const gw = GRAPH_W - 20
   const scX = t => (t / tMax) * gw
 
@@ -183,7 +210,8 @@ export function drawGraph() {
   } else {
     let maxVal = 1
     for (const s of axisSeries) for (const v of s.arr) maxVal = Math.max(maxVal, s.toPlot(v))
-    maxVal *= 1.1
+    // Mehrserien-Diagramme: zusätzlicher Kopfraum für die Legende oben rechts
+    maxVal *= COLOR_MAP ? 1.35 : 1.1
     vStep = niceStepLE(maxVal, 4)
     axMax = Math.ceil(maxVal / vStep) * vStep
     axMin = 0
@@ -195,12 +223,22 @@ export function drawGraph() {
   // Vertikale Gitterlinien + Zeit-Ticks (≥4 Ticks inkl. 0; Labels am unteren Rand)
   const tStep = tAxisStep(tMax)
   const tDec = tStep >= 1 ? 1 : tStep >= 0.1 ? 2 : 3
-  for (let tc = 0; tc <= tMax + tStep * 0.01; tc = Math.round((tc + tStep) * 1e6) / 1e6) {
-    const xp = scX(Math.min(tc, tMax))
+  // Ticks in ABSOLUTER Zeit (Seitenversatz tOff): erster Tick = erstes Vielfaches
+  // von tStep ≥ tOff, Position relativ zum Seitenanfang.
+  const tFirst = Math.ceil(tOff / tStep - 1e-9) * tStep
+  // Folgeseiten: Seitenanfang zusätzlich beschriften (liegt i. d. R. nicht auf
+  // einem runden Tick), sofern er dem ersten Tick nicht zu nahe kommt.
+  if (tOff > 0 && tFirst - tOff > 0.4 * tStep) {
+    const tv = el('text', { x: scX(0), y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
+    tv.textContent = fmt(tOff, tDec)
+    DOM.gridGroup.appendChild(tv)
+  }
+  for (let ta = tFirst; ta <= tOff + tMax + tStep * 0.01; ta = Math.round((ta + tStep) * 1e6) / 1e6) {
+    const xp = scX(Math.min(ta - tOff, tMax))
     if (Math.abs(xp - x0) > 2)
       DOM.gridGroup.appendChild(el('line', { x1: xp, y1: plotTop, x2: xp, y2: plotBottom, class: 'grid-line' }))
     const tv = el('text', { x: xp, y: plotBottom + 16, 'text-anchor': 'middle', class: 'tick-label' })
-    tv.textContent = fmt(tc, tDec)
+    tv.textContent = fmt(ta, tDec)
     DOM.gridGroup.appendChild(tv)
   }
 
@@ -260,21 +298,35 @@ export function drawGraph() {
   for (const s of series) {
     DOM.graphMarkers.appendChild(el('circle', {
       r: 5, class: 'graph-marker', style: `fill: var(${s.color})`,
-      cx: scX(0), cy: scY(s.toPlot(s.arr[0] ?? 0)),
+      cx: scX(0), cy: scY(s.toPlot(sampleAt(s.arr, tOff))),
     }))
   }
 
   // Titel (letztes Daten-Kind vor Hover-Overlay + Hit-Rect)
   setGraphTitle(DOM.graphTitle, GRAPH_TITLES[store.graphType])
-  // Legende für Mehrserien-Diagramme (Energie / Kraftbeträge)
+  // Legende für Mehrserien-Diagramme (Energie / Kraftbeträge), oben rechts im
+  // Plot. Breite wird gemessen (getComputedTextLength), damit auch das längste
+  // Label innerhalb der Plotfläche bleibt; Hintergrund hält sie über den Kurven
+  // lesbar (B44).
   if (COLOR_MAP) {
-    const legendGroup = el('g', { id: 'series_legend', transform: `translate(${gw - 150} ${plotTop + 10})` })
-    series.forEach((s, i) => {
-      const y = i * 20
-      legendGroup.appendChild(el('rect', { x: 0, y, width: 12, height: 12, fill: `var(${s.color})` }))
-      legendGroup.appendChild(el('text', { x: 16, y: y + 10, 'text-anchor': 'start', class: 'axis-label', 'font-size': '10px' })).textContent = s.label
-    })
+    const legendGroup = el('g', { id: 'series_legend' })
     DOM.gridGroup.appendChild(legendGroup)
+    const bg = el('rect', { x: -6, y: -5, rx: 4, class: 'graph-legend-bg' })
+    legendGroup.appendChild(bg)
+    let maxW = 0
+    series.forEach((s, i) => {
+      const y = i * 18
+      legendGroup.appendChild(el('rect', { x: 0, y, width: 12, height: 12, rx: 2, fill: `var(${s.color})` }))
+      const txt = el('text', { x: 18, y: y + 10, 'text-anchor': 'start', class: 'graph-legend-text' })
+      txt.appendChild(document.createTextNode(`${s.label} `))
+      appendSym(txt, s.key)
+      legendGroup.appendChild(txt)
+      maxW = Math.max(maxW, txt.getComputedTextLength())
+    })
+    const boxW = 18 + maxW + 12, boxH = series.length * 18 + 4
+    bg.setAttribute('width', boxW)
+    bg.setAttribute('height', boxH)
+    legendGroup.setAttribute('transform', `translate(${gw - boxW + 6} ${plotTop + 6})`)
   }
 
   // Hover-Ring-Punkte (eine je Serie)
@@ -291,7 +343,7 @@ export function drawGraph() {
   DOM.graphHitRect.setAttribute('y', plotTop)
   DOM.graphHitRect.setAttribute('width', gw)
   DOM.graphHitRect.setAttribute('height', plotH)
-  store.graphScale = { tMax, gw, scX, scY, series, symmetric: opt.symmetric, keep }
+  store.graphScale = { tMax, tOff, gw, scX, scY, series, symmetric: opt.symmetric, keep }
 
   if (store.hoverActive) updateGraphHover(store.hoverLocalX)
 }
@@ -304,7 +356,8 @@ export function updateGraphHover(localX) {
   if (localX === null || !gs || !store.t_data.length) { hideGraphHover(); return }
   const xClamped = Math.max(0, Math.min(gs.gw, localX))
   const rawT = (xClamped / gs.gw) * gs.tMax
-  const t = Math.max(0, Math.min(rawT, gs.tMax, store.simulatedTime))
+  // Lokale Seitenzeit, geklammert auf den bereits gezeichneten Kurvenabschnitt
+  const t = Math.max(0, Math.min(rawT, gs.tMax, store.simulatedTime - gs.tOff))
   drawHoverAtT(gs, t)
 }
 
@@ -315,7 +368,7 @@ function drawHoverAtT(gs, t) {
   DOM.hoverLine.setAttribute('visibility', 'visible')
 
   gs.series.forEach((s, i) => {
-    const v = s.toPlot(interpolateAt(s.arr, t))
+    const v = s.toPlot(sampleAt(s.arr, gs.tOff + t))
     const ring = DOM.hoverPoints.children[i]
     ring.setAttribute('cx', xPix)
     ring.setAttribute('cy', gs.scY(v))
@@ -330,25 +383,27 @@ function hideGraphHover() {
   DOM.hoverTooltip.setAttribute('visibility', 'hidden')
 }
 
-// Tooltip-Zeilen: „t = … s" plus je Serie „Wert Einheit" (mit Serien-Kürzel).
-const SERIES_SYM = { phi: 'φ', omega: 'ω', alpha: 'α', ekin: 'E_kin', epot: 'E_pot', eges: 'E_ges',
-                     fgrav: '|F_G|', fnorm: '|F_N|', fges: '|F_ges|', fsusp: '|F_Aufh|' }
-
+// Tooltip-Zeilen: „t = … s" plus je Serie „Symbol = Wert Einheit" (SERIES_SYM).
 function renderHoverTooltip(gs, t, xPix) {
   const opt = GRAPH_OPTIONS[store.graphType]
   const textEl = DOM.hoverTooltipText
   textEl.innerHTML = ''
   const lineH = 15
-  let rows = [{ sym: 't', rest: ` = ${fmt(t, 2)} s` }]
+  // Jede Zeile ist ein eigenes <text>-Kind-tspan-Paket: ein Zeilen-tspan mit
+  // fester x/y trägt die Symbol-tspans (Index per baseline-shift) + Wert.
+  const rows = [{ key: null, rest: ` = ${fmt(gs.tOff + t, 2)} s` }]
   for (const s of gs.series) {
-    const v = s.toPlot(interpolateAt(s.arr, t))
-    rows.push({ sym: SERIES_SYM[s.key], rest: ` = ${fmt(v, 3)} ${opt.unit}` })
+    const v = s.toPlot(sampleAt(s.arr, gs.tOff + t))
+    rows.push({ key: s.key, rest: ` = ${fmt(v, 3)} ${opt.unit}` })
   }
   rows.forEach((row, i) => {
     const tsp = el('tspan', { x: 8, y: 16 + i * lineH })
-    const sym = el('tspan', { 'font-style': 'italic' })
-    sym.textContent = row.sym
-    tsp.appendChild(sym)
+    if (row.key) appendSym(tsp, row.key)
+    else {
+      const sym = el('tspan', { 'font-style': 'italic' })
+      sym.textContent = 't'
+      tsp.appendChild(sym)
+    }
     tsp.appendChild(document.createTextNode(row.rest))
     textEl.appendChild(tsp)
   })
@@ -377,10 +432,14 @@ function drawVec(lineEl, x1, y1, x2, y2, on) {
 
 // ── Animierte Elemente (jeder Frame): NUR indizieren/interpolieren, nie rechnen ─
 export function updateScene(t) {
-  const tc = Math.min(t, store.t_end)
-  const phi = interpolateAt(store.phi_data, tc)
-  const om = interpolateAt(store.omega_data, tc)
-  const al = interpolateAt(store.alpha_data, tc)
+  // Auto-Stopp: am Fensterende geklemmt. Kontinuierlich: echte Zeit, Werte
+  // periodisch fortgesetzt (sampleAt → interpolatePeriodic) — kein Einfrieren
+  // am Precompute-Fensterende.
+  const cont = store.timeMode === 'continuous'
+  const tc = cont ? Math.max(0, t) : Math.min(t, store.t_end)
+  const phi = sampleAt(store.phi_data, tc)
+  const om = sampleAt(store.omega_data, tc)
+  const al = sampleAt(store.alpha_data, tc)
   const phiDeg = phi * DEG
 
   // Lineal um den Drehpunkt drehen (positiv φ → schwingt nach rechts;
@@ -475,19 +534,29 @@ export function updateScene(t) {
 
   // Diagramm: Kurven progressiv bis zur aktuellen Zeit aufbauen (analog andere
   // Sims) — Wiedergabe-Marker markiert das aktuelle Kurvenende.
+  // Kontinuierlich: ist die aktuelle Diagrammseite voll, auf die nächste Seite
+  // blättern (drawGraph zeichnet Achsen mit dem neuen Zeitversatz neu).
+  if (cont && store.t_end > 0) {
+    const page = Math.floor(tc / store.t_end)
+    if (page !== store.graphPage) { store.graphPage = page; drawGraph() }
+  }
   if (store.graphScale) {
     const gs = store.graphScale
+    const tLoc = tc - gs.tOff            // Zeit relativ zum Seitenanfang
     gs.series.forEach((s, i) => {
       let pts = ''
       for (const idx of gs.keep) {
-        if (store.t_data[idx] > tc) break
-        pts += `${gs.scX(store.t_data[idx])},${gs.scY(s.toPlot(s.arr[idx]))} `
+        const tl = store.t_data[idx]
+        if (tl > tLoc) break
+        // Seite 0: Rohwert direkt; Folgeseiten: periodisch fortgesetzt
+        const raw = gs.tOff ? sampleAt(s.arr, gs.tOff + tl) : s.arr[idx]
+        pts += `${gs.scX(tl)},${gs.scY(s.toPlot(raw))} `
       }
-      const v = s.toPlot(interpolateAt(s.arr, tc))
-      pts += `${gs.scX(tc)},${gs.scY(v)} `
+      const v = s.toPlot(sampleAt(s.arr, tc))
+      pts += `${gs.scX(tLoc)},${gs.scY(v)} `
       DOM.graphLines.children[i].setAttribute('points', pts)
       const m = DOM.graphMarkers.children[i]
-      m.setAttribute('cx', gs.scX(tc))
+      m.setAttribute('cx', gs.scX(tLoc))
       m.setAttribute('cy', gs.scY(v))
     })
   }

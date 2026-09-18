@@ -5,6 +5,23 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.2 — 2026-09-18
+
+### Bugfixes
+- **Zeitmodus „Kontinuierlich" friert nicht mehr ein (B45):** die Wiedergabe
+  klemmte die Zeit auf das Precompute-Fenster (≈ 8 s) — danach standen Lineal,
+  Vektoren, Zeitanzeige und Live-Panel still. Jetzt wird die Schwingung mit
+  echter Zeit periodisch fortgesetzt (`interpolatePeriodic`, war bisher
+  ungenutzt). Das Diagramm **blättert seitenweise**: ist ein Fenster voll,
+  beginnt die Kurve auf einer neuen Seite mit fortlaufender Zeitachse
+  (z. B. 8,2 … 16 s); Hover-Werte berücksichtigen den Seitenversatz.
+- **Serien-Legende (B44):** bleibt innerhalb der Plotfläche (gemessene Breite,
+  Hintergrund, mehr Kopfraum); Formelzeichen typografisch korrekt (Symbol
+  kursiv, Index tiefgestellt, z. B. |*F*<sub>Aufh</sub>|) statt `|F_Aufh|` —
+  auch in der Energie-Legende und im Hover-Tooltip.
+- **CSV-Export (B46):** „Diagramm (CSV)" funktioniert beim Typ Kraftbeträge;
+  „Alle Daten (CSV)" enthält die vier Kraftbeträge.
+
 ## v1.3.1 — 2026-09-18
 
 ### Konventionen

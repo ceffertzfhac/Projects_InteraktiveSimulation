@@ -70,17 +70,33 @@ export const GRAPH_TITLES = {
 
 // Energie-Linienfarben (colorblind-safe: Blau / Orange / Mint)
 export const ENERGY_COLORS = { ekin: '--c-vel', epot: '--c-fn', eges: '--accent' }
+// Legenden-Klartext je Serie (Symbol folgt aus SERIES_SYM, s. u.)
 export const ENERGY_LABELS = {
-  ekin: 'Kinetische Energie E_kin',
-  epot: 'Potentielle Energie E_pot',
-  eges: 'Gesamtenergie E_ges',
+  ekin: 'Kinetische Energie',
+  epot: 'Potentielle Energie',
+  eges: 'Gesamtenergie',
 }
 
 // Kraftbetrags-Kurven (Farben = Vektorfarben der Szene)
 export const FORCE_COLORS = { fgrav: '--c-fg', fnorm: '--c-fn', fges: '--c-fr', fsusp: '--c-epot' }
 export const FORCE_LABELS = {
-  fgrav: 'Schwerkraft |F_G|',
-  fnorm: 'Längskraft |F_N|',
-  fges:  'Resultierende |F_ges|',
-  fsusp: 'Kraft auf Aufhängung |F_Aufh|',
+  fgrav: 'Schwerkraft',
+  fnorm: 'Längskraft',
+  fges:  'Resultierende',
+  fsusp: 'Aufhängung',
+}
+
+// Formelzeichen je Serie für Legende + Hover-Tooltip: Symbol kursiv, Index als
+// tiefgestellter aufrechter tspan, abs = Betragsstriche (FB-8-Typografie, B44).
+export const SERIES_SYM = {
+  phi:   { s: 'φ' },
+  omega: { s: 'ω' },
+  alpha: { s: 'α' },
+  ekin:  { s: 'E', sub: 'kin' },
+  epot:  { s: 'E', sub: 'pot' },
+  eges:  { s: 'E', sub: 'ges' },
+  fgrav: { s: 'F', sub: 'G', abs: true },
+  fnorm: { s: 'F', sub: 'N', abs: true },
+  fges:  { s: 'F', sub: 'ges', abs: true },
+  fsusp: { s: 'F', sub: 'Aufh', abs: true },
 }
