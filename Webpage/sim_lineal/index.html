@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Schwingendes Lineal – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!-- Shared Design-Tokens ZUERST, dann sim-spezifisches CSS -->
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<!-- ── TOPBAR: kanonische Buttonleiste ─────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    Schwingendes Lineal
+    <span class="version">v1.3.0</span>
+    <span class="inst">FH Aachen – FB 8 – Physik</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn" aria-label="Animation starten">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled aria-label="Animation pausieren"><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn" aria-label="Simulation zurücksetzen"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn" aria-label="Diagrammdaten als CSV exportieren">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn" aria-label="Alle Simulationsdaten als CSV exportieren">Alle Daten (CSV)</button>
+  </div>
+</header>
+<div id="instability_overlay" class="instability-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.2); z-index:10; pointer-events:none; align-items:center; justify-content:center; color:#900; font-weight:bold; font-size:1.5rem;">
+  Instabile Konfiguration – Lineal kann nicht schwingen.
+</div>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LINKE SIDEBAR: Steuerung (Akkordeon-Cluster) ──────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Lineal-Geometrie<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Lochposition \(a\) (Kante&rarr;Loch)</div>
+      <div class="slider-row">
+        <input type="range" id="a_slider" min="1.0" max="14.0" value="1.9" step="0.1" aria-label="Lochposition a (cm)" aria-valuemin="1.0" aria-valuemax="14.0" aria-valuenow="1.9">
+        <span class="slider-val" id="a_value">1,9 cm</span>
+      </div>
+      <div class="slider-label">Lineallänge \(l\)</div>
+      <div class="slider-row">
+        <input type="range" id="l_slider" min="30.0" max="40.0" value="32.0" step="0.5" aria-label="Lineallänge l (cm)" aria-valuemin="30.0" aria-valuemax="40.0" aria-valuenow="32.0">
+        <span class="slider-val" id="l_value">32,0 cm</span>
+      </div>
+      <div class="slider-label">Linealbreite \(b\)</div>
+      <div class="slider-row">
+        <input type="range" id="b_slider" min="1.0" max="6.0" value="3.7" step="0.1" aria-label="Linealbreite b (cm)" aria-valuemin="1.0" aria-valuemax="6.0" aria-valuenow="3.7">
+        <span class="slider-val" id="b_value">3,7 cm</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Anfangsbedingung &amp; Masse<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Anfangsauslenkung \(\varphi_0\)</div>
+      <div class="slider-row">
+        <input type="range" id="phi0_slider" min="5" max="90" value="20" step="1" aria-label="Anfangsauslenkung φ₀ (°)" aria-valuemin="5" aria-valuemax="90" aria-valuenow="20">
+        <span class="slider-val" id="phi0_value">20 °</span>
+      </div>
+      <div class="hint-box phi0-warn" id="phi0_warn" role="status" style="display:none">
+        ⚠ Ab ca. φ₀ &gt; 20° weicht das kleine-Winkel-Modell merkbar vom exakten
+        Verhalten ab (Periodendauer wird größer). Für große Auslenkungen
+        „Exakt (nichtlinear)" wählen.
+      </div>
+      <div class="slider-label">Masse \(m\)</div>
+      <div class="slider-row">
+        <input type="range" id="m_slider" min="1.0" max="50.0" value="8.5" step="0.5">
+        <span class="slider-val" id="m_value">8,5 g</span>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Modell<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill active"><input type="radio" name="model" value="linear" checked><span>Kleine Winkel</span></label>
+        <label class="speed-pill"><input type="radio" name="model" value="exact"><span>Exakt (nichtlinear)</span></label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select id="graph_select" class="select-field" aria-label="Diagrammtyp auswählen">
+        <option value="phi" selected title="Winkel φ des Lineals über der Zeit — Kosinus-Verlauf, Amplitude φ₀">Auslenkung \(\varphi(t)\)</option>
+        <option value="omega" title="Winkelgeschwindigkeit ω = dφ/dt — Sinus-Verlauf, am größten in der Ruhelage">Winkelgeschwindigkeit \(\omega(t)\)</option>
+        <option value="alpha" title="Winkelbeschleunigung α = d²φ/dt² — antiphase zu φ, am größten in der Umkehrlage">Winkelbeschleunigung \(\alpha(t)\)</option>
+        <option value="energy" title="Kinetische, potentielle und Gesamtenergie — E_ges bleibt konstant (reibungslos)">Energie (\(E_\text{kin}, E_\text{pot}, E_\text{ges}\))</option>
+        <option value="forces" title="Beträge der Kräfte F_G, F_N, F_res und Kraft auf die Aufhängung über der Zeit">Kraftbeträge (\(|\vec{F}|\))</option>
+      </select>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Vektoren &amp; Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Schwerkraft \(\vec{F}_G\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_grav" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Geschwindigkeit \(\vec{v}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_vel" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Normalkraft \(\vec{F}_N\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_norm" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Resultierende \(\vec{F}_\text{res}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_res">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Beschleunigung \(\vec{a}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_acc">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Kraft auf Aufhängung \(\vec{F}_\text{Aufh}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_susp">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="slider-label">Vektor-Skalierung \(\times\)</div>
+      <div class="slider-row">
+        <input type="range" id="vec_scale_slider" min="0.5" max="4.0" step="0.1" value="1.0" aria-label="Vektor-Skalierungsfaktor (×)" aria-valuemin="0.5" aria-valuemax="4.0" aria-valuenow="1.0">
+        <span class="slider-val" id="vec_scale_value">1,0×</span>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Vorherige Kurve als Referenz</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_prev">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-fg)"></div>
+        <div class="legend-label">Schwerkraft \(\vec{F}_G\)</div>
+        <div class="legend-swatch" style="background:var(--c-vel)"></div>
+        <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" style="background:var(--c-fn)"></div>
+        <div class="legend-label">Normalkraft \(\vec{F}_N\)</div>
+        <div class="legend-swatch" style="background:var(--c-fr)"></div>
+        <div class="legend-label">Resultierende \(\vec{F}_\text{res}\)</div>
+        <div class="legend-swatch" style="background:var(--c-acc)"></div>
+        <div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-epot)"></div>
+        <div class="legend-label">Kraft auf Aufhängung \(\vec{F}_\text{Aufh}\)</div>
+        <div class="legend-swatch legend-dash"></div>
+        <div class="legend-label">Vorherige Kurve (Referenz)</div>
+        <div class="legend-swatch" style="background:var(--c-sp)"></div>
+        <div class="legend-label">Schwerpunkt \(S\)</div>
+        <div class="legend-swatch legend-dash"></div>
+        <div class="legend-label">Ruhelage (\(\varphi=0\))</div>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Abspielgeschwindigkeit<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill active"><input type="radio" name="speed" value="1.0" checked><span>1×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
+      </div>
+    </div>
+    <div class="panel-section collapsible collapsed">
+      <button class="panel-label" type="button" aria-expanded="false">Zeitmodus<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="timeMode" value="auto"><span>Auto‑Stopp (8 s)</span></label>
+        <label class="speed-pill active"><input type="radio" name="timeMode" value="continuous" checked><span>Kontinuierlich</span></label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Simulation (links) + Diagramm (rechts, selbe SVG) ─────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow-axis" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-grav" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-vel" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-norm" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-res" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-acc" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+          <marker id="arrow-susp" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto">
+            <polygon points="0 0, 5 1.75, 0 3.5"/>
+          </marker>
+        </defs>
+
+        <!-- Animationsfläche (x: 0–430) -->
+        <g id="animation_group">
+          <g id="scene_static"></g>
+          <g id="ruler_group" transform="translate(215 95)"></g>
+          <path id="angle_arc" class="angle-arc" visibility="hidden"/>
+          <text id="angle_label" class="angle-label" visibility="hidden">0°</text>
+          <line id="grav_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-grav)" visibility="hidden"/>
+          <line id="vel_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-vel)" visibility="hidden"/>
+          <line id="norm_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-norm)" visibility="hidden"/>
+          <line id="res_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-res)" visibility="hidden"/>
+          <line id="acc_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
+          <line id="susp_vector" x1="0" y1="0" x2="0" y2="0" stroke-width="2.5" marker-end="url(#arrow-susp)" visibility="hidden"/>
+        </g>
+
+        <!-- Diagrammfläche (x: 450–870) -->
+        <g id="graph_group" transform="translate(450, 45)">
+          <g id="grid_group"></g>
+          <g id="graph_prev_lines"></g>
+          <g id="graph_lines"></g>
+          <g id="graph_markers"></g>
+          <text id="graph_title" x="210" y="-22" text-anchor="middle" class="graph-title-text"></text>
+          <!-- Hover-Werte (I13.1, §4): Cursor + Ring-Punkte + Tooltip; Hit-Rect zuletzt -->
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <g id="graph_hover_points"></g>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,00 s</div>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ─────────── -->
+  <aside class="panel right-panel" id="right_panel">
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="panel-label">Live-Analyse</div>
+        <div class="analysis-subject">
+          <div class="analysis-grid">
+            <div class="analysis-cell key">Zeit \(t\)</div>
+            <div class="analysis-cell val" id="live_t">0,00 s</div>
+            <div class="analysis-cell key">Auslenkung \(\varphi\)</div>
+            <div class="analysis-cell val" id="live_phi">0,0 °</div>
+            <div class="analysis-cell key">Winkelgeschw. \(\omega\)</div>
+            <div class="analysis-cell val" id="live_omega">0,00 rad/s</div>
+            <div class="analysis-cell key">Winkelbeschl. \(\alpha\)</div>
+            <div class="analysis-cell val" id="live_alpha">0,00 rad/s²</div>
+            <div class="analysis-cell key">Periodendauer \(T\)</div>
+            <div class="analysis-cell val" id="live_T">0,000 s</div>
+            <div class="analysis-cell key">Abstand \(s\) (Achse&rarr;SP)</div>
+            <div class="analysis-cell val" id="live_s">14,10 cm</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Physikalisches Pendel</div>
+        <div class="formula-box">
+          <div>Trägheitsmoment um den Schwerpunkt:</div>
+          <div>\[I_S = \tfrac{1}{12}\,m\,(l^2 + b^2)\]</div>
+          <div>Steiner (Achse im Abstand \(s = \tfrac{l}{2}-a\)):</div>
+          <div>\[I_A = I_S + m\,s^2\]</div>
+          <div>Kleine-Winkel-Kreisfrequenz:</div>
+          <div>\[\omega_0 = \sqrt{\frac{m\,g\,s}{I_A}} = \sqrt{\frac{g\,s}{\tfrac{1}{12}(l^2+b^2)+s^2}}\]</div>
+          <div>Periodendauer (harmonisch):</div>
+          <div>\[T = \frac{2\pi}{\omega_0}\]</div>
+          <div>Exakt (große Auslenkungen):</div>
+          <div>\[T = \frac{4}{\omega_0}\,K\!\left(\sin\tfrac{\varphi_0}{2}\right)\]</div>
+          <div class="hint-box">Die Masse kürzt in \(T\) heraus &mdash; sie beeinflu&szlig;t nur die Kräfte und die Energie.</div>
+          <div>Kräfte am Schwerpunkt (nur \(\vec{F}_G\) und die Achsenkraft \(\vec{F}_\text{A}\)):</div>
+          <div>\[\vec{F}_\text{res} = \vec{F}_G + \vec{F}_\text{A} = m\,\vec{a}\]</div>
+          <div>radialer Anteil (Längskraft entlang des Lineals):</div>
+          <div>\[F_N = m\,(s\,\omega^2 + g\cos\varphi)\]</div>
+          <div>Kraft auf die Aufhängung (Reaktion, Newton&nbsp;3):</div>
+          <div>\[\vec{F}_\text{Aufh} = -(\vec{F}_G + \vec{F}_\text{A}) = m\,(\vec{g} - \vec{a})\]</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
