@@ -152,7 +152,10 @@ setupTheme()
 ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(s => s.addEventListener('input', resetSim))
 ;[DOM.graphSelect, DOM.togGrav, DOM.togVel].forEach(s => s.addEventListener('change', resetSim))
 DOM.modelRadios.forEach(r => r.addEventListener('change', () => { syncPills('model'); resetSim() }))
-DOM.speedRadios.forEach(r => r.addEventListener('change', () => { syncPills('speed') }))
+DOM.speedRadios.forEach(r => r.addEventListener('change', () => {
+  syncPills('speed')
+  if (r.checked) store.speedFactor = parseFloat(r.value)
+}))
 
 DOM.playBtn.addEventListener('click', startAnimation)
 DOM.pauseBtn.addEventListener('click', () => { if (store.aniFrameId) stopAnimation() })
