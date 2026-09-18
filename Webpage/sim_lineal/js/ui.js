@@ -96,7 +96,7 @@ function resetSim() {
   }
 
   precompute()
-  store.graphPage = 0   // Kontinuierlich-Modus: Diagramm wieder auf Seite 0
+  store.graphYCache = null   // neue Parameter → Ordinatenbereich neu bestimmen
   drawBackground()
   drawGraph()
   updateScene(0)
@@ -178,6 +178,7 @@ setupTheme()
 DOM.togPrev.addEventListener('change', () => {
   store.prevShown = DOM.togPrev.checked
   if (!store.prevShown) store.prevGraph = null
+  store.graphYCache = null   // Referenz ändert den Ordinatenbereich
   drawGraph()
   updateScene(store.simulatedTime)
 })
