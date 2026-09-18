@@ -1,8 +1,11 @@
 'use strict'
 
-// Zentraler Store: ALLE mutablen Werte leben ausschließlich hier (keine
-// Modul-Globals irgendwo sonst). physics.js/render.js/ui.js lesen und schreiben
-// nur über dieses Objekt.
+/**
+ * @module lineal/state
+ * Zentraler Store: ALLE mutablen Werte leben ausschließlich hier (keine
+ * Modul-Globals irgendwo sonst). physics.js/render.js/ui.js lesen und schreiben
+ * nur über dieses Objekt.
+ */
 export const store = {
   // — Eingabeparameter (von den Slidern gesetzt, SI-Einheiten) —
   a_cm: 1.9,        // Lochposition Kante→Loch [cm]
@@ -13,6 +16,7 @@ export const store = {
   model: 'linear',  // 'linear' (kleine-Winkel-Näherung) | 'exact' (nichtlinear)
   graphType: 'phi', // 'phi' | 'omega' | 'alpha' | 'energy'
   speedFactor: 1.0, // Abspieltempo
+  DT: 0.01,         // s — Schrittweite der Zeitreihen (UI-justierbar)
 
   // — Abgeleitete Größen (recomputeDerived in physics.js) —
   s: 0,             // m — Abstand Achse→Schwerpunkt = l/2 − a
@@ -57,11 +61,13 @@ export function initDOM() {
   DOM.bSlider     = q('b_slider')
   DOM.phi0Slider  = q('phi0_slider')
   DOM.mSlider     = q('m_slider')
+  DOM.dtSlider    = q('dt_slider')
   DOM.aValue      = q('a_value')
   DOM.lValue      = q('l_value')
   DOM.bValue      = q('b_value')
   DOM.phi0Value   = q('phi0_value')
   DOM.mValue      = q('m_value')
+  DOM.dtValue     = q('dt_value')
   // Modell-Umschaltung
   DOM.modelRadios = document.querySelectorAll('input[name="model"]')
   // Diagramm & Visualisierung

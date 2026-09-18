@@ -28,7 +28,7 @@ verlinkt auf den zugehörigen `BACKLOG.md`-Eintrag (→ <ID>).
 
 ## Randfälle
 
-- **Achse unterhalb des Schwerpunkts (*s* ≤ 0):** keine stabile Schwingung;
+- **Achse unterhalb des Schwerpunkts (*s* ≤ 0):** keine stabile Schwingung; (Der Code verwendet einen kleinen Puffer `s > 1e-4 m`, um numerische Rundungsfehler zu vermeiden)
   *T* = ∞, Anzeige „instabil", das Lineal ruht am Anfangswinkel. Tritt nur auf,
   wenn Lochposition ≥ *l*/2 gewählt wird (Slider lassen den Grenzfall zu, um die
   Divergenz *T* → ∞ bei *s* → 0 zu demonstrieren).

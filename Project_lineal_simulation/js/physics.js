@@ -1,5 +1,11 @@
 'use strict'
 
+/**
+ * @module lineal/physics
+ * Physikalisches Pendel: schwingendes Lineal (reines ES-Modul, DOM-frei,
+ * in Node/Vitest importierbar). Alle Ein-/Ausgaben laufen über `store`.
+ */
+
 // ── Physikalisches Pendel: schwingendes Lineal ─────────────────────────────────
 // Lineal (Länge l, Breite b, Dicke d) schwingt reibungsfrei um eine Achse durch
 // ein Loch im Abstand a vom oberen Rand. Drehpunkt liegt oberhalb des
@@ -17,7 +23,7 @@
 //   exakt:   E_pot =  m·g·s·(1−cos φ)  E_ges =  m·g·s·(1−cos φ₀)
 //   E_kin = ½·I_A·ω²  (gemeinsam)
 
-import { G, DT, PERIODS_SHOWN, T_WINDOW_MIN, T_WINDOW_MAX } from './constants.js'
+import { G, DT_DEFAULT, PERIODS_SHOWN, T_WINDOW_MIN, T_WINDOW_MAX } from './constants.js'
 import { store } from './state.js'
 
 const CM = 1e-2   // cm → m
@@ -38,6 +44,12 @@ function ellipticK(k) {
 }
 
 // ── Abgeleitete Größen aus den Slider-Eingaben —──────────────────────────────
+/**
+ * Leitet aus den Slider-Eingaben (a, l, b, m, φ₀) die abgeleiteten Größen ab:
+ * Schwerpunktabstand s, Trägheitsmomente I_S/I_A, Kreisfrequenz ω₀, Perioden
+ * T_linear/T_exact und Stabilitäts-Flag. Schreibt ausschließlich in `store`.
+ * @returns {void}
+ */
 export function recomputeDerived() {
   const l = store.l_cm * CM
   const b = store.b_cm * CM
@@ -64,6 +76,7 @@ export function recomputeDerived() {
 }
 
 // Aktive Periodendauer je nach gewähltem Modell
+/** @returns {number} Periodendauer in s (Infinity bei instabiler Konfiguration) */
 export function activePeriod() {
   return store.model === 'linear' ? store.T_linear : store.T_exact
 }
@@ -72,6 +85,12 @@ export function activePeriod() {
 // Die Animation rechnet danach KEINE Physik mehr — sie interpoliert nur.
 // Schwingung ist periodisch ⇒ das Fenster ist ein ganzzahliges Vielfaches von T
 // und die Wiedergabe wird nahtlos geloopt (s. ui.js).
+/**
+ * Berechnet die Zeitreihen (t, φ, ω, α, E_kin, E_pot, E_ges) für das ganze
+ * Fenster N·T und füllt die store-Arrays. Schrittweite = store.DT
+ * (UI-justierbar). Die Animation interpoliert danach ausschließlich.
+ * @returns {void}
+ */
 export function precompute() {
   recomputeDerived()
   store.t_data = []; store.phi_data = []; store.omega_data = []; store.alpha_data = []
@@ -81,6 +100,7 @@ export function precompute() {
   const phi0 = store.phi0
   const w0 = store.omega0
   const { I_A, s, m, stable } = store
+  const dt = store.DT || DT_DEFAULT   // Schrittweite (UI-justierbar)
 
   // Fenster
   let window
@@ -108,7 +128,7 @@ export function precompute() {
   // Trivialfälle: keine Schwingung (instabil oder φ₀≈0)
   if (!stable || Math.abs(phi0) < 1e-8) {
     const phi = stable ? 0 : phi0   // instabil → ruht am Anfangswinkel; φ₀=0 → 0
-    for (let t = 0; t <= window + 1e-9; t += DT) {
+    for (let t = 0; t <= window + 1e-9; t += dt) {
       store.t_data.push(t)
       store.phi_data.push(phi)
       store.omega_data.push(0)
@@ -120,7 +140,7 @@ export function precompute() {
 
   if (store.model === 'linear') {
     // Geschlossene Lösung der harmonischen Schwingung (Start aus Ruhe bei φ₀)
-    for (let t = 0; t <= window + 1e-9; t += DT) {
+    for (let t = 0; t <= window + 1e-9; t += dt) {
       const phi = phi0 * Math.cos(w0 * t)
       const om = -phi0 * w0 * Math.sin(w0 * t)
       const al = -w0 * w0 * phi
@@ -133,7 +153,7 @@ export function precompute() {
   } else {
     // Exakte nichtlineare Bewegungsgleichung φ̈ = −ω₀²·sin φ via RK4
     let phi = phi0, om = 0
-    for (let t = 0; t <= window + 1e-9; t += DT) {
+    for (let t = 0; t <= window + 1e-9; t += dt) {
       store.t_data.push(t)
       store.phi_data.push(phi)
       store.omega_data.push(om)
@@ -142,23 +162,35 @@ export function precompute() {
       // RK4-Schritt auf [phi, om]
       const f = (p, o) => [o, -w0 * w0 * Math.sin(p)]
       const k1 = f(phi, om)
-      const k2 = f(phi + 0.5 * DT * k1[0], om + 0.5 * DT * k1[1])
-      const k3 = f(phi + 0.5 * DT * k2[0], om + 0.5 * DT * k2[1])
-      const k4 = f(phi + DT * k3[0], om + DT * k3[1])
-      phi += (DT / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
-      om += (DT / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
+      const k2 = f(phi + 0.5 * dt * k1[0], om + 0.5 * dt * k1[1])
+      const k3 = f(phi + 0.5 * dt * k2[0], om + 0.5 * dt * k2[1])
+      const k4 = f(phi + dt * k3[0], om + dt * k3[1])
+      phi += (dt / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
+      om += (dt / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
     }
   }
 }
 
 // ── interpolateAt(): Wert zu beliebiger Zeit t aus den precompute-Arrays ────────
 // Kanonisches Muster — KEINE zweite Interpolation anderswo (auch Hover nicht).
+/**
+ * Lineare Interpolation eines Zeitreihen-Werts zu beliebiger Zeit t
+ * (Binary-Search, O(log n)).
+ * @param {number[]} arr Wertearray (z. B. store.phi_data)
+ * @param {number} t Zeit in s (wird auf das Fenster geclampt, siehe t_data)
+ * @returns {number} interpolierter Wert
+ */
 export function interpolateAt(arr, t) {
   const { t_data } = store
   if (!t_data.length) return 0
-  let i = t_data.findIndex(tv => tv > t)
-  if (i === -1) i = t_data.length
-  i = Math.max(0, i - 1)
+  // Binary search for the interval containing t (O(log n))
+  let lo = 0, hi = t_data.length - 1
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1
+    if (t_data[mid] <= t) lo = mid + 1
+    else hi = mid - 1
+  }
+  let i = Math.max(0, lo - 1)
   const t1 = t_data[i], t2 = t_data[i + 1] ?? t1
   const alpha = t2 > t1 ? (t - t1) / (t2 - t1) : 0
   return arr[i] + alpha * ((arr[i + 1] ?? arr[i]) - arr[i])

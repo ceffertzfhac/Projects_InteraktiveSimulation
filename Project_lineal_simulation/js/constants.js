@@ -1,10 +1,16 @@
 'use strict'
 
+/**
+ * @module lineal/constants
+ * Konstanten (SI) und UI-Grenzen des schwingenden Lineals. Keine veränderlichen
+ * Werte — mutabler Laufzeit-State lebt ausschließlich in `state.js` (store).
+ */
+
 // ── Physikalische Konstanten ──────────────────────────────────────────────────
 export const G = 9.81            // m/s² — Erdbeschleunigung
 
 // ── Precompute ────────────────────────────────────────────────────────────────
-export const DT = 0.01           // s — Schrittweite der Zeitreihen
+export const DT_DEFAULT = 0.01  // s — Standard-Schrittweite (aktueller Wert: store.DT)
 export const PERIODS_SHOWN = 6   // angezeigte Schwingungsperioden (Fenster = N·T)
 export const T_WINDOW_MIN = 3    // s — unterer Fenster-Plafond
 export const T_WINDOW_MAX = 20   // s — oberer Fenster-Plafond (Probenbegrenzung)

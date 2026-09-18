@@ -5,6 +5,54 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.1.0 — 2026-09-18
+
+Abarbeitung des Review-Backlogs (kritisches Technik-/Physik-/UI-/UX-/Didaktik-
+Review): numerische Präzision, Accessibility, didaktische Hinweise, Performance.
+
+### Physik / Numerik
+- **UI-justierbarer Zeitschritt Δt** (0,001–0,05 s, Default 0,01 s): neuer
+  Slider im Panel „Visualisierung". Der Wert lebt im `store` (`store.DT`) —
+  zentrale Stelle für alle mutablen Werte; `constants.js` exportiert nur noch
+  den Default `DT_DEFAULT`. `precompute()`/RK4 lesen die aktuelle Schrittweite
+  aus dem Store. Kleinere Schritte erhöhen die RK4-Genauigkeit bei großen
+  Auslenkungen (φ₀ > 45°) ohne spürbaren Performance-Verlust.
+- **Interpolation O(log n):** `interpolateAt()` sucht das Zeitintervall jetzt
+  per Binary-Search statt `findIndex` (O(n)) — relevant für kleine Δt
+  (bis 20 000 Punkte) in Animation, Wiedergabe-Markern und Hover.
+- **Diagramm-Downsampling:** Kurven werden stride-verdünnt, wenn mehr Punkte
+  als Diagramm-Pixelbreite vorliegen (Endpunkte bleiben erhalten) — visuelle
+  Qualität unverändert, Polyline-Knoten bei kleinem Δt stark reduziert.
+
+### UX
+- **Instabilitäts-Overlay:** Achse unterhalb des Schwerpunkts (*s* ≤ 0) →
+  roter Hinweis über der Szene, Play-Button gesperrt (vorher nur „— instabil"
+  im Live-Panel).
+- **φ₀-Warnung (didaktisch):** Im kleinen-Winkel-Modell ab φ₀ > 20° erscheint
+  ein Hinweis unter dem Slider, dass die Näherung merkbar vom exakten
+  Verhalten abweicht und „Exakt (nichtlinear)" gewählt werden sollte.
+- **Info-Modal:** Button „❔ Info" (Topbar) öffnet ein `<dialog>` mit
+  Modell-Zusammenfassung und Hinweis zum einstellbaren Zeitschritt.
+- **Energie-Legende:** Beim Diagrammtyp „Energie" zeigt eine SVG-Legende
+  (Farbswatch + Label) die Zuordnung *E*_kin/*E*_pot/*E*_ges.
+- **Diagramm-Dropdown-Beschreibungen:** Je `<option>` ein `title`-Tooltip
+  mit kurzer physikalischer Erläuterung des Verlaufs.
+- **Responsive:** Unter 900 px brechen die drei Spalten (Steuerung / Szene /
+  Analyse) gestapelt um; das SVG skaliert weiterhin per `preserveAspectRatio`.
+
+### Accessibility
+- ARIA-Labels für alle Slider (inkl. `aria-valuemin/max/now`, dynamisch
+  synchronisiert), Buttons, Select; Hover-Tooltip mit `role="tooltip"` +
+  `aria-live="polite"`; Warnhinweis mit `role="status"`.
+- Globale `:focus-visible`-Fokusanzeige im Design-System; Tooltip-Hintergrund
+  auf neue, kontraststarke Token `--tooltip-bg` (Light/Dark).
+
+### Test
+- Neue Vitest-Suite `test/physics.test.js` (9 Tests): abgeleitete Größen,
+  Stabilitäts-Grenzfall, *store.DT*-Respekt, RK4-Energieerhaltung,
+  Binary-Search-Interpolation (Gleichwertigkeit vs. Referenz-Scan).
+- CI-Workflow `.github/workflows/ci.yml` (Node 20, `npm ci`, `npm test`).
+
 ## v1.0.0 — 2026-07-15
 
 Erstfassung aus der Lineal-Aufgabe (→ `new_sim_input/Lineal/`):

@@ -28,7 +28,7 @@ window.MathJax = {
   </div>
   <div class="topbar-title">
     Schwingendes Lineal
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.1.0</span>
     <span class="inst">FH Aachen – FB 8 – Physik</span>
   </div>
   <div class="topbar-right">
@@ -37,13 +37,16 @@ window.MathJax = {
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
       <span style="font-size:.82rem">☀️</span>
     </div>
-    <button class="btn primary" id="play_btn">▶ Play</button>
-    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
-    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
-    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
-    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+    <button class="btn primary" id="play_btn" aria-label="Animation starten">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled aria-label="Animation pausieren"><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn" aria-label="Simulation zurücksetzen"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn" aria-label="Diagrammdaten als CSV exportieren">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn" aria-label="Alle Simulationsdaten als CSV exportieren">Alle Daten (CSV)</button>
   </div>
 </header>
+<div id="instability_overlay" class="instability-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.2); z-index:10; pointer-events:none; align-items:center; justify-content:center; color:#900; font-weight:bold; font-size:1.5rem;">
+  Instabile Konfiguration – Lineal kann nicht schwingen.
+</div>
 
 <div class="app-layout analysis-collapsed">
 
@@ -54,17 +57,17 @@ window.MathJax = {
       <button class="panel-label" type="button" aria-expanded="true">Lineal-Geometrie<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Lochposition \(a\) (Kante&rarr;Loch)</div>
       <div class="slider-row">
-        <input type="range" id="a_slider" min="1.0" max="14.0" value="1.9" step="0.1">
+        <input type="range" id="a_slider" min="1.0" max="14.0" value="1.9" step="0.1" aria-label="Lochposition a (cm)" aria-valuemin="1.0" aria-valuemax="14.0" aria-valuenow="1.9">
         <span class="slider-val" id="a_value">1,9 cm</span>
       </div>
       <div class="slider-label">Lineallänge \(l\)</div>
       <div class="slider-row">
-        <input type="range" id="l_slider" min="30.0" max="40.0" value="32.0" step="0.5">
+        <input type="range" id="l_slider" min="30.0" max="40.0" value="32.0" step="0.5" aria-label="Lineallänge l (cm)" aria-valuemin="30.0" aria-valuemax="40.0" aria-valuenow="32.0">
         <span class="slider-val" id="l_value">32,0 cm</span>
       </div>
       <div class="slider-label">Linealbreite \(b\)</div>
       <div class="slider-row">
-        <input type="range" id="b_slider" min="1.0" max="6.0" value="3.7" step="0.1">
+        <input type="range" id="b_slider" min="1.0" max="6.0" value="3.7" step="0.1" aria-label="Linealbreite b (cm)" aria-valuemin="1.0" aria-valuemax="6.0" aria-valuenow="3.7">
         <span class="slider-val" id="b_value">3,7 cm</span>
       </div>
     </div>
@@ -73,8 +76,13 @@ window.MathJax = {
       <button class="panel-label" type="button" aria-expanded="true">Anfangsbedingung &amp; Masse<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="slider-label">Anfangsauslenkung \(\varphi_0\)</div>
       <div class="slider-row">
-        <input type="range" id="phi0_slider" min="5" max="90" value="20" step="1">
+        <input type="range" id="phi0_slider" min="5" max="90" value="20" step="1" aria-label="Anfangsauslenkung φ₀ (°)" aria-valuemin="5" aria-valuemax="90" aria-valuenow="20">
         <span class="slider-val" id="phi0_value">20 °</span>
+      </div>
+      <div class="hint-box phi0-warn" id="phi0_warn" role="status" style="display:none">
+        ⚠ Ab ca. φ₀ &gt; 20° weicht das kleine-Winkel-Modell merkbar vom exakten
+        Verhalten ab (Periodendauer wird größer). Für große Auslenkungen
+        „Exakt (nichtlinear)" wählen.
       </div>
       <div class="slider-label">Masse \(m\)</div>
       <div class="slider-row">
@@ -94,23 +102,27 @@ window.MathJax = {
 
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
-      <select id="graph_select" class="select-field">
-        <option value="phi" selected>Auslenkung \(\varphi(t)\)</option>
-        <option value="omega">Winkelgeschwindigkeit \(\omega(t)\)</option>
-        <option value="alpha">Winkelbeschleunigung \(\alpha(t)\)</option>
-        <option value="energy">Energie (\(E_\text{kin}, E_\text{pot}, E_\text{ges}\))</option>
+      <select id="graph_select" class="select-field" aria-label="Diagrammtyp auswählen">
+        <option value="phi" selected title="Winkel φ des Lineals über der Zeit — Kosinus-Verlauf, Amplitude φ₀">Auslenkung \(\varphi(t)\)</option>
+        <option value="omega" title="Winkelgeschwindigkeit ω = dφ/dt — Sinus-Verlauf, am größten in der Ruhelage">Winkelgeschwindigkeit \(\omega(t)\)</option>
+        <option value="alpha" title="Winkelbeschleunigung α = d²φ/dt² — antiphase zu φ, am größten in der Umkehrlage">Winkelbeschleunigung \(\alpha(t)\)</option>
+        <option value="energy" title="Kinetische, potentielle und Gesamtenergie — E_ges bleibt konstant (reibungslos)">Energie (\(E_\text{kin}, E_\text{pot}, E_\text{ges}\))</option>
       </select>
     </div>
 
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
-      <div class="vis-toggle-row">
-        <span class="vis-label">Schwerkraft \(\vec{F}_G\)</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="tog_grav" checked>
-          <span class="toggle-track"></span><span class="toggle-thumb"></span>
-        </label>
-      </div>
+<div class="vis-toggle-row">
+      <span class="vis-label">Schwerkraft \(\vec{F}_G\)</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="tog_grav" checked>
+        <span class="toggle-track"></span><span class="toggle-thumb"></span>
+      </label>
+    </div>
+    <div class="slider-row">
+      <input type="range" id="dt_slider" min="0.001" max="0.05" step="0.001" value="0.01" aria-label="Zeitschritt Δt (s)" aria-valuemin="0.001" aria-valuemax="0.05" aria-valuenow="0.01">
+      <span class="slider-val" id="dt_value">0,01 s</span>
+    </div>
       <div class="vis-toggle-row">
         <span class="vis-label">Geschwindigkeit \(\vec{v}\)</span>
         <label class="toggle-switch">

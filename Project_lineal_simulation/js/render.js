@@ -1,5 +1,12 @@
 'use strict'
 
+/**
+ * @module lineal/render
+ * SVG-Rendering: Szene (Lineal, Vektoren, Winkelbogen) und Diagramm (Achsen,
+ * Gitter, Kurven, Hover). Zeichnet nur — Physik kommt aus `physics.js`
+ * (precompute-Arrays), Interpolation über interpolateAt().
+ */
+
 import { PPM, PIVOT_X, PIVOT_Y, RULER_RX, HOLE_R,
          PIXELS_PER_VEL, GRAV_VEC_LEN, VEC_MARKER_LEN,
          GRAPH_W, GRAPH_H, GRAPH_OPTIONS, GRAPH_TITLES, ENERGY_COLORS, ENERGY_LABELS } from './constants.js'
@@ -33,6 +40,19 @@ const TO_PLOT = {
 const RAW_ARR = {
   phi: () => store.phi_data, omega: () => store.omega_data, alpha: () => store.alpha_data,
   ekin: () => store.ekin_data, epot: () => store.epot_data, eges: () => store.eges_data,
+}
+
+// Stride-Downsampling: bei kleinem Δt (bis 20 000 Punkte) mehr als ein Punkt pro
+// Bildschirm-Pixel ist optisch redundant. Die Endpunkte bleiben immer erhalten.
+const _dsCache = { maxPts: 0, stride: 1, keep: null }
+function downsampleIndices(n, maxPts) {
+  if (_dsCache.maxPts === maxPts && _dsCache.keep && _dsCache.keep.length === n) return _dsCache.keep
+  const stride = n > maxPts ? Math.ceil(n / maxPts) : 1
+  const keep = []
+  for (let i = 0; i < n; i += stride) keep.push(i)
+  if (keep[keep.length - 1] !== n - 1) keep.push(n - 1)
+  _dsCache.maxPts = maxPts; _dsCache.stride = stride; _dsCache.keep = keep
+  return keep
 }
 
 // ── Statische Szene + Lineal (je Reset neu, da l/b/a veränderbar) ──────────────
@@ -162,11 +182,13 @@ export function drawGraph() {
   const yl = el('text', { x: x0 - 44, y: GRAPH_H / 2, transform: `rotate(-90 ${x0 - 44} ${GRAPH_H / 2})`, 'text-anchor': 'middle', class: 'axis-label' })
   setAxisLabel(yl, opt.yLabel); DOM.gridGroup.appendChild(yl)
 
-  // Datenkurven (eine Polyline je Serie)
+  // Datenkurven (eine Polyline je Serie; stride-gedownsamplet — s. downsampleIndices)
   DOM.graphLines.innerHTML = ''
+  const tN = store.t_data.length
+  const keep = downsampleIndices(tN, gw)
   for (const s of series) {
     let pts = ''
-    for (let i = 0; i < store.t_data.length; i++) pts += `${scX(store.t_data[i])},${scY(s.toPlot(s.arr[i]))} `
+    for (const i of keep) pts += `${scX(store.t_data[i])},${scY(s.toPlot(s.arr[i]))} `
     DOM.graphLines.appendChild(el('polyline', {
       fill: 'none', 'stroke-width': 2, points: pts,
       class: 'graph-line', style: `stroke: var(${s.color})`,
@@ -184,6 +206,17 @@ export function drawGraph() {
 
   // Titel (letztes Daten-Kind vor Hover-Overlay + Hit-Rect)
   setGraphTitle(DOM.graphTitle, GRAPH_TITLES[store.graphType])
+  // Energy‑Legend (nur für energy‑Graph‑Typ) – Farbcodes aus ENERGY_COLORS
+  if (store.graphType === 'energy') {
+    const legendGroup = el('g', { id: 'energy_legend', transform: `translate(${gw - 120} ${plotTop + 10})` })
+    const keys = opt.keys
+    keys.forEach((k, i) => {
+      const y = i * 20
+      legendGroup.appendChild(el('rect', { x: 0, y, width: 12, height: 12, fill: `var(${ENERGY_COLORS[k]})` }))
+      legendGroup.appendChild(el('text', { x: 16, y: y + 10, 'text-anchor': 'start', class: 'axis-label', 'font-size': '10px' })).textContent = ENERGY_LABELS[k]
+    })
+    DOM.gridGroup.appendChild(legendGroup)
+  }
 
   // Hover-Ring-Punkte (eine je Serie)
   DOM.hoverPoints.innerHTML = ''
@@ -268,6 +301,8 @@ function renderHoverTooltip(gs, t, xPix) {
   const tx = Math.max(0, Math.min(gs.gw - boxW, xPix + 12))
   DOM.hoverTooltip.setAttribute('transform', `translate(${tx}, 10)`)
   DOM.hoverTooltip.setAttribute('visibility', 'visible')
+  DOM.hoverTooltip.setAttribute('role', 'tooltip')
+  DOM.hoverTooltip.setAttribute('aria-live', 'polite')
 }
 
 // ── shortenEnd + null-Guard (kanonische Pfeilspitzen-Geometrie, B23) ───────────

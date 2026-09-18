@@ -78,3 +78,32 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
 .panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
 /* !important: schlägt JS-gesetzte display:block-Kinder im eingeklappten Zustand */
 .panel-section.collapsed > .panel-label ~ * { display: none !important; }
+
+/* ── Schmale Viewports: 3-Spalten-Grid gestapelt (per-Sim, analog Kreisbewegung) ──
+   Das SVG skaliert bereits flüssig (width/height:100% + preserveAspectRatio);
+   hier wird nur das Layout umgebrochen, sodaß Sidebar, Szene und Analyse
+   untereinander liegen und per Seite scrollbar sind. */
+@media (max-width: 900px) {
+  .app-layout, .app-layout.analysis-collapsed {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: auto;
+    min-height: calc(100vh - 52px);
+    overflow: visible;
+  }
+  .left-panel {
+    max-height: 45vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .center-area { min-height: 60vh; }
+  .right-panel { border-left: none; border-top: 1px solid var(--border); }
+  /* Off-screen-Technik (left:-10000px) gilt nur im 3-Spalten-Modus;
+     gestapelt wird das eingeklappte Analyse-Panel einfach ausgeblendet. */
+  .app-layout.analysis-collapsed .right-panel .panel-body {
+    position: static; width: auto; pointer-events: auto;
+  }
+  /* Analyse-Panel bleibt gestapelt immer erreichbar (Toggle wirkt hier nur im
+     Desktop-Modus) — sonst wäre der Toggle-Button selbst ausgeblendet. */
+  .right-panel { width: 100%; }
+}

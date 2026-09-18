@@ -1,5 +1,12 @@
 'use strict'
 
+/**
+ * @module lineal/ui
+ * ES-Modul-Einstiegspunkt (kein main.js — vgl. Freier Fall / Atwood):
+ * Event-Bindung, Animations-Loop, Theme, CSV-Export. index.html lädt dieses
+ * Modul via <script type="module" src="js/ui.js">.
+ */
+
 // ── ES-Modul-Einstiegspunkt (kein main.js — vgl. Freier Fall / Atwood) ─────────
 // index.html lädt dieses Modul via <script type="module" src="js/ui.js">.
 import { store, DOM, initDOM } from './state.js'
@@ -54,6 +61,9 @@ function resetSim() {
   store.graphType = DOM.graphSelect.value
   DOM.modelRadios.forEach(r => { if (r.checked) store.model = r.value })
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
+  // Zeitschritt‑Slider – Schrittweite lebt im store (mutable), physics.js liest sie
+  store.DT = parseFloat(DOM.dtSlider.value)
+  DOM.dtValue.textContent = `${fmt(parseFloat(DOM.dtSlider.value), 3)} s`
 
   DOM.aValue.textContent    = `${fmt(store.a_cm, 1)} cm`
   DOM.lValue.textContent    = `${fmt(store.l_cm, 1)} cm`
@@ -61,10 +71,32 @@ function resetSim() {
   DOM.phi0Value.textContent = `${fmt(parseFloat(DOM.phi0Slider.value), 0)} °`
   DOM.mValue.textContent    = `${fmt(store.m_g, 1)} g`
 
+  // ARIA-Attribute der Slider mit dem aktuellen Wert synchron halten
+  const syncAria = s => { if (s) s.setAttribute('aria-valuenow', s.value) }
+  ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(syncAria)
+
+  // Warnung: lineares Modell bei großer Anfangsauslenkung (Näherungsgültigkeit)
+  const warn = document.getElementById('phi0_warn')
+  if (warn) {
+    const phi0deg = Math.abs(DOM.phi0Slider.valueAsNumber)
+    warn.style.display = (store.model === 'linear' && phi0deg > 20) ? 'block' : 'none'
+  }
+
   precompute()
   drawBackground()
   drawGraph()
   updateScene(0)
+  // Instabilitäts‑Overlay: anzeigen, wenn die Achse unterhalb des Schwerpunkts liegt
+  const overlay = document.getElementById('instability_overlay')
+  if (store.stable) {
+    overlay.style.display = 'none'
+    overlay.style.visibility = 'hidden'
+    DOM.playBtn.disabled = false
+  } else {
+    overlay.style.display = 'flex'
+    overlay.style.visibility = 'visible'
+    DOM.playBtn.disabled = true
+  }
 }
 
 // ── Theme (localStorage-Key einheitlich 'fh_theme') ────────────────────────────
@@ -117,7 +149,7 @@ function syncPills(name) {
 initDOM()
 setupTheme()
 
-;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider].forEach(s => s.addEventListener('input', resetSim))
+;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider, DOM.dtSlider].forEach(s => s.addEventListener('input', resetSim))
 ;[DOM.graphSelect, DOM.togGrav, DOM.togVel].forEach(s => s.addEventListener('change', resetSim))
 DOM.modelRadios.forEach(r => r.addEventListener('change', () => { syncPills('model'); resetSim() }))
 DOM.speedRadios.forEach(r => r.addEventListener('change', () => { syncPills('speed') }))
