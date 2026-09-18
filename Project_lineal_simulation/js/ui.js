@@ -165,7 +165,7 @@ setupTheme()
 ;[DOM.aSlider, DOM.lSlider, DOM.bSlider, DOM.phi0Slider, DOM.mSlider].forEach(s => s.addEventListener('input', resetSim))
 ;[DOM.graphSelect, DOM.togGrav, DOM.togVel].forEach(s => s.addEventListener('change', resetSim))
 // Vektor-Visibility + Skalierung: keine Neu-Integration nötig — nur Szene neu zeichnen
-;[DOM.togNorm, DOM.togRes, DOM.togAcc, DOM.togSusp].forEach(s => s.addEventListener('change', () => updateScene(store.simulatedTime)))
+;[DOM.togNorm, DOM.togGes, DOM.togAcc, DOM.togSusp].forEach(s => s.addEventListener('change', () => updateScene(store.simulatedTime)))
 // Referenzkurve: Toggle speichert beim Aktivieren den Snapshot (in drawGraph) und
 // zeichnet das Diagramm neu. Beim Deaktivieren wird der Snapshot verworfen (die
 // Kurve verschwindet dann erst, nicht schon bei jeder Parameteränderung).

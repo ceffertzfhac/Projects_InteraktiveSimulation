@@ -20,12 +20,6 @@ verlinkt auf den zugehörigen `BACKLOG.md`-Eintrag (→ <ID>).
   in beiden Fällen eine echte Erhaltungsgröße ist. Die Abweichung zwischen den
   Energie-Formeln bei großen Winkeln ist gewollt (zeigt den Näherungscharakter).
 
-## Offen
-
-- **Vorschaubild fehlt:** die Übersichtskarte nutzt vorerst den CSS-Placeholder
-  (→ BACKLOG B/T-lineal#). Bild wird bei Lieferung durch den Product Owner
-  eingesetzt (`AllAnimations/Vorschaubilder/lineal.png`).
-
 ## Randfälle
 
 - **Achse unterhalb des Schwerpunkts (*s* ≤ 0):** keine stabile Schwingung; (Der Code verwendet einen kleinen Puffer `s > 1e-4 m`, um numerische Rundungsfehler zu vermeiden)
