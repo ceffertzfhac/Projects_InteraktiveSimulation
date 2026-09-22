@@ -62,6 +62,8 @@ done
 # ../shared/ referenziert).
 cp shared/css/design-system.css Webpage/shared/css/design-system.css
 cp shared/js/*.js Webpage/shared/js/
+mkdir -p Webpage/shared/img
+cp shared/img/*.png Webpage/shared/img/
 
 echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
 echo "Drift prüfen:  bash scripts/check-webpage-drift.sh"

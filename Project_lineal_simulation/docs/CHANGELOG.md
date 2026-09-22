@@ -5,6 +5,14 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.4 — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent (41 px, leicht transparent) im Header
+  rechts neben „FH Aachen – FB 8 – Physik". Pilot für den Rollout auf alle Sims; Bild und CSS
+  (`.topbar-logo`) liegen zentral in `shared/`.
+
 ## v1.3.3 — 2026-09-18
 
 ### Bugfix
