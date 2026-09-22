@@ -1,5 +1,12 @@
 # CHANGELOG — Die Ableitung als Grenzwert
 
+## [1.2.8] — 2026-09-22
+
+### Geändert
+- **Wertebereich für δ auf −10 … 10 erweitert** (vorher −5 … 5, `DELTA_LIMIT`).
+  Die dynamische Randkopplung bleibt: nahe den Rändern des Definitionsbereichs
+  wird |δ| weiterhin so begrenzt, daß die Stützpunkte im Bereich bleiben.
+
 ## [1.2.7] — 2026-09-22
 
 ### Style

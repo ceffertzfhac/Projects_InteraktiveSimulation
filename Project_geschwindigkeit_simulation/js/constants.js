@@ -24,7 +24,7 @@ export const T0_DEFAULT = 10
 // Zuordnung tauscht) — im vorwärts-Modus unterscheidet das Vorzeichen aber
 // echte Vorwärts- von Rückwärts-Differenzenquotienten (pädagogisch relevant,
 // deshalb 1:1 aus dem Original übernommen statt auf „nur positiv" vereinfacht).
-export const DELTA_LIMIT = 5
+export const DELTA_LIMIT = 10
 export const DELTA_STEP = 0.01
 export const DELTA_DEFAULT = 1.0
 

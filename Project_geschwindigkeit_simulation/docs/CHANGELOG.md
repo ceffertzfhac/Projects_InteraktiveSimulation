@@ -5,6 +5,14 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.3 — 2026-09-22
+
+### Geändert
+- **Wertebereich für Δt auf −10 … 10 s erweitert** (vorher −5 … 5 s,
+  `DELTA_LIMIT`). Die dynamische Randkopplung bleibt: nahe den Rändern der
+  Zeitachse wird Δt weiterhin so begrenzt, daß die Stützpunkte im Bereich
+  bleiben.
+
 ## v1.0.2 — 2026-09-22
 
 ### Style

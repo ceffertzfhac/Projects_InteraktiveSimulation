@@ -19,7 +19,7 @@ export const X0_DEFAULT = 12.5
 
 // Abstand δ (Slider). Betragsgrenze zusätzlich dynamisch an den Rand gekoppelt,
 // damit x₀ ± δ (bzw. x₀ + δ) im Definitionsbereich bleibt.
-export const DELTA_LIMIT = 5
+export const DELTA_LIMIT = 10
 export const DELTA_STEP = 0.05
 export const DELTA_DEFAULT = 2.5
 
