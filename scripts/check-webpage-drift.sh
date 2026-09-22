@@ -97,7 +97,7 @@ for s in "${SIMS[@]}"; do
 done
 
 # shared/ byte-identisch.
-for f in shared/css/design-system.css shared/js/*.js; do
+for f in shared/css/design-system.css shared/js/*.js shared/img/*.png; do
   b="${f#shared/}"
   if [ ! -f "Webpage/shared/$b" ]; then
     drifts+=("DRIFT shared: Webpage/shared/$b fehlt")

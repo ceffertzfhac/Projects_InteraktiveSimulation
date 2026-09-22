@@ -1,5 +1,12 @@
 # Changelog — Schräger Wurf
 
+## v1.6.1 — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent im Header rechts neben „FH Aachen – FB 8 –
+  Physik" (zentrale Klasse `.topbar-logo`, Bild in `shared/img/`).
+
 ## v1.6.0 — 2026-07-15
 
 Feature (→ BACKLOG I14): synchronisierter Hover zwischen Top- und

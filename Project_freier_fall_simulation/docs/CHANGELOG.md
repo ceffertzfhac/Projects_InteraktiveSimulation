@@ -1,5 +1,12 @@
 # Changelog – Freier Fall / Senkrechter Wurf
 
+## v2.5.1 — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent im Header rechts neben „FH Aachen – FB 8 –
+  Physik" (zentrale Klasse `.topbar-logo`, Bild in `shared/img/`).
+
 ## v2.5.0 — 2026-07-15
 
 I13.1 + I14 — Hover-Werte am Diagramm + synchronisierter Hover über

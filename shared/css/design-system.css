@@ -132,6 +132,14 @@ body {
   position: sticky; top: 0; z-index: 100;
 }
 .topbar-left { display: flex; align-items: center; }
+/* Logo Lehr- und Forschungsgebiet Physik (FB 8) — dezent, mint auf transparent,
+   in Light und Dark Mode gleich lesbar; sitzt rechts neben .inst im Titel.
+   Quelle: shared/img/src/ */
+.topbar-logo {
+  height: 41px; width: auto; vertical-align: middle; margin-left: 8px;
+  opacity: .85; transition: opacity .15s;
+}
+.topbar-logo:hover { opacity: 1; }
 .back-btn {
   font-size: .75rem; color: var(--text2); text-decoration: none;
   padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--r);
