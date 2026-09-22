@@ -5,6 +5,13 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.0.2 — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent im Header rechts neben „FH Aachen – FB 8 –
+  Physik" (zentrale Klasse `.topbar-logo`, Bild in `shared/img/`).
+
 ## v1.0.1 — 2026-07-13
 
 Copyright-Marke + Disclaimer-Verweis (repo-weit, Vorbereitung I1/ILIAS-Veröffentlichung).

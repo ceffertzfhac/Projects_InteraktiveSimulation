@@ -3,6 +3,13 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.8.1] — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent im Header rechts neben „FH Aachen – FB 8 –
+  Physik" (zentrale Klasse `.topbar-logo`, Bild in `shared/img/`).
+
 ## [1.8.0] — 2026-07-15
 
 Feature (→ BACKLOG I14): synchronisierter Hover zwischen Diagramm 1/2 im

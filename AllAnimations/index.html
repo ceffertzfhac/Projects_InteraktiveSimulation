@@ -25,7 +25,7 @@
     header {
       background: var(--surface);
       border-bottom: 3px solid var(--fh-mint);
-      padding: 20px 40px;
+      padding: 11px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -34,6 +34,10 @@
       z-index: 100;
       box-shadow: 0 2px 8px rgba(0,0,0,.06);
     }
+    .header-lead { display: flex; align-items: center; gap: 16px; }
+    /* Physik-Logo: prominenter als in den Sims (dort 41 px), Header bleibt
+       durch reduziertes Padding etwa gleich hoch. */
+    .header-logo { height: 62px; width: auto; display: block; flex-shrink: 0; }
     .header-brand { display: flex; flex-direction: column; gap: 2px; }
     .header-brand-top {
       font-size: .72rem;
@@ -203,9 +207,14 @@
 <body>
 
   <header>
-    <div class="header-brand">
-      <span class="header-brand-top">FH Aachen University of Applied Sciences · FB 8 · Physik</span>
-      <span class="header-brand-title">Interaktive Physik-Simulationen</span>
+    <div class="header-lead">
+      <img src="../shared/img/logo_physik_mint.png" class="header-logo"
+           alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8"
+           title="Lehr- und Forschungsgebiet Physik – FB 8">
+      <div class="header-brand">
+        <span class="header-brand-top">FH Aachen University of Applied Sciences · FB 8 · Physik</span>
+        <span class="header-brand-title">Interaktive Physik-Simulationen</span>
+      </div>
     </div>
     <div class="header-controls">
       <label class="theme-toggle-wrap" title="Dark Mode umschalten">

@@ -2,6 +2,13 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.3.1] — 2026-09-22
+
+### Style
+- **Physik-Logo in der Topbar.** Das Logo „Lehr- und Forschungsgebiet
+  Physik – FB 8" sitzt dezent im Header rechts neben „FH Aachen – FB 8 –
+  Physik" (zentrale Klasse `.topbar-logo`, Bild in `shared/img/`).
+
 ## [2.3.0] — 2026-07-15
 
 I12 Sidebar-Rollout + I12.4 — Diagramm-Typ-Picker aus der `.graph-toolbar` am
