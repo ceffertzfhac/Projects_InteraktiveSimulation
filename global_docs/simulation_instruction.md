@@ -128,12 +128,32 @@ DOM.analysisToggle.addEventListener('click', () => {
 - **SVG-Resize:** Das SVG nutzt `viewBox` + `preserveAspectRatio="xMidYMid meet"`, skaliert also beim Klappen automatisch — keine Neuberechnung (`resetSim`) nötig.
 - **Default eingeklappt:** `.app-layout` im HTML die Klasse `analysis-collapsed` geben und `aria-expanded="false"` setzen; nicht erst per JS einklappen (vermeidet Aufblitzen).
 
+### Einklappbare Bedien-Sidebar (links, → BACKLOG I17)
+
+Seit 2026-09-26 (PO-Wunsch) ist auch die **linke** Sidebar **als Ganzes**
+ein-/ausklappbar — Spiegelbild der Analyse-Sidebar, aber **Vorgabe
+ausgeklappt**. Umsetzung zentral, je Sim nur eine Zeile vor dem Haupt-Script:
+
+```html
+<script type="module" src="../shared/js/panel-toggle.js"></script>
+```
+
+`shared/js/panel-toggle.js` setzt die Kopfleiste „Bedienung" (`.panel-header
+.controls-header`, Doppel-Chevron) oben in `.left-panel` und schaltet
+`.controls-collapsed` auf `.app-layout`. Layout in
+`shared/css/design-system.css` („Einklappbare Bedien-Sidebar"):
+eingeklappt 44-px-Schiene mit gedrehtem Label, rechte Breite über
+`--right-w` (Standard 270px; eine Sim mit breiterem Analyse-Panel setzt die
+Variable, z. B. Kreis-/Spiralbewegung 405px). Eine Sim, die schmal das Grid
+**stapelt**, nimmt Schiene und Spalten in ihrer Media-Query zurück (Vorbild:
+Lineal). Das Akkordeon je Cluster (unten) gilt unverändert zusätzlich.
+
 ### Akkordeon-Steuerungs-Sidebar (links)
 
-Die **linke** Steuerungs-Sidebar wird — anders als die rechte Analyse-Sidebar — **nicht als Ganzes** eingeklappt (die Steuerung soll jederzeit sichtbar/bedienbar bleiben), sondern jede thematische `.panel-section` wird **einzelnes ein-/ausklappbar** gemacht (Akkordeon). Das komprimiert eine überlange Sidebar, ohne sie zu verstecken. Kanonische Referenzimplementierung: **`Project_kreis_spiralbewegung_simulation/` ab v1.3.0**. Für Simulationen mit überlanger linker Sidebar (≥ 5 Cluster oder solche, die über den unteren Rand reichen) dieses Muster übernehmen → BACKLOG I8.
+Zusätzlich zum Einklappen als Ganzes (I17, oben) wird jede thematische `.panel-section` der linken Sidebar **einzeln ein-/ausklappbar** gemacht (Akkordeon). *(Bis 2026-09-26 galt: die linke Sidebar wird nie als Ganzes eingeklappt — durch I17 abgelöst.)* Das komprimiert eine überlange Sidebar, ohne sie zu verstecken. Kanonische Referenzimplementierung: **`Project_kreis_spiralbewegung_simulation/` ab v1.3.0**. Für Simulationen mit überlanger linker Sidebar (≥ 5 Cluster oder solche, die über den unteren Rand reichen) dieses Muster übernehmen → BACKLOG I8.
 
 **UX-Regeln (best practice):**
-- Die Sidebar als Ganzes bleibt stehen; jedes `.panel-section`-Cluster ist einzeln auf-/zuklappbar.
+- Jedes `.panel-section`-Cluster ist einzeln auf-/zuklappbar; die Sidebar als Ganzes zusätzlich über die Kopfleiste „Bedienung“ (I17, Vorgabe ausgeklappt).
 - `.panel-label` wird zum klickbaren `<button>` mit Chevron `▾` (rotiert `-90°` → `▸` bei eingeklappt) — die etablierte Akkordeon-Metapher.
 - Chevron **groß** (`1,4 rem`) für gute Sichtbarkeit/Klickbarkeit.
 - `aria-expanded` pro Cluster + `:focus-visible`-Ring; `<button>` → Enter/Space nativ (kein Key-Handler nötig).
