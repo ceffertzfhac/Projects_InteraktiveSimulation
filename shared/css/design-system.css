@@ -244,6 +244,37 @@ body.dark .theme-toggle::before { transform: translateX(16px); background: #fff;
 .app-layout.analysis-collapsed .ph-label { writing-mode: vertical-rl; transform: rotate(180deg); }
 .app-layout.analysis-collapsed .ph-chevron { transform: rotate(180deg); }
 
+/* ── EINKLAPPBARE BEDIEN-SIDEBAR (links, → BACKLOG I17) ──────────
+   Spiegelbild der Analyse-Sidebar; Kopfleiste .controls-header erzeugt
+   shared/js/panel-toggle.js. Vorgabe ausgeklappt.
+   1. Die Kopfleiste muss die Rail-Regeln von .analysis-collapsed .panel-header
+      (oben) ausdrücklich zurücknehmen — die gelten für JEDE .panel-header, und
+      die Analyse ist standardmäßig eingeklappt.
+   2. Spaltenbreiten in jeder Breite (die Sims behalten auch schmal ihre drei
+      Spalten). Eine Sim, die schmal STAPELT (Lineal < 900 px), nimmt Schiene
+      und Spalten in ihrer eigenen Media-Query zurück.
+   3. Rechte Breite über --right-w (Standard 270px; Kreis-/Spiral: 405px). */
+.left-panel > .controls-header { position: sticky; top: 0; z-index: 2; }
+/* Waagerecht in jedem Zustand und jeder Breite (Spezifität 0,4,0 schlägt die
+   Rail-Regeln der Analyse, auch lokale Kopien in einzelnen Sims) … */
+.app-layout .left-panel > .controls-header.panel-header {
+  flex-direction: row; justify-content: space-between; align-items: center;
+  height: auto; padding: 12px 16px; gap: 0; border-bottom: 1px solid var(--border);
+}
+.app-layout .left-panel > .controls-header.panel-header .ph-label { writing-mode: horizontal-tb; transform: none; }
+.app-layout .left-panel > .controls-header.panel-header .ph-chevron { transform: rotate(180deg); }   /* « einklappen */
+.app-layout.controls-collapsed .left-panel > .controls-header.panel-header .ph-chevron { transform: none; }   /* » ausklappen */
+.app-layout.controls-collapsed .left-panel > :not(.controls-header) { display: none !important; }
+/* … eingeklappt wird eine 44-px-Schiene daraus. */
+.app-layout.controls-collapsed { grid-template-columns: 44px 1fr var(--right-w, 270px); }
+.app-layout.controls-collapsed.analysis-collapsed { grid-template-columns: 44px 1fr 44px; }
+.app-layout.controls-collapsed .left-panel { overflow: hidden; }
+.app-layout.controls-collapsed .left-panel > .controls-header.panel-header {
+  flex-direction: column; justify-content: center; align-items: center;
+  height: 100%; padding: 14px 0; gap: 10px; border-bottom: none;
+}
+.app-layout.controls-collapsed .left-panel > .controls-header.panel-header .ph-label { writing-mode: vertical-rl; transform: rotate(180deg); }
+
 /* ── CENTER ──────────────────────────────────────────────────── */
 .center-area { overflow: hidden; background: var(--bg); transition: background 0.3s; display: flex; flex-direction: column; }
 .sim-wrapper { position: relative; overflow: hidden; flex: 1; min-height: 0; }
