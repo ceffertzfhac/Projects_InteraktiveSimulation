@@ -97,7 +97,15 @@ body.dark   { --graph-bg: #12151f; --grid-line: #242a3d; }
    hier wird nur das Layout umgebrochen, sodaß Sidebar, Szene und Analyse
    untereinander liegen und per Seite scrollbar sind. */
 @media (max-width: 900px) {
-  .app-layout, .app-layout.analysis-collapsed {
+  /* I17: gestapelt ist die eingeklappte Bedien-Sidebar keine Schiene, sondern
+     nur ihre waagerechte Kopfleiste (Spezifität schlägt die Schienen-Regel). */
+  .app-layout.controls-collapsed .left-panel > .controls-header.panel-header {
+    flex-direction: row; justify-content: space-between; height: auto;
+    padding: 12px 16px; gap: 0; border-bottom: 1px solid var(--border);
+  }
+  .app-layout.controls-collapsed .left-panel > .controls-header.panel-header .ph-label { writing-mode: horizontal-tb; transform: none; }
+  .app-layout, .app-layout.analysis-collapsed,
+  .app-layout.controls-collapsed, .app-layout.controls-collapsed.analysis-collapsed {   /* I17 */
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr) auto;
     height: auto;

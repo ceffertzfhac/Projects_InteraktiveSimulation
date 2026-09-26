@@ -5,6 +5,15 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.4.0 — 2026-09-26
+
+### Neu
+- **Bedien-Sidebar einklappbar (→ BACKLOG I17).** Kopfleiste „Bedienung“ mit
+  Doppel-Chevron oben in der linken Sidebar; eingeklappt eine 44-px-Schiene wie
+  die Analyse rechts. Vorgabe: ausgeklappt. Gemeinsames Modul
+  `shared/js/panel-toggle.js`, Layout in `shared/css/design-system.css`.
+- Schmales, gestapeltes Layout (< 900 px): eingeklappt bleibt nur die waagerechte Kopfleiste stehen, keine Schiene.
+
 ## v1.3.5 — 2026-09-22
 
 ### Style
