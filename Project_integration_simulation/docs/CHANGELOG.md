@@ -1,5 +1,13 @@
 # CHANGELOG — Die Integration als Grenzwert
 
+## [1.1.2] — 2026-09-22
+
+### Style
+- **Header zweizeilig für schmale Bildschirme.** Das Copyright steht jetzt
+  kleiner in einer eigenen Zeile unter „Titel · Version · FH Aachen – FB 8 –
+  Physik"; das Physik-Logo sitzt rechts daneben über beide Zeilen. Styling
+  zentral in `shared/css/design-system.css` (kein Inline-Style mehr).
+
 ## [1.1.1] — 2026-09-22
 
 ### Style
