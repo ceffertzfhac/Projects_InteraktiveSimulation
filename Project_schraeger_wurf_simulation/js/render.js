@@ -54,8 +54,10 @@ function createStyledSvgText(svgEl, text) {
     } else if (m[2]) {
       const t = document.createElementNS(NS, 'tspan')
       t.setAttribute('font-style', 'italic')
-      t.setAttribute('baseline-shift', 'sub')
-      t.setAttribute('font-size', '75%')
+      // Feste, kleine Absenkung statt baseline-shift="sub": das senkt in
+      // Chrome fast um eine ganze Zeile, der Index ragte in die Achsenzahlen.
+      t.setAttribute('baseline-shift', '-0.3em')
+      t.setAttribute('font-size', '70%')
       t.textContent = m[2]
       svgEl.appendChild(t)
     } else if (m[3]) {
@@ -357,11 +359,17 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
 
   // X-Ticks (T10): kanonischer tAxisStep statt fixer Teilstrich-Anzahl —
   // garantiert ≥3 Divisionen mit runden Werten statt beliebiger Brüche.
+  // t-Marken und „Zeit t / s" am UNTEREN Plotrand, nicht an der Nulllinie
+  // (Konvention „Abszisse am Nulldurchgang", FW9): bei v_y(t) liegt die
+  // Nulllinie mitten im Feld — dort kreuzte die Beschriftung die Kurve und
+  // „0,0" stieß an die „0" der Werteachse. Die Achse selbst bleibt bei 0.
+  // Bahnkurve (isTraj): unverändert an der Nulllinie (= Erdboden).
+  const tBase = isTraj ? y0 : padT + plotH
   const xStep = tAxisStep(xMax || 1)
   for (let xv = 0; xv <= xMax + xStep * 1e-6; xv += xStep) {
     const xp = scX(xv)
     gridEl.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: padT + plotH, class: 'grid-line' }))
-    const t = el('text', { x: xp, y: y0 + 15, 'text-anchor': 'middle', class: 'tick-label' })
+    const t = el('text', { x: xp, y: tBase + 15, 'text-anchor': 'middle', class: 'tick-label' })
     t.textContent = xv.toFixed(xStep % 1 === 0 ? 0 : 1)
     gridEl.appendChild(t)
   }
@@ -376,9 +384,13 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
   gridEl.appendChild(el('line', { x1: padL, y1: y0, x2: padL + plotW, y2: y0, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }))
   gridEl.appendChild(el('line', { x1: padL, y1: padT + plotH, x2: padL, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }))
 
-  const xLab = el('text', { x: padL + plotW / 2, y: y0 + 30, 'text-anchor': 'middle', class: 'axis-label' })
-  createStyledSvgText(xLab, xLabel)
-  gridEl.appendChild(xLab)
+  // Im Stapel teilen beide Diagramme die Zeitachse: „Zeit t / s" nur unter
+  // dem unteren — unter dem oberen läge sie auf dem Titel des unteren.
+  if (slot !== 'top') {
+    const xLab = el('text', { x: padL + plotW / 2, y: tBase + 30, 'text-anchor': 'middle', class: 'axis-label' })
+    createStyledSvgText(xLab, xLabel)
+    gridEl.appendChild(xLab)
+  }
 
   const yLabX = -10, yLabY = padT + plotH / 2
   const yLab = el('text', {

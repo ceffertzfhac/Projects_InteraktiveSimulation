@@ -1,5 +1,18 @@
 # Changelog — Schräger Wurf
 
+## v1.8.2 — 2026-09-26
+
+### Behoben
+- **Index nicht mehr zu tief (FW9-Nachbesserung).** `baseline-shift="sub"`
+  senkte den Index in Chrome fast um eine Zeile; jetzt 70 % Schrift und
+  −0,3 em Absenkung.
+- **t-Marken und „Zeit t / s" am unteren Plotrand**, nicht an der Nulllinie
+  (Konvention „Abszisse am Nulldurchgang"): bei \(v_y(t)\) liegt die Nulllinie
+  mitten im Feld, dort kreuzte die Beschriftung die Kurve und „0,0" stieß an
+  die „0" der Werteachse. Die Achse selbst bleibt bei 0; Bahnkurve unverändert.
+- Im Zwei-Diagramm-Modus steht „Zeit t / s" nur unter dem unteren Diagramm
+  (gemeinsame Zeitachse).
+
 ## v1.8.1 — 2026-09-26
 
 ### Behoben
