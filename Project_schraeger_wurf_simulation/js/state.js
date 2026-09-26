@@ -65,6 +65,8 @@ export function initDOM() {
   DOM.animationCoordSystem = q('animation_coord_system')
   DOM.trajectoryLine = q('trajectory_line')
   DOM.frozenTrajLine = q('frozen_trajectory_line')
+  DOM.posVector = q('position_vector')
+  DOM.tangentLine = q('tangent_line')
   DOM.velVector = q('velocity_vector')
   DOM.velVectorX = q('velocity_vector_x')
   DOM.velVectorY = q('velocity_vector_y')
@@ -90,6 +92,8 @@ export function initDOM() {
   DOM.graphSelect2 = q('graph_select_2')
   DOM.dualGraphControl = q('dual_graph_control')
   DOM.yAxisSelect = q('y_axis_config')
+  DOM.togPos = q('toggle_position_vector')
+  DOM.togTangent = q('toggle_tangent')
   DOM.togVel = q('toggle_velocity_vector')
   DOM.togVelComp = q('toggle_velocity_components')
   DOM.togAcc = q('toggle_acceleration_vector')
@@ -138,6 +142,7 @@ export function initDOM() {
   DOM.liveVx = q('live_vx')
   DOM.liveVy = q('live_vy')
   DOM.liveVabs = q('live_vabs')
+  DOM.liveSabs = q('live_sabs')
   DOM.liveAy = q('live_ay')
 
   // Kennwerte

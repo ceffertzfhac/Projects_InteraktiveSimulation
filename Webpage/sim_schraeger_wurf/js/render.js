@@ -18,6 +18,7 @@ import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
 import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
+import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -634,6 +635,8 @@ export function updateScene(t, x, y, vx, vy) {
     }
   }
 
+  updateOrtUndTangente(x, y, vx, vy)
+
   // Stoppuhr
   if (store.isDigitalDisplay) {
     updateDigitalDisplay(t)
@@ -649,12 +652,55 @@ export function updateScene(t, x, y, vx, vy) {
   // Live-Panel
   DOM.timeLabel.innerHTML = `<i>t</i> = ${fmt(t)} s`
   DOM.liveT.textContent = `${fmt(t)} s`
-  DOM.liveX.textContent = `${fmt(x)} m`
-  DOM.liveY.textContent = `${fmt(getDisplayY(y))} m`
-  DOM.liveVx.textContent = `${fmt(vx)} m/s`
-  DOM.liveVy.textContent = `${fmt(getDisplayV(vy))} m/s`
-  DOM.liveVabs.textContent = `${fmt(Math.sqrt(vx * vx + vy * vy))} m/s`
+  updateLiveVektoren(x, y, vx, vy)
   DOM.liveAy.textContent = `${fmt(getDisplayA(-G))} m/s²`
+}
+
+// ── FW8: Ortsvektor, Tangente, Live-Vektoren ─────────────────────────────────
+// Ursprung des Koordinatensystems in der Szene: x = Abwurfpunkt, y = Boden bzw.
+// Abwurfhöhe (wie drawAnimationCoordSystem). Die Achsenrichtung ändert den
+// Pfeil nicht (er zeigt immer vom Ursprung zum Objekt), nur seine Komponenten.
+const ARROW_R_LEN = 4.95   // markerWidth von #arrow-r
+const TANGENT_HALF = 91    // halbe Länge der Tangente in Szeneneinheiten
+
+export function updateOrtUndTangente(x, y, vx, vy) {
+  const cx = scaleX(x), cy = scaleY(y)
+  // Ortsvektor: Spitze exakt im Kugelmittelpunkt (refX=0 + shortenEnd, CLAUDE.md
+  // „Vektor-Pfeilspitzen"); zu kurz für die Spitze (Start bei Ursprung im
+  // Abwurfpunkt) → ausgeblendet (B23-Regel).
+  const ox = scaleX(0), oy = scaleY(store.yAxisConfig.origin === 'start' ? store.h0 : 0)
+  const sw = parseFloat(DOM.posVector.getAttribute('stroke-width')) || 2.5
+  const end = DOM.togPos.checked ? shortenEnd(ox, oy, cx, cy, ARROW_R_LEN * sw) : null
+  if (!end) {
+    DOM.posVector.setAttribute('visibility', 'hidden')
+  } else {
+    DOM.posVector.setAttribute('visibility', 'visible')
+    DOM.posVector.setAttribute('x1', ox); DOM.posVector.setAttribute('y1', oy)
+    DOM.posVector.setAttribute('x2', end.x2); DOM.posVector.setAttribute('y2', end.y2)
+  }
+  // Tangente: Stück der Tangente durch die Kugel in Richtung von v — der
+  // Geschwindigkeitsvektor liegt garantiert auf ihr (gleiche Richtung).
+  const b = Math.hypot(vx, vy)
+  if (!DOM.togTangent.checked || b < 1e-6) {
+    DOM.tangentLine.setAttribute('visibility', 'hidden')
+  } else {
+    const ux = vx / b * TANGENT_HALF, uy = -vy / b * TANGENT_HALF
+    DOM.tangentLine.setAttribute('visibility', 'visible')
+    DOM.tangentLine.setAttribute('x1', cx - ux); DOM.tangentLine.setAttribute('y1', cy - uy)
+    DOM.tangentLine.setAttribute('x2', cx + ux); DOM.tangentLine.setAttribute('y2', cy + uy)
+  }
+}
+
+// Spaltenvektoren im Analyse-Panel: Komponenten im gewählten Koordinatensystem
+// (Vorzeichenkonvention: getDisplayY/getDisplayV, nie Math.abs), Beträge dazu.
+export function updateLiveVektoren(x, y, vx, vy) {
+  const sy = getDisplayY(y), vyD = getDisplayV(vy)
+  DOM.liveX.textContent = fmt(x)
+  DOM.liveY.textContent = fmt(sy)
+  DOM.liveSabs.textContent = `${fmt(Math.hypot(x, sy))} m`
+  DOM.liveVx.textContent = fmt(vx)
+  DOM.liveVy.textContent = fmt(vyD)
+  DOM.liveVabs.textContent = `${fmt(Math.hypot(vx, vyD))} m/s`
 }
 
 // ── Kennwerte ────────────────────────────────────────────────────────────────
