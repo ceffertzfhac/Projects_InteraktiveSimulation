@@ -25,7 +25,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Schräger Wurf
-        <span class="version">v1.6.2</span>
+        <span class="version">v1.7.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -104,6 +104,13 @@ window.MathJax = {
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Visualisierung<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="vis-toggle-row">
+        <span class="vis-label">Ortsvektor \(\vec{s}\)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_position_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
         <span class="vis-label">Geschw.-Vektor \(\vec{v}\)</span>
         <label class="toggle-switch">
           <input type="checkbox" id="toggle_velocity_vector" checked>
@@ -121,6 +128,13 @@ window.MathJax = {
         <span class="vis-label">Beschl.-Vektor \(\vec{a}\)</span>
         <label class="toggle-switch">
           <input type="checkbox" id="toggle_acceleration_vector" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Tangente an die Bahn</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_tangent">
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
       </div>
@@ -143,6 +157,8 @@ window.MathJax = {
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Legende Vektoren<span class="acc-chevron" aria-hidden="true">▾</span></button>
       <div class="legend-grid">
+        <div class="legend-swatch" style="background:var(--c-r)"></div>
+        <div class="legend-label">Ortsvektor \(\vec{s}\)</div>
         <div class="legend-swatch" style="background:var(--c-vel)"></div>
         <div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
         <div class="legend-swatch" style="background:var(--c-vx)"></div>
@@ -155,6 +171,8 @@ window.MathJax = {
         <div class="legend-label">Flugbahn</div>
         <div class="legend-swatch" style="background:var(--c-traj);opacity:.35"></div>
         <div class="legend-label">Vergleichsbahn (gespeichert)</div>
+        <div class="legend-swatch legend-tangent"></div>
+        <div class="legend-label">Tangente an die Bahn</div>
       </div>
     </div>
 
@@ -182,6 +200,9 @@ window.MathJax = {
             <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
           </marker>
           <marker id="arrow-acc" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+          <marker id="arrow-r" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
             <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
           </marker>
           <marker id="arrow-vx" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
@@ -217,6 +238,11 @@ window.MathJax = {
 
           <polyline id="frozen_trajectory_line" fill="none" stroke-width="2" visibility="hidden"/>
           <polyline id="trajectory_line" fill="none" stroke-width="1.5" stroke-dasharray="4,4" visibility="hidden"/>
+          <!-- FW8: Tangente an die Bahn (Hilfslinie) und Ortsvektor vom Ursprung
+               des Koordinatensystems zur Kugel — beide UNTER der Kugel, die
+               Ortsvektor-Spitze endet im Kugelmittelpunkt (refX=0 + shortenEnd). -->
+          <line id="tangent_line" visibility="hidden"/>
+          <line id="position_vector" stroke-width="2.5" marker-end="url(#arrow-r)" visibility="hidden"/>
           <circle id="ball" r="5" cx="136" cy="200"/>
           <g id="animation_coord_system"></g>
           <line id="acceleration_vector" stroke-width="2.5" marker-end="url(#arrow-acc)" visibility="hidden"/>
@@ -296,18 +322,24 @@ window.MathJax = {
         <div class="analysis-grid">
           <div class="analysis-cell key">Zeit \(t\)</div>
           <div class="analysis-cell val" id="live_t">0,00 s</div>
-          <div class="analysis-cell key">Wurfweite \(x\)</div>
-          <div class="analysis-cell val" id="live_x">0,00 m</div>
-          <div class="analysis-cell key">Höhe \(y\)</div>
-          <div class="analysis-cell val" id="live_y">10,00 m</div>
-          <div class="analysis-cell key">Geschw. \(v_x\)</div>
-          <div class="analysis-cell val" id="live_vx">0,00 m/s</div>
-          <div class="analysis-cell key">Geschw. \(v_y\)</div>
-          <div class="analysis-cell val" id="live_vy">0,00 m/s</div>
-          <div class="analysis-cell key">Betrag \(|\vec{v}|\)</div>
-          <div class="analysis-cell val" id="live_vabs">0,00 m/s</div>
           <div class="analysis-cell key">Beschl. \(a_y\)</div>
           <div class="analysis-cell val" id="live_ay">— m/s²</div>
+        </div>
+        <!-- FW8: Orts- und Geschwindigkeitsvektor live als Spaltenvektor. Die
+             Zahlen aendern sich pro Frame, deshalb Klartext mit CSS-Klammern
+             statt MathJax (MathJax setzt nur beim Seitenstart). Werte im
+             gewaehlten Koordinatensystem (getDisplayY/getDisplayV). -->
+        <div class="live-vektor" data-vec="r">
+          <span class="lv-name">\(\vec{s}(t) =\)</span>
+          <span class="lv-spalte"><span id="live_x">0,00</span><span id="live_y">10,00</span></span>
+          <span class="lv-einheit">m</span>
+          <span class="lv-betrag">\(|\vec{s}| =\) <span id="live_sabs">10,00 m</span></span>
+        </div>
+        <div class="live-vektor" data-vec="v">
+          <span class="lv-name">\(\vec{v}(t) =\)</span>
+          <span class="lv-spalte"><span id="live_vx">0,00</span><span id="live_vy">0,00</span></span>
+          <span class="lv-einheit">m/s</span>
+          <span class="lv-betrag">\(|\vec{v}| =\) <span id="live_vabs">0,00 m/s</span></span>
         </div>
       </div>
     </div>

@@ -13,7 +13,8 @@ import { fmt, drawRuler, drawHorizontalRuler, drawStickFigure,
          drawAnimationCoordSystem, drawStopwatchMarks, drawSubdialMarks,
          initDigitalDisplaySegments, updateDigitalDisplay,
          updateGraphs, updateScene, updateKennwerte, updatePhysicsFormulas,
-         updateZoomDisplay, drawFrozenTrajectory, updateGraphHover } from './render.js'
+         updateZoomDisplay, drawFrozenTrajectory, updateGraphHover,
+         updateOrtUndTangente, updateLiveVektoren } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
 import { exportSVG, exportPNG, computeBBox } from '../../shared/js/export-image.js'
 
@@ -100,6 +101,26 @@ function handleDiagramModeSwitch(nowStacked) {
     store.graphType1 = store.rememberedTrajType
     store.rememberedTrajType = null
   }
+}
+
+// ── Sperre des Y-Achsen-Dropdowns ───────────────────────────────────────────
+// Relevant, sobald einer der aktiven Diagramm-Typen eine y-Komponente ist
+// (y/v_y/a_y) — dort nutzt der Teilgraph yAxisConfig (render.js drawSingleGraph
+// … useYAxisConfig:true; ui.js _display-Daten). FW8: ebenso, solange der
+// Ortsvektor sichtbar ist — er beginnt im Ursprung, den die Konfiguration setzt.
+function updateYAxisLock() {
+  const isTraj = ['yx', 'xy'].includes(store.graphType1)
+  const activeTypes = store.isStacked ? [store.graphType1, store.graphType2] : [store.graphType1]
+  const isYRelevant = !isTraj && activeTypes.some(t => ['yt', 'vyt', 'ayt'].includes(t))
+  DOM.yAxisSelect.disabled = !isYRelevant && !DOM.togPos.checked
+}
+
+// FW8: Ortsvektor/Tangente am aktuellen Zeitpunkt neu zeichnen, ohne die
+// Animation zurückzusetzen (Umschalten auch mitten im Flug).
+function redrawVektorOverlay() {
+  const s = store.tData.length ? interpolateAt(store.simulatedTime) : null
+  if (s) updateOrtUndTangente(s.x, s.y, s.vx, s.vy)
+  else updateOrtUndTangente(0, store.h0, store.v0x, store.v0y)
 }
 
 // ── Reset (aus v47 resetScene) ───────────────────────────────────────────────
@@ -216,13 +237,7 @@ function resetSim(isPlayTrigger = false) {
     DOM.subHand.setAttribute('x2', SDIAL_CX); DOM.subHand.setAttribute('y2', SDIAL_CY - 15)
   }
 
-  // Y-Achsen-Konfig-Dropdown: relevant, sobald einer der aktiven Diagramm-Typen
-  // eine y-Komponente ist (y/v_y/a_y) — dort nutzt der Teilgraph yAxisConfig
-  // (render.js drawSingleGraph … useYAxisConfig:true; ui.js _display-Daten).
-  const isTraj = ['yx', 'xy'].includes(store.graphType1)
-  const activeTypes = store.isStacked ? [store.graphType1, store.graphType2] : [store.graphType1]
-  const isYRelevant = !isTraj && activeTypes.some(t => ['yt', 'vyt', 'ayt'].includes(t))
-  DOM.yAxisSelect.disabled = !isYRelevant
+  updateYAxisLock()
 
   precompute()
   drawFrozenTrajectory()
@@ -239,11 +254,8 @@ function resetSim(isPlayTrigger = false) {
 
   DOM.timeLabel.innerHTML = '<i>t</i> = 0,00 s'
   DOM.liveT.textContent = '0,00 s'
-  DOM.liveX.textContent = `${fmt(0)} m`
-  DOM.liveY.textContent = `${fmt(getDisplayY(store.h0))} m`
-  DOM.liveVx.textContent = `${fmt(store.v0x)} m/s`
-  DOM.liveVy.textContent = `${fmt(getDisplayV(store.v0y))} m/s`
-  DOM.liveVabs.textContent = `${fmt(store.v0)} m/s`
+  updateOrtUndTangente(0, store.h0, store.v0x, store.v0y)
+  updateLiveVektoren(0, store.h0, store.v0x, store.v0y)
   DOM.liveAy.textContent = `${fmt(getDisplayA(-G))} m/s²`
 }
 
@@ -400,6 +412,10 @@ DOM.togVel.addEventListener('change', () => {
 DOM.togVelComp.addEventListener('change', () => resetSim())
 DOM.togAcc.addEventListener('change', () => resetSim())
 DOM.togTrajectory.addEventListener('change', () => resetSim())
+// FW8: Ortsvektor/Tangente nur neu zeichnen, nicht zurücksetzen — umschalten
+// soll mitten im Flug gehen. resetSim nur, wenn das die Dropdown-Sperre ändert.
+DOM.togPos.addEventListener('change', () => { redrawVektorOverlay(); updateYAxisLock() })
+DOM.togTangent.addEventListener('change', () => redrawVektorOverlay())
 DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
   const nowStacked = diagramModeIsStacked()
   handleDiagramModeSwitch(nowStacked)

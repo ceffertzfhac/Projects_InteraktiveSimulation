@@ -1,5 +1,33 @@
 # Changelog — Schräger Wurf
 
+## v1.7.0 — 2026-09-26
+
+Feature (→ BACKLOG FW8): Ortsvektor, Tangente und Live-Vektoren — übernommen
+aus der interaktiven Aspekt-Figur zu Abb. 1.18 des Skripts (Projekt
+InteraktivesSkript, P16-8/-8a–d).
+
+### Neu
+- **Ortsvektor \(\vec s\)** vom Ursprung des gewählten Koordinatensystems zur
+  Kugel (Umschalter „Ortsvektor", Vorgabe an — Konvention „Vektoren
+  standardmäßig sichtbar"). Der Ursprung folgt der Y-Achsen-Konfiguration
+  (Boden/Start); die Spitze endet exakt im Kugelmittelpunkt (`refX=0` +
+  `shortenEnd`, bei zu kurzem Vektor ausgeblendet). Farbe `--c-r` **grau**
+  statt des repo-weiten Bernstein, weil Bernstein hier praktisch `--c-vx` ist
+  (im Dark Mode identisch) — Begründung in `css/styles.css`.
+- **Tangente an die Bahn** (Umschalter, Vorgabe **aus**): ein Stück der
+  Tangente durch die Kugel in Richtung von \(\vec v\), dünn, leicht
+  transparent, strichpunktiert. Umschalten zeichnet neu, ohne die Animation
+  zurückzusetzen.
+- **Live-Analyse:** \(\vec s(t)\) und \(\vec v(t)\) als Spaltenvektoren mit
+  Betrag (Klammern und Name in der Farbe des Vektors), Werte im gewählten
+  Koordinatensystem. Ersetzt die Einzelzeilen \(x\), \(y\), \(v_x\), \(v_y\),
+  \(|\vec v|\) (IDs unverändert, jetzt in den Spaltenvektoren).
+
+### Geändert
+- Die Y-Achsen-Konfiguration ist wählbar, solange der Ortsvektor sichtbar ist
+  (bisher nur bei einem y-Diagramm), weil sie seinen Ursprung setzt.
+  Die Achsen-Konfiguration zu ändern setzt die Animation weiterhin zurück
+  (die Diagramme hängen daran).
 ## v1.6.2 — 2026-09-22
 
 ### Style
