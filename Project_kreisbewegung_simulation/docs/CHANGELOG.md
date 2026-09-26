@@ -5,6 +5,14 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.4.2 — 2026-09-22
+
+### Style
+- **Header zweizeilig für schmale Bildschirme.** Das Copyright steht jetzt
+  kleiner in einer eigenen Zeile unter „Titel · Version · FH Aachen – FB 8 –
+  Physik"; das Physik-Logo sitzt rechts daneben über beide Zeilen. Styling
+  zentral in `shared/css/design-system.css` (kein Inline-Style mehr).
+
 ## v1.4.1 — 2026-09-22
 
 ### Style
