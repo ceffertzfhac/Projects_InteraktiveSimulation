@@ -87,10 +87,10 @@ export function precompute() {
   const dataSets = {
     xt: { data: store.xtData, label: 'Wurfweite <i>x</i>(<i>t</i>) / m' },
     yt: { data: store.ytData, label: 'Höhe <i>y</i>(<i>t</i>) / m' },
-    vxt: { data: store.vxtData, label: 'Geschw. <i>v</i>ₓ(<i>t</i>) / (m/s)' },
-    vyt: { data: store.vytData, label: 'Geschw. <i>v</i>ᵧ(<i>t</i>) / (m/s)' },
-    axt: { data: store.axtData, label: 'Beschl. <i>a</i>ₓ(<i>t</i>) / (m/s²)' },
-    ayt: { data: store.aytData, label: 'Beschl. <i>a</i>ᵧ(<i>t</i>) / (m/s²)' },
+    vxt: { data: store.vxtData, label: 'Geschw. <i>v</i><sub>x</sub>(<i>t</i>) / (m/s)' },
+    vyt: { data: store.vytData, label: 'Geschw. <i>v</i><sub>y</sub>(<i>t</i>) / (m/s)' },
+    axt: { data: store.axtData, label: 'Beschl. <i>a</i><sub>x</sub>(<i>t</i>) / (m/s²)' },
+    ayt: { data: store.aytData, label: 'Beschl. <i>a</i><sub>y</sub>(<i>t</i>) / (m/s²)' },
     vabs: { data: store.vabsData, label: 'Betrag der Geschw. |<i>v</i>(<i>t</i>)| / (m/s)' },
   }
 

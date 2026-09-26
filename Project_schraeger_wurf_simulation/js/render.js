@@ -16,7 +16,7 @@ import { store, DOM } from './state.js'
 import { scaleX, scaleY, getDisplayY, getDisplayV, getDisplayA,
          flightTime, maxHeight, range, impactAngle, linePlotIndex, interpolateAt } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
-import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
+import { setAxisLabel } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 export { fmt }
@@ -39,7 +39,11 @@ function el(tag, attrs) {
 // Für reine Symbol-Labels (kein Beschreibungswort) wird weiterhin setAxisLabel
 // verwendet (s. u., Koordinatensystem-Overlay + s. drawSingleGraph-Kommentar).
 function createStyledSvgText(svgEl, text) {
-  const regex = /<i>(.*?)<\/i>|([^<>&]+)/g
+  // <sub>…</sub> = Index (v_x, v_y, a_x, a_y): kursiv, kleiner, tiefer — ein
+  // echtes Tiefstellen. Früher standen hier Unicode-Zeichen (ₓ, ᵧ); ᵧ ist aber
+  // ein tiefgestelltes GAMMA (ein tiefgestelltes y gibt es in Unicode nicht)
+  // und erschien wie „vy“ (→ BACKLOG FW9 / Skript P16-9a).
+  const regex = /<i>(.*?)<\/i>|<sub>(.*?)<\/sub>|([^<>&]+)/g
   let m
   while ((m = regex.exec(text)) !== null) {
     if (m[1]) {
@@ -48,7 +52,14 @@ function createStyledSvgText(svgEl, text) {
       t.textContent = m[1]
       svgEl.appendChild(t)
     } else if (m[2]) {
-      svgEl.appendChild(document.createTextNode(m[2]))
+      const t = document.createElementNS(NS, 'tspan')
+      t.setAttribute('font-style', 'italic')
+      t.setAttribute('baseline-shift', 'sub')
+      t.setAttribute('font-size', '75%')
+      t.textContent = m[2]
+      svgEl.appendChild(t)
+    } else if (m[3]) {
+      svgEl.appendChild(document.createTextNode(m[3]))
     }
   }
 }
@@ -243,19 +254,19 @@ export function updateDigitalDisplay(totalSeconds) {
 
 // ── Diagramm-Titel ───────────────────────────────────────────────────────────
 function stripHtml(s) {
-  return s.replace(/<\/?i>/g, '').replace(/ₓ/g, 'x').replace(/ᵧ/g, 'y')
+  return s.replace(/<\/?(i|sub)>/g, '')
 }
 
 function getGraphTitleText(type) {
   if (['yx', 'xy'].includes(type)) {
-    return type === 'yx' ? 'Bahnkurve y(x)' : 'Bahnkurve x(y)'
+    return type === 'yx' ? 'Bahnkurve <i>y</i>(<i>x</i>)' : 'Bahnkurve <i>x</i>(<i>y</i>)'
   }
   for (const groupLabel in graphOptions) {
     for (const val in graphOptions[groupLabel]) {
       if (val === type) {
         // Nur Einheit-Suffix entfernen (kein "+ vs. Zeit" mehr, T10): der Titel
         // endet dadurch konsistent auf "…(t)".
-        return stripHtml(graphOptions[groupLabel][val])
+        return graphOptions[groupLabel][val]
           .replace(/\s\/\s\(?m.*$/, '')
       }
     }
@@ -377,7 +388,9 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
   createStyledSvgText(yLab, yLabel)
   gridEl.appendChild(yLab)
 
-  setGraphTitle(titleEl, getGraphTitleText(type))
+  // Titel mit echtem Index (<sub>), gesetzt wie die Achsen (FW9)
+  titleEl.textContent = ''
+  createStyledSvgText(titleEl, getGraphTitleText(type))
 
   const idx = linePlotIndex(plotTime)
   let p = ''

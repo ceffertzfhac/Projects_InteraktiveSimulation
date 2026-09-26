@@ -34,7 +34,9 @@ function populateGraphSelects() {
         if ((!allowTraj || dual) && ['yx', 'xy'].includes(value)) continue
         const option = document.createElement('option')
         option.value = value
-        option.innerHTML = graphOptions[groupLabel][value]
+        // <option> kann nur Klartext: Index als „v_x“/„v_y“ (FW9 — ein
+        // tiefgestelltes y gibt es in Unicode nicht, ᵧ wäre ein Gamma).
+        option.textContent = stripLabel(graphOptions[groupLabel][value])
         group.appendChild(option)
       }
       if (group.children.length) sel.appendChild(group)
@@ -303,8 +305,9 @@ function startAnimation() {
 }
 
 // ── CSV-Export (sep=;, Komma-Dezimal) ────────────────────────────────────────
+// Klartext aus einem Label (Dropdown, CSV-Kopf): Index als „_x“/„_y“ (FW9).
 function stripLabel(s) {
-  return s.replace(/<\/?i>/g, '').replace(/ₓ/g, 'x').replace(/ᵧ/g, 'y')
+  return s.replace(/<sub>(.*?)<\/sub>/g, '_$1').replace(/<\/?i>/g, '')
 }
 
 function exportCSV(all) {

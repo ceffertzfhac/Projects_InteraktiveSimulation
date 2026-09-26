@@ -1,5 +1,15 @@
 # Changelog — Schräger Wurf
 
+## v1.8.1 — 2026-09-26
+
+### Behoben
+- **Echter Index in \(v_x\), \(v_y\), \(a_x\), \(a_y\) (→ BACKLOG FW9).** Diagrammtitel
+  und Achsenbeschriftungen setzen den Index jetzt als echte Tiefstellung
+  (`<tspan baseline-shift="sub">`). Vorher standen die Unicode-Zeichen ₓ/ᵧ da —
+  ᵧ ist ein tiefgestelltes **Gamma** (ein tiefgestelltes y gibt es in Unicode
+  nicht) und erschien wie „vy". Titel werden dafür wie die Achsen aus dem
+  HTML-Label gesetzt. Dropdown und CSV-Kopf (reiner Text) schreiben `v_x`/`v_y`.
+
 ## v1.8.0 — 2026-09-26
 
 ### Neu

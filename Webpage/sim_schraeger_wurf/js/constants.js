@@ -85,13 +85,13 @@ export const graphOptions = {
   },
   'Vertikale Bewegung': {
     yt: 'Höhe <i>y</i>(<i>t</i>) / m',
-    vyt: 'Geschw. <i>v</i>ᵧ(<i>t</i>) / (m/s)',
-    ayt: 'Beschl. <i>a</i>ᵧ(<i>t</i>) / (m/s²)',
+    vyt: 'Geschw. <i>v</i><sub>y</sub>(<i>t</i>) / (m/s)',
+    ayt: 'Beschl. <i>a</i><sub>y</sub>(<i>t</i>) / (m/s²)',
   },
   'Horizontale Bewegung': {
     xt: 'Wurfweite <i>x</i>(<i>t</i>) / m',
-    vxt: 'Geschw. <i>v</i>ₓ(<i>t</i>) / (m/s)',
-    axt: 'Beschl. <i>a</i>ₓ(<i>t</i>) / (m/s²)',
+    vxt: 'Geschw. <i>v</i><sub>x</sub>(<i>t</i>) / (m/s)',
+    axt: 'Beschl. <i>a</i><sub>x</sub>(<i>t</i>) / (m/s²)',
   },
   'Beträge': {
     vabs: 'Betrag der Geschw. |<i>v</i>(<i>t</i>)| / (m/s)',
