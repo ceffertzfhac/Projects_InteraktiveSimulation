@@ -108,7 +108,7 @@ body.dark {
    abseitige panel-Body-Typeset-Breite wird ebenfalls auf 405 gesetzt, sodaß
    MathJax im Hintergrund exakt in der später sichtbaren Breite rendert (kein
    Reflow beim Aufklappen). */
-.app-layout { grid-template-columns: 280px 1fr 405px; }
+.app-layout { grid-template-columns: 280px 1fr 405px; --right-w: 405px; }   /* --right-w: I17, eingeklappte Bedien-Sidebar */
 .app-layout.analysis-collapsed .right-panel .panel-body { width: 405px; }
 
 /* ── CENTER-LAYOUT: Simulation + Diagramm (übereinander / nebeneinander) ──── */

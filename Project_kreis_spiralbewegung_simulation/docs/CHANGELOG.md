@@ -3,6 +3,15 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.9.0] — 2026-09-26
+
+### Neu
+- **Bedien-Sidebar einklappbar (→ BACKLOG I17).** Kopfleiste „Bedienung“ mit
+  Doppel-Chevron oben in der linken Sidebar; eingeklappt eine 44-px-Schiene wie
+  die Analyse rechts. Vorgabe: ausgeklappt. Gemeinsames Modul
+  `shared/js/panel-toggle.js`, Layout in `shared/css/design-system.css`.
+- `--right-w: 405px` am Layout, damit die rechte Spalte beim Einklappen links ihre Breite behält.
+
 ## [1.8.2] — 2026-09-22
 
 ### Style
