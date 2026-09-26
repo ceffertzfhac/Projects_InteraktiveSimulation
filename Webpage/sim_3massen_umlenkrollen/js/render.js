@@ -15,6 +15,7 @@ import { shortenEnd } from '../../shared/js/vectors.js'
 const SVGNS = 'http://www.w3.org/2000/svg'
 const VEC_STROKE = 2.1      // px — 0,7× des v1.0.1-Werts (Marker skaliert via markerUnits=strokeWidth)
 const MARKER_LEN = 5 * VEC_STROKE   // Marker-Länge = markerWidth · strokeWidth
+const LEGEND_GAP = 100      // max. Abstand der Achsen-Legende unter dem Inhalt
 
 // Marker-ID je Vektortyp (muß mit den <marker id="…"> in index.html übereinstimmen).
 const MARKER_ID = {
@@ -35,12 +36,28 @@ export function physToScreen(x, y) {
 
 // ── Statischer Hintergrund (einmalig) ─────────────────────────────────────────
 export function drawBackground() {
-  // Decke
-  DOM.ceiling.setAttribute('x', 0)
   DOM.ceiling.setAttribute('y', CEILING_Y - 20)
-  DOM.ceiling.setAttribute('width', SVG_W)
   DOM.ceiling.setAttribute('height', 20)
-  drawGrid()
+  // Raster und die Breite/Position der Dekoration hier bewußt NICHT setzen: beides
+  // richtet sich nach der jeweils gültigen Ansicht (drawGrid/layoutDecor aus ui.js).
+}
+
+// ── Dekoration an die Ansicht anpassen ────────────────────────────────────────
+// Decke und Achsen-Legende sind Dekoration: sie folgen der viewBox, statt sie zu
+// bestimmen. Vorher spannte die Decke fest über alle SVG_W = 900 Einheiten und erzwang
+// damit eine ebenso breite Ansicht, obwohl der eigentliche Inhalt nur ~460 Einheiten
+// breit ist — im breiten Fenster blieb die Szene dadurch rund 20 % kleiner als nötig.
+// Beide Elemente sind aus der Auto-Zoom-Messung ausgenommen (sonst Rückkopplung wie B47).
+export function layoutDecor(vb, contentBottom) {
+  DOM.ceiling.setAttribute('x', vb.x.toFixed(1))
+  DOM.ceiling.setAttribute('width', vb.w.toFixed(1))
+  // Legende unten links der Ansicht, aber höchstens LEGEND_GAP unter dem Inhalt: im
+  // schmalen Fenster liegt der (breitenbedingte) freie Streifen sonst so tief, daß sie
+  // verloren weit unter der Szene schwebt. Ihre Kinder sind für den 900×500-Rahmen mit
+  // Achsen-Ursprung bei (50, 450) gezeichnet — der Versatz setzt genau diese Ecke.
+  const corner = Math.min(vb.y + vb.h - 50, (contentBottom ?? vb.y + vb.h) + LEGEND_GAP)
+  DOM.coordGroup.setAttribute('transform',
+    `translate(${vb.x.toFixed(1)} ${(corner - 450).toFixed(1)})`)
 }
 
 // Hintergrundraster (2,5-cm-Spacing = doppelte Dichte), via Toggle sichtbar/versteckt.
@@ -258,15 +275,18 @@ function resolveLabelCollisions(labels, obstacles) {
 
 // ── Massen-Gruppe plazieren + beschriften ─────────────────────────────────────
 function placeMass(group, rect, label, attach, size, labelText) {
+  group.style.display = ''
   rect.setAttribute('width', size); rect.setAttribute('height', size)
   label.setAttribute('x', size / 2); label.setAttribute('y', size / 2)
   group.setAttribute('transform', `translate(${attach.x - size / 2}, ${attach.y})`)
   label.textContent = labelText
 }
 
+// B48: display:none statt aus dem Bild schieben — weggeschobene Massen blieben
+// geometrisch in der Auto-Zoom-Messung und rissen die Ansicht auf (viewBox bis x=-1016).
 function hideMasses() {
   for (const g of [DOM.massLeftGroup, DOM.massMiddleGroup, DOM.massRightGroup]) {
-    g.setAttribute('transform', 'translate(-1000, -1000)')
+    g.style.display = 'none'
   }
 }
 

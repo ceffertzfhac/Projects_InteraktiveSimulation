@@ -10,11 +10,11 @@ import {
   M2_DEFAULT, M2_MIN, M2_MAX, M2_STEP,
   PULLEY_DIST_DEFAULT_CM, PULLEY_DIST_MIN_CM, PULLEY_DIST_MAX_CM, PULLEY_DIST_STEP_CM,
   ROPE_LEN_DEFAULT_CM, ROPE_LEN_STEP_CM, ROPE_LEN_MIN_FACTOR, ROPE_LEN_MAX_FACTOR,
-  AUTOZOOM_MARGIN, AUTOZOOM_DURATION_MS,
+  AUTOZOOM_MARGIN, AUTOZOOM_DURATION_MS, AUTOZOOM_VEC_PAD, DECOR_LEGEND_W, DECOR_LEGEND_H,
   PIXELS_PER_CM, SVG_CENTER_X, SVG_W, SVG_H,
 } from './constants.js'
 import { computeEquilibrium } from './physics.js'
-import { drawBackground, updateScene, updateAnalysis, drawGrid } from './render.js'
+import { drawBackground, updateScene, updateAnalysis, drawGrid, layoutDecor } from './render.js'
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
 function setupTheme() {
@@ -52,47 +52,133 @@ function applyRopeLenBounds() {
 }
 
 // ── Auto-Zoom ─────────────────────────────────────────────────────────────────
-// Die viewBox umfaßt immer mindestens die Standardansicht (0,0,SVG_W,SVG_H) und zoomt
-// nur so weit heraus, wie nötig, sobald gezeichneter Inhalt (Massen, Vektoren INKL.
-// Pfeilspitzen, Labels) den Rand erreicht. Oben verankert (xMidYMin), horizontal
-// zentriert. Die Anpassung wird smooth getweent (kein Sprung).
+// Die viewBox umschließt den gezeichneten Inhalt (Massen, Vektoren inkl. Pfeilspitzen,
+// Labels) mit Rand-Puffer und ist mindestens SVG_H hoch. Dekoration (Decke, Achsen-
+// Legende, Raster) folgt der Ansicht, statt sie zu bestimmen — dadurch füllt die Szene
+// die verfügbare Fläche. Oben verankert (xMidYMin), horizontal zentriert; das
+// Hereinzoomen wird smooth getweent, das Herauszoomen greift sofort.
 const _vb = { x: 0, y: 0, w: SVG_W, h: SVG_H } // aktuell dargestellte viewBox
 let _vbAnim = null
+// Bezugsgröße für „Zoom: 1,00×": die Ansicht im Reset-Zustand (Standardparameter). Sie
+// wird bei jedem Reset neu erfaßt und als Maße (nicht als Skala) gehalten, damit die
+// Anzeige beim Ändern der Fenstergröße richtig bleibt.
+let _refVb = null
+let _captureRef = false
 
+// Ausdehnung des gezeichneten Inhalts.
+// Gemessen wird die Root-bbox, aber mit **ausgeblendetem Raster** (B47): das Raster wird
+// selbst auf die zuletzt berechnete Ziel-viewBox gezeichnet und trieb als Teil seiner
+// eigenen Messgrundlage den Zoom bei jedem Update um AUTOZOOM_MARGIN weiter heraus
+// (unbegrenzt, auch durch Reset nicht rückstellbar). `display:none`-Kinder fallen aus der
+// Root-bbox heraus — das gilt hier auch für die geparkten Massen ohne Gleichgewicht (B48).
+// Wichtig: **nicht** über die Kinder einzeln iterieren — `el.getBBox()` liefert die Box im
+// *eigenen* Koordinatensystem, also OHNE das eigene `transform`. Die Massen tragen ihre
+// Position genau dort (`translate` in `placeMass`) und fehlten dadurch in der Messung, so
+// daß sie unten aus dem Bild ragten. Die Root-bbox rechnet die Kind-Transforms korrekt ein.
+// Die Vektor-Gruppe wird zusätzlich um AUTOZOOM_VEC_PAD aufgeblasen, weil getBBox
+// Strichbreite und Marker nicht mitmißt (B50).
+function contentBBox() {
+  // Dekoration (Raster, Decke, Achsen-Legende) richtet sich nach der Ansicht und darf sie
+  // deshalb nicht mitbestimmen — für die Messung kurz ausblenden (fällt dann aus der
+  // Root-bbox) und danach wiederherstellen.
+  const decor = [DOM.gridGroup, DOM.ceiling, DOM.coordGroup]
+  const saved = decor.map(el => el.style.display)
+  decor.forEach(el => { el.style.display = 'none' })
+  let bb = null, vec = null
+  try { bb = DOM.mainSvg.getBBox() } catch { /* nicht gerendert */ }
+  try { vec = DOM.forceVectorsGroup.getBBox() } catch { /* keine Vektoren */ }
+  decor.forEach((el, i) => { el.style.display = saved[i] })
+  if (!bb || (!bb.width && !bb.height)) return null
+  let x0 = bb.x, y0 = bb.y, x1 = bb.x + bb.width, y1 = bb.y + bb.height
+  if (vec && (vec.width || vec.height)) {
+    const p = AUTOZOOM_VEC_PAD
+    x0 = Math.min(x0, vec.x - p); y0 = Math.min(y0, vec.y - p)
+    x1 = Math.max(x1, vec.x + vec.width + p); y1 = Math.max(y1, vec.y + vec.height + p)
+  }
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
+}
+
+// Die Ansicht umschließt den Inhalt (nicht mehr zwingend den nominalen 900×500-Rahmen):
+// so füllt die Szene die verfügbare Fläche, statt auf die Breite der Dekoration
+// aufgebläht zu werden. Oben bleibt sie bei y = 0 verankert (Platz für die Decke).
 function targetViewBox() {
-  let bb
-  try { bb = DOM.mainSvg.getBBox() } catch { return { x: 0, y: 0, w: SVG_W, h: SVG_H } }
-  const M = AUTOZOOM_MARGIN
-  const left = bb.x, right = bb.x + bb.width, bottom = bb.y + bb.height
-  // Nur herauszoomen, wenn der Inhalt den Standardrahmen wirklich verlässt; dann mit
-  // Rand-Puffer, damit er nicht bündig am Rand klebt. Sonst exakt Standardansicht (1,00×).
-  const minX = left < 0 ? left - M : 0
-  const maxX = right > SVG_W ? right + M : SVG_W
-  const maxY = bottom > SVG_H ? bottom + M : SVG_H // oben bei 0 verankert
-  return { x: minX, y: 0, w: maxX - minX, h: maxY }
+  const bb = contentBBox()
+  if (!bb) return { x: 0, y: 0, w: SVG_W, h: SVG_H }
+  const left = bb.x, right = bb.x + bb.w, bottom = bb.y + bb.h
+  // Rand-Puffer wächst mit der Ansicht: in viewBox-Einheiten fix, schrumpft er auf dem
+  // Bildschirm mit jedem Herauszoomen (16 Einheiten waren bei 0,34× nur noch ~13 px, der
+  // Inhalt klebte am unteren Rand). Über den Zoom-Faktor skaliert bleibt er optisch
+  // konstant. Kein Rückkopplungsrisiko: k stammt aus der Inhalts-Ausdehnung, nicht aus
+  // der vorigen viewBox.
+  const k = Math.max(1, bottom / SVG_H)
+  const M = AUTOZOOM_MARGIN * k
+  let x = left - M
+  let w = (right + M) - x
+  let h = Math.max(SVG_H, bottom + M)
+
+  // Auf das Seitenverhältnis des Sim-Feldes aufziehen. Das ändert die Darstellungsgröße
+  // **nicht** — `preserveAspectRatio="… meet"` nimmt ohnehin min(cw/w, ch/h), und genau
+  // dieses Minimum bleibt gleich (nachgemessen: Szene vorher wie nachher 610×471 px).
+  // Es verwandelt aber den bisher ungenutzten Letterbox-Rand in Fläche *innerhalb* der
+  // viewBox — dort wohnt die Achsen-Legende, ohne der Szene in die Quere zu kommen.
+  // Reicht der so gewonnene Rand nicht für die Legende, wird gezielt nachgelegt.
+  const r = DOM.mainSvg.getBoundingClientRect()
+  const asp = r.width > 0 && r.height > 0 ? r.width / r.height : w / h
+  if (w / h < asp) {
+    const w2 = Math.max(h * asp, w + 2 * DECOR_LEGEND_W)
+    x -= (w2 - w) / 2
+    w = w2
+  } else {
+    h = Math.max(w / asp, h + DECOR_LEGEND_H)
+  }
+  return { x, y: 0, w, h, cb: bottom }
 }
 
 function setViewBox(v) {
   DOM.mainSvg.setAttribute('viewBox', `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`)
 }
 
-// Zoomfaktor (linear, relativ zur Standardansicht): <1 = herausgezoomt.
+// Raster deckt die ganze sichtbare Fläche ab — nur zeichnen, wenn es auch sichtbar ist.
+function syncGrid(v) {
+  if (DOM.togGrid.checked) drawGrid(v.x, v.y, v.x + v.w, v.y + v.h)
+}
+
+// Dekoration (Decke, Achsen-Legende) und Raster auf die Ziel-Ansicht setzen.
+function syncDecor(v) {
+  layoutDecor(v, v.cb)
+  syncGrid(v)
+}
+
+// Zoomfaktor: tatsächliche Darstellungsskala relativ zur Standardansicht (<1 = heraus-
+// gezoomt). B49: der frühere Vergleich rein der viewBox-Maße mit 900×500 ignorierte, daß
+// bei preserveAspectRatio="… meet" je nach Container-Seitenverhältnis die andere Achse
+// bindet — eine höhere viewBox ändert dann die Darstellung gar nicht.
 function updateZoomReadout() {
-  store.zoomFactor = 1 / Math.max(_vb.w / SVG_W, _vb.h / SVG_H)
+  const r = DOM.mainSvg.getBoundingClientRect()
+  const cur = Math.min(r.width / _vb.w, r.height / _vb.h)
+  const rw = _refVb ? _refVb.w : SVG_W, rh = _refVb ? _refVb.h : SVG_H
+  const ref = Math.min(r.width / rw, r.height / rh)
+  store.zoomFactor = cur > 0 && ref > 0 ? cur / ref : 1
   if (DOM.zoomReadout) DOM.zoomReadout.textContent = `Zoom: ${store.zoomFactor.toFixed(2).replace('.', ',')}×`
 }
 
 function applyAutoZoom() {
   const t = targetViewBox()
-  // Raster auf die Ziel-Ausdehnung erweitern (füllt beim Herauszoomen die Fläche)
-  drawGrid(t.x, 0, t.x + t.w, t.h)
-  // Nichts zu tun, wenn Ziel praktisch schon erreicht
+  if (_captureRef) { _refVb = { w: t.w, h: t.h }; _captureRef = false }
+  syncDecor(t) // erst nach der Messung — Dekoration darf sie nicht beeinflussen (B47)
+  // Nichts zu tun, wenn Ziel praktisch schon erreicht. B51: laufenden Tween abbrechen,
+  // sonst schreibt er danach weiter auf _vb und überholt den eben gesetzten Wert.
   const near = Math.abs(t.x - _vb.x) < 0.5 && Math.abs(t.w - _vb.w) < 0.5 && Math.abs(t.h - _vb.h) < 0.5
-  if (near) { Object.assign(_vb, t); setViewBox(_vb); updateZoomReadout(); return }
+  // HERAUSzoomen greift sofort: beim Reglerziehen kommt alle ~15 ms ein neues Ziel, die
+  // über 220 ms geeaste viewBox hinkt dem Inhalt dann dauerhaft hinterher und die unteren
+  // Massen stehen währenddessen außerhalb des Bildes. Nur das HEREINzoomen (Inhalt wird
+  // kleiner, nichts kann abgeschnitten werden) wird smooth getweent.
+  const grows = t.x < _vb.x - 0.5 || t.x + t.w > _vb.x + _vb.w + 0.5 || t.h > _vb.h + 0.5
+  if (_vbAnim) { cancelAnimationFrame(_vbAnim); _vbAnim = null }
+  if (near || grows) { Object.assign(_vb, t); setViewBox(_vb); updateZoomReadout(); return }
   const start = { ..._vb }
   const t0 = performance.now()
   const ease = k => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2) // easeInOutQuad
-  if (_vbAnim) cancelAnimationFrame(_vbAnim)
   const step = now => {
     const k = Math.min(1, (now - t0) / AUTOZOOM_DURATION_MS)
     const e = ease(k)
@@ -151,7 +237,8 @@ function resetSim() {
   DOM.togComponents.checked = false
   DOM.togComponentValues.checked = false
   DOM.togGrid.checked = false
-  DOM.gridGroup.style.visibility = 'hidden'
+  DOM.gridGroup.style.display = 'none'
+  _captureRef = true // Standardansicht = Bezug für „1,00×"
   update()
 }
 
@@ -184,10 +271,17 @@ function setupUI() {
   })
 
   DOM.togGrid.addEventListener('change', () => {
-    DOM.gridGroup.style.visibility = DOM.togGrid.checked ? 'visible' : 'hidden'
+    // Beim Einschalten auf die aktuelle viewBox zeichnen (im Aus-Zustand wird nicht
+    // mitgezeichnet, s. syncGrid).
+    if (DOM.togGrid.checked) drawGrid(_vb.x, _vb.y, _vb.x + _vb.w, _vb.y + _vb.h)
+    DOM.gridGroup.style.display = DOM.togGrid.checked ? '' : 'none'
   })
 
   DOM.resetBtn.addEventListener('click', resetSim)
+
+  // Das Aufziehen auf das Feld-Seitenverhältnis (targetViewBox) hängt von der Fenster-
+  // größe ab — bei Größenänderung neu bestimmen, damit die Legende im Rand bleibt.
+  window.addEventListener('resize', debounce(applyAutoZoom, 120))
 
   // Einklappbare Analyse-Sidebar
   DOM.analysisToggle?.addEventListener('click', () => {

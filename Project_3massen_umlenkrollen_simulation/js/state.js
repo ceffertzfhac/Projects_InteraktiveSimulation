@@ -32,6 +32,7 @@ export function initDOM() {
   // SVG-Elemente
   DOM.mainSvg = q('main_svg')
   DOM.ceiling = q('ceiling')
+  DOM.coordGroup = q('coordinate_system_group')
   DOM.pulleyMountLeft = q('pulley_mount_left')
   DOM.pulleyMountRight = q('pulley_mount_right')
   DOM.pulleyLeft = q('pulley_left')

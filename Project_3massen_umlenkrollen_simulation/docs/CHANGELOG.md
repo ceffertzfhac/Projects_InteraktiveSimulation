@@ -1,5 +1,150 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.2.12] — 2026-09-26
+
+Die Szene füllt jetzt die verfügbare Fläche, statt von der Dekoration klein gehalten zu
+werden (PO-Auftrag, → BACKLOG F34).
+
+### Geändert
+- **Dekoration folgt der Ansicht, statt sie zu bestimmen.** Die Ansicht umschloß bisher
+  immer mindestens den nominalen 900×500-Rahmen. Dessen Breite kam aber ausschließlich
+  von der **Decke**, die über alle 900 Einheiten spannt — der eigentliche Inhalt ist nur
+  ~460 Einheiten breit. Im breiten Fenster blieb die Szene dadurch rund 20 % kleiner als
+  nötig. Decke und Achsen-Legende werden jetzt in `layoutDecor()` (`render.js`) auf die
+  jeweils gültige viewBox gesetzt und sind — wie das Raster — aus der Auto-Zoom-Messung
+  ausgenommen (sonst Rückkopplung wie B47). Die Ansicht umschließt nur noch den Inhalt,
+  bei Mindesthöhe `SVG_H` und oben bei y=0 verankert.
+- **Aufziehen auf das Feld-Seitenverhältnis — aber nicht für die Größe.** Die naheliegende
+  Idee, die viewBox auf das Seitenverhältnis des Sim-Feldes aufzuziehen, ändert die
+  Darstellungsgröße **nicht**: `preserveAspectRatio="… meet"` nimmt ohnehin
+  `min(cw/w, ch/h)`, und genau dieses Minimum bleibt dabei gleich (gemessen: Szene vorher
+  wie nachher 610×471 px). Es bleibt trotzdem drin, weil es den bisher ungenutzten
+  Letterbox-Rand in Fläche *innerhalb* der viewBox verwandelt — dort sitzt die
+  Achsen-Legende, ohne der Szene in die Quere zu kommen. Reicht dieser Rand nicht, wird
+  gezielt nachgelegt (`DECOR_LEGEND_W`/`DECOR_LEGEND_H`). Die Legende rückt höchstens
+  100 Einheiten unter den Inhalt, damit sie im schmalen Fenster nicht verloren tief steht.
+- **Neuer `resize`-Listener** (debounced), da das Seitenverhältnis des Sim-Feldes jetzt in
+  die Ansicht eingeht.
+- **Bezug für „Zoom: 1,00×" ist die Standardansicht.** Beim Reset werden die Maße der
+  dann gültigen Ansicht erfaßt und als Bezug gehalten (Maße statt Skala — bleibt bei
+  Fenstergrößenänderung korrekt). Reset zeigt damit weiterhin exakt 1,00×.
+
+### Verifikation (Playwright/Chromium)
+- Szene im breiten Fenster (Sim-Feld 1276×848 px): **729×564 px statt 610×471 px (+19 %)**;
+  im schmalen Fenster unverändert breitenbegrenzt (dort ist rechnerisch nichts zu gewinnen).
+- Achsen-Legende in beiden Fenstergrößen frei von der Szene (vorher lag sie nach dem
+  Umbau kurzzeitig unter m₁).
+- Unverändert stabil: keine Zoom-Drift über drei Hin-und-Zurück-Runden, Reset und der
+  Zustand ohne Gleichgewicht bleiben bei 1,00×; ungünstigste von 81 Sweep-Konfigurationen
+  32 px Rand-Abstand; während des Ziehens kein Überstand. Keine JS-Fehler.
+
+## [1.2.11] — 2026-09-25
+
+PO-Meldung direkt nach v1.2.10: „untere Massen wandern aus dem Bild bzw. sind zu nah
+am Rand" — drei unabhängige Ursachen, → BACKLOG B53.
+
+### Behoben (B53)
+- **(a) Regression aus v1.2.10 — Massen fehlten in der Zoom-Messung.** `contentBBox()`
+  unionierte `el.getBBox()` über die Kinder der Szene. `getBBox()` liefert die Box im
+  *eigenen* Koordinatensystem, also **ohne** das eigene `transform` — und die Massen
+  tragen ihre Position genau dort (`translate` in `placeMass`). Gemessen wurde damit
+  nur bis zum Seilende, also bis zur **Oberkante** der Masse; die Masse ragte um ihre
+  volle Höhe (bis 60 px) nach unten heraus. Die vorige Root-bbox hatte Kind-Transforms
+  korrekt eingerechnet — genau deshalb zeigte B48 `bb.x = -1000`. **Fix:** wieder
+  `DOM.mainSvg.getBBox()`, aber mit für die Dauer der Messung auf `display:none`
+  gesetztem Raster: das schließt das Raster aus (B47 bleibt gefixt) und behält die
+  transform-korrekte Vereinigung. Der Vektor-Zuschlag (B50) kommt separat aus
+  `#force_vectors_group`.
+- **(b) Getweente viewBox hinkt beim Reglerziehen hinter dem Inhalt her.** Alle ~15 ms
+  (Debounce) kommt ein neues Ziel, die über 220 ms geeaste Anpassung holt nie auf.
+  Gemessen beim Ziehen des Seillängen-Reglers: Inhalt bis **323 SVG-Einheiten (358
+  Bildschirm-px) außerhalb** der gerade dargestellten viewBox, bei langsamem Ziehen
+  (100 ms/Schritt) immer noch 78 px. Bestand schon vor v1.2.10 und war dort nur durch
+  die Drift (B47) maskiert, die die viewBox systematisch zu groß hielt. **Fix:**
+  Herauszoomen greift sofort, nur das Hereinzoomen (Inhalt wird kleiner, nichts kann
+  abgeschnitten werden) wird weiterhin smooth getweent.
+- **(c) Rand-Puffer schrumpfte beim Herauszoomen.** `AUTOZOOM_MARGIN` ist in
+  viewBox-Einheiten fix und damit auf dem Bildschirm umgekehrt proportional zum Zoom —
+  bei 0,34× nur noch ~13 px, der Inhalt klebte am Rand. **Fix:** Puffer mit dem
+  Zoom-Faktor skaliert (`M = AUTOZOOM_MARGIN · k`, `k` aus der Inhalts-Ausdehnung, nicht
+  aus der vorigen viewBox — kein Rückkopplungsrisiko), bleibt dadurch optisch konstant.
+
+### Verifikation (Playwright/Chromium, Bildschirm-Messung gegen `.sim-wrapper`)
+- Abstand des untersten Inhalts zum unteren Bildrand jetzt konstant ~26 px (ohne
+  Vektoren) bzw. ~35 px (mit Vektoren) über den ganzen Seillängenbereich — vorher
+  12–20 px und mit zunehmendem Zoom-Out fallend.
+- Parameter-Sweep über 81 Konfigurationen (m₁ × m₃ × Rollenabstand × Seillänge, jeweils
+  3 Stufen, Vektoren an): ungünstigster Fall 32 px Rand, kein Überstand.
+- Während des schnellen Ziehens (25 ms/Schritt) kein Überstand mehr (vorher 358 px).
+- Unverändert stabil: keine Zoom-Drift über drei Hin-und-Zurück-Runden, Reset und der
+  Zustand ohne Gleichgewicht bleiben bei 900×500 / 1,00×. Keine JS-Fehler.
+
+## [1.2.10] — 2026-09-25
+
+Kritische Untersuchung des Auto-Zooms (Headless-Chromium-Messung über den
+Parameterraum) — fünf Defekte, → BACKLOG B47–B51.
+
+### Behoben
+- **B47 (Must): Auto-Zoom driftete unbegrenzt heraus (Raster-Rückkopplung).**
+  `applyAutoZoom()` zeichnete das Hintergrundraster auf die *Ziel*-viewBox, und
+  `targetViewBox()` maß anschließend mit `DOM.mainSvg.getBBox()`. `getBBox()`
+  schließt `visibility:hidden`-Kinder ein — das Raster war also Teil seiner eigenen
+  Messgrundlage. Da die Rasterlinien exakt bis `y1 = t.h` laufen, war `bb.bottom`
+  immer die vorige Zielhöhe → jede Parameteränderung (auch jeder Debounce-Tick beim
+  Reglerziehen) +16 px, unbegrenzt, und der Zoom fuhr nie wieder herein. Gemessen:
+  Regler „Seilsegmente" 50→120→50 cm ließ die Ansicht auf 900×2651 (0,19×)
+  anwachsen — bei Default-Parametern; Reset half nicht, nach zwei weiteren Runden
+  0,07×. **Fix:** neue `contentBBox()` in `ui.js` mißt die Vereinigung der
+  gezeichneten Szenen-Kinder (Raster und `<defs>` explizit ausgenommen); das Raster
+  wird erst *nach* der Messung gezeichnet (`syncGrid()`) und nur bei eingeschaltetem
+  Toggle. Raster-Toggle jetzt über `display` statt `visibility`.
+- **B48 (Should): Geparkte Massen rissen die Ansicht auf.** `hideMasses()` schob die
+  Massen bei fehlendem Gleichgewicht nach `translate(-1000,-1000)` — unsichtbar, aber
+  geometrisch voll in der Zoom-Messung (viewBox `-1016 0 1916 500`, 0,47×). Jetzt
+  `display:none`; `contentBBox()` überspringt ausgeblendete Kinder generell.
+- **B49 (Should): Zoom-Anzeige maß nicht die tatsächliche Skalierung.** Der Vergleich
+  der viewBox-Maße mit dem nominalen 900×500-Rahmen ignorierte, daß bei
+  `preserveAspectRatio="… meet"` je nach Container-Seitenverhältnis die andere Achse
+  bindet. Gemessen (Viewport 760×1100): Anzeige sprang auf 0,59×, während die reale
+  Darstellungsskala unverändert 0,484 blieb. Jetzt Verhältnis der echten
+  Darstellungsskalen aus `getBoundingClientRect()`.
+- **B50 (Should): Pfeilspitzen und Strichbreite wurden nicht erfasst.** `getBBox()`
+  mißt reine Geometrie — Marker und `stroke-width` fehlen (verifiziert: Linie bis
+  x=899 mit 50-px-Marker ließ die bbox bei 900). Ein Vektor, dessen Linienende innen,
+  dessen Spitze aber außen lag, löste kein Herauszoomen aus. Neue Konstante
+  `AUTOZOOM_VEC_PAD = 12` (Marker-Länge + halbe Strichbreite) bläst gezielt die bbox
+  der Vektor-Gruppe auf — nicht pauschal alle Elemente, sonst löst die über die volle
+  Breite laufende Decke ein Dauer-Herauszoomen aus. Der Kommentar in `ui.js`, der die
+  Pfeilspitzen fälschlich als erfasst beschrieb, ist korrigiert.
+- **B51 (Could): Laufender Tween wurde im `near`-Pfad nicht abgebrochen** und
+  überschrieb danach den eben gesetzten viewBox-Wert mit seinem alten Ziel (Flackern
+  bei schnellem Heraus-/Hereinzoomen). `cancelAnimationFrame` jetzt in beiden Pfaden.
+
+### Verifikation (Playwright/Chromium, nach dem Fix)
+- Seillänge 50→120→50 cm, zweimal wiederholt: Ansicht kehrt jedesmal auf exakt
+  900×500 / 1,00× zurück; Reset ebenso.
+- Raster **eingeschaltet**: Höhe pendelt sauber 1105 ↔ 1218 (ohne/mit
+  Gewichtskräften), keine Drift; Raster deckt weiterhin die volle viewBox.
+- Kein Gleichgewicht (m₁=m₃=1 kg, m₂=2 kg): Ansicht bleibt 900×500 / 1,00×, Massen
+  nach Rückkehr ins Gleichgewicht wieder sichtbar.
+- Pfeilspitzen-Puffer über `ropeLen` 70/85/95/105/120 cm: unterer viewBox-Rand liegt
+  durchweg exakt 28 px (12 + 16) unter der Vektor-Geometrie.
+- Schmaler Viewport (760×1100): Anzeige bleibt korrekt bei 1,00×, solange die Breite
+  bindet. Keine JS-Fehler in allen Szenarien.
+
+### Offen
+- **B52 (Could):** `targetViewBox()` pinnt `y = 0` und zoomt nach **oben** nie heraus;
+  nach oben geschobene Kraft-Labels können stumm abgeschnitten werden. Entweder fixen
+  oder als bewußte Entscheidung in `docs/KNOWN_LIMITATIONS.md` festhalten.
+
+## [1.2.9] — 2026-09-22
+
+### Style
+- **Header zweizeilig für schmale Bildschirme.** Das Copyright steht jetzt
+  kleiner in einer eigenen Zeile unter „Titel · Version · FH Aachen – FB 8 –
+  Physik"; das Physik-Logo sitzt rechts daneben über beide Zeilen. Styling
+  zentral in `shared/css/design-system.css` (kein Inline-Style mehr).
+
 ## [1.2.8] — 2026-09-22
 
 ### Style
