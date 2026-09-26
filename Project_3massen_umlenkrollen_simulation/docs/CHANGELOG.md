@@ -1,5 +1,13 @@
 # CHANGELOG — Statisches Kräftegleichgewicht (3-Massen-Umlenkrollen)
 
+## [1.3.0] — 2026-09-26
+
+### Neu
+- **Bedien-Sidebar einklappbar (→ BACKLOG I17).** Kopfleiste „Bedienung“ mit
+  Doppel-Chevron oben in der linken Sidebar; eingeklappt eine 44-px-Schiene wie
+  die Analyse rechts. Vorgabe: ausgeklappt. Gemeinsames Modul
+  `shared/js/panel-toggle.js`, Layout in `shared/css/design-system.css`.
+
 ## [1.2.12] — 2026-09-26
 
 Die Szene füllt jetzt die verfügbare Fläche, statt von der Dekoration klein gehalten zu
