@@ -42,6 +42,14 @@ export const ROPE_LEN_MAX_FACTOR = 3.0
 // ── Auto-Zoom (viewBox paßt sich an, sobald Inhalt den Rand erreicht) ─────────
 export const AUTOZOOM_MARGIN = 16      // Rand-Puffer in SVG-Einheiten
 export const AUTOZOOM_DURATION_MS = 220 // Dauer der smooth-Anpassung
+// getBBox() mißt reine Geometrie — Strichbreite und Marker (Pfeilspitzen) fehlen (B50).
+// Überhang der Vektor-Gruppe: Marker-Länge (5·2,1) + halbe Strichbreite ≈ 11,6 → 12.
+export const AUTOZOOM_VEC_PAD = 12
+// Platzbedarf der Achsen-Legende (sitzt in der Ecke der Ansicht, s. layoutDecor). Wird
+// nur dann zusätzlich freigehalten, wenn das Aufziehen auf das Feld-Seitenverhältnis
+// keinen ausreichenden Rand liefert — sonst kostet die Legende keine Darstellungsgröße.
+export const DECOR_LEGEND_W = 100
+export const DECOR_LEGEND_H = 70
 
 // ── Vektor-Klassen (Stroke/Fill via CSS-Tokens, siehe css/styles.css) ─────────
 // Schwerkraft  → --c-fg (Okabe-Ito blau)
