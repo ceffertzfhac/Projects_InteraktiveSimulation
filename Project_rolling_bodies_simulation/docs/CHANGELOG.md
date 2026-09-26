@@ -2,6 +2,14 @@
 
 Alle wichtigen Änderungen werden hier dokumentiert. Die neuesten Änderungen stehen oben.
 
+## [2.4.0] — 2026-09-26
+
+### Neu
+- **Bedien-Sidebar einklappbar (→ BACKLOG I17).** Kopfleiste „Bedienung“ mit
+  Doppel-Chevron oben in der linken Sidebar; eingeklappt eine 44-px-Schiene wie
+  die Analyse rechts. Vorgabe: ausgeklappt. Gemeinsames Modul
+  `shared/js/panel-toggle.js`, Layout in `shared/css/design-system.css`.
+
 ## [2.3.2] — 2026-09-22
 
 ### Style
