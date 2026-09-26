@@ -133,10 +133,11 @@ body {
 }
 .topbar-left { display: flex; align-items: center; }
 /* Logo Lehr- und Forschungsgebiet Physik (FB 8) — dezent, mint auf transparent,
-   in Light und Dark Mode gleich lesbar; sitzt rechts neben .inst im Titel.
+   in Light und Dark Mode gleich lesbar; sitzt rechts neben dem zweizeiligen
+   Titelblock (.topbar-title-text) und reicht über beide Zeilen.
    Quelle: shared/img/src/ */
 .topbar-logo {
-  height: 41px; width: auto; vertical-align: middle; margin-left: 8px;
+  height: 41px; width: auto; vertical-align: middle; flex-shrink: 0;
   opacity: .85; transition: opacity .15s;
 }
 .topbar-logo:hover { opacity: 1; }
@@ -146,9 +147,20 @@ body {
   background: var(--surface2); transition: all .15s; white-space: nowrap;
 }
 .back-btn:hover { border-color: var(--border2); color: var(--text); }
+/* Titelblock zweizeilig: Zeile 1 = Titel · Version · Institut, Zeile 2 = Copyright
+   (kleiner). Das Logo steht rechts daneben über beide Zeilen — so bleibt der
+   Header auch auf schmalen Bildschirmen in 52 px Höhe. */
 .topbar-title {
   font-size: .95rem; font-weight: 700; letter-spacing: .04em; color: var(--accent);
-  text-align: center; flex: 1; padding: 0 12px;
+  text-align: center; flex: 1; padding: 0 12px; min-width: 0;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.topbar-title-text {
+  display: flex; flex-direction: column; align-items: center; min-width: 0; line-height: 1.25;
+}
+.topbar-title .copyright {
+  color: var(--text3); font-weight: 400; font-size: .62rem; letter-spacing: .02em;
+  white-space: nowrap; margin-top: 2px;
 }
 .topbar-title .version { color: var(--text3); font-weight: 400; font-size: .7rem; margin-left: 6px; }
 .topbar-title .inst    { color: var(--text2); font-weight: 400; font-size: .75rem; margin-left: 8px; }
