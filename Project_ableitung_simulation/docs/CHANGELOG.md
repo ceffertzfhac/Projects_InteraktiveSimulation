@@ -1,5 +1,13 @@
 # CHANGELOG — Die Ableitung als Grenzwert
 
+## [1.2.9] — 2026-09-22
+
+### Style
+- **Header zweizeilig für schmale Bildschirme.** Das Copyright steht jetzt
+  kleiner in einer eigenen Zeile unter „Titel · Version · FH Aachen – FB 8 –
+  Physik"; das Physik-Logo sitzt rechts daneben über beide Zeilen. Styling
+  zentral in `shared/css/design-system.css` (kein Inline-Style mehr).
+
 ## [1.2.8] — 2026-09-22
 
 ### Geändert
