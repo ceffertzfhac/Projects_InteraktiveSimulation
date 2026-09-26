@@ -1,5 +1,13 @@
 # Changelog – Atwood-Maschine
 
+## v2.5.0 — 2026-09-26
+
+### Neu
+- **Bedien-Sidebar einklappbar (→ BACKLOG I17).** Kopfleiste „Bedienung“ mit
+  Doppel-Chevron oben in der linken Sidebar; eingeklappt eine 44-px-Schiene wie
+  die Analyse rechts. Vorgabe: ausgeklappt. Gemeinsames Modul
+  `shared/js/panel-toggle.js`, Layout in `shared/css/design-system.css`.
+
 ## v2.4.2 — 2026-09-22
 
 ### Style
