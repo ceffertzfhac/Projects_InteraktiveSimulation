@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.3.5 — 2026-09-22
+
+### Style
+- **Header zweizeilig für schmale Bildschirme.** Das Copyright steht jetzt
+  kleiner in einer eigenen Zeile unter „Titel · Version · FH Aachen – FB 8 –
+  Physik"; das Physik-Logo sitzt rechts daneben über beide Zeilen. Styling
+  zentral in `shared/css/design-system.css` (kein Inline-Style mehr).
+  Die Copyright-Marke fehlte hier bisher und ist jetzt wie in allen anderen
+  Sims ergänzt.
+
 ## v1.3.4 — 2026-09-22
 
 ### Style
