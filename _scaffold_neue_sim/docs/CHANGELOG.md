@@ -1,5 +1,9 @@
 # Changelog – Vorlage: Neue Simulation
 
+## v0.3.0 — 2026-10-01
+
+Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
+
 ## v0.2.0 — 2026-07-15
 
 Feature (→ BACKLOG I13.1): Hover-Werte am Zeit-Diagramm im Scaffold verdrahtet.

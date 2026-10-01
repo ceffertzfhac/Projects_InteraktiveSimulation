@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Signifikante Stellen – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!-- GSAP (Animations-Engine, kostenlos, Standard-Lizenz) — klassisch, VOR den Modulen -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="../shared/css/step-animation.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light step-anim">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    <div class="topbar-title-text">
+      <div class="topbar-title-line">
+        Signifikante Stellen
+        <span class="version">v0.4.1</span>
+        <span class="inst">FH Aachen – FB 8 – Physik</span>
+      </div>
+      <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
+    </div>
+    <img src="../shared/img/logo_physik_mint.png" class="topbar-logo"
+         alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8"
+         title="Lehr- und Forschungsgebiet Physik – FB 8">
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+  </div>
+</header>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <svg id="stage_svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet"
+         aria-label="Animationsbühne: Messen, Rundungsintervalle und Flächenbereich"></svg>
+
+    <!-- Folienkarten: statisches HTML, MathJax tippt einmal beim Laden.
+         Sichtbarkeit steuert ausschließlich die Timeline (js/steps.js);
+         wechselnde Zahlen sind <span data-dyn>, befüllt aus js/content.js. -->
+    <div class="slide-layer">
+
+      <!-- M · Messen -->
+      <div class="slide-card pos-tr" data-card="intro">
+        <div class="kicker">Kapitel 1 · Messen und Multiplizieren</div>
+        <h3>Wie lang ist dieser Stab?</h3>
+        <p>Wir legen ein Maßband an. Seine Teilung: <b>1&nbsp;m</b> – feiner kann man damit nicht ablesen.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="read1">
+        <div class="kicker">Ablesen · Teilung 1&nbsp;m</div>
+        <h3>\(l = 3\,\text{m}\)</h3>
+        <p>Das Stabende liegt in dem Bereich, der näher an der Marke 3 liegt als an
+          jeder anderen. Also tragen wir <b>3</b> ein.</p>
+        <div class="formula">\(2{,}5\,\text{m} \le l &lt; 3{,}5\,\text{m} \;\Rightarrow\; 3\,\text{m}\)</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="short">
+        <div class="kicker">Gegenprobe</div>
+        <h3>Ein kürzerer Stab: \(l = 2\,\text{m}\)</h3>
+        <p>Ein Stab mit <span class="num">2,4&nbsp;m</span> endet näher an der 2 – er wird
+          als <b>2&nbsp;m</b> notiert. Was zwischen den Marken liegt, sieht dieses Maßband nicht.</p>
+        <div class="formula">\(1{,}5\,\text{m} \le l &lt; 2{,}5\,\text{m} \;\Rightarrow\; 2\,\text{m}\)</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="read2">
+        <div class="kicker">Feineres Maßband · Teilung 0,1&nbsp;m</div>
+        <h3>Jede Marke steht nur noch für 0,1&nbsp;m</h3>
+        <div class="formula">\(2{,}95\,\text{m} \le l &lt; 3{,}05\,\text{m} \;\Rightarrow\; 3{,}0\,\text{m}\)</div>
+        <div class="formula">\(2{,}85\,\text{m} \le l &lt; 2{,}95\,\text{m} \;\Rightarrow\; 2{,}9\,\text{m}\)</div>
+        <p>Ein Stab mit 2,97&nbsp;m ergibt jetzt <b>3,0&nbsp;m</b> – eine Stelle mehr, weil das
+          Messmittel mehr hergibt. Einer mit 2,93&nbsp;m ergibt 2,9&nbsp;m.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="two">
+        <div class="kicker">Zwei Stäbe</div>
+        <h3>Verschieden lang – gleich notiert</h3>
+        <p>Die Stäbe sind in Wahrheit <span class="num">2,97&nbsp;m</span> und
+          <span class="num">3,02&nbsp;m</span> lang. Mit dem 0,1-m-Maßband ergeben beide
+          <b>3,0&nbsp;m</b>.</p>
+        <p>Eine notierte Zahl steht also nicht für <i>einen</i> Wert, sondern für einen Bereich.</p>
+      </div>
+
+      <!-- Z · Zahlengerade -->
+      <div class="slide-card pos-tr" data-card="line">
+        <div class="kicker">Zahlengerade</div>
+        <h3>Zuerst die grobe Messung: „3"</h3>
+        <p>Über das 1-m-Maßband legen wir eine Zahlengerade. Der Punkt ist die Ablesung,
+          der Pfeil zeigt die <b>wahre</b> Länge – beim Messen kennen wir sie nicht.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="int">
+        <div class="kicker">Rundungsintervall</div>
+        <h3>„3" steht für ein ganzes Intervall</h3>
+        <p>Jeder Stab, der hier endet, wird mit dem 1-m-Maßband als <span class="num">3&nbsp;m</span> abgelesen:</p>
+        <div class="formula">\(l \in [\,2{,}5 \,;\, 3{,}5\,)\,\text{m}\)</div>
+        <p class="note">● 2,5 gehört dazu, ○ 3,5 nicht – das würde schon zu 4 gerundet.
+          Die Teilung zeigt nur noch diese Grenzen: Schritte von 0,5.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="lvl">
+        <div class="kicker">Teilung <span class="dyn" data-dyn="lvl.unit"></span></div>
+        <h3>„<span class="dyn" data-dyn="lvl.text"></span>" – zehnmal schmaler</h3>
+        <p>Stäbe mit <span class="dyn" data-dyn="lvl.rodA"></span>&thinsp;m und
+          <span class="dyn" data-dyn="lvl.rodB"></span>&thinsp;m ergeben beide
+          <span class="dyn" data-dyn="lvl.text"></span>&thinsp;m:</p>
+        <div class="formula">\(l \in\) <span class="dyn" data-dyn="lvl.iv"></span>&thinsp;m</div>
+        <p class="note">Intervallbreite <span class="dyn" data-dyn="lvl.width"></span>&thinsp;m –
+          eine Einheit der letzten notierten Stelle.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="tenfold">
+        <div class="kicker">Merke</div>
+        <h3>3 ≠ 3,0 ≠ 3,00 ≠ 3,000</h3>
+        <p>Endnullen sind keine Kosmetik. Jede weitere Stelle macht das Intervall
+          <b>zehnmal schmaler</b> – sie dokumentiert ein genaueres Messmittel.</p>
+        <p>Diese Ziffern heißen <b>signifikante Stellen</b>: <span class="num">3,000</span>
+          hat vier davon.</p>
+      </div>
+
+      <!-- R · Fläche -->
+      <div class="slide-card pos-r" data-card="axis2">
+        <div class="kicker">Zweite Messgröße</div>
+        <h3>Eine zweite Länge \(b\)</h3>
+        <p>Die Zahlengerade wird zur \(l\)-Achse. Senkrecht dazu tragen wir eine zweite
+          Messung ein – ebenfalls auf Millimeter genau:</p>
+        <div class="formula">\(b = 2{,}000\,\text{m}, \quad b \in [\,1{,}9995 \,;\, 2{,}0005\,)\,\text{m}\)</div>
+      </div>
+
+      <div class="slide-card pos-r" data-card="area">
+        <div class="kicker">Rechteck</div>
+        <h3>Fläche \(A = l \cdot b\)</h3>
+        <div class="formula">\(l \in [\,2{,}9995 \,;\, 3{,}0005\,)\,\text{m}\)</div>
+        <div class="formula">\(b \in [\,1{,}9995 \,;\, 2{,}0005\,)\,\text{m}\)</div>
+        <p>Der Taschenrechner meldet \(3{,}000 \cdot 2{,}000 = 6\). Doch wie viele Stellen
+          von \(A\) sind wirklich gesichert?</p>
+      </div>
+
+      <div class="slide-card pos-r" data-card="corner">
+        <div class="kicker">Zoom auf die Ecke · ≈ ×1000</div>
+        <h3>Die Ecke liegt im Kreuzungsfeld</h3>
+        <p>\(l\) und \(b\) kennen wir nur auf \(\pm 0{,}0005\,\text{m}\). Die wahre Ecke des
+          Rechtecks kann überall dort liegen, wo sich die beiden Streifen kreuzen.</p>
+      </div>
+
+      <div class="slide-card pos-r" data-card="range">
+        <div class="kicker dyn" data-dyn="cmb.kicker"></div>
+        <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn"
+            data-dyn="cmb.b"></span>&thinsp;m</h3>
+        <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m</p>
+        <p>\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
+        <p>\(A \in\) <span class="dyn" data-dyn="cmb.AIv"></span>&thinsp;m²</p>
+        <div class="formula">gesichert: \(\;A =\) <span class="dyn" data-dyn="cmb.rounded"></span>&thinsp;m²</div>
+        <p class="note">\(l\): <span class="dyn" data-dyn="cmb.lSig"></span> ·
+          \(b\): <span class="dyn" data-dyn="cmb.bSig"></span> →
+          \(A\): <span class="dyn" data-dyn="cmb.sig"></span> (signifikant)</p>
+      </div>
+
+      <!-- K · Kreis -->
+      <div class="slide-card pos-r" data-card="circle">
+        <div class="kicker dyn" data-dyn="circ.kicker"></div>
+        <h3>\(U = 2 \cdot \pi \cdot r\) und \(A = \pi \cdot r^2\)</h3>
+        <p>\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</p>
+        <p>\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m</p>
+        <p>\(A \in\) <span class="dyn" data-dyn="circ.AIv"></span>&thinsp;m²</p>
+        <div class="formula">gesichert: \(\;U =\) <span class="dyn" data-dyn="circ.U"></span>&thinsp;m,
+          \(\;A =\) <span class="dyn" data-dyn="circ.A"></span>&thinsp;m²</div>
+        <p class="note">2, π und der Exponent 2 sind exakt – unendlich viele Stellen. Nur \(r\)
+          begrenzt: <span class="dyn" data-dyn="circ.sig"></span>.</p>
+      </div>
+
+      <!-- E · Merksatz -->
+      <div class="slide-card pos-c wide" data-card="rule">
+        <div class="kicker">Merke · Multiplikation und Division</div>
+        <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
+        <div class="formula">\(3{,}00\,\text{m} \cdot 2{,}9\,\text{m} = 8{,}7\,\text{m}^2 \qquad
+          3{,}0\,\text{m} \cdot 2{,}00\,\text{m} = 6{,}0\,\text{m}^2\)</div>
+        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m} \qquad
+          A = \pi \cdot (3{,}0\,\text{m})^2 = 28\,\text{m}^2\)</div>
+        <p>Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
+          begrenzen die Genauigkeit nicht. Die letzte angegebene Stelle ist unsicher, alle
+          davor sind gesichert.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="transport" id="transport"></footer>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

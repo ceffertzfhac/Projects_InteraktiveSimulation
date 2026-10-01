@@ -5,6 +5,10 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.2.0 — 2026-10-01
+
+Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
+
 ## v1.1.0 — 2026-09-26
 
 ### Neu
