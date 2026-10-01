@@ -15,17 +15,17 @@ export function createScene() {
     ...cameraKeys(CAM_START),
     // Maßband: Deckkraft, Einflug von unten, Teilung je Stufe (grow 0…1)
     tapeA: 0, tapeY: 60, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
-    // Stangen: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
+    // Stäbe: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
     rod0: ROD_COARSE, rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
     // Ablesung unter dem Maßband
     rdX: 3, rdA: 0, ...slotKeys('rd'),
-    // Ablesebereich auf dem Maßband, Stangenende-Markierung, „Einrast"-Pfeil je Stange
+    // Ablesebereich auf dem Maßband, Stabende-Markierung, „Einrast"-Pfeil je Stab
     zLo: 3, zHi: 3, zA: 0,
     mk0A: 0, mk0D: 0, mk1A: 0, mk1D: 0, sn0A: 0, sn0D: 0, sn1A: 0, sn1D: 0,
     // Zahlengerade und Teilung je Stufe (wächst gestaffelt aus der Achse)
     axisDraw: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
     xTicks: 0, yDraw: 0, yAlpha: 0, names: 0,
-    // Pfeil „wahre Länge" vom Stangenende zur Zahlengeraden + Landeimpuls
+    // Pfeil „wahre Länge" vom Stabende zur Zahlengeraden + Landeimpuls
     arD: 0, arA: 0, ping: 1,
     // Messpunkt auf der Zahlengeraden
     pA: 0, pS: 0.3, ...slotKeys('pl'),

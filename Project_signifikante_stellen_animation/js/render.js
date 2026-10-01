@@ -49,7 +49,7 @@ export function initStage(svg, DOM) {
 
   E.root = svgEl('g', {}, svg)
 
-  // ── Maßband und Stangen ──
+  // ── Maßband und Stäbe ──
   E.tape = svgEl('g', { class: 'tape' }, E.root)
   E.tapeBody = svgEl('rect', { class: 'tape-body', rx: 4 }, E.tape)
   E.tapeHook = svgEl('rect', { class: 'tape-hook', rx: 2 }, E.tape)
@@ -155,7 +155,7 @@ function rectWorld(el, V, x0, y0, x1, y1) {
 }
 
 // Maßband-Teilung: je Stufe k Striche im Abstand 10^-k, wachsen gestaffelt
-// vom Stangenende aus; gröbere Striche sind länger. Beschriftung, sobald Platz ist.
+// vom Stabende aus; gröbere Striche sind länger. Beschriftung, sobald Platz ist.
 function renderTape(S, V, top) {
   const marks = new Map()
   const half = (V.x1 - V.x0) / 2
@@ -193,22 +193,43 @@ function renderTape(S, V, top) {
   E.tapeMarks.end(); E.tapeLabels.end()
 }
 
-// Geschwungener Pfeil unter dem Maßband vom Stangenende zur abgelesenen Marke,
-// progressiv gezeichnet (quadratische Bézierkurve, Spitze entlang der Tangente).
+// Pfeilspitzen-Geometrie (CLAUDE.md „Vektor-Pfeilspitzen", auch für gekrümmte Pfeile):
+// Spitze exakt AUF dem Zielpunkt, Schaft endet an der Dreieck-Basis (eine Kopflänge
+// vor der Spitze, entlang der Kurve gemessen) — kein Schaft guckt aus der Spitze.
+// Ist der (bisher gezeichnete) Pfeil kürzer als der Kopf, wird nichts gezeichnet
+// (analog shortenEnd → null, B23).
+const HEAD = { len: 12, half: 6 }
+const headPath = (tx, ty, bx, by) => {
+  const L = Math.hypot(tx - bx, ty - by) || 1, ux = (tx - bx) / L, uy = (ty - by) / L
+  return `M${tx} ${ty}L${bx - uy * HEAD.half} ${by + ux * HEAD.half}L${bx + uy * HEAD.half} ${by - ux * HEAD.half}Z`
+}
+
+// Geschwungener Pfeil unter dem Maßband vom Stabende zur abgelesenen Marke,
+// progressiv gezeichnet (quadratische Bézierkurve). Ziel = Unterkante des Maßbands.
 function snapArc(el, x0, x1, y, d, a) {
-  op(el.g, a * smooth(0, 0.05, d))
-  if (d <= 0.001 || a <= 0.002) return
   const h = clamp(16 + 0.3 * Math.abs(x1 - x0), 16, 38)
   const cx = (x0 + x1) / 2, cy = y + 2 * h
-  const P = t => [(1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1, (1 - t) ** 2 * y + 2 * (1 - t) * t * cy + t * t * y]
-  const n = 28, pts = []
-  for (let i = 0; i <= n; i++) pts.push(P(d * i / n))
-  el.path.setAttribute('d', 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L'))
-  const [ex, ey] = pts[n]
-  const tx = 2 * (1 - d) * (cx - x0) + 2 * d * (x1 - cx), ty = 2 * (1 - d) * (cy - y) + 2 * d * (y - cy)
-  const L = Math.hypot(tx, ty) || 1, ux = tx / L, uy = ty / L
-  const bx = ex - ux * 11, by = ey - uy * 11
-  el.head.setAttribute('d', `M${ex} ${ey}L${bx - uy * 5.5} ${by + ux * 5.5}L${bx + uy * 5.5} ${by - ux * 5.5}Z`)
+  const P = t => [(1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1,
+    (1 - t) ** 2 * y + 2 * (1 - t) * t * cy + t * t * y]
+  // Bogenlängen-Tabelle bis zum aktuellen Zeichenstand d
+  const n = 48, pts = [P(0)], cum = [0]
+  for (let i = 1; i <= n; i++) {
+    const p = P(d * i / n), q = pts[i - 1]
+    pts.push(p); cum.push(cum[i - 1] + Math.hypot(p[0] - q[0], p[1] - q[1]))
+  }
+  const total = cum[n]
+  op(el.g, a)
+  if (a <= 0.002 || total < HEAD.len + 2) { op(el.g, 0); return }
+  // Basispunkt: Bogenlänge total − Kopflänge
+  const sb = total - HEAD.len
+  let j = 1
+  while (cum[j] < sb) j++
+  const f = (sb - cum[j - 1]) / (cum[j] - cum[j - 1] || 1)
+  const base = [lerp(pts[j - 1][0], pts[j][0], f), lerp(pts[j - 1][1], pts[j][1], f)]
+  const shaft = pts.slice(0, j).concat([base])
+  el.path.setAttribute('d', 'M' + shaft.map(p => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join('L'))
+  const [tx, ty] = pts[n]
+  el.head.setAttribute('d', headPath(tx, ty, base[0], base[1]))
 }
 
 let dynKey = '', dynAlpha = -1
@@ -229,7 +250,7 @@ export function renderScene(S) {
     set(E.tapeHook, { x: x0 - 14, y: top - 6, width: 8, height: TAPE.h + 6 })
     renderTape(S, V, top)
   }
-  // ── Stangen ──
+  // ── Stäbe ──
   ;[0, 1].forEach(i => {
     const R = E.rods[i], len = S[`rod${i}`], sh = S[`rod${i}S`]
     op(R.g, S[`rod${i}A`])
@@ -237,7 +258,7 @@ export function renderScene(S) {
     set(R.body, { x: a, y: ROD[i].top + S.tapeY, width: Math.max(0, b - a), height: ROD[i].h })
     set(R.cap, { x: b - 3, y: ROD[i].top + S.tapeY - 2, width: 3, height: ROD[i].h + 4 })
   })
-  // ── Ablesebereich, Stangenende, „Einrasten" auf die nächste Marke ──
+  // ── Ablesebereich, Stabende, „Einrasten" auf die nächste Marke ──
   const zb = top + TAPE.h
   const z0 = clamp(V.sx(S.zLo), V.L - FAR, V.R + FAR), z1 = clamp(V.sx(S.zHi), V.L - FAR, V.R + FAR)
   set(E.zone, { x: z0, y: top, width: Math.max(0, z1 - z0), height: TAPE.h }); op(E.zone, S.zA)
@@ -249,7 +270,7 @@ export function renderScene(S) {
     const x = V.sx(S[`rod${i}`]), ya = ROD[i].top + S.tapeY - 6
     set(E.marks[i], { x1: x, x2: x, y1: ya, y2: lerp(ya, zb + 2, S[`mk${i}D`]) })
     op(E.marks[i], S[`mk${i}A`] * smooth(0, 0.05, S[`mk${i}D`]))
-    snapArc(E.snaps[i], x, V.sx(S.rdX), zb + 6, S[`sn${i}D`], S[`sn${i}A`])
+    snapArc(E.snaps[i], x, V.sx(S.rdX), zb, S[`sn${i}D`], S[`sn${i}A`])
   })
 
   // ── Ablesung ──
@@ -260,11 +281,12 @@ export function renderScene(S) {
   })
 
   // ── Pfeil „wahre Länge" ──
-  const ax = V.sx(S.rod0), y0 = ROD[0].top + S.tapeY - 3, y1 = axY + 4
-  const tip = lerp(y0, y1, S.arD)
-  op(E.arrow, S.arA * smooth(0, 0.06, S.arD))
-  set(E.arLine, { x1: ax, x2: ax, y1: y0, y2: Math.min(y0, tip + 9) })
-  set(E.arHead, { d: `M${ax - 7} ${tip + 13}L${ax} ${tip}L${ax + 7} ${tip + 13}Z` })
+  // Spitze genau auf der Zahlengeraden, Schaft endet an der Kopf-Basis
+  const ax = V.sx(S.rod0), y0 = ROD[0].top + S.tapeY - 3
+  const tip = lerp(y0, axY, S.arD)
+  op(E.arrow, y0 - tip > HEAD.len + 2 ? S.arA : 0)
+  set(E.arLine, { x1: ax, x2: ax, y1: y0, y2: tip + HEAD.len })
+  set(E.arHead, { d: headPath(ax, tip, ax, tip + HEAD.len) })
   set(E.ping, { cx: ax, cy: axY, r: 6 + 20 * S.ping }); op(E.ping, S.arA * (1 - S.ping) * 0.9)
 
   // ── Achsen ──

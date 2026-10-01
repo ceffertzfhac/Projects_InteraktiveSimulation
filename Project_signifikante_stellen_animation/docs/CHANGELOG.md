@@ -1,5 +1,15 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.3.1 — 2026-10-01
+
+- **Pfeilspitzen-Geometrie (CLAUDE.md-Regel) auch für die gekrümmten Einrast-
+  Pfeile:** Spitze exakt auf dem Ziel (Unterkante des Maßbands an der Marke),
+  Schaft endet an der Dreieck-Basis — gemessen als Bogenlänge entlang der Kurve,
+  Kopfrichtung = Sehne Basis→Spitze; kürzer als der Kopf → nicht gezeichnet (wie
+  `shortenEnd`/B23). Ebenso der Pfeil „wahre Länge": Spitze genau auf der
+  Zahlengeraden (vorher 4 px darunter), Schaft bis zur Kopf-Basis, `butt`-Kappen.
+- Begriff „Stange" durchgängig durch „Stab" ersetzt (PO-Vorgabe).
+
 ## v0.3.0 — 2026-10-01
 
 PO-Review, zweite Runde (22 Schritte):

@@ -6,7 +6,7 @@
 export const VIEW_A = { vL: 80, vR: 1120, vT: 120, vB: 600 }
 export const AXIS_Y = 372                         // Bildschirmlage der Zahlengeraden
 const AXIS_FRAC_A = (VIEW_A.vB - AXIS_Y) / (VIEW_A.vB - VIEW_A.vT)
-// Maßband und Stangen (feste Bildschirmhöhen; x folgt der Kamera)
+// Maßband und Stäbe (feste Bildschirmhöhen; x folgt der Kamera)
 export const TAPE = { top: 506, h: 40 }
 export const ROD = [{ top: 484, h: 16 }, { top: 460, h: 16 }]
 export const READING_Y = 614                      // „abgelesen: …" unter dem Maßband
@@ -21,8 +21,8 @@ const ovW = OVERVIEW_H / ASPECT_B
 export const CAM_OVERVIEW = { view: VIEW_B, cx: ovW / 2, cy: OVERVIEW_H / 2, w: ovW }
 // Kamera für Teil A: y = 0 (Zahlengerade) liegt immer bei AXIS_Y.
 export const camA = (cx, w) => ({ view: VIEW_A, cx, w, cy: (0.5 - AXIS_FRAC_A) * w * aspect(VIEW_A) })
-export const CAM_START = camA(2.15, 4.7)          // ganze Stange samt Maßband-Anfang
-export const CAM_ROD_END = camA(3, 1.6)           // Ablesen am Stangenende
+export const CAM_START = camA(2.15, 4.7)          // ganzer Stab samt Maßband-Anfang
+export const CAM_ROD_END = camA(3, 1.6)           // Ablesen am Stabende
 export const levelWidth = k => 2.5 / 10 ** k      // Zahlengerade bei Genauigkeitsstufe k
 
 // Kamera für ein Rechenbeispiel: Ecke (l, b) mittig, Ausschnitt so, daß das
@@ -40,7 +40,7 @@ export const EASE = {
 
 // ── Inhalte ──────────────────────────────────────────────────────────────────
 export const L_LEVELS = ['3', '3,0', '3,00', '3,000']   // Ablesungen bei 1 m … 1 mm Teilung
-export const RODS_MEASURE = [2.97, 3.02]                  // Teil M: zwei Stangen, beide „3,0 m"
+export const RODS_MEASURE = [2.97, 3.02]                  // Teil M: zwei Stäbe, beide „3,0 m"
 export const ROD_COARSE = 2.8                             // 1-m-Band: näher an 3 → „3 m"
 export const ROD_SHORT = 2.4                              // 1-m-Band: näher an 2 → „2 m"
 export const ROD_FINE_SHORT = 2.93                        // 0,1-m-Band: näher an 2,9 → „2,9 m"

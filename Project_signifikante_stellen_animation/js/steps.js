@@ -4,7 +4,7 @@
 // Die Planer (Kamera, Karten, Label-Slots, Treffer) laufen zur Build-Zeit und
 // kennen den Zustand am Ende jedes Schritts — Übergänge schließen nahtlos an.
 //
-//  M  Messen: eine Stange, zwei Maßbänder (1 m, 0,1 m), zwei Stangen → gleiche Ablesung
+//  M  Messen: ein Stab, zwei Maßbänder (1 m, 0,1 m), zwei Stäbe → gleiche Ablesung
 //  Z  Zahlengerade: „3" als Intervall; 3,0 / 3,00 / 3,000 — je Zoom ×10, neue Teilung
 //  R  Fläche: zweite Achse, Rechteck, Zoom auf die Ecke, mögliche Flächen
 //  C  Rückweg (erst b, dann l) · D  Mischungen · E  Merksatz
@@ -48,8 +48,8 @@ export function buildSteps(S, DOM) {
     tl.to(S, { [h + 'a']: 1, duration: 0.3, ease: EASE.pop }, '<')
   }
 
-  // Pfeil „wahre Länge": Stange auf Länge x bringen, Pfeil steigt vom
-  // Stangenende zur Zahlengeraden, landet mit Impulsring, hinterläßt Treffer.
+  // Pfeil „wahre Länge": Stab auf Länge x bringen, Pfeil steigt vom
+  // Stabende zur Zahlengeraden, landet mit Impulsring, hinterläßt Treffer.
   let arUp = false, rodLen = S.rod0
   const fire = (tl, x, at) => {
     if (arUp) tl.to(S, { arD: 0, duration: 0.28, ease: 'power2.in' }, at)
@@ -84,7 +84,7 @@ export function buildSteps(S, DOM) {
   const step = (title, build, hold) => steps.push({ title, build, hold })
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
-  // Stangenende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
+  // Stabende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
   // geschwungener Pfeil rastet auf der Marke ein → „abgelesen: …"
   const shown = { mk: [false, false], zone: false, rd: -1 }
   const markRod = (tl, i, at) => {
@@ -117,7 +117,7 @@ export function buildSteps(S, DOM) {
     rodLen = x
   }
 
-  step('Eine Metallstange', tl => {
+  step('Ein Metallstab', tl => {
     tl.to(S, { rod0A: 1, rod0S: 0, duration: 1.1, ease: EASE.reveal })
     tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.9, ease: EASE.reveal }, '<0.5')
     tl.to(S, { tg0: 1, duration: T.grow, ease: 'power1.inOut' }, '<0.25')
@@ -131,7 +131,7 @@ export function buildSteps(S, DOM) {
     snap(tl, 0, 3, '3 m', '>0.1')
   }, 4)
 
-  step('Kürzere Stange: 2 m', tl => {
+  step('Kürzerer Stab: 2 m', tl => {
     unsnap(tl, 0)
     deck.show(tl, C.short, '<')
     rodTo(tl, ROD_SHORT, '<0.15')
@@ -154,7 +154,7 @@ export function buildSteps(S, DOM) {
     snap(tl, 0, 2.9, '2,9 m', '>0.05')
   }, 4)
 
-  step('Zwei Stangen, eine Ablesung', tl => {
+  step('Zwei Stäbe, eine Ablesung', tl => {
     unsnap(tl, 0)
     deck.show(tl, C.two, '<')
     rodTo(tl, RODS_MEASURE[0], '<0.1')
@@ -206,7 +206,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
       tl.set(S, { lBndD: k + 1 }, '<')
       tl.to(S, { lBndA: 1, duration: 0.4 }, '<0.6')
-      // 3) Stangen mit verschiedenen wahren Längen — gleiche Ablesung
+      // 3) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung
       RODS_LEVEL[k].forEach(x => fire(tl, x, '>0.1'))
       if (k === L.length - 1) deck.show(tl, C.tenfold, '>0.2')
     }, k === L.length - 1 ? 5.5 : 4)

@@ -19,7 +19,7 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .tape-mark { stroke: var(--tape-ink); stroke-width: 1.6; }
 .tape-label { fill: var(--tape-ink); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* Metallstangen */
+/* Metallstäbe */
 .rod-hi  { stop-color: var(--rod-hi); }
 .rod-mid { stop-color: var(--rod-mid); }
 .rod-lo  { stop-color: var(--rod-lo); }
@@ -27,11 +27,11 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
   filter: drop-shadow(0 2px 3px rgba(26, 30, 46, .22)); }
 .rod-cap  { fill: var(--rod-edge); }
 
-/* Ablesebereich (Rundungsintervall auf dem Maßband), Stangenende, Einrast-Pfeil */
+/* Ablesebereich (Rundungsintervall auf dem Maßband), Stabende, Einrast-Pfeil */
 .zone      { fill: #ffffff; fill-opacity: .55; }
 .zone-edge { stroke: var(--c-l); stroke-width: 1.6; stroke-dasharray: 4 3; }
 .rod-marker { stroke: var(--c-true); stroke-width: 2; stroke-dasharray: 5 4; }
-.snap path { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; }
+.snap path { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: butt; stroke-linejoin: round; }
 .snap path.snap-head { fill: var(--accent); stroke: none; }
 
 /* Ablesung unter dem Maßband */
@@ -39,7 +39,7 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .reading-pre { fill: var(--text2); font-size: 17px; font-weight: 500; }
 
 /* Pfeil „wahre Länge", Landeimpuls, Treffer */
-.true-arrow line { stroke: var(--c-true); stroke-width: 2.5; stroke-linecap: round; }
+.true-arrow line { stroke: var(--c-true); stroke-width: 2.5; stroke-linecap: butt; }
 .true-arrow path { fill: var(--c-true); }
 .ping { fill: none; stroke: var(--c-true); stroke-width: 2.5; }
 .hit  { fill: var(--c-true); stroke: var(--stage-bg1); stroke-width: 2; }
