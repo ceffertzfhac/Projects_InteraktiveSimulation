@@ -28,9 +28,9 @@ store.presenter = createPresenter({
   chapters: [
     {
       id: 'beispiel', title: 'Beispiel',
-      create: onChange => {
+      create: (onChange, onTick) => {
         const S = store.scene = createScene()
-        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange })
+        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange, onTick })
       },
     },
     { id: 'kapitel2', title: 'Kapitel 2', disabled: true },

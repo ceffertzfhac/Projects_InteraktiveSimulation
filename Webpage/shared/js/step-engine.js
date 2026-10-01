@@ -16,7 +16,7 @@ const DEFAULT_HOLD = 2.4    // s bei 1× — Verweildauer nach einem Schritt im 
 const START_HOLD = 0.5      // s — Auto-Play ab Schritt 0 beginnt fast sofort
 const BACK_RATE = 2.5       // Zurückspulen sichtbar, aber zügig
 
-export function createStepEngine({ steps, scene, render, onChange = () => {} }) {
+export function createStepEngine({ steps, scene, render, onChange = () => {}, onTick = () => {} }) {
   const g = window.gsap
   const N = steps.length
   const tl = g.timeline({ paused: true })
@@ -35,6 +35,17 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
   let playing = false, speed = 1, wait = null
 
   const labelTime = i => tl.labels['s' + i]
+  // Kontinuierliche Position in Schritt-Einheiten (2,4 = Schritt 3 zu 40 % gelaufen)
+  // und Countdown der Auto-Play-Wartezeit → Füllung der Fortschrittsleiste.
+  const position = () => {
+    const t = tl.time()
+    for (let j = 1; j <= N; j++) {
+      const a = labelTime(j - 1), b = labelTime(j)
+      if (t <= b + 1e-9) return j - 1 + Math.max(0, Math.min(1, (t - a) / (b - a)))
+    }
+    return N
+  }
+  const tick = (hold = 0) => onTick({ pos: position(), hold, holdIndex: index + 1 })
   const emit = () => onChange({
     index: target, total: N, playing, busy: !!mover,
     title: target > 0 ? steps[target - 1].title : 'Start',
@@ -47,6 +58,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
     tl.seek(labelTime(target))
     index = target
     render(scene)
+    tick()
   }
 
   function moveTo(i, rate) {
@@ -57,11 +69,12 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
     const dur = Math.abs(labelTime(i) - tl.time()) / rate
     mover = g.to(tl, {
       time: labelTime(i), duration: dur, ease: 'none',
-      onUpdate: () => render(scene),
+      onUpdate: () => { render(scene); tick() },
       onComplete: () => {
         mover = null
         index = i
         render(scene)
+        tick()
         emit()
         if (playing) scheduleNext()
       },
@@ -73,7 +86,12 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
     wait?.kill()
     if (index >= N) { playing = false; emit(); return }
     const hold = index === 0 ? START_HOLD : (steps[index - 1].hold ?? DEFAULT_HOLD)
-    wait = g.delayedCall(hold / speed, () => { wait = null; moveTo(index + 1, speed) })
+    const h = { v: 0 }
+    wait = g.to(h, {
+      v: 1, duration: hold / speed, ease: 'none',
+      onUpdate: () => tick(h.v),
+      onComplete: () => { wait = null; tick(0); moveTo(index + 1, speed) },
+    })
   }
 
   const api = {
@@ -96,6 +114,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
       index = target = Math.max(0, Math.min(N, i))
       tl.seek(labelTime(index))
       render(scene)
+      tick()
       emit()
     },
     reset() { api.pause(); api.goto(0) },
@@ -110,6 +129,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
       playing = false
       wait?.kill()
       wait = null
+      tick()
       emit()
     },
     toggle() { playing ? api.pause() : api.play() },
@@ -128,11 +148,12 @@ export function createStepEngine({ steps, scene, render, onChange = () => {} }) 
 
   render(scene)
   emit()
+  tick()
   return api
 }
 
 // ── Presenter: Transportleiste, Kapitel-Tabs, Tastatur ───────────────────────
-// chapters: [{ id, title, disabled?, create(onChange) → engine }]
+// chapters: [{ id, title, disabled?, create(onChange, onTick) → engine }]
 const ICON = {
   reset: '<path d="M5 4v12"/><path d="M15 4 8 10l7 6"/>',
   prev:  '<path d="M12.5 4 6.5 10l6 6"/>',
@@ -187,9 +208,14 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
       scrub.innerHTML = Array.from({ length: st.total }, (_, i) =>
         `<button class="tp-seg" data-i="${i + 1}" aria-label="Schritt ${i + 1}"></button>`).join('')
     }
+    ;[...scrub.children].forEach((seg, i) => seg.classList.toggle('current', i + 1 === st.index))
+  }
+
+  // Füllung je Segment: Fortschritt des Schritts + Auto-Play-Countdown im nächsten
+  function progress({ pos, hold, holdIndex }) {
     ;[...scrub.children].forEach((seg, i) => {
-      seg.classList.toggle('done', i + 1 < st.index)
-      seg.classList.toggle('current', i + 1 === st.index)
+      seg.style.setProperty('--p', Math.max(0, Math.min(1, pos - i)).toFixed(4))
+      seg.style.setProperty('--h', i + 1 === holdIndex ? hold.toFixed(4) : '0')
     })
   }
 
@@ -204,7 +230,7 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
       t.setAttribute('aria-selected', on)
     })
     onChapter(id)
-    engine = ch.create(update)
+    engine = ch.create(update, progress)
     engine.setSpeed(speed)
   }
 

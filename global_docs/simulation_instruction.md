@@ -1013,6 +1013,11 @@ Szene muß zahlengleich sein (so für v0.1.0 durchgeführt).
 
 - Kamerafahrten 1,2–2,4 s `power2.inOut`; Reveals 0,5–0,8 s `power3.out`;
   Pop-ins `back.out(2)`; Kartenwechsel 0,25 s raus / 0,55 s rein (+ 14 px Anstieg).
+- Fortschrittsleiste: `createStepEngine({ …, onTick })` meldet pro Frame die
+  kontinuierliche Position (Schritt + Anteil) und den Countdown der Auto-Play-
+  Wartezeit; der Presenter füllt damit die Segmente (`--p`, `--h`).
+- Zeigt eine Animation errechnete Zahlen live (z. B. *l* · *b*), je Wert ≥ 1 s
+  stehen lassen — sonst ist er nicht lesbar.
 - Auto-Play: nach jedem Schritt `hold` Sekunden (Default 2,4 s) — textlastige
   Schritte länger. Tempo skaliert Übergänge **und** Haltezeiten. Zurück spult
   mit 2,5-facher Geschwindigkeit sichtbar zurück.
