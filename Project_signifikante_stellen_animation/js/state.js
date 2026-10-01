@@ -1,0 +1,53 @@
+'use strict'
+// Zustand. Die Szene ist ein flaches Objekt aus ZAHLEN — GSAP tweent sie,
+// render.js liest sie. Texte sind Indizes in Tabellen (constants.js TEXTS,
+// content.js DYN), damit jeder Schritt exakt rückwärts abspielbar ist.
+
+import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
+import { CAM_START, RODS_MEASURE } from './constants.js'
+
+export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
+
+export const HITS = 5            // Treffer-Markierungen (Zahlengerade bzw. Rechteckecke)
+
+export function createScene() {
+  const S = {
+    ...cameraKeys(CAM_START),
+    // Maßband: Deckkraft, Einflug von unten, Teilung je Stufe (grow 0…1)
+    tapeA: 0, tapeY: 60, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
+    // Stangen: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
+    rod0: RODS_MEASURE[0], rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
+    // Ablesung unter dem Maßband
+    rdX: 3, rdA: 0, ...slotKeys('rd'),
+    // Zahlengerade und Teilung je Stufe (wächst gestaffelt aus der Achse)
+    axisDraw: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
+    xTicks: 0, yDraw: 0, yAlpha: 0, names: 0,
+    // Pfeil „wahre Länge" vom Stangenende zur Zahlengeraden + Landeimpuls
+    arD: 0, arA: 0, ping: 1,
+    // Messpunkt auf der Zahlengeraden
+    pA: 0, pS: 0.3, ...slotKeys('pl'),
+    lLo: 3, lHi: 3, lA: 0, lSpan: 0, lEndA: 0, lBndA: 0, lBndD: 1,
+    gLo: 3, gHi: 3, gA: 0,                 // Geister-Intervall (vorige Stufe)
+    // Teil R: Breite b, Rechteck, Flächenbereich
+    qA: 0, qS: 0.3, ...slotKeys('ql'),
+    bLo: 2, bHi: 2, bA: 0, stripA: 0.55,
+    rW: 0, rH: 0, rA: 0, aSym: 0,
+    ...slotKeys('dl'), ...slotKeys('db'),
+    roA: 0, roD: 5,                        // Live-Anzeige l · b an der Ecke (Deckkraft, Stellen)
+    uA: 0, uTagA: 0, dim: 0,
+    // Dynamische Zahlen in Folienkarten
+    dynA: 1, lvl: 0, cmb: 0,
+  }
+  for (let i = 0; i < HITS; i++) Object.assign(S, { [`h${i}x`]: 3, [`h${i}y`]: 2, [`h${i}a`]: 0 })
+  return S
+}
+
+export const DOM = {}
+export function initDOM() {
+  DOM.svg = document.getElementById('stage_svg')
+  DOM.transport = document.getElementById('transport')
+  DOM.themeToggle = document.getElementById('theme_toggle')
+  DOM.cards = {}
+  document.querySelectorAll('.slide-card').forEach(c => { DOM.cards[c.dataset.card] = c })
+  DOM.dyn = [...document.querySelectorAll('[data-dyn]')]
+}
