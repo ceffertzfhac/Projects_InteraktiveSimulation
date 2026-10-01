@@ -3,6 +3,10 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.10.0] — 2026-10-01
+
+Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
+
 ## [1.9.0] — 2026-09-26
 
 ### Neu

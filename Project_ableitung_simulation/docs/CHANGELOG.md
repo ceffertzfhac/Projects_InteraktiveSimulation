@@ -1,5 +1,9 @@
 # CHANGELOG — Die Ableitung als Grenzwert
 
+## [1.4.0] — 2026-10-01
+
+Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
+
 ## [1.3.0] — 2026-09-26
 
 ### Neu

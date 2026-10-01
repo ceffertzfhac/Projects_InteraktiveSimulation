@@ -11,6 +11,8 @@
 //
 // GSAP wird als klassisches <script> (CDN) VOR den Modulen geladen → window.gsap.
 
+import './fullscreen.js'        // Taste F = Vollbild (gemeinsam mit den Simulationen)
+
 const MIN_STEP = 0.3        // s — jeder Schritt hat eine echte Dauer (Label-Abstand > 0)
 const DEFAULT_HOLD = 2.4    // s bei 1× — Verweildauer nach einem Schritt im Auto-Play
 const START_HOLD = 0.5      // s — Auto-Play ab Schritt 0 beginnt fast sofort
@@ -270,7 +272,6 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     else if (k === 'Home') act.reset()
     else if (k === 'End') { engine.pause(); engine.goto(engine.total) }
     else if (k === 'p' || k === 'P') act.play()
-    else if (k === 'f' || k === 'F') toggleFullscreen()
     else if (k === 'h' || k === 'H') document.body.classList.toggle('ui-hidden')
     else return
     e.preventDefault()
@@ -279,9 +280,4 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
 
   selectChapter(chapters.find(c => !c.disabled).id)
   return { get engine() { return engine }, selectChapter }
-}
-
-function toggleFullscreen() {
-  if (document.fullscreenElement) document.exitFullscreen()
-  else document.documentElement.requestFullscreen?.()
 }
