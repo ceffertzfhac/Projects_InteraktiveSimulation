@@ -13,9 +13,9 @@ import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
   L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_SHORT,
-  B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXT, R_SAMPLES, textIndex,
+  B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
 } from './constants.js'
-import { parseMeasured, circumference } from './model.js'
+import { parseMeasured, circleExample } from './model.js'
 import { CMB_FIRST_RETURN, CMB_FIRST_MIX } from './content.js'
 import { HITS } from './state.js'
 
@@ -24,6 +24,7 @@ export function buildSteps(S, DOM) {
   const cam = createCamera(S, CAM_START)
   const deck = createCardDeck()
   const pl = createSlots(S, 'pl'), ql = createSlots(S, 'ql'), rd = createSlots(S, 'rd')
+  const rl = createSlots(S, 'rl')
   const dl = createSlots(S, 'dl'), db = createSlots(S, 'db')
   const L = L_LEVELS.map(parseMeasured)
   const B = parseMeasured(B_FINAL)
@@ -283,31 +284,39 @@ export function buildSteps(S, DOM) {
   RETURN_PATH.forEach((p, j) => example(`Rückweg: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
   MIXES.forEach((p, m) => example(`Beispiel: ${p[0]} · ${p[1]}`, p, CMB_FIRST_MIX + m, CAM_OVERVIEW))
 
-  // ── K · Kreisumfang: exakte Faktoren begrenzen nichts ──────────────────────
-  const circ = circumference(R_TEXT)
-  step('Kreis mit Radius r', tl => {
-    clearHits(tl)
-    dl.hide(tl, { at: '<' })
-    db.hide(tl, { at: '<' })
-    tl.to(S, {
-      rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6,
-    }, '<')
-    tl.set(S, { kA: 1, kDraw: 0, kR: circ.r.value, kLo: circ.r.value, kHi: circ.r.value })
-    tl.to(S, { kDraw: 1, duration: 1.4, ease: 'power2.inOut' })
-    tl.to(S, { kRadA: 1, duration: 0.5 }, '>-0.3')
-    deck.show(tl, C.circle, '<-0.8')
-  }, 4)
-
-  step('Umfang U = 2πr', tl => {
-    tl.to(S, { kRing: 1, kLo: circ.r.lo, kHi: circ.r.hi, duration: 0.9, ease: EASE.reveal })
-    tl.to(S, { kRo: 1, duration: 0.4 }, '<0.3')
-    R_SAMPLES.forEach((r, i) => {
-      tl.to(S, { kR: r, duration: 0.7, ease: EASE.cam }, i ? '>1.1' : '>0.2')
+  // ── K · Kreis: U = 2πr und A = πr² — 2, π und der Exponent sind exakt ───────
+  // Radius springt durch das Unsicherheitsintervall; U und A rechnen live mit
+  // (je Wert ≥ 1 s Standzeit), danach Karte mit Bereichen und gesicherten Werten.
+  const varyRadius = (tl, samples, r) => {
+    tl.to(S, { kRo: 1, duration: 0.4 }, '>0.1')
+    samples.forEach((x, i) => {
+      tl.to(S, { kR: x, duration: 0.7, ease: EASE.cam }, i ? '>1.1' : '>0.1')
     })
-    tl.to(S, { kR: circ.r.value, duration: 0.6, ease: EASE.cam }, '>1.2')
+    tl.to(S, { kR: r.value, duration: 0.6, ease: EASE.cam }, '>1.2')
     tl.to(S, { kRo: 0, duration: 0.4 }, '<0.2')
-    deck.show(tl, C.circle2, '<')
-  }, 6)
+  }
+  R_TEXTS.forEach((rt, j) => {
+    const c = circleExample(rt)
+    step(`Kreis: r = ${rt} m`, tl => {
+      if (j === 0) {
+        clearHits(tl)
+        dl.hide(tl, { at: '<' })
+        db.hide(tl, { at: '<' })
+        tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6 }, '<')
+        tl.set(S, { kA: 1, kDraw: 0, kR: c.r.value, kLo: c.r.value, kHi: c.r.value, circ: 0 })
+        tl.to(S, { kDraw: 1, duration: 1.4, ease: 'power2.inOut' })
+        tl.to(S, { kDisc: 1, kRadA: 1, duration: 0.6 }, '>-0.4')
+        rl.show(tl, textIndex(rt), { at: '<' })
+        deck.show(tl, C.circle, '<')
+        tl.to(S, { kRing: 1, kLo: c.r.lo, kHi: c.r.hi, duration: 0.9, ease: EASE.reveal }, '>0.2')
+      } else {
+        rl.show(tl, textIndex(rt))
+        swapDyn(tl, 'circ', j, '<')
+        tl.to(S, { kLo: c.r.lo, kHi: c.r.hi, duration: 1.1, ease: EASE.cam }, '<0.2')
+      }
+      varyRadius(tl, R_SAMPLES[j], c.r)
+    }, 6)
+  })
 
   // ── E · Merksatz ───────────────────────────────────────────────────────────
   step('Merke', tl => {

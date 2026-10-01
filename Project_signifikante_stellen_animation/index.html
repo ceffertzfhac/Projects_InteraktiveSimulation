@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.3.1</span>
+        <span class="version">v0.4.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -177,22 +177,15 @@ window.MathJax = {
 
       <!-- K · Kreis -->
       <div class="slide-card pos-r" data-card="circle">
-        <div class="kicker">Kreisumfang</div>
-        <h3>\(U = 2 \cdot \pi \cdot r\)</h3>
-        <p>Gemessen ist nur der Radius: \(r = 3{,}0\,\text{m}\), also</p>
-        <div class="formula">\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</div>
-        <p>Die <b>2</b> und das <b>π</b> sind dagegen exakt – sie haben unendlich viele
-          Stellen.</p>
-      </div>
-
-      <div class="slide-card pos-r" data-card="circle2">
-        <div class="kicker">Umfang und Radius</div>
-        <h3>Nur \(r\) begrenzt die Genauigkeit</h3>
+        <div class="kicker dyn" data-dyn="circ.kicker"></div>
+        <h3>\(U = 2 \cdot \pi \cdot r\) und \(A = \pi \cdot r^2\)</h3>
         <p>\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</p>
         <p>\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m</p>
-        <div class="formula">gesichert: \(\;U =\) <span class="dyn" data-dyn="circ.rounded"></span>&thinsp;m</div>
-        <p class="note">\(r\): <span class="dyn" data-dyn="circ.sig"></span> · 2 und π: unendlich
-          viele → \(U\): <span class="dyn" data-dyn="circ.sig"></span></p>
+        <p>\(A \in\) <span class="dyn" data-dyn="circ.AIv"></span>&thinsp;m²</p>
+        <div class="formula">gesichert: \(\;U =\) <span class="dyn" data-dyn="circ.U"></span>&thinsp;m,
+          \(\;A =\) <span class="dyn" data-dyn="circ.A"></span>&thinsp;m²</div>
+        <p class="note">2, π und der Exponent 2 sind exakt – unendlich viele Stellen. Nur \(r\)
+          begrenzt: <span class="dyn" data-dyn="circ.sig"></span>.</p>
       </div>
 
       <!-- E · Merksatz -->
@@ -201,7 +194,8 @@ window.MathJax = {
         <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
         <div class="formula">\(3{,}00\,\text{m} \cdot 2{,}9\,\text{m} = 8{,}7\,\text{m}^2 \qquad
           3{,}0\,\text{m} \cdot 2{,}00\,\text{m} = 6{,}0\,\text{m}^2\)</div>
-        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m}\)</div>
+        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m} \qquad
+          A = \pi \cdot (3{,}0\,\text{m})^2 = 28\,\text{m}^2\)</div>
         <p>Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
           begrenzen die Genauigkeit nicht. Die letzte angegebene Stelle ist unsicher, alle
           davor sind gesichert.</p>

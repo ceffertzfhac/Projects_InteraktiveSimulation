@@ -95,6 +95,7 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .slide-card .kicker.dyn { font-weight: 700; color: var(--accent); }
 
 /* Kreis */
+.circ-disc   { fill: var(--accent); fill-opacity: .10; }
 .circ-line   { fill: none; stroke: var(--text); stroke-width: 2.6; stroke-linecap: round; }
 .circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .45; }
 .circ-edge   { fill: none; stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }

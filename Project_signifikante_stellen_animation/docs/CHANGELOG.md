@@ -1,5 +1,16 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.4.0 — 2026-10-01
+
+- **Kreis mit r = 3 und r = 3,0** (PO-Wunsch), je **Umfang und Fläche**:
+  *U* = 2π*r*, *A* = π*r*². Unsicherheitsring (bei „3" 2,5 … 3,5 m — breit, bei
+  „3,0" schmal), Radius springt durch das Intervall, *r*, *U* und *A* laufen live mit
+  (je Wert ≥ 1 s Standzeit), Kreisfläche zart gefüllt. Ergebnis: grob
+  *U* = 2 · 10¹ m, *A* = 3 · 10¹ m²; mit 3,0 *U* = 19 m, *A* = 28 m².
+- `formatSig` rundet in Zehnerpotenz-Schreibweise, wenn die Zahl mehr Vorkomma-
+  stellen hat als signifikante Stellen (18,85 bei 1 Stelle → „2 · 10¹", nicht „19").
+- Merke-Kasten ergänzt um *A* = π · (3,0 m)² = 28 m².
+
 ## v0.3.1 — 2026-10-01
 
 - **Pfeilspitzen-Geometrie (CLAUDE.md-Regel) auch für die gekrümmten Einrast-

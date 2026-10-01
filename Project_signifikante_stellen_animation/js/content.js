@@ -4,8 +4,10 @@
 // ins DOM. Alle Werte stammen aus model.js — nichts ist hart kodiert.
 
 import { fmt } from '../../shared/js/format.js'
-import { parseMeasured, areaExample, exactStr, circumference } from './model.js'
-import { L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXT } from './constants.js'
+import { parseMeasured, areaExample, exactStr, circleExample } from './model.js'
+import {
+  L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXTS,
+} from './constants.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 const iv = m => `[${fmt(m.lo, m.decimals + 1)} ; ${fmt(m.hi, m.decimals + 1)})`
@@ -38,10 +40,14 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
   }
 })
 
-const C = circumference(R_TEXT)
-export const CIRC = [{
-  r: R_TEXT, rIv: iv(C.r), UIv: `[${fmt(C.lo, 3)} ; ${fmt(C.hi, 3)})`,
-  value: fmt(C.value, 4), rounded: C.rounded, sig: stellen(C.sig),
-}]
+const civ = p => `[${fmt(p.lo, 2)} ; ${fmt(p.hi, 2)})`
+export const CIRC = R_TEXTS.map((rt, j) => {
+  const c = circleExample(rt)
+  return {
+    kicker: ['Kreis · grob gemessen', 'Kreis · eine Stelle mehr'][j],
+    r: rt, rIv: iv(c.r), sig: stellen(c.sig),
+    UIv: civ(c.U), U: c.U.rounded, AIv: civ(c.A), A: c.A.rounded,
+  }
+})
 
 export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

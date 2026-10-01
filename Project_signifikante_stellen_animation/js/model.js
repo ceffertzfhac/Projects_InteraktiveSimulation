@@ -36,10 +36,19 @@ export function exactStr(x) {
 }
 
 // Auf n signifikante Stellen gerundet, mit passender Stellenzahl
-// (6 → „6,000" bei n = 4; 8,7 → „8,7" bei n = 2). Für |x| ≥ 1 ausgelegt.
+// (6 → „6,000" bei n = 4; 8,7 → „8,7" bei n = 2). Hat die Zahl mehr Vorkomma-
+// stellen als n, wird in Zehnerpotenz-Schreibweise gerundet (18,85 bei n = 1 →
+// „2 · 10¹"), sonst täuschte „19" eine zweite gesicherte Stelle vor.
+const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 export function formatSig(x, n) {
-  const decimals = Math.max(0, n - 1 - Math.floor(Math.log10(Math.abs(x))))
-  return fmt(x, decimals)
+  const e = Math.floor(Math.log10(Math.abs(x)))
+  if (e + 1 > n) {
+    let m = x / 10 ** e, ee = e
+    if (Math.abs(Number(m.toFixed(n - 1))) >= 10) { m /= 10; ee += 1 }
+    const exp = String(ee).split('').map(c => SUP[+c]).join('')
+    return `${fmt(m, n - 1)} · 10${exp}`
+  }
+  return fmt(x, Math.max(0, n - 1 - e))
 }
 
 // Komplettes Rechenbeispiel l · b für Folien und Bühne.
@@ -54,13 +63,14 @@ export function areaExample(lText, bText) {
   }
 }
 
-// Kreisumfang U = 2·π·r: 2 und π sind exakt (unendlich viele Stellen), nur der
-// gemessene Radius begrenzt die Genauigkeit → U erhält die Stellenzahl von r.
-export function circumference(rText) {
+// Kreis mit gemessenem Radius: Umfang U = 2·π·r und Fläche A = π·r².
+// 2, π und der Exponent 2 sind exakt (unendlich viele Stellen), nur r begrenzt
+// die Genauigkeit → U und A erhalten die Stellenzahl von r.
+export function circleExample(rText) {
   const r = parseMeasured(rText)
-  const k = 2 * Math.PI
-  return {
-    r, value: k * r.value, lo: k * r.lo, hi: k * r.hi, sig: r.sig,
-    rounded: formatSig(k * r.value, r.sig),
-  }
+  const U = x => 2 * Math.PI * x, A = x => Math.PI * x * x
+  const part = f => ({
+    value: f(r.value), lo: f(r.lo), hi: f(r.hi), rounded: formatSig(f(r.value), r.sig),
+  })
+  return { r, sig: r.sig, U: part(U), A: part(A) }
 }

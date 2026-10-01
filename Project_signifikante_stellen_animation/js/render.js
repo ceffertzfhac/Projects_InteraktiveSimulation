@@ -7,7 +7,7 @@ import {
   svgEl, viewOf, createAxis, createPool, readSlots, clamp, lerp, smooth, backOut,
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
-import { TEXTS, TAPE, ROD, READING_Y, CIRCLE, R_TEXT } from './constants.js'
+import { TEXTS, TAPE, ROD, READING_Y, CIRCLE } from './constants.js'
 import { DYN } from './content.js'
 import { HITS } from './state.js'
 
@@ -119,25 +119,27 @@ export function initStage(svg, DOM) {
   E.ql = [0, 1].map(() => text(E.root, 'value-label val-b', { 'text-anchor': 'start' }))
   // ── Kreis ──
   E.circ = svgEl('g', { class: 'circle' }, E.root)
-  E.cRing = svgEl('circle', { class: 'circ-ring', cx: CIRCLE.cx, cy: CIRCLE.cy }, E.circ)
-  E.cEdge = [0, 1].map(() => svgEl('circle', { class: 'circ-edge', cx: CIRCLE.cx, cy: CIRCLE.cy }, E.circ))
-  E.cLine = svgEl('circle', { class: 'circ-line', cx: CIRCLE.cx, cy: CIRCLE.cy,
+  const C0 = { cx: CIRCLE.cx, cy: CIRCLE.cy }
+  E.cDisc = svgEl('circle', { class: 'circ-disc', ...C0 }, E.circ)
+  E.cRing = svgEl('circle', { class: 'circ-ring', ...C0 }, E.circ)
+  E.cEdge = [0, 1].map(() => svgEl('circle', { class: 'circ-edge', ...C0 }, E.circ))
+  E.cLine = svgEl('circle', { class: 'circ-line', ...C0,
     transform: `rotate(-90 ${CIRCLE.cx} ${CIRCLE.cy})` }, E.circ)
   E.cRad = svgEl('g', {}, E.circ)
   E.cRadLine = svgEl('line', { class: 'circ-radius', x1: CIRCLE.cx, y1: CIRCLE.cy }, E.cRad)
   E.cRadEnd = svgEl('circle', { class: 'circ-radius-end', r: 5 }, E.cRad)
-  svgEl('circle', { class: 'circ-center', cx: CIRCLE.cx, cy: CIRCLE.cy, r: 4.5 }, E.cRad)
-  E.cRadLabel = symbolLabel(E.cRad, 'dim-label dim-l', 'r', { 'text-anchor': 'middle' })
-  E.cRadLabel.val.textContent = ` = ${R_TEXT} m`
-  E.cRo = text(E.circ, 'circ-readout', { 'text-anchor': 'middle', x: CIRCLE.cx })
-  const ro1 = svgEl('tspan', { x: CIRCLE.cx, dy: 0 }, E.cRo)
-  svgEl('tspan', { class: 'sym' }, ro1).textContent = 'r'
-  E.cRoR = svgEl('tspan', {}, ro1)
-  const ro2 = svgEl('tspan', { x: CIRCLE.cx, dy: 28 }, E.cRo)
-  svgEl('tspan', { class: 'sym' }, ro2).textContent = 'U'
-  svgEl('tspan', {}, ro2).textContent = ' = 2π'
-  svgEl('tspan', { class: 'sym' }, ro2).textContent = 'r'
-  E.cRoU = svgEl('tspan', {}, ro2)
+  svgEl('circle', { class: 'circ-center', ...C0, r: 4.5 }, E.cRad)
+  E.rl = [0, 1].map(() => symbolLabel(E.cRad, 'dim-label dim-l', 'r', { 'text-anchor': 'middle' }))
+  // Live-Rechenwerte oben links: r, U = 2πr, A = πr²
+  E.cRo = text(E.circ, 'circ-readout', { 'text-anchor': 'start' })
+  const roLine = (dy, parts) => {
+    const ln = svgEl('tspan', { x: 96, dy }, E.cRo)
+    parts.forEach(([t, sym]) => { svgEl('tspan', sym ? { class: 'sym' } : {}, ln).textContent = t })
+    return svgEl('tspan', {}, ln)
+  }
+  E.cRoR = roLine(0, [['r', 1]])
+  E.cRoU = roLine(30, [['U', 1], [' = 2π', 0], ['r', 1]])
+  E.cRoA = roLine(30, [['A', 1], [' = π', 0], ['r', 1], ['²', 0]])
 
   E.ro = text(E.root, 'readout', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'l'
@@ -376,21 +378,26 @@ export function renderScene(S) {
   E.roVal.textContent = ' = ' + fmt(S.rW * S.rH, Math.round(S.roD)) + ' m²'
   op(E.ro, S.roA)
 
-  // ── Kreis: Umfang U = 2πr ──
+  // ── Kreis: Umfang U = 2πr, Fläche A = πr² ──
   op(E.circ, S.kA)
   if (S.kA > 0.002) {
     const k = CIRCLE.scale, rp = S.kR * k, circ = 2 * Math.PI * rp
     set(E.cLine, { r: rp, 'stroke-dasharray': `${(circ * S.kDraw).toFixed(1)} ${circ.toFixed(1)}` })
+    set(E.cDisc, { r: rp }); op(E.cDisc, S.kDisc)
     set(E.cRing, { r: (S.kLo + S.kHi) / 2 * k, 'stroke-width': Math.max(1.5, (S.kHi - S.kLo) * k) })
     op(E.cRing, S.kRing)
     E.cEdge.forEach((c, i) => { set(c, { r: (i ? S.kHi : S.kLo) * k }); op(c, S.kRing) })
     const ang = -Math.PI / 5, ex = CIRCLE.cx + rp * Math.cos(ang), ey = CIRCLE.cy + rp * Math.sin(ang)
     set(E.cRadLine, { x2: ex, y2: ey }); set(E.cRadEnd, { cx: ex, cy: ey })
-    set(E.cRadLabel.t, { x: (CIRCLE.cx + ex) / 2 - 18, y: (CIRCLE.cy + ey) / 2 - 14 })
     op(E.cRad, S.kRadA)
-    set(E.cRo, { y: CIRCLE.cy + 3.0 * k + 50 })
+    readSlots(S, 'rl').forEach((sl, n) => {
+      set(E.rl[n].t, { x: (CIRCLE.cx + ex) / 2 - 20, y: (CIRCLE.cy + ey) / 2 - 16 + sl.o })
+      E.rl[n].val.textContent = ` = ${TEXTS[sl.i]} m`; op(E.rl[n].t, sl.a)
+    })
+    set(E.cRo, { y: 118 })
     E.cRoR.textContent = ` = ${fmt(S.kR, 3)} m`
-    E.cRoU.textContent = ` = ${fmt(2 * Math.PI * S.kR, 4)} m`
+    E.cRoU.textContent = ` = ${fmt(2 * Math.PI * S.kR, 3)} m`
+    E.cRoA.textContent = ` = ${fmt(Math.PI * S.kR * S.kR, 3)} m²`
     op(E.cRo, S.kRo)
   }
 

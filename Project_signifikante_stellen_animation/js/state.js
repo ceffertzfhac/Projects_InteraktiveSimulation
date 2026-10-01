@@ -39,7 +39,8 @@ export function createScene() {
     roA: 0, roD: 5,                        // Live-Anzeige l · b an der Ecke (Deckkraft, Stellen)
     uA: 0, uTagA: 0, dim: 0, xA: 1,
     // Kreis: Deckkraft, Einzeichnen, Radius (wahr/variiert), Unsicherheitsring, Live-U
-    kA: 0, kDraw: 0, kR: 3, kLo: 3, kHi: 3, kRing: 0, kRadA: 0, kRo: 0,
+    kA: 0, kDraw: 0, kR: 3, kLo: 3, kHi: 3, kRing: 0, kRadA: 0, kRo: 0, kDisc: 0,
+    ...slotKeys('rl'),                     // Radius-Label „r = 3 m" → „r = 3,0 m"
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }

@@ -2,7 +2,7 @@
 // → BACKLOG I3 / N9. Alle Zahlen der Animation stammen aus model.js.
 import { test, expect } from 'vitest'
 import {
-  sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circumference,
+  sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -57,11 +57,23 @@ test('Ergebnis: so viele Stellen wie der ungenaueste Faktor — und der Bereich 
   }
 })
 
-test('Kreisumfang: 2 und π exakt — U hat so viele Stellen wie r', () => {
-  const c = circumference('3,0')
-  expect(c.lo).toBeCloseTo(2 * Math.PI * 2.95, 12)
-  expect(c.hi).toBeCloseTo(2 * Math.PI * 3.05, 12)
-  expect(c.rounded).toBe('19')
-  expect(c.lo).toBeLessThan(19)
-  expect(c.hi).toBeGreaterThan(19)
+test('Rundung mit Zehnerpotenz, wenn weniger Stellen als Vorkommastellen', () => {
+  expect(formatSig(18.85, 1)).toBe('2 · 10¹')
+  expect(formatSig(28.27, 1)).toBe('3 · 10¹')
+  expect(formatSig(96, 1)).toBe('1 · 10²')
+  expect(formatSig(18.85, 2)).toBe('19')
+})
+
+test('Kreis: 2 und π exakt — U und A haben so viele Stellen wie r', () => {
+  const c = circleExample('3,0')
+  expect(c.U.lo).toBeCloseTo(2 * Math.PI * 2.95, 12)
+  expect(c.U.hi).toBeCloseTo(2 * Math.PI * 3.05, 12)
+  expect(c.U.rounded).toBe('19')
+  expect(c.A.rounded).toBe('28')
+  expect(c.A.lo).toBeCloseTo(Math.PI * 2.95 ** 2, 12)
+  const g = circleExample('3')
+  expect(g.U.rounded).toBe('2 · 10¹')
+  expect(g.A.rounded).toBe('3 · 10¹')
+  expect(g.A.lo).toBeLessThan(30)
+  expect(g.A.hi).toBeGreaterThan(30)
 })
