@@ -1,5 +1,22 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.3.0 — 2026-10-01
+
+PO-Review, zweite Runde (22 Schritte):
+- **Messen mit Pfeilen:** Stangenende wird markiert, auf dem Maßband leuchtet der
+  Ablesebereich der nächsten Marke auf, ein geschwungener Pfeil rastet auf der
+  Marke ein → „abgelesen". 2,8 m → 3 m; Gegenprobe 2,4 m → 2 m; mit 0,1-m-Band
+  2,97 m → 3,0 m und 2,93 m → 2,9 m; zwei Stangen (2,97 / 3,02 m) rasten beide auf 3,0 ein.
+- **Kreisumfang (neu, 2 Schritte):** Kreis mit gemessenem Radius *r* = 3,0 m,
+  Unsicherheitsring, wandernder Radius mit Live-Anzeige *U* = 2π*r* →
+  *U* ∈ [18,535 ; 19,164) m, gesichert *U* = 19 m. 2 und π sind exakt (unendlich
+  viele Stellen) — nur *r* begrenzt.
+- **Eine Rechnung weniger:** Mischung 3 · 2,00 entfällt.
+- **Merke-Kasten** mit 3,00 · 2,9, 3,0 · 2,00 und *U* = 2 · π · 3,0 m.
+- Live-Rechenwerte (*l* · *b*, *U*) bleiben je Sprung ~1 s länger stehen.
+- Shared: Fortschrittsleiste füllt sich kontinuierlich mit dem laufenden Schritt,
+  im Auto-Play zusätzlich heller Countdown der Wartezeit (`onTick` der Engine).
+
 ## v0.2.0 — 2026-10-01
 
 Didaktischer Umbau nach PO-Review (Drehbuch 31 → 20 Schritte, weniger Zoom-

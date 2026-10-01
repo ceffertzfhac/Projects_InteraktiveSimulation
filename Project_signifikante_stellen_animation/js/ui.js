@@ -28,9 +28,9 @@ store.presenter = createPresenter({
   chapters: [
     {
       id: 'multiplikation', title: 'Multiplikation',
-      create: onChange => {
+      create: (onChange, onTick) => {
         const S = store.scene = createScene()
-        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange })
+        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange, onTick })
       },
     },
     { id: 'addition', title: 'Addition', disabled: true },   // → BACKLOG FSS1

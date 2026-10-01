@@ -12,9 +12,10 @@
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
-  L_LEVELS, RODS_LEVEL, B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, textIndex,
+  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_SHORT,
+  B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXT, R_SAMPLES, textIndex,
 } from './constants.js'
-import { parseMeasured } from './model.js'
+import { parseMeasured, circumference } from './model.js'
 import { CMB_FIRST_RETURN, CMB_FIRST_MIX } from './content.js'
 import { HITS } from './state.js'
 
@@ -70,12 +71,12 @@ export function buildSteps(S, DOM) {
   const vary = (tl, l, b, n) => {
     tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
     tl.to(S, { roA: 1, duration: 0.35 })
-    CORNER_SAMPLES.slice(0, n).forEach(([fx, fy]) => {
+    CORNER_SAMPLES.slice(0, n).forEach(([fx, fy], i) => {
       const x = l.value + fx * l.width / 2, y = b.value + fy * b.width / 2
-      tl.to(S, { rW: x, rH: y, duration: 0.65, ease: EASE.cam }, '>0.1')
+      tl.to(S, { rW: x, rH: y, duration: 0.65, ease: EASE.cam }, i ? '>1.1' : '>0.1')
       markHit(tl, x, y, '>-0.05')
     })
-    tl.to(S, { rW: l.value, rH: b.value, duration: 0.5, ease: EASE.cam }, '>0.25')
+    tl.to(S, { rW: l.value, rH: b.value, duration: 0.5, ease: EASE.cam }, '>1.2')
     tl.to(S, { roA: 0, duration: 0.3 }, '<0.2')
   }
 
@@ -83,6 +84,39 @@ export function buildSteps(S, DOM) {
   const step = (title, build, hold) => steps.push({ title, build, hold })
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
+  // Stangenende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
+  // geschwungener Pfeil rastet auf der Marke ein → „abgelesen: …"
+  const shown = { mk: [false, false], zone: false, rd: -1 }
+  const markRod = (tl, i, at) => {
+    if (shown.mk[i]) return
+    tl.set(S, { [`mk${i}A`]: 1, [`mk${i}D`]: 0 }, at)
+    tl.to(S, { [`mk${i}D`]: 1, duration: 0.5, ease: 'power2.out' }, '<')
+    shown.mk[i] = true
+  }
+  const zoneTo = (tl, lo, hi, at) => {
+    if (!shown.zone) tl.set(S, { zLo: (lo + hi) / 2, zHi: (lo + hi) / 2, zA: 1 }, at)
+    tl.to(S, { zLo: lo, zHi: hi, duration: 0.8, ease: shown.zone ? EASE.cam : EASE.reveal },
+      shown.zone ? at : '<')
+    shown.zone = true
+  }
+  const snap = (tl, i, mark, text, at) => {
+    tl.set(S, { [`sn${i}A`]: 1, [`sn${i}D`]: 0 }, at)
+    if (shown.rd < 0) tl.set(S, { rdX: mark }, '<')
+    else tl.to(S, { rdX: mark, duration: 0.5, ease: EASE.cam }, '<')
+    tl.to(S, { [`sn${i}D`]: 1, duration: 0.75, ease: 'power2.inOut' }, '<')
+    const idx = textIndex(text)
+    if (idx !== shown.rd) {
+      if (shown.rd < 0) tl.to(S, { rdA: 1, duration: 0.3 }, '>-0.2')
+      rd.show(tl, idx, { at: shown.rd < 0 ? '<' : '>-0.2' })
+      shown.rd = idx
+    }
+  }
+  const unsnap = (tl, i, at) => tl.to(S, { [`sn${i}A`]: 0, duration: 0.25 }, at)
+  const rodTo = (tl, x, at) => {
+    tl.to(S, { rod0: x, duration: 0.9, ease: EASE.cam }, at)
+    rodLen = x
+  }
+
   step('Eine Metallstange', tl => {
     tl.to(S, { rod0A: 1, rod0S: 0, duration: 1.1, ease: EASE.reveal })
     tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.9, ease: EASE.reveal }, '<0.5')
@@ -91,26 +125,49 @@ export function buildSteps(S, DOM) {
   }, 3)
 
   step('Ablesen: 3 m', tl => {
-    tl.to(S, { rdA: 1, duration: 0.4 })
-    rd.show(tl, textIndex('3 m'), { at: '<' })
-    deck.show(tl, C.read1, '<')
-  }, 3.5)
+    deck.show(tl, C.read1)
+    markRod(tl, 0, '<0.2')
+    zoneTo(tl, 2.5, 3.5, '>0.1')
+    snap(tl, 0, 3, '3 m', '>0.1')
+  }, 4)
+
+  step('Kürzere Stange: 2 m', tl => {
+    unsnap(tl, 0)
+    deck.show(tl, C.short, '<')
+    rodTo(tl, ROD_SHORT, '<0.15')
+    zoneTo(tl, 1.5, 2.5, '>-0.2')
+    snap(tl, 0, 2, '2 m', '>0.05')
+  }, 4)
 
   step('Feineres Maßband: 0,1 m', tl => {
-    cam.to(tl, CAM_ROD_END, { duration: T.cam, anchor: { y: 0 } })
-    tl.to(S, { tg1: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.5')
-    rd.show(tl, textIndex('3,0 m'), { at: '>-0.3' })
+    unsnap(tl, 0)
     deck.show(tl, C.read2, '<')
+    cam.to(tl, CAM_ROD_END, { duration: T.cam, anchor: { y: 0 }, at: '<' })
+    rodTo(tl, RODS_MEASURE[0], '<0.2')
+    tl.to(S, { tg1: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.6')
+    zoneTo(tl, 2.95, 3.05, '<0.3')
+    snap(tl, 0, 3, '3,0 m', '>0.05')
+    // Gegenprobe: etwas kürzer → nächste Marke ist 2,9
+    unsnap(tl, 0, '>0.9')
+    rodTo(tl, ROD_FINE_SHORT, '<')
+    zoneTo(tl, 2.85, 2.95, '>-0.3')
+    snap(tl, 0, 2.9, '2,9 m', '>0.05')
   }, 4)
 
   step('Zwei Stangen, eine Ablesung', tl => {
-    tl.to(S, { rod1A: 1, rod1S: 0, duration: 1, ease: EASE.reveal })
-    deck.show(tl, C.two, '<0.3')
-  }, 4.5)
+    unsnap(tl, 0)
+    deck.show(tl, C.two, '<')
+    rodTo(tl, RODS_MEASURE[0], '<0.1')
+    zoneTo(tl, 2.95, 3.05, '<0.2')
+    snap(tl, 0, 3, '3,0 m', '>0.05')
+    tl.to(S, { rod1A: 1, rod1S: 0, duration: 1, ease: EASE.reveal }, '>0.2')
+    markRod(tl, 1, '>-0.1')
+    snap(tl, 1, 3, '3,0 m', '>0.05')
+  }, 5)
 
   // ── Z · Zahlengerade ───────────────────────────────────────────────────────
   step('Die Zahlengerade', tl => {
-    tl.to(S, { rod1A: 0, rdA: 0, duration: 0.5 })
+    tl.to(S, { rod1A: 0, rdA: 0, zA: 0, mk0A: 0, mk1A: 0, sn0A: 0, sn1A: 0, duration: 0.5 })
     rd.hide(tl, { at: '<' })
     cam.to(tl, camA(3, levelWidth(0)), { duration: T.cam, at: '<0.2', anchor: { y: 0 } })
     tl.to(S, { tg1: 0, duration: 0.8 }, '<')
@@ -226,11 +283,35 @@ export function buildSteps(S, DOM) {
   RETURN_PATH.forEach((p, j) => example(`Rückweg: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
   MIXES.forEach((p, m) => example(`Beispiel: ${p[0]} · ${p[1]}`, p, CMB_FIRST_MIX + m, CAM_OVERVIEW))
 
+  // ── K · Kreisumfang: exakte Faktoren begrenzen nichts ──────────────────────
+  const circ = circumference(R_TEXT)
+  step('Kreis mit Radius r', tl => {
+    clearHits(tl)
+    dl.hide(tl, { at: '<' })
+    db.hide(tl, { at: '<' })
+    tl.to(S, {
+      rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6,
+    }, '<')
+    tl.set(S, { kA: 1, kDraw: 0, kR: circ.r.value, kLo: circ.r.value, kHi: circ.r.value })
+    tl.to(S, { kDraw: 1, duration: 1.4, ease: 'power2.inOut' })
+    tl.to(S, { kRadA: 1, duration: 0.5 }, '>-0.3')
+    deck.show(tl, C.circle, '<-0.8')
+  }, 4)
+
+  step('Umfang U = 2πr', tl => {
+    tl.to(S, { kRing: 1, kLo: circ.r.lo, kHi: circ.r.hi, duration: 0.9, ease: EASE.reveal })
+    tl.to(S, { kRo: 1, duration: 0.4 }, '<0.3')
+    R_SAMPLES.forEach((r, i) => {
+      tl.to(S, { kR: r, duration: 0.7, ease: EASE.cam }, i ? '>1.1' : '>0.2')
+    })
+    tl.to(S, { kR: circ.r.value, duration: 0.6, ease: EASE.cam }, '>1.2')
+    tl.to(S, { kRo: 0, duration: 0.4 }, '<0.2')
+    deck.show(tl, C.circle2, '<')
+  }, 6)
+
   // ── E · Merksatz ───────────────────────────────────────────────────────────
   step('Merke', tl => {
-    clearHits(tl)
-    tl.to(S, { uTagA: 0, duration: 0.4 }, '<')
-    tl.to(S, { dim: 1, duration: 0.8 }, '<0.2')
+    tl.to(S, { dim: 1, duration: 0.8 })
     deck.show(tl, C.rule, '<0.2')
   }, 8)
 

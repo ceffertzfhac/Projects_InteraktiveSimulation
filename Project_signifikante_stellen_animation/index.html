@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.2.0</span>
+        <span class="version">v0.3.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -67,17 +67,28 @@ window.MathJax = {
       </div>
 
       <div class="slide-card pos-tr" data-card="read1">
-        <div class="kicker">Ablesen</div>
+        <div class="kicker">Ablesen · Teilung 1&nbsp;m</div>
         <h3>\(l = 3\,\text{m}\)</h3>
-        <p>Die Stange endet zwischen den Marken 2 und 3, näher an 3. Wir notieren die
-          nächstgelegene Marke.</p>
+        <p>Das Stangenende liegt in dem Bereich, der näher an der Marke 3 liegt als an
+          jeder anderen. Also tragen wir <b>3</b> ein.</p>
+        <div class="formula">\(2{,}5\,\text{m} \le l &lt; 3{,}5\,\text{m} \;\Rightarrow\; 3\,\text{m}\)</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="short">
+        <div class="kicker">Gegenprobe</div>
+        <h3>Eine kürzere Stange: \(l = 2\,\text{m}\)</h3>
+        <p>Eine Stange mit <span class="num">2,4&nbsp;m</span> endet näher an der 2 – sie wird
+          als <b>2&nbsp;m</b> notiert. Was zwischen den Marken liegt, sieht dieses Maßband nicht.</p>
+        <div class="formula">\(1{,}5\,\text{m} \le l &lt; 2{,}5\,\text{m} \;\Rightarrow\; 2\,\text{m}\)</div>
       </div>
 
       <div class="slide-card pos-tr" data-card="read2">
         <div class="kicker">Feineres Maßband · Teilung 0,1&nbsp;m</div>
-        <h3>\(l = 3{,}0\,\text{m}\)</h3>
-        <p>Dieselbe Stange – jetzt liegt die nächste Marke bei <span class="num">3,0</span>.
-          Die Angabe hat eine Stelle mehr, weil das Messmittel mehr hergibt.</p>
+        <h3>Jede Marke steht nur noch für 0,1&nbsp;m</h3>
+        <div class="formula">\(2{,}95\,\text{m} \le l &lt; 3{,}05\,\text{m} \;\Rightarrow\; 3{,}0\,\text{m}\)</div>
+        <div class="formula">\(2{,}85\,\text{m} \le l &lt; 2{,}95\,\text{m} \;\Rightarrow\; 2{,}9\,\text{m}\)</div>
+        <p>Eine Stange mit 2,97&nbsp;m ergibt jetzt <b>3,0&nbsp;m</b> – eine Stelle mehr, weil das
+          Messmittel mehr hergibt. Eine mit 2,93&nbsp;m ergibt 2,9&nbsp;m.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="two">
@@ -164,15 +175,36 @@ window.MathJax = {
           \(A\): <span class="dyn" data-dyn="cmb.sig"></span> (signifikant)</p>
       </div>
 
+      <!-- K · Kreis -->
+      <div class="slide-card pos-r" data-card="circle">
+        <div class="kicker">Kreisumfang</div>
+        <h3>\(U = 2 \cdot \pi \cdot r\)</h3>
+        <p>Gemessen ist nur der Radius: \(r = 3{,}0\,\text{m}\), also</p>
+        <div class="formula">\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</div>
+        <p>Die <b>2</b> und das <b>π</b> sind dagegen exakt – sie haben unendlich viele
+          Stellen.</p>
+      </div>
+
+      <div class="slide-card pos-r" data-card="circle2">
+        <div class="kicker">Umfang und Radius</div>
+        <h3>Nur \(r\) begrenzt die Genauigkeit</h3>
+        <p>\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</p>
+        <p>\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m</p>
+        <div class="formula">gesichert: \(\;U =\) <span class="dyn" data-dyn="circ.rounded"></span>&thinsp;m</div>
+        <p class="note">\(r\): <span class="dyn" data-dyn="circ.sig"></span> · 2 und π: unendlich
+          viele → \(U\): <span class="dyn" data-dyn="circ.sig"></span></p>
+      </div>
+
       <!-- E · Merksatz -->
       <div class="slide-card pos-c wide" data-card="rule">
         <div class="kicker">Merke · Multiplikation und Division</div>
         <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
-        <div class="formula">\(3{,}000 \cdot 2{,}000 = 6{,}000 \qquad 3 \cdot 2{,}00 = 6 \qquad
-          3{,}00 \cdot 2{,}9 = 8{,}7\)</div>
-        <p>Die letzte angegebene Stelle ist unsicher – alle davor sind gesichert.
-          Mehr Stellen hinzuschreiben, als die Messung hergibt, täuscht eine Genauigkeit vor,
-          die es nicht gibt.</p>
+        <div class="formula">\(3{,}00\,\text{m} \cdot 2{,}9\,\text{m} = 8{,}7\,\text{m}^2 \qquad
+          3{,}0\,\text{m} \cdot 2{,}00\,\text{m} = 6{,}0\,\text{m}^2\)</div>
+        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m}\)</div>
+        <p>Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
+          begrenzen die Genauigkeit nicht. Die letzte angegebene Stelle ist unsicher, alle
+          davor sind gesichert.</p>
       </div>
     </div>
   </div>

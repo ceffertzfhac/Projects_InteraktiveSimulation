@@ -27,8 +27,14 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
   filter: drop-shadow(0 2px 3px rgba(26, 30, 46, .22)); }
 .rod-cap  { fill: var(--rod-edge); }
 
+/* Ablesebereich (Rundungsintervall auf dem Maßband), Stangenende, Einrast-Pfeil */
+.zone      { fill: #ffffff; fill-opacity: .55; }
+.zone-edge { stroke: var(--c-l); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.rod-marker { stroke: var(--c-true); stroke-width: 2; stroke-dasharray: 5 4; }
+.snap path { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; }
+.snap path.snap-head { fill: var(--accent); stroke: none; }
+
 /* Ablesung unter dem Maßband */
-.reading-caret { fill: var(--accent); }
 .reading { fill: var(--text); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .reading-pre { fill: var(--text2); font-size: 17px; font-weight: 500; }
 
@@ -87,3 +93,11 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .slide-card .dyn[data-dyn="cmb.b"] { color: var(--c-b); font-weight: 600; }
 .slide-card .dyn[data-dyn="cmb.rounded"] { color: var(--accent); font-weight: 600; font-size: 1.05em; }
 .slide-card .kicker.dyn { font-weight: 700; color: var(--accent); }
+
+/* Kreis */
+.circ-line   { fill: none; stroke: var(--text); stroke-width: 2.6; stroke-linecap: round; }
+.circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .45; }
+.circ-edge   { fill: none; stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.circ-radius { stroke: var(--c-l); stroke-width: 2.4; stroke-linecap: round; }
+.circ-radius-end, .circ-center { fill: var(--c-l); }
+.circ-readout { fill: var(--c-true); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }

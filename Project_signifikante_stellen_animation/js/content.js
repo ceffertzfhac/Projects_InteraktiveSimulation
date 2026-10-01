@@ -4,8 +4,8 @@
 // ins DOM. Alle Werte stammen aus model.js — nichts ist hart kodiert.
 
 import { fmt } from '../../shared/js/format.js'
-import { parseMeasured, areaExample, exactStr } from './model.js'
-import { L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL } from './constants.js'
+import { parseMeasured, areaExample, exactStr, circumference } from './model.js'
+import { L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXT } from './constants.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 const iv = m => `[${fmt(m.lo, m.decimals + 1)} ; ${fmt(m.hi, m.decimals + 1)})`
@@ -38,4 +38,10 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
   }
 })
 
-export const DYN = { lvl: LEVELS, cmb: RANGES }
+const C = circumference(R_TEXT)
+export const CIRC = [{
+  r: R_TEXT, rIv: iv(C.r), UIv: `[${fmt(C.lo, 3)} ; ${fmt(C.hi, 3)})`,
+  value: fmt(C.value, 4), rounded: C.rounded, sig: stellen(C.sig),
+}]
+
+export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

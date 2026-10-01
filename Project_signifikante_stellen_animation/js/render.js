@@ -7,7 +7,7 @@ import {
   svgEl, viewOf, createAxis, createPool, readSlots, clamp, lerp, smooth, backOut,
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
-import { TEXTS, TAPE, ROD, READING_Y } from './constants.js'
+import { TEXTS, TAPE, ROD, READING_Y, CIRCLE, R_TEXT } from './constants.js'
 import { DYN } from './content.js'
 import { HITS } from './state.js'
 
@@ -53,13 +53,19 @@ export function initStage(svg, DOM) {
   E.tape = svgEl('g', { class: 'tape' }, E.root)
   E.tapeBody = svgEl('rect', { class: 'tape-body', rx: 4 }, E.tape)
   E.tapeHook = svgEl('rect', { class: 'tape-hook', rx: 2 }, E.tape)
+  E.zone = svgEl('rect', { class: 'zone' }, E.tape)                   // unter Strichen/Zahlen
+  E.zoneEdge = [0, 1].map(() => svgEl('line', { class: 'zone-edge' }, E.tape))
   E.tapeMarks = createPool(svgEl('g', {}, E.tape), () => svgEl('line', { class: 'tape-mark' }))
   E.tapeLabels = createPool(svgEl('g', {}, E.tape), () => svgEl('text', { class: 'tape-label', 'text-anchor': 'middle' }))
   E.rods = ROD.map(() => {
     const g = svgEl('g', { class: 'rod' }, E.root)
     return { g, body: svgEl('rect', { class: 'rod-body', rx: 3 }, g), cap: svgEl('rect', { class: 'rod-cap', rx: 1.5 }, g) }
   })
-  E.rdCaret = svgEl('path', { class: 'reading-caret' }, E.root)
+  E.marks = ROD.map(() => svgEl('line', { class: 'rod-marker' }, E.root))
+  E.snaps = ROD.map(() => {
+    const g = svgEl('g', { class: 'snap' }, E.root)
+    return { g, path: svgEl('path', {}, g), head: svgEl('path', { class: 'snap-head' }, g) }
+  })
   E.rd = [0, 1].map(() => {
     const t = text(E.root, 'reading', { 'text-anchor': 'middle' })
     svgEl('tspan', { class: 'reading-pre' }, t).textContent = 'abgelesen: '
@@ -111,6 +117,28 @@ export function initStage(svg, DOM) {
   E.qHalo = svgEl('circle', { class: 'halo-b' }, E.root)
   E.qDot = svgEl('circle', { class: 'dot-b' }, E.root)
   E.ql = [0, 1].map(() => text(E.root, 'value-label val-b', { 'text-anchor': 'start' }))
+  // ── Kreis ──
+  E.circ = svgEl('g', { class: 'circle' }, E.root)
+  E.cRing = svgEl('circle', { class: 'circ-ring', cx: CIRCLE.cx, cy: CIRCLE.cy }, E.circ)
+  E.cEdge = [0, 1].map(() => svgEl('circle', { class: 'circ-edge', cx: CIRCLE.cx, cy: CIRCLE.cy }, E.circ))
+  E.cLine = svgEl('circle', { class: 'circ-line', cx: CIRCLE.cx, cy: CIRCLE.cy,
+    transform: `rotate(-90 ${CIRCLE.cx} ${CIRCLE.cy})` }, E.circ)
+  E.cRad = svgEl('g', {}, E.circ)
+  E.cRadLine = svgEl('line', { class: 'circ-radius', x1: CIRCLE.cx, y1: CIRCLE.cy }, E.cRad)
+  E.cRadEnd = svgEl('circle', { class: 'circ-radius-end', r: 5 }, E.cRad)
+  svgEl('circle', { class: 'circ-center', cx: CIRCLE.cx, cy: CIRCLE.cy, r: 4.5 }, E.cRad)
+  E.cRadLabel = symbolLabel(E.cRad, 'dim-label dim-l', 'r', { 'text-anchor': 'middle' })
+  E.cRadLabel.val.textContent = ` = ${R_TEXT} m`
+  E.cRo = text(E.circ, 'circ-readout', { 'text-anchor': 'middle', x: CIRCLE.cx })
+  const ro1 = svgEl('tspan', { x: CIRCLE.cx, dy: 0 }, E.cRo)
+  svgEl('tspan', { class: 'sym' }, ro1).textContent = 'r'
+  E.cRoR = svgEl('tspan', {}, ro1)
+  const ro2 = svgEl('tspan', { x: CIRCLE.cx, dy: 28 }, E.cRo)
+  svgEl('tspan', { class: 'sym' }, ro2).textContent = 'U'
+  svgEl('tspan', {}, ro2).textContent = ' = 2π'
+  svgEl('tspan', { class: 'sym' }, ro2).textContent = 'r'
+  E.cRoU = svgEl('tspan', {}, ro2)
+
   E.ro = text(E.root, 'readout', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'l'
   svgEl('tspan', {}, E.ro).textContent = ' · '
@@ -165,6 +193,24 @@ function renderTape(S, V, top) {
   E.tapeMarks.end(); E.tapeLabels.end()
 }
 
+// Geschwungener Pfeil unter dem Maßband vom Stangenende zur abgelesenen Marke,
+// progressiv gezeichnet (quadratische Bézierkurve, Spitze entlang der Tangente).
+function snapArc(el, x0, x1, y, d, a) {
+  op(el.g, a * smooth(0, 0.05, d))
+  if (d <= 0.001 || a <= 0.002) return
+  const h = clamp(16 + 0.3 * Math.abs(x1 - x0), 16, 38)
+  const cx = (x0 + x1) / 2, cy = y + 2 * h
+  const P = t => [(1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1, (1 - t) ** 2 * y + 2 * (1 - t) * t * cy + t * t * y]
+  const n = 28, pts = []
+  for (let i = 0; i <= n; i++) pts.push(P(d * i / n))
+  el.path.setAttribute('d', 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L'))
+  const [ex, ey] = pts[n]
+  const tx = 2 * (1 - d) * (cx - x0) + 2 * d * (x1 - cx), ty = 2 * (1 - d) * (cy - y) + 2 * d * (y - cy)
+  const L = Math.hypot(tx, ty) || 1, ux = tx / L, uy = ty / L
+  const bx = ex - ux * 11, by = ey - uy * 11
+  el.head.setAttribute('d', `M${ex} ${ey}L${bx - uy * 5.5} ${by + ux * 5.5}L${bx + uy * 5.5} ${by - ux * 5.5}Z`)
+}
+
 let dynKey = '', dynAlpha = -1
 
 export function renderScene(S) {
@@ -191,10 +237,23 @@ export function renderScene(S) {
     set(R.body, { x: a, y: ROD[i].top + S.tapeY, width: Math.max(0, b - a), height: ROD[i].h })
     set(R.cap, { x: b - 3, y: ROD[i].top + S.tapeY - 2, width: 3, height: ROD[i].h + 4 })
   })
+  // ── Ablesebereich, Stangenende, „Einrasten" auf die nächste Marke ──
+  const zb = top + TAPE.h
+  const z0 = clamp(V.sx(S.zLo), V.L - FAR, V.R + FAR), z1 = clamp(V.sx(S.zHi), V.L - FAR, V.R + FAR)
+  set(E.zone, { x: z0, y: top, width: Math.max(0, z1 - z0), height: TAPE.h }); op(E.zone, S.zA)
+  E.zoneEdge.forEach((ln, i) => {
+    const x = i ? z1 : z0
+    set(ln, { x1: x, x2: x, y1: top - 8, y2: zb + 8 }); op(ln, S.zA)
+  })
+  ;[0, 1].forEach(i => {
+    const x = V.sx(S[`rod${i}`]), ya = ROD[i].top + S.tapeY - 6
+    set(E.marks[i], { x1: x, x2: x, y1: ya, y2: lerp(ya, zb + 2, S[`mk${i}D`]) })
+    op(E.marks[i], S[`mk${i}A`] * smooth(0, 0.05, S[`mk${i}D`]))
+    snapArc(E.snaps[i], x, V.sx(S.rdX), zb + 6, S[`sn${i}D`], S[`sn${i}A`])
+  })
+
   // ── Ablesung ──
   const rx = V.sx(S.rdX)
-  set(E.rdCaret, { d: `M${rx - 7} ${top + TAPE.h + 14}L${rx} ${top + TAPE.h + 5}L${rx + 7} ${top + TAPE.h + 14}Z` })
-  op(E.rdCaret, S.rdA)
   readSlots(S, 'rd').forEach((s, n) => {
     set(E.rd[n].t, { x: rx, y: READING_Y + S.tapeY + s.o }); E.rd[n].val.textContent = TEXTS[s.i]
     op(E.rd[n].t, s.a * S.rdA)
@@ -210,12 +269,12 @@ export function renderScene(S) {
 
   // ── Achsen ──
   E.xAxis.render(V, {
-    at: axY, draw: S.axisDraw, ticks: S.xTicks,
+    at: axY, draw: S.axisDraw, ticks: S.xTicks, alpha: S.xA,
     fixed: LEVELS.map(k => ({ step: 0.5 * 10 ** -k, grow: S['ag' + k], center: 3 })),
   })
-  E.yAxis.render(V, { at: axX, draw: S.yDraw, alpha: S.yAlpha, ticks: S.yAlpha })
-  set(E.nameL, { x: V.R + 30, y: axY + 7 }); op(E.nameL, S.names)
-  set(E.nameB, { x: axX, y: V.T - 34 }); op(E.nameB, S.names)
+  E.yAxis.render(V, { at: axX, draw: S.yDraw, alpha: S.yAlpha * S.xA, ticks: S.yAlpha })
+  set(E.nameL, { x: V.R + 30, y: axY + 7 }); op(E.nameL, S.names * S.xA)
+  set(E.nameB, { x: axX, y: V.T - 34 }); op(E.nameB, S.names * S.xA)
 
   // ── Intervall l: kompaktes Band auf der Zahlengeraden ↔ Streifen im 2D-Teil ──
   const x0 = V.sx(S.lLo), x1 = V.sx(S.lHi)
@@ -295,8 +354,26 @@ export function renderScene(S) {
   E.roVal.textContent = ' = ' + fmt(S.rW * S.rH, Math.round(S.roD)) + ' m²'
   op(E.ro, S.roA)
 
+  // ── Kreis: Umfang U = 2πr ──
+  op(E.circ, S.kA)
+  if (S.kA > 0.002) {
+    const k = CIRCLE.scale, rp = S.kR * k, circ = 2 * Math.PI * rp
+    set(E.cLine, { r: rp, 'stroke-dasharray': `${(circ * S.kDraw).toFixed(1)} ${circ.toFixed(1)}` })
+    set(E.cRing, { r: (S.kLo + S.kHi) / 2 * k, 'stroke-width': Math.max(1.5, (S.kHi - S.kLo) * k) })
+    op(E.cRing, S.kRing)
+    E.cEdge.forEach((c, i) => { set(c, { r: (i ? S.kHi : S.kLo) * k }); op(c, S.kRing) })
+    const ang = -Math.PI / 5, ex = CIRCLE.cx + rp * Math.cos(ang), ey = CIRCLE.cy + rp * Math.sin(ang)
+    set(E.cRadLine, { x2: ex, y2: ey }); set(E.cRadEnd, { cx: ex, cy: ey })
+    set(E.cRadLabel.t, { x: (CIRCLE.cx + ex) / 2 - 18, y: (CIRCLE.cy + ey) / 2 - 14 })
+    op(E.cRad, S.kRadA)
+    set(E.cRo, { y: CIRCLE.cy + 3.0 * k + 50 })
+    E.cRoR.textContent = ` = ${fmt(S.kR, 3)} m`
+    E.cRoU.textContent = ` = ${fmt(2 * Math.PI * S.kR, 4)} m`
+    op(E.cRo, S.kRo)
+  }
+
   // ── Dynamische Zahlen in den Folienkarten ──
-  const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}`
+  const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}|${Math.round(S.circ)}`
   if (key !== dynKey) {
     dynKey = key
     for (const el of E.DOM.dyn) {

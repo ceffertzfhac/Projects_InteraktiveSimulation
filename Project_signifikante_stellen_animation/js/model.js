@@ -53,3 +53,14 @@ export function areaExample(lText, bText) {
     rounded: formatSig(A.value, sig),
   }
 }
+
+// Kreisumfang U = 2·π·r: 2 und π sind exakt (unendlich viele Stellen), nur der
+// gemessene Radius begrenzt die Genauigkeit → U erhält die Stellenzahl von r.
+export function circumference(rText) {
+  const r = parseMeasured(rText)
+  const k = 2 * Math.PI
+  return {
+    r, value: k * r.value, lo: k * r.lo, hi: k * r.hi, sig: r.sig,
+    rounded: formatSig(k * r.value, r.sig),
+  }
+}

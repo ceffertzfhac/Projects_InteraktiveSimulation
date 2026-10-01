@@ -2,7 +2,7 @@
 // → BACKLOG I3 / N9. Alle Zahlen der Animation stammen aus model.js.
 import { test, expect } from 'vitest'
 import {
-  sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample,
+  sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circumference,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -55,4 +55,13 @@ test('Ergebnis: so viele Stellen wie der ungenaueste Faktor — und der Bereich 
     expect(r.value).toBeLessThan(ex.A.hi)
     expect(ex.A.hi - ex.A.lo).toBeLessThan(10 * r.width)
   }
+})
+
+test('Kreisumfang: 2 und π exakt — U hat so viele Stellen wie r', () => {
+  const c = circumference('3,0')
+  expect(c.lo).toBeCloseTo(2 * Math.PI * 2.95, 12)
+  expect(c.hi).toBeCloseTo(2 * Math.PI * 3.05, 12)
+  expect(c.rounded).toBe('19')
+  expect(c.lo).toBeLessThan(19)
+  expect(c.hi).toBeGreaterThan(19)
 })

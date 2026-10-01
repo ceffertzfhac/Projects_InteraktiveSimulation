@@ -4,7 +4,7 @@
 // content.js DYN), damit jeder Schritt exakt rückwärts abspielbar ist.
 
 import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
-import { CAM_START, RODS_MEASURE } from './constants.js'
+import { CAM_START, RODS_MEASURE, ROD_COARSE } from './constants.js'
 
 export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
 
@@ -16,9 +16,12 @@ export function createScene() {
     // Maßband: Deckkraft, Einflug von unten, Teilung je Stufe (grow 0…1)
     tapeA: 0, tapeY: 60, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
     // Stangen: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
-    rod0: RODS_MEASURE[0], rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
+    rod0: ROD_COARSE, rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
     // Ablesung unter dem Maßband
     rdX: 3, rdA: 0, ...slotKeys('rd'),
+    // Ablesebereich auf dem Maßband, Stangenende-Markierung, „Einrast"-Pfeil je Stange
+    zLo: 3, zHi: 3, zA: 0,
+    mk0A: 0, mk0D: 0, mk1A: 0, mk1D: 0, sn0A: 0, sn0D: 0, sn1A: 0, sn1D: 0,
     // Zahlengerade und Teilung je Stufe (wächst gestaffelt aus der Achse)
     axisDraw: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
     xTicks: 0, yDraw: 0, yAlpha: 0, names: 0,
@@ -34,9 +37,11 @@ export function createScene() {
     rW: 0, rH: 0, rA: 0, aSym: 0,
     ...slotKeys('dl'), ...slotKeys('db'),
     roA: 0, roD: 5,                        // Live-Anzeige l · b an der Ecke (Deckkraft, Stellen)
-    uA: 0, uTagA: 0, dim: 0,
+    uA: 0, uTagA: 0, dim: 0, xA: 1,
+    // Kreis: Deckkraft, Einzeichnen, Radius (wahr/variiert), Unsicherheitsring, Live-U
+    kA: 0, kDraw: 0, kR: 3, kLo: 3, kHi: 3, kRing: 0, kRadA: 0, kRo: 0,
     // Dynamische Zahlen in Folienkarten
-    dynA: 1, lvl: 0, cmb: 0,
+    dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }
   for (let i = 0; i < HITS; i++) Object.assign(S, { [`h${i}x`]: 3, [`h${i}y`]: 2, [`h${i}a`]: 0 })
   return S
