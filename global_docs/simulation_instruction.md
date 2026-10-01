@@ -136,6 +136,7 @@ ausgeklappt**. Umsetzung zentral, je Sim nur eine Zeile vor dem Haupt-Script:
 
 ```html
 <script type="module" src="../shared/js/panel-toggle.js"></script>
+<script type="module" src="../shared/js/fullscreen.js"></script>   <!-- Taste F = Vollbild, → BACKLOG I20 -->
 ```
 
 `shared/js/panel-toggle.js` setzt die Kopfleiste „Bedienung" (`.panel-header
