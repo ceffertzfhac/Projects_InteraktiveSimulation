@@ -41,10 +41,10 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
 })
 
 const civ = p => `[${fmt(p.lo, 2)} ; ${fmt(p.hi, 2)})`
-export const CIRC = R_TEXTS.map((rt, j) => {
+export const CIRC = R_TEXTS.map(rt => {
   const c = circleExample(rt)
   return {
-    kicker: ['Kreis · grob gemessen', 'Kreis · eine Stelle mehr'][j],
+    kicker: { '3,0': 'Kreis · zwei signifikante Stellen', '3': 'Kreis · nur eine Stelle' }[rt],
     r: rt, rIv: iv(c.r), sig: stellen(c.sig),
     UIv: civ(c.U), U: c.U.rounded, AIv: civ(c.A), A: c.A.rounded,
   }

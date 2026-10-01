@@ -6,7 +6,6 @@ zentral in `BACKLOG.md`.
 - **Kapitel „Addition" fehlt noch** — Tab ist sichtbar, aber deaktiviert. → FSS1
 - **Nicht öffentlich** — nur auf der internen Übersicht `AllAnimations/`; die
   Sync-/Drift-Skripte kennen den Ordnernamen `_animation` noch nicht. → FSS3
-- **Kein Vorschaubild** — Karte nutzt den CSS-Platzhalter. → FSS2
 - **Online-Abhängigkeit** — GSAP und MathJax kommen per CDN. Ohne Internet
   (Hörsaal-WLAN!) startet die Animation nicht. Für Vorlesungen vorher prüfen
   oder als Lernvideo aufzeichnen. → I19

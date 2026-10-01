@@ -50,9 +50,9 @@ export const B_FINAL = '2,000'
 export const RETURN_PATH = [['3,000', '2,00'], ['3,000', '2'], ['3', '2']]   // erst b, dann l
 export const MIXES = [['3,00', '2,9'], ['3,0', '2,00']]
 // Kreis: gemessener Radius, Bühnenlage (Bildschirm), mögliche wahre Radien
-export const R_TEXTS = ['3', '3,0']                         // erst grob, dann eine Stelle mehr
+export const R_TEXTS = ['3,0', '3']                         // erst 3,0, dann nur noch eine Stelle
 export const CIRCLE = { cx: 460, cy: 365, scale: 56 }      // px je m
-export const R_SAMPLES = [[2.62, 3.4, 2.8], [2.962, 3.041, 2.983]]
+export const R_SAMPLES = [[2.962, 3.041, 2.983], [2.62, 3.4, 2.8]]
 // Mögliche wahre Ecken (Anteile der halben Intervallbreiten)
 export const CORNER_SAMPLES = [[0.62, -0.4], [-0.55, 0.52], [0.2, 0.78], [-0.72, -0.62]]
 

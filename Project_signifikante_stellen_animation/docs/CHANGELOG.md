@@ -1,5 +1,10 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.4.1 — 2026-10-01
+
+- Kreis-Schritte vertauscht (PO): erst *r* = 3,0 m, dann *r* = 3 m — der Ring wird
+  beim zweiten Schritt sichtbar breiter, *U* und *A* verlieren eine Stelle.
+
 ## v0.4.0 — 2026-10-01
 
 - **Kreis mit r = 3 und r = 3,0** (PO-Wunsch), je **Umfang und Fläche**:
