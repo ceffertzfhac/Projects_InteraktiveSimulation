@@ -24,6 +24,10 @@ SIMS=(
   lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
 
+# Schritt-Animationen (→ BACKLOG I19): Project_<name>_animation/ → Webpage/anim_<name>/,
+# gleiche Spiegel-Regeln wie bei den Sims.
+ANIMS=( signifikante_stellen )
+
 # NICHT öffentlich (PO-Entscheidung): bleibt als Project_*_simulation/ im Repo
 # und auf der internen Übersicht AllAnimations/, wird aber NICHT nach Webpage/
 # gespiegelt und geht damit nicht auf die Pages-Site. Zum Freigeben: Namen hier
@@ -43,9 +47,13 @@ for s in "${NICHT_OEFFENTLICH[@]}"; do
   fi
 done
 
-for s in "${SIMS[@]}"; do
-  src="Project_${s}_simulation"
-  dst="Webpage/sim_${s}"
+PAIRS=()
+for s in "${SIMS[@]}"; do PAIRS+=("Project_${s}_simulation:Webpage/sim_${s}"); done
+for a in "${ANIMS[@]}"; do PAIRS+=("Project_${a}_animation:Webpage/anim_${a}"); done
+
+for pair in "${PAIRS[@]}"; do
+  src="${pair%%:*}"
+  dst="${pair#*:}"
   if [ ! -d "$src" ] || [ ! -d "$dst" ]; then
     echo "FEHLER: Paar unvollständig — $src oder $dst fehlt." >&2
     exit 1
@@ -60,10 +68,10 @@ done
 
 # shared/ spiegeln (Design-System + JS-Helper, von allen Webpage-Sims via
 # ../shared/ referenziert).
-cp shared/css/design-system.css Webpage/shared/css/design-system.css
+cp shared/css/*.css Webpage/shared/css/
 cp shared/js/*.js Webpage/shared/js/
 mkdir -p Webpage/shared/img
 cp shared/img/*.png Webpage/shared/img/
 
-echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
+echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
 echo "Drift prüfen:  bash scripts/check-webpage-drift.sh"

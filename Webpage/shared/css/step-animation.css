@@ -1,0 +1,183 @@
+/*
+ * Schritt-Animationen (Lehr-Animationen) — Präsentations-Layout
+ * Lädt NACH design-system.css. → BACKLOG I19, Blueprint §10.
+ *
+ * Aufbau: Topbar · Bühne (16:9, skaliert mit dem Fenster) · Transportleiste.
+ * Keine Sidebars. Folienkarten liegen als HTML-Overlay über der SVG-Bühne und
+ * skalieren über Container-Einheiten (cqw) mit — gleiche Proportionen im
+ * Fenster, im Vollbild und in der Bildschirmaufnahme.
+ */
+
+:root {
+  --stage-bg1: #ffffff;
+  --stage-bg2: #eef1f7;
+  --stage-ring: rgba(26, 30, 46, .06);
+  --stage-shadow: 0 1px 2px rgba(26, 30, 46, .05), 0 12px 40px rgba(26, 30, 46, .08);
+  --card-bg: rgba(255, 255, 255, .78);
+  --card-border: rgba(26, 30, 46, .08);
+  --card-shadow: 0 2px 6px rgba(26, 30, 46, .05), 0 18px 48px rgba(26, 30, 46, .12);
+  --formula-bg: rgba(0, 177, 172, .07);
+  --seg-idle: #d8dce8;
+}
+body.dark {
+  --stage-bg1: #1a1e2c;
+  --stage-bg2: #11131d;
+  --stage-ring: rgba(255, 255, 255, .05);
+  --stage-shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 16px 48px rgba(0, 0, 0, .45);
+  --card-bg: rgba(30, 35, 52, .74);
+  --card-border: rgba(255, 255, 255, .08);
+  --card-shadow: 0 2px 6px rgba(0, 0, 0, .3), 0 20px 56px rgba(0, 0, 0, .5);
+  --formula-bg: rgba(0, 206, 201, .09);
+  --seg-idle: #2d344d;
+}
+
+/* ── Seitenraster ─────────────────────────────────────────────── */
+body.step-anim {
+  height: 100vh; min-height: 0; overflow: hidden;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+}
+body.step-anim > .topbar     { grid-row: 1; }
+body.step-anim > .stage-wrap { grid-row: 2; }
+body.step-anim > .transport  { grid-row: 3; }
+body.ui-hidden > .topbar,
+body.ui-hidden > .transport { display: none; }
+
+/* ── Bühne ────────────────────────────────────────────────────── */
+.stage-wrap {
+  container-type: size; min-height: 0;
+  display: grid; place-items: center; padding: 16px 20px 10px;
+}
+body.ui-hidden { background: var(--stage-bg2); }
+body.ui-hidden > .stage-wrap { padding: 0; }
+.stage {
+  position: relative; container-type: inline-size;
+  width: min(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9;
+  border-radius: 16px; overflow: hidden;
+  background:
+    radial-gradient(120% 85% at 50% 0%, var(--stage-bg1) 0%, var(--stage-bg2) 100%);
+  box-shadow: var(--stage-shadow), inset 0 0 0 1px var(--stage-ring);
+  transition: background .3s;
+}
+body.ui-hidden .stage { border-radius: 0; box-shadow: none; }
+.stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.stage svg text { font-family: var(--font-ui); }
+
+/* Achsen (createAxis in step-kit.js) */
+.axis-line  { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+.axis-head  { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tick       { stroke: var(--text2); stroke-width: 1.5; }
+.tick-label { fill: var(--text2); font-size: 16px; font-variant-numeric: tabular-nums;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 4px; stroke-linejoin: round; }
+
+/* ── Folienkarten ─────────────────────────────────────────────── */
+.slide-layer { position: absolute; inset: 0; pointer-events: none; }
+.slide-card {
+  position: absolute; visibility: hidden; opacity: 0;
+  width: 34cqw; padding: 1.5cqw 1.9cqw 1.6cqw;
+  border-radius: 1.2cqw; border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: var(--card-shadow);
+  font-size: 1.32cqw; line-height: 1.5; color: var(--text2);
+}
+.slide-card.wide { width: 46cqw; }
+.slide-card .kicker {
+  font-size: .68em; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--accent);
+}
+.slide-card h3 {
+  margin: .25em 0 .5em; font-size: 1.32em; line-height: 1.25; font-weight: 700;
+  color: var(--text); letter-spacing: -.005em;
+}
+.slide-card p + p { margin-top: .45em; }
+.slide-card b, .slide-card strong { color: var(--text); font-weight: 600; }
+.slide-card .num, .slide-card .dyn { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); }
+.slide-card .formula {
+  margin-top: .7em; padding: .55em .8em; border-radius: .5em;
+  background: var(--formula-bg); border-left: 3px solid var(--accent);
+  color: var(--text); font-size: 1.08em;
+}
+.slide-card .formula + .formula { margin-top: .4em; }
+.slide-card .formula + p { margin-top: .65em; }
+.slide-card .note { margin-top: .6em; font-size: .86em; color: var(--text3); }
+.slide-card mjx-container { color: var(--text); }
+
+/* Positionen: nur über left/right/top — transform gehört GSAP (y-Versatz) */
+.pos-tl { left: 3cqw; top: 3cqw; }
+.pos-tr { right: 3cqw; top: 3cqw; }
+.pos-r  { right: 3cqw; top: 9cqw; }
+.pos-tc { left: 0; right: 0; margin: 0 auto; top: 3cqw; }
+.pos-c  { left: 0; right: 0; margin: 0 auto; top: 12cqw; }
+
+/* ── Transportleiste ──────────────────────────────────────────── */
+.transport {
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 0 20px 10px; transition: background .3s;
+}
+.tp-scrub { display: flex; gap: 3px; align-items: center; height: 18px; padding-top: 6px; }
+.tp-seg {
+  position: relative; overflow: hidden;
+  flex: 1; height: 4px; border: none; border-radius: 2px; padding: 0;
+  background: var(--seg-idle); cursor: pointer;
+  transition: height .2s, box-shadow .25s;
+}
+/* Füllung = Fortschritt (--p, von der Engine pro Frame gesetzt);
+   heller Vorlauf = Auto-Play-Wartezeit bis zum nächsten Schritt (--h). */
+.tp-seg::before, .tp-seg::after {
+  content: ''; position: absolute; inset: 0; transform-origin: left center;
+  background: var(--accent);
+}
+.tp-seg::before { transform: scaleX(var(--p, 0)); }
+.tp-seg::after  { transform: scaleX(var(--h, 0)); opacity: .35; }
+.tp-seg:hover { height: 8px; }
+.tp-seg.current { height: 7px; box-shadow: 0 0 0 3px rgba(0, 177, 172, .18); }
+
+.tp-row {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  padding-top: 6px;
+}
+.tp-chapters { display: flex; gap: 4px; justify-self: start; padding: 3px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 999px; }
+.tp-tab {
+  border: none; background: transparent; color: var(--text2); cursor: pointer;
+  font: 600 .74rem var(--font-ui); padding: 6px 13px; border-radius: 999px;
+  transition: background .2s, color .2s;
+}
+.tp-tab:hover:not(:disabled) { color: var(--text); }
+.tp-tab.active { background: var(--surface); color: var(--accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.tp-tab:disabled { cursor: not-allowed; opacity: .55; }
+.tp-soon { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  padding: 1px 5px; margin-left: 4px; border-radius: 4px; background: var(--surface3); color: var(--text3); }
+
+.tp-buttons { display: flex; align-items: center; gap: 8px; }
+.tp-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px;
+  border-radius: 999px; border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text); font: 600 .78rem var(--font-ui); cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s, opacity .15s;
+}
+.tp-btn:hover:not(:disabled) { background: var(--surface3); }
+.tp-btn:active:not(:disabled) { transform: scale(.97); }
+.tp-btn:disabled { opacity: .35; cursor: not-allowed; }
+.tp-btn.icon { width: 36px; padding: 0; justify-content: center; }
+.tp-btn.primary { background: var(--accent); border-color: var(--accent); color: #000; padding: 0 20px; }
+.tp-btn.primary:hover:not(:disabled) { background: var(--fh-mint-dark); }
+.tp-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 177, 172, .1); }
+.tp-ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.tp-speeds { width: 150px; margin-left: 6px; }
+
+.tp-meta { justify-self: end; display: flex; align-items: center; gap: 12px;
+  font-size: .76rem; color: var(--text3); min-width: 0; }
+.tp-count { font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-count b { color: var(--text); font-weight: 500; }
+.tp-title { font-family: var(--font-ui); margin-left: 10px; color: var(--text2); }
+.tp-keys { cursor: help; font-size: 1rem; opacity: .7; }
+
+@media (max-width: 900px) {
+  .tp-row { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
+  .tp-chapters, .tp-meta { justify-self: center; }
+  .tp-speeds { display: none; }
+}
