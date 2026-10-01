@@ -10,6 +10,7 @@
 #   - index.html         darf nur um die Back-Button-href-Zeile abweichen
 #                        (Erwartung = Project_-Version mit transformierter href)
 #   - shared/**          byte-identisch  shared/ vs Webpage/shared/
+# Ebenso je Schritt-Animation: Project_<name>_animation vs Webpage/anim_<name>.
 #
 # Exit 0 = clean, Exit 1 = Drift (mit Auflistung). → BACKLOG I11.
 
@@ -22,6 +23,10 @@ SIMS=(
   geschwindigkeit grundbegriffe_kinematik integration kreis_spiralbewegung kreisbewegung lineal
   lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
+
+# Schritt-Animationen (→ BACKLOG I19): Project_<name>_animation/ → Webpage/anim_<name>/,
+# gleiche Spiegel-Regeln wie bei den Sims.
+ANIMS=( signifikante_stellen )
 
 # NICHT öffentlich (PO-Entscheidung): bleibt als Project_*_simulation/ im Repo
 # und auf der internen Übersicht AllAnimations/, wird aber NICHT nach Webpage/
@@ -48,9 +53,13 @@ for s in "${NICHT_OEFFENTLICH[@]}"; do
   fi
 done
 
-for s in "${SIMS[@]}"; do
-  src="Project_${s}_simulation"
-  dst="Webpage/sim_${s}"
+PAIRS=()
+for s in "${SIMS[@]}"; do PAIRS+=("Project_${s}_simulation:Webpage/sim_${s}"); done
+for a in "${ANIMS[@]}"; do PAIRS+=("Project_${a}_animation:Webpage/anim_${a}"); done
+
+for pair in "${PAIRS[@]}"; do
+  src="${pair%%:*}"
+  dst="${pair#*:}"
   if [ ! -d "$src" ] || [ ! -d "$dst" ]; then
     drifts+=("FEHLT: Paar $src / $dst unvollständig")
     status=1
@@ -97,7 +106,7 @@ for s in "${SIMS[@]}"; do
 done
 
 # shared/ byte-identisch.
-for f in shared/css/design-system.css shared/js/*.js shared/img/*.png; do
+for f in shared/css/*.css shared/js/*.js shared/img/*.png; do
   b="${f#shared/}"
   if [ ! -f "Webpage/shared/$b" ]; then
     drifts+=("DRIFT shared: Webpage/shared/$b fehlt")
@@ -109,7 +118,7 @@ for f in shared/css/design-system.css shared/js/*.js shared/img/*.png; do
 done
 
 if [ $status -eq 0 ]; then
-  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
+  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
   exit 0
 else
   echo "FEHLER: Webpage-Drift bzw. Publikations-Verstoß erkannt:" >&2
