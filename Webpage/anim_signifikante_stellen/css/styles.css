@@ -94,11 +94,21 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .slide-card .dyn[data-dyn="cmb.rounded"] { color: var(--accent); font-weight: 600; font-size: 1.05em; }
 .slide-card .kicker.dyn { font-weight: 700; color: var(--accent); }
 
-/* Kreis */
-.circ-disc   { fill: var(--accent); fill-opacity: .10; }
-.circ-line   { fill: none; stroke: var(--text); stroke-width: 2.6; stroke-linecap: round; }
-.circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .45; }
+/* Kreis: Umfang = Akzent (Länge), Fläche = Blau; größter Kreis hell, kleinster kräftig */
+.circ-disc   { fill: var(--c-l); fill-opacity: .08; }
+.fill-max    { fill: var(--c-l); fill-opacity: .22; }
+.fill-min    { fill: var(--c-l); fill-opacity: .42; }
+.circ-line   { fill: none; stroke: var(--text); stroke-width: 2.4; }
+.circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .35; }
 .circ-edge   { fill: none; stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }
 .circ-radius { stroke: var(--c-l); stroke-width: 2.4; stroke-linecap: round; }
 .circ-radius-end, .circ-center { fill: var(--c-l); }
-.circ-readout { fill: var(--c-true); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.r-live      { fill: var(--c-true); }
+.trace polyline { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.trace-max polyline { stroke: var(--accent); stroke-opacity: .55; }
+.trace-min polyline { stroke: var(--accent); }
+.trace circle { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px var(--accent)); }
+.log-line    { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.log-u       { fill: var(--accent); }
+.log-a       { fill: var(--c-l); }

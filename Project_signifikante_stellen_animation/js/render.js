@@ -117,29 +117,32 @@ export function initStage(svg, DOM) {
   E.qHalo = svgEl('circle', { class: 'halo-b' }, E.root)
   E.qDot = svgEl('circle', { class: 'dot-b' }, E.root)
   E.ql = [0, 1].map(() => text(E.root, 'value-label val-b', { 'text-anchor': 'start' }))
-  // ── Kreis ──
+  // ── Kreis: Radius variieren, Umfang umlaufend, Fläche von innen nach außen ──
   E.circ = svgEl('g', { class: 'circle' }, E.root)
   const C0 = { cx: CIRCLE.cx, cy: CIRCLE.cy }
-  E.cDisc = svgEl('circle', { class: 'circ-disc', ...C0 }, E.circ)
+  E.disc = svgEl('circle', { class: 'circ-disc', ...C0 }, E.circ)
+  E.fill = [svgEl('circle', { class: 'fill-max', ...C0 }, E.circ), svgEl('circle', { class: 'fill-min', ...C0 }, E.circ)]
   E.cRing = svgEl('circle', { class: 'circ-ring', ...C0 }, E.circ)
   E.cEdge = [0, 1].map(() => svgEl('circle', { class: 'circ-edge', ...C0 }, E.circ))
-  E.cLine = svgEl('circle', { class: 'circ-line', ...C0,
-    transform: `rotate(-90 ${CIRCLE.cx} ${CIRCLE.cy})` }, E.circ)
+  E.cLine = svgEl('circle', { class: 'circ-line', ...C0, transform: `rotate(-90 ${CIRCLE.cx} ${CIRCLE.cy})` }, E.circ)
+  E.trace = [0, 1].map(i => {
+    const g = svgEl('g', { class: `trace trace-${i ? 'min' : 'max'}` }, E.circ)
+    return { g, line: svgEl('polyline', {}, g), tip: svgEl('circle', { r: 6.5 }, g) }
+  })
   E.cRad = svgEl('g', {}, E.circ)
   E.cRadLine = svgEl('line', { class: 'circ-radius', x1: CIRCLE.cx, y1: CIRCLE.cy }, E.cRad)
   E.cRadEnd = svgEl('circle', { class: 'circ-radius-end', r: 5 }, E.cRad)
   svgEl('circle', { class: 'circ-center', ...C0, r: 4.5 }, E.cRad)
   E.rl = [0, 1].map(() => symbolLabel(E.cRad, 'dim-label dim-l', 'r', { 'text-anchor': 'middle' }))
-  // Live-Rechenwerte oben links: r, U = 2πr, A = πr²
-  E.cRo = text(E.circ, 'circ-readout', { 'text-anchor': 'start' })
-  const roLine = (dy, parts) => {
-    const ln = svgEl('tspan', { x: 96, dy }, E.cRo)
-    parts.forEach(([t, sym]) => { svgEl('tspan', sym ? { class: 'sym' } : {}, ln).textContent = t })
-    return svgEl('tspan', {}, ln)
-  }
-  E.cRoR = roLine(0, [['r', 1]])
-  E.cRoU = roLine(30, [['U', 1], [' = 2π', 0], ['r', 1]])
-  E.cRoA = roLine(30, [['A', 1], [' = π', 0], ['r', 1], ['²', 0]])
+  E.rLive = symbolLabel(E.cRad, 'dim-label dim-l r-live', 'r', { 'text-anchor': 'middle' })
+  // Werte-Protokoll: U_max, U_min, A_max, A_min (Zähler laufen mit der Animation)
+  E.log = [['U', 'max', 'm'], ['U', 'min', 'm'], ['A', 'max', 'm²'], ['A', 'min', 'm²']].map(([sym, sub, unit], i) => {
+    const t = text(E.circ, `log-line log-${sym === 'U' ? 'u' : 'a'}`, { x: CIRCLE.logX, y: CIRCLE.logY + i * 34 })
+    svgEl('tspan', { class: 'sym' }, t).textContent = sym
+    svgEl('tspan', { dy: 6, 'font-size': '70%' }, t).textContent = sub
+    const val = svgEl('tspan', { dy: -6 }, t)
+    return { t, val, unit }
+  })
 
   E.ro = text(E.root, 'readout', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'l'
@@ -232,6 +235,50 @@ function snapArc(el, x0, x1, y, d, a) {
   el.path.setAttribute('d', 'M' + shaft.map(p => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join('L'))
   const [tx, ty] = pts[n]
   el.head.setAttribute('d', headPath(tx, ty, base[0], base[1]))
+}
+
+// Kreis-Szene (Bildschirmkoordinaten, Maßstab K px/m). Umfang: die Spur läuft
+// oben beginnend im Uhrzeigersinn um den größten bzw. kleinsten Kreis, der
+// Zähler zeigt 2π·r·(gelaufener Anteil). Fläche: Scheibe wächst von innen nach
+// außen, Zähler π·ρ². Die Zähler werden aus der Szene berechnet, nicht gespeichert.
+function renderCircle(S) {
+  const { cx, cy, K } = CIRCLE
+  const rK = S.kR * K, TAU = 2 * Math.PI
+  set(E.disc, { r: rK }); op(E.disc, S.kDisc)
+  E.fill.forEach((c, i) => { set(c, { r: Math.max(0, S[`f${i}R`] * K) }); op(c, S[`f${i}A`]) })
+  set(E.cRing, { r: (S.kLo + S.kHi) / 2 * K, 'stroke-width': Math.max(1.5, (S.kHi - S.kLo) * K) })
+  op(E.cRing, S.kRing)
+  E.cEdge.forEach((c, i) => { set(c, { r: (i ? S.kHi : S.kLo) * K }); op(c, S.kRing) })
+  const circ = TAU * rK
+  set(E.cLine, { r: rK, 'stroke-dasharray': `${(circ * S.kDraw).toFixed(1)} ${circ.toFixed(1)}` })
+  // Spuren
+  E.trace.forEach((T, i) => {
+    const R = S[`tr${i}R`] * K, d = S[`tr${i}D`]
+    op(T.g, d > 0.001 ? S[`tr${i}A`] : 0)
+    if (d <= 0.001) return
+    const n = Math.max(2, Math.ceil(120 * d)), pts = []
+    for (let k = 0; k <= n; k++) {
+      const a = -Math.PI / 2 + TAU * d * k / n
+      pts.push(`${(cx + R * Math.cos(a)).toFixed(1)},${(cy + R * Math.sin(a)).toFixed(1)}`)
+    }
+    T.line.setAttribute('points', pts.join(' '))
+    const a = -Math.PI / 2 + TAU * d
+    set(T.tip, { cx: cx + R * Math.cos(a), cy: cy + R * Math.sin(a) }); op(T.tip, d < 0.999 ? 1 : 0)
+  })
+  // Radius + Beschriftung (Nennwert bzw. live während der Variation)
+  const ang = -Math.PI / 5, ex = cx + rK * Math.cos(ang), ey = cy + rK * Math.sin(ang)
+  set(E.cRadLine, { x2: ex, y2: ey }); set(E.cRadEnd, { cx: ex, cy: ey })
+  op(E.cRad, S.kRadA)
+  const lx = (cx + ex) / 2 - 20, ly = (cy + ey) / 2 - 16
+  readSlots(S, 'rl').forEach((sl, n) => {
+    set(E.rl[n].t, { x: lx, y: ly + sl.o }); E.rl[n].val.textContent = ` = ${TEXTS[sl.i]} m`
+    op(E.rl[n].t, sl.a * (1 - S.rLive))
+  })
+  set(E.rLive.t, { x: lx, y: ly }); E.rLive.val.textContent = ` = ${fmt(S.kR, 3)} m`; op(E.rLive.t, S.rLive)
+  // Werte-Protokoll
+  const vals = [TAU * S.tr0R * S.tr0D, TAU * S.tr1R * S.tr1D, Math.PI * S.f0R ** 2, Math.PI * S.f1R ** 2]
+  const alph = [S.tr0A * (S.tr0D > 0.001), S.tr1A * (S.tr1D > 0.001), S.f0A, S.f1A]
+  E.log.forEach((L, i) => { L.val.textContent = ` = ${fmt(vals[i], 2)} ${L.unit}`; op(L.t, alph[i]) })
 }
 
 let dynKey = '', dynAlpha = -1
@@ -378,28 +425,9 @@ export function renderScene(S) {
   E.roVal.textContent = ' = ' + fmt(S.rW * S.rH, Math.round(S.roD)) + ' m²'
   op(E.ro, S.roA)
 
-  // ── Kreis: Umfang U = 2πr, Fläche A = πr² ──
+  // ── Kreis: Abrollen (Umfang) und Sektoren → Rechteck (Fläche) ──
   op(E.circ, S.kA)
-  if (S.kA > 0.002) {
-    const k = CIRCLE.scale, rp = S.kR * k, circ = 2 * Math.PI * rp
-    set(E.cLine, { r: rp, 'stroke-dasharray': `${(circ * S.kDraw).toFixed(1)} ${circ.toFixed(1)}` })
-    set(E.cDisc, { r: rp }); op(E.cDisc, S.kDisc)
-    set(E.cRing, { r: (S.kLo + S.kHi) / 2 * k, 'stroke-width': Math.max(1.5, (S.kHi - S.kLo) * k) })
-    op(E.cRing, S.kRing)
-    E.cEdge.forEach((c, i) => { set(c, { r: (i ? S.kHi : S.kLo) * k }); op(c, S.kRing) })
-    const ang = -Math.PI / 5, ex = CIRCLE.cx + rp * Math.cos(ang), ey = CIRCLE.cy + rp * Math.sin(ang)
-    set(E.cRadLine, { x2: ex, y2: ey }); set(E.cRadEnd, { cx: ex, cy: ey })
-    op(E.cRad, S.kRadA)
-    readSlots(S, 'rl').forEach((sl, n) => {
-      set(E.rl[n].t, { x: (CIRCLE.cx + ex) / 2 - 20, y: (CIRCLE.cy + ey) / 2 - 16 + sl.o })
-      E.rl[n].val.textContent = ` = ${TEXTS[sl.i]} m`; op(E.rl[n].t, sl.a)
-    })
-    set(E.cRo, { y: 118 })
-    E.cRoR.textContent = ` = ${fmt(S.kR, 3)} m`
-    E.cRoU.textContent = ` = ${fmt(2 * Math.PI * S.kR, 3)} m`
-    E.cRoA.textContent = ` = ${fmt(Math.PI * S.kR * S.kR, 3)} m²`
-    op(E.cRo, S.kRo)
-  }
+  if (S.kA > 0.002) renderCircle(S)
 
   // ── Dynamische Zahlen in den Folienkarten ──
   const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}|${Math.round(S.circ)}`

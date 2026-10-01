@@ -39,8 +39,13 @@ export function createScene() {
     roA: 0, roD: 5,                        // Live-Anzeige l · b an der Ecke (Deckkraft, Stellen)
     uA: 0, uTagA: 0, dim: 0, xA: 1,
     // Kreis: Deckkraft, Einzeichnen, Radius (wahr/variiert), Unsicherheitsring, Live-U
-    kA: 0, kDraw: 0, kR: 3, kLo: 3, kHi: 3, kRing: 0, kRadA: 0, kRo: 0, kDisc: 0,
-    ...slotKeys('rl'),                     // Radius-Label „r = 3 m" → „r = 3,0 m"
+    kA: 0, kDraw: 0, kR: 3, kLo: 3, kHi: 3, kRing: 0, kRadA: 0, kDisc: 0,
+    ...slotKeys('rl'),                     // Radius-Label „r = 3,0 m" → „r = 3 m"
+    rLive: 0,                              // Radius-Label zeigt den aktuellen (wahren) Wert
+    // Umfang umlaufend: größter (0) und kleinster (1) Kreis — Radius, Fortschritt, Deckkraft
+    tr0R: 3, tr0D: 0, tr0A: 0, tr1R: 3, tr1D: 0, tr1A: 0,
+    // Fläche von innen nach außen: Füllradius, Deckkraft
+    f0R: 0, f0A: 0, f1R: 0, f1A: 0,
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }

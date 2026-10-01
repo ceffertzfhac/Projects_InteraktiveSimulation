@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.4.1</span>
+        <span class="version">v0.5.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -176,16 +176,32 @@ window.MathJax = {
       </div>
 
       <!-- K · Kreis -->
-      <div class="slide-card pos-r" data-card="circle">
+      <div class="slide-card pos-r" data-card="circle0">
         <div class="kicker dyn" data-dyn="circ.kicker"></div>
-        <h3>\(U = 2 \cdot \pi \cdot r\) und \(A = \pi \cdot r^2\)</h3>
-        <p>\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</p>
-        <p>\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m</p>
-        <p>\(A \in\) <span class="dyn" data-dyn="circ.AIv"></span>&thinsp;m²</p>
-        <div class="formula">gesichert: \(\;U =\) <span class="dyn" data-dyn="circ.U"></span>&thinsp;m,
-          \(\;A =\) <span class="dyn" data-dyn="circ.A"></span>&thinsp;m²</div>
-        <p class="note">2, π und der Exponent 2 sind exakt – unendlich viele Stellen. Nur \(r\)
-          begrenzt: <span class="dyn" data-dyn="circ.sig"></span>.</p>
+        <h3>Radius gemessen: \(r =\) <span class="dyn" data-dyn="circ.r"></span>&thinsp;m</h3>
+        <div class="formula">\(r \in\) <span class="dyn" data-dyn="circ.rIv"></span>&thinsp;m</div>
+        <p>Der wahre Radius liegt irgendwo in diesem Ring. Wie genau sind dann
+          <b>Umfang</b> und <b>Flächeninhalt</b>?</p>
+      </div>
+
+      <div class="slide-card pos-r" data-card="umfang">
+        <div class="kicker">Umfang \(U = 2 \cdot \pi \cdot r\)</div>
+        <h3>Einmal rundherum – groß und klein</h3>
+        <p>Der Umfang läuft um den größten und den kleinsten möglichen Kreis.</p>
+        <div class="formula">\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m
+          \(\;\Rightarrow\; U =\) <span class="dyn" data-dyn="circ.U"></span>&thinsp;m</div>
+        <p class="note">2 und π sind exakt – unendlich viele Stellen. Nur \(r\) begrenzt:
+          <span class="dyn" data-dyn="circ.sig"></span>.</p>
+      </div>
+
+      <div class="slide-card pos-r" data-card="frange">
+        <div class="kicker">Flächeninhalt \(A = \pi \cdot r^2\)</div>
+        <h3>Von innen nach außen gefüllt</h3>
+        <p>Die Fläche wächst bis zum größten, dann bis zum kleinsten möglichen Kreis.</p>
+        <div class="formula">\(A \in\) <span class="dyn" data-dyn="circ.AIv"></span>&thinsp;m²
+          \(\;\Rightarrow\; A =\) <span class="dyn" data-dyn="circ.A"></span>&thinsp;m²</div>
+        <p class="note">π und der Exponent 2 sind exakt. Nur \(r\) begrenzt:
+          <span class="dyn" data-dyn="circ.sig"></span>.</p>
       </div>
 
       <!-- E · Merksatz -->

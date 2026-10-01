@@ -284,38 +284,69 @@ export function buildSteps(S, DOM) {
   RETURN_PATH.forEach((p, j) => example(`Rückweg: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
   MIXES.forEach((p, m) => example(`Beispiel: ${p[0]} · ${p[1]}`, p, CMB_FIRST_MIX + m, CAM_OVERVIEW))
 
-  // ── K · Kreis: U = 2πr und A = πr² — 2, π und der Exponent sind exakt ───────
-  // Radius springt durch das Unsicherheitsintervall; U und A rechnen live mit
-  // (je Wert ≥ 1 s Standzeit), danach Karte mit Bereichen und gesicherten Werten.
-  const varyRadius = (tl, samples, r) => {
-    tl.to(S, { kRo: 1, duration: 0.4 }, '>0.1')
-    samples.forEach((x, i) => {
-      tl.to(S, { kR: x, duration: 0.7, ease: EASE.cam }, i ? '>1.1' : '>0.1')
-    })
-    tl.to(S, { kR: r.value, duration: 0.6, ease: EASE.cam }, '>1.2')
-    tl.to(S, { kRo: 0, duration: 0.4 }, '<0.2')
+  // ── K · Kreis: Radius variieren → Umfang umlaufend → Fläche von innen nach außen ──
+  // Je Stufe (r = 3,0, dann r = 3) für den größten und den kleinsten möglichen Kreis;
+  // die Zähler im Werte-Protokoll laufen mit. 2, π und der Exponent sind exakt.
+  const circles = R_TEXTS.map(circleExample)
+  const varyR = (tl, samples, r) => {
+    tl.to(S, { rLive: 1, duration: 0.3 })
+    samples.forEach((x, i) => tl.to(S, { kR: x, duration: 0.7, ease: EASE.cam }, i ? '>1.1' : '>0.1'))
+    tl.to(S, { kR: r.value, duration: 0.6, ease: EASE.cam }, '>1.1')
+    tl.to(S, { rLive: 0, duration: 0.3 })
   }
+  const traceU = (tl, c) => {
+    ;[[c.r.hi, 0], [c.r.lo, 1]].forEach(([R, i]) => {
+      tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
+      tl.set(S, { [`tr${i}R`]: R, [`tr${i}A`]: 1, [`tr${i}D`]: 0 })
+      tl.to(S, { [`tr${i}D`]: 1, duration: 2.4, ease: 'power1.inOut' })
+    })
+    tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
+  }
+  const fillA = (tl, c) => {
+    ;[[c.r.hi, 0], [c.r.lo, 1]].forEach(([R, i]) => {
+      tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
+      tl.set(S, { [`f${i}R`]: 0, [`f${i}A`]: 1 })
+      tl.to(S, { [`f${i}R`]: R, duration: 2, ease: 'power2.inOut' })
+    })
+    tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
+  }
+
+  step('Kreis: r = 3,0 m — Radius variieren', tl => {
+    clearHits(tl)
+    dl.hide(tl, { at: '<' })
+    db.hide(tl, { at: '<' })
+    tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6 }, '<')
+    const c = circles[0]
+    tl.set(S, { kA: 1, kDraw: 0, kR: c.r.value, kLo: c.r.value, kHi: c.r.value, circ: 0 })
+    tl.to(S, { kDraw: 1, duration: 1.3, ease: 'power2.inOut' })
+    tl.to(S, { kDisc: 1, kRadA: 1, duration: 0.6 }, '>-0.4')
+    rl.show(tl, textIndex(R_TEXTS[0]), { at: '<' })
+    deck.show(tl, C.circle0, '<')
+    tl.to(S, { kRing: 1, kLo: c.r.lo, kHi: c.r.hi, duration: 0.8, ease: EASE.reveal }, '>0.2')
+    varyR(tl, R_SAMPLES[0], c.r)
+  }, 3)
+
   R_TEXTS.forEach((rt, j) => {
-    const c = circleExample(rt)
-    step(`Kreis: r = ${rt} m`, tl => {
-      if (j === 0) {
-        clearHits(tl)
-        dl.hide(tl, { at: '<' })
-        db.hide(tl, { at: '<' })
-        tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6 }, '<')
-        tl.set(S, { kA: 1, kDraw: 0, kR: c.r.value, kLo: c.r.value, kHi: c.r.value, circ: 0 })
-        tl.to(S, { kDraw: 1, duration: 1.4, ease: 'power2.inOut' })
-        tl.to(S, { kDisc: 1, kRadA: 1, duration: 0.6 }, '>-0.4')
+    const c = circles[j]
+    if (j > 0) {
+      step(`Kreis: r = ${rt} m — Radius variieren`, tl => {
+        tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, duration: 0.5 })
+        tl.set(S, { tr0D: 0, tr1D: 0, f0R: 0, f1R: 0 })
         rl.show(tl, textIndex(rt), { at: '<' })
-        deck.show(tl, C.circle, '<')
-        tl.to(S, { kRing: 1, kLo: c.r.lo, kHi: c.r.hi, duration: 0.9, ease: EASE.reveal }, '>0.2')
-      } else {
-        rl.show(tl, textIndex(rt))
         swapDyn(tl, 'circ', j, '<')
+        deck.show(tl, C.circle0, '<')
         tl.to(S, { kLo: c.r.lo, kHi: c.r.hi, duration: 1.1, ease: EASE.cam }, '<0.2')
-      }
-      varyRadius(tl, R_SAMPLES[j], c.r)
-    }, 6)
+        varyR(tl, R_SAMPLES[j], c.r)
+      }, 3)
+    }
+    step(`Umfang bei r = ${rt} m`, tl => {
+      deck.show(tl, C.umfang)
+      traceU(tl, c)
+    }, 5)
+    step(`Fläche bei r = ${rt} m`, tl => {
+      deck.show(tl, C.frange)
+      fillA(tl, c)
+    }, 5)
   })
 
   // ── E · Merksatz ───────────────────────────────────────────────────────────

@@ -51,7 +51,9 @@ export const RETURN_PATH = [['3,000', '2,00'], ['3,000', '2'], ['3', '2']]   // 
 export const MIXES = [['3,00', '2,9'], ['3,0', '2,00']]
 // Kreis: gemessener Radius, Bühnenlage (Bildschirm), mögliche wahre Radien
 export const R_TEXTS = ['3,0', '3']                         // erst 3,0, dann nur noch eine Stelle
-export const CIRCLE = { cx: 460, cy: 365, scale: 56 }      // px je m
+// Kreis-Bühne (Bildschirmkoordinaten): Mittelpunkt, Maßstab; Werte-Protokoll oben links.
+export const CIRCLE = { cx: 470, cy: 378, K: 55, logX: 96, logY: 132 }
+// mögliche wahre Radien für die Variation (je Stufe 3,0 bzw. 3)
 export const R_SAMPLES = [[2.962, 3.041, 2.983], [2.62, 3.4, 2.8]]
 // Mögliche wahre Ecken (Anteile der halben Intervallbreiten)
 export const CORNER_SAMPLES = [[0.62, -0.4], [-0.55, 0.52], [0.2, 0.78], [-0.72, -0.62]]

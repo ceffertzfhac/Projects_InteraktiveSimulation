@@ -1,5 +1,18 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.5.0 — 2026-10-01
+
+Kreis didaktisch neu nach PO-Konzept (6 statt 2 Schritte), je für *r* = 3,0 m und *r* = 3 m:
+- **Radius variieren:** Der Radius springt durch das Intervall, die Beschriftung zeigt
+  live den aktuellen (wahren) Wert; Unsicherheitsring mit gestrichelten Rändern.
+- **Umfang umlaufend:** Kreis wächst auf *r*_max, eine Spur mit leuchtender Spitze
+  läuft einmal herum, der Zähler steigt bis *U*_max; dann dasselbe für *r*_min.
+- **Fläche von innen nach außen:** für *r*_max (hell) und *r*_min (kräftig) füllt sich
+  die Scheibe vom Mittelpunkt aus, Zähler bis *A*_max bzw. *A*_min.
+- **Werte-Protokoll** oben links (*U*_max, *U*_min, *A*_max, *A*_min); Zähler werden
+  aus Spur- bzw. Füllradius berechnet. Folien: Intervall → gesicherter Wert.
+- Ergebnis: *r* = 3,0 → *U* = 19 m, *A* = 28 m²; *r* = 3 → *U* = 2 · 10¹ m, *A* = 3 · 10¹ m².
+
 ## v0.4.1 — 2026-10-01
 
 - Kreis-Schritte vertauscht (PO): erst *r* = 3,0 m, dann *r* = 3 m — der Ring wird
