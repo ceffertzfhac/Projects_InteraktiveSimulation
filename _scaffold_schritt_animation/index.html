@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vorlage: Schritt-Animation – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!-- GSAP (Animations-Engine, kostenlos, Standard-Lizenz) — klassisch, VOR den Modulen -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="../shared/css/step-animation.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light step-anim">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../AllAnimations/index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    <div class="topbar-title-text">
+      <div class="topbar-title-line">
+        Vorlage: Schritt-Animation
+        <span class="version">v0.1.0</span>
+        <span class="inst">FH Aachen – FB 8 – Physik</span>
+      </div>
+      <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
+    </div>
+    <img src="../shared/img/logo_physik_mint.png" class="topbar-logo"
+         alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8"
+         title="Lehr- und Forschungsgebiet Physik – FB 8">
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+  </div>
+</header>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <svg id="stage_svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet"
+         aria-label="Animationsbühne"></svg>
+
+    <!-- Folienkarten: statisches HTML, MathJax tippt einmal beim Laden.
+         Sichtbarkeit steuert ausschließlich die Timeline (steps.js). -->
+    <div class="slide-layer">
+      <div class="slide-card pos-tr" id="card_intro">
+        <div class="kicker">Vorlage</div>
+        <h3>Ein Messwert auf der Zahlengeraden</h3>
+        <p>Diese Vorlage zeigt alle Bausteine einer Schritt-Animation:
+          Kamera, Überblendung, Folienkarten.</p>
+      </div>
+      <div class="slide-card pos-tr" id="card_band">
+        <div class="kicker">Rundung</div>
+        <h3>„2" ist ein Intervall</h3>
+        <p>Jeder Wert in diesem Bereich wird auf <span class="num">2</span> gerundet:</p>
+        <div class="formula">\(1{,}5 \le x &lt; 2{,}5\)</div>
+      </div>
+      <div class="slide-card pos-tr" id="card_zoom">
+        <div class="kicker">Zoom ×10</div>
+        <h3>Eine Stelle mehr: „2,0"</h3>
+        <p>Das Intervall schrumpft auf ein Zehntel.</p>
+        <div class="formula">\(1{,}95 \le x &lt; 2{,}05\)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="transport" id="transport"></footer>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

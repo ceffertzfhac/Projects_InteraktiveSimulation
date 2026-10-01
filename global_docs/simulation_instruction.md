@@ -927,3 +927,102 @@ Wurzel hinaus auf und liefert 404 für die Shared-Helfer:
 python3 -m http.server 8000
 # → http://localhost:8000/Project_<name>_simulation/
 ```
+
+---
+
+## 10. Schritt-Animation (Lehr-Animation) — eigener Projekttyp
+
+> → BACKLOG **I19**. Referenz: `Project_signifikante_stellen_animation/` v0.1.0,
+> Vorlage `_scaffold_schritt_animation/`.
+
+**Wofür:** Inhalte, die in Vorlesung oder Lernvideo **vorgeführt** werden — ein
+festes Drehbuch, Schritt für Schritt, mit vielen Annotationen auf der Bühne und
+Folienstil-Erläuterungen. Keine Parameter-Regler; die Zahlen sind fest verdrahtet.
+Ordnername `Project_<name>_animation/`.
+
+### 10.1 Abweichungen von den Sim-Regeln (bewußt)
+
+| Sim-Regel | Schritt-Animation |
+|---|---|
+| Play/Pause/Reset + CSV in der Topbar | **Transportleiste unten** (⏮ Reset · ◀ Zurück · Weiter ▶ · Auto-Play · Tempo), Topbar nur Zurück-Link · Titel · Logo · Theme |
+| linke/rechte Sidebar, Akkordeon | **keine Sidebars** — Bühne volle Breite (16:9) |
+| Diagramm-Steuerung, Hover, CSV | entfällt |
+| rAF-Loop über `simulatedTime` | **GSAP-Timeline** mit einem Label je Schritt |
+| keine Fremdbibliotheken | **GSAP 3.13 per CDN** (klassisches `<script>` *vor* den Modulen → `window.gsap`) |
+
+Unverändert gelten: Design-Tokens/Dark Mode (`fh_theme`), Physik-Logo,
+Typografie (Größen kursiv, Komma-Dezimal), statische MathJax, Farbregeln,
+„State nur in `state.js`", „Physik/Modell DOM-frei".
+
+### 10.2 Aufbau
+
+```
+index.html          Topbar · .stage-wrap > .stage (svg#stage_svg 1200×675 + .slide-layer) · footer#transport
+js/constants.js     Bühnengeometrie (Sichtfenster vL/vR/vT/vB), Timing T, Easing, Inhalte, Text-Tabellen
+js/state.js         createScene(): flaches Objekt aus ZAHLEN; DOM-Cache; store { presenter, scene }
+js/model.js         reine Funktionen für jede angezeigte Zahl (Vitest)
+js/steps.js         Drehbuch: [{ title, hold?, build(tl, S) }]
+js/render.js        initStage() baut Elemente einmal; renderScene(S) setzt Attribute
+js/ui.js            Einstieg: initDOM, Theme, initStage, createPresenter({ chapters })
+```
+
+Shared: `shared/js/step-engine.js` (`createStepEngine`, `createPresenter`),
+`shared/js/step-kit.js` (`createCamera`/`viewOf`, `createAxis`, `createCardDeck`,
+`createSlots`/`readSlots`, `createPool`, `svgEl`), `shared/css/step-animation.css`
+(nach `design-system.css` einbinden; `<body class="light step-anim">`).
+
+### 10.3 Reversibilitäts-Regel (verbindlich)
+
+Weiter/Zurück/Sprung bewegen nur den Abspielkopf der Timeline. Damit „Zurück"
+exakt den Vorzustand liefert:
+
+1. `build(tl, S)` hängt **nur** `tl.to/fromTo/set` an — **keine** `call()`/
+   `onComplete` mit Seiteneffekten, kein DOM-Umbau.
+2. Die Szene enthält **nur Zahlen**. Wechselnde Texte = Index in eine Tabelle
+   (`TEXTS[i]`), überblendet über zwei Slots (`createSlots`).
+3. Folienkarten werden als DOM-Elemente getweent (`autoAlpha`, `y`) — ok, weil
+   ebenfalls reversibel; Positionierung nur über `left/right/top`, nie über CSS
+   `transform` (gehört GSAP).
+4. Wechselnde Zahlen in Karten: `<span data-dyn="gruppe.feld">`, Tabelle aus
+   dem Modell, Auswahl per Szenen-Index; render.js schreibt nur bei Änderung.
+5. Die Engine setzt jeden Schritt 1 ms hinter das Label des Vorschritts, damit
+   ein `set()` am Schrittanfang beim Zurückspringen nicht angewendet bleibt.
+
+Prüfung: headless jeden Schritt vorwärts, dann rückwärts und per Sprung — die
+Szene muß zahlengleich sein (so für v0.1.0 durchgeführt).
+
+### 10.4 Kamera und Achsen
+
+- Kamera-Schlüssel (`cameraKeys`): Sichtfenster `vL vR vT vB`, Anker `camAX/camAY`,
+  Offset `camUX/camUY`, `camLW = log10(Breite)`. Zoom über den Logarithmus →
+  gleichmäßig empfundene Geschwindigkeit auch bei ×1000.
+- `createCamera(S, start).to(tl, { cx?, cy?, w?, view? }, { anchor })`: beim
+  Hineinzoomen bleibt der Zielpunkt „kleben" (kein Seitwärts-Wischen); mit
+  `anchor: { y: 0 }` bleibt die Zahlengerade beim Zoomen an Ort und Stelle.
+- **Nicht** über die `viewBox` zoomen — die Schrift würde mitwachsen. Stattdessen
+  Weltkoordinaten → Bildschirm über `viewOf(S)`, Schrift bleibt konstant groß.
+- `createAxis().render(V, { fixed: [{ step, grow, center }] })`: feste Teilung,
+  z. B. an die Rundungsgenauigkeit gebunden. `grow` 0…1 läßt die Striche gestaffelt
+  vom `center` nach außen aus der Achse wachsen (Überschwinger, Label steigt nach) —
+  neue Teilungen werden **nicht** einfach eingeblendet, sondern inszeniert.
+- `createAxis()` teilt ohne `fixed` auf der 1-5-10-Leiter (jede Stufe teilt die nächste) und
+  blendet die feinere Beschriftung erst kurz vor dem Stufenwechsel ein → Ruhe-
+  zustände sind sauber, beim Zoomen gibt es keine springende Teilung.
+
+### 10.5 Timing und Look
+
+- Kamerafahrten 1,2–2,4 s `power2.inOut`; Reveals 0,5–0,8 s `power3.out`;
+  Pop-ins `back.out(2)`; Kartenwechsel 0,25 s raus / 0,55 s rein (+ 14 px Anstieg).
+- Auto-Play: nach jedem Schritt `hold` Sekunden (Default 2,4 s) — textlastige
+  Schritte länger. Tempo skaliert Übergänge **und** Haltezeiten. Zurück spult
+  mit 2,5-facher Geschwindigkeit sichtbar zurück.
+- Transparenz gezielt: Intervall-Bänder 10–30 %, Glas-Folienkarten
+  (`backdrop-filter`), Halo um Punkte; nie Schatten auf Achsen/Datenlinien.
+- Bühne 16:9 mit Container-Einheiten (`cqw`) — Folien skalieren im Fenster, im
+  Vollbild (`F`) und in der Aufnahme (`H` blendet Bedienung aus) identisch.
+
+### 10.6 Bekannte Grenzen des Typs
+
+- GSAP und MathJax per CDN → ohne Internet keine Animation (vor der Vorlesung prüfen).
+- Sync-/Drift-Skripte (`scripts/`) kennen bisher nur `Project_*_simulation` und
+  spiegeln `shared/css/step-animation.css` nicht → Veröffentlichung siehe FSS3.

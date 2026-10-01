@@ -1,0 +1,17 @@
+/* Animationsspezifische Farben/Klassen. Layout, Karten, Achsen: shared/css/step-animation.css */
+
+:root      { --c-val: #0072b2; }
+body.dark  { --c-val: #56b4e9; }
+
+.band-stop-edge { stop-color: var(--c-val); stop-opacity: .10; }
+.band-stop-mid  { stop-color: var(--c-val); stop-opacity: .26; }
+.band-fill  { fill: url(#grad_band); }
+.end-closed { fill: var(--c-val); }
+.end-open   { fill: var(--stage-bg1); stroke: var(--c-val); stroke-width: 2.5; }
+
+.point      { fill: var(--c-val); }
+.point-halo { fill: var(--c-val); fill-opacity: .16; }
+.value-label {
+  fill: var(--c-val); font-size: 34px; font-weight: 700;
+  font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+}
