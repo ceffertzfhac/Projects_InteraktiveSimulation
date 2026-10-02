@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.12.0</span>
+        <span class="version">v0.12.1</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -292,19 +292,19 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="v_sA">
         <div class="kicker">Strecke · Person A · Markierungen 1&nbsp;m</div>
-        <h3>\(s = 20\,\text{m}\)</h3>
+        <h3>\(\Delta s = 20\,\text{m}\)</h3>
         <p>Die Ziellinie liegt näher an der 20-m-Marke als an jeder anderen. Die wahre Strecke
           liegt also im Intervall</p>
-        <div class="formula">\(19{,}5\,\text{m} \le s &lt; 20{,}5\,\text{m}\)</div>
+        <div class="formula">\(19{,}5\,\text{m} \le \Delta s &lt; 20{,}5\,\text{m}\)</div>
         <p class="note">2 signifikante Stellen – die <span class="unc-word">0</span> ist unsicher.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_sB">
         <div class="kicker">Strecke · Person B · Markierungen 1&nbsp;cm</div>
-        <h3>\(s = 19{,}83\,\text{m}\)</h3>
+        <h3>\(\Delta s = 19{,}83\,\text{m}\)</h3>
         <p>In der Lupe: Die Ziellinie liegt am nächsten an der Marke 19,83&nbsp;m. Die wahre
           Strecke liegt im Intervall</p>
-        <div class="formula">\(19{,}825\,\text{m} \le s &lt; 19{,}835\,\text{m}\)</div>
+        <div class="formula">\(19{,}825\,\text{m} \le \Delta s &lt; 19{,}835\,\text{m}\)</div>
         <p class="note">4 signifikante Stellen – die <span class="unc-word">3</span> ist unsicher;
           das Intervall ist hundertmal schmaler als bei A.</p>
       </div>
@@ -326,9 +326,9 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="v_t">
         <div class="kicker">Zeit ablesen</div>
-        <h3>A: \(t = 2{,}14\,\text{s}\) &nbsp;·&nbsp; B: \(t = 2\,\text{s}\)</h3>
-        <div class="formula">A: \(2{,}135\,\text{s} \le t &lt; 2{,}145\,\text{s}\) – 3 Stellen</div>
-        <div class="formula">B: \(1{,}5\,\text{s} \le t &lt; 2{,}5\,\text{s}\) – 1 Stelle</div>
+        <h3>A: \(\Delta t = 2{,}14\,\text{s}\) &nbsp;·&nbsp; B: \(\Delta t = 2\,\text{s}\)</h3>
+        <div class="formula">A: \(2{,}135\,\text{s} \le \Delta t &lt; 2{,}145\,\text{s}\) – 3 Stellen</div>
+        <div class="formula">B: \(1{,}5\,\text{s} \le \Delta t &lt; 2{,}5\,\text{s}\) – 1 Stelle</div>
         <p>Der Sekundenzeiger steht näher an der 2 als an der 3. Bei B kann die wahre Zeit um
           bis zu eine halbe Sekunde abweichen.</p>
       </div>
@@ -336,9 +336,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_vA">
         <div class="kicker">Person A · \(v = \Delta s / \Delta t\)</div>
         <h3>20&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</h3>
-        <p>Welche \(s\) und \(t\) aus den Intervallen ergeben das kleinstmögliche, welche das größtmögliche \(v\)?</p>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.aHiH"></span>&thinsp;m/s</div>
+        <p>Welche \(\Delta s\) und \(\Delta t\) aus den Intervallen ergeben das kleinstmögliche, welche das größtmögliche <span style="white-space:nowrap">\(v\)?</span></p>
+        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.aHiH"></span>&thinsp;m/s</div>
         <p class="note">Umgekehrt wie beim Multiplizieren: kleiner Zähler und <b>großer</b> Nenner
           ergeben das kleinste Ergebnis.</p>
       </div>
@@ -349,15 +349,15 @@ window.MathJax = {
         <p>Größtmögliches \(v\) oben, kleinstmögliches unten, dazwischen das Ergebnis des
           Taschenrechners. Die Einer stimmen überein (<b>sicher</b>), die Zehntel nicht: Dort ist die
           Ziffer <span class="unc-word">unsicher</span>, alle dahinter sind <span class="ghost-word">sinnlos</span>.</p>
-        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.aV"></span> – 2 Stellen wie \(s\), die 3 ist unsicher</div>
-        <p class="note">Die Faustregel (2 Stellen wie \(s\)) kommt zum selben Ergebnis.</p>
+        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.aV"></span> – 2 Stellen wie \(\Delta s\), die 3 ist unsicher</div>
+        <p class="note">Die Faustregel (2 Stellen wie \(\Delta s\)) kommt zum selben Ergebnis.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_vB">
         <div class="kicker">Person B · \(v = \Delta s / \Delta t\)</div>
         <h3>19,83&nbsp;m / 2&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s ?</h3>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</div>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.bV"></span> – nur 1 Stelle: schon die Zehnerziffer ist unsicher</div>
         <p class="note">Das feine Maßband nützt nichts – die Zeit mit nur einer Stelle begrenzt.</p>
       </div>
@@ -365,10 +365,10 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_best">
         <div class="kicker">Kombiniert · Strecke von B, Zeit von A</div>
         <h3>19,83&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</h3>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.cLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.cV"></span> – 3 Stellen wie \(t\), die 7 ist unsicher</div>
-        <p class="note">\(s\): 4 Stellen, \(t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
+        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.cLoH"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.cV"></span> – 3 Stellen wie \(\Delta t\), die 7 ist unsicher</div>
+        <p class="note">\(\Delta s\): 4 Stellen, \(\Delta t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>
 
       <div class="slide-card pos-c wide" data-card="v_rule">
@@ -376,7 +376,7 @@ window.MathJax = {
         <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
           ungenaueste Messgröße.</h3>
         <div class="formula">Grenzen – umgekehrt wie beim Multiplizieren:
-          \(\;v_{\min} = \dfrac{s_{\min}}{t_{\max}}, \quad v_{\max} = \dfrac{s_{\max}}{t_{\min}}\)</div>
+          \(\;v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}}, \quad v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}}\)</div>
         <div class="formula">A: \(20\,\text{m} / 2{,}14\,\text{s} = 9{,}3\,\text{m/s}\) &nbsp;·&nbsp;
           B: \(19{,}83\,\text{m} / 2\,\text{s} = 1 \cdot 10^1\,\text{m/s}\)<br>
           kombiniert: \(19{,}83\,\text{m} / 2{,}14\,\text{s} = 9{,}27\,\text{m/s}\)</div>

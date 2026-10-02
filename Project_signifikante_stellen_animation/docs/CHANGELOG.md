@@ -1,5 +1,10 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.12.1 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
+
+- Division: **Δ überall** (PO) – Spaltenköpfe Δ*s*/Δ*t*, Regler und ihre Grenzen
+  (Δ*s*_min …), Kombinationszeile, alle Folienformeln. Δ aufrecht, Symbol kursiv.
+
 ## v0.12.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`, zur PO-Ansicht)
 
 **Ziffernvergleich als Hauptmethode** (PO-Feedback, → FSS8). Band gegen Klammer nur noch

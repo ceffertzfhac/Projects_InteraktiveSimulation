@@ -27,10 +27,14 @@ const text = (parent, cls, attrs, content = '') => {
   t.textContent = content
   return t
 }
-// Größensymbol kursiv, Rest aufrecht (Repo-Konvention)
+// Größensymbol kursiv, Rest aufrecht (Repo-Konvention); ein führendes „Δ" bleibt aufrecht
+const symSpans = (t, sym) => {
+  if (sym[0] === 'Δ') svgEl('tspan', {}, t).textContent = 'Δ'
+  svgEl('tspan', { class: 'sym' }, t).textContent = sym.replace(/^Δ/, '')
+}
 const symText = (parent, cls, attrs, sym, rest) => {
   const t = svgEl('text', { class: cls, ...attrs }, parent)
-  svgEl('tspan', { class: 'sym' }, t).textContent = sym
+  symSpans(t, sym)
   if (rest) svgEl('tspan', {}, t).textContent = rest
   return t
 }
@@ -264,8 +268,8 @@ function buildTable() {
   const [c0, c1, c2, c3] = TABLE.x, y0 = TABLE.y0
   E.tHead = svgEl('g', {}, E.table)
   text(E.tHead, 'proto-head', { x: c0, y: y0 }, 'Messprotokoll')
-  symText(E.tHead, 'proto-head', { x: c1, y: y0 }, 's')
-  symText(E.tHead, 'proto-head', { x: c2, y: y0 }, 't')
+  symText(E.tHead, 'proto-head', { x: c1, y: y0 }, 'Δs')
+  symText(E.tHead, 'proto-head', { x: c2, y: y0 }, 'Δt')
   const vh = symText(E.tHead, 'proto-head', { x: c3, y: y0 }, 'v', ' = Δ')
   svgEl('tspan', { class: 'sym' }, vh).textContent = 's'
   svgEl('tspan', {}, vh).textContent = ' / Δ'
@@ -300,7 +304,7 @@ function buildTable() {
 function buildFraction() {
   E.frac = svgEl('g', { class: 'frac' }, E.root)
   E.frTitle = text(E.frac, 'frac-title', { x: 60, y: FRAC.y[0] - 32 })
-  E.frBars = ['s', 't'].map((sym, k) => {
+  E.frBars = ['Δs', 'Δt'].map((sym, k) => {
     const y = FRAC.y[k]
     symText(E.frac, 'frac-sym', { x: 60, y: y + 7 }, sym)
     svgEl('line', { class: 'frac-bar', x1: FRAC.x0, x2: FRAC.x1, y1: y, y2: y }, E.frac)
@@ -319,14 +323,14 @@ function buildFraction() {
 }
 const near = (k, v) => Math.abs(k - v) < 0.015
 function comboText(ks, kt) {
-  if (near(ks, 0) && near(kt, 1)) return 'kleinstes s, größtes t → kleinstmögliches v'
-  if (near(ks, 1) && near(kt, 0)) return 'größtes s, kleinstes t → größtmögliches v'
+  if (near(ks, 0) && near(kt, 1)) return 'kleinstes Δs, größtes Δt → kleinstmögliches v'
+  if (near(ks, 1) && near(kt, 0)) return 'größtes Δs, kleinstes Δt → größtmögliches v'
   if ((near(ks, 0) && near(kt, 0)) || (near(ks, 1) && near(kt, 1))) return 'beide klein / beide groß → v liegt dazwischen'
   return ''
 }
 // „s_min = 19,5 m" in ein <text>: Symbol kursiv, Index tiefgestellt, Wert in tspan
 function subLabel(t, sym, sub) {
-  svgEl('tspan', { class: 'sym' }, t).textContent = sym
+  symSpans(t, sym)
   svgEl('tspan', { dy: 5, 'font-size': '72%' }, t).textContent = sub
   return svgEl('tspan', { dy: -5 }, t)
 }
