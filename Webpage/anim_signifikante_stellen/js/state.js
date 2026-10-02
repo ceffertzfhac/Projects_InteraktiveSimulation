@@ -5,7 +5,7 @@
 
 import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
 import { CAM_START, RODS_MEASURE, ROD_COARSE, SIG_TOKENS, SIG_REPS } from './constants.js'
-import { stellenKeys } from './stellen.js'
+import { stellenKeys, compareKeys } from './stellen.js'
 
 export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
 
@@ -53,7 +53,9 @@ export function createScene() {
     sgA: 0, bg1: 0, bg2: 0, bg3: 0, bg4: 0, brS: 0, brU: 0, brZ: 0,
     // Teil R: Grenzen markieren (l_min … b_max), kleinstes/größtes Rechteck
     edA: 0, mnA: 0, mxA: 0,
-    ...stellenKeys(),                      // Tafel „Welche Stelle ist unsicher?"
+    ...stellenKeys(), slBig: 0,            // Tafel „Welche Stelle ist unsicher?" (+ groß)
+    ...compareKeys(),                      // Tafel „Ziffern vergleichen"
+    calcA: 0,                              // Taschenrechner im Rechteck
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }

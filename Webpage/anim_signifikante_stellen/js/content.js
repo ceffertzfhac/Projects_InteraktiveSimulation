@@ -4,8 +4,9 @@
 // ins DOM. Alle Werte stammen aus model.js — nichts ist hart kodiert.
 
 import { fmt } from '../../shared/js/format.js'
-import { parseMeasured, areaExample, exactStr, circleExample, placeAnalysis, placeName } from './model.js'
-import { rowLayout, suffixOf } from './stellen.js'
+import {
+  parseMeasured, areaExample, exactStr, circleExample, placeAnalysis, placeName, digitCompare, compareHtml,
+} from './model.js'
 import {
   L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXTS,
 } from './constants.js'
@@ -28,17 +29,29 @@ export const LEVELS = L_LEVELS.map((text, k) => {
 
 const EXAMPLES = [
   ['Flächenbereich', [L_LEVELS[3], B_FINAL]],
-  ...RETURN_PATH.map((p, j) => [`${['b gröber', 'l gröber', 'beide grob'][j]} gemessen · ${j + 1} / ${RETURN_PATH.length}`, p]),
+  ...RETURN_PATH.map((p, j) => [`${['b gröber', 'beide grob'][j]} gemessen · ${j + 1} / ${RETURN_PATH.length}`, p]),
   ...MIXES.map((p, j) => [`Beispiel ${j + 1} / ${MIXES.length}`, p]),
 ]
 export const CMB_FIRST_RETURN = 1
 export const CMB_FIRST_MIX = 1 + RETURN_PATH.length
 
+// „Die Unsicherheit liegt auf der vierten Stelle": Position der ersten abweichenden
+// Ziffer, gezählt ab der ersten von Null verschiedenen Ziffer
+const ORD = ['ersten', 'zweiten', 'dritten', 'vierten', 'fünften', 'sechsten']
+const ordOf = cmp => {
+  const first = cmp.hi.find(c => !c.comma && c.ch !== '0').p
+  return ORD[first - cmp.pDiff]
+}
 const bnd = (m, x) => fmt(x, m.decimals + 1)
 export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
   const ex = areaExample(lt, bt)
+  const cmp = digitCompare(ex.loStr, ex.hiStr)
+  const dec = (ex.valueStr.split(',')[1] ?? '').length
   return {
     kicker, l: lt, b: bt, lIv: iv(ex.l), bIv: iv(ex.b),
+    AloH: compareHtml(cmp.lo), AhiH: compareHtml(cmp.hi), uncOrd: ordOf(cmp),
+    calcDec: `${dec} ${dec === 1 ? 'Nachkommastelle' : 'Nachkommastellen'}`,
+    calcIn: `${lt} × ${bt} =`, calcOut: ex.valueStr,
     lLo: bnd(ex.l, ex.l.lo), lHi: bnd(ex.l, ex.l.hi), bLo: bnd(ex.b, ex.b.lo), bHi: bnd(ex.b, ex.b.hi),
     Alo: ex.loStr, Ahi: ex.hiStr,
     AIv: `[${ex.loStr} ; ${ex.hiStr})`, valueStr: ex.valueStr, rounded: ex.rounded,
@@ -46,6 +59,7 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
   }
 })
 
+const cmpH = (lo, hi) => { const c = digitCompare(lo, hi); return [compareHtml(c.lo), compareHtml(c.hi), ordOf(c)] }
 const civ = p => `[${fmt(p.lo, 2)} ; ${fmt(p.hi, 2)})`
 export const CIRC = R_TEXTS.map(rt => {
   const c = circleExample(rt)
@@ -54,23 +68,37 @@ export const CIRC = R_TEXTS.map(rt => {
     r: rt, rIv: iv(c.r), sig: stellen(c.sig),
     UIv: civ(c.U), U: c.U.rounded, AIv: civ(c.A), A: c.A.rounded,
     rLo: fmt(c.r.lo, c.r.decimals + 1), rHi: fmt(c.r.hi, c.r.decimals + 1),
-    Ulo: fmt(c.U.lo, 2), Uhi: fmt(c.U.hi, 2), Alo: fmt(c.A.lo, 2), Ahi: fmt(c.A.hi, 2),
+    UloH: cmpH(fmt(c.U.lo, 2), fmt(c.U.hi, 2))[0], UhiH: cmpH(fmt(c.U.lo, 2), fmt(c.U.hi, 2))[1],
+    AloH: cmpH(fmt(c.A.lo, 2), fmt(c.A.hi, 2))[0], AhiH: cmpH(fmt(c.A.lo, 2), fmt(c.A.hi, 2))[1],
+    UOrd: cmpH(fmt(c.U.lo, 2), fmt(c.U.hi, 2))[2], AOrd: cmpH(fmt(c.A.lo, 2), fmt(c.A.hi, 2))[2],
   }
 })
 
 // „Welche Stelle ist unsicher?": Ergebnisse in Schrittreihenfolge —
 // 0 … 5 Flächen (wie RANGES), 6/7 Kreis r = 3,0 (U, A), 8/9 Kreis r = 3 (U, A)
-const lupe = (text, lo, hi, unit) => {
-  const info = placeAnalysis(text, lo, hi)
-  return { info, layout: rowLayout(info), suffix: suffixOf(info, unit) }
+const lupe = (text, lo, hi, value, unit) => {
+  return { info: placeAnalysis(text, lo, hi, value), unit }
 }
 export const LUPE = [
-  ...EXAMPLES.map(([, [lt, bt]]) => { const ex = areaExample(lt, bt); return lupe(ex.rounded, ex.A.lo, ex.A.hi, 'm²') }),
+  ...EXAMPLES.map(([, [lt, bt]]) => { const ex = areaExample(lt, bt); return lupe(ex.rounded, ex.A.lo, ex.A.hi, ex.A.value, 'm²') }),
   ...R_TEXTS.flatMap(rt => {
     const c = circleExample(rt)
-    return [lupe(c.U.rounded, c.U.lo, c.U.hi, 'm'), lupe(c.A.rounded, c.A.lo, c.A.hi, 'm²')]
+    return [lupe(c.U.rounded, c.U.lo, c.U.hi, c.U.value, 'm'), lupe(c.A.rounded, c.A.lo, c.A.hi, c.A.value, 'm²')]
   }),
 ]
 export const LUPE_CIRCLE = EXAMPLES.length
+
+// Ziffernvergleich-Tafel (erstes Rechteck): A_max, A_min und der Taschenrechner-Wert
+export const COMPARE = EXAMPLES.slice(0, 1).map(([, [lt, bt]]) => {
+  const ex = areaExample(lt, bt), cmp = digitCompare(ex.loStr, ex.hiStr)
+  const calc = digitCompare(ex.valueStr, ex.valueStr).lo
+    .map(c => ({ ...c, cat: c.comma ? null : c.p > cmp.pDiff ? 'sure' : c.p === cmp.pDiff ? 'unc' : 'ghost' }))
+  const places = [...new Set(cmp.hi.filter(c => !c.comma).map(c => c.p))]
+  return {
+    key: `${lt}|${bt}`, cmp, places, rounded: ex.rounded,
+    rows: [{ sym: 'A', sub: 'max', cells: cmp.hi }, { sym: 'A', sub: 'min', cells: cmp.lo },
+      { sym: 'l · b', sub: '', cells: calc }],
+  }
+})
 
 export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

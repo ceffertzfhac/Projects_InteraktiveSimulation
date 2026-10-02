@@ -8,12 +8,14 @@ import {
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
 import {
-  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, B_FINAL,
+  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL,
 } from './constants.js'
-import { DYN, LUPE } from './content.js'
-import { placeName, parseMeasured } from './model.js'
+import { DYN, LUPE, COMPARE, RANGES } from './content.js'
+import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
-import { createDigitRow, createUnitBracket, verdict } from './stellen.js'
+import {
+  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareVerdict,
+} from './stellen.js'
 import { HITS } from './state.js'
 
 const E = {}
@@ -92,16 +94,45 @@ function buildSigRow() {
   })
 }
 
+// Tafel „Welche Stelle ist unsicher?" — liegt über der (dimmbaren) Szene, damit
+// sie im Erklärschritt groß und hell im Mittelpunkt stehen kann (slBig).
 function buildLupe() {
   const B = LUPE_BOX
-  E.lupe = svgEl('g', { class: 'lupe-panel' }, E.root)
+  E.lupe = svgEl('g', { class: 'lupe-panel' }, E.top)
   svgEl('rect', { class: 'panel-bg', x: B.x, y: B.y, width: B.w, height: B.h, rx: 14 }, E.lupe)
-  text(E.lupe, 'lupe-title', { x: B.x + 20, y: B.y + 26 }, 'Welche Stelle ist unsicher?')
-  E.lupeDigits = createDigitRow(E.lupe, { size: 34 })
+  E.lupeTitle = text(E.lupe, 'lupe-title', { x: B.x + 20, y: B.y + 24 })
+  E.lupeClaim = createClaimRow(E.lupe, { size: 32 })
   E.lupeAxis = createAxis(E.lupe, 'x', { labelGap: 20 })
   E.lupeBand = svgEl('rect', { class: 'lupe-band', height: 14, rx: 3 }, E.lupe)
   E.lupeBracket = createUnitBracket(E.lupe)
-  E.lupeVerdict = text(E.lupe, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 10 })
+  E.lupeVerdict = text(E.lupe, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 9 })
+}
+
+// Tafel „Ziffern vergleichen": A_max, A_min, l · b untereinander, Spaltenzeiger
+function buildCompare() {
+  const B = LUPE_BOX
+  E.cmpPanel = svgEl('g', { class: 'lupe-panel' }, E.top)
+  svgEl('rect', { class: 'panel-bg', x: B.x, y: B.y, width: B.w, height: B.h, rx: 14 }, E.cmpPanel)
+  text(E.cmpPanel, 'lupe-title', { x: B.x + 20, y: B.y + 24 }, 'Ziffern vergleichen')
+  E.cmp = createCompareBoard(E.cmpPanel, { size: 28 })
+  E.cmpVerdict = text(E.cmpPanel, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 10 })
+}
+
+// Taschenrechner neben dem Rechteck: Eingabe klein, Ergebnis groß (alle Stellen)
+function buildCalc() {
+  const { x, y, w, h } = CALC
+  E.calc = svgEl('g', { class: 'calc' }, E.root)
+  svgEl('rect', { class: 'calc-case', x, y, width: w, height: h, rx: 16 }, E.calc)
+  svgEl('rect', { class: 'lcd', x: x + 14, y: y + 16, width: w - 28, height: 74, rx: 6 }, E.calc)
+  E.calcIn = text(E.calc, 'calc-in', { x: x + w - 22, y: y + 40, 'text-anchor': 'end' })
+  E.calcOut = text(E.calc, 'lcd-text calc-out', { x: x + w - 22, y: y + 78, 'text-anchor': 'end' })
+  const keys = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', ',', '=', '+']
+  const kw = (w - 28 - 3 * 8) / 4, kh = (h - 112 - 3 * 8) / 4
+  keys.forEach((k, i) => {
+    const kx = x + 14 + (i % 4) * (kw + 8), ky = y + 104 + Math.floor(i / 4) * (kh + 8)
+    svgEl('rect', { class: `calc-key ${k === '=' ? 'calc-eq' : ''}`, x: kx, y: ky, width: kw, height: kh, rx: 5 }, E.calc)
+    text(E.calc, 'calc-key-t', { x: kx + kw / 2, y: ky + kh / 2 + 6, 'text-anchor': 'middle' }, k)
+  })
 }
 
 export function initStage(svg, DOM) {
@@ -114,7 +145,8 @@ export function initStage(svg, DOM) {
   const clip = svgEl('clipPath', { id: 'plot_clip' }, defs)
   E.clipRect = svgEl('rect', {}, clip)
 
-  E.root = svgEl('g', {}, svg)
+  E.top = svgEl('g', {}, svg)                 // Kapitelgruppe (Grundlagen + Multiplikation)
+  E.root = svgEl('g', {}, E.top)              // die Szene — dimmbar
 
   // ── Maßband und Stäbe ──
   E.tape = svgEl('g', { class: 'tape' }, E.root)
@@ -226,14 +258,16 @@ export function initStage(svg, DOM) {
     subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': sym === 'l' ? 'middle' : 'start' }))
 
   buildSigRow()
+  buildCalc()
   buildLupe()
+  buildCompare()
 
   E.ro = text(E.root, 'readout', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'l'
   svgEl('tspan', {}, E.ro).textContent = ' · '
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'b'
   E.roVal = svgEl('tspan', {}, E.ro)
-  return E.root
+  return E.top
 }
 
 function rectWorld(el, V, x0, y0, x1, y1) {
@@ -518,9 +552,16 @@ export function renderScene(S) {
   op(E.circ, S.kA)
   if (S.kA > 0.002) renderCircle(S)
 
+  op(E.calc, S.calcA)
+  if (S.calcA > 0.002) {
+    const R = RANGES[Math.round(S.cmb)]
+    E.calcIn.textContent = R.calcIn; E.calcOut.textContent = R.calcOut
+  }
+
   renderUnc(S, V, axY)
   renderSigRow(S)
   renderLupe(S)
+  renderCompare(S)
 
   // ── Dynamische Zahlen in den Folienkarten ──
   const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}|${Math.round(S.circ)}`
@@ -528,7 +569,10 @@ export function renderScene(S) {
     dynKey = key
     for (const el of E.dyn) {
       const [grp, field] = el.dataset.dyn.split('.')
-      el.textContent = DYN[grp][Math.round(S[grp])][field]
+      const v = DYN[grp][Math.round(S[grp])][field]
+      // Felder mit Endung „H" sind vorberechnetes HTML aus model.js (Ziffern-Spans)
+      if (field.endsWith('H')) el.innerHTML = v
+      else el.textContent = v
     }
   }
   if (S.dynA !== dynAlpha) {
@@ -593,25 +637,40 @@ function renderSigRow(S) {
   bracket(E.sigBr.Z, dx('Z1') - cw / 2 + 3, dx('Z3') + cw / 2 - 3, y + 16, S.brZ * S.tkZ1a)
 }
 
-// Tafel „Welche Stelle ist unsicher?": Ziffernzeile, Mini-Zahlengerade mit Band
-// (Intervall des Ergebnisses) und Klammer „1 Einheit" der betrachteten Stelle.
+// Tafel „Welche Stelle ist unsicher?": Angabe bis zur betrachteten Stelle, Mini-
+// Zahlengerade mit Band (A_min … A_max: was die Messung hergibt) und Klammer
+// (Rundungsintervall der Angabe: was sie verspricht). slBig: groß in der Bildmitte.
 function renderLupe(S) {
   op(E.lupe, S.slA)
   if (S.slA <= 0.002) return
-  const B = LUPE_BOX, L = LUPE[Math.round(S.slI)], { info } = L, p = Math.round(S.slD)
-  E.lupeDigits.render(info, L.layout, {
-    x: B.x + 22, y: B.y + 72, alpha: 1, pointerP: p, pointerA: S.slV,
-    colorFrom: S.slC, ghostA: S.slG, suffixA: S.slS, suffixText: L.suffix,
-  })
+  const B = LUPE_BOX, G = LUPE_BIG, k = S.slBig
+  const sc = lerp(1, G.w / B.w, k)
+  const tx = lerp(B.x, G.x, k) - B.x * sc, ty = lerp(B.y, G.y, k) - B.y * sc
+  E.lupe.setAttribute('transform', `translate(${tx} ${ty}) scale(${sc})`)
+  E.lupeTitle.textContent = k > 0.5 ? 'Wie viele Stellen gebe ich an?' : 'Welche Stelle ist unsicher?'
+  const L = LUPE[Math.round(S.slI)], { info } = L, p = Math.round(S.slD)
+  E.lupe.classList.toggle('big', k > 0.5)
+  E.lupeClaim.render(info, p, { x: B.x + 22, y: B.y + 60, alpha: 1, colored: p >= S.slC, unit: L.unit })
   // Mini-Zahlengerade: Ausschnitt 4 Einheiten der Stelle slP (stetig → Zoom)
-  const w = 4 * 10 ** S.slP, x0 = Math.max(info.R - w / 2, 0)
+  const w = 4 * 10 ** S.slP, x0 = Math.max(info.value - w / 2, 0)
   const Lx = B.x + 30, Rx = B.x + B.w - 34, kx = (Rx - Lx) / w
   const V = { x0, x1: x0 + w, kx, L: Lx, R: Rx, sx: v => Lx + (v - x0) * kx }
-  const ay = B.y + 132
+  const ay = B.y + 128
   E.lupeAxis.render(V, { at: ay, draw: 1, ticks: 1, alpha: 1 })
   const a = clamp(V.sx(info.lo), Lx, Rx), b = clamp(V.sx(info.hi), Lx, Rx)
   set(E.lupeBand, { x: a, y: ay - 26, width: Math.max(0, b - a) })
-  E.lupeBracket.render(V, { R: info.R, p, y0: ay - 34, y1: ay - 4, alpha: S.slB, text: `1 ${placeName(p)}` })
+  E.lupeBracket.render(V, { ...claimRange(info, p), y0: ay - 34, y1: ay - 4, alpha: S.slB,
+    text: claimLabel(info, p), above: true })
   E.lupeVerdict.textContent = verdict(info, p)
   op(E.lupeVerdict, S.slV)
+}
+
+// Tafel „Ziffern vergleichen" (erstes Rechteck)
+function renderCompare(S) {
+  op(E.cmpPanel, S.dcA)
+  if (S.dcA <= 0.002) return
+  const B = LUPE_BOX, D = COMPARE[Math.round(S.dcI)], p = Math.round(S.dcP)
+  E.cmp.render(D, { x: B.x + 120, y: B.y + 64, gap: 34, alpha: 1, p, pointerA: S.dcV, colorFrom: S.dcC })
+  E.cmpVerdict.textContent = compareVerdict(D.cmp, p)
+  op(E.cmpVerdict, S.dcV)
 }

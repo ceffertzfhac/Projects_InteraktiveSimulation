@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.9.0</span>
+        <span class="version">v0.10.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -41,6 +41,23 @@ window.MathJax = {
          title="Lehr- und Forschungsgebiet Physik – FB 8">
   </div>
   <div class="topbar-right">
+    <button class="info-btn" popovertarget="limits_pop" title="Bekannte Vereinfachungen"
+            aria-label="Bekannte Vereinfachungen">i</button>
+    <div id="limits_pop" class="limits-pop" popover>
+      <h4>Bekannte Vereinfachungen</h4>
+      <ul>
+        <li><b>Stoppuhr mit Sekundenzeiger</b> (Division): Der Zeiger gleitet. Echte Uhren springen
+          meist jede Sekunde weiter – dann zeigt die Uhr die angefangene Sekunde (2 s heißt
+          2 s ≤ t &lt; 3 s). Hier wird wie bei jedem Messwert auf ± ½ Einheit gelesen.</li>
+        <li><b>Digitale Stoppuhr:</b> Auch sie schneidet in der Realität meist ab; hier ebenfalls
+          ± ½ der letzten Stelle.</li>
+        <li><b>Handstoppung ohne Reaktionszeit:</b> Person B drückt genau im richtigen Moment.</li>
+        <li><b>Faustregel:</b> Die letzte angegebene Ziffer kann um mehr als ± ½ unsicher sein –
+          das Band ist dann einige Klammern breit.</li>
+        <li><b>Ziffernvergleich</b> von Minimum und Maximum versagt an Übertragsgrenzen
+          (z. B. 9,98 und 10,03). Dann hilft das Bild mit Band und Klammer.</li>
+      </ul>
+    </div>
     <div class="theme-toggle-wrap">
       <span style="font-size:.82rem">🌙</span>
       <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
@@ -172,8 +189,9 @@ window.MathJax = {
         <h3>Fläche \(A = l \cdot b\)</h3>
         <div class="formula">\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m</div>
         <div class="formula">\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</div>
-        <p>Der Taschenrechner meldet \(l \cdot b =\) <span class="dyn" data-dyn="cmb.valueStr"></span>&thinsp;m². Doch wie viele Stellen
-          von \(A\) sind wirklich gesichert?</p>
+        <p>Der Taschenrechner zeigt \(l \cdot b =\) <span class="dyn" data-dyn="cmb.valueStr"></span>&thinsp;m² –
+          mit <b><span class="dyn" data-dyn="cmb.calcDec"></span></b>. \(l\) und \(b\) haben aber nur je
+          4 signifikante Stellen. Wie viele Stellen von \(A\) sind sinnvoll?</p>
       </div>
 
       <div class="slide-card pos-r" data-card="corner">
@@ -186,33 +204,47 @@ window.MathJax = {
       <div class="slide-card pos-r" data-card="vary">
         <div class="kicker">Mögliche Flächen</div>
         <h3>Jede Ecke im Kreuzungsfeld ist möglich</h3>
-        <p>Für jede mögliche Ecke liefert \(l \cdot b\) eine andere Fläche. Welche ist die
-          kleinste, welche die größte?</p>
+        <p>Für jede mögliche Ecke liefert \(l \cdot b\) eine andere Fläche. Welches ist die
+          <b>kleinstmögliche</b>, welches die <b>größtmögliche</b> Fläche?</p>
       </div>
 
       <div class="slide-card pos-r" data-card="range">
         <div class="kicker dyn" data-dyn="cmb.kicker"></div>
         <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.b"></span>&thinsp;m</h3>
         <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
-        <div class="formula" data-r="min">kleinste: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
-          = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Alo"></span>&thinsp;m²</div>
+        <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
+          = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AloH"></span>&thinsp;m²</div>
         <div class="formula" data-r="four">Alle vier Ecken probiert: Die gemischten
           \(l_{\min} \cdot b_{\max}\) und \(l_{\max} \cdot b_{\min}\) liegen dazwischen.</div>
-        <div class="formula" data-r="max">größte: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
-          = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Ahi"></span>&thinsp;m²</div>
-        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> – die letzte Ziffer ist unsicher</div>
+        <div class="formula" data-r="max">größtmöglich: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
+          = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AhiH"></span>&thinsp;m²</div>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> –
+          \(A_{\min}\) und \(A_{\max}\) unterscheiden sich ab der <span class="dyn" data-dyn="cmb.uncOrd"></span> Stelle</div>
       </div>
 
-      <div class="slide-card pos-r" data-card="adig">
-        <div class="kicker">Welche Stelle ist unsicher?</div>
-        <h3>Stelle für Stelle hineinzoomen</h3>
-        <p>Die Klammer ist <b>eine Einheit</b> der betrachteten Stelle breit, das Band ist das
-          Intervall von \(A_{\min}\) bis \(A_{\max}\). Band nur ein Bruchteil der Klammer:
-          Ziffer <b>gesichert</b>. Etwa so breit oder breiter: <span class="unc-word">unsicher</span>.
-          Vielfach breiter: <b>bedeutungslos</b>.</p>
-        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² – <span class="dyn" data-dyn="cmb.sig"></span> wie \(l\) und \(b\)</div>
-        <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
-          die letzte Ziffer wirklich ist – mal eine halbe, mal einige Einheiten.</p>
+      <div class="slide-card pos-r" data-card="cmp">
+        <div class="kicker">Ziffern vergleichen</div>
+        <h3>Wo unterscheiden sich \(A_{\min}\) und \(A_{\max}\)?</h3>
+        <p>Wir lesen beide Ergebnisse Ziffer für Ziffer von links. Solange sie übereinstimmen,
+          ist die Ziffer <b>sicher</b>. Die <b>erste abweichende</b> Ziffer ist
+          <span class="unc-word">unsicher</span> – dort hört man auf. Alle Ziffern dahinter sind
+          <span class="ghost-word">sinnlos</span>.</p>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² – <span class="dyn" data-dyn="cmb.sig"></span>, die letzte ist unsicher</div>
+      </div>
+
+      <div class="slide-card pos-r" data-card="howmany">
+        <div class="kicker">Im Bild · wie viele Stellen gebe ich an?</div>
+        <h3>Band gegen Klammer</h3>
+        <p><span class="key-band">Band</span>: alle möglichen Flächen von \(A_{\min}\) bis
+          \(A_{\max}\) – das gibt die Messung her.</p>
+        <p><span class="key-bracket">Gestrichelte Klammer</span>: das Rundungsintervall einer Angabe
+          (± ½ Einheit ihrer letzten Stelle) – das verspricht die Angabe.</p>
+        <p>Klammer viel breiter als das Band: zu wenige Stellen, die Angabe <b>verschenkt Wissen</b>.
+          Band viel breiter als die Klammer: zu viele Stellen, die Angabe <b>täuscht Genauigkeit vor</b>.
+          Richtig ist die Stelle, an der Band und Klammer etwa gleich groß sind.</p>
+        <div class="formula" data-r="res">Weiteres Hineinzoomen ist sinnlos. Die Unsicherheit liegt auf der
+          <span class="dyn" data-dyn="cmb.uncOrd"></span> Stelle: \(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m²</div>
+        <p class="note">Genau gleich groß sind sie selten – die letzte Ziffer darf um einige Einheiten wackeln.</p>
       </div>
 
       <!-- K · Kreis -->
@@ -227,18 +259,18 @@ window.MathJax = {
       <div class="slide-card pos-r" data-card="umfang">
         <div class="kicker">Umfang \(U = 2 \cdot \pi \cdot r\)</div>
         <h3>Umfang aus Radius bestimmen</h3>
-        <div class="formula" data-r="max">größter: \(U_{\max} = 2\pi \cdot r_{\max}\)<br>= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m = <span class="dyn" data-dyn="circ.Uhi"></span>&thinsp;m</div>
-        <div class="formula" data-r="min">kleinster: \(U_{\min} = 2\pi \cdot r_{\min}\)<br>= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m = <span class="dyn" data-dyn="circ.Ulo"></span>&thinsp;m</div>
-        <div class="formula" data-r="res">\(U =\) <span class="dyn res" data-dyn="circ.U"></span>&thinsp;m – nur \(r\) begrenzt: <span class="dyn" data-dyn="circ.sig"></span></div>
-        <p class="note">2 und π sind exakt – unendlich viele Stellen.</p>
+        <div class="formula" data-r="max">größtmöglich: \(U_{\max} = 2\pi \cdot r_{\max}\)<br>= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UhiH"></span>&thinsp;m</div>
+        <div class="formula" data-r="min">kleinstmöglich: \(U_{\min} = 2\pi \cdot r_{\min}\)<br>= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UloH"></span>&thinsp;m</div>
+        <div class="formula" data-r="res">\(U =\) <span class="dyn res" data-dyn="circ.U"></span>&thinsp;m – Unsicherheit auf der <span class="dyn" data-dyn="circ.UOrd"></span> Stelle</div>
+        <p class="note">2 und π sind exakt – nur \(r\) begrenzt (<span class="dyn" data-dyn="circ.sig"></span>).</p>
       </div>
 
       <div class="slide-card pos-r" data-card="frange">
         <div class="kicker">Flächeninhalt \(A = \pi \cdot r^2\)</div>
         <h3>Fläche aus Radius bestimmen</h3>
-        <div class="formula" data-r="max">größte: \(A_{\max} = \pi \cdot r_{\max}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)² = <span class="dyn" data-dyn="circ.Ahi"></span>&thinsp;m²</div>
-        <div class="formula" data-r="min">kleinste: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn" data-dyn="circ.Alo"></span>&thinsp;m²</div>
-        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="circ.A"></span>&thinsp;m² – nur \(r\) begrenzt: <span class="dyn" data-dyn="circ.sig"></span></div>
+        <div class="formula" data-r="max">größtmöglich: \(A_{\max} = \pi \cdot r_{\max}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AhiH"></span>&thinsp;m²</div>
+        <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AloH"></span>&thinsp;m²</div>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="circ.A"></span>&thinsp;m² – Unsicherheit auf der <span class="dyn" data-dyn="circ.AOrd"></span> Stelle</div>
         <p class="note">π und der Exponent 2 sind exakt.</p>
       </div>
 
@@ -249,8 +281,9 @@ window.MathJax = {
         <div class="formula">Grenzen: \(A_{\min} = l_{\min} \cdot b_{\min}, \quad A_{\max} = l_{\max} \cdot b_{\max}\)</div>
         <div class="formula">\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}68\,\text{m}^2 \qquad
           U = 2 \cdot \pi \cdot 3{,}3\,\text{m} = 21\,\text{m}\)</div>
-        <p>Die letzte angegebene Ziffer ist <span class="unc-word">unsicher</span>, alle davor sind
-          gesichert. Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
+        <p>Die erste Ziffer, in der sich \(A_{\min}\) und \(A_{\max}\) unterscheiden, ist die
+          <span class="unc-word">unsichere</span> – dort hört man auf. Alle davor sind sicher, alle
+          dahinter sinnlos. Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
           begrenzen die Genauigkeit nicht.</p>
       </div>
 
@@ -328,9 +361,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_digA">
         <div class="kicker">Person A · welche Stelle ist unsicher?</div>
         <h3>Stelle für Stelle hineinzoomen</h3>
-        <p>Die Klammer ist <b>eine Einheit</b> der Stelle breit, das Band ist das Intervall der
-          möglichen \(v\). Einer: Band nur halb so breit → <b>gesichert</b>. Zehntel: Band
-          fünfmal breiter → <span class="unc-word">unsicher</span>. Hundertstel: bedeutungslos.</p>
+        <p>Die Klammer ist das Rundungsintervall der Angabe, das Band das Intervall der
+          möglichen \(v\). „9": Klammer 2× breiter → verschenkt Wissen. „9,2": Band 5× breiter →
+          letzte Ziffer <span class="unc-word">unsicher</span>. „9,22": <span class="ghost-word">sinnlos</span>.</p>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.aV"></span> – 2 Stellen wie \(s\), die 2 ist unsicher</div>
         <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
           die letzte Ziffer wirklich ist.</p>
@@ -435,8 +468,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="a_dig">
         <div class="kicker">Welche Stelle ist unsicher?</div>
         <h3>Stelle für Stelle</h3>
-        <p>Einer: Band nur 0,1 Einer breit → <b>gesichert</b>. Zehntel: etwa 1 Zehntel breit →
-          <span class="unc-word">unsicher</span>. Hundertstel: 10-mal breiter → bedeutungslos.</p>
+        <p>„2": Klammer 10× breiter → verschenkt Wissen. „1,7": Band ≈ Klammer → letzte Ziffer
+          <span class="unc-word">unsicher</span>. „1,65": Band 10× breiter →
+          <span class="ghost-word">sinnlos</span>.</p>
         <div class="formula" data-r="res">\(L =\) <span class="dyn res" data-dyn="add.rounded"></span>&thinsp;m – eine Nachkommastelle wie A</div>
       </div>
 

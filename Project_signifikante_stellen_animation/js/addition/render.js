@@ -5,8 +5,7 @@
 
 import { svgEl, viewOf, createAxis, clamp } from '../../../shared/js/step-kit.js'
 import { fmt } from '../../../shared/js/format.js'
-import { placeName } from '../model.js'
-import { createDigitRow, createUnitBracket, verdict } from '../stellen.js'
+import { createClaimRow, createUnitBracket, verdict, claimLabel, claimRange } from '../stellen.js'
 import {
   xOf, K, LANE, ROD_H, TAPE, LOUPE, TABLE, AXIS_Y, BAND_Y, DIGITS, CAND_Y, VERDICT_Y, B_TRUE,
 } from './constants.js'
@@ -146,7 +145,7 @@ export function initAddStage(svg) {
   E.bandLbl = text(E.root, 'band-label', { 'text-anchor': 'middle' }, 'mögliche Gesamtlängen')
   E.bracket = createUnitBracket(E.root)
   E.cBracket = createUnitBracket(E.root)
-  E.digits = createDigitRow(E.root, { size: DIGITS.size })
+  E.digits = createClaimRow(E.root, { size: DIGITS.size })
   E.cand = text(E.root, 'cand-big', { x: DIGITS.x, y: DIGITS.y })
   E.cands = CANDS.map((c, i) => text(E.root, `cand-small ${c.ok ? 'ok' : 'bad'}`,
     { x: DIGITS.x + 130 * i, y: CAND_Y }, `${c.text} ${c.ok ? '✓' : '✗'}`))
@@ -205,12 +204,9 @@ function renderEval(S, V) {
 
   // Stellenanalyse der Summe
   const p = Math.round(S.slD)
-  E.digits.render(LUPE.info, LUPE.layout, {
-    x: DIGITS.x, y: DIGITS.y, alpha: S.slA, pointerP: p, pointerA: S.slV,
-    colorFrom: S.slC, ghostA: S.slG, suffixA: S.slS, suffixText: LUPE.suffix,
-  })
-  E.bracket.render(V, { R: LUPE.info.R, p, y0: BAND_Y - 8, y1: BAND_Y + 22, alpha: S.slB,
-    text: `1 ${placeName(p)}` })
+  E.digits.render(LUPE.info, p, { x: DIGITS.x, y: DIGITS.y, alpha: S.slA, colored: p >= S.slC, unit: 'm' })
+  E.bracket.render(V, { ...claimRange(LUPE.info, p), y0: BAND_Y - 8, y1: BAND_Y + 22, alpha: S.slB,
+    text: claimLabel(LUPE.info, p) })
   E.verdict.textContent = S.cdV > S.slV ? c.verdict : verdict(LUPE.info, p)
   op(E.verdict, Math.max(S.cdV, S.slV))
 

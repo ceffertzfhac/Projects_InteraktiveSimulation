@@ -107,7 +107,19 @@ export function ratioStr(r) {
   return fmt(q, -Math.floor(Math.log10(q)))
 }
 
-export function placeAnalysis(text, lo, hi) {
+// Angabe „bis zur Stelle p": x auf 10^p gerundet, mit passender Schreibweise
+// (6,686… bei p = −2 → „6,69"; 21,0… bei p = 1 → „2 · 10¹", nicht „20").
+export function roundAtPlace(x, p) {
+  const u = 10 ** p, r = Math.round(x / u) * u
+  if (p <= 0) return { text: fmt(r, -p), value: r, lo: r - u / 2, hi: r + u / 2 }
+  const e = Math.floor(Math.log10(Math.abs(r)))
+  return { text: formatSig(r, e - p + 1), value: r, lo: r - u / 2, hi: r + u / 2 }
+}
+
+// value = Wert, um den die Angaben gerundet werden (Taschenrechner-Ergebnis);
+// je Stelle: Angabe bis dorthin („claim"), ihr Rundungsintervall (die Klammer)
+// und das Verhältnis Band / Klammer.
+export function placeAnalysis(text, lo, hi, value = (lo + hi) / 2) {
   const m = String(text).match(/^(\d+(?:,\d+)?)(?: · 10([⁰¹²³⁴⁵⁶⁷⁸⁹]+))?$/)
   if (!m) throw new Error(`Ergebnis „${text}" nicht lesbar`)
   const mant = m[1], sci = !!m[2]
@@ -120,9 +132,57 @@ export function placeAnalysis(text, lo, hi) {
   const cat = p => (p > pLast ? 'sure' : p === pLast ? 'unc' : 'ghost')
   const places = digits.map(d => d.p).concat(pLast - 1).map(p => {
     const ratio = (hi - lo) / 10 ** p
-    return { p, cat: cat(p), name: placeName(p), ratio, ratioText: ratioStr(ratio) }
+    const c = roundAtPlace(value, p), dec = Math.max(0, 1 - p)
+    return {
+      p, cat: cat(p), name: placeName(p), ratio, ratioText: ratioStr(ratio),
+      claim: c.text, cLo: c.lo, cHi: c.hi, cIv: `[${fmt(c.lo, dec)} ; ${fmt(c.hi, dec)})`,
+    }
   })
-  return { text, R, lo, hi, digits, pLast, sci, e, places }
+  return { text, R, lo, hi, value, digits, pLast, sci, e, places }
+}
+
+// ── Ziffernvergleich (Schulmethode) ──────────────────────────────────────────
+// Kleinstes und größtes Ergebnis Ziffer für Ziffer (nach Stellenwert bündig)
+// vergleichen: gleiche Ziffern sind sicher, die erste abweichende ist die
+// unsichere, alle dahinter sind sinnlos. Strings wie „6,68352875".
+// Hinweis: An Übertragsgrenzen (9,97 / 10,02) versagt der Vergleich — die
+// Beispiele der Animation sind so gewählt, daß er die Faustregel bestätigt.
+function digitsOf(str) {
+  const [ip, fp = ''] = String(str).split(',')
+  return new Map([...ip].map((ch, i) => [ip.length - 1 - i, ch])
+    .concat([...fp].map((ch, i) => [-1 - i, ch])))
+}
+export function digitCompare(loStr, hiStr) {
+  const a = digitsOf(loStr), b = digitsOf(hiStr)
+  const top = Math.max(...a.keys(), ...b.keys())
+  let pDiff = -Infinity
+  for (let p = top; p >= Math.min(...a.keys(), ...b.keys()); p--) {
+    if ((a.get(p) ?? '0') !== (b.get(p) ?? '0')) { pDiff = p; break }
+  }
+  const cat = p => (p > pDiff ? 'sure' : p === pDiff ? 'unc' : 'ghost')
+  const row = str => {
+    const [ip, fp = ''] = String(str).split(',')
+    const cells = [...ip].map((ch, i) => ({ ch, p: ip.length - 1 - i }))
+    if (fp) cells.push({ ch: ',', comma: true })
+    return cells.concat([...fp].map((ch, i) => ({ ch, p: -1 - i })))
+      .map(c => ({ ...c, cat: c.comma ? null : cat(c.p) }))
+  }
+  return { pDiff, lo: row(loStr), hi: row(hiStr) }
+}
+
+// HTML für die Folienkarten: zusammenhängende Ziffern gleicher Kategorie als <span>
+export function compareHtml(cells) {
+  let html = '', curCat = null
+  for (const c of cells) {
+    const k = c.comma ? curCat : c.cat
+    if (k !== curCat) {
+      if (curCat) html += '</span>'
+      html += `<span class="cmp-${k}">`
+      curCat = k
+    }
+    html += c.ch
+  }
+  return html + '</span>'
 }
 
 // ── Addition (Kapitel „Addition") ────────────────────────────────────────────

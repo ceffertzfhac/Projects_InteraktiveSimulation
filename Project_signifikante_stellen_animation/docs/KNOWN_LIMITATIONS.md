@@ -19,12 +19,24 @@ zentral in `BACKLOG.md`.
 - **Kapitel „Division": idealisierte Zeitmessung** — Person B stoppt ohne Reaktionszeit
   (Folie sagt es), die Anzeige der Digitaluhr wird wie alle Messwerte als ±½ der
   letzten Stelle gelesen; reale Stoppuhren schneiden meist ab (1,42 s → [1,42 ; 1,43) s).
-  Bewußt einheitliche Konvention mit Kapitel 1. → FSS4
+  Bewußt einheitliche Konvention mit Kapitel 1. Der Sekundenzeiger gleitet (echte Uhren
+  springen; PO 2026-10-02: bleibt so, da sonst neue Fragen) — im Info-Knopf „Bekannte
+  Vereinfachungen" der Animation erklärt. → FSS4
 - **„Unsicher" nach Faustregel, nicht nach Schwellwert** — welche Ziffer als letzte
   (unsichere) gilt, bestimmt die Faustregel (Stellenzahl des ungenauesten Faktors). Das
   Intervall ist in dieser Stelle je nach Rechnung 0,5 bis 5 Einheiten breit (z. B.
   1 · 10¹ m/s: 0,5 Zehner; 6,686 m²: 5 Tausendstel), eine Stelle davor zehnmal weniger.
   Ein fester Schwellwert existiert nicht; die Folien sagen das ausdrücklich. → FSS5
+- **Ziffernvergleich an Übertragsgrenzen** — „erste abweichende Ziffer von Minimum und
+  Maximum" versagt, wenn das Intervall eine Übertragsgrenze überdeckt (9,98 / 10,03; auch
+  Division Person A: 8,97 / 9,47 → schon die erste Ziffer verschieden, Faustregel sagt 9,2).
+  Die Rechteck- und Kreisbeispiele sind so gewählt, daß Vergleich und Faustregel
+  übereinstimmen (Vitest). Hinweis im Info-Knopf. → FSS6
+- **Urteil der Lupe folgt der Faustregel, nicht einem Schwellwert** — dasselbe Verhältnis
+  kann je nach Beispiel verschieden beurteilt werden: „6,69" (Klammer 2× breiter) heißt
+  „verschenkt Wissen", „21 m" (Klammer 2× breiter) „letzte Ziffer unsicher ✓". Grund: Beim
+  Rechteck ist die nächste Angabe 6,686 (Band 5×) noch vertretbar, beim Kreis 20,7 (Band 6×)
+  nicht mehr. Siehe Eintrag „Unsicher nach Faustregel". → FSS6
 - **Kapitel Multiplikation startet aus dem Endzustand der Grundlagen** — dessen Schritte
   werden beim Kapitelwechsel still vorab abgespielt (`ui.js multEngine`); Änderungen an
   den Grundlagen wirken sich daher auf den Startzustand der Multiplikation aus. → FSS5

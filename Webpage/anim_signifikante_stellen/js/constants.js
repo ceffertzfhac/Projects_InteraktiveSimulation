@@ -54,8 +54,8 @@ export const RODS_LEVEL = [[ROD_TRUE, 3.38, 2.64], [ROD_TRUE, 3.07], [ROD_TRUE, 
 // Zweite Länge b (wahr ≈ 2,1432 m): 2 · 2,1 · 2,14 · 2,143 — ebenfalls keine runde Zahl
 export const B_FINAL = '2,143'
 // Gröber gemessen: das Ergebnis verliert Stufe für Stufe eine Stelle
-// (6,686 → 6,68 → 6,6 → 6), egal welcher Faktor der ungenauere ist.
-export const RETURN_PATH = [['3,120', '2,14'], ['3,1', '2,143'], ['3', '2']]
+// (6,686 → 6,68 → 6). PO 2026-10-02: Beispiel 3,1 · 2,143 gestrichen.
+export const RETURN_PATH = [['3,120', '2,14'], ['3', '2']]
 export const MIXES = []
 // Kreis: gemessener Radius (wahr ≈ 3,26 m) — erst 3,3 (3 gesichert, 3 unsicher), dann nur 3
 export const R_TEXTS = ['3,3', '3']
@@ -96,3 +96,7 @@ export const SIG_REPS = [
 
 // ── „Welche Stelle ist unsicher?" (Teil R/K): Tafel rechts unten ─────────────
 export const LUPE_BOX = { x: 756, y: 478, w: 408, h: 178 }
+// Erklärschritt „Wie viele Stellen gebe ich an?": dieselbe Tafel groß links (Karte rechts)
+export const LUPE_BIG = { x: 44, y: 150, w: 680 }
+// Taschenrechner im Rechteck (Schritt „Das Rechteck")
+export const CALC = { x: 478, y: 236, w: 212, h: 272 }

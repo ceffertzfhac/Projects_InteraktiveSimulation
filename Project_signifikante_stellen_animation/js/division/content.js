@@ -5,7 +5,6 @@
 
 import { fmt } from '../../../shared/js/format.js'
 import { speedExample, exactStr, placeAnalysis } from '../model.js'
-import { rowLayout, suffixOf } from '../stellen.js'
 import { READ, ROWS } from './constants.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
@@ -17,10 +16,10 @@ const iv = m => `[${fmt(m.lo, m.decimals + 1)} ; ${fmt(m.hi, m.decimals + 1)})`
 // Zeilen A, B, Kombination
 export const ROW = ROWS.map(([sk, tk]) => {
   const e = speedExample(READ[sk], READ[tk])
-  const info = placeAnalysis(e.rounded, e.v.lo, e.v.hi)
+  const info = placeAnalysis(e.rounded, e.v.lo, e.v.hi, e.v.value)
   const vDec = Math.max(0, -info.pLast) + 1
   return {
-    e, info, layout: rowLayout(info), suffix: suffixOf(info, 'm/s'),
+    e, info,
     s: `${e.s.text} m`, t: `${e.t.text} s`, v: `${e.rounded} m/s`,
     sIv: `${iv(e.s)} m`, tIv: `${iv(e.t)} s`,
     vIv: `[${fmt(e.v.lo, vDec)} ; ${fmt(e.v.hi, vDec)}) m/s`,

@@ -10,9 +10,10 @@
 //  Z  Zahlengerade: „3" als Intervall, letzte Ziffer unsicher (± ½ Einheit);
 //     3,0 / 3,00 / 3,000 — je Zoom ×10, neue Teilung; signifikante Stellen, führende Nullen
 //  ── Kapitel Multiplikation ──
-//  R  Fläche: Ecken-Test (l_min·b_min … l_max·b_max), welche Stelle ist unsicher?
-//  R  Fläche: zweite Achse, Rechteck, Zoom auf die Ecke, mögliche Flächen
-//  C  Gröber gemessen (b, dann l, dann beide: 6,686 → 6,68 → 6,6 → 6) · K Kreis · E Merksatz
+//  R  Fläche: zweite Achse, Rechteck + Taschenrechner, Zoom auf die Ecke, mögliche Flächen,
+//     Ecken-Test (l_min·b_min … l_max·b_max), Ziffern vergleichen (erste abweichende Ziffer
+//     = unsichere), groß: wie viele Stellen gebe ich an? (Band gegen Klammer)
+//  C  Gröber gemessen (b, dann beide: 6,686 → 6,68 → 6) · K Kreis · E Merksatz
 
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
 import {
@@ -21,8 +22,8 @@ import {
   B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
-import { parseMeasured, circleExample, exactStr } from './model.js'
-import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE } from './content.js'
+import { parseMeasured, circleExample } from './model.js'
+import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE } from './content.js'
 import { HITS } from './state.js'
 import { scanPlaces } from './stellen.js'
 
@@ -107,7 +108,25 @@ export function buildSteps(S, DOM) {
       full, hold: full ? 1.4 : 1,
       zoom: (t2, p) => t2.to(S, { slP: p, duration: 0.9, ease: EASE.cam }, '>0.1'),
     })
-    tl.to(S, { slB: 1, duration: 0.4 })               // Schluß: Klammer der letzten Stelle
+  }
+
+  // Tafel „Ziffern vergleichen": Spaltenzeiger von der höchsten Stelle bis eine hinter
+  // die erste abweichende; danach sind alle Ziffern eingefärbt.
+  const compareScan = (tl, idx, at) => {
+    const D = COMPARE[idx], { pDiff } = D.cmp
+    const list = D.places.filter(p => p >= pDiff - 1)
+    tl.set(S, { dcI: idx, dcC: 99, dcV: 0, dcP: list[0] }, at)
+    tl.to(S, { dcA: 1, duration: 0.4 })
+    list.forEach((p, n) => {
+      if (n) tl.to(S, { dcV: 0, duration: 0.2 })
+      tl.set(S, { dcP: p })
+      tl.to(S, { dcV: 1, duration: 0.35 })
+      tl.set(S, { dcC: p })
+      tl.to(S, { dcV: 1, duration: p === pDiff ? 1.6 : 0.9 })
+    })
+    tl.to(S, { dcV: 0, duration: 0.25 })
+    tl.set(S, { dcC: -99, dcP: pDiff })                 // alles eingefärbt, Zeiger auf der unsicheren
+    tl.to(S, { dcV: 1, duration: 0.4 })
   }
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
@@ -321,13 +340,12 @@ export function buildSteps(S, DOM) {
     db.show(tl, textIndex(B_FINAL), { at: '<0.15' })
     tl.to(S, { aSym: 1, duration: 0.6 }, '<')
     deck.show(tl, C.area, '<')
-    // „Der Taschenrechner meldet …" — derselbe Wert erscheint an der Ecke
-    tl.set(S, { roD: (exactStr(L[3].value * B.value).split(',')[1] ?? '').length }, '>0.3')
-    tl.to(S, { roA: 1, duration: 0.5 })
+    // Taschenrechner: alle Stellen des Produkts — mehr, als die Messung hergibt
+    tl.to(S, { calcA: 1, duration: 0.6 }, '>0.3')
   }, 5)
 
   step('Zoom auf die Ecke', tl => {
-    tl.to(S, { roA: 0, duration: 0.3 })
+    tl.to(S, { calcA: 0, duration: 0.3 })
     cam.to(tl, camForExample(L[3], B), { duration: T.camLong + 0.6, at: '<' })
     tl.to(S, { stripA: 0.85, aSym: 0, duration: 1 }, '<')
     deck.show(tl, C.corner, '<0.4')
@@ -367,7 +385,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.3')
   }
 
-  step('Kleinste und größte Fläche', tl => {
+  step('Kleinstmögliche und größtmögliche Fläche', tl => {
     clearHits(tl)
     tl.set(S, { cmb: 0 }, '<')
     hideRows(tl, C.range, '<')
@@ -375,11 +393,22 @@ export function buildSteps(S, DOM) {
     bounds(tl, L[3], B, C.range, true)
   }, 6)
 
-  step('Welche Stelle ist unsicher?', tl => {
-    deck.show(tl, C.adig)
-    lupeScan(tl, 0, true, '<')
-    reveal(tl, C.adig, 'res', '>')
-  }, 7)
+  step('Ziffern vergleichen', tl => {
+    hideRows(tl, C.cmp, '<')
+    deck.show(tl, C.cmp)
+    compareScan(tl, 0, '<')
+    reveal(tl, C.cmp, 'res', '>')
+  }, 5)
+
+  // Erklärschritt: die Lupe groß, Angaben 7 → 6,7 → 6,69 → 6,686 → 6,6862 (Band gegen Klammer)
+  step('Wie viele Stellen gebe ich an?', tl => {
+    hideRows(tl, C.howmany, '<')
+    tl.to(S, { dcA: 0, dim: 1, duration: 0.6 })
+    deck.show(tl, C.howmany, '<')
+    tl.set(S, { slBig: 1 }, '<')
+    lupeScan(tl, 0, true, '>0.1')
+    reveal(tl, C.howmany, 'res', '>0.2')
+  }, 8)
 
   // ── C · Gröber gemessen ────────────────────────────────────────────────────
   let cur = { l: L[3], b: B }
@@ -396,7 +425,8 @@ export function buildSteps(S, DOM) {
   }
   const example = (title, [lt, bt], cmb, camTarget) => step(title, tl => {
     clearHits(tl)
-    tl.to(S, { uTagA: 0, uA: 0, slA: 0, duration: 0.3 }, '<')
+    tl.to(S, { uTagA: 0, uA: 0, slA: 0, dcA: 0, dim: 0, duration: 0.3 }, '<')
+    tl.set(S, { slBig: 0 }, '>')
     deck.show(tl, C.range, '<')
     swapDyn(tl, 'cmb', cmb, '<')
     hideRows(tl, C.range, '<')
@@ -487,7 +517,7 @@ export function buildSteps(S, DOM) {
 
   // ── E · Merksatz ───────────────────────────────────────────────────────────
   step('Merke', tl => {
-    tl.to(S, { dim: 1, duration: 0.8 })
+    tl.to(S, { dim: 1, slA: 0, duration: 0.8 })
     deck.show(tl, C.rule, '<0.2')
   }, 8)
 

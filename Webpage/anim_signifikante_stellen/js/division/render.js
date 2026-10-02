@@ -11,8 +11,8 @@ import {
   LOUPE, LOUPE_TAPE, LOUPE_DIAL, TABLE, V_AXIS_Y, BAND_Y, FRAC, DIGITS, VERDICT_Y, READ,
 } from './constants.js'
 import { ROW } from './content.js'
-import { parseMeasured, placeName } from '../model.js'
-import { createDigitRow, createUnitBracket, verdict } from '../stellen.js'
+import { parseMeasured } from '../model.js'
+import { createClaimRow, createUnitBracket, verdict, claimLabel, claimRange } from '../stellen.js'
 
 const E = {}
 const DEG = Math.PI / 180
@@ -236,7 +236,7 @@ export function initSpeedStage(svg) {
   })
   E.live = svgEl('line', { class: 'v-live' }, E.root)
   E.hits = [0, 1, 2, 3].map(() => svgEl('circle', { class: 'v-hit', r: 5 }, E.root))
-  E.digits = createDigitRow(E.root, { size: DIGITS.size })
+  E.digits = createClaimRow(E.root, { size: DIGITS.size })
   E.digitCap = text(E.root, 'digit-cap', { x: DIGITS.x, y: DIGITS.y - DIGITS.size - 6 })
   E.verdict = text(E.root, 'verdict', { x: 110, y: VERDICT_Y })
   return E.root
@@ -408,17 +408,14 @@ function renderBands(S, V) {
   })
 }
 
-// „Welche Stelle ist unsicher?": Ziffernzeile, Klammer „1 Einheit", Urteil
+// „Welche Stelle ist unsicher?": Angabe bis zur Stelle, ihre Klammer, Urteil
 function renderStellen(S, V) {
   const i = Math.round(S.slI), r = ROW[i], p = Math.round(S.slD)
-  E.digits.render(r.info, r.layout, {
-    x: DIGITS.x, y: DIGITS.y, alpha: S.slA, pointerP: p, pointerA: S.slV,
-    colorFrom: S.slC, ghostA: S.slG, suffixA: S.slS, suffixText: r.suffix,
-  })
+  E.digits.render(r.info, p, { x: DIGITS.x, y: DIGITS.y, alpha: S.slA, colored: p >= S.slC, unit: 'm/s' })
   E.digitCap.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: welche Stelle ist unsicher?`
   op(E.digitCap, S.slA)
-  E.bracket.render(V, { R: r.info.R, p, y0: BAND_Y[i] - 8, y1: BAND_Y[i] + 22, alpha: S.slB,
-    text: `1 ${placeName(p)}` })
+  E.bracket.render(V, { ...claimRange(r.info, p), y0: BAND_Y[i] - 8, y1: BAND_Y[i] + 22, alpha: S.slB,
+    text: claimLabel(r.info, p), above: true })
   E.verdict.textContent = verdict(r.info, p)
   op(E.verdict, S.slV)
 }

@@ -4,7 +4,6 @@
 
 import { fmt } from '../../../shared/js/format.js'
 import { sumExample, placeAnalysis, exactStr } from '../model.js'
-import { rowLayout, suffixOf } from '../stellen.js'
 import { READ } from './constants.js'
 
 export const SUM = sumExample(READ.a, READ.b)
@@ -38,8 +37,8 @@ export const CANDS = [
 ]
 
 // Stellenanalyse der richtigen Summe
-const info = placeAnalysis(SUM.rounded, SUM.lo, SUM.hi)
-export const LUPE = { info, layout: rowLayout(info), suffix: suffixOf(info, 'm') }
+const info = placeAnalysis(SUM.rounded, SUM.lo, SUM.hi, SUM.value)
+export const LUPE = { info }
 
 // Folienzahlen
 export const ADD = {

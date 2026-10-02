@@ -1,5 +1,36 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.10.0 — 2026-10-02
+
+**Multiplikation didaktisch überarbeitet** (PO-Review 2026-10-02, → FSS6). Fachsprache nach
+LehrplanPLUS Bayern „sinnvolle Ziffern", Wikipedia „Signifikante Stellen": sichere Ziffern
++ eine unsichere Ziffer; die unsichere ist die erste, in der sich Minimum und Maximum
+unterscheiden.
+- „Das Rechteck": simulierter **Taschenrechner** (3,120 × 2,143 = 6,68616). Die Folie betont
+  die 5 Nachkommastellen gegenüber den 4 signifikanten Stellen der Messwerte.
+- „Mögliche Flächen": kleinst**mögliche** / größt**mögliche** Fläche.
+- Ecken-Test und Kreis: In *A*_min / *A*_max (bzw. *U*, Kreisfläche) sind die Ziffern gefärbt
+  – gleich (sicher), erste abweichende (unsicher, bernstein), dahinter (sinnlos, grau).
+- Neu **„Ziffern vergleichen"**: Tafel mit *A*_max, *A*_min, *l* · *b* bündig untereinander,
+  Spaltenzeiger von links bis zur ersten abweichenden Ziffer.
+- Neu **„Wie viele Stellen gebe ich an?"**: Die Lupe steht groß in der Bildmitte, die Szene
+  ist gedimmt. Angaben 7 → 6,7 → 6,69 → 6,686 → 6,6862 m², je mit Band (*A*_min … *A*_max) gegen
+  Klammer (Rundungsintervall der Angabe). Schluss: „Weiteres Hineinzoomen ist sinnlos. Die
+  Unsicherheit liegt auf der vierten Stelle."
+- Beispiel 3,1 · 2,143 gestrichen (Kette 6,686 → 6,68 → 6). Merke ergänzt.
+- **Lupe in allen Kapiteln** (Multiplikation, Division, Addition):
+  - Die Klammer ist jetzt das Rundungsintervall der Angabe bis zur betrachteten Stelle
+    („„6,69" steht für [6,685 ; 6,695)"), nicht mehr „1 Einheit".
+  - Statt Endergebnis mit Zeiger zeigt die Lupe die Angabe selbst. 6,686 auf eine Stelle ist
+    „7", nicht „6".
+  - Urteil als Faktor: „Klammer 2× breiter → verschenkt Wissen", „Band 5× breiter → letzte
+    Ziffer unsicher ✓", „Band 50× breiter → sinnlos (Scheingenauigkeit)".
+  - „bedeutungslos" heißt jetzt **„sinnlos"** (PO).
+- Info-Knopf „Bekannte Vereinfachungen" in der Topbar, u. a. gleitender Sekundenzeiger der
+  Stoppuhr (PO 2026-10-02: bleibt gleitend).
+- Modell: `roundAtPlace`, `digitCompare`, `compareHtml`; `placeAnalysis` liefert je Stelle
+  Angabe + Klammer (+ Vitest, 14 Tests).
+
 ## v0.9.0 — 2026-10-02
 
 **Neues Kapitel 4 „Addition"** (12 Schritte, → FSS1): Stab A (Maßband 0,1-m-Teilung,

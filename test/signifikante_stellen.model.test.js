@@ -3,7 +3,7 @@
 import { test, expect } from 'vitest'
 import {
   sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
-  quotientInterval, speedExample, placeAnalysis, sumExample,
+  quotientInterval, speedExample, placeAnalysis, sumExample, roundAtPlace, digitCompare, compareHtml,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -129,4 +129,34 @@ test('Addition: Nachkommastellen statt signifikanter Stellen', () => {
   expect(s.sigRule).toBe('2')                        // Faustregel der Multiplikation: falsch
   // „1,7" beschreibt das Intervall: Breite ≈ eine Einheit der letzten Stelle
   expect((s.hi - s.lo) / 0.1).toBeCloseTo(1.01, 12)
+})
+
+test('Ziffernvergleich: erste abweichende Ziffer von A_min/A_max ist die unsichere', () => {
+  const pd = (l, b) => { const e = areaExample(l, b); return digitCompare(e.loStr, e.hiStr).pDiff }
+  expect(pd('3,120', '2,143')).toBe(-3)            // 6,6835… / 6,6887… → 4. Stelle
+  expect(pd('3,120', '2,14')).toBe(-2)             // 6,660… / 6,683… → 3. Stelle
+  expect(pd('3', '2')).toBe(0)                     // 3,75 / 8,75 → 1. Stelle
+  expect(digitCompare('20,42', '21,05').pDiff).toBe(0)    // Kreis-U bei r = 3,3
+  // bestätigt in allen Beispielen der Animation die Faustregel
+  for (const [l, b] of [['3,120', '2,143'], ['3,120', '2,14'], ['3', '2']]) {
+    expect(pd(l, b)).toBe(placeAnalysis(areaExample(l, b).rounded, 0, 1).pLast)
+  }
+  expect(compareHtml(digitCompare('3,75', '8,75').hi))
+    .toBe('<span class="cmp-unc">8,</span><span class="cmp-ghost">75</span>')
+})
+
+test('Angabe bis zur Stelle p: Rundung und Rundungsintervall (Klammer)', () => {
+  expect(roundAtPlace(6.68616, 0).text).toBe('7')   // nicht „6"
+  expect(roundAtPlace(6.68616, -2).text).toBe('6,69')
+  const c = roundAtPlace(2 * Math.PI * 3.3, 1)
+  expect(c.text).toBe('2 · 10¹')
+  expect(c.lo).toBeCloseTo(15, 12)
+  expect(c.hi).toBeCloseTo(25, 12)
+  const e = areaExample('3,120', '2,143')
+  const pl = placeAnalysis(e.rounded, e.A.lo, e.A.hi, e.A.value).places
+  expect(pl.map(q => q.claim)).toEqual(['7', '6,7', '6,69', '6,686', '6,6862'])
+  expect(pl.map(q => q.cat)).toEqual(['sure', 'sure', 'sure', 'unc', 'ghost'])
+  expect(pl[3].ratio).toBeGreaterThan(1)           // Band breiter als die Klammer …
+  expect(pl[3].ratio).toBeLessThan(10)             // … aber nur einige Klammern
+  expect(pl[4].ratio).toBeGreaterThan(10)          // danach: sinnlos
 })
