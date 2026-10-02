@@ -28,10 +28,9 @@ zentral in `BACKLOG.md`.
   1 · 10¹ m/s: 0,5 Zehner; 6,686 m²: 5 Tausendstel), eine Stelle davor zehnmal weniger.
   Ein fester Schwellwert existiert nicht; die Folien sagen das ausdrücklich. → FSS5
 - **Ziffernvergleich an Übertragsgrenzen** — „erste abweichende Ziffer von Minimum und
-  Maximum" versagt, wenn das Intervall eine Übertragsgrenze überdeckt (9,98 / 10,03; auch
-  Division Person A: 8,97 / 9,47 → schon die erste Ziffer verschieden, Faustregel sagt 9,2).
-  Die Rechteck- und Kreisbeispiele sind so gewählt, daß Vergleich und Faustregel
-  übereinstimmen (Vitest). Hinweis im Info-Knopf. → FSS6
+  Maximum" versagt, wenn das Intervall eine Übertragsgrenze überdeckt (9,98 / 10,03).
+  Alle Beispiele sind so gewählt, daß Vergleich und Faustregel übereinstimmen (Vitest);
+  deshalb *t*_A = 2,14 s statt 2,17 s (dort 8,97 / 9,47). Hinweis im Info-Knopf. → FSS6, FSS7
 - **Urteil der Lupe folgt der Faustregel, nicht einem Schwellwert** — dasselbe Verhältnis
   kann je nach Beispiel verschieden beurteilt werden: „6,69" (Klammer 2× breiter) heißt
   „verschenkt Wissen", „21 m" (Klammer 2× breiter) „letzte Ziffer unsicher ✓". Grund: Beim
@@ -40,7 +39,6 @@ zentral in `BACKLOG.md`.
 - **Kapitel Multiplikation startet aus dem Endzustand der Grundlagen** — dessen Schritte
   werden beim Kapitelwechsel still vorab abgespielt (`ui.js multEngine`); Änderungen an
   den Grundlagen wirken sich daher auf den Startzustand der Multiplikation aus. → FSS5
-- **Kapitel „Addition": „1,0-m-Maßband" als 0,1-m-Teilung gelesen** — Stab A wird auf
-  eine Nachkommastelle abgelesen (0,4 m). Bei 1-m-Teilung bräuchte das Gegenbeispiel große
-  Werte (z. B. 12 m + 0,047 m). Subtraktion (Verlust signifikanter Stellen) ist nicht
+- **Kapitel „Addition": Stab A mit 0,1-m-Teilung** — abgelesen auf eine Nachkommastelle
+  (0,8 m). Bei 1-m-Teilung bräuchte das Gegenbeispiel große Werte (z. B. 12 m + 0,047 m). Subtraktion (Verlust signifikanter Stellen) ist nicht
   enthalten — möglicher Ausbau. → FSS1

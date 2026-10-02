@@ -15,6 +15,7 @@ import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
   createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareVerdict,
+  createCalculator,
 } from './stellen.js'
 import { HITS } from './state.js'
 
@@ -116,23 +117,6 @@ function buildCompare() {
   text(E.cmpPanel, 'lupe-title', { x: B.x + 20, y: B.y + 24 }, 'Ziffern vergleichen')
   E.cmp = createCompareBoard(E.cmpPanel, { size: 28 })
   E.cmpVerdict = text(E.cmpPanel, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 10 })
-}
-
-// Taschenrechner neben dem Rechteck: Eingabe klein, Ergebnis groß (alle Stellen)
-function buildCalc() {
-  const { x, y, w, h } = CALC
-  E.calc = svgEl('g', { class: 'calc' }, E.root)
-  svgEl('rect', { class: 'calc-case', x, y, width: w, height: h, rx: 16 }, E.calc)
-  svgEl('rect', { class: 'lcd', x: x + 14, y: y + 16, width: w - 28, height: 74, rx: 6 }, E.calc)
-  E.calcIn = text(E.calc, 'calc-in', { x: x + w - 22, y: y + 40, 'text-anchor': 'end' })
-  E.calcOut = text(E.calc, 'lcd-text calc-out', { x: x + w - 22, y: y + 78, 'text-anchor': 'end' })
-  const keys = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', ',', '=', '+']
-  const kw = (w - 28 - 3 * 8) / 4, kh = (h - 112 - 3 * 8) / 4
-  keys.forEach((k, i) => {
-    const kx = x + 14 + (i % 4) * (kw + 8), ky = y + 104 + Math.floor(i / 4) * (kh + 8)
-    svgEl('rect', { class: `calc-key ${k === '=' ? 'calc-eq' : ''}`, x: kx, y: ky, width: kw, height: kh, rx: 5 }, E.calc)
-    text(E.calc, 'calc-key-t', { x: kx + kw / 2, y: ky + kh / 2 + 6, 'text-anchor': 'middle' }, k)
-  })
 }
 
 export function initStage(svg, DOM) {
@@ -258,7 +242,7 @@ export function initStage(svg, DOM) {
     subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': sym === 'l' ? 'middle' : 'start' }))
 
   buildSigRow()
-  buildCalc()
+  E.calc = createCalculator(E.root, CALC)        // Taschenrechner neben dem Rechteck
   buildLupe()
   buildCompare()
 
@@ -552,11 +536,8 @@ export function renderScene(S) {
   op(E.circ, S.kA)
   if (S.kA > 0.002) renderCircle(S)
 
-  op(E.calc, S.calcA)
-  if (S.calcA > 0.002) {
-    const R = RANGES[Math.round(S.cmb)]
-    E.calcIn.textContent = R.calcIn; E.calcOut.textContent = R.calcOut
-  }
+  const R = RANGES[Math.round(S.cmb)]
+  E.calc.render({ alpha: S.calcA, input: R.calcIn, output: R.calcOut, t: S.calcT })
 
   renderUnc(S, V, axY)
   renderSigRow(S)

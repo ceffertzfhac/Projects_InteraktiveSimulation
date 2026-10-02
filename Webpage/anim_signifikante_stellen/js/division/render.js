@@ -371,7 +371,7 @@ function renderFraction(S, V) {
   op(E.frac, S.frA)
   const i = Math.round(S.frI), r = ROW[i]
   if (S.frA > 0.002) {
-    E.frTitle.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: kleinstes und größtes v`
+    E.frTitle.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: kleinstmögliches und größtmögliches v`
     const [s, t] = liveST(S)
     ;[[S.ks, s, r.sLo, r.sHi, 'm', r.e.s.decimals + 1], [S.kt, t, r.tLo, r.tHi, 's', r.e.t.decimals + 1]]
       .forEach(([k, v, lo, hi, unit, dec], n) => {

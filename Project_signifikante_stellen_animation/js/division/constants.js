@@ -6,13 +6,14 @@
 
 // ── Wahre Werte (kennt nur die Animation, nicht die Messenden; nie angezeigt) ──
 export const S_TRUE = 19.832          // m  Abstand Start- bis Ziellinie
-export const T_TRUE = 2.1715          // s  Fahrzeit zwischen den Linien (PO: 2,17 s)
+export const T_TRUE = 2.1415          // s  Fahrzeit zwischen den Linien (PO: 2,14 s)
 export const V_TRUE = S_TRUE / T_TRUE // m/s ≈ 9,13 (nur für die Fahrt-Animation)
 
 // ── Ablesungen (Texte → model.js parseMeasured) ──────────────────────────────
 export const READ = {
   sA: '20',      // 1-m-Maßband: Ziellinie liegt näher an der 20-m-Marke
-  tA: '2,17',    // Lichtschranken + Stoppuhr mit Hundertstelsekunden
+  tA: '2,14',    // Lichtschranken + Stoppuhr mit Hundertstelsekunden (2,14 statt 2,17:
+                 // so stimmen Ziffernvergleich und Faustregel in allen Zeilen überein)
   sB: '19,83',   // cm-Maßband
   tB: '2',       // Stoppuhr, nur Sekundenzeiger: näher an 2 s als an 3 s
 }

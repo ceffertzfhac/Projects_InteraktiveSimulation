@@ -37,11 +37,11 @@ const factor = r => fmt(Number(r.toPrecision(1)), 0)
 export function verdict(info, p) {
   const pl = placeOf(info, p)
   if (!pl) return ''
-  const r = pl.ratio
-  const cmp = r >= 0.8 && r <= 1.25 ? 'Band ≈ Klammer'
-    : r < 1 ? `Klammer ${factor(1 / r)}× breiter` : `Band ${factor(r)}× breiter`
-  return `${cmp} → ${VERDICT_TAIL[pl.cat]}`
+  return `${bandVsBracket(pl.ratio)} → ${VERDICT_TAIL[pl.cat]}`
 }
+// Verhältnis Band / Klammer als Faktor des Breiteren: „Klammer 10× breiter", „Band ≈ Klammer"
+export const bandVsBracket = r => (r >= 0.8 && r <= 1.25 ? 'Band ≈ Klammer'
+  : r < 1 ? `Klammer ${factor(1 / r)}× breiter` : `Band ${factor(r)}× breiter`)
 
 // Klammer-Beschriftung: „„6,69" steht für [6,685 ; 6,695)"
 export function claimLabel(info, p) {
@@ -191,6 +191,48 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
       const n = data.rows.length
       set(box, { x: cx(p) - cw / 2 - 3, y: y - size * 0.86, width: cw + 6, height: (n - 1) * gap + size * 1.08 })
       op(box, pointerA)
+    },
+  }
+}
+
+// ── Taschenrechner mit Tipp-Animation (Multiplikation, Addition) ─────────────
+// Die Eingabe „3,120 × 2,143 =" wird Taste für Taste getippt: Szene-Zahl t von 0
+// bis 1 (Anteil der gedrückten Tasten). Die gerade gedrückte Taste sinkt ein und
+// leuchtet; nach „=" zeigt das Display das Ergebnis. Reversibel: nur eine Zahl.
+const CALC_KEYS = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', ',', '=', '+']
+export const calcSeq = input => [...input.replace(/\s/g, '')]
+export function createCalculator(parent, { x, y, w, h }) {
+  const g = svgEl('g', { class: 'calc' }, parent)
+  svgEl('rect', { class: 'calc-case', x, y, width: w, height: h, rx: 16 }, g)
+  svgEl('rect', { class: 'lcd', x: x + 14, y: y + 16, width: w - 28, height: 74, rx: 6 }, g)
+  const inT = svgEl('text', { class: 'calc-in', x: x + w - 22, y: y + 40, 'text-anchor': 'end' }, g)
+  const outT = svgEl('text', { class: 'lcd-text calc-out', x: x + w - 22, y: y + 78, 'text-anchor': 'end' }, g)
+  const kw = (w - 28 - 3 * 8) / 4, kh = (h - 112 - 3 * 8) / 4
+  const keys = CALC_KEYS.map((k, i) => {
+    const kx = x + 14 + (i % 4) * (kw + 8), ky = y + 104 + Math.floor(i / 4) * (kh + 8)
+    const kg = svgEl('g', {}, g)
+    const r = svgEl('rect', { class: `calc-key ${k === '=' ? 'calc-eq' : ''}`, x: kx, y: ky, width: kw, height: kh, rx: 5 }, kg)
+    svgEl('text', { class: 'calc-key-t', x: kx + kw / 2, y: ky + kh / 2 + 6, 'text-anchor': 'middle' }, kg).textContent = k
+    return { k, kg, r, cx: kx + kw / 2, cy: ky + kh / 2 }
+  })
+  return {
+    render({ alpha, input, output, t }) {
+      op(g, alpha)
+      if (alpha <= 0.002) return
+      // f = getippte Tasten (stetig); Taste k ist gedrückt, solange ihr Anteil in (0 ; 0,6) liegt
+      const seq = calcSeq(input), n = seq.length, f = clamp(t, 0, 1) * n
+      const k = Math.ceil(f - 1e-9), frac = f - (k - 1)
+      const done = f >= n - 0.4                       // „=" gedrückt → Ergebnis
+      let typed = '', c = 0
+      for (const ch of input) { if (c >= k) break; typed += ch; if (!/\s/.test(ch)) c++ }
+      inT.textContent = typed
+      outT.textContent = done ? output : (typed.split(/[×+÷−]/).pop().trim() || '0')
+      const cur = k > 0 && frac > 0 && frac < 0.6 ? seq[k - 1] : null
+      keys.forEach(K => {
+        const on = K.k === cur
+        K.kg.setAttribute('transform', on ? `translate(${K.cx} ${K.cy}) scale(0.9) translate(${-K.cx} ${-K.cy})` : '')
+        K.r.classList.toggle('pressed', on)
+      })
     },
   }
 }

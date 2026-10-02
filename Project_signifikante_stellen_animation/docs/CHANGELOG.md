@@ -1,5 +1,34 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.11.0 — 2026-10-02
+
+**Addition überarbeitet** (PO-Review, → FSS7), 12 → 10 Schritte. Fachsprache nach Recherche
+(LehrplanPLUS Bayern, OpenStax College Physics): „so viele Nachkommastellen wie der
+ungenaueste Summand", nur in derselben Einheit; beim Umrechnen ändert sich die Zahl der
+sinnvollen Ziffern nicht.
+- Neue Werte: Stab A **0,8 m** (0,1-m-Band), Werkstück B **1,877 m** (mm-Band). Summe
+  2,677 → **2,7 m** (Faustregel der Multiplikation gäbe 3 m).
+- „Zwei Werkstücke, zwei Maßbänder" statt „zwei Etiketten". Die Werkstücke werden nicht
+  mehr vertauscht.
+- **Maßbänder rollen aus und wieder ein**: Gehäuse mit drehender Spule, Haken bei 0.
+- **Etikett fliegt heran und wird angedrückt**, daneben „wird beschriftet: 0,8 m".
+- Hintereinanderlegen + „Wo endet die Kette?" in einem Schritt, mit Taschenrechner
+  (0,8 + 1,877 = 2,677).
+- Kleinstmögliche/größtmögliche Gesamtlänge mit Ziffern-Hervorhebung (2,**6**265 / 2,**7**275).
+- „Welches Etikett?" endet mit „Unsicherheit auf der zweiten Stelle". Der separate
+  Stellen-Scan entfällt.
+- **„Gleiche Einheit – ehrlich umrechnen"**: falsch gemischt (0,8 m + 1877 mm), 8 · 10² mm
+  statt 800 mm, dieselbe Rechnung in mm, cm und m.
+
+**Division angeglichen:**
+- *t*_A = **2,14 s** statt 2,17 s. Ziffernvergleich und Faustregel stimmen jetzt überein:
+  9,3 / 1 · 10¹ / 9,27 m/s.
+- Kleinstmögliches/größtmögliches *v*, Ziffern-Hervorhebung in den Folien. Eine fehlende
+  Zehnerziffer erscheint als blasse „0", also 07,9 gegen 13,2.
+
+**Taschenrechner mit Tipp-Animation** (gemeinsamer Baustein, PO-Wunsch): Tasten werden
+nacheinander gedrückt, die Eingabe baut sich im Display auf.
+
 ## v0.10.0 — 2026-10-02
 
 **Multiplikation didaktisch überarbeitet** (PO-Review 2026-10-02, → FSS6). Fachsprache nach

@@ -1,17 +1,16 @@
 'use strict'
-// Drehbuch Kapitel 4 „Addition" (→ BACKLOG FSS1). build() hängt NUR Tweens/Sets an
-// tl an (Reversibilitäts-Regel); Folienzeilen (data-r) per autoAlpha.
+// Drehbuch Kapitel 4 „Addition" (→ BACKLOG FSS1, FSS7). build() hängt NUR Tweens/Sets
+// an tl an (Reversibilitäts-Regel); Folienzeilen (data-r) per autoAlpha.
 //
-//  Zwei Werkstücke → A grob messen (0,1 m), Etikett 0,4 m → B fein (1 mm), 1,253 m
-//  → Steckbrief (Stellenwert = absolute, Stellenzahl = relative Unsicherheit)
-//  → hintereinanderlegen → wo endet die Kette? → Grenzen kleinste+kleinste …
-//  → welches Etikett? (1,653 / 2 / 1,7) → welche Stelle ist unsicher?
-//  → die Falle (Faustregel der Multiplikation) → gleiche Einheit → Merke
+//  Zwei Werkstücke, zwei Maßbänder → A: Band rollt aus, Etikett 0,8 m, Band rollt ein
+//  → B: Band rollt aus, Lupe, Etikett 1,877 m, Band rollt ein → Steckbrief
+//  → hintereinanderlegen (Taschenrechner 2,677; A-Ende wackelt) → kleinstmögliche /
+//  größtmögliche Gesamtlänge (Ziffernvergleich) → welches Etikett? (2,677 / 3 / 2,7)
+//  → die Falle (Faustregel der Multiplikation) → gleiche Einheit, ehrlich umrechnen → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
-import { scanPlaces } from '../stellen.js'
-import { T, EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES, CAM_N } from './constants.js'
-import { SUM, CANDS, LUPE } from './content.js'
+import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES, CAM_N } from './constants.js'
+import { SUM, CANDS } from './content.js'
 
 export function buildAddSteps(S, DOM) {
   const C = DOM.cards
@@ -21,65 +20,80 @@ export function buildAddSteps(S, DOM) {
   const step = (title, build, hold) => steps.push({ title, build, hold })
   const reveal = (tl, card, name, at) =>
     tl.to(card.querySelector(`[data-r="${name}"]`), { autoAlpha: 1, duration: 0.5 }, at)
-  const stick = (tl, k, at) => {                     // Etikett aufkleben
-    tl.set(S, { [`tg${k}`]: 1, [`tg${k}s`]: 0 }, at)
-    tl.to(S, { [`tg${k}s`]: 1, duration: 0.6, ease: 'back.out(1.6)' })
+  // Maßband ausrollen / einrollen
+  const rollOut = (tl, i, at) => {
+    tl.set(S, { [`tp${i}A`]: 1, [`tp${i}R`]: 0 }, at)
+    tl.to(S, { [`tp${i}R`]: 1, duration: 1.4, ease: 'power2.out' })
+  }
+  const rollIn = (tl, i, at) => {
+    tl.to(S, { [`tp${i}R`]: 0, duration: 1, ease: 'power2.in' }, at)
+    tl.to(S, { [`tp${i}A`]: 0, duration: 0.3 })
+  }
+  // Etikett: anfliegen, andrücken, „wird beschriftet: …" ein- und wieder ausblenden
+  const label = (tl, k, at) => {
+    tl.set(S, { [`tg${k}`]: 1, [`tg${k}f`]: 0, [`tg${k}s`]: 0 }, at)
+    tl.to(S, { [`tg${k}c`]: 1, duration: 0.4 }, '<')
+    tl.to(S, { [`tg${k}f`]: 1, duration: 0.9, ease: 'none' }, '<')
+    tl.to(S, { [`tg${k}s`]: 1, duration: 0.45, ease: 'power1.inOut' })
+    tl.to(S, { [`tg${k}c`]: 0, duration: 0.4 }, '>1.2')
   }
   // Kette: A-Länge und B-Anfang gemeinsam (B liegt an A an)
   const chain = (tl, aL, bL, at, d = 0.6) =>
     tl.to(S, { aL, bX: aL, ...(bL ? { bL } : {}), duration: d, ease: EASE.cam }, at)
 
-  step('Zwei Werkstücke', tl => {
+  step('Zwei Werkstücke, zwei Maßbänder', tl => {
     deck.show(tl, C.a_intro)
     tl.to(S, { aA: 1, duration: 0.6 }, '<0.2')
     tl.to(S, { bA: 1, duration: 0.6 }, '<0.3')
   }, 3)
 
-  step('Stab A messen: 0,1-m-Teilung', tl => {
+  step('Stab A messen und beschriften', tl => {
     deck.show(tl, C.a_a)
-    tl.to(S, { tpA: 1, tdA: 1, duration: 0.7 }, '<')
+    rollOut(tl, 0, '<0.2')
     tl.to(S, { zA: 1, duration: 0.5 }, '>0.2')
-    stick(tl, 'A', '>0.3')
-    tl.to(S, { tbA: 1, r0: 1, duration: 0.5 }, '>0.1')
-  }, 5)
+    label(tl, 'A', '>0.4')
+    tl.to(S, { tbA: 1, r0: 1, duration: 0.5 }, '<0.8')
+    tl.to(S, { zA: 0, duration: 0.3 }, '>0.3')
+    rollIn(tl, 0, '<')
+  }, 4)
 
-  step('Werkstück B messen: 1-mm-Teilung', tl => {
+  step('Werkstück B messen und beschriften', tl => {
     deck.show(tl, C.a_b)
-    tl.to(S, { zA: 0, duration: 0.3 }, '<')
-    tl.to(S, { aY: LANE.up, aX: 1.35, duration: 0.9, ease: EASE.cam }, '<')
-    tl.to(S, { bY: LANE.low, bX: 0, duration: 0.9, ease: EASE.cam }, '<0.3')
-    tl.to(S, { tdB: 1, duration: 0.6 }, '>-0.2')
+    rollOut(tl, 1, '<0.2')
     tl.to(S, { lpA: 1, duration: 0.5 }, '>0.1')
     tl.to(S, { lzA: 1, duration: 0.4 }, '>0.3')
-    stick(tl, 'B', '>0.3')
-    tl.to(S, { r1: 1, duration: 0.5 }, '>0.1')
-  }, 5)
+    label(tl, 'B', '>0.4')
+    tl.to(S, { r1: 1, duration: 0.5 }, '<0.8')
+    tl.to(S, { lpA: 0, lzA: 0, duration: 0.4 }, '>0.3')
+    rollIn(tl, 1, '<')
+  }, 4)
 
   step('Steckbrief: Stellenwert und Stellenzahl', tl => {
     deck.show(tl, C.a_steck)
-    tl.to(S, { lpA: 0, duration: 0.4 }, '<')
     tl.to(S, { hiU: 1, duration: 0.5 }, '>0.3')
   }, 6)
 
-  step('Hintereinanderlegen', tl => {
+  step('Hintereinanderlegen: wie lang sind beide zusammen?', tl => {
     deck.show(tl, C.a_chain)
     tl.to(S, { hiU: 0, duration: 0.3 }, '<')
-    tl.to(S, { bX: A_TRUE, duration: 0.9, ease: EASE.cam }, '<0.2')
-    tl.to(S, { aY: LANE.low, aX: 0, duration: 0.9, ease: EASE.cam }, '>0.1')
-  }, 4)
-
-  step('Wo endet die Kette?', tl => {
-    deck.show(tl, C.a_end)
-    tl.to(S, { zAe: 1, duration: 0.5 }, '<0.2')
+    tl.to(S, { bX: A_TRUE + 0.03, bY: LANE.up, duration: 1.1, ease: EASE.cam }, '<0.2')
+    tl.to(S, { bX: A_TRUE, duration: 0.35, ease: 'power2.in' })
+    // Taschenrechner: 0,8 + 1,877 = 2,677
+    tl.set(S, { calcT: 0 }, '>0.2')
+    tl.to(S, { calcA: 1, duration: 0.4 })
+    tl.to(S, { calcT: 1, duration: 2.6, ease: 'none' }, '>0.1')
+    reveal(tl, C.a_chain, 'calc', '>0.2')
+    // Wo endet die Kette? A wackelt durch sein Intervall, B fährt mit
+    tl.to(S, { zAe: 1, duration: 0.5 }, '>0.8')
+    reveal(tl, C.a_chain, 'end', '<')
     A_SAMPLES.forEach((x, i) => chain(tl, x, null, i ? '>0.5' : '>0.2'))
     tl.to(S, { zEnd: 1, duration: 0.6 }, '>0.2')
     chain(tl, A_TRUE, null, '<')
-    tl.to(S, { nAx: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
-    tl.to(S, { bd: 1, duration: 0.9, ease: 'power2.inOut' }, '>-0.2')
   }, 5)
 
-  step('Kleinste + kleinste, größte + größte', tl => {
+  step('Kleinstmögliche und größtmögliche Gesamtlänge', tl => {
     deck.show(tl, C.a_bounds)
+    tl.to(S, { calcA: 0, duration: 0.4 }, '<')
     chain(tl, SUM.a.lo, SUM.b.lo, '<0.3', 0.8)
     tl.to(S, { lmMin: 1, duration: 0.4 })
     reveal(tl, C.a_bounds, 'min', '<')
@@ -88,10 +102,12 @@ export function buildAddSteps(S, DOM) {
     reveal(tl, C.a_bounds, 'max', '<')
     reveal(tl, C.a_bounds, 'pm', '>0.6')
     chain(tl, A_TRUE, B_TRUE, '>0.4', 0.6)
+    tl.to(S, { nAx: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
+    tl.to(S, { bd: 1, duration: 0.9, ease: 'power2.inOut' }, '>-0.2')
   }, 6)
 
   // Kandidaten: Klammer = Rundungsintervall des Etiketts, Band = was wir wissen
-  const views = [{ cx: 1.66, w: 0.32 }, { cx: 1.95, w: 2.4 }, { cx: 1.66, w: 0.32 }]
+  const views = [{ cx: 2.68, w: 0.32 }, { cx: 2.95, w: 2.4 }, { cx: 2.68, w: 0.32 }]
   step('Welches Etikett?', tl => {
     deck.show(tl, C.a_label)
     CANDS.forEach((c, i) => {
@@ -103,18 +119,7 @@ export function buildAddSteps(S, DOM) {
       tl.to(S, { cdV: 1, duration: 0.4 }, '>0.1')
       tl.to(S, { [`cl${i}`]: 1, duration: 0.4 }, '>0.6')
     })
-  }, 6)
-
-  step('Welche Stelle ist unsicher?', tl => {
-    deck.show(tl, C.a_dig)
-    tl.to(S, { cdA: 0, cbA: 0, cdV: 0, duration: 0.3 }, '<')
-    scanPlaces(tl, S, LUPE.info, 0, {
-      full: true, hold: 1.3,
-      zoom: (t2, p) => cam.to(t2, { cx: Math.max(LUPE.info.R, 2 * 10 ** p), w: 4 * 10 ** p }, { duration: 1, at: '>0.1' }),
-    })
-    cam.to(tl, views[2], { duration: 1, at: '<' })
-    tl.to(S, { slB: 1, duration: 0.4 })
-    reveal(tl, C.a_dig, 'res', '<')
+    reveal(tl, C.a_label, 'res', '>0.4')
     tl.to(S, { r2: 1, duration: 0.5 }, '<')
   }, 6)
 
@@ -126,11 +131,12 @@ export function buildAddSteps(S, DOM) {
     reveal(tl, C.a_trap, 'dec', '<')
   }, 7)
 
-  step('Gleiche Einheit!', tl => {
+  step('Gleiche Einheit – ehrlich umrechnen', tl => {
     deck.show(tl, C.a_unit)
-    tl.to(S, { hiN: 0, nAx: 0, slA: 0, slB: 0, cl0: 0, cl1: 0, cl2: 0, duration: 0.5 }, '<')
-    ;[1, 2, 3].forEach(n => tl.to(S, { [`u${n}`]: 1, duration: 0.5 }, '>0.6'))
-  }, 6)
+    tl.to(S, { hiN: 0, nAx: 0, cdA: 0, cbA: 0, cdV: 0, cl0: 0, cl1: 0, cl2: 0, lmMin: 0, lmMax: 0,
+      zAe: 0, zEnd: 0, duration: 0.5 }, '<')
+    ;[1, 2, 3, 4, 5].forEach(n => tl.to(S, { [`u${n}`]: 1, duration: 0.5 }, n === 1 ? '>0.2' : '>1.1'))
+  }, 7)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, duration: 0.8 })

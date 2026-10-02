@@ -55,7 +55,7 @@ export function createScene() {
     edA: 0, mnA: 0, mxA: 0,
     ...stellenKeys(), slBig: 0,            // Tafel „Welche Stelle ist unsicher?" (+ groß)
     ...compareKeys(),                      // Tafel „Ziffern vergleichen"
-    calcA: 0,                              // Taschenrechner im Rechteck
+    calcA: 0, calcT: 0,                    // Taschenrechner im Rechteck (Deckkraft, Tippen 0…1)
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }

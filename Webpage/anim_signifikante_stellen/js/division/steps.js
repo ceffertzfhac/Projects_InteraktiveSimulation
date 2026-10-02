@@ -5,7 +5,7 @@
 //
 //  Strecke und Ausrüstung → A misst s grob (1-m-Band), B fein (cm-Band, Lupe)
 //  → Lichtschranken → Fahrt in Zeitlupe → Zeiten ablesen (je mit Intervall)
-//  → je Person: kleinstes/größtes v per Regler (s_min/t_max, s_max/t_min)
+//  → je Person: kleinstmögliches/größtmögliches v per Regler (s_min/t_max, s_max/t_min)
 //    → welche Stelle ist unsicher? (Zahlengerade Stelle für Stelle) → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
@@ -142,14 +142,14 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
   }
 
-  step('Person A: kleinstes und größtes v', tl => {
+  step('Person A: kleinstmögliches und größtmögliches v', tl => {
     deck.show(tl, C.v_vA)
     tl.to(S, { lowA: 0, duration: 0.6 }, '<')
     tl.set(S, { frI: 0, ks: 0.5, kt: 0.5 })
     tl.to(S, { frA: 1, duration: 0.5 })
     tl.to(S, { vAx: 1, vTk: 1, duration: 0.9, ease: EASE.cam }, '<')
-    // zuerst hineinzoomen: um 9 m/s herum, damit Intervall und Ergebnis lesbar sind
-    cam.to(tl, { cx: 9.2, w: 1.4 }, { duration: T.cam, at: '>0.3' })
+    // zuerst hineinzoomen: um 9,3 m/s herum, damit Intervall und Ergebnis lesbar sind
+    cam.to(tl, { cx: 9.35, w: 1.4 }, { duration: T.cam, at: '>0.3' })
     tl.to(S, { vlA: 1, duration: 0.4 })
     bounds(tl, 0, C.v_vA, true)
   }, 6)
@@ -159,7 +159,7 @@ export function buildSpeedSteps(S, DOM) {
     digits(tl, 0, C.v_digA, true, 0.8)
   }, 6)
 
-  step('Person B: kleinstes und größtes v', tl => {
+  step('Person B: kleinstmögliches und größtmögliches v', tl => {
     deck.show(tl, C.v_vB)
     startBounds(tl, 1)
     cam.to(tl, CAM_V_FULL, { duration: T.cam, at: '<' })
@@ -173,7 +173,7 @@ export function buildSpeedSteps(S, DOM) {
     cell(tl, 'c2s', '<0.15')
     cell(tl, 'c2t', '<0.15')
     startBounds(tl, 2)
-    cam.to(tl, { cx: 9.14, w: 0.3 }, { duration: T.cam, at: '<' })
+    cam.to(tl, { cx: 9.27, w: 0.3 }, { duration: T.cam, at: '<' })
     bounds(tl, 2, C.v_best, false)
     digits(tl, 2, C.v_best, false, 0.08)
   }, 6)

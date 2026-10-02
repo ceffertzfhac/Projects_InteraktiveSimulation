@@ -111,7 +111,7 @@ export function ratioStr(r) {
 // (6,686… bei p = −2 → „6,69"; 21,0… bei p = 1 → „2 · 10¹", nicht „20").
 export function roundAtPlace(x, p) {
   const u = 10 ** p, r = Math.round(x / u) * u
-  if (p <= 0) return { text: fmt(r, -p), value: r, lo: r - u / 2, hi: r + u / 2 }
+  if (p <= 0 || r === 0) return { text: fmt(r, Math.max(0, -p)), value: r, lo: r - u / 2, hi: r + u / 2 }
   const e = Math.floor(Math.log10(Math.abs(r)))
   return { text: formatSig(r, e - p + 1), value: r, lo: r - u / 2, hi: r + u / 2 }
 }
@@ -160,9 +160,12 @@ export function digitCompare(loStr, hiStr) {
     if ((a.get(p) ?? '0') !== (b.get(p) ?? '0')) { pDiff = p; break }
   }
   const cat = p => (p > pDiff ? 'sure' : p === pDiff ? 'unc' : 'ghost')
+  // fehlende führende Stellen (7,9 gegen 13,2) als implizite „0" — sonst fehlte die
+  // abweichende Zehnerziffer in der Zeile
   const row = str => {
     const [ip, fp = ''] = String(str).split(',')
-    const cells = [...ip].map((ch, i) => ({ ch, p: ip.length - 1 - i }))
+    const pad = Array.from({ length: Math.max(0, top - (ip.length - 1)) }, (_, i) => ({ ch: '0', p: top - i, implicit: true }))
+    const cells = pad.concat([...ip].map((ch, i) => ({ ch, p: ip.length - 1 - i })))
     if (fp) cells.push({ ch: ',', comma: true })
     return cells.concat([...fp].map((ch, i) => ({ ch, p: -1 - i })))
       .map(c => ({ ...c, cat: c.comma ? null : cat(c.p) }))
@@ -170,10 +173,16 @@ export function digitCompare(loStr, hiStr) {
   return { pDiff, lo: row(loStr), hi: row(hiStr) }
 }
 
-// HTML für die Folienkarten: zusammenhängende Ziffern gleicher Kategorie als <span>
+// HTML für die Folienkarten: zusammenhängende Ziffern gleicher Kategorie als <span>;
+// implizite führende Nullen blaß (eigener Span)
 export function compareHtml(cells) {
   let html = '', curCat = null
   for (const c of cells) {
+    if (c.implicit) {
+      if (curCat) { html += '</span>'; curCat = null }
+      html += `<span class="cmp-${c.cat} cmp-implicit">${c.ch}</span>`
+      continue
+    }
     const k = c.comma ? curCat : c.cat
     if (k !== curCat) {
       if (curCat) html += '</span>'

@@ -340,8 +340,11 @@ export function buildSteps(S, DOM) {
     db.show(tl, textIndex(B_FINAL), { at: '<0.15' })
     tl.to(S, { aSym: 1, duration: 0.6 }, '<')
     deck.show(tl, C.area, '<')
-    // Taschenrechner: alle Stellen des Produkts — mehr, als die Messung hergibt
-    tl.to(S, { calcA: 1, duration: 0.6 }, '>0.3')
+    // Taschenrechner: Eingabe Taste für Taste, dann alle Stellen des Produkts —
+    // mehr, als die Messung hergibt
+    tl.set(S, { calcT: 0 }, '>0.3')
+    tl.to(S, { calcA: 1, duration: 0.5 })
+    tl.to(S, { calcT: 1, duration: 3.2, ease: 'none' }, '>0.1')
   }, 5)
 
   step('Zoom auf die Ecke', tl => {

@@ -82,11 +82,11 @@ test('Kreis: 2 und π exakt — U und A haben so viele Stellen wie r', () => {
 })
 
 test('Division v = s / t: Bereich = s_min/t_max … s_max/t_min, Stellen wie die ungenaueste Größe', () => {
-  const q = quotientInterval(parseMeasured('20'), parseMeasured('2,17'))
-  expect(q.lo).toBeCloseTo(19.5 / 2.175, 12)
-  expect(q.hi).toBeCloseTo(20.5 / 2.165, 12)
+  const q = quotientInterval(parseMeasured('20'), parseMeasured('2,14'))
+  expect(q.lo).toBeCloseTo(19.5 / 2.145, 12)
+  expect(q.hi).toBeCloseTo(20.5 / 2.135, 12)
   // Person A: 1-m-Maßband (2 Stellen), Lichtschranken 0,01 s (3 Stellen)
-  expect(speedExample('20', '2,17').rounded).toBe('9,2')
+  expect(speedExample('20', '2,14').rounded).toBe('9,3')
   // Person B: cm-Maßband (4 Stellen), Sekundenzeiger (1 Stelle)
   const b = speedExample('19,83', '2')
   expect(b.sig).toBe(1)
@@ -94,14 +94,14 @@ test('Division v = s / t: Bereich = s_min/t_max … s_max/t_min, Stellen wie die
   expect(b.v.lo).toBeCloseTo(19.825 / 2.5, 12)
   expect(b.v.hi).toBeCloseTo(19.835 / 1.5, 12)
   // Kombination: cm-Maßband + Lichtschranken → 3 Stellen, gerundeter Wert im Bereich
-  const c = speedExample('19,83', '2,17')
-  expect(c.rounded).toBe('9,14')
-  expect(9.14).toBeGreaterThanOrEqual(c.v.lo)
-  expect(9.14).toBeLessThan(c.v.hi)
+  const c = speedExample('19,83', '2,14')
+  expect(c.rounded).toBe('9,27')
+  expect(9.27).toBeGreaterThanOrEqual(c.v.lo)
+  expect(9.27).toBeLessThan(c.v.hi)
 })
 
 test('Stellenanalyse: Intervall in Einheiten jeder Stelle, Kategorie nach Faustregel', () => {
-  const a = placeAnalysis('9,2', 19.5 / 2.175, 20.5 / 2.165)
+  const a = placeAnalysis('9,3', 19.5 / 2.145, 20.5 / 2.135)
   expect(a.places.map(p => p.cat)).toEqual(['sure', 'unc', 'ghost'])
   expect(a.places.map(p => p.name)).toEqual(['Einer', 'Zehntel', 'Hundertstel'])
   expect(a.places[1].ratio).toBeCloseTo(10 * a.places[0].ratio, 12)
@@ -121,14 +121,31 @@ test('Beispielwerte der Animation (v0.8.0): keine runden Zahlen, Faustregel grei
 })
 
 test('Addition: Nachkommastellen statt signifikanter Stellen', () => {
-  const s = sumExample('0,4', '1,253')
-  expect(s.lo).toBeCloseTo(0.35 + 1.2525, 12)
-  expect(s.hi).toBeCloseTo(0.45 + 1.2535, 12)
+  const s = sumExample('0,8', '1,877')
+  expect(s.lo).toBeCloseTo(0.75 + 1.8765, 12)
+  expect(s.hi).toBeCloseTo(0.85 + 1.8775, 12)
   expect(s.half).toBeCloseTo(0.05 + 0.0005, 12)      // Unsicherheiten addieren sich absolut
-  expect(s.rounded).toBe('1,7')                      // eine Nachkommastelle wie 0,4
-  expect(s.sigRule).toBe('2')                        // Faustregel der Multiplikation: falsch
-  // „1,7" beschreibt das Intervall: Breite ≈ eine Einheit der letzten Stelle
+  expect(s.rounded).toBe('2,7')                      // eine Nachkommastelle wie 0,8
+  expect(s.sigRule).toBe('3')                        // Faustregel der Multiplikation: falsch
+  // „2,7" beschreibt das Intervall: Breite ≈ eine Einheit der letzten Stelle
   expect((s.hi - s.lo) / 0.1).toBeCloseTo(1.01, 12)
+  // Ziffernvergleich L_min / L_max bestätigt die Regel
+  expect(digitCompare(exactStr(s.lo), exactStr(s.hi)).pDiff).toBe(-1)
+})
+
+test('Division: Ziffernvergleich v_min / v_max passt in allen Zeilen zur Faustregel', () => {
+  const pLast = r => placeAnalysis(r, 1, 2, 1.5).pLast
+  for (const [sT, tT] of [['20', '2,14'], ['19,83', '2'], ['19,83', '2,14']]) {
+    const e = speedExample(sT, tT)
+    const d = pLast(e.rounded) - 1                   // Grenzen eine Stelle feiner
+    const dec = Math.max(0, -d)
+    const fmtD = x => x.toFixed(dec).replace('.', ',')
+    expect(digitCompare(fmtD(e.v.lo), fmtD(e.v.hi)).pDiff).toBe(pLast(e.rounded))
+  }
+})
+
+test('roundAtPlace: Wert 0 stürzt nicht ab', () => {
+  expect(roundAtPlace(0.4, 0).text).toBe('0')
 })
 
 test('Ziffernvergleich: erste abweichende Ziffer von A_min/A_max ist die unsichere', () => {

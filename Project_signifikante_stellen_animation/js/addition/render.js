@@ -1,15 +1,17 @@
 'use strict'
 // Rendering Kapitel „Addition": liest NUR die Szene und schreibt SVG-Attribute.
-// Werkbank (Maßband, Werkstücke mit Etiketten, Lupe) und Steckbrief in festen
-// Bildschirmkoordinaten; unten eine Zahlengerade mit Kamera für die Auswertung.
+// Werkbank (zwei Maßbänder zum Aus-/Einrollen, Werkstücke mit Etiketten, Lupe) und
+// Steckbrief in festen Bildschirmkoordinaten; unten eine Zahlengerade mit Kamera
+// für die Auswertung, danach die Einheiten-Tafel.
 
 import { svgEl, viewOf, createAxis, clamp } from '../../../shared/js/step-kit.js'
 import { fmt } from '../../../shared/js/format.js'
-import { createClaimRow, createUnitBracket, verdict, claimLabel, claimRange } from '../stellen.js'
+import { createUnitBracket, createCalculator } from '../stellen.js'
 import {
-  xOf, K, LANE, ROD_H, TAPE, LOUPE, TABLE, AXIS_Y, BAND_Y, DIGITS, CAND_Y, VERDICT_Y, B_TRUE,
+  xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, DIGITS, CAND_Y,
+  VERDICT_Y, UNITS, B_TRUE, READ,
 } from './constants.js'
-import { SUM, ROWS, CANDS, LUPE } from './content.js'
+import { SUM, ROWS, CANDS, UNIT, CALC_IO } from './content.js'
 
 const E = {}
 const set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]) }
@@ -20,20 +22,31 @@ const text = (parent, cls, attrs = {}, content) => {
   return t
 }
 // Text mit markierter letzter Ziffer (= unsichere Stelle)
-// at: Index der unsicheren Ziffer (Standard: letzte Ziffer; bei „4 · 10² mm" die 4)
-function marked(parent, cls, attrs, str, at) {
+function marked(parent, cls, attrs, str) {
   const t = svgEl('text', { class: cls, ...attrs }, parent)
-  setMarked(t, str, at)
+  setMarked(t, str)
   return t
 }
-function setMarked(t, str, at) {
+function setMarked(t, str) {
   if (t._mk === str) return
   t._mk = str
   t.textContent = ''
-  const i = at ?? str.search(/\d(?=\D*$)/)
+  const i = str.search(/\d(?=\D*$)/)
   t.append(str.slice(0, i))
   svgEl('tspan', { class: 'unc-digit' }, t).textContent = str[i]
   t.append(str.slice(i + 1))
+}
+// Zeile aus Abschnitten [text, Art]: „u" = unsichere Ziffer, „n" = Notiz, „bad"/„ok" = Urteil
+const RICH = { u: 'unc-digit', n: 'unit-note', bad: 'unit-bad', ok: 'unit-ok' }
+function rich(parent, cls, attrs, segs) {
+  const t = svgEl('text', { class: cls, ...attrs }, parent)
+  for (const [str, c] of segs) svgEl('tspan', c ? { class: RICH[c] } : {}, t).textContent = str
+  return t
+}
+// Zahl mit markierter unsicherer Ziffer: „2,7 · 10³" → 2,[7] · 10³; „1877" → 187[7]
+const num = str => {
+  const m = str.match(/^([\d,]*?)(\d)((?: · 10\S+)?)$/)
+  return [[m[1], ''], [m[2], 'u'], [m[3], '']]
 }
 const subLabel = (parent, cls, sym, sub, attrs) => {
   const t = text(parent, cls, attrs)
@@ -42,41 +55,57 @@ const subLabel = (parent, cls, sym, sub, attrs) => {
   return svgEl('tspan', { dy: -5 }, t)
 }
 
-function buildTape(root) {
-  E.tape = svgEl('g', { class: 'tape' }, root)
-  const { top, h, len } = TAPE
-  svgEl('rect', { class: 'tape-body', x: xOf(0) - 10, y: top, width: len * K + 20, height: h, rx: 4 }, E.tape)
-  svgEl('rect', { class: 'tape-hook', x: xOf(0) - 14, y: top - 6, width: 8, height: h + 6, rx: 2 }, E.tape)
-  E.zone = svgEl('rect', { class: 'zone', x: xOf(0.35), y: top, width: 0.1 * K, height: h }, E.tape)
-  E.zoneEdge = [0.35, 0.45].map(s => svgEl('line', { class: 'zone-edge', x1: xOf(s), x2: xOf(s), y1: top - 8, y2: top + h + 8 }, E.tape))
-  E.dm = svgEl('g', {}, E.tape)
-  E.cm = svgEl('g', {}, E.tape)
+// Maßband zum Ausrollen: Haken bei 0, Band hinter einem Clip-Rect, Gehäuse am
+// Bandende (die Spule dreht sich mit). Teilung 0,1 m (beschriftet), fein zusätzlich cm.
+function buildTape(root, i, { top, h, len, fine }) {
+  const g = svgEl('g', { class: 'tape' }, root)
+  const clip = svgEl('clipPath', { id: `add_tape_clip_${i}` }, E.defs)
+  const clipRect = svgEl('rect', { x: xOf(0) - 12, y: top - 10, height: h + 20, width: 0 }, clip)
+  const band = svgEl('g', { 'clip-path': `url(#add_tape_clip_${i})` }, g)
+  svgEl('rect', { class: 'tape-body', x: xOf(0) - 10, y: top, width: len * K + 20, height: h, rx: 4 }, band)
   for (let n = 0; n <= Math.round(len * 100); n++) {
     const x = xOf(n / 100)
     if (n % 10 === 0) {
-      svgEl('line', { class: 'tape-mark', x1: x, x2: x, y1: top, y2: top + 16 }, E.dm)
-      text(E.dm, 'tape-label', { x, y: top + h - 6, 'text-anchor': 'middle' }, fmt(n / 100, 1))
-    } else {
-      svgEl('line', { class: 'tape-mark', x1: x, x2: x, y1: top, y2: top + (n % 5 ? 6 : 10) }, E.cm)
+      svgEl('line', { class: 'tape-mark', x1: x, x2: x, y1: top, y2: top + 14 }, band)
+      text(band, 'tape-label add-tape-label', { x, y: top + h - 5, 'text-anchor': 'middle' }, fmt(n / 100, 1))
+    } else if (fine) {
+      svgEl('line', { class: 'tape-mark tape-mark-fine', x1: x, x2: x, y1: top, y2: top + (n % 5 ? 5 : 8) }, band)
     }
   }
+  svgEl('rect', { class: 'tape-hook', x: xOf(0) - 14, y: top - 6, width: 8, height: h + 6, rx: 2 }, g)
+  const box = svgEl('g', { class: 'tape-case' }, g)
+  svgEl('rect', { class: 'tape-case-body', x: 0, y: -h / 2 - 12, width: 2 * h + 10, height: h + 24, rx: 14 }, box)
+  const reel = svgEl('g', {}, box)
+  svgEl('circle', { class: 'tape-case-reel', cx: h + 5, cy: 0, r: h / 2 + 4 }, reel)
+  svgEl('line', { class: 'tape-case-spoke', x1: h + 5, y1: -h / 2, x2: h + 5, y2: h / 2 }, reel)
+  svgEl('line', { class: 'tape-case-spoke', x1: 5 + h / 2, y1: 0, x2: 5 + 1.5 * h, y2: 0 }, reel)
+  return { g, clipRect, box, reel, top, h, len }
+}
+function renderTape(T, alpha, r) {
+  op(T.g, alpha)
+  if (alpha <= 0.002) return
+  const ext = 0.02 + r * (T.len - 0.02), xe = xOf(ext)
+  T.clipRect.setAttribute('width', xe - xOf(0) + 12)
+  T.box.setAttribute('transform', `translate(${xe} ${T.top + T.h / 2})`)
+  T.reel.setAttribute('transform', `rotate(${(ext * 900) % 360} ${T.h + 5} 0)`)
 }
 
 // Lupe am Ende von B: Millimeter-Teilung, Ablesebereich, Kante von B
 function buildLoupe(root) {
-  const { cx, cy, r, k } = LOUPE
+  const { cx, cy, r, k } = LOUPE, T = TAPES[1], b = Number(READ.b.replace(',', '.'))
   E.loupe = svgEl('g', { class: 'loupe' }, root)
-  svgEl('line', { class: 'loupe-con', x1: cx, y1: cy - r, x2: xOf(B_TRUE), y2: TAPE.top + TAPE.h }, E.loupe)
+  svgEl('line', { class: 'loupe-con', x1: cx, y1: cy - r, x2: xOf(B_TRUE), y2: T.top + T.h }, E.loupe)
   const clip = svgEl('clipPath', { id: 'add_loupe_clip' }, E.defs)
   svgEl('circle', { cx, cy, r }, clip)
   const g = svgEl('g', { 'clip-path': 'url(#add_loupe_clip)' }, E.loupe)
   svgEl('circle', { class: 'loupe-bg', cx, cy, r }, g)
-  const lx = s => cx + (s - 1.253) * k
+  const lx = s => cx + (s - b) * k
   const top = cy - 4, h = 34
   svgEl('rect', { class: 'wp-b', x: cx - r, y: cy - 30, width: lx(B_TRUE) - (cx - r), height: 24 }, g)
   svgEl('rect', { class: 'tape-body', x: cx - r, y: top, width: 2 * r, height: h }, g)
-  E.lzA = svgEl('rect', { class: 'zone', x: lx(1.2525), y: top, width: 0.001 * k, height: h }, g)
-  for (let n = 1240; n <= 1266; n++) {
+  E.lzA = svgEl('rect', { class: 'zone', x: lx(b - 0.0005), y: top, width: 0.001 * k, height: h }, g)
+  const n0 = Math.round((b - 0.014) * 1000), n1 = Math.round((b + 0.014) * 1000)
+  for (let n = n0; n <= n1; n++) {
     const x = lx(n / 1000), l = n % 10 ? (n % 5 ? 8 : 12) : 18
     svgEl('line', { class: 'tape-mark', x1: x, x2: x, y1: top, y2: top + l }, g)
     if (n % 10 === 0) text(g, 'tape-label loupe-label', { x, y: top + h - 3, 'text-anchor': 'middle' }, fmt(n / 1000, 2))
@@ -85,11 +114,25 @@ function buildLoupe(root) {
   svgEl('circle', { class: 'loupe-frame', cx, cy, r }, E.loupe)
 }
 
-function buildTag(root) {
+// Etikett: fliegt schräg heran, federt beim Andrücken kurz ein; daneben „wird beschriftet: 0,8 m"
+function buildTag(root, str) {
   const g = svgEl('g', { class: 'tag' }, root)
-  svgEl('rect', { x: -40, y: -12, width: 80, height: 24, rx: 4 }, g)
-  const t = text(g, 'tag-text', { 'text-anchor': 'middle', y: 6 })
-  return { g, t }
+  svgEl('rect', { x: -42, y: -13, width: 84, height: 26, rx: 4 }, g)
+  svgEl('path', { class: 'tag-corner', d: 'M30 -13 L42 -13 L42 -1 Z' }, g)   // abstehende Ecke
+  marked(g, 'tag-text', { 'text-anchor': 'middle', y: 6 }, str)
+  const cap = rich(root, 'tag-caption', { 'text-anchor': 'start' }, [['wird beschriftet: ', ''], [str, 'v']])
+  cap.lastChild.setAttribute('class', 'tag-caption-val')
+  return { g, cap }
+}
+function renderTag(T, a, f, s, c, x, y) {
+  op(T.g, a); op(T.cap, c)
+  set(T.cap, { x: x - 40, y: y - 26 })
+  if (a <= 0.002) return
+  const e = 1 - (1 - f) ** 3                                 // Anflug, abbremsend
+  const px = x + (1 - e) * TAG_FLY.dx, py = y + (1 - e) * TAG_FLY.dy
+  const rot = (1 - e) * TAG_FLY.rot - 2
+  const sc = (1.3 - 0.3 * e) * (1 - 0.12 * Math.sin(Math.PI * s))   // Andrücken: kurz einfedern
+  T.g.setAttribute('transform', `translate(${px} ${py}) rotate(${rot}) scale(${sc})`)
 }
 
 function buildTable(root) {
@@ -117,75 +160,79 @@ function buildTable(root) {
   })
 }
 
+// Einheiten-Tafel: dieselbe Summe falsch gemischt, ehrlich umgerechnet, in mm / cm / m
+function buildUnits(root) {
+  const { mm, cm, m } = UNIT, { x, y, dy } = UNITS
+  const line = (i, segs) => rich(root, 'unit-line', { x, y: y + i * dy }, segs)
+  E.units = [
+    line(0, [[`${m.a} m + ${mm.b} mm`, ''], ['   Nachkommastellen 1 gegen 0 – so nicht vergleichbar ✗', 'bad']]),
+    line(1, [[`${m.a} m = `, ''], ...num(mm.a), [' mm', ''],
+      [`   nicht „${UNIT.aMmFalse} mm" – das täuschte 3 sinnvolle Ziffern vor`, 'n']]),
+    line(2, [['in mm:  ', 'n'], ...num(mm.a), [` mm + ${mm.b} mm = ${mm.raw} mm  →  `, ''], ...num(mm.res), [' mm', '']]),
+    line(3, [['in cm:  ', 'n'], ...num(cm.a), [` cm + ${cm.b} cm = ${cm.raw} cm  →  `, ''], ...num(cm.res), [' cm', '']]),
+    line(4, [['in m:    ', 'n'], ...num(m.a), [` m + ${m.b} m = ${m.raw} m  →  `, ''], ...num(m.res), [' m', ''],
+      ['   ✓ überall dasselbe Ergebnis', 'ok']]),
+  ]
+}
+
 export function initAddStage(svg) {
   E.defs = svgEl('defs', {}, svg)
   E.root = svgEl('g', { class: 'add-stage' }, svg)
   buildTable(E.root)
-  buildTape(E.root)
+  E.tapes = TAPES.map((T, i) => buildTape(E.root, i, T))
+  const T0 = TAPES[0]
+  E.zone = svgEl('rect', { class: 'zone', x: xOf(SUM.a.lo), y: T0.top, width: SUM.a.width * K, height: T0.h }, E.root)
+  E.zoneEdge = [SUM.a.lo, SUM.a.hi].map(s => svgEl('line', { class: 'zone-edge', x1: xOf(s), x2: xOf(s),
+    y1: T0.top - 8, y2: T0.top + T0.h + 8 }, E.root))
   // Bereiche der Kette (hinter den Werkstücken)
-  E.zAe = svgEl('rect', { class: 'chain-zone-a', x: xOf(0.35), width: 0.1 * K, rx: 3 }, E.root)
+  E.zAe = svgEl('rect', { class: 'chain-zone-a', x: xOf(SUM.a.lo), width: SUM.a.width * K, rx: 3 }, E.root)
   E.zEnd = svgEl('rect', { class: 'chain-zone', x: xOf(SUM.lo), width: (SUM.hi - SUM.lo) * K, rx: 3 }, E.root)
   E.rodA = svgEl('rect', { class: 'rod-body', height: ROD_H, rx: 3 }, E.root)
   E.rodB = svgEl('rect', { class: 'wp-b', height: ROD_H, rx: 3 }, E.root)
-  E.tagA = buildTag(E.root)
-  E.tagB = buildTag(E.root)
-  E.lm = [['min', SUM.lo, 'end'], ['max', SUM.hi, 'start']].map(([sub, v, anchor]) => {
+  E.tagA = buildTag(E.root, ROWS[0].tag)
+  E.tagB = buildTag(E.root, ROWS[1].tag)
+  // beide rechtsbündig an ihrer Grenze, untereinander (rechts liegt die Folienkarte)
+  E.lm = [['min', SUM.lo, 'end'], ['max', SUM.hi, 'end']].map(([sub, v, anchor]) => {
     const val = subLabel(E.root, 'chain-label', 'L', sub, { 'text-anchor': anchor })
     val.textContent = ` = ${fmt(v, 4)} m`
     return val.parentNode
   })
   buildLoupe(E.root)
+  E.calc = createCalculator(E.root, CALC)
 
-  // Auswertung: Zahlengerade, Band der Summe, Klammern, Ziffern, Urteil
+  // Auswertung: Zahlengerade, Band der Summe, Etiketten-Kandidaten, Urteil
   E.axis = createAxis(E.root, 'x')
   E.axName = text(E.root, 'axis-name-sm', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.axName).textContent = 'L'
   svgEl('tspan', {}, E.axName).textContent = ' / m'
   E.band = svgEl('rect', { class: 'lupe-band', height: 14, rx: 3 }, E.root)
   E.bandLbl = text(E.root, 'band-label', { 'text-anchor': 'middle' }, 'mögliche Gesamtlängen')
-  E.bracket = createUnitBracket(E.root)
   E.cBracket = createUnitBracket(E.root)
-  E.digits = createClaimRow(E.root, { size: DIGITS.size })
   E.cand = text(E.root, 'cand-big', { x: DIGITS.x, y: DIGITS.y })
   E.cands = CANDS.map((c, i) => text(E.root, `cand-small ${c.ok ? 'ok' : 'bad'}`,
     { x: DIGITS.x + 130 * i, y: CAND_Y }, `${c.text} ${c.ok ? '✓' : '✗'}`))
   E.verdict = text(E.root, 'verdict', { x: 112, y: VERDICT_Y })
-  // Rechnung in mm
-  E.units = [
-    ['0,4 m = 4 · 10² mm', '   (nicht „400 mm" – das täuschte mm-Genauigkeit vor)', 8],
-    ['1,253 m = 1253 mm', ''],
-    ['Summe: 1653 mm → 1,7 · 10³ mm = 1,7 m', ''],
-  ].map(([main, note, at], i) => {
-    const t = marked(E.root, 'unit-line', { x: 112, y: 548 + 38 * i }, main, at)
-    if (note) svgEl('tspan', { class: 'unit-note' }, t).textContent = note
-    return t
-  })
+  buildUnits(E.root)
   return E.root
 }
 
 function renderBench(S) {
-  op(E.tape, S.tpA)
-  op(E.dm, S.tdA); op(E.cm, S.tdB)
+  renderTape(E.tapes[0], S.tp0A, S.tp0R)
+  renderTape(E.tapes[1], S.tp1A, S.tp1R)
   op(E.zone, S.zA); E.zoneEdge.forEach(l => op(l, S.zA))
   const rod = (el, a, x, y, L) => {
     set(el, { x: xOf(x), y, width: Math.max(0, L * K) }); op(el, a)
   }
   rod(E.rodA, S.aA, S.aX, S.aY, S.aL)
   rod(E.rodB, S.bA, S.bX, S.bY, S.bL)
-  const tag = (T, a, s, x, L, y, str) => {
-    op(T.g, a)
-    if (a <= 0.002) return
-    const sc = 1.7 - 0.7 * s, rot = (1 - s) * -8 - 2
-    T.g.setAttribute('transform', `translate(${xOf(x + L / 2)} ${y + ROD_H / 2}) rotate(${rot}) scale(${sc})`)
-    setMarked(T.t, str)
-  }
-  tag(E.tagA, S.tgA, S.tgAs, S.aX, S.aL, S.aY, ROWS[0].tag)
-  tag(E.tagB, S.tgB, S.tgBs, S.bX, S.bL, S.bY, ROWS[1].tag)
-  set(E.zAe, { y: LANE.low - 6, height: ROD_H + 12 }); op(E.zAe, S.zAe)
-  set(E.zEnd, { y: LANE.low - 6, height: TAPE.top + TAPE.h - LANE.low + 6 }); op(E.zEnd, S.zEnd)
-  set(E.lm[0], { x: xOf(SUM.lo) - 6, y: TAPE.top + TAPE.h + 20 }); op(E.lm[0], S.lmMin)
-  set(E.lm[1], { x: xOf(SUM.hi) + 6, y: TAPE.top + TAPE.h + 20 }); op(E.lm[1], S.lmMax)
+  renderTag(E.tagA, S.tgA, S.tgAf, S.tgAs, S.tgAc, xOf(S.aX + S.aL / 2), S.aY + ROD_H / 2)
+  renderTag(E.tagB, S.tgB, S.tgBf, S.tgBs, S.tgBc, xOf(S.bX + S.bL / 2), S.bY + ROD_H / 2)
+  set(E.zAe, { y: S.aY - 6, height: ROD_H + 12 }); op(E.zAe, S.zAe)
+  set(E.zEnd, { y: S.aY - 6, height: ROD_H + 12 }); op(E.zEnd, S.zEnd)
+  set(E.lm[0], { x: xOf(SUM.lo) - 6, y: S.aY + ROD_H + 28 }); op(E.lm[0], S.lmMin)
+  set(E.lm[1], { x: xOf(SUM.hi) + 6, y: S.aY + ROD_H + 54 }); op(E.lm[1], S.lmMax)
   op(E.loupe, S.lpA); op(E.lzA, S.lzA)
+  E.calc.render({ alpha: S.calcA, input: CALC_IO.input, output: CALC_IO.output, t: S.calcT })
 }
 
 function renderEval(S, V) {
@@ -193,7 +240,7 @@ function renderEval(S, V) {
   set(E.axName, { x: V.R + 30, y: AXIS_Y + 6 }); op(E.axName, S.nAx)
   const a = clamp(V.sx(SUM.lo), V.L, V.R), b = clamp(V.sx(SUM.lo + (SUM.hi - SUM.lo) * S.bd), V.L, V.R)
   set(E.band, { x: a, y: BAND_Y, width: Math.max(0, b - a) }); op(E.band, S.bd > 0.002 ? S.nAx : 0)
-  set(E.bandLbl, { x: (a + b) / 2, y: BAND_Y + 32 }); op(E.bandLbl, S.bd * S.nAx * (1 - S.slA) * (1 - S.cdA))
+  set(E.bandLbl, { x: (a + b) / 2, y: BAND_Y + 32 }); op(E.bandLbl, S.bd * S.nAx * (1 - S.cdA))
 
   // Etiketten-Kandidaten: groß der aktuelle, klein die Liste mit ✓/✗
   const c = CANDS[Math.round(S.cdI)]
@@ -201,15 +248,8 @@ function renderEval(S, V) {
   E.cBracket.render(V, { R: c.value, p: c.p, y0: BAND_Y - 8, y1: BAND_Y + 22, alpha: S.cbA,
     text: `Etikett ${c.text}` })
   E.cands.forEach((t, i) => op(t, S[`cl${i}`]))
-
-  // Stellenanalyse der Summe
-  const p = Math.round(S.slD)
-  E.digits.render(LUPE.info, p, { x: DIGITS.x, y: DIGITS.y, alpha: S.slA, colored: p >= S.slC, unit: 'm' })
-  E.bracket.render(V, { ...claimRange(LUPE.info, p), y0: BAND_Y - 8, y1: BAND_Y + 22, alpha: S.slB,
-    text: claimLabel(LUPE.info, p) })
-  E.verdict.textContent = S.cdV > S.slV ? c.verdict : verdict(LUPE.info, p)
-  op(E.verdict, Math.max(S.cdV, S.slV))
-
+  E.verdict.textContent = c.verdict
+  op(E.verdict, S.cdV)
   E.units.forEach((t, i) => op(t, S[`u${i + 1}`]))
 }
 

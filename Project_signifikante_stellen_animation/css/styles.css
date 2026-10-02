@@ -269,6 +269,7 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .slide-card .cmp-unc   { color: var(--c-unc); font-weight: 800; background: var(--c-unc-bg);
   border-radius: 3px; padding: 0 1px; }
 .slide-card .cmp-ghost { color: var(--text3); font-weight: 500; }
+.slide-card .cmp-implicit { opacity: .45; }
 .slide-card .ghost-word { color: var(--text3); font-weight: 700; }
 .slide-card .key-band, .slide-card .key-bracket { color: var(--text); font-weight: 700; white-space: nowrap; }
 .slide-card .key-band::before, .slide-card .key-bracket::before {
@@ -282,6 +283,7 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
   filter: drop-shadow(0 6px 14px rgba(26, 30, 46, .25)); }
 .calc-key   { fill: #4a515d; }
 .calc-eq    { fill: var(--accent); }
+.calc-key.pressed { fill: var(--accent); filter: brightness(1.25) drop-shadow(0 0 6px var(--accent)); }
 .calc-key-t { fill: #eef1f5; font-size: 17px; font-weight: 600; }
 .calc-in    { fill: var(--lcd-ink); font-family: var(--font-mono) !important; font-size: 14px; opacity: .75; }
 .calc-out   { font-size: 30px; }
@@ -349,3 +351,17 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .limits-pop ul { margin: 0; padding-left: 18px; }
 .limits-pop li + li { margin-top: 5px; }
 .limits-pop b { color: var(--text); }
+
+/* Addition: Maßband mit Gehäuse (Aus-/Einrollen), Etikett-Anflug, Einheiten-Tafel */
+.tape-case-body  { fill: #2f3540; stroke: #1c2027; stroke-width: 1.5;
+  filter: drop-shadow(0 3px 6px rgba(26, 30, 46, .3)); }
+.tape-case-reel  { fill: #4a515d; stroke: #f2c94c; stroke-width: 3; }
+.tape-case-spoke { stroke: #f2c94c; stroke-width: 2.5; stroke-linecap: round; }
+.add-tape-label  { font-size: 10px; }
+.tape-mark-fine  { stroke-opacity: .55; }
+.tag-corner      { fill: #e9e2c7; stroke: #c9c2a8; stroke-width: 1; }
+.tag-caption     { fill: var(--text2); font-size: 15px; font-weight: 600; }
+.tag-caption-val { fill: var(--accent); font-weight: 800; }
+.unit-line { white-space: pre; }
+.unit-bad  { fill: var(--c-b); font-size: 16px; font-weight: 600; }
+.unit-ok   { fill: var(--accent); font-size: 16px; font-weight: 700; }
