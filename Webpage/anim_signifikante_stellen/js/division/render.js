@@ -14,6 +14,7 @@ import { ROW, CMP } from './content.js'
 import { parseMeasured } from '../model.js'
 import {
   createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
+  uncIndex,
 } from '../stellen.js'
 
 const E = {}
@@ -256,7 +257,7 @@ export function initSpeedStage(svg) {
 // Text mit markierter letzter Ziffer (= unsichere Stelle): „19,8<3> m"
 function markedText(parent, cls, attrs, str) {
   const t = svgEl('text', { class: cls, ...attrs }, parent)
-  const i = str.search(/\d(?=\D*$)/)
+  const i = uncIndex(str)
   t.append(str.slice(0, i))
   svgEl('tspan', { class: 'unc-digit' }, t).textContent = str[i]
   t.append(str.slice(i + 1))
@@ -319,7 +320,7 @@ function buildFraction() {
   E.frLive = symText(E.frac, 'frac-live', { x: FRAC.live, y: (FRAC.y[0] + FRAC.y[1]) / 2 + 10 }, 'v', ' = ')
   E.frLiveVal = svgEl('tspan', {}, E.frLive)
   // Welche Kombination steht gerade an den Reglern? (nur an den vier Ecken)
-  E.frCap = text(E.frac, 'frac-cap-text', { x: FRAC.live, y: (FRAC.y[0] + FRAC.y[1]) / 2 + 44 })
+  E.frCap = text(E.frac, 'frac-cap-text', { x: 60, y: FRAC.y[1] + 62 })   // links unter den Reglern
 }
 const near = (k, v) => Math.abs(k - v) < 0.015
 function comboText(ks, kt) {

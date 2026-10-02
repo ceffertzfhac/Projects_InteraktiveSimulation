@@ -23,9 +23,9 @@ import {
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
 import { parseMeasured, circleExample } from './model.js'
-import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE } from './content.js'
+import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY } from './content.js'
 import { HITS } from './state.js'
-import { scanPlaces, compareScan as scanCompare } from './stellen.js'
+import { scanPlaces, compareScan as scanCompare, revealSummary } from './stellen.js'
 
 export function buildSteps(S, DOM) {
   const C = DOM.cards
@@ -197,7 +197,7 @@ export function buildSteps(S, DOM) {
   step('Die Zahlengerade', tl => {
     tl.to(S, { rod1A: 0, rdA: 0, zA: 0, mk0A: 0, mk1A: 0, sn0A: 0, sn1A: 0, duration: 0.5 })
     rd.hide(tl, { at: '<' })
-    cam.to(tl, camA(3, levelWidth(0)), { duration: T.cam, at: '<0.2', anchor: { y: 0 } })
+    cam.to(tl, camA(3 + 0.12 * levelWidth(0), levelWidth(0)), { duration: T.cam, at: '<0.2', anchor: { y: 0 } })
     tl.to(S, { tg1: 0, duration: 0.8 }, '<')
     tl.to(S, { axisDraw: 1, duration: T.draw, ease: EASE.cam }, '<0.4')
     tl.to(S, { pA: 1, pS: 1, duration: T.pop, ease: EASE.pop }, '>-0.2')
@@ -238,7 +238,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { lBndA: 0, duration: 0.2 }, '<')
       tl.to(S, { lLo: L[k].lo, lHi: L[k].hi, pX: L[k].value, gA: 0.3, duration: 1.1, ease: EASE.cam }, '<0.2')
       // 2) Zoom ×10 auf den neuen Messwert: alte Teilung zieht sich zurück, neue wächst
-      cam.to(tl, camA(L[k].value, levelWidth(k)), { duration: T.cam, anchor: { y: 0 }, at: '>0.15' })
+      cam.to(tl, camA(L[k].value + 0.12 * levelWidth(k), levelWidth(k)), { duration: T.cam, anchor: { y: 0 }, at: '>0.15' })
       tl.to(S, { ['ag' + (k - 1)]: 0, gA: 0, duration: T.cam * 0.8 }, '<')
       tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
       tl.set(S, { lBndD: k + 1 }, '<')
@@ -275,11 +275,11 @@ export function buildSteps(S, DOM) {
   step('Führende Nullen zählen nicht', tl => {
     deck.show(tl, C.zeros)
     tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '<')
-    toRep(tl, 1, '>0.1')                         // 0,003000 km
+    toRep(tl, 1, '>0.1')                         // 0,003120 km
     tl.to(S, { brZ: 1, duration: 0.4 }, '>0.1')
     tl.to(S, { brZ: 0, duration: 0.3 }, '>1.6')
-    toRep(tl, 2, '>')                            // 300,0 cm
-    toRep(tl, 3, '>1.4')                         // 3,000 · 10³ mm
+    toRep(tl, 2, '>')                            // 312,0 cm
+    toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
     tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.3')
   }, 7)
 
@@ -370,7 +370,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.3')
   }
 
-  step('Kleinstmögliche und größtmögliche Fläche', tl => {
+  step('Grenzen der Fläche', tl => {
     clearHits(tl)
     tl.set(S, { cmb: 0 }, '<')
     hideRows(tl, C.range, '<')
@@ -444,7 +444,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
 
-  step('Kreis: r = 3,0 m — Radius variieren', tl => {
+  step('Kreis: r = 3,0 m', tl => {
     clearHits(tl)
     dl.hide(tl, { at: '<' })
     db.hide(tl, { at: '<' })
@@ -462,7 +462,7 @@ export function buildSteps(S, DOM) {
   R_TEXTS.forEach((rt, j) => {
     const c = circles[j]
     if (j > 0) {
-      step(`Kreis: r = ${rt} m — Radius variieren`, tl => {
+      step(`Kreis: r = ${rt} m`, tl => {
         tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, slA: 0, dcA: 0, duration: 0.5 })
         tl.set(S, { tr0D: 0, tr1D: 0, f0R: 0, f1R: 0 })
         rl.show(tl, textIndex(rt), { at: '<' })
@@ -490,7 +490,13 @@ export function buildSteps(S, DOM) {
     }, 6)
   })
 
-  // ── E · Merksatz ───────────────────────────────────────────────────────────
+  // ── Z · Zusammenfassung → E · Merksatz ─────────────────────────────────────
+  step('Zusammenfassung', tl => {
+    tl.to(S, { dim: 1, slA: 0, dcA: 0, duration: 0.8 })
+    deck.show(tl, C.m_sum, '<0.2')
+    revealSummary(tl, C.m_sum, SUMMARY.length, reveal)
+  }, 8)
+
   step('Merke', tl => {
     tl.to(S, { dim: 1, slA: 0, dcA: 0, duration: 0.8 })
     deck.show(tl, C.rule, '<0.2')

@@ -6,7 +6,7 @@
 
 import { svgEl, viewOf, createAxis, clamp } from '../../../shared/js/step-kit.js'
 import { fmt } from '../../../shared/js/format.js'
-import { createCalculator, createCompareBoard, compareLine } from '../stellen.js'
+import { createCalculator, createCompareBoard, compareLine, uncIndex } from '../stellen.js'
 import {
   xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, CMP_BOX, UNITS, B_TRUE, READ,
 } from './constants.js'
@@ -30,7 +30,7 @@ function setMarked(t, str) {
   if (t._mk === str) return
   t._mk = str
   t.textContent = ''
-  const i = str.search(/\d(?=\D*$)/)
+  const i = uncIndex(str)
   t.append(str.slice(0, i))
   svgEl('tspan', { class: 'unc-digit' }, t).textContent = str[i]
   t.append(str.slice(i + 1))

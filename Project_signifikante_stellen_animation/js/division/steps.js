@@ -9,11 +9,11 @@
 //    → welche Stelle ist unsicher? (Zahlengerade Stelle für Stelle) → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
-import { compareScan } from '../stellen.js'
+import { compareScan, revealSummary } from '../stellen.js'
 import {
   T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
-import { ROW, CMP } from './content.js'
+import { ROW, CMP, SUMMARY } from './content.js'
 
 const vAt = (r, ks, kt) => {
   const { s, t } = r.e
@@ -39,7 +39,7 @@ export function buildSpeedSteps(S, DOM) {
     deck.show(tl, C.v_intro, 0.3)
   }, 3)
 
-  step('Zwei Personen, zwei Ausrüstungen', tl => {
+  step('Zwei Ausrüstungen', tl => {
     deck.show(tl, C.v_equip)
     tl.to(S, { pnA0: 1, pnY0: 0, duration: T.reveal, ease: EASE.reveal }, '<')
     tl.to(S, { pnA1: 1, pnY1: 0, duration: T.reveal, ease: EASE.reveal }, '<0.35')
@@ -126,11 +126,11 @@ export function buildSpeedSteps(S, DOM) {
     clearHits(tl)
   }
   // Ziffern vergleichen: v_max · Rechner · v_min untereinander (an der Stelle der Regler)
-  const digits = (tl, i, card, finalW) => {
+  const digits = (tl, i, card, finalW, finalCx) => {
     const r = ROW[i]
     tl.to(S, { frA: 0, vlA: 0, duration: 0.4 })
     compareScan(tl, S, CMP[i], i)
-    cam.to(tl, { cx: Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
+    cam.to(tl, { cx: finalCx ?? Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
     tl.to(S, { [`rm${i}`]: 1, duration: 0.5 })
     cell(tl, `c${i}v`, '<')
     reveal(tl, card, 'res', '<0.2')
@@ -141,7 +141,7 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
   }
 
-  step('Person A: kleinstmögliches und größtmögliches v', tl => {
+  step('Person A: Grenzen von v', tl => {
     deck.show(tl, C.v_vA)
     tl.to(S, { lowA: 0, duration: 0.6 }, '<')
     tl.set(S, { frI: 0, ks: 0.5, kt: 0.5 })
@@ -153,12 +153,12 @@ export function buildSpeedSteps(S, DOM) {
     bounds(tl, 0, C.v_vA, true)
   }, 6)
 
-  step('Person A: welche Stelle ist unsicher?', tl => {
+  step('Person A: Ziffern vergleichen', tl => {
     deck.show(tl, C.v_digA)
     digits(tl, 0, C.v_digA, 0.8)
   }, 6)
 
-  step('Person B: kleinstmögliches und größtmögliches v', tl => {
+  step('Person B: Grenzen von v', tl => {
     deck.show(tl, C.v_vB)
     startBounds(tl, 1)
     cam.to(tl, CAM_V_FULL, { duration: T.cam, at: '<' })
@@ -166,7 +166,7 @@ export function buildSpeedSteps(S, DOM) {
     digits(tl, 1, C.v_vB, 24)
   }, 6)
 
-  step('Kombiniert: cm-Maßband und Lichtschranken', tl => {
+  step('Kombiniert: A und B', tl => {
     deck.show(tl, C.v_best)
     tl.to(S, { row2: 1, duration: 0.4 }, '<0.2')
     cell(tl, 'c2s', '<0.15')
@@ -174,8 +174,14 @@ export function buildSpeedSteps(S, DOM) {
     startBounds(tl, 2)
     cam.to(tl, { cx: 9.27, w: 0.3 }, { duration: T.cam, at: '<' })
     bounds(tl, 2, C.v_best, false)
-    digits(tl, 2, C.v_best, 0.08)
+    digits(tl, 2, C.v_best, 0.1, 9.29)          // Marke von A (9,3) bleibt links der Karte
   }, 6)
+
+  step('Zusammenfassung', tl => {
+    tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
+    deck.show(tl, C.v_sum, '<0.2')
+    revealSummary(tl, C.v_sum, SUMMARY.length, reveal)
+  }, 8)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })

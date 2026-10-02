@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.12.1</span>
+        <span class="version">v0.13.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -171,8 +171,8 @@ window.MathJax = {
         <p>Nullen <b>vor</b> der ersten Ziffer ≠ 0 zeigen nur, wo das Komma steht – sie sind
           <b>nicht signifikant</b>. Die Zahl der signifikanten Stellen hängt nicht von der
           Einheit ab: immer 4.</p>
-        <p class="note">„3120 mm" wäre mehrdeutig (zählt die Null?) – eindeutig ist
-          \(3{,}120 \cdot 10^3\,\text{mm}\).</p>
+        <p class="note">Nullen <b>nach</b> der ersten Ziffer ≠ 0 zählen voll: \(3120\,\text{mm}\) hat
+          ebenfalls vier signifikante Stellen – die Endnull wurde gemessen.</p>
       </div>
 
       <!-- R · Fläche -->
@@ -257,6 +257,16 @@ window.MathJax = {
         <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AloH"></span>&thinsp;m²</div>
         <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="circ.A"></span>&thinsp;m² – Unsicherheit auf der <span class="dyn" data-dyn="circ.AOrd"></span> Stelle</div>
         <p class="note">π und der Exponent 2 sind exakt.</p>
+      </div>
+
+      <div class="slide-card pos-c wide sum-card" data-card="m_sum">
+        <div class="kicker">Zusammenfassung · Multiplikation</div>
+        <h3>Was haben alle Rechnungen gemeinsam?</h3>
+        <table class="cmp sum">
+          <thead><tr><th>Rechnung</th><th>signif. Stellen der Messwerte</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="formula" data-r="concl">In jeder Zeile liegt die Unsicherheit genau auf der Stelle, die der <b>kleinsten</b> Stellenzahl der Messwerte entspricht. Exakte Zahlen (2, π, Exponent) zählen nicht.<br>⇒ <b>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</b></div>
       </div>
 
       <!-- E · Merksatz -->
@@ -371,6 +381,16 @@ window.MathJax = {
         <p class="note">\(\Delta s\): 4 Stellen, \(\Delta t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>
 
+      <div class="slide-card pos-c wide sum-card" data-card="v_sum">
+        <div class="kicker">Zusammenfassung · Division</div>
+        <h3>Was haben alle drei Rechnungen gemeinsam?</h3>
+        <table class="cmp sum">
+          <thead><tr><th>Rechnung</th><th>signif. Stellen von \(\Delta s\) und \(\Delta t\)</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="formula" data-r="concl">Wieder liegt die Unsicherheit auf der Stelle, die der <b>kleinsten</b> Stellenzahl entspricht – wie bei der Multiplikation.<br>⇒ <b>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die ungenaueste Messgröße.</b></div>
+      </div>
+
       <div class="slide-card pos-c wide" data-card="v_rule">
         <div class="kicker">Merke · Division</div>
         <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
@@ -460,23 +480,36 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="a_unit">
         <div class="kicker">Gleiche Einheit!</div>
-        <h3>Erst ehrlich umrechnen, dann Nachkommastellen vergleichen</h3>
-        <p>Nachkommastellen lassen sich nur in <b>derselben Einheit</b> vergleichen. Beim
-          Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht:
+        <h3>Erst ehrlich umrechnen, dann Stellenwerte vergleichen</h3>
+        <p>Vergleichen lassen sich nur Summanden in <b>derselben Einheit</b>. Beim Umrechnen ändert
+          sich die Zahl der sinnvollen Ziffern nicht:
           <span class="dyn" data-dyn="add.a"></span>&nbsp;m = <span class="dyn" data-dyn="add.aMm"></span>&nbsp;mm – nicht 800&nbsp;mm.</p>
+        <p>Maßgeblich ist der <b>Stellenwert</b> der letzten Ziffer: In mm haben beide Summanden
+          keine Nachkommastelle, trotzdem endet 8 · 10²&nbsp;mm schon bei den Hundertern.</p>
         <p class="note">Ob mm, cm oder m: Das Ergebnis endet immer beim Stellenwert des ungenauesten Summanden.</p>
+      </div>
+
+      <div class="slide-card pos-c wide sum-card" data-card="a_sum">
+        <div class="kicker">Zusammenfassung · Addition</div>
+        <h3>Dieselbe Summe in m, cm und mm</h3>
+        <table class="cmp sum">
+          <thead><tr><th>Rechnung</th><th>Stellenwert der letzten Ziffer</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="formula" data-r="concl">In jeder Einheit liegt die Unsicherheit beim <b>Stellenwert der letzten Ziffer des ungenauesten Summanden</b> (Zehntel m = Zehner cm = Hunderter mm). Die Zahl der signifikanten Stellen (1 und 4) führt dagegen in die Irre.<br>⇒ <b>Das Ergebnis endet beim Stellenwert des ungenauesten Summanden.</b> Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen wie der ungenaueste Summand.</div>
       </div>
 
       <div class="slide-card pos-c wide" data-card="a_rule">
         <div class="kicker">Merke · Addition und Subtraktion</div>
-        <h3>In derselben Einheit: so viele Nachkommastellen wie der ungenaueste Summand.</h3>
-        <div class="formula">Grenzen: kleinstmöglich + kleinstmöglich, größtmöglich + größtmöglich.
-          Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht.</div>
+        <h3>Das Ergebnis endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden.</h3>
+        <div class="formula">Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen
+          wie der ungenaueste Summand. Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht
+          (0,8 m = 8 · 10² mm, nicht 800 mm).</div>
         <table class="cmp">
           <tr><th></th><th>Multiplikation / Division</th><th>Addition / Subtraktion</th></tr>
           <tr><td>maßgeblich</td><td>relative Unsicherheit</td><td>absolute Unsicherheit</td></tr>
           <tr><td>Regel</td><td>so viele signifikante Stellen wie der ungenaueste Faktor</td>
-            <td>so viele Nachkommastellen wie der ungenaueste Summand</td></tr>
+            <td>Ende beim Stellenwert des ungenauesten Summanden (gleiche Einheit: Nachkommastellen)</td></tr>
           <tr><td>Beispiel</td><td>3,120&nbsp;m · 2,14&nbsp;m = 6,68&nbsp;m²</td>
             <td>0,8&nbsp;m + 1,877&nbsp;m = 2,7&nbsp;m</td></tr>
         </table>

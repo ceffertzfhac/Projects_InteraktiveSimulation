@@ -3,8 +3,8 @@
 // Etiketten-Kandidaten, Einheiten-Tafel, Folienzahlen (<span data-dyn="add.feld">).
 
 import { fmt } from '../../../shared/js/format.js'
-import { sumExample, exactStr, formatSig, digitCompare, compareHtml } from '../model.js'
-import { compareData } from '../stellen.js'
+import { sumExample, exactStr, formatSig, digitCompare, compareHtml, placeAnalysis, placeName } from '../model.js'
+import { compareData, fillSummary } from '../stellen.js'
 import { READ } from './constants.js'
 
 export const SUM = sumExample(READ.a, READ.b)
@@ -50,9 +50,21 @@ export const ADD = {
   a: a.text, b: b.text, aSig: String(a.sig), bSig: String(b.sig), aDec: String(a.decimals), bDec: String(b.decimals),
   aMm: UNIT.mm.a, bMm: UNIT.mm.b, resMm: UNIT.mm.res,
 }
+// Zusammenfassung: dieselbe Summe in m, cm und mm — Stellenwert der letzten Ziffer je
+// Summand und beim Ergebnis; zuletzt die (falsche) Faustregel der Multiplikation
+// (Ziffernvergleich je Einheit: L_min / L_max in dieser Einheit — die unsichere Stelle
+// ist überall dieselbe: Zehntel m = Zehner cm = Hunderter mm)
+const lastPlace = str => placeName(placeAnalysis(str, 0, 1, 0.5).pLast)
+export const SUMMARY = [['m', UNIT.m, 1], ['cm', UNIT.cm, 100], ['mm', UNIT.mm, 1000]].map(([u, x, f]) => {
+  const D = compareData({ lo: exactStr(SUM.lo * f), val: x.raw, hi: exactStr(SUM.hi * f), sym: 'L', mid: '', unit: u, rounded: x.res })
+  return [`${x.a} ${u} + ${x.b} ${u}`, `${lastPlace(x.a)} und ${lastPlace(x.b)}`,
+    `${D.pos}. Stelle (${placeName(D.cmp.pDiff)})`, `${x.res} ${u}`]
+}).concat([['Faustregel der Multiplikation', `signif. Stellen: ${a.sig} und ${b.sig}`, '–', `${SUM.sigRule} m – verschenkt Wissen ✗`]])
+
 export const CALC_IO = { input: `${a.text} + ${b.text} =`, output: raw }
 
 export function fillAddCards(DOM) {
+  fillSummary(DOM.cards.a_sum, SUMMARY)
   for (const el of DOM.dyn) {
     const [grp, field] = el.dataset.dyn.split('.')
     if (grp === 'add') el[field.endsWith('H') ? 'innerHTML' : 'textContent'] = ADD[field]

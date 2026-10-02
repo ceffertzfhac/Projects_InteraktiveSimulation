@@ -373,3 +373,12 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .proto-legend-box rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
 .proto-legend-head { font-weight: 700; fill: var(--text2); }
 .frac-cap-text { fill: var(--accent); font-size: 16px; font-weight: 700; }
+
+/* Zusammenfassung am Kapitelende: Tabelle aller Ergebnisse, Zeilen erscheinen nacheinander */
+.slide-card table.sum { font-size: .86em; margin-top: .4em; }
+.slide-card table.sum td:first-child { color: var(--text); font-weight: 600; }
+.slide-card table.sum td:nth-child(3) { color: var(--c-unc); font-weight: 700; }
+.slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.slide-card table.sum th { font-size: .9em; }
+.slide-card table.sum + .formula { margin-top: .8em; }
+.slide-card.sum-card { width: 62cqw; top: 7cqw; }

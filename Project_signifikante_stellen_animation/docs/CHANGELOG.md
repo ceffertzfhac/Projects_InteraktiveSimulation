@@ -1,5 +1,28 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.13.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
+
+- **Zusammenfassung vor „Merke"** in Multiplikation, Division und Addition (PO). Eine Tabelle
+  aller Ergebnisse des Kapitels (Rechnung · Stellen der Messwerte · Ziffernvergleich ·
+  Ergebnis), Zeile für Zeile eingeblendet, daraus die Regel als Schlussfolgerung.
+- **Addition, Regel präzisiert:** „Das Ergebnis endet beim Stellenwert der letzten Ziffer des
+  ungenauesten Summanden". „So viele Nachkommastellen" ist nur die Kurzform für
+  Dezimalzahlen in derselben Einheit. Bei 8 · 10¹ cm + 187,7 cm gäbe sie sonst falsch
+  268 cm. Karte „Gleiche Einheit" entsprechend („Stellenwerte vergleichen").
+- Unsichere Ziffer bei Zehnerpotenzen auf der Mantisse („1 · 10¹ m/s": die 1, nicht die 0
+  von 10), gemeinsame Funktion `uncIndex`.
+- **Optische Kollisionen beseitigt** (automatische Prüfung aller Schritte):
+  - Division: Kombinationszeile unter den Reglern, Endausschnitt „Kombiniert" so, dass die
+    Marke von A links der Karte bleibt.
+  - Multiplikation: *l*_min/*l*_max seitlich der Kante.
+  - Grundlagen: Kamera leicht nach rechts versetzt, die obere Intervallgrenze lag unter der
+    Karte; dazu die Ziffernzeile weiter links.
+  - Zusammenfassungs-Karten breiter.
+  - Kürzere Schritt-Titel, damit die Navigationsleiste sie ganz zeigt.
+- **Grundlagen, führende Nullen:** „3120 mm" statt „3,120 · 10³ mm". Nach unserer Definition
+  zählen Nullen nach der ersten Ziffer ≠ 0 voll, die Angabe ist eindeutig 4-stellig. Der
+  frühere Hinweis „3120 mm wäre mehrdeutig" widersprach der Definition (PO).
+
 ## v0.12.1 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
 - Division: **Δ überall** (PO) – Spaltenköpfe Δ*s*/Δ*t*, Regler und ihre Grenzen

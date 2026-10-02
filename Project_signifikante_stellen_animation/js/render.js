@@ -10,12 +10,12 @@ import { fmt } from '../../shared/js/format.js'
 import {
   TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL,
 } from './constants.js'
-import { DYN, LUPE, COMPARE, RANGES } from './content.js'
+import { DYN, LUPE, COMPARE, RANGES, SUMMARY } from './content.js'
 import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
   createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
-  createCalculator,
+  createCalculator, fillSummary, uncIndex,
 } from './stellen.js'
 import { HITS } from './state.js'
 
@@ -63,7 +63,7 @@ function setMarked(el, str, on) {
   if (el._mk === key) return
   el._mk = key
   el.textContent = ''
-  const i = on ? str.search(/\d(?=\D*$)/) : -1
+  const i = on ? uncIndex(str) : -1
   if (i < 0) { el.textContent = str; return }
   el.append(str.slice(0, i))
   svgEl('tspan', { class: 'unc-digit' }, el).textContent = str[i]
@@ -122,6 +122,7 @@ function buildCompare() {
 export function initStage(svg, DOM) {
   // nur die eigenen dynamischen Zahlen (lvl/cmb/circ) — andere Kapitel füllen ihre selbst
   E.dyn = DOM.dyn.filter(el => el.dataset.dyn.split('.')[0] in DYN)
+  fillSummary(DOM.cards.m_sum, SUMMARY)
   const defs = svgEl('defs', {}, svg)
   gradient(defs, 'grad_l', [[0, 'gl-edge'], [0.5, 'gl-mid'], [1, 'gl-edge']])
   gradient(defs, 'grad_rod', [[0, 'rod-hi'], [0.35, 'rod-mid'], [1, 'rod-lo']])
@@ -238,8 +239,9 @@ export function initStage(svg, DOM) {
   })
 
   // Grenzen l_min … b_max an den Streifenkanten (Teil R)
-  E.edge = [['l', 'min'], ['l', 'max'], ['b', 'min'], ['b', 'max']].map(([sym, sub]) =>
-    subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': sym === 'l' ? 'middle' : 'start' }))
+  // l_min links, l_max rechts ihrer Kante (bei schmalen Streifen sonst übereinander)
+  E.edge = [['l', 'min', 'end'], ['l', 'max', 'start'], ['b', 'min', 'start'], ['b', 'max', 'start']].map(([sym, sub, anchor]) =>
+    subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': anchor }))
 
   buildSigRow()
   E.calc = createCalculator(E.root, CALC)        // Taschenrechner neben dem Rechteck
@@ -510,7 +512,7 @@ export function renderScene(S) {
   rectWorld(E.maxRect, V, 0, 0, S.lHi, S.bHi); op(E.maxRect, Math.max(S.uA, S.mxA))
   E.minRect.classList.toggle('hot', S.mnA > 0.5); E.maxRect.classList.toggle('hot', S.mxA > 0.5)
   // Grenzen an den Streifenkanten
-  ;[[S.lLo, 0], [S.lHi, 1]].forEach(([v, n]) => { set(E.edge[n], { x: V.sx(v), y: V.T + 22 }); op(E.edge[n], S.edA) })
+  ;[[S.lLo, 0, -5], [S.lHi, 1, 5]].forEach(([v, n, dx]) => { set(E.edge[n], { x: V.sx(v) + dx, y: V.T + 22 }); op(E.edge[n], S.edA) })
   ;[[S.bLo, 2], [S.bHi, 3]].forEach(([v, n]) => { set(E.edge[n], { x: axX + 14, y: V.sy(v) + (n === 2 ? 24 : -10) }); op(E.edge[n], S.edA) })
   const cx = v => clamp(V.sx(v), V.L - FAR, V.R + FAR), cy = v => clamp(V.sy(v), V.T - FAR, V.B + FAR)
   const [ox, oy, ix, iy, mx, my] = [cx(0), cy(0), cx(S.lLo), cy(S.bLo), cx(S.lHi), cy(S.bHi)]
@@ -568,7 +570,7 @@ function renderUnc(S, V, axY) {
   const act = sl[n], el = E.pl[n]
   const show = S.ucBox * act.a
   if (show > 0.002 && el._mk && el.getNumberOfChars() > 0) {
-    const str = el.textContent, i = str.search(/\d(?=\D*$)/)
+    const str = el.textContent, i = uncIndex(str)
     const r = el.getExtentOfChar(i)
     set(E.ucBox, { x: r.x - 5, y: r.y + 2, width: r.width + 10, height: r.height - 2 })
     set(E.ucTag, { x: r.x + r.width / 2, y: r.y - 8 })

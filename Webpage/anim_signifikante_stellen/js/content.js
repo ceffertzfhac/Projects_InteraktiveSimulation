@@ -105,4 +105,21 @@ export const COMPARE = [
   }),
 ]
 
+// Zusammenfassung: alle Ergebnisse des Kapitels (Rechnung · Stellen der Messwerte ·
+// Ziffernvergleich · Ergebnis)
+const STELLE = n => `${n}. Stelle`
+export const SUMMARY = [
+  ...EXAMPLES.map(([, [lt, bt]], i) => {
+    const ex = areaExample(lt, bt)
+    return [`${lt} m · ${bt} m`, `${ex.l.sig} und ${ex.b.sig}`, STELLE(COMPARE[i].pos), `${ex.rounded} m² (${stellen(ex.sig)})`]
+  }),
+  ...R_TEXTS.flatMap((rt, j) => {
+    const c = circleExample(rt), k = EXAMPLES.length + 2 * j
+    return [
+      [`U = 2π · ${rt} m`, `${c.r.sig} (2, π exakt)`, STELLE(COMPARE[k].pos), `${c.U.rounded} m (${stellen(c.sig)})`],
+      [`A = π · (${rt} m)²`, `${c.r.sig} (π, ² exakt)`, STELLE(COMPARE[k + 1].pos), `${c.A.rounded} m² (${stellen(c.sig)})`],
+    ]
+  }),
+]
+
 export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

@@ -19,6 +19,13 @@ export const stellenKeys = () => ({
   slA: 0, slI: 0, slP: 0, slD: 0, slB: 0, slV: 0, slC: 99,
 })
 
+// Index der unsicheren (letzten) Ziffer eines Werts: bei Zehnerpotenz-Schreibweise die
+// letzte Ziffer der Mantisse („1 · 10¹ m/s" → die 1, nicht die 0 von 10)
+export function uncIndex(str) {
+  const k = str.indexOf(' · 10')
+  return (k >= 0 ? str.slice(0, k) : str).search(/\d(?=\D*$)/)
+}
+
 export const CAT_WORD = { sure: 'sicher', unc: 'unsicher', ghost: 'sinnlos' }
 const set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]) }
 const op = (el, a) => { el.style.opacity = a; el.style.display = a <= 0.002 ? 'none' : '' }
@@ -152,9 +159,21 @@ export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
   const first = t.hi.find(c => !c.comma && c.ch !== '0' && !c.implicit)?.p ?? t.top
   const result = `→ ${sym} = ${rounded} ${unit}: Unsicherheit auf der ${ORDINAL[first - t.pDiff] ?? '?'} Stelle`
   return {
-    key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result,
+    key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result, pos: first - t.pDiff + 1,
     rows: [{ sym, sub: 'max', cells: t.hi }, { sym: mid, sub: '', cells: t.val }, { sym, sub: 'min', cells: t.lo }],
   }
+}
+
+// Zusammenfassungs-Tabelle einer Folienkarte füllen: je Zeile <tr data-r="rN">, die
+// Zeilen blendet das Drehbuch nacheinander ein (Inhalte reiner Text aus dem Modell).
+export function fillSummary(card, rows) {
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  card.querySelector('tbody').innerHTML = rows
+    .map((r, i) => `<tr data-r="r${i}">${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')
+}
+export const revealSummary = (tl, card, n, reveal) => {
+  for (let i = 0; i < n; i++) reveal(tl, card, `r${i}`, i ? '>0.45' : '>0.3')
+  reveal(tl, card, 'concl', '>0.9')
 }
 
 // Build-Zeit: Spaltenzeiger von der höchsten Stelle bis eine hinter die erste

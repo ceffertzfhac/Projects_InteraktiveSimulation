@@ -10,8 +10,8 @@
 
 import { createCardDeck } from '../../../shared/js/step-kit.js'
 import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES } from './constants.js'
-import { SUM, CMP } from './content.js'
-import { compareScan } from '../stellen.js'
+import { SUM, CMP, SUMMARY } from './content.js'
+import { compareScan, revealSummary } from '../stellen.js'
 
 export function buildAddSteps(S, DOM) {
   const C = DOM.cards
@@ -47,7 +47,7 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { bA: 1, duration: 0.6 }, '<0.3')
   }, 3)
 
-  step('Stab A messen und beschriften', tl => {
+  step('Stab A messen', tl => {
     deck.show(tl, C.a_a)
     rollOut(tl, 0, '<0.2')
     tl.to(S, { zA: 1, duration: 0.5 }, '>0.2')
@@ -57,7 +57,7 @@ export function buildAddSteps(S, DOM) {
     rollIn(tl, 0, '<')
   }, 4)
 
-  step('Werkstück B messen und beschriften', tl => {
+  step('Werkstück B messen', tl => {
     deck.show(tl, C.a_b)
     rollOut(tl, 1, '<0.2')
     tl.to(S, { lpA: 1, duration: 0.5 }, '>0.1')
@@ -68,12 +68,12 @@ export function buildAddSteps(S, DOM) {
     rollIn(tl, 1, '<')
   }, 4)
 
-  step('Steckbrief: Stellenwert und Stellenzahl', tl => {
+  step('Steckbrief', tl => {
     deck.show(tl, C.a_steck)
     tl.to(S, { hiU: 1, duration: 0.5 }, '>0.3')
   }, 6)
 
-  step('Hintereinanderlegen: wie lang sind beide zusammen?', tl => {
+  step('Hintereinanderlegen', tl => {
     deck.show(tl, C.a_chain)
     tl.to(S, { hiU: 0, duration: 0.3 }, '<')
     tl.to(S, { bX: A_TRUE + 0.03, bY: LANE.up, duration: 1.1, ease: EASE.cam }, '<0.2')
@@ -91,7 +91,7 @@ export function buildAddSteps(S, DOM) {
     chain(tl, A_TRUE, null, '<')
   }, 5)
 
-  step('Kleinstmögliche und größtmögliche Gesamtlänge', tl => {
+  step('Grenzen der Gesamtlänge', tl => {
     deck.show(tl, C.a_bounds)
     tl.to(S, { calcA: 0, duration: 0.4 }, '<')
     chain(tl, SUM.a.lo, SUM.b.lo, '<0.3', 0.8)
@@ -123,11 +123,17 @@ export function buildAddSteps(S, DOM) {
     reveal(tl, C.a_trap, 'dec', '<')
   }, 7)
 
-  step('Gleiche Einheit – ehrlich umrechnen', tl => {
+  step('Gleiche Einheit', tl => {
     deck.show(tl, C.a_unit)
     tl.to(S, { hiN: 0, nAx: 0, dcA: 0, lmMin: 0, lmMax: 0, zAe: 0, zEnd: 0, duration: 0.5 }, '<')
     ;[1, 2, 3, 4, 5].forEach(n => tl.to(S, { [`u${n}`]: 1, duration: 0.5 }, n === 1 ? '>0.2' : '>1.1'))
   }, 7)
+
+  step('Zusammenfassung', tl => {
+    tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
+    deck.show(tl, C.a_sum, '<0.2')
+    revealSummary(tl, C.a_sum, SUMMARY.length, reveal)
+  }, 8)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, duration: 0.8 })

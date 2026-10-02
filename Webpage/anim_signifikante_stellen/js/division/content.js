@@ -6,7 +6,7 @@
 import { fmt } from '../../../shared/js/format.js'
 import { speedExample, exactStr, placeAnalysis, digitCompare, compareHtml } from '../model.js'
 import { READ, ROWS } from './constants.js'
-import { compareData } from '../stellen.js'
+import { compareData, fillSummary } from '../stellen.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 // Taschenrechner-Wert: exakt, wenn er kurz ist (19,83 / 2), sonst gekürzt mit „…"
@@ -39,6 +39,11 @@ export const CMP = ROW.map(({ e }) => compareData({
   sym: 'v', mid: 'Rechner', unit: 'm/s', rounded: e.rounded,
 }))
 
+// Zusammenfassung: alle drei Rechnungen
+export const SUMMARY = ROW.map(({ e }, i) => [
+  `${e.s.text} m / ${e.t.text} s`, `${e.s.sig} und ${e.t.sig}`, `${CMP[i].pos}. Stelle`, `${e.rounded} m/s (${stellen(e.sig)})`,
+])
+
 export const SPD = {}
 ROW.forEach((r, i) => {
   const p = 'abc'[i]
@@ -46,6 +51,7 @@ ROW.forEach((r, i) => {
 })
 
 export function fillSpeedCards(DOM) {
+  fillSummary(DOM.cards.v_sum, SUMMARY)
   for (const el of DOM.dyn) {
     const [grp, field] = el.dataset.dyn.split('.')
     // Felder mit Endung „H" sind vorberechnetes HTML aus model.js (Ziffern-Spans)
