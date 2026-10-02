@@ -1,5 +1,14 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.13.1 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
+
+- Navigationsleiste (gemeinsam für alle Schritt-Animationen, `shared/css/step-animation.css`):
+  - Der Schritt-Titel rechts lief bei schmaleren Fenstern über die Bedienknöpfe, weil er
+    nicht schrumpfen durfte. Jetzt wird er mit „…" gekürzt.
+  - Unter 1280 px Breite sind die Tempo-Knöpfe ausgeblendet, unter 1180 px der Titel (die
+    Zählung bleibt), unter 1040 px wird gestapelt.
+  - Automatisch geprüft bei 850–1500 px über alle Schritte: keine Überlappung.
+
 ## v0.13.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
 - **Zusammenfassung vor „Merke"** in Multiplikation, Division und Addition (PO). Eine Tabelle
