@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.13.1</span>
+        <span class="version">v0.14.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -266,7 +266,11 @@ window.MathJax = {
           <thead><tr><th>Rechnung</th><th>signif. Stellen der Messwerte</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
           <tbody></tbody>
         </table>
-        <div class="formula" data-r="concl">In jeder Zeile liegt die Unsicherheit genau auf der Stelle, die der <b>kleinsten</b> Stellenzahl der Messwerte entspricht. Exakte Zahlen (2, π, Exponent) zählen nicht.<br>⇒ <b>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</b></div>
+        <div class="concl-grid">
+          <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Zeile hat das Ergebnis so viele signifikante Stellen wie der <b>ungenaueste Messwert</b> – egal, wie genau der andere ist.</span></p>
+          <p data-r="why"><span class="concl-k">Begründung</span><span>Beim Multiplizieren überträgt sich die <b>relative</b> Unsicherheit. Den größten Anteil hat der Messwert mit den wenigsten Stellen – er bestimmt, wie weit \(A_{\min}\) und \(A_{\max}\) auseinanderliegen. Exakte Zahlen (2, π, Exponent) sind keine Messwerte und begrenzen nichts.</span></p>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Das Produkt hat so viele signifikante Stellen wie der Faktor mit den wenigsten.</span></div>
+        </div>
       </div>
 
       <!-- E · Merksatz -->
@@ -388,7 +392,11 @@ window.MathJax = {
           <thead><tr><th>Rechnung</th><th>signif. Stellen von \(\Delta s\) und \(\Delta t\)</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
           <tbody></tbody>
         </table>
-        <div class="formula" data-r="concl">Wieder liegt die Unsicherheit auf der Stelle, die der <b>kleinsten</b> Stellenzahl entspricht – wie bei der Multiplikation.<br>⇒ <b>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die ungenaueste Messgröße.</b></div>
+        <div class="concl-grid">
+          <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Zeile hat \(v\) so viele signifikante Stellen wie die ungenauere der beiden Messgrößen. Bei Person B nützt das feine Maßband nichts – \(\Delta t\) hat nur eine Stelle.</span></p>
+          <p data-r="why"><span class="concl-k">Begründung</span><span>Wie beim Multiplizieren überträgt sich die <b>relative</b> Unsicherheit; die Größe mit den wenigsten Stellen hat die größte.</span></p>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Der Quotient hat so viele signifikante Stellen wie die Größe mit den wenigsten.</span></div>
+        </div>
       </div>
 
       <div class="slide-card pos-c wide" data-card="v_rule">
@@ -480,23 +488,26 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="a_unit">
         <div class="kicker">Gleiche Einheit!</div>
-        <h3>Erst ehrlich umrechnen, dann Stellenwerte vergleichen</h3>
-        <p>Vergleichen lassen sich nur Summanden in <b>derselben Einheit</b>. Beim Umrechnen ändert
-          sich die Zahl der sinnvollen Ziffern nicht:
-          <span class="dyn" data-dyn="add.a"></span>&nbsp;m = <span class="dyn" data-dyn="add.aMm"></span>&nbsp;mm – nicht 800&nbsp;mm.</p>
-        <p>Maßgeblich ist der <b>Stellenwert</b> der letzten Ziffer: In mm haben beide Summanden
-          keine Nachkommastelle, trotzdem endet 8 · 10²&nbsp;mm schon bei den Hundertern.</p>
-        <p class="note">Ob mm, cm oder m: Das Ergebnis endet immer beim Stellenwert des ungenauesten Summanden.</p>
+        <h3>Gleiche Einheit, gleiche Zehnerpotenz</h3>
+        <p>Erst ehrlich umrechnen – die Zahl der sinnvollen Ziffern bleibt:
+          <span class="dyn" data-dyn="add.a"></span>&nbsp;m = <span class="dyn" data-dyn="add.aMm"></span>&nbsp;mm, nicht 800&nbsp;mm.</p>
+        <p>Dann beide Summanden <b>und</b> das Ergebnis mit derselben Einheit und derselben
+          Zehnerpotenz schreiben. So lassen sich die Nachkommastellen direkt vergleichen –
+          in km, m, dm, cm und mm kommt dasselbe heraus.</p>
       </div>
 
       <div class="slide-card pos-c wide sum-card" data-card="a_sum">
         <div class="kicker">Zusammenfassung · Addition</div>
-        <h3>Dieselbe Summe in m, cm und mm</h3>
+        <h3>Dieselbe Summe in m, cm und mm – gleiche Zehnerpotenz</h3>
         <table class="cmp sum">
           <thead><tr><th>Rechnung</th><th>Stellenwert der letzten Ziffer</th><th>Ziffernvergleich: unsicher auf der</th><th>Ergebnis</th></tr></thead>
           <tbody></tbody>
         </table>
-        <div class="formula" data-r="concl">In jeder Einheit liegt die Unsicherheit beim <b>Stellenwert der letzten Ziffer des ungenauesten Summanden</b> (Zehntel m = Zehner cm = Hunderter mm). Die Zahl der signifikanten Stellen (1 und 4) führt dagegen in die Irre.<br>⇒ <b>Das Ergebnis endet beim Stellenwert des ungenauesten Summanden.</b> Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen wie der ungenaueste Summand.</div>
+        <div class="concl-grid">
+          <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Einheit endet das Ergebnis an derselben Stelle wie der ungenaueste Summand (Zehntel m = Zehner cm = Hunderter mm). Die Zahl der signifikanten Stellen sagt darüber nichts.</span></p>
+          <p data-r="why"><span class="concl-k">Begründung</span><span>Beim Addieren addieren sich die <b>absoluten</b> Unsicherheiten: <span class="nw">± 0,05 m</span> + <span class="nw">± 0,0005 m</span> ≈ <span class="nw">± 0,05 m</span>. Die größere bestimmt allein, wo das Ergebnis unsicher wird.</span></p>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Die Summe endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden – bei Dezimalzahlen in derselben Einheit: so viele Nachkommastellen wie dieser.</span></div>
+        </div>
       </div>
 
       <div class="slide-card pos-c wide" data-card="a_rule">
@@ -504,7 +515,7 @@ window.MathJax = {
         <h3>Das Ergebnis endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden.</h3>
         <div class="formula">Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen
           wie der ungenaueste Summand. Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht
-          (0,8 m = 8 · 10² mm, nicht 800 mm).</div>
+          (0,8 m = 0,8 · 10³ mm, nicht 800 mm). Für den Vergleich alle Werte in gleicher Einheit und gleicher Zehnerpotenz.</div>
         <table class="cmp">
           <tr><th></th><th>Multiplikation / Division</th><th>Addition / Subtraktion</th></tr>
           <tr><td>maßgeblich</td><td>relative Unsicherheit</td><td>absolute Unsicherheit</td></tr>

@@ -126,8 +126,17 @@ export function buildAddSteps(S, DOM) {
   step('Gleiche Einheit', tl => {
     deck.show(tl, C.a_unit)
     tl.to(S, { hiN: 0, nAx: 0, dcA: 0, lmMin: 0, lmMax: 0, zAe: 0, zEnd: 0, duration: 0.5 }, '<')
-    ;[1, 2, 3, 4, 5].forEach(n => tl.to(S, { [`u${n}`]: 1, duration: 0.5 }, n === 1 ? '>0.2' : '>1.1'))
-  }, 7)
+    // langsam aufbauen: erst falsch gemischt, dann ehrlich umgerechnet, dann je Einheit
+    // Summanden → Taschenrechner → gerundetes Ergebnis
+    tl.to(S, { u1: 1, duration: 0.6 }, '>0.3')
+    tl.to(S, { u2: 1, duration: 0.6 }, '>2.2')
+    ;[3, 4, 5, 6, 7].forEach(n => {
+      tl.to(S, { [`u${n}`]: 1, duration: 0.6 }, '>2')
+      tl.to(S, { [`u${n}b`]: 1, duration: 0.5 }, '>1.2')
+      tl.to(S, { [`u${n}c`]: 1, duration: 0.5 }, '>1.2')
+    })
+    tl.to(S, { u8: 1, duration: 0.6 }, '>1.6')
+  }, 8)
 
   step('Zusammenfassung', tl => {
     tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })

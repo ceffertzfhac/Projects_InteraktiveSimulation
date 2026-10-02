@@ -10,7 +10,7 @@ import { createCalculator, createCompareBoard, compareLine, uncIndex } from '../
 import {
   xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, CMP_BOX, UNITS, B_TRUE, READ,
 } from './constants.js'
-import { SUM, ROWS, CMP, UNIT, CALC_IO } from './content.js'
+import { SUM, ROWS, CMP, UNIT, UNITS_POW, CALC_IO } from './content.js'
 
 const E = {}
 const set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]) }
@@ -159,20 +159,36 @@ function buildTable(root) {
   })
 }
 
-// Einheiten-Tafel: dieselbe Summe falsch gemischt, ehrlich umgerechnet, in mm / cm / m
+// Einheiten-Tafel: falsch gemischt, ehrlich umgerechnet, dann dieselbe Summe in km, m, dm,
+// cm und mm — beide Summanden und das Ergebnis in GLEICHER Einheit und GLEICHER Zehnerpotenz.
+// Jede Rechenzeile hat drei Teile (Summanden · „= Rechner" · „→ Ergebnis"), die nacheinander
+// erscheinen (Szene u{n}, u{n}b, u{n}c).
 function buildUnits(root) {
-  const { mm, cm, m } = UNIT, { x, y, dy } = UNITS
-  const line = (i, segs) => rich(root, 'unit-line', { x, y: y + i * dy }, segs)
+  const { x, y, dy } = UNITS
+  const line = (i, parts, label) => {
+    const t = svgEl('text', { class: 'unit-line', x, y: y + i * dy }, root)
+    // Einheiten-Etikett links, Gleichung ab einer gemeinsamen Spalte
+    if (label) svgEl('tspan', { class: RICH.n }, t).textContent = label
+    return parts.map((segs, k) => {
+      const g = svgEl('tspan', label && !k ? { x: x + 64 } : {}, t)
+      for (const [str, c] of segs) svgEl('tspan', c ? { class: RICH[c] } : {}, g).textContent = str
+      return g
+    }).concat([t])
+  }
   E.units = [
-    line(0, [[`${m.a} m + ${mm.b} mm`, ''], ['   Nachkommastellen 1 gegen 0 – so nicht vergleichbar ✗', 'bad']]),
-    line(1, [[`${m.a} m = `, ''], ...num(mm.a), [' mm', ''],
-      [`   nicht „${UNIT.aMmFalse} mm" – das täuschte 3 sinnvolle Ziffern vor`, 'n']]),
-    line(2, [['in mm:  ', 'n'], ...num(mm.a), [` mm + ${mm.b} mm = ${mm.raw} mm  →  `, ''], ...num(mm.res), [' mm', '']]),
-    line(3, [['in cm:  ', 'n'], ...num(cm.a), [` cm + ${cm.b} cm = ${cm.raw} cm  →  `, ''], ...num(cm.res), [' cm', '']]),
-    line(4, [['in m:    ', 'n'], ...num(m.a), [` m + ${m.b} m = ${m.raw} m  →  `, ''], ...num(m.res), [' m', ''],
-      ['   ✓ überall dasselbe Ergebnis', 'ok']]),
+    line(0, [[[`${UNIT.m.a} m + ${UNIT.mm.b} mm`, ''], ['   verschiedene Einheiten – so nicht vergleichbar ✗', 'bad']]]),
+    line(1, [[[`${UNIT.m.a} m = `, ''], ...num(UNIT.aMmPow), [' mm', ''],
+      [`   nicht „${UNIT.aMmFalse} mm" – das täuschte 3 sinnvolle Ziffern vor`, 'n']]]),
+    ...UNITS_POW.map((r, i) => line(i + 2, [
+      [...num(r.a), [` ${r.u} + `, ''], ...num(r.b), [` ${r.u}`, '']],
+      [[` = ${r.raw} ${r.u}`, '']],
+      [['  →  ', ''], ...num(r.res), [` ${r.u}`, '']],
+    ], `in ${r.u}:`)),
+    line(UNITS_POW.length + 2, [[['✓ Gleiche Einheit, gleiche Zehnerpotenz: dieselben Nachkommastellen – überall 2,7', 'ok']]]),
   ]
 }
+// Teil einer Rechenzeile ein-/ausblenden (tspan: Deckkraft über fill-opacity)
+const opT = (el, a) => { el.style.fillOpacity = a; el.style.display = a <= 0.002 ? 'none' : '' }
 
 export function initAddStage(svg) {
   E.defs = svgEl('defs', {}, svg)
@@ -245,7 +261,11 @@ function renderEval(S, V) {
       pointerA: S.dcV, colorFrom: S.dcC })
     E.cmpVerdict.textContent = compareLine(S, CMP)
   }
-  E.units.forEach((t, i) => op(t, S[`u${i + 1}`]))
+  E.units.forEach((parts, i) => {
+    const t = parts.at(-1), n = i + 1
+    op(t, S[`u${n}`])
+    parts.slice(0, -1).forEach((g, k) => opT(g, k ? S[`u${n}${'bc'[k - 1]}`] ?? 0 : 1))
+  })
 }
 
 export function renderAdd(S) {

@@ -1,5 +1,20 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
+
+- **Zusammenfassungen: Beobachtung → Begründung → Regel** (PO: Erklärung verbessern).
+  - Leitsatz aus der Recherche („Ein Rechenergebnis kann nie genauer sein als die
+    ungenaueste zur Berechnung verwendete Größe"; gültige Ziffern nach LEIFI/LehrplanPLUS).
+  - Begründung über die **relative** (Multiplikation/Division) bzw. **absolute**
+    (Addition) Unsicherheit.
+  - Die drei Zeilen erscheinen nacheinander, Label und Text stehen im Raster.
+- **Addition, „Gleiche Einheit": gleiche Einheit und gleiche Zehnerpotenz** (PO).
+  - Beide Summanden und das Ergebnis mit derselben Zehnerpotenz, z. B.
+    0,8 · 10³ mm + 1,877 · 10³ mm = 2,677 · 10³ mm → 2,7 · 10³ mm.
+  - Zusätzlich km und dm, also km, m, dm, cm, mm, überall dieselben Mantissen.
+  - Langsamer Aufbau: Summanden → Taschenrechner → gerundetes Ergebnis, Zeile für Zeile.
+  - Zusammenfassungstabelle und Merke in derselben Schreibweise.
+
 ## v0.13.1 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
 - Navigationsleiste (gemeinsam für alle Schritt-Animationen, `shared/css/step-animation.css`):

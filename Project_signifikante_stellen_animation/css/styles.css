@@ -381,4 +381,11 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
 .slide-card table.sum th { font-size: .9em; }
 .slide-card table.sum + .formula { margin-top: .8em; }
-.slide-card.sum-card { width: 62cqw; top: 7cqw; }
+.slide-card.sum-card { width: 62cqw; top: 3cqw; }
+.concl-grid { margin-top: .7em; display: grid; gap: .35em; font-size: .92em; }
+.concl-grid p, .concl-grid .formula { margin: 0; display: grid; grid-template-columns: 8.2em 1fr;
+  column-gap: .6em; align-items: baseline; }
+.concl-k { font-size: .78em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); }
+.slide-card .nw { white-space: nowrap; }
+.slide-card table.sum + .concl-grid .formula { margin-top: .2em; }

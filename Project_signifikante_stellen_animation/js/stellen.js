@@ -173,7 +173,9 @@ export function fillSummary(card, rows) {
 }
 export const revealSummary = (tl, card, n, reveal) => {
   for (let i = 0; i < n; i++) reveal(tl, card, `r${i}`, i ? '>0.45' : '>0.3')
-  reveal(tl, card, 'concl', '>0.9')
+  reveal(tl, card, 'obs', '>0.9')                     // Beobachtung → Begründung → Regel
+  reveal(tl, card, 'why', '>1.6')
+  reveal(tl, card, 'concl', '>1.6')
 }
 
 // Build-Zeit: Spaltenzeiger von der höchsten Stelle bis eine hinter die erste

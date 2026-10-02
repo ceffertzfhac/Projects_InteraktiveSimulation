@@ -32,13 +32,21 @@ const cmp = digitCompare(exactStr(SUM.lo), exactStr(SUM.hi))
 const ORD = ['ersten', 'zweiten', 'dritten', 'vierten']
 const uncOrd = ORD[Math.max(...cmp.hi.filter(c => !c.comma).map(c => c.p)) - cmp.pDiff]
 
-// Einheiten-Tafel: dieselbe Rechnung in mm, cm und m — ehrlich umgerechnet
-// (Anzahl sinnvoller Ziffern bleibt; 0,8 m = 8 · 10² mm, nicht 800 mm)
+// Einheiten-Tafel: dieselbe Rechnung in km, m, dm, cm und mm — ehrlich umgerechnet
+// (Anzahl sinnvoller Ziffern bleibt) und mit GLEICHER Zehnerpotenz für beide Summanden
+// und das Ergebnis: 0,8 · 10³ mm + 1,877 · 10³ mm = 2,677 · 10³ mm → 2,7 · 10³ mm.
+// So stehen in jeder Einheit dieselben Mantissen da — Nachkommastellen direkt vergleichbar.
+const SUPS = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' }
+const pow = e => (e ? ` · 10${[...String(e)].map(c => SUPS[c]).join('')}` : '')
+export const UNITS_POW = [['km', -3], ['m', 0], ['dm', 1], ['cm', 2], ['mm', 3]].map(([u, e]) => ({
+  u, a: a.text + pow(e), b: b.text + pow(e), raw: raw + pow(e), res: SUM.rounded + pow(e),
+}))
 const inUnit = f => ({
   a: formatSig(a.value * f, a.sig), b: fmt(b.value * f, Math.max(0, b.decimals - Math.round(Math.log10(f)))),
   raw: exactStr(SUM.value * f), res: formatSig(SUM.value * f, 2),
 })
-export const UNIT = { mm: inUnit(1000), cm: inUnit(100), m: inUnit(1), aMmFalse: exactStr(a.value * 1000) }
+export const UNIT = { mm: inUnit(1000), cm: inUnit(100), m: inUnit(1), aMmFalse: exactStr(a.value * 1000),
+  aMmPow: a.text + pow(3) }
 
 // Folienzahlen
 export const ADD = {
@@ -48,18 +56,20 @@ export const ADD = {
   raw, half: exactStr(SUM.half), aHalf: half(a), bHalf: half(b), aPct: pct(a), bPct: pct(b),
   rounded: SUM.rounded, sigRule: SUM.sigRule, uncOrd,
   a: a.text, b: b.text, aSig: String(a.sig), bSig: String(b.sig), aDec: String(a.decimals), bDec: String(b.decimals),
-  aMm: UNIT.mm.a, bMm: UNIT.mm.b, resMm: UNIT.mm.res,
+  aMm: UNIT.aMmPow, bMm: UNIT.mm.b, resMm: UNIT.mm.res,
 }
 // Zusammenfassung: dieselbe Summe in m, cm und mm — Stellenwert der letzten Ziffer je
 // Summand und beim Ergebnis; zuletzt die (falsche) Faustregel der Multiplikation
 // (Ziffernvergleich je Einheit: L_min / L_max in dieser Einheit — die unsichere Stelle
 // ist überall dieselbe: Zehntel m = Zehner cm = Hunderter mm)
 const lastPlace = str => placeName(placeAnalysis(str, 0, 1, 0.5).pLast)
-export const SUMMARY = [['m', UNIT.m, 1], ['cm', UNIT.cm, 100], ['mm', UNIT.mm, 1000]].map(([u, x, f]) => {
-  const D = compareData({ lo: exactStr(SUM.lo * f), val: x.raw, hi: exactStr(SUM.hi * f), sym: 'L', mid: '', unit: u, rounded: x.res })
+export const SUMMARY = [['m', 1], ['cm', 100], ['mm', 1000]].map(([u, f]) => {
+  const x = UNITS_POW.find(r => r.u === u)
+  const D = compareData({ lo: exactStr(SUM.lo * f), val: exactStr(SUM.value * f), hi: exactStr(SUM.hi * f),
+    sym: 'L', mid: '', unit: u, rounded: x.res })
   return [`${x.a} ${u} + ${x.b} ${u}`, `${lastPlace(x.a)} und ${lastPlace(x.b)}`,
     `${D.pos}. Stelle (${placeName(D.cmp.pDiff)})`, `${x.res} ${u}`]
-}).concat([['Faustregel der Multiplikation', `signif. Stellen: ${a.sig} und ${b.sig}`, '–', `${SUM.sigRule} m – verschenkt Wissen ✗`]])
+}).concat([['Faustregel der Multiplikation', `${a.sig} und ${b.sig} signif. Stellen`, '–', `${SUM.sigRule} m – verschenkt Wissen ✗`]])
 
 export const CALC_IO = { input: `${a.text} + ${b.text} =`, output: raw }
 
