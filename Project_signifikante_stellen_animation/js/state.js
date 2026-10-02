@@ -29,7 +29,7 @@ export function createScene() {
     // Pfeil „wahre Länge" vom Stabende zur Zahlengeraden + Landeimpuls
     arD: 0, arA: 0, ping: 1,
     // Messpunkt auf der Zahlengeraden
-    pA: 0, pS: 0.3, ...slotKeys('pl'),
+    pA: 0, pS: 0.3, pX: 3, ...slotKeys('pl'),
     lLo: 3, lHi: 3, lA: 0, lSpan: 0, lEndA: 0, lBndA: 0, lBndD: 1,
     gLo: 3, gHi: 3, gA: 0,                 // Geister-Intervall (vorige Stufe)
     // Teil R: Breite b, Rechteck, Flächenbereich

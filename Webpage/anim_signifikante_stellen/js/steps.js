@@ -12,16 +12,16 @@
 //  ── Kapitel Multiplikation ──
 //  R  Fläche: Ecken-Test (l_min·b_min … l_max·b_max), welche Stelle ist unsicher?
 //  R  Fläche: zweite Achse, Rechteck, Zoom auf die Ecke, mögliche Flächen
-//  C  Rückweg (erst b, dann l) · D  Mischungen · E  Merksatz
+//  C  Gröber gemessen (b, dann l, dann beide: 6,686 → 6,68 → 6,6 → 6) · K Kreis · E Merksatz
 
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
-  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_SHORT,
+  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER,
   B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
-import { parseMeasured, circleExample } from './model.js'
+import { parseMeasured, circleExample, exactStr } from './model.js'
 import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE } from './content.js'
 import { HITS } from './state.js'
 import { scanPlaces } from './stellen.js'
@@ -172,24 +172,24 @@ export function buildSteps(S, DOM) {
     cam.to(tl, CAM_ROD_END, { duration: T.cam, anchor: { y: 0 }, at: '<' })
     rodTo(tl, RODS_MEASURE[0], '<0.2')
     tl.to(S, { tg1: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.6')
-    zoneTo(tl, 2.95, 3.05, '<0.3')
-    snap(tl, 0, 3, '3,0 m', '>0.05')
-    // Gegenprobe: etwas kürzer → nächste Marke ist 2,9
+    zoneTo(tl, 3.05, 3.15, '<0.3')
+    snap(tl, 0, 3.1, '3,1 m', '>0.05')
+    // Gegenprobe: etwas länger → nächste Marke ist 3,2
     unsnap(tl, 0, '>0.9')
-    rodTo(tl, ROD_FINE_SHORT, '<')
-    zoneTo(tl, 2.85, 2.95, '>-0.3')
-    snap(tl, 0, 2.9, '2,9 m', '>0.05')
+    rodTo(tl, ROD_FINE_OTHER, '<')
+    zoneTo(tl, 3.15, 3.25, '>-0.3')
+    snap(tl, 0, 3.2, '3,2 m', '>0.05')
   }, 4)
 
   step('Zwei Stäbe, eine Ablesung', tl => {
     unsnap(tl, 0)
     deck.show(tl, C.two, '<')
     rodTo(tl, RODS_MEASURE[0], '<0.1')
-    zoneTo(tl, 2.95, 3.05, '<0.2')
-    snap(tl, 0, 3, '3,0 m', '>0.05')
+    zoneTo(tl, 3.05, 3.15, '<0.2')
+    snap(tl, 0, 3.1, '3,1 m', '>0.05')
     tl.to(S, { rod1A: 1, rod1S: 0, duration: 1, ease: EASE.reveal }, '>0.2')
     markRod(tl, 1, '>-0.1')
-    snap(tl, 1, 3, '3,0 m', '>0.05')
+    snap(tl, 1, 3.1, '3,1 m', '>0.05')
   }, 5)
 
   // ── Z · Zahlengerade ───────────────────────────────────────────────────────
@@ -235,9 +235,9 @@ export function buildSteps(S, DOM) {
       else swapDyn(tl, 'lvl', k, '<')
       tl.set(S, { gLo: L[k - 1].lo, gHi: L[k - 1].hi, gA: 1 }, '<')
       tl.to(S, { lBndA: 0, duration: 0.2 }, '<')
-      tl.to(S, { lLo: L[k].lo, lHi: L[k].hi, gA: 0.3, duration: 1.1, ease: EASE.cam }, '<0.2')
-      // 2) Zoom ×10: alte Teilung zieht sich zurück, neue wächst aus der Achse
-      cam.to(tl, camA(3, levelWidth(k)), { duration: T.cam, anchor: { y: 0 }, at: '>0.15' })
+      tl.to(S, { lLo: L[k].lo, lHi: L[k].hi, pX: L[k].value, gA: 0.3, duration: 1.1, ease: EASE.cam }, '<0.2')
+      // 2) Zoom ×10 auf den neuen Messwert: alte Teilung zieht sich zurück, neue wächst
+      cam.to(tl, camA(L[k].value, levelWidth(k)), { duration: T.cam, anchor: { y: 0 }, at: '>0.15' })
       tl.to(S, { ['ag' + (k - 1)]: 0, gA: 0, duration: T.cam * 0.8 }, '<')
       tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
       tl.set(S, { lBndD: k + 1 }, '<')
@@ -321,10 +321,14 @@ export function buildSteps(S, DOM) {
     db.show(tl, textIndex(B_FINAL), { at: '<0.15' })
     tl.to(S, { aSym: 1, duration: 0.6 }, '<')
     deck.show(tl, C.area, '<')
+    // „Der Taschenrechner meldet …" — derselbe Wert erscheint an der Ecke
+    tl.set(S, { roD: (exactStr(L[3].value * B.value).split(',')[1] ?? '').length }, '>0.3')
+    tl.to(S, { roA: 1, duration: 0.5 })
   }, 5)
 
   step('Zoom auf die Ecke', tl => {
-    cam.to(tl, camForExample(L[3], B), { duration: T.camLong + 0.6 })
+    tl.to(S, { roA: 0, duration: 0.3 })
+    cam.to(tl, camForExample(L[3], B), { duration: T.camLong + 0.6, at: '<' })
     tl.to(S, { stripA: 0.85, aSym: 0, duration: 1 }, '<')
     deck.show(tl, C.corner, '<0.4')
   }, 4)
@@ -345,6 +349,8 @@ export function buildSteps(S, DOM) {
     if (all) {
       goCorner(tl, l.lo, b.lo, '>0.2'); goCorner(tl, l.hi, b.lo, '>0.9')
       goCorner(tl, l.lo, b.hi, '>0.9'); goCorner(tl, l.hi, b.hi, '>0.9')
+      tl.set(card.querySelector('[data-r="four"]'), { display: 'block' }, '>0.3')
+      reveal(tl, card, 'four', '>')
       tl.to(S, { rW: l.lo, rH: b.lo, duration: 0.8, ease: EASE.cam }, '>1')
     } else {
       goCorner(tl, l.lo, b.lo, '>0.2')
@@ -375,7 +381,7 @@ export function buildSteps(S, DOM) {
     reveal(tl, C.adig, 'res', '>')
   }, 7)
 
-  // ── C · Rückweg und D · Mischungen ─────────────────────────────────────────
+  // ── C · Gröber gemessen ────────────────────────────────────────────────────
   let cur = { l: L[3], b: B }
   const toExample = (tl, lt, bt, camTarget) => {
     const l = parseMeasured(lt), b = parseMeasured(bt)
@@ -394,13 +400,14 @@ export function buildSteps(S, DOM) {
     deck.show(tl, C.range, '<')
     swapDyn(tl, 'cmb', cmb, '<')
     hideRows(tl, C.range, '<')
+    tl.set(C.range.querySelector('[data-r="four"]'), { display: 'none' }, '<')
     const { l, b } = toExample(tl, lt, bt, camTarget)
     bounds(tl, l, b, C.range, false)
     lupeScan(tl, cmb, false, '>0.2')
     reveal(tl, C.range, 'res', '>')
   }, 6)
 
-  RETURN_PATH.forEach((p, j) => example(`Rückweg: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
+  RETURN_PATH.forEach((p, j) => example(`Gröber: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
   MIXES.forEach((p, m) => example(`Beispiel: ${p[0]} · ${p[1]}`, p, CMB_FIRST_MIX + m, CAM_OVERVIEW))
 
   // ── K · Kreis: Radius variieren → Umfang umlaufend → Fläche von innen nach außen ──

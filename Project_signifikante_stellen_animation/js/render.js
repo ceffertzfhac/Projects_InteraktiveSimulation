@@ -8,10 +8,11 @@ import {
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
 import {
-  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX,
+  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, B_FINAL,
 } from './constants.js'
 import { DYN, LUPE } from './content.js'
-import { placeName } from './model.js'
+import { placeName, parseMeasured } from './model.js'
+const B_VALUE = parseMeasured(B_FINAL).value
 import { createDigitRow, createUnitBracket, verdict } from './stellen.js'
 import { HITS } from './state.js'
 
@@ -425,7 +426,7 @@ export function renderScene(S) {
   // ── Achsen ──
   E.xAxis.render(V, {
     at: axY, draw: S.axisDraw, ticks: S.xTicks, alpha: S.xA,
-    fixed: LEVELS.map(k => ({ step: 0.5 * 10 ** -k, grow: S['ag' + k], center: 3 })),
+    fixed: LEVELS.map(k => ({ step: 0.5 * 10 ** -k, grow: S['ag' + k], center: S.pX })),
   })
   E.yAxis.render(V, { at: axX, draw: S.yDraw, alpha: S.yAlpha * S.xA, ticks: S.yAlpha })
   set(E.nameL, { x: V.R + 30, y: axY + 7 }); op(E.nameL, S.names * S.xA)
@@ -460,13 +461,13 @@ export function renderScene(S) {
   })
 
   // ── Messpunkte mit Wertelabel ──
-  const px = V.sx(3)
+  const px = V.sx(S.pX)
   set(E.pHalo, { cx: px, cy: axY, r: 22 * S.pS }); op(E.pHalo, S.pA)
   set(E.pDot, { cx: px, cy: axY, r: 8 * S.pS }); op(E.pDot, S.pA)
   readSlots(S, 'pl').forEach((s, n) => {
     set(E.pl[n], { x: px, y: axY - 52 + s.o }); setMarked(E.pl[n], TEXTS[s.i], S.ucA > 0.5); op(E.pl[n], s.a)
   })
-  const qy = V.sy(2)
+  const qy = V.sy(B_VALUE)
   set(E.qHalo, { cx: axX, cy: qy, r: 22 * S.qS }); op(E.qHalo, S.qA)
   set(E.qDot, { cx: axX, cy: qy, r: 8 * S.qS }); op(E.qDot, S.qA)
   readSlots(S, 'ql').forEach((s, n) => {
@@ -551,7 +552,7 @@ function renderUnc(S, V, axY) {
 
   op(E.pm, S.pmA)
   if (S.pmA <= 0.002) return
-  const y = axY + 72, c = V.sx(3)
+  const y = axY + 72, c = V.sx(S.pX)
   const ends = [V.sx(S.lLo), V.sx(S.lHi)]
   ends.forEach((e, n) => {
     const tip = lerp(c, e, S.pmD), dir = Math.sign(e - c) || 1

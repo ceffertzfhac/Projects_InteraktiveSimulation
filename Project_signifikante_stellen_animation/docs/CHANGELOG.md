@@ -1,5 +1,21 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.8.0 — 2026-10-02
+
+Zahlenwerte didaktisch überarbeitet (PO): keine runden Werte mehr, bei denen die unsichere
+Ziffer eine 0 ist — „3,1" zeigt klarer als „3,0", daß die 3 gesichert und die 1 unsicher ist.
+- **Grundlagen:** ein Stab (wahr 3,1203 m) durch alle Stufen: 3 → 3,1 → 3,12 → 3,120 m;
+  Gegenprobe 3,17 → 3,2 m; zwei Stäbe 3,1203 / 3,07 m → beide 3,1 m. Der Messpunkt wandert
+  mit. Definition und führende Nullen an „3,120 m" (0,003120 km, 312,0 cm, 3,120 · 10³ mm):
+  die Endnull ist gemessen und zählt.
+- **Multiplikation:** b = 2,143 m. Ein Rechteck-Beispiel weniger (PO: zu lang). Die Kette
+  „gröber gemessen" verliert Stufe für Stufe eine Stelle: 3,120 · 2,143 = 6,686 →
+  3,120 · 2,14 = 6,68 (b gröber) → 3,1 · 2,143 = 6,6 (l gröber) → 3 · 2 = 6 m².
+- **Kreis:** r = 3,3 m (statt 3,0) → U = 21 m, A = 34 m²; danach r = 3 m wie bisher.
+- **Folien = Bühne:** Rechteck-Folie nimmt Intervalle und Taschenrechner-Wert aus dem Modell,
+  derselbe Wert steht an der Rechteckecke; der Vier-Ecken-Test hat eine eigene Folienzeile;
+  Ergebniszeile der Stellen-Folie dynamisch.
+
 ## v0.7.0 — 2026-10-02
 
 Didaktische Überarbeitung (PO): was signifikante Stellen sind, was „die letzte Ziffer ist

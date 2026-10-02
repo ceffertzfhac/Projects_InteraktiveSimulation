@@ -218,6 +218,7 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .unc-box   { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 1.5; }
 .unc-tag   { fill: var(--c-unc); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
 .slide-card [data-r] { visibility: hidden; opacity: 0; }
+.slide-card [data-r="four"] { display: none; }        /* nur im ersten Ecken-Test (steps.js) */
 
 /* ±-Maßpfeile am Intervall */
 .pm line  { stroke: var(--c-l); stroke-width: 2; }

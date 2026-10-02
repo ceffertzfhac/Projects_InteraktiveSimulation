@@ -111,3 +111,11 @@ test('Stellenanalyse: Intervall in Einheiten jeder Stelle, Kategorie nach Faustr
   expect(placeAnalysis('6,000', 5.9975, 6.0025).places.map(p => p.ratioText)).toEqual(
     ['0,005', '0,05', '0,5', '5,0', '50'])
 })
+
+test('Beispielwerte der Animation (v0.8.0): keine runden Zahlen, Faustregel greift', () => {
+  // Stufe für Stufe gröber: 6,686 → 6,68 → 6,6 → 6
+  expect(['3,120·2,143', '3,120·2,14', '3,1·2,143', '3·2'].map(x => areaExample(...x.split('·')).rounded))
+    .toEqual(['6,686', '6,68', '6,6', '6'])
+  const c = circleExample('3,3')
+  expect([c.U.rounded, c.A.rounded]).toEqual(['21', '34'])
+})

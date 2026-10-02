@@ -24,7 +24,7 @@ zentral in `BACKLOG.md`.
 - **„Unsicher" nach Faustregel, nicht nach Schwellwert** — welche Ziffer als letzte
   (unsichere) gilt, bestimmt die Faustregel (Stellenzahl des ungenauesten Faktors). Das
   Intervall ist in dieser Stelle je nach Rechnung 0,5 bis 5 Einheiten breit (z. B.
-  1 · 10¹ m/s: 0,5 Zehner; 6,000 m²: 5 Tausendstel), eine Stelle davor zehnmal weniger.
+  1 · 10¹ m/s: 0,5 Zehner; 6,686 m²: 5 Tausendstel), eine Stelle davor zehnmal weniger.
   Ein fester Schwellwert existiert nicht; die Folien sagen das ausdrücklich. → FSS5
 - **Kapitel Multiplikation startet aus dem Endzustand der Grundlagen** — dessen Schritte
   werden beim Kapitelwechsel still vorab abgespielt (`ui.js multEngine`); Änderungen an

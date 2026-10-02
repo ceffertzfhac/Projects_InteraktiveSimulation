@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.7.0</span>
+        <span class="version">v0.8.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -84,19 +84,20 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="read2">
         <div class="kicker">Feineres Maßband · Teilung 0,1&nbsp;m</div>
-        <h3>Maßband mit Markierungen im Abstand von 0,1&nbsp;m </h3>
-        <div class="formula">\(2{,}95\,\text{m} \le l &lt; 3{,}05\,\text{m} \;\Rightarrow\; 3{,}0\,\text{m}\)</div>
-        <div class="formula">\(2{,}85\,\text{m} \le l &lt; 2{,}95\,\text{m} \;\Rightarrow\; 2{,}9\,\text{m}\)</div>
-        <p>Die Markierungen des Maßbandes sind nun in Abständen von 0,1&nbsp;m angebracht: Ein Stab mit 2,97&nbsp;m ergibt jetzt <b>3,0&nbsp;m</b> – eine Stelle mehr, weil das
-          Messmittel mehr hergibt. Einer mit 2,93&nbsp;m ergibt <b>2,9&nbsp;m</b>.</p>
+        <h3>Maßband mit Markierungen im Abstand von 0,1&nbsp;m</h3>
+        <div class="formula">\(3{,}05\,\text{m} \le l &lt; 3{,}15\,\text{m} \;\Rightarrow\; 3{,}1\,\text{m}\)</div>
+        <div class="formula">\(3{,}15\,\text{m} \le l &lt; 3{,}25\,\text{m} \;\Rightarrow\; 3{,}2\,\text{m}\)</div>
+        <p>Unser Stab ergibt jetzt <b>3,1&nbsp;m</b> – eine Stelle mehr, weil das Messmittel
+          mehr hergibt. Ein etwas längerer mit 3,17&nbsp;m liegt näher an der 3,2 und ergibt
+          <b>3,2&nbsp;m</b>.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="two">
         <div class="kicker">Zwei Stäbe</div>
         <h3>Verschieden lang – gleich notiert</h3>
-        <p>Die Stäbe sind in Wahrheit <span class="num">2,97&nbsp;m</span> und
-          <span class="num">3,02&nbsp;m</span> lang. Mit dem 0,1-m-Maßband ergeben beide
-          <b>3,0&nbsp;m</b>.</p>
+        <p>Die Stäbe sind in Wahrheit <span class="num">3,1203&nbsp;m</span> und
+          <span class="num">3,07&nbsp;m</span> lang. Mit dem 0,1-m-Maßband ergeben beide
+          <b>3,1&nbsp;m</b>.</p>
         <p>Eine notierte Zahl steht also nicht für <i>einen</i> Wert, sondern für einen Bereich.</p>
       </div>
 
@@ -123,7 +124,7 @@ window.MathJax = {
         <p>„3&nbsp;m" bedeutet: Die wahre Länge weicht von 3&nbsp;m um höchstens eine
           <b>halbe Einheit der letzten Stelle</b> ab.</p>
         <div class="formula">\(l = 3\,\text{m} \pm 0{,}5\,\text{m}\)</div>
-        <p>Ob 2,62&nbsp;m, 2,97&nbsp;m oder 3,3&nbsp;m – die Ziffer an dieser Stelle steht nicht
+        <p>Ob 2,64&nbsp;m, 3,12&nbsp;m oder 3,38&nbsp;m – die Ziffer an dieser Stelle steht nicht
           fest. Deshalb heißt die letzte hingeschriebene Ziffer <span class="unc-word">unsicher</span>.</p>
       </div>
 
@@ -140,10 +141,11 @@ window.MathJax = {
         <div class="kicker">Definition</div>
         <h3>Signifikante Stellen</h3>
         <p>Signifikant sind alle Ziffern <b>von der ersten von Null verschiedenen bis zur
-          letzten hingeschriebenen</b> – auch Endnullen. \(3{,}000\,\text{m}\) hat vier.</p>
+          letzten hingeschriebenen</b> – auch Endnullen. \(3{,}120\,\text{m}\) hat vier: Die 0
+          wurde mit dem mm-Maßband <i>gemessen</i>.</p>
         <p>Die letzte ist <span class="unc-word">unsicher</span>, alle davor sind
           <b>gesichert</b>. Jede weitere Stelle macht das Intervall zehnmal schmaler:
-          3 ≠ 3,0 ≠ 3,00 ≠ 3,000.</p>
+          3 → 3,1 → 3,12 → 3,120.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="zeros">
@@ -152,8 +154,8 @@ window.MathJax = {
         <p>Nullen <b>vor</b> der ersten Ziffer ≠ 0 zeigen nur, wo das Komma steht – sie sind
           <b>nicht signifikant</b>. Die Zahl der signifikanten Stellen hängt nicht von der
           Einheit ab: immer 4.</p>
-        <p class="note">„3000 mm" wäre mehrdeutig (zählen die Nullen?) – eindeutig ist
-          \(3{,}000 \cdot 10^3\,\text{mm}\).</p>
+        <p class="note">„3120 mm" wäre mehrdeutig (zählt die Null?) – eindeutig ist
+          \(3{,}120 \cdot 10^3\,\text{mm}\).</p>
       </div>
 
       <!-- R · Fläche -->
@@ -161,16 +163,16 @@ window.MathJax = {
         <div class="kicker">Kapitel 2 · Multiplikation</div>
         <h3>Eine zweite Länge \(b\)</h3>
         <p>Die Zahlengerade wird zur \(l\)-Achse. Senkrecht dazu tragen wir eine zweite
-          Messung ein – ebenfalls auf Millimeter genau:</p>
-        <div class="formula">\(b = 2{,}000\,\text{m}, \quad b \in [\,1{,}9995 \,;\, 2{,}0005\,)\,\text{m}\)</div>
+          Messung ein – ebenfalls mit dem mm-Maßband:</p>
+        <div class="formula">\(b = 2{,}143\,\text{m}, \quad b \in [\,2{,}1425 \,;\, 2{,}1435\,)\,\text{m}\)</div>
       </div>
 
       <div class="slide-card pos-r" data-card="area">
         <div class="kicker">Rechteck</div>
         <h3>Fläche \(A = l \cdot b\)</h3>
-        <div class="formula">\(l \in [\,2{,}9995 \,;\, 3{,}0005\,)\,\text{m}\)</div>
-        <div class="formula">\(b \in [\,1{,}9995 \,;\, 2{,}0005\,)\,\text{m}\)</div>
-        <p>Der Taschenrechner meldet \(3{,}000 \cdot 2{,}000 = 6\). Doch wie viele Stellen
+        <div class="formula">\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m</div>
+        <div class="formula">\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</div>
+        <p>Der Taschenrechner meldet \(l \cdot b =\) <span class="dyn" data-dyn="cmb.valueStr"></span>&thinsp;m². Doch wie viele Stellen
           von \(A\) sind wirklich gesichert?</p>
       </div>
 
@@ -194,6 +196,8 @@ window.MathJax = {
         <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
         <div class="formula" data-r="min">kleinste: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
           = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Alo"></span>&thinsp;m²</div>
+        <div class="formula" data-r="four">Alle vier Ecken probiert: Die gemischten
+          \(l_{\min} \cdot b_{\max}\) und \(l_{\max} \cdot b_{\min}\) liegen dazwischen.</div>
         <div class="formula" data-r="max">größte: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
           = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Ahi"></span>&thinsp;m²</div>
         <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> – die letzte Ziffer ist unsicher</div>
@@ -206,7 +210,7 @@ window.MathJax = {
           Intervall von \(A_{\min}\) bis \(A_{\max}\). Band nur ein Bruchteil der Klammer:
           Ziffer <b>gesichert</b>. Etwa so breit oder breiter: <span class="unc-word">unsicher</span>.
           Vielfach breiter: <b>bedeutungslos</b>.</p>
-        <div class="formula" data-r="res">\(A = 6{,}000\,\text{m}^2\) – 4 Stellen wie \(l\) und \(b\)</div>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² – <span class="dyn" data-dyn="cmb.sig"></span> wie \(l\) und \(b\)</div>
         <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
           die letzte Ziffer wirklich ist – mal eine halbe, mal einige Einheiten.</p>
       </div>
@@ -243,8 +247,8 @@ window.MathJax = {
         <div class="kicker">Merke · Multiplikation</div>
         <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
         <div class="formula">Grenzen: \(A_{\min} = l_{\min} \cdot b_{\min}, \quad A_{\max} = l_{\max} \cdot b_{\max}\)</div>
-        <div class="formula">\(3{,}00\,\text{m} \cdot 2{,}9\,\text{m} = 8{,}7\,\text{m}^2 \qquad
-          U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m}\)</div>
+        <div class="formula">\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}68\,\text{m}^2 \qquad
+          U = 2 \cdot \pi \cdot 3{,}3\,\text{m} = 21\,\text{m}\)</div>
         <p>Die letzte angegebene Ziffer ist <span class="unc-word">unsicher</span>, alle davor sind
           gesichert. Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
           begrenzen die Genauigkeit nicht.</p>

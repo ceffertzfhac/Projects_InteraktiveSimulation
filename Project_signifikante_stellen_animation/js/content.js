@@ -28,7 +28,7 @@ export const LEVELS = L_LEVELS.map((text, k) => {
 
 const EXAMPLES = [
   ['Flächenbereich', [L_LEVELS[3], B_FINAL]],
-  ...RETURN_PATH.map((p, j) => [`Rückweg · ${j + 1} / ${RETURN_PATH.length}`, p]),
+  ...RETURN_PATH.map((p, j) => [`${['b gröber', 'l gröber', 'beide grob'][j]} gemessen · ${j + 1} / ${RETURN_PATH.length}`, p]),
   ...MIXES.map((p, j) => [`Beispiel ${j + 1} / ${MIXES.length}`, p]),
 ]
 export const CMB_FIRST_RETURN = 1
@@ -50,7 +50,7 @@ const civ = p => `[${fmt(p.lo, 2)} ; ${fmt(p.hi, 2)})`
 export const CIRC = R_TEXTS.map(rt => {
   const c = circleExample(rt)
   return {
-    kicker: { '3,0': 'Kreis · zwei signifikante Stellen', '3': 'Kreis · nur eine Stelle' }[rt],
+    kicker: { '3,3': 'Kreis · zwei signifikante Stellen', '3': 'Kreis · nur eine Stelle' }[rt],
     r: rt, rIv: iv(c.r), sig: stellen(c.sig),
     UIv: civ(c.U), U: c.U.rounded, AIv: civ(c.A), A: c.A.rounded,
     rLo: fmt(c.r.lo, c.r.decimals + 1), rHi: fmt(c.r.hi, c.r.decimals + 1),
