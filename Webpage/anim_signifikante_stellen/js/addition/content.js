@@ -4,7 +4,7 @@
 
 import { fmt } from '../../../shared/js/format.js'
 import { sumExample, exactStr, formatSig, digitCompare, compareHtml } from '../model.js'
-import { bandVsBracket } from '../stellen.js'
+import { compareData } from '../stellen.js'
 import { READ } from './constants.js'
 
 export const SUM = sumExample(READ.a, READ.b)
@@ -21,20 +21,11 @@ export const ROWS = [
     pm: `± ${exactStr(SUM.half)} m`, sig: '2', dec: String(SUM.decimals) },
 ]
 
-// Etiketten-Kandidaten für die Summe: Taschenrechner, Faustregel der Multiplikation, richtig.
-// Urteil im Wortlaut der Lupe (Band = mögliche Gesamtlängen, Klammer = Rundungsintervall).
-const width = SUM.hi - SUM.lo
 const raw = exactStr(SUM.value)
-const cand = (text, tail, ok) => {
-  const [, fp = ''] = text.split(','), p = -fp.length
-  const value = Number(text.replace(',', '.'))
-  return { text: `${text} m`, value, p, ok, verdict: `${text} m: ${bandVsBracket(width / 10 ** p)} → ${tail}` }
-}
-export const CANDS = [
-  cand(raw, 'sinnlos (Scheingenauigkeit)', false),
-  cand(SUM.sigRule, 'verschenkt Wissen', false),
-  cand(SUM.rounded, 'letzte Ziffer unsicher ✓', true),
-]
+// Vergleichstafel L_max · Rechner · L_min (PO 2026-10-02: Ziffernvergleich als Hauptmethode)
+export const CMP = compareData({
+  lo: exactStr(SUM.lo), val: raw, hi: exactStr(SUM.hi), sym: 'L', mid: 'Rechner', unit: 'm', rounded: SUM.rounded,
+})
 
 // Ziffernvergleich L_min / L_max (wie in der Multiplikation)
 const cmp = digitCompare(exactStr(SUM.lo), exactStr(SUM.hi))

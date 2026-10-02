@@ -10,9 +10,11 @@ import {
   S_TRUE, T_TRUE, V_TRUE, K, X0, xOf, ROAD, CAR, TAPES, TAPE_LEN, PANEL, WATCH_A, WATCH_B,
   LOUPE, LOUPE_TAPE, LOUPE_DIAL, TABLE, V_AXIS_Y, BAND_Y, FRAC, DIGITS, VERDICT_Y, READ,
 } from './constants.js'
-import { ROW } from './content.js'
+import { ROW, CMP } from './content.js'
 import { parseMeasured } from '../model.js'
-import { createClaimRow, createUnitBracket, verdict, claimLabel, claimRange } from '../stellen.js'
+import {
+  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
+} from '../stellen.js'
 
 const E = {}
 const DEG = Math.PI / 180
@@ -239,6 +241,11 @@ export function initSpeedStage(svg) {
   E.digits = createClaimRow(E.root, { size: DIGITS.size })
   E.digitCap = text(E.root, 'digit-cap', { x: DIGITS.x, y: DIGITS.y - DIGITS.size - 6 })
   E.verdict = text(E.root, 'verdict', { x: 110, y: VERDICT_Y })
+  // Vergleichstafel (an der Stelle der Regler): v_max · Rechner · v_min
+  E.cmpG = svgEl('g', {}, E.root)
+  E.cmpTitle = text(E.cmpG, 'frac-title', { x: 60, y: FRAC.y[0] - 32 })
+  E.cmp = createCompareBoard(E.cmpG, { size: 30 })
+  E.cmpVerdict = text(E.cmpG, 'verdict', { x: 60, y: FRAC.y[1] + 72 })
   return E.root
 }
 
@@ -259,15 +266,20 @@ function buildTable() {
   text(E.tHead, 'proto-head', { x: c0, y: y0 }, 'Messprotokoll')
   symText(E.tHead, 'proto-head', { x: c1, y: y0 }, 's')
   symText(E.tHead, 'proto-head', { x: c2, y: y0 }, 't')
-  const vh = symText(E.tHead, 'proto-head', { x: c3, y: y0 }, 'v', ' = ')
+  const vh = symText(E.tHead, 'proto-head', { x: c3, y: y0 }, 'v', ' = Δ')
   svgEl('tspan', { class: 'sym' }, vh).textContent = 's'
-  svgEl('tspan', {}, vh).textContent = ' / '
+  svgEl('tspan', {}, vh).textContent = ' / Δ'
   svgEl('tspan', { class: 'sym' }, vh).textContent = 't'
   svgEl('line', { class: 'proto-rule', x1: c0, x2: 715, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
-  // Legende: markierte Ziffer = unsicher, darunter das Intervall der wahren Werte
-  const lg = text(E.tHead, 'proto-legend', { x: 715, y: y0 - 22, 'text-anchor': 'end' })
+  // Legende (abgesetzt, rechts über der Tabelle): markierte Ziffer = unsicher,
+  // darunter das Intervall der wahren Werte — erklärt die Tabelle, nicht v
+  const lgG = svgEl('g', { class: 'proto-legend-box' }, E.tHead)
+  const lgR = svgEl('rect', { x: 430, y: y0 - 44, width: 285, height: 26, rx: 6 }, lgG)
+  const lg = text(lgG, 'proto-legend', { x: 442, y: y0 - 26 })
+  svgEl('tspan', { class: 'proto-legend-head' }, lg).textContent = 'Legende: '
   svgEl('tspan', { class: 'unc-digit' }, lg).textContent = '3'
-  lg.append(' = unsichere Ziffer · darunter: Intervall')
+  lg.append(' unsichere Ziffer · [ … ) Intervall')
+  lgR.setAttribute('width', 285)
   E.rows = ROW.map((r, i) => {
     const y = y0 + TABLE.dy * (i + 1), ys = y + TABLE.sub
     const cls = ['val-a', 'val-b', 'val-c'][i]
@@ -302,6 +314,15 @@ function buildFraction() {
   })
   E.frLive = symText(E.frac, 'frac-live', { x: FRAC.live, y: (FRAC.y[0] + FRAC.y[1]) / 2 + 10 }, 'v', ' = ')
   E.frLiveVal = svgEl('tspan', {}, E.frLive)
+  // Welche Kombination steht gerade an den Reglern? (nur an den vier Ecken)
+  E.frCap = text(E.frac, 'frac-cap-text', { x: FRAC.live, y: (FRAC.y[0] + FRAC.y[1]) / 2 + 44 })
+}
+const near = (k, v) => Math.abs(k - v) < 0.015
+function comboText(ks, kt) {
+  if (near(ks, 0) && near(kt, 1)) return 'kleinstes s, größtes t → kleinstmögliches v'
+  if (near(ks, 1) && near(kt, 0)) return 'größtes s, kleinstes t → größtmögliches v'
+  if ((near(ks, 0) && near(kt, 0)) || (near(ks, 1) && near(kt, 1))) return 'beide klein / beide groß → v liegt dazwischen'
+  return ''
 }
 // „s_min = 19,5 m" in ein <text>: Symbol kursiv, Index tiefgestellt, Wert in tspan
 function subLabel(t, sym, sub) {
@@ -381,6 +402,7 @@ function renderFraction(S, V) {
         B.loT.textContent = ` = ${lo}`; B.hiT.textContent = ` = ${hi}`
       })
     E.frLiveVal.textContent = `${fmt(s / t, 3)} m/s`
+    E.frCap.textContent = comboText(S.ks, S.kt)
   }
   // Live-Marke auf der Zahlengeraden
   const [s, t] = liveST(S), x = V.sx(s / t)
@@ -438,4 +460,11 @@ export function renderSpeed(S) {
   renderBands(S, V)
   renderFraction(S, V)
   renderStellen(S, V)
+  op(E.cmpG, S.dcA)
+  if (S.dcA > 0.002) {
+    const i = Math.round(S.dcI), D = CMP[i]
+    E.cmpTitle.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: Ziffern vergleichen`
+    E.cmp.render(D, { x: 240, y: FRAC.y[0] + 6, gap: 38, alpha: 1, p: Math.round(S.dcP), pointerA: S.dcV, colorFrom: S.dcC })
+    E.cmpVerdict.textContent = compareLine(S, D)
+  }
 }

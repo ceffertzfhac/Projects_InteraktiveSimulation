@@ -265,6 +265,9 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 /* Ziffernvergleich: Tafel und Folienkarten (sicher / unsicher / sinnlos) */
 .cmp-label  { fill: var(--text2); font-size: 20px; font-weight: 600; }
 .cmp-label .sym { font-style: italic; }
+.cmp-label .cmp-mid { font-style: normal; fill: var(--text3); font-size: 15px; }
+.dg-implicit { opacity: .4; }
+.cmp-legend { fill: var(--text3); font-size: 12px; }
 .slide-card .cmp-sure  { color: var(--text); font-weight: 700; }
 .slide-card .cmp-unc   { color: var(--c-unc); font-weight: 800; background: var(--c-unc-bg);
   border-radius: 3px; padding: 0 1px; }
@@ -365,3 +368,8 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .unit-line { white-space: pre; }
 .unit-bad  { fill: var(--c-b); font-size: 16px; font-weight: 600; }
 .unit-ok   { fill: var(--accent); font-size: 16px; font-weight: 700; }
+
+/* Division: abgesetzte Legende über dem Messprotokoll, Kombination an den Reglern */
+.proto-legend-box rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+.proto-legend-head { font-weight: 700; fill: var(--text2); }
+.frac-cap-text { fill: var(--accent); font-size: 16px; font-weight: 700; }

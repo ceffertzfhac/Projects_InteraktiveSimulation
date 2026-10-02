@@ -8,13 +8,13 @@
 //  größtmögliche Gesamtlänge (Ziffernvergleich) → welches Etikett? (2,677 / 3 / 2,7)
 //  → die Falle (Faustregel der Multiplikation) → gleiche Einheit, ehrlich umrechnen → Merke
 
-import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
-import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES, CAM_N } from './constants.js'
-import { SUM, CANDS } from './content.js'
+import { createCardDeck } from '../../../shared/js/step-kit.js'
+import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES } from './constants.js'
+import { SUM, CMP } from './content.js'
+import { compareScan } from '../stellen.js'
 
 export function buildAddSteps(S, DOM) {
   const C = DOM.cards
-  const cam = createCamera(S, CAM_N)
   const deck = createCardDeck()
   const steps = []
   const step = (title, build, hold) => steps.push({ title, build, hold })
@@ -106,19 +106,11 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { bd: 1, duration: 0.9, ease: 'power2.inOut' }, '>-0.2')
   }, 6)
 
-  // Kandidaten: Klammer = Rundungsintervall des Etiketts, Band = was wir wissen
-  const views = [{ cx: 2.68, w: 0.32 }, { cx: 2.95, w: 2.4 }, { cx: 2.68, w: 0.32 }]
+  // Welches Etikett? Ziffernvergleich L_max · Rechner · L_min
   step('Welches Etikett?', tl => {
     deck.show(tl, C.a_label)
-    CANDS.forEach((c, i) => {
-      tl.to(S, { cdA: 0, cbA: 0, cdV: 0, duration: 0.25 }, i ? '>0.9' : '<')
-      tl.set(S, { cdI: i })
-      cam.to(tl, views[i], { duration: 1, at: '>' })
-      tl.to(S, { cdA: 1, duration: 0.4 }, '<0.2')
-      tl.to(S, { cbA: 1, duration: 0.5 }, '>0.3')
-      tl.to(S, { cdV: 1, duration: 0.4 }, '>0.1')
-      tl.to(S, { [`cl${i}`]: 1, duration: 0.4 }, '>0.6')
-    })
+    tl.to(S, { nAx: 0, duration: 0.5 }, '<')
+    compareScan(tl, S, CMP, 0, { at: '>0.1' })
     reveal(tl, C.a_label, 'res', '>0.4')
     tl.to(S, { r2: 1, duration: 0.5 }, '<')
   }, 6)
@@ -133,8 +125,7 @@ export function buildAddSteps(S, DOM) {
 
   step('Gleiche Einheit – ehrlich umrechnen', tl => {
     deck.show(tl, C.a_unit)
-    tl.to(S, { hiN: 0, nAx: 0, cdA: 0, cbA: 0, cdV: 0, cl0: 0, cl1: 0, cl2: 0, lmMin: 0, lmMax: 0,
-      zAe: 0, zEnd: 0, duration: 0.5 }, '<')
+    tl.to(S, { hiN: 0, nAx: 0, dcA: 0, lmMin: 0, lmMax: 0, zAe: 0, zEnd: 0, duration: 0.5 }, '<')
     ;[1, 2, 3, 4, 5].forEach(n => tl.to(S, { [`u${n}`]: 1, duration: 0.5 }, n === 1 ? '>0.2' : '>1.1'))
   }, 7)
 

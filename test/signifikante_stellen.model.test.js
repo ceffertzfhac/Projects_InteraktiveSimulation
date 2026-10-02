@@ -3,7 +3,7 @@
 import { test, expect } from 'vitest'
 import {
   sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
-  quotientInterval, speedExample, placeAnalysis, sumExample, roundAtPlace, digitCompare, compareHtml,
+  quotientInterval, speedExample, placeAnalysis, sumExample, roundAtPlace, digitCompare, compareHtml, compareTriple,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -176,4 +176,13 @@ test('Angabe bis zur Stelle p: Rundung und Rundungsintervall (Klammer)', () => {
   expect(pl[3].ratio).toBeGreaterThan(1)           // Band breiter als die Klammer …
   expect(pl[3].ratio).toBeLessThan(10)             // … aber nur einige Klammern
   expect(pl[4].ratio).toBeGreaterThan(10)          // danach: sinnlos
+})
+
+test('Vergleichstafel: Maximum · Rechner · Minimum bündig, implizite führende Null', () => {
+  const t = compareTriple('7,9300', '9,9150', '13,2233')   // Division Person B
+  expect(t.pDiff).toBe(1)                                  // schon die Zehnerziffer weicht ab
+  expect(t.val[0]).toMatchObject({ ch: '0', implicit: true, cat: 'unc' })
+  const k = compareTriple('19,63', '28,27', '38,48')       // Kreisfläche r = 3 m
+  expect(k.pDiff).toBe(1)
+  expect(k.val.filter(c => !c.comma).map(c => c.cat)).toEqual(['unc', 'ghost', 'ghost', 'ghost'])
 })

@@ -25,7 +25,7 @@ import {
 import { parseMeasured, circleExample } from './model.js'
 import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE } from './content.js'
 import { HITS } from './state.js'
-import { scanPlaces } from './stellen.js'
+import { scanPlaces, compareScan as scanCompare } from './stellen.js'
 
 export function buildSteps(S, DOM) {
   const C = DOM.cards
@@ -98,7 +98,8 @@ export function buildSteps(S, DOM) {
   const reveal = (tl, card, name, at) =>
     tl.to(card.querySelector(`[data-r="${name}"]`), { autoAlpha: 1, duration: 0.5 }, at)
 
-  // Tafel „Welche Stelle ist unsicher?" — Zoom der Mini-Zahlengerade über slP
+  // Tafel „Welche Stelle ist unsicher?" (Band gegen Klammer) — derzeit nicht im Drehbuch,
+  // bleibt für Einzelfälle (PO 2026-10-02: Ziffernvergleich ist die Hauptmethode)
   const lupeScan = (tl, idx, full, at) => {
     const info = LUPE[idx].info
     const first = (full ? info.places : info.places.slice(-3))[0].p
@@ -108,25 +109,6 @@ export function buildSteps(S, DOM) {
       full, hold: full ? 1.4 : 1,
       zoom: (t2, p) => t2.to(S, { slP: p, duration: 0.9, ease: EASE.cam }, '>0.1'),
     })
-  }
-
-  // Tafel „Ziffern vergleichen": Spaltenzeiger von der höchsten Stelle bis eine hinter
-  // die erste abweichende; danach sind alle Ziffern eingefärbt.
-  const compareScan = (tl, idx, at) => {
-    const D = COMPARE[idx], { pDiff } = D.cmp
-    const list = D.places.filter(p => p >= pDiff - 1)
-    tl.set(S, { dcI: idx, dcC: 99, dcV: 0, dcP: list[0] }, at)
-    tl.to(S, { dcA: 1, duration: 0.4 })
-    list.forEach((p, n) => {
-      if (n) tl.to(S, { dcV: 0, duration: 0.2 })
-      tl.set(S, { dcP: p })
-      tl.to(S, { dcV: 1, duration: 0.35 })
-      tl.set(S, { dcC: p })
-      tl.to(S, { dcV: 1, duration: p === pDiff ? 1.6 : 0.9 })
-    })
-    tl.to(S, { dcV: 0, duration: 0.25 })
-    tl.set(S, { dcC: -99, dcP: pDiff })                 // alles eingefärbt, Zeiger auf der unsicheren
-    tl.to(S, { dcV: 1, duration: 0.4 })
   }
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
@@ -399,19 +381,9 @@ export function buildSteps(S, DOM) {
   step('Ziffern vergleichen', tl => {
     hideRows(tl, C.cmp, '<')
     deck.show(tl, C.cmp)
-    compareScan(tl, 0, '<')
+    scanCompare(tl, S, COMPARE[0], 0, { at: '<' })
     reveal(tl, C.cmp, 'res', '>')
-  }, 5)
-
-  // Erklärschritt: die Lupe groß, Angaben 7 → 6,7 → 6,69 → 6,686 → 6,6862 (Band gegen Klammer)
-  step('Wie viele Stellen gebe ich an?', tl => {
-    hideRows(tl, C.howmany, '<')
-    tl.to(S, { dcA: 0, dim: 1, duration: 0.6 })
-    deck.show(tl, C.howmany, '<')
-    tl.set(S, { slBig: 1 }, '<')
-    lupeScan(tl, 0, true, '>0.1')
-    reveal(tl, C.howmany, 'res', '>0.2')
-  }, 8)
+  }, 6)
 
   // ── C · Gröber gemessen ────────────────────────────────────────────────────
   let cur = { l: L[3], b: B }
@@ -429,14 +401,14 @@ export function buildSteps(S, DOM) {
   const example = (title, [lt, bt], cmb, camTarget) => step(title, tl => {
     clearHits(tl)
     tl.to(S, { uTagA: 0, uA: 0, slA: 0, dcA: 0, dim: 0, duration: 0.3 }, '<')
-    tl.set(S, { slBig: 0 }, '>')
     deck.show(tl, C.range, '<')
     swapDyn(tl, 'cmb', cmb, '<')
     hideRows(tl, C.range, '<')
     tl.set(C.range.querySelector('[data-r="four"]'), { display: 'none' }, '<')
     const { l, b } = toExample(tl, lt, bt, camTarget)
     bounds(tl, l, b, C.range, false)
-    lupeScan(tl, cmb, false, '>0.2')
+    tl.to(S, { dcA: 0, duration: 0.3 }, '>0.2')
+    scanCompare(tl, S, COMPARE[cmb], cmb)
     reveal(tl, C.range, 'res', '>')
   }, 6)
 
@@ -476,7 +448,7 @@ export function buildSteps(S, DOM) {
     clearHits(tl)
     dl.hide(tl, { at: '<' })
     db.hide(tl, { at: '<' })
-    tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, edA: 0, slA: 0, duration: 0.6 }, '<')
+    tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, edA: 0, slA: 0, dcA: 0, duration: 0.6 }, '<')
     const c = circles[0]
     tl.set(S, { kA: 1, kDraw: 0, kR: c.r.value, kLo: c.r.value, kHi: c.r.value, circ: 0 })
     tl.to(S, { kDraw: 1, duration: 1.3, ease: 'power2.inOut' })
@@ -491,7 +463,7 @@ export function buildSteps(S, DOM) {
     const c = circles[j]
     if (j > 0) {
       step(`Kreis: r = ${rt} m — Radius variieren`, tl => {
-        tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, slA: 0, duration: 0.5 })
+        tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, slA: 0, dcA: 0, duration: 0.5 })
         tl.set(S, { tr0D: 0, tr1D: 0, f0R: 0, f1R: 0 })
         rl.show(tl, textIndex(rt), { at: '<' })
         swapDyn(tl, 'circ', j, '<')
@@ -501,26 +473,26 @@ export function buildSteps(S, DOM) {
       }, 3)
     }
     step(`Umfang bei r = ${rt} m`, tl => {
-      tl.to(S, { slA: 0, duration: 0.3 })
+      tl.to(S, { dcA: 0, duration: 0.3 })
       hideRows(tl, C.umfang, '<')
       deck.show(tl, C.umfang, '<')
       traceU(tl, c)
-      lupeScan(tl, LUPE_CIRCLE + 2 * j, false, '>0.1')
+      scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j], LUPE_CIRCLE + 2 * j, { at: '>0.1' })
       reveal(tl, C.umfang, 'res', '>')
     }, 6)
     step(`Fläche bei r = ${rt} m`, tl => {
-      tl.to(S, { slA: 0, duration: 0.3 })
+      tl.to(S, { dcA: 0, duration: 0.3 })
       hideRows(tl, C.frange, '<')
       deck.show(tl, C.frange, '<')
       fillA(tl, c)
-      lupeScan(tl, LUPE_CIRCLE + 2 * j + 1, false, '>0.1')
+      scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j + 1], LUPE_CIRCLE + 2 * j + 1, { at: '>0.1' })
       reveal(tl, C.frange, 'res', '>')
     }, 6)
   })
 
   // ── E · Merksatz ───────────────────────────────────────────────────────────
   step('Merke', tl => {
-    tl.to(S, { dim: 1, slA: 0, duration: 0.8 })
+    tl.to(S, { dim: 1, slA: 0, dcA: 0, duration: 0.8 })
     deck.show(tl, C.rule, '<0.2')
   }, 8)
 

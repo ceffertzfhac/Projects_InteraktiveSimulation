@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.11.0</span>
+        <span class="version">v0.12.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -224,27 +224,12 @@ window.MathJax = {
 
       <div class="slide-card pos-r" data-card="cmp">
         <div class="kicker">Ziffern vergleichen</div>
-        <h3>Wo unterscheiden sich \(A_{\min}\) und \(A_{\max}\)?</h3>
-        <p>Wir lesen beide Ergebnisse Ziffer für Ziffer von links. Solange sie übereinstimmen,
-          ist die Ziffer <b>sicher</b>. Die <b>erste abweichende</b> Ziffer ist
-          <span class="unc-word">unsicher</span> – dort hört man auf. Alle Ziffern dahinter sind
+        <h3>Wo weichen die Ziffern ab?</h3>
+        <p>Oben die größtmögliche, unten die kleinstmögliche Fläche, dazwischen der
+          Taschenrechner. Von links gelesen: gleiche Ziffern sind <b>sicher</b>, die erste
+          abweichende ist <span class="unc-word">unsicher</span> – dort runden wir. Dahinter:
           <span class="ghost-word">sinnlos</span>.</p>
         <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² – <span class="dyn" data-dyn="cmb.sig"></span>, die letzte ist unsicher</div>
-      </div>
-
-      <div class="slide-card pos-r" data-card="howmany">
-        <div class="kicker">Im Bild · wie viele Stellen gebe ich an?</div>
-        <h3>Band gegen Klammer</h3>
-        <p><span class="key-band">Band</span>: alle möglichen Flächen von \(A_{\min}\) bis
-          \(A_{\max}\) – das gibt die Messung her.</p>
-        <p><span class="key-bracket">Gestrichelte Klammer</span>: das Rundungsintervall einer Angabe
-          (± ½ Einheit ihrer letzten Stelle) – das verspricht die Angabe.</p>
-        <p>Klammer viel breiter als das Band: zu wenige Stellen, die Angabe <b>verschenkt Wissen</b>.
-          Band viel breiter als die Klammer: zu viele Stellen, die Angabe <b>täuscht Genauigkeit vor</b>.
-          Richtig ist die Stelle, an der Band und Klammer etwa gleich groß sind.</p>
-        <div class="formula" data-r="res">Weiteres Hineinzoomen ist sinnlos. Die Unsicherheit liegt auf der
-          <span class="dyn" data-dyn="cmb.uncOrd"></span> Stelle: \(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m²</div>
-        <p class="note">Genau gleich groß sind sie selten – die letzte Ziffer darf um einige Einheiten wackeln.</p>
       </div>
 
       <!-- K · Kreis -->
@@ -293,7 +278,7 @@ window.MathJax = {
         <h3>Wie schnell ist das Auto?</h3>
         <p>Zwei Personen wollen die <b>Durchschnittsgeschwindigkeit</b> des Autos zwischen
           Start- und Ziellinie bestimmen:</p>
-        <div class="formula">\(v = \dfrac{s}{t}\)</div>
+        <div class="formula">\(v = \dfrac{\Delta s}{\Delta t}\)</div>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_equip">
@@ -349,7 +334,7 @@ window.MathJax = {
       </div>
 
       <div class="slide-card pos-tr" data-card="v_vA">
-        <div class="kicker">Person A · \(v = s / t\)</div>
+        <div class="kicker">Person A · \(v = \Delta s / \Delta t\)</div>
         <h3>20&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</h3>
         <p>Welche \(s\) und \(t\) aus den Intervallen ergeben das kleinstmögliche, welche das größtmögliche \(v\)?</p>
         <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</div>
@@ -360,17 +345,16 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="v_digA">
         <div class="kicker">Person A · welche Stelle ist unsicher?</div>
-        <h3>Stelle für Stelle hineinzoomen</h3>
-        <p>Die Klammer ist das Rundungsintervall der Angabe, das Band das Intervall der
-          möglichen \(v\). „9": Klammer 2× breiter → verschenkt Wissen. „9,3": Band 5× breiter →
-          letzte Ziffer <span class="unc-word">unsicher</span>. „9,35": <span class="ghost-word">sinnlos</span>.</p>
+        <h3>Ziffern vergleichen</h3>
+        <p>Größtmögliches \(v\) oben, kleinstmögliches unten, dazwischen das Ergebnis des
+          Taschenrechners. Die Einer stimmen überein (<b>sicher</b>), die Zehntel nicht: Dort ist die
+          Ziffer <span class="unc-word">unsicher</span>, alle dahinter sind <span class="ghost-word">sinnlos</span>.</p>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.aV"></span> – 2 Stellen wie \(s\), die 3 ist unsicher</div>
-        <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
-          die letzte Ziffer wirklich ist.</p>
+        <p class="note">Die Faustregel (2 Stellen wie \(s\)) kommt zum selben Ergebnis.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_vB">
-        <div class="kicker">Person B · \(v = s / t\)</div>
+        <div class="kicker">Person B · \(v = \Delta s / \Delta t\)</div>
         <h3>19,83&nbsp;m / 2&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s ?</h3>
         <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</div>
         <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</div>
@@ -457,8 +441,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="a_label">
         <div class="kicker">Welches Etikett?</div>
         <h3><span class="dyn" data-dyn="add.raw"></span>&nbsp;m? <span class="dyn" data-dyn="add.sigRule"></span>&nbsp;m? <span class="dyn" data-dyn="add.rounded"></span>&nbsp;m?</h3>
-        <p>Die gestrichelte Klammer zeigt, wofür ein Etikett steht: ± ½ Einheit seiner letzten
-          Stelle. Das Band zeigt, was die Messung hergibt.</p>
+        <p>Wie bei der Multiplikation: größtmögliche Länge oben, kleinstmögliche unten, dazwischen
+          der Taschenrechner. Die erste abweichende Ziffer ist <span class="unc-word">unsicher</span> –
+          dort hört man auf.</p>
         <div class="formula" data-r="res">Unsicherheit auf der <span class="dyn" data-dyn="add.uncOrd"></span> Stelle:
           \(L =\) <span class="dyn res" data-dyn="add.rounded"></span>&thinsp;m – eine Nachkommastelle wie A</div>
       </div>

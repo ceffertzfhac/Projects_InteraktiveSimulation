@@ -6,6 +6,7 @@
 import { fmt } from '../../../shared/js/format.js'
 import { speedExample, exactStr, placeAnalysis, digitCompare, compareHtml } from '../model.js'
 import { READ, ROWS } from './constants.js'
+import { compareData } from '../stellen.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 // Taschenrechner-Wert: exakt, wenn er kurz ist (19,83 / 2), sonst gekürzt mit „…"
@@ -31,6 +32,12 @@ export const ROW = ROWS.map(([sk, tk]) => {
     sigS: stellen(e.s.sig), sigT: stellen(e.t.sig), sig: stellen(e.sig),
   }
 })
+
+// Vergleichstafeln v_max · Rechner · v_min (vier Nachkommastellen, bündig)
+export const CMP = ROW.map(({ e }) => compareData({
+  lo: fmt(e.v.lo, 4), val: fmt(e.v.value, 4), hi: fmt(e.v.hi, 4),
+  sym: 'v', mid: 'Rechner', unit: 'm/s', rounded: e.rounded,
+}))
 
 export const SPD = {}
 ROW.forEach((r, i) => {

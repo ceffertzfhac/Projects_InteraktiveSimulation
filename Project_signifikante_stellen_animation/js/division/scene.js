@@ -4,13 +4,14 @@
 // aus der Wagenposition carX; der Live-Wert v aus den Reglern ks/kt.
 
 import { cameraKeys } from '../../../shared/js/step-kit.js'
-import { stellenKeys } from '../stellen.js'
+import { stellenKeys, compareKeys } from '../stellen.js'
 import { CAM_V_FULL, CAR_PARK } from './constants.js'
 
 export function createSpeedScene() {
   return {
     ...cameraKeys(CAM_V_FULL),             // Kamera nur für die v-Zahlengerade
-    ...stellenKeys(),                      // „Welche Stelle ist unsicher?"
+    ...stellenKeys(),                      // „Welche Stelle ist unsicher?" (Einzelfälle)
+    ...compareKeys(),                      // Vergleichstafel v_max · Rechner · v_min
     // Straße samt Tafeln (lowA blendet alles Untere aus, sobald v berechnet wird)
     lowA: 1, roadA: 0, lineD: 0, carA: 0, carX: CAR_PARK - 6,
     pnA0: 0, pnY0: 30, pnA1: 0, pnY1: 30,

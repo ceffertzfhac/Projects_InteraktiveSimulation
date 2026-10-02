@@ -173,6 +173,27 @@ export function digitCompare(loStr, hiStr) {
   return { pDiff, lo: row(loStr), hi: row(hiStr) }
 }
 
+// Vergleichstafel: Maximum, Taschenrechner-Wert, Minimum — alle bündig nach Stellenwert
+// (gemeinsame höchste Stelle, fehlende führende Ziffern als implizite „0"), Kategorie
+// jeder Ziffer nach der ersten Abweichung von Minimum und Maximum.
+export function compareTriple(loStr, valStr, hiStr) {
+  const maps = [loStr, valStr, hiStr].map(digitsOf)
+  const top = Math.max(...maps.flatMap(m => [...m.keys()]))
+  const { pDiff } = digitCompare(loStr, hiStr)
+  const cat = p => (p > pDiff ? 'sure' : p === pDiff ? 'unc' : 'ghost')
+  const row = str => {
+    const [ip, fp = ''] = String(str).split(',')
+    const pad = Array.from({ length: Math.max(0, top - (ip.length - 1)) }, (_, i) => ({ ch: '0', p: top - i, implicit: true }))
+    const cells = pad.concat([...ip].map((ch, i) => ({ ch, p: ip.length - 1 - i })))
+    if (fp) cells.push({ ch: ',', comma: true })
+    return cells.concat([...fp].map((ch, i) => ({ ch, p: -1 - i })))
+      .map(c => ({ ...c, cat: c.comma ? null : cat(c.p) }))
+  }
+  const places = []
+  for (let p = top; p >= Math.min(...maps.flatMap(m => [...m.keys()])); p--) places.push(p)
+  return { pDiff, top, places, lo: row(loStr), val: row(valStr), hi: row(hiStr) }
+}
+
 // HTML für die Folienkarten: zusammenhängende Ziffern gleicher Kategorie als <span>;
 // implizite führende Nullen blaß (eigener Span)
 export function compareHtml(cells) {

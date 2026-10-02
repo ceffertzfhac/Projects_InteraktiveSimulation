@@ -6,12 +6,11 @@
 
 import { svgEl, viewOf, createAxis, clamp } from '../../../shared/js/step-kit.js'
 import { fmt } from '../../../shared/js/format.js'
-import { createUnitBracket, createCalculator } from '../stellen.js'
+import { createCalculator, createCompareBoard, compareLine } from '../stellen.js'
 import {
-  xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, DIGITS, CAND_Y,
-  VERDICT_Y, UNITS, B_TRUE, READ,
+  xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, CMP_BOX, UNITS, B_TRUE, READ,
 } from './constants.js'
-import { SUM, ROWS, CANDS, UNIT, CALC_IO } from './content.js'
+import { SUM, ROWS, CMP, UNIT, CALC_IO } from './content.js'
 
 const E = {}
 const set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]) }
@@ -200,18 +199,17 @@ export function initAddStage(svg) {
   buildLoupe(E.root)
   E.calc = createCalculator(E.root, CALC)
 
-  // Auswertung: Zahlengerade, Band der Summe, Etiketten-Kandidaten, Urteil
+  // Auswertung: Zahlengerade mit Band der Summe, dann Vergleichstafel
   E.axis = createAxis(E.root, 'x')
   E.axName = text(E.root, 'axis-name-sm', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.axName).textContent = 'L'
   svgEl('tspan', {}, E.axName).textContent = ' / m'
   E.band = svgEl('rect', { class: 'lupe-band', height: 14, rx: 3 }, E.root)
   E.bandLbl = text(E.root, 'band-label', { 'text-anchor': 'middle' }, 'mögliche Gesamtlängen')
-  E.cBracket = createUnitBracket(E.root)
-  E.cand = text(E.root, 'cand-big', { x: DIGITS.x, y: DIGITS.y })
-  E.cands = CANDS.map((c, i) => text(E.root, `cand-small ${c.ok ? 'ok' : 'bad'}`,
-    { x: DIGITS.x + 130 * i, y: CAND_Y }, `${c.text} ${c.ok ? '✓' : '✗'}`))
-  E.verdict = text(E.root, 'verdict', { x: 112, y: VERDICT_Y })
+  E.cmpG = svgEl('g', {}, E.root)
+  text(E.cmpG, 'frac-title', { x: CMP_BOX.x, y: CMP_BOX.y }, 'Ziffern vergleichen')
+  E.cmp = createCompareBoard(E.cmpG, { size: 30 })
+  E.cmpVerdict = text(E.cmpG, 'verdict', { x: CMP_BOX.x, y: CMP_BOX.y + 168 })
   buildUnits(E.root)
   return E.root
 }
@@ -240,16 +238,13 @@ function renderEval(S, V) {
   set(E.axName, { x: V.R + 30, y: AXIS_Y + 6 }); op(E.axName, S.nAx)
   const a = clamp(V.sx(SUM.lo), V.L, V.R), b = clamp(V.sx(SUM.lo + (SUM.hi - SUM.lo) * S.bd), V.L, V.R)
   set(E.band, { x: a, y: BAND_Y, width: Math.max(0, b - a) }); op(E.band, S.bd > 0.002 ? S.nAx : 0)
-  set(E.bandLbl, { x: (a + b) / 2, y: BAND_Y + 32 }); op(E.bandLbl, S.bd * S.nAx * (1 - S.cdA))
-
-  // Etiketten-Kandidaten: groß der aktuelle, klein die Liste mit ✓/✗
-  const c = CANDS[Math.round(S.cdI)]
-  setMarked(E.cand, c.text); op(E.cand, S.cdA)
-  E.cBracket.render(V, { R: c.value, p: c.p, y0: BAND_Y - 8, y1: BAND_Y + 22, alpha: S.cbA,
-    text: `Etikett ${c.text}` })
-  E.cands.forEach((t, i) => op(t, S[`cl${i}`]))
-  E.verdict.textContent = c.verdict
-  op(E.verdict, S.cdV)
+  set(E.bandLbl, { x: (a + b) / 2, y: BAND_Y + 32 }); op(E.bandLbl, S.bd * S.nAx)
+  op(E.cmpG, S.dcA)
+  if (S.dcA > 0.002) {
+    E.cmp.render(CMP, { x: CMP_BOX.x + 130, y: CMP_BOX.y + 44, gap: 38, alpha: 1, p: Math.round(S.dcP),
+      pointerA: S.dcV, colorFrom: S.dcC })
+    E.cmpVerdict.textContent = compareLine(S, CMP)
+  }
   E.units.forEach((t, i) => op(t, S[`u${i + 1}`]))
 }
 

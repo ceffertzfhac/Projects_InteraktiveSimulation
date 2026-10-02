@@ -9,11 +9,11 @@
 //    → welche Stelle ist unsicher? (Zahlengerade Stelle für Stelle) → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
-import { scanPlaces } from '../stellen.js'
+import { compareScan } from '../stellen.js'
 import {
   T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
-import { ROW } from './content.js'
+import { ROW, CMP } from './content.js'
 
 const vAt = (r, ks, kt) => {
   const { s, t } = r.e
@@ -94,8 +94,10 @@ export function buildSpeedSteps(S, DOM) {
 
   // ── Rechnen: Grenzen per Regler, dann Stelle für Stelle ──────────────────────
   let hitN = 0
+  // Ecke anfahren (langsam, PO 2026-10-02) — die Beschriftung der Kombination steht
+  // an den Reglern, solange der Knopf an der Ecke steht
   const corner = (tl, r, ks, kt, at) => {
-    tl.to(S, { ks, kt, duration: 0.8, ease: EASE.cam }, at)
+    tl.to(S, { ks, kt, duration: 1.3, ease: EASE.cam }, at)
     const n = hitN++
     tl.set(S, { [`ch${n}x`]: vAt(r, ks, kt) })
     tl.to(S, { [`ch${n}a`]: 1, duration: 0.3, ease: EASE.pop })
@@ -110,34 +112,31 @@ export function buildSpeedSteps(S, DOM) {
   const bounds = (tl, i, card, all) => {
     const r = ROW[i]
     if (all) {                       // alle vier Kombinationen ausprobieren
-      corner(tl, r, 0, 0, '>0.2'); corner(tl, r, 1, 0, '>0.5'); corner(tl, r, 0, 1, '>0.5'); corner(tl, r, 1, 1, '>0.5')
-      tl.to(S, { ks: 0, kt: 1, duration: 0.8, ease: EASE.cam }, '>0.6')
+      corner(tl, r, 0, 0, '>0.3'); corner(tl, r, 1, 0, '>1.6'); corner(tl, r, 0, 1, '>1.6'); corner(tl, r, 1, 1, '>1.6')
+      tl.to(S, { ks: 0, kt: 1, duration: 1.3, ease: EASE.cam }, '>1.6')
     } else {
-      corner(tl, r, 0, 1, '>0.2')
+      corner(tl, r, 0, 1, '>0.3')
     }
-    reveal(tl, card, 'min', '<0.3')
-    if (all) tl.to(S, { ks: 1, kt: 0, duration: 0.9, ease: EASE.cam }, '>0.8')
-    else corner(tl, r, 1, 0, '>0.8')
-    reveal(tl, card, 'max', '<0.3')
+    reveal(tl, card, 'min', '<0.6')
+    if (all) tl.to(S, { ks: 1, kt: 0, duration: 1.4, ease: EASE.cam }, '>2')
+    else corner(tl, r, 1, 0, '>2')
+    reveal(tl, card, 'max', '<0.6')
+    tl.to(S, { ks: 1, duration: 1.4 }, '>')           // Standzeit: Grenze lesen
     tl.to(S, { [`bd${i}`]: 1, duration: 1, ease: 'power2.inOut' }, '>0.4')
     clearHits(tl)
   }
-  const zoomTo = (R, p) => ({ cx: Math.max(R, 2 * 10 ** p), w: 4 * 10 ** p })
-  const digits = (tl, i, card, full, finalW) => {
+  // Ziffern vergleichen: v_max · Rechner · v_min untereinander (an der Stelle der Regler)
+  const digits = (tl, i, card, finalW) => {
     const r = ROW[i]
-    tl.to(S, { frA: 0, duration: 0.4 })
-    scanPlaces(tl, S, r.info, i, {
-      full, hold: full ? 1.4 : 1,
-      zoom: (tl2, p) => cam.to(tl2, zoomTo(r.info.R, p), { duration: 1.1, at: '>0.1' }),
-    })
-    // Schluß: Ergebnis mit der Klammer seiner letzten Stelle (= sein Rundungsintervall)
+    tl.to(S, { frA: 0, vlA: 0, duration: 0.4 })
+    compareScan(tl, S, CMP[i], i)
     cam.to(tl, { cx: Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
-    tl.to(S, { slB: 1, [`rm${i}`]: 1, duration: 0.5 })
+    tl.to(S, { [`rm${i}`]: 1, duration: 0.5 })
     cell(tl, `c${i}v`, '<')
     reveal(tl, card, 'res', '<0.2')
   }
   const startBounds = (tl, i) => {
-    tl.to(S, { slA: 0, slB: 0, frA: 0, duration: 0.35 })
+    tl.to(S, { dcA: 0, frA: 0, duration: 0.35 })
     tl.set(S, { frI: i, ks: 0.5, kt: 0.5 })
     tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
   }
@@ -156,7 +155,7 @@ export function buildSpeedSteps(S, DOM) {
 
   step('Person A: welche Stelle ist unsicher?', tl => {
     deck.show(tl, C.v_digA)
-    digits(tl, 0, C.v_digA, true, 0.8)
+    digits(tl, 0, C.v_digA, 0.8)
   }, 6)
 
   step('Person B: kleinstmögliches und größtmögliches v', tl => {
@@ -164,7 +163,7 @@ export function buildSpeedSteps(S, DOM) {
     startBounds(tl, 1)
     cam.to(tl, CAM_V_FULL, { duration: T.cam, at: '<' })
     bounds(tl, 1, C.v_vB, false)
-    digits(tl, 1, C.v_vB, false, 24)
+    digits(tl, 1, C.v_vB, 24)
   }, 6)
 
   step('Kombiniert: cm-Maßband und Lichtschranken', tl => {
@@ -175,11 +174,11 @@ export function buildSpeedSteps(S, DOM) {
     startBounds(tl, 2)
     cam.to(tl, { cx: 9.27, w: 0.3 }, { duration: T.cam, at: '<' })
     bounds(tl, 2, C.v_best, false)
-    digits(tl, 2, C.v_best, false, 0.08)
+    digits(tl, 2, C.v_best, 0.08)
   }, 6)
 
   step('Merke', tl => {
-    tl.to(S, { dim: 1, duration: 0.8 })
+    tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
     deck.show(tl, C.v_rule, '<0.2')
   }, 8)
 

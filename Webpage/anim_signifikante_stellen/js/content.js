@@ -7,6 +7,7 @@ import { fmt } from '../../shared/js/format.js'
 import {
   parseMeasured, areaExample, exactStr, circleExample, placeAnalysis, placeName, digitCompare, compareHtml,
 } from './model.js'
+import { compareData } from './stellen.js'
 import {
   L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXTS,
 } from './constants.js'
@@ -88,17 +89,20 @@ export const LUPE = [
 ]
 export const LUPE_CIRCLE = EXAMPLES.length
 
-// Ziffernvergleich-Tafel (erstes Rechteck): A_max, A_min und der Taschenrechner-Wert
-export const COMPARE = EXAMPLES.slice(0, 1).map(([, [lt, bt]]) => {
-  const ex = areaExample(lt, bt), cmp = digitCompare(ex.loStr, ex.hiStr)
-  const calc = digitCompare(ex.valueStr, ex.valueStr).lo
-    .map(c => ({ ...c, cat: c.comma ? null : c.p > cmp.pDiff ? 'sure' : c.p === cmp.pDiff ? 'unc' : 'ghost' }))
-  const places = [...new Set(cmp.hi.filter(c => !c.comma).map(c => c.p))]
-  return {
-    key: `${lt}|${bt}`, cmp, places, rounded: ex.rounded,
-    rows: [{ sym: 'A', sub: 'max', cells: cmp.hi }, { sym: 'A', sub: 'min', cells: cmp.lo },
-      { sym: 'l · b', sub: '', cells: calc }],
-  }
-})
+// Vergleichstafeln (Maximum · Rechner · Minimum) in Schrittreihenfolge, gleiche
+// Indizes wie LUPE: Rechtecke, dann je Kreis U und A
+export const COMPARE = [
+  ...EXAMPLES.map(([, [lt, bt]]) => {
+    const ex = areaExample(lt, bt)
+    return compareData({ lo: ex.loStr, val: ex.valueStr, hi: ex.hiStr, sym: 'A', mid: 'Rechner', unit: 'm²', rounded: ex.rounded })
+  }),
+  ...R_TEXTS.flatMap(rt => {
+    const c = circleExample(rt), f = x => fmt(x, 2)
+    return [
+      compareData({ lo: f(c.U.lo), val: f(c.U.value), hi: f(c.U.hi), sym: 'U', mid: 'Rechner', unit: 'm', rounded: c.U.rounded }),
+      compareData({ lo: f(c.A.lo), val: f(c.A.value), hi: f(c.A.hi), sym: 'A', mid: 'Rechner', unit: 'm²', rounded: c.A.rounded }),
+    ]
+  }),
+]
 
 export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

@@ -12,7 +12,7 @@
 // slV Urteil, slC bis zu welcher Stelle schon eingefärbt.
 
 import { svgEl, clamp } from '../../shared/js/step-kit.js'
-import { placeName } from './model.js'
+import { placeName, compareTriple } from './model.js'
 import { fmt } from '../../shared/js/format.js'
 
 export const stellenKeys = () => ({
@@ -142,7 +142,41 @@ export function scanPlaces(tl, S, info, idx, { full, zoom, hold = 1.1, at }) {
 // untereinander, bündig nach Stellenwert. Daten: model.js digitCompare(). Ein
 // Spaltenzeiger läuft von links nach rechts; Ziffern ab Stelle colorFrom tragen ihre
 // Kategorie-Farbe (sicher / unsicher / sinnlos).
-export const compareKeys = () => ({ dcA: 0, dcI: 0, dcP: 0, dcV: 0, dcC: 99 })
+export const compareKeys = () => ({ dcA: 0, dcI: 0, dcP: 0, dcV: 0, dcC: 99, dcF: 0 })
+
+// Daten einer Vergleichstafel: Maximum oben, Taschenrechner-Wert in der Mitte, Minimum
+// unten (Strings mit Komma). result = Schlußzeile, z. B. „→ A = 6,686 m² (4. Stelle unsicher)".
+const ORDINAL = ['1.', '2.', '3.', '4.', '5.', '6.']
+export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
+  const t = compareTriple(lo, val, hi)
+  const first = t.hi.find(c => !c.comma && c.ch !== '0' && !c.implicit)?.p ?? t.top
+  const result = `→ ${sym} = ${rounded} ${unit}: Unsicherheit auf der ${ORDINAL[first - t.pDiff] ?? '?'} Stelle`
+  return {
+    key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result,
+    rows: [{ sym, sub: 'max', cells: t.hi }, { sym: mid, sub: '', cells: t.val }, { sym, sub: 'min', cells: t.lo }],
+  }
+}
+
+// Build-Zeit: Spaltenzeiger von der höchsten Stelle bis eine hinter die erste
+// abweichende; danach alles eingefärbt und die Schlußzeile mit dem Ergebnis.
+export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
+  const { pDiff } = D.cmp
+  const list = D.places.filter(p => p >= pDiff - 1)
+  tl.set(S, { dcI: idx, dcC: 99, dcV: 0, dcF: 0, dcP: list[0] }, at)
+  tl.to(S, { dcA: 1, duration: 0.4 })
+  list.forEach((p, n) => {
+    if (n) tl.to(S, { dcV: 0, duration: 0.2 })
+    tl.set(S, { dcP: p })
+    tl.to(S, { dcV: 1, duration: 0.35 })
+    tl.set(S, { dcC: p })
+    tl.to(S, { dcV: 1, duration: p === pDiff ? 1.6 : hold })
+  })
+  tl.to(S, { dcV: 0, duration: 0.25 })
+  tl.set(S, { dcC: -99, dcP: pDiff, dcF: 1 })          // alles eingefärbt, Ergebnis
+  tl.to(S, { dcV: 1, duration: 0.4 })
+}
+export const compareLine = (S, D) =>
+  (S.dcF > 0.5 ? D.result : compareVerdict(D.cmp, Math.round(S.dcP)))
 
 const CMP_WORD = { sure: 'gleich → sicher', unc: 'verschieden → unsicher', ghost: 'dahinter: sinnlos' }
 export const compareVerdict = (cmp, p) =>
@@ -178,12 +212,13 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
             t.setAttribute('x', c.comma ? x + (top + 1.5) * cw : cx(c.p)); t.setAttribute('y', y + i * gap)
           }
           const on = !c.comma && c.p >= colorFrom
-          t.setAttribute('class', `dg dg-${c.comma ? 'plain' : on ? c.cat : 'plain'}`)
+          t.setAttribute('class', `dg dg-${c.comma ? 'plain' : on ? c.cat : 'plain'}${c.implicit ? ' dg-implicit' : ''}`)
         })
         if (d && key !== lastKey) {
           row.label.textContent = ''
           svgEl('tspan', { class: 'sym' }, row.label).textContent = d.sym
           if (d.sub) svgEl('tspan', { dy: 6, 'font-size': '70%' }, row.label).textContent = d.sub
+          else row.label.firstChild.setAttribute('class', 'cmp-mid')
           row.label.setAttribute('x', x - 14); row.label.setAttribute('y', y + i * gap)
         }
       })

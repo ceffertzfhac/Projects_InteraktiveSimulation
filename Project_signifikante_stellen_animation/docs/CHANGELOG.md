@@ -1,5 +1,24 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.12.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`, zur PO-Ansicht)
+
+**Ziffernvergleich als Hauptmethode** (PO-Feedback, → FSS8). Band gegen Klammer nur noch
+in Einzelfällen, der Code bleibt erhalten.
+- **Vergleichstafel einheitlich:** Maximum oben, **Taschenrechner-Wert in der Mitte**,
+  Minimum unten, bündig nach Stellenwert. Spaltenzeiger bis zur ersten abweichenden Ziffer,
+  Schlusszeile „→ A = 6,686 m²: Unsicherheit auf der 4. Stelle". Der Rechner-Wert in der
+  Mitte zeigt, warum gerundet wird (Kreis r = 3 m: 28,27 → 3 · 10¹ m², nicht 2 · 10¹).
+- **Multiplikation:** Die Tafel ersetzt die Lupe in allen Rechteck- und Kreis-Beispielen.
+  Der Schritt „Wie viele Stellen gebe ich an?" entfällt (16 → 15 Schritte).
+- **Division:**
+  - Vergleichstafel *v*_max · Rechner · *v*_min statt Lupe.
+  - Ecken-Test deutlich langsamer; an den Reglern steht die jeweilige Kombination
+    („kleinstes s, größtes t → kleinstmögliches v").
+  - *v* = Δ*s*/Δ*t*.
+  - Die Legende über dem Messprotokoll ist abgesetzt (gestrichelter Rahmen, „Legende:").
+- **Addition:** „Welches Etikett?" per Vergleichstafel *L*_max · Rechner · *L*_min.
+- Modell `compareTriple`, gemeinsame Bausteine `compareData`/`compareScan` in `stellen.js`.
+
 ## v0.11.0 — 2026-10-02
 
 **Addition überarbeitet** (PO-Review, → FSS7), 12 → 10 Schritte. Fachsprache nach Recherche

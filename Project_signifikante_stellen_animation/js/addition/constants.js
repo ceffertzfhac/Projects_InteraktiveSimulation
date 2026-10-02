@@ -36,9 +36,7 @@ export const TABLE = { x: [60, 205, 300, 462, 590, 676], y0: 64, dy: 34 }
 export const VIEW_N = { vL: 110, vR: 1080, vT: 520, vB: 640 }
 export const AXIS_Y = 612
 export const BAND_Y = 566
-export const DIGITS = { x: 112, y: 556, size: 34 }
-export const CAND_Y = 520                             // Liste der geprüften Etiketten
-export const VERDICT_Y = 662
+export const CMP_BOX = { x: 96, y: 440 }              // Vergleichstafel L_max · Rechner · L_min
 export const CAM_N = { view: VIEW_N, cx: 2.68, cy: 0, w: 0.4 }
 // Einheiten-Tafel („Gleiche Einheit"): fünf Zeilen
 export const UNITS = { x: 96, y: 432, dy: 40 }

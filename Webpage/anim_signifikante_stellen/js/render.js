@@ -14,7 +14,7 @@ import { DYN, LUPE, COMPARE, RANGES } from './content.js'
 import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
-  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareVerdict,
+  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
   createCalculator,
 } from './stellen.js'
 import { HITS } from './state.js'
@@ -646,12 +646,12 @@ function renderLupe(S) {
   op(E.lupeVerdict, S.slV)
 }
 
-// Tafel „Ziffern vergleichen" (erstes Rechteck)
+// Tafel „Ziffern vergleichen": Maximum · Rechner · Minimum
 function renderCompare(S) {
   op(E.cmpPanel, S.dcA)
   if (S.dcA <= 0.002) return
   const B = LUPE_BOX, D = COMPARE[Math.round(S.dcI)], p = Math.round(S.dcP)
   E.cmp.render(D, { x: B.x + 120, y: B.y + 64, gap: 34, alpha: 1, p, pointerA: S.dcV, colorFrom: S.dcC })
-  E.cmpVerdict.textContent = compareVerdict(D.cmp, p)
+  E.cmpVerdict.textContent = compareLine(S, D)
   op(E.cmpVerdict, S.dcV)
 }

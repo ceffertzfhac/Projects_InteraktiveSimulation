@@ -4,6 +4,7 @@
 // der Kette ergibt sich daraus — nichts wird doppelt gespeichert.
 
 import { cameraKeys } from '../../../shared/js/step-kit.js'
+import { compareKeys } from '../stellen.js'
 import { CAM_N, LANE, A_TRUE, B_TRUE } from './constants.js'
 
 export function createAddScene() {
@@ -21,8 +22,8 @@ export function createAddScene() {
     zAe: 0, zEnd: 0, lmMin: 0, lmMax: 0,
     // Steckbrief: Kopf, Zeilen, Hervorhebung der Spalten (sign. Stellen / Nachkommastellen)
     tbA: 0, r0: 0, r1: 0, r2: 0, hiS: 0, hiN: 0, hiU: 0,
-    // Auswertung: Zahlengerade, Band der Summe, Etiketten-Kandidaten
-    nAx: 0, bd: 0, cdI: 0, cdA: 0, cbA: 0, cdV: 0, cl0: 0, cl1: 0, cl2: 0,
+    // Auswertung: Zahlengerade mit Band der Summe, Vergleichstafel
+    nAx: 0, bd: 0, ...compareKeys(),
     // Einheiten-Tafel (fünf Zeilen)
     u1: 0, u2: 0, u3: 0, u4: 0, u5: 0,
     dim: 0,
