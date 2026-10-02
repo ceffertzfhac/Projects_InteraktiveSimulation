@@ -7,6 +7,10 @@ import { createStepEngine, createPresenter } from '../../shared/js/step-engine.j
 import { store, DOM, initDOM, createScene } from './state.js'
 import { initStage, renderScene } from './render.js'
 import { buildSteps } from './steps.js'
+import { createSpeedScene } from './division/scene.js'
+import { initSpeedStage, renderSpeed } from './division/render.js'
+import { buildSpeedSteps } from './division/steps.js'
+import { fillSpeedCards } from './division/content.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -21,16 +25,28 @@ function setupTheme() {
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 initDOM()
 setupTheme()
-initStage(DOM.svg, DOM)
+// Jedes Kapitel zeichnet in eine eigene Gruppe; sichtbar ist nur die des aktiven.
+const groups = { multiplikation: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg) }
+fillSpeedCards(DOM)
 
 store.presenter = createPresenter({
   root: DOM.transport,
+  onChapter: id => {
+    for (const [k, g] of Object.entries(groups)) g.style.display = k === id ? '' : 'none'
+  },
   chapters: [
     {
       id: 'multiplikation', title: 'Multiplikation',
       create: (onChange, onTick) => {
         const S = store.scene = createScene()
         return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange, onTick })
+      },
+    },
+    {
+      id: 'division', title: 'Division',
+      create: (onChange, onTick) => {
+        const S = store.scene = createSpeedScene()
+        return createStepEngine({ steps: buildSpeedSteps(S, DOM), scene: S, render: renderSpeed, onChange, onTick })
       },
     },
     { id: 'addition', title: 'Addition', disabled: true },   // → BACKLOG FSS1

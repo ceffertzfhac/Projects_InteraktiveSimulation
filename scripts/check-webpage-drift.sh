@@ -67,25 +67,23 @@ for pair in "${PAIRS[@]}"; do
     continue
   fi
 
-  # js/ byte-identisch (Datei muß in beiden existieren).
-  for f in "$src/js/"*.js; do
-    b=$(basename "$f")
-    if [ ! -f "$dst/js/$b" ]; then
-      drifts+=("DRIFT js: $dst/js/$b fehlt")
+  # js/ byte-identisch inkl. Unterordner (Datei muß in beiden existieren).
+  while read -r f; do
+    if [ ! -f "$dst/js/$f" ]; then
+      drifts+=("DRIFT js: $dst/js/$f fehlt")
       status=1
-    elif ! cmp -s "$f" "$dst/js/$b"; then
-      drifts+=("DRIFT js: $dst/js/$b ≠ $src/js/$b")
+    elif ! cmp -s "$src/js/$f" "$dst/js/$f"; then
+      drifts+=("DRIFT js: $dst/js/$f ≠ $src/js/$f")
       status=1
     fi
-  done
+  done < <(cd "$src/js" && find . -name '*.js' | sed 's|^\./||')
   # umgekehrt: im Webpage-Dst zusätzliche js-Dateien (würde sync nicht abdecken)
-  for f in "$dst/js/"*.js; do
-    b=$(basename "$f")
-    if [ ! -f "$src/js/$b" ]; then
-      drifts+=("DRIFT js: $dst/js/$b ohne Project_-Gegenstück")
+  while read -r f; do
+    if [ ! -f "$src/js/$f" ]; then
+      drifts+=("DRIFT js: $dst/js/$f ohne Project_-Gegenstück")
       status=1
     fi
-  done
+  done < <(cd "$dst/js" && find . -name '*.js' | sed 's|^\./||')
 
   # css/styles.css byte-identisch.
   if ! cmp -s "$src/css/styles.css" "$dst/css/styles.css"; then

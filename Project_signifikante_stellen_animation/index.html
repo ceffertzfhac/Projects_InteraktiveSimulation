@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.5.1</span>
+        <span class="version">v0.6.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -52,7 +52,7 @@ window.MathJax = {
 <div class="stage-wrap">
   <div class="stage">
     <svg id="stage_svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet"
-         aria-label="Animationsbühne: Messen, Rundungsintervalle und Flächenbereich"></svg>
+         aria-label="Animationsbühne: Messen, Rundungsintervalle, Flächenbereich und Geschwindigkeit"></svg>
 
     <!-- Folienkarten: statisches HTML, MathJax tippt einmal beim Laden.
          Sichtbarkeit steuert ausschließlich die Timeline (js/steps.js);
@@ -215,6 +215,112 @@ window.MathJax = {
         <p>Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
           begrenzen die Genauigkeit nicht. Die letzte angegebene Stelle ist unsicher, alle
           davor sind gesichert.</p>
+      </div>
+
+      <!-- ══ Kapitel 2 · Division: Durchschnittsgeschwindigkeit ══ -->
+      <div class="slide-card pos-tr" data-card="v_intro">
+        <div class="kicker">Kapitel 2 · Messen und Dividieren</div>
+        <h3>Wie schnell ist das Auto?</h3>
+        <p>Zwei Personen wollen die <b>Durchschnittsgeschwindigkeit</b> des Autos zwischen
+          Start- und Ziellinie bestimmen:</p>
+        <div class="formula">\(v = \dfrac{s}{t}\)</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_equip">
+        <div class="kicker">Ausrüstung</div>
+        <h3>Wer misst genauer?</h3>
+        <p><b>Person A:</b> ein Maßband mit Markierungen im Abstand von 1&nbsp;m, zwei
+          Lichtschranken und eine Stoppuhr, die Hundertstelsekunden anzeigt.</p>
+        <p><b>Person B:</b> ein Maßband mit cm-Markierungen und eine Stoppuhr mit nur einem
+          Sekundenzeiger.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_sA">
+        <div class="kicker">Strecke · Person A · Markierungen 1&nbsp;m</div>
+        <h3>\(s = 20\,\text{m}\)</h3>
+        <p>Die Ziellinie liegt näher an der 20-m-Marke als an jeder anderen:</p>
+        <div class="formula">\(19{,}5\,\text{m} \le s &lt; 20{,}5\,\text{m}\)</div>
+        <p class="note">2 signifikante Stellen</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_sB">
+        <div class="kicker">Strecke · Person B · Markierungen 1&nbsp;cm</div>
+        <h3>\(s = 19{,}83\,\text{m}\)</h3>
+        <p>In der Lupe: Die Ziellinie liegt am nächsten an der Marke 19,83&nbsp;m.</p>
+        <div class="formula">\(19{,}825\,\text{m} \le s &lt; 19{,}835\,\text{m}\)</div>
+        <p class="note">4 signifikante Stellen – das Intervall ist hundertmal schmaler als bei A.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_barrier">
+        <div class="kicker">Zeitmessung</div>
+        <h3>Lichtschranke gegen Handstoppung</h3>
+        <p><b>A</b> stellt an Start und Ziel je eine Lichtschranke auf. Unterbricht das Auto
+          den Strahl, startet bzw. stoppt die Uhr automatisch.</p>
+        <p><b>B</b> drückt die Stoppuhr von Hand – wir nehmen an: genau im richtigen Moment.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_drive">
+        <div class="kicker">Die Fahrt · Zeitlupe</div>
+        <h3>Beide Uhren laufen</h3>
+        <p>Die Uhren laufen, solange das Auto zwischen Start- und Ziellinie fährt.
+          Achte auf den Sekundenzeiger in der Lupe.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_t">
+        <div class="kicker">Zeit ablesen</div>
+        <h3>A: \(t = 1{,}42\,\text{s}\) &nbsp;·&nbsp; B: \(t = 1\,\text{s}\)</h3>
+        <div class="formula">A: \(1{,}415\,\text{s} \le t &lt; 1{,}425\,\text{s}\)</div>
+        <div class="formula">B: \(0{,}5\,\text{s} \le t &lt; 1{,}5\,\text{s}\)</div>
+        <p>Der Sekundenzeiger steht näher an der 1 als an der 2. A hat 3 signifikante Stellen,
+          B nur eine.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_vA">
+        <div class="kicker">Person A · \(v = s / t\)</div>
+        <h3>20&nbsp;m / 1,42&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</h3>
+        <p>Kleinstes \(v\): kürzeste Strecke durch längste Zeit – größtes \(v\) umgekehrt:</p>
+        <div class="formula"><span class="dyn" data-dyn="spd.aLo"></span>&thinsp;m/s &lt; \(v\) &lt;
+          <span class="dyn" data-dyn="spd.aHi"></span>&thinsp;m/s</div>
+        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.aV"></span></div>
+        <p class="note">\(s\): <span class="dyn" data-dyn="spd.aSigS"></span> ·
+          \(t\): <span class="dyn" data-dyn="spd.aSigT"></span> →
+          \(v\): <span class="dyn" data-dyn="spd.aSig"></span> (signifikant)</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_vB">
+        <div class="kicker">Person B · \(v = s / t\)</div>
+        <h3>19,83&nbsp;m / 1&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s ?</h3>
+        <div class="formula"><span class="dyn" data-dyn="spd.bLo"></span>&thinsp;m/s &lt; \(v\) &lt;
+          <span class="dyn" data-dyn="spd.bHi"></span>&thinsp;m/s</div>
+        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.bV"></span></div>
+        <p>Das feine Maßband nützt nichts: Die Zeit mit nur einer Stelle begrenzt das Ergebnis.</p>
+        <p class="note">\(s\): <span class="dyn" data-dyn="spd.bSigS"></span> ·
+          \(t\): <span class="dyn" data-dyn="spd.bSigT"></span> →
+          \(v\): <span class="dyn" data-dyn="spd.bSig"></span> (signifikant)</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_best">
+        <div class="kicker">Kombiniert · Strecke von B, Zeit von A</div>
+        <h3>19,83&nbsp;m / 1,42&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</h3>
+        <div class="formula"><span class="dyn" data-dyn="spd.cLo"></span>&thinsp;m/s &lt; \(v\) &lt;
+          <span class="dyn" data-dyn="spd.cHi"></span>&thinsp;m/s</div>
+        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.cV"></span></div>
+        <p>Die Endnull in 14,0 ist gesichert. Jetzt begrenzt die Zeitmessung.</p>
+        <p class="note">\(s\): <span class="dyn" data-dyn="spd.cSigS"></span> ·
+          \(t\): <span class="dyn" data-dyn="spd.cSigT"></span> →
+          \(v\): <span class="dyn" data-dyn="spd.cSig"></span> (signifikant)</p>
+      </div>
+
+      <div class="slide-card pos-c wide" data-card="v_rule">
+        <div class="kicker">Merke · Division</div>
+        <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
+          ungenaueste Messgröße.</h3>
+        <div class="formula">\(\dfrac{20\,\text{m}}{1{,}42\,\text{s}} = 14\,\text{m/s} \qquad
+          \dfrac{19{,}83\,\text{m}}{1\,\text{s}} = 2 \cdot 10^1\,\text{m/s} \qquad
+          \dfrac{19{,}83\,\text{m}}{1{,}42\,\text{s}} = 14{,}0\,\text{m/s}\)</div>
+        <p>Ein genaueres Messgerät lohnt sich nur für die Größe, die das Ergebnis gerade
+          begrenzt: Person B hätte eine bessere Uhr viel gebracht – ein noch feineres Maßband
+          gar nichts.</p>
       </div>
     </div>
   </div>

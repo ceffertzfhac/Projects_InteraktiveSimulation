@@ -112,3 +112,98 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .log-line    { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .log-u       { fill: var(--accent); }
 .log-a       { fill: var(--c-l); }
+
+/* ══ Kapitel 2 · Division: Geschwindigkeit ══════════════════════════════════
+   Person A = Blau (--c-l), Person B = Zinnober (--c-b), Kombination = Akzent.
+   Straße, Auto, Uhren, Lupe sind physische Objekte: in beiden Themes ähnlich. */
+:root     { --road: #5b616c; --road-paint: #f4f5f7; --car: #dfe3ea; --car-edge: #6d7584;
+             --glass: #34495e; --laser: #ff2a2a; --lcd: #cfe3c8; --lcd-ink: #17260f;
+             --dial: #fbfbf7; --dial-ink: #23262d; }
+body.dark { --road: #353a43; --road-paint: #d9dce2; --car: #c9ced8; --car-edge: #4a5160;
+             --glass: #22303e; --laser: #ff4d4d; --lcd: #b9d3b1; --lcd-ink: #142010;
+             --dial: #eceee8; --dial-ink: #1b1d22; }
+
+.road        { fill: var(--road); }
+.road-edge   { stroke: var(--road-paint); stroke-width: 2.5; stroke-opacity: .85; }
+.road-center { stroke: var(--road-paint); stroke-width: 2.5; stroke-dasharray: 26 22; stroke-opacity: .6; }
+.road-line   { stroke: var(--road-paint); stroke-width: 5; }
+.line-label  { fill: var(--road-paint); fill-opacity: .9; font-size: 15px; font-weight: 700; letter-spacing: .14em; }
+
+.car-body   { fill: var(--car); stroke: var(--car-edge); stroke-width: 1.5;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .35)); }
+.car-roof   { fill: var(--car); stroke: var(--car-edge); stroke-width: 1; }
+.car-glass  { fill: var(--glass); }
+.car-wheel  { fill: #15171b; }
+.car-light  { fill: #fff3b0; }
+.car-mirror { fill: var(--car-edge); }
+
+.barrier-box  { fill: #2c3038; stroke: #15171b; stroke-width: 1; }
+.barrier-led  { fill: #6b1b1b; }
+.barrier-led.on { fill: #ffd34d; }
+.beam         { stroke: var(--laser); stroke-width: 2.5; filter: drop-shadow(0 0 4px var(--laser)); }
+.barrier-ring { fill: none; stroke: #ffd34d; stroke-width: 3; }
+
+.badge circle    { stroke: var(--stage-bg1); stroke-width: 2; }
+.badge-a circle  { fill: var(--c-l); }
+.badge-b circle  { fill: var(--c-b); }
+.badge-text      { fill: #fff; font-size: 12px; font-weight: 700; }
+.spd-tape-label  { font-size: 11px; }
+.finish-guide    { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 4 4; }
+
+/* Tafeln der Personen */
+.panel-bg   { fill: var(--surface); fill-opacity: .82; stroke: var(--border); stroke-width: 1;
+  filter: drop-shadow(0 4px 12px rgba(26, 30, 46, .12)); }
+.person.p-a { fill: var(--c-l); }
+.person.p-b { fill: var(--c-b); }
+.panel-name { font-size: 15px; font-weight: 700; }
+.name-a, .val-a { fill: var(--c-l); }
+.name-b, .val-b { fill: var(--c-b); }
+.val-c { fill: var(--accent); }
+.panel-item { fill: var(--text2); font-size: 15px; font-weight: 500; }
+
+/* Uhren */
+.watch-case { fill: #23272f; stroke: var(--border); stroke-width: 1.5; }
+.watch-btn  { fill: #4a505c; }
+.watch-glow { fill: none; stroke: var(--accent); stroke-width: 3; filter: drop-shadow(0 0 8px var(--accent)); }
+.lcd        { fill: var(--lcd); }
+.lcd-text   { fill: var(--lcd-ink); font-family: var(--font-mono) !important; font-size: 32px; font-weight: 500; }
+.lcd-unit   { fill: var(--lcd-ink); font-size: 18px; font-weight: 600; }
+.dial-face  { fill: var(--dial); stroke: var(--dial-ink); stroke-width: 3; }
+.dial-tick  { stroke: var(--dial-ink); stroke-width: 1.2; }
+.dial-tick.major { stroke-width: 2.4; }
+.dial-num   { fill: var(--dial-ink); font-size: 11px; font-weight: 700; }
+.dial-hand  { stroke: var(--c-b); stroke-width: 3; stroke-linecap: round; }
+.dial-hub   { fill: var(--dial-ink); }
+
+/* Lupe */
+.loupe-bg     { fill: var(--surface); }
+.loupe-frame  { fill: none; stroke: var(--text); stroke-width: 4; }
+.loupe-handle { stroke: var(--text); stroke-width: 9; stroke-linecap: round; }
+.loupe-con    { stroke: var(--text2); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.loupe-label  { font-size: 12px; }
+.loupe-num    { font-size: 17px; }
+.loupe-cap    { fill: var(--text2); font-size: 13px; font-weight: 600; }
+
+/* Messprotokoll */
+.proto-head { fill: var(--text); font-size: 18px; font-weight: 700; }
+.proto-rule { stroke: var(--border); stroke-width: 1.5; }
+.proto-name { font-size: 18px; font-weight: 700; }
+.proto-cell { fill: var(--text); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.proto-v    { font-weight: 700; }
+
+/* v-Achse mit Bändern */
+.axis-name-sm { fill: var(--text); font-size: 18px; font-weight: 500; }
+.vband   { fill-opacity: .38; }
+.vband-a { fill: var(--c-l); }
+.vband-b { fill: var(--c-b); }
+.vband-c { fill: var(--accent); fill-opacity: .6; }
+.vdot-a  { fill: var(--c-l); }
+.vdot-b  { fill: var(--c-b); }
+.vdot-c  { fill: var(--accent); }
+.vdot    { stroke: var(--stage-bg1); stroke-width: 1.5; }
+.vband-label  { font-size: 14px; font-weight: 700; }
+.v-true       { stroke: var(--c-true); stroke-width: 2; stroke-dasharray: 5 4; }
+.v-true-label { fill: var(--c-true); font-size: 13px; font-weight: 700; }
+
+.slide-card .dyn.res { color: var(--accent); font-weight: 700; }
+.zone-dial { fill: var(--c-b); fill-opacity: .22; }

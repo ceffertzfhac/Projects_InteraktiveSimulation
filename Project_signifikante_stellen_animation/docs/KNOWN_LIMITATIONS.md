@@ -17,3 +17,7 @@ zentral in `BACKLOG.md`.
   Die Folien zeigen deshalb immer den exakten Bereich mit an.
 - **`formatSig` für Werte ≥ 1 ausgelegt** — Rundung großer Zahlen auf weniger
   Stellen als Vorkommastellen (z. B. 650 → 6,5·10²) ist nicht vorgesehen.
+- **Kapitel „Division": idealisierte Zeitmessung** — Person B stoppt ohne Reaktionszeit
+  (Folie sagt es), die Anzeige der Digitaluhr wird wie alle Messwerte als ±½ der
+  letzten Stelle gelesen; reale Stoppuhren schneiden meist ab (1,42 s → [1,42 ; 1,43) s).
+  Bewußt einheitliche Konvention mit Kapitel 1. → FSS4

@@ -59,8 +59,11 @@ for pair in "${PAIRS[@]}"; do
     echo "FEHLER: Paar unvollständig — $src oder $dst fehlt." >&2
     exit 1
   fi
-  # js/ und css/styles.css byte-identisch spiegeln.
-  cp "$src/js/"*.js "$dst/js/"
+  # js/ (inkl. Unterordner, z. B. js/division/) und css/styles.css byte-identisch spiegeln.
+  (cd "$src/js" && find . -name '*.js') | while read -r f; do
+    mkdir -p "$dst/js/$(dirname "$f")"
+    cp "$src/js/$f" "$dst/js/$f"
+  done
   cp "$src/css/styles.css" "$dst/css/styles.css"
   # index.html aus kanonischer Quelle + Back-Button-Transform.
   cp "$src/index.html" "$dst/index.html"

@@ -39,7 +39,8 @@ function gradient(defs, id, stops, vertical = true) {
 }
 
 export function initStage(svg, DOM) {
-  E.DOM = DOM
+  // nur die eigenen dynamischen Zahlen (lvl/cmb/circ) — andere Kapitel füllen ihre selbst
+  E.dyn = DOM.dyn.filter(el => el.dataset.dyn.split('.')[0] in DYN)
   const defs = svgEl('defs', {}, svg)
   gradient(defs, 'grad_l', [[0, 'gl-edge'], [0.5, 'gl-mid'], [1, 'gl-edge']])
   gradient(defs, 'grad_rod', [[0, 'rod-hi'], [0.35, 'rod-mid'], [1, 'rod-lo']])
@@ -149,6 +150,7 @@ export function initStage(svg, DOM) {
   svgEl('tspan', {}, E.ro).textContent = ' · '
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'b'
   E.roVal = svgEl('tspan', {}, E.ro)
+  return E.root
 }
 
 function rectWorld(el, V, x0, y0, x1, y1) {
@@ -433,13 +435,13 @@ export function renderScene(S) {
   const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}|${Math.round(S.circ)}`
   if (key !== dynKey) {
     dynKey = key
-    for (const el of E.DOM.dyn) {
+    for (const el of E.dyn) {
       const [grp, field] = el.dataset.dyn.split('.')
       el.textContent = DYN[grp][Math.round(S[grp])][field]
     }
   }
   if (S.dynA !== dynAlpha) {
     dynAlpha = S.dynA
-    for (const el of E.DOM.dyn) el.style.opacity = S.dynA
+    for (const el of E.dyn) el.style.opacity = S.dynA
   }
 }

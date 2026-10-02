@@ -74,3 +74,17 @@ export function circleExample(rText) {
   })
   return { r, sig: r.sig, U: part(U), A: part(A) }
 }
+
+// Quotient zweier positiver Messwerte: kleinster Wert = kleinster Zähler durch
+// größten Nenner, größter Wert = größter Zähler durch kleinsten Nenner.
+export function quotientInterval(a, b) {
+  return { value: a.value / b.value, lo: a.lo / b.hi, hi: a.hi / b.lo }
+}
+
+// Durchschnittsgeschwindigkeit v = s / t aus zwei Messwerten (Kapitel „Division").
+export function speedExample(sText, tText) {
+  const s = parseMeasured(sText), t = parseMeasured(tText)
+  const v = quotientInterval(s, t)
+  const sig = Math.min(s.sig, t.sig)
+  return { s, t, v, sig, rounded: formatSig(v.value, sig) }
+}

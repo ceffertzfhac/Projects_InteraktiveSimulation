@@ -3,6 +3,7 @@
 import { test, expect } from 'vitest'
 import {
   sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
+  quotientInterval, speedExample,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -76,4 +77,23 @@ test('Kreis: 2 und π exakt — U und A haben so viele Stellen wie r', () => {
   expect(g.A.rounded).toBe('3 · 10¹')
   expect(g.A.lo).toBeLessThan(30)
   expect(g.A.hi).toBeGreaterThan(30)
+})
+
+test('Division v = s / t: Bereich = s_min/t_max … s_max/t_min, Stellen wie die ungenaueste Größe', () => {
+  const q = quotientInterval(parseMeasured('20'), parseMeasured('1,42'))
+  expect(q.lo).toBeCloseTo(19.5 / 1.425, 12)
+  expect(q.hi).toBeCloseTo(20.5 / 1.415, 12)
+  // Person A: 1-m-Maßband (2 Stellen), Lichtschranken 0,01 s (3 Stellen)
+  expect(speedExample('20', '1,42').rounded).toBe('14')
+  // Person B: cm-Maßband (4 Stellen), Sekundenzeiger (1 Stelle)
+  const b = speedExample('19,83', '1')
+  expect(b.sig).toBe(1)
+  expect(b.rounded).toBe('2 · 10¹')
+  expect(b.v.lo).toBeCloseTo(19.825 / 1.5, 12)
+  expect(b.v.hi).toBeCloseTo(19.835 / 0.5, 12)
+  // Kombination: cm-Maßband + Lichtschranken → 3 Stellen, gerundeter Wert im Bereich
+  const c = speedExample('19,83', '1,42')
+  expect(c.rounded).toBe('14,0')
+  expect(14).toBeGreaterThanOrEqual(c.v.lo)
+  expect(14).toBeLessThan(c.v.hi)
 })

@@ -1,5 +1,24 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.6.0 — 2026-10-02
+
+**Neues Kapitel 2 „Division": Durchschnittsgeschwindigkeit** v = s / t (11 Schritte, → FSS4).
+Ein Auto fährt über einen Straßenabschnitt (Draufsicht); zwei Personen messen:
+- **Person A:** Maßband mit 1-m-Markierungen, zwei Laser-Lichtschranken, Stoppuhr mit
+  Hundertstelsekunden → *s* = 20 m, *t* = 1,42 s → *v* = 14 m/s (2 Stellen, *s* begrenzt).
+- **Person B:** Maßband mit cm-Markierungen, Stoppuhr mit nur einem Sekundenzeiger →
+  *s* = 19,83 m, *t* = 1 s → *v* = 2 · 10¹ m/s (1 Stelle, *t* begrenzt — das feine Maßband nützt nichts).
+- **Kombiniert** (Strecke von B, Zeit von A): *v* = 14,0 m/s (3 Stellen).
+- Bühne: Messprotokoll, Ablesebereich auf dem Maßband, Lupe (erst cm-Teilung an der
+  Ziellinie, dann Zifferblatt um 1 s mit Ablesebereich [0,5 ; 1,5) s), Fahrt in Zeitlupe
+  mit laufenden Uhren (Anzeige aus der Wagenposition berechnet → exakt rückspulbar),
+  Lichtschranken mit Unterbrechungs-Blitz, v-Achse mit Bändern der möglichen
+  Geschwindigkeiten (*v*_min = *s*_min / *t*_max …), Zoom auf das enge Kombi-Intervall,
+  wahrer Wert als Referenz, Merke-Kasten zur Division.
+- Modell: `quotientInterval`, `speedExample` in `js/model.js` (+ Vitest-Fall). Kapitel als
+  eigene Modulgruppe `js/division/` mit eigener SVG-Gruppe; Kapitel 1 füllt nur noch
+  seine eigenen `data-dyn`-Felder.
+
 ## v0.5.1 — 2026-10-02
 
 - Folientexte überarbeitet (PO): Maßband-Teilung als „Markierungen im Abstand von …"
