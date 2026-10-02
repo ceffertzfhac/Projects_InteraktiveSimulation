@@ -1,5 +1,12 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.5.1 — 2026-10-02
+
+- Folientexte überarbeitet (PO): Maßband-Teilung als „Markierungen im Abstand von …"
+  formuliert, „Genauer können wir mit diesem Maßband nicht messen", wahre Länge „mit dem
+  Maßband nicht bestimmbar", Kreis-Folien „Umfang/Fläche aus Radius bestimmen".
+  (Direkt in der Webpage-Kopie editiert, ins kanonische Projekt zurückübertragen.)
+
 ## v0.5.0 — 2026-10-01
 
 Kreis didaktisch neu nach PO-Konzept (6 statt 2 Schritte), je für *r* = 3,0 m und *r* = 3 m:

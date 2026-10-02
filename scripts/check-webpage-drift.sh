@@ -42,7 +42,8 @@ drifts=()
 # als Verzeichnis im Deploy-Bundle liegen noch von Webpage/index.html verlinkt
 # sein. Dieser Check läuft im Deploy-Workflow VOR dem Upload — schlägt er fehl,
 # gibt es keinen Deploy. Damit kann die Sim nicht versehentlich live gehen.
-for s in "${NICHT_OEFFENTLICH[@]}"; do
+# ${arr[@]+…}: leere Liste unter set -u auch mit macOS-Bash 3.2
+for s in ${NICHT_OEFFENTLICH[@]+"${NICHT_OEFFENTLICH[@]}"}; do
   if [ -d "Webpage/sim_${s}" ]; then
     drifts+=("NICHT ÖFFENTLICH: Webpage/sim_${s}/ darf nicht im Deploy-Bundle liegen")
     status=1
@@ -96,7 +97,7 @@ for pair in "${PAIRS[@]}"; do
   # Mehr als diese eine Zeile Abweichung = Drift.
   expected=$(mktemp)
   cp "$src/index.html" "$expected"
-  sed -i 's|href="\.\./AllAnimations/index\.html"|href="../index.html"|g' "$expected"
+  sed -i.bak 's|href="\.\./AllAnimations/index\.html"|href="../index.html"|g' "$expected" && rm "$expected.bak"   # -i.bak: GNU- und BSD-sed
   if ! cmp -s "$expected" "$dst/index.html"; then
     drifts+=("DRIFT index.html: $dst/index.html weicht über die Back-Button-Zeile hinaus ab:")
     diff -u "$expected" "$dst/index.html" | sed 's/^/    /' || true
@@ -118,7 +119,7 @@ for f in shared/css/*.css shared/js/*.js shared/img/*.png; do
 done
 
 if [ $status -eq 0 ]; then
-  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
+  echo "OK: Webpage/ mit Project_* synchron (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]-keine})."
   exit 0
 else
   echo "FEHLER: Webpage-Drift bzw. Publikations-Verstoß erkannt:" >&2

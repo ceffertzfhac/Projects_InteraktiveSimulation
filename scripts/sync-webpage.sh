@@ -38,7 +38,8 @@ NICHT_OEFFENTLICH=( )
 # Ausgeschlossene Sims dürfen im Deploy-Bundle gar nicht erst liegen. Nicht
 # stillschweigend löschen — lieber laut abbrechen, als unbemerkt zu publizieren
 # oder unbemerkt Arbeit wegzuwerfen.
-for s in "${NICHT_OEFFENTLICH[@]}"; do
+# ${arr[@]+…}: leere Liste unter set -u auch mit macOS-Bash 3.2
+for s in ${NICHT_OEFFENTLICH[@]+"${NICHT_OEFFENTLICH[@]}"}; do
   if [ -d "Webpage/sim_${s}" ]; then
     echo "FEHLER: Webpage/sim_${s}/ existiert, ist aber als NICHT_OEFFENTLICH geführt." >&2
     echo "        Verzeichnis entfernen (git rm -r Webpage/sim_${s}) oder den Namen" >&2
@@ -63,7 +64,7 @@ for pair in "${PAIRS[@]}"; do
   cp "$src/css/styles.css" "$dst/css/styles.css"
   # index.html aus kanonischer Quelle + Back-Button-Transform.
   cp "$src/index.html" "$dst/index.html"
-  sed -i 's|href="\.\./AllAnimations/index\.html"|href="../index.html"|g' "$dst/index.html"
+  sed -i.bak 's|href="\.\./AllAnimations/index\.html"|href="../index.html"|g' "$dst/index.html" && rm "$dst/index.html.bak"   # -i.bak: GNU- und BSD-sed
 done
 
 # shared/ spiegeln (Design-System + JS-Helper, von allen Webpage-Sims via
@@ -73,5 +74,5 @@ cp shared/js/*.js Webpage/shared/js/
 mkdir -p Webpage/shared/img
 cp shared/img/*.png Webpage/shared/img/
 
-echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]})."
+echo "Webpage/ aus Project_* gespiegelt (${#SIMS[@]} Sims + ${#ANIMS[@]} Animationen + shared; ${#NICHT_OEFFENTLICH[@]} nicht öffentlich: ${NICHT_OEFFENTLICH[*]-keine})."
 echo "Drift prüfen:  bash scripts/check-webpage-drift.sh"
