@@ -207,3 +207,76 @@ body.dark { --road: #353a43; --road-paint: #d9dce2; --car: #c9ced8; --car-edge: 
 
 .slide-card .dyn.res { color: var(--accent); font-weight: 700; }
 .zone-dial { fill: var(--c-b); fill-opacity: .22; }
+
+/* ══ Unsichere Ziffer, signifikante Stellen, „Welche Stelle ist unsicher?" ══
+   Bernstein = unsichere (letzte) Ziffer — in allen Kapiteln dieselbe Farbe. */
+:root     { --c-unc: #c97a00; --c-unc-bg: rgba(230, 159, 0, .2); }
+body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
+
+.unc-digit { fill: var(--c-unc); color: var(--c-unc); font-weight: 800; }
+.slide-card .unc-word { color: var(--c-unc); font-weight: 700; }
+.unc-box   { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 1.5; }
+.unc-tag   { fill: var(--c-unc); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+.slide-card [data-r] { visibility: hidden; opacity: 0; }
+
+/* ±-Maßpfeile am Intervall */
+.pm line  { stroke: var(--c-l); stroke-width: 2; }
+.pm path  { fill: var(--c-l); }
+.pm-label { fill: var(--c-l); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pm-cap   { fill: var(--text2); font-size: 13px; }
+
+/* Ziffernzeile „3,000 m" mit Zählmarken */
+.sig-tok   { fill: var(--text); font-family: var(--font-mono) !important; font-weight: 500; }
+.sig-unit  { fill: var(--text2); }
+.sig-tok.unc-digit { fill: var(--c-unc); font-weight: 700; }
+.sig-badge circle { fill: var(--accent); }
+.sig-badge text   { fill: #fff; font-size: 15px; font-weight: 700; }
+.sig-br path      { fill: none; stroke-width: 2; }
+.sig-br-text      { font-size: 15px; font-weight: 700; }
+.sig-br-S path { stroke: var(--text2); }  .sig-br-S text { fill: var(--text2); }
+.sig-br-U path { stroke: var(--c-unc); }  .sig-br-U text { fill: var(--c-unc); }
+.sig-br-Z path { stroke: var(--text3); }  .sig-br-Z text { fill: var(--text3); font-weight: 500; }
+
+/* Grenzen im Rechteck-Teil */
+.edge-label { font-size: 17px; font-weight: 700; paint-order: stroke; stroke: var(--stage-bg1);
+  stroke-width: 4px; stroke-linejoin: round; }
+.edge-l { fill: var(--c-l); }
+.edge-b { fill: var(--c-b); }
+.area-bound.hot { stroke: var(--c-true); stroke-width: 3; stroke-dasharray: none;
+  fill: var(--c-true); fill-opacity: .08; }
+
+/* Ziffernzeile eines Ergebnisses (stellen.js) */
+.dg        { font-family: var(--font-mono) !important; font-weight: 500; fill: var(--text); }
+.dg-sure   { fill: var(--text); font-weight: 700; }
+.dg-unc    { fill: var(--c-unc); font-weight: 800; }
+.dg-ghost  { fill: var(--text3); }
+.dg-suffix { fill: var(--text2); font-family: var(--font-ui) !important; }
+.dg-pointer { fill: var(--c-unc-bg); fill-opacity: .6; stroke: var(--accent); stroke-width: 2; }
+.unit-bracket rect { fill: var(--accent); fill-opacity: .08; stroke: var(--accent); stroke-width: 2;
+  stroke-dasharray: 6 4; }
+.unit-bracket text { fill: var(--accent); font-size: 14px; font-weight: 700; paint-order: stroke;
+  stroke: var(--stage-bg1); stroke-width: 4px; stroke-linejoin: round; }
+.verdict    { fill: var(--text); font-size: 18px; font-weight: 700; }
+.verdict-sm { font-size: 14px; }
+
+/* Tafel „Welche Stelle ist unsicher?" (Kapitel Multiplikation) */
+.lupe-title { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.lupe-band  { fill: var(--c-area); fill-opacity: .55; }
+
+/* Kapitel Division: Intervalle im Protokoll, Regler, Live-Wert, Ergebnis-Marken */
+.proto-iv     { fill: var(--text3); font-size: 13px; font-variant-numeric: tabular-nums; }
+.proto-legend { fill: var(--text3); font-size: 13px; }
+.frac-title { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.frac-sym   { fill: var(--text); font-size: 22px; font-weight: 600; }
+.frac-bar   { stroke: var(--border); stroke-width: 6; stroke-linecap: round; }
+.frac-cap   { stroke: var(--text2); stroke-width: 2; }
+.frac-end   { fill: var(--text2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.frac-knob  { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2.5; }
+.frac-val   { fill: var(--text); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.frac-live  { fill: var(--text); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.v-live     { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; }
+.v-hit      { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2; }
+.vmark      { stroke: var(--stage-bg1); stroke-width: 1.5; }
+.vmark-label { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--stage-bg1);
+  stroke-width: 3px; stroke-linejoin: round; }
+.digit-cap  { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }

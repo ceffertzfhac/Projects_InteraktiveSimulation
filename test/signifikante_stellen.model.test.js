@@ -3,7 +3,7 @@
 import { test, expect } from 'vitest'
 import {
   sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
-  quotientInterval, speedExample,
+  quotientInterval, speedExample, placeAnalysis,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -63,6 +63,8 @@ test('Rundung mit Zehnerpotenz, wenn weniger Stellen als Vorkommastellen', () =>
   expect(formatSig(28.27, 1)).toBe('3 · 10¹')
   expect(formatSig(96, 1)).toBe('1 · 10²')
   expect(formatSig(18.85, 2)).toBe('19')
+  expect(formatSig(9.915, 1)).toBe('1 · 10¹')     // gerundet 10 → Zehnerpotenz
+  expect(formatSig(9.996, 3)).toBe('10,0')
 })
 
 test('Kreis: 2 und π exakt — U und A haben so viele Stellen wie r', () => {
@@ -80,20 +82,32 @@ test('Kreis: 2 und π exakt — U und A haben so viele Stellen wie r', () => {
 })
 
 test('Division v = s / t: Bereich = s_min/t_max … s_max/t_min, Stellen wie die ungenaueste Größe', () => {
-  const q = quotientInterval(parseMeasured('20'), parseMeasured('1,42'))
-  expect(q.lo).toBeCloseTo(19.5 / 1.425, 12)
-  expect(q.hi).toBeCloseTo(20.5 / 1.415, 12)
+  const q = quotientInterval(parseMeasured('20'), parseMeasured('2,17'))
+  expect(q.lo).toBeCloseTo(19.5 / 2.175, 12)
+  expect(q.hi).toBeCloseTo(20.5 / 2.165, 12)
   // Person A: 1-m-Maßband (2 Stellen), Lichtschranken 0,01 s (3 Stellen)
-  expect(speedExample('20', '1,42').rounded).toBe('14')
+  expect(speedExample('20', '2,17').rounded).toBe('9,2')
   // Person B: cm-Maßband (4 Stellen), Sekundenzeiger (1 Stelle)
-  const b = speedExample('19,83', '1')
+  const b = speedExample('19,83', '2')
   expect(b.sig).toBe(1)
-  expect(b.rounded).toBe('2 · 10¹')
-  expect(b.v.lo).toBeCloseTo(19.825 / 1.5, 12)
-  expect(b.v.hi).toBeCloseTo(19.835 / 0.5, 12)
+  expect(b.rounded).toBe('1 · 10¹')
+  expect(b.v.lo).toBeCloseTo(19.825 / 2.5, 12)
+  expect(b.v.hi).toBeCloseTo(19.835 / 1.5, 12)
   // Kombination: cm-Maßband + Lichtschranken → 3 Stellen, gerundeter Wert im Bereich
-  const c = speedExample('19,83', '1,42')
-  expect(c.rounded).toBe('14,0')
-  expect(14).toBeGreaterThanOrEqual(c.v.lo)
-  expect(14).toBeLessThan(c.v.hi)
+  const c = speedExample('19,83', '2,17')
+  expect(c.rounded).toBe('9,14')
+  expect(9.14).toBeGreaterThanOrEqual(c.v.lo)
+  expect(9.14).toBeLessThan(c.v.hi)
+})
+
+test('Stellenanalyse: Intervall in Einheiten jeder Stelle, Kategorie nach Faustregel', () => {
+  const a = placeAnalysis('9,2', 19.5 / 2.175, 20.5 / 2.165)
+  expect(a.places.map(p => p.cat)).toEqual(['sure', 'unc', 'ghost'])
+  expect(a.places.map(p => p.name)).toEqual(['Einer', 'Zehntel', 'Hundertstel'])
+  expect(a.places[1].ratio).toBeCloseTo(10 * a.places[0].ratio, 12)
+  const b = placeAnalysis('1 · 10¹', 7.93, 13.22)
+  expect(b.R).toBe(10)
+  expect(b.places.map(p => p.p)).toEqual([1, 0])
+  expect(placeAnalysis('6,000', 5.9975, 6.0025).places.map(p => p.ratioText)).toEqual(
+    ['0,005', '0,05', '0,5', '5,0', '50'])
 })

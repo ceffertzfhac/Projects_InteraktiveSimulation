@@ -41,14 +41,14 @@ export function exactStr(x) {
 // „2 · 10¹"), sonst täuschte „19" eine zweite gesicherte Stelle vor.
 const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 export function formatSig(x, n) {
-  const e = Math.floor(Math.log10(Math.abs(x)))
+  // erst runden, dann die Größenordnung bestimmen (9,9 auf 1 Stelle → 10 → „1 · 10¹")
+  const r = Number(x.toPrecision(n))
+  const e = Math.floor(Math.log10(Math.abs(r)))
   if (e + 1 > n) {
-    let m = x / 10 ** e, ee = e
-    if (Math.abs(Number(m.toFixed(n - 1))) >= 10) { m /= 10; ee += 1 }
-    const exp = String(ee).split('').map(c => SUP[+c]).join('')
-    return `${fmt(m, n - 1)} · 10${exp}`
+    const exp = String(e).split('').map(c => SUP[+c]).join('')
+    return `${fmt(r / 10 ** e, n - 1)} · 10${exp}`
   }
-  return fmt(x, Math.max(0, n - 1 - e))
+  return fmt(r, Math.max(0, n - 1 - e))
 }
 
 // Komplettes Rechenbeispiel l · b für Folien und Bühne.
@@ -87,4 +87,40 @@ export function speedExample(sText, tText) {
   const v = quotientInterval(s, t)
   const sig = Math.min(s.sig, t.sig)
   return { s, t, v, sig, rounded: formatSig(v.value, sig) }
+}
+
+// ── Stellenanalyse eines gerundeten Ergebnisses ──────────────────────────────
+// Welche Ziffer ist gesichert, welche unsicher, welche bedeutungslos? Nach der
+// Faustregel ist die letzte hingeschriebene Ziffer unsicher, alle davor gesichert,
+// jede weitere wäre bedeutungslos. Das Intervall [lo, hi) zeigt es: gemessen in
+// Einheiten der jeweiligen Stelle ist es davor nur ein Bruchteil einer Einheit
+// breit, in der letzten Stelle etwa eine oder mehrere, danach ein Vielfaches.
+const PLACE_NAMES = { 3: 'Tausender', 2: 'Hunderter', 1: 'Zehner', 0: 'Einer', '-1': 'Zehntel',
+  '-2': 'Hundertstel', '-3': 'Tausendstel', '-4': 'Zehntausendstel', '-5': 'Hunderttausendstel' }
+export const placeName = p => PLACE_NAMES[p] ?? `10^${p}`
+
+// Verhältnis kompakt: 0,5 · 5,0 · 50
+export function ratioStr(r) {
+  if (r >= 10) return String(Math.round(r))
+  if (r >= 1) return fmt(r, 1)
+  const q = Number(r.toPrecision(1))
+  return fmt(q, -Math.floor(Math.log10(q)))
+}
+
+export function placeAnalysis(text, lo, hi) {
+  const m = String(text).match(/^(\d+(?:,\d+)?)(?: · 10([⁰¹²³⁴⁵⁶⁷⁸⁹]+))?$/)
+  if (!m) throw new Error(`Ergebnis „${text}" nicht lesbar`)
+  const mant = m[1], sci = !!m[2]
+  const e = sci ? Number([...m[2]].map(c => SUP.indexOf(c)).join('')) : 0
+  const [ip, fp = ''] = mant.split(',')
+  const digits = [...ip].map((ch, i) => ({ ch, p: e + ip.length - 1 - i }))
+    .concat([...fp].map((ch, i) => ({ ch, p: e - 1 - i })))
+  const pLast = digits.at(-1).p
+  const R = Number(mant.replace(',', '.')) * 10 ** e
+  const cat = p => (p > pLast ? 'sure' : p === pLast ? 'unc' : 'ghost')
+  const places = digits.map(d => d.p).concat(pLast - 1).map(p => {
+    const ratio = (hi - lo) / 10 ** p
+    return { p, cat: cat(p), name: placeName(p), ratio, ratioText: ratioStr(ratio) }
+  })
+  return { text, R, lo, hi, digits, pLast, sci, e, places }
 }

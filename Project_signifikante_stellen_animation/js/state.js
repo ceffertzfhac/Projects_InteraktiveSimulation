@@ -4,7 +4,8 @@
 // content.js DYN), damit jeder Schritt exakt rückwärts abspielbar ist.
 
 import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
-import { CAM_START, RODS_MEASURE, ROD_COARSE } from './constants.js'
+import { CAM_START, RODS_MEASURE, ROD_COARSE, SIG_TOKENS, SIG_REPS } from './constants.js'
+import { stellenKeys } from './stellen.js'
 
 export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
 
@@ -46,8 +47,20 @@ export function createScene() {
     tr0R: 3, tr0D: 0, tr0A: 0, tr1R: 3, tr1D: 0, tr1A: 0,
     // Fläche von innen nach außen: Füllradius, Deckkraft
     f0R: 0, f0A: 0, f1R: 0, f1A: 0,
+    // Unsichere letzte Ziffer: Markierung an Messwerten, ±-Maßpfeile am Intervall
+    ucA: 0, ucBox: 0, pmA: 0, pmD: 0,
+    // Signifikante Stellen: Zählmarken, Klammern „gesichert"/„unsicher"/„nur Stellenwert"
+    sgA: 0, bg1: 0, bg2: 0, bg3: 0, bg4: 0, brS: 0, brU: 0, brZ: 0,
+    // Teil R: Grenzen markieren (l_min … b_max), kleinstes/größtes Rechteck
+    edA: 0, mnA: 0, mxA: 0,
+    ...stellenKeys(),                      // Tafel „Welche Stelle ist unsicher?"
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
+  }
+  // Ziffern-Token: Spalte (zentriert) und Deckkraft, Start = Schreibweise 0
+  const r0 = SIG_REPS[0]
+  for (const [id] of SIG_TOKENS) {
+    Object.assign(S, { [`tk${id}x`]: (r0[id] ?? 0) - r0.w / 2, [`tk${id}a`]: id in r0 ? 1 : 0 })
   }
   for (let i = 0; i < HITS; i++) Object.assign(S, { [`h${i}x`]: 3, [`h${i}y`]: 2, [`h${i}a`]: 0 })
   return S

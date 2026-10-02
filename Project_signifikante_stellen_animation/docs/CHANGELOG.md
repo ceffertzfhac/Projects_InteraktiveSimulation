@@ -1,5 +1,37 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.7.0 — 2026-10-02
+
+Didaktische Überarbeitung (PO): was signifikante Stellen sind, was „die letzte Ziffer ist
+unsicher" bedeutet, und animierte Intervallgrenzen bei Multiplikation und Division.
+- **Drei Kapitel:** „Grundlagen" (Messen, Zahlengerade, signifikante Stellen),
+  „Multiplikation" (Rechteck, Kreis), „Division" (Geschwindigkeit). Multiplikation startet
+  im Endzustand der Grundlagen (deren Schritte werden still vorab abgespielt).
+- **Unsichere Ziffer:** neuer Schritt „Die letzte Ziffer ist unsicher" — die letzte Ziffer
+  jedes Messwerts ist bernsteinfarben markiert (Zahlengerade, Rechteck, Kreis, Protokoll),
+  ±-Maßpfeile vom Messwert zu den Intervallgrenzen (± ½ Einheit der letzten Stelle),
+  je Teilung wandert die unsichere Stelle eine Stelle nach rechts.
+- **Definition signifikante Stellen:** Ziffernzeile „3,000 m" mit Zählmarken 1–4,
+  Klammern gesichert/unsicher; dieselbe Messung als 0,003000 km, 300,0 cm,
+  3,000 · 10³ mm — führende Nullen sind nur Stellenwert, die Zahl bleibt 4.
+- **Intervallgrenzen animiert:** Multiplikation — Ecken-Test, die Rechteckecke besucht alle
+  vier Kombinationen, kleinste Fläche = *l*_min · *b*_min, größte = *l*_max · *b*_max
+  (Rechtecke hervorgehoben, Grenzen beschriftet, Folienzeilen erscheinen nacheinander).
+  Division — Regler für *s* und *t* mit Live-Wert *v*: kleinstes *v* = *s*_min / *t*_max,
+  größtes = *s*_max / *t*_min (umgekehrt wie beim Multiplizieren); das Band wächst von
+  *v*_min nach *v*_max.
+- **„Welche Stelle ist unsicher?"** für jedes Rechenergebnis: Die Zahlengerade zoomt Stelle
+  für Stelle; eine Klammer „1 Einheit dieser Stelle" neben dem Intervall-Band zeigt:
+  Bruchteil → gesichert, etwa so breit oder breiter → unsicher, vielfach → bedeutungslos.
+  Ziffernzeile mit Zeiger, Geisterziffer „?", danach Endform mit Einheit/Zehnerpotenz.
+- **Division:** Fahrzeit jetzt 2,17 s (PO) → A 9,2 m/s, B 1 · 10¹ m/s, kombiniert 9,14 m/s.
+  Protokoll zeigt unter jedem Messwert das Intervall der wahren Werte; kein „wahrer Wert"
+  mehr auf der Zahlengeraden, nur die Ergebnisse. Erst hineinzoomen, dann rechnen.
+  Merke-Kasten neu gesetzt (Rand nicht mehr durchbrochen).
+- `formatSig` rundet vor der Größenordnungs-Bestimmung (9,9 auf 1 Stelle → „1 · 10¹",
+  nicht „10"); neu `placeAnalysis` im Modell (+ Vitest-Fälle), `js/stellen.js` als
+  gemeinsamer Baustein beider Kapitelgruppen.
+
 ## v0.6.0 — 2026-10-02
 
 **Neues Kapitel 2 „Division": Durchschnittsgeschwindigkeit** v = s / t (11 Schritte, → FSS4).

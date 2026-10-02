@@ -21,3 +21,11 @@ zentral in `BACKLOG.md`.
   (Folie sagt es), die Anzeige der Digitaluhr wird wie alle Messwerte als ±½ der
   letzten Stelle gelesen; reale Stoppuhren schneiden meist ab (1,42 s → [1,42 ; 1,43) s).
   Bewußt einheitliche Konvention mit Kapitel 1. → FSS4
+- **„Unsicher" nach Faustregel, nicht nach Schwellwert** — welche Ziffer als letzte
+  (unsichere) gilt, bestimmt die Faustregel (Stellenzahl des ungenauesten Faktors). Das
+  Intervall ist in dieser Stelle je nach Rechnung 0,5 bis 5 Einheiten breit (z. B.
+  1 · 10¹ m/s: 0,5 Zehner; 6,000 m²: 5 Tausendstel), eine Stelle davor zehnmal weniger.
+  Ein fester Schwellwert existiert nicht; die Folien sagen das ausdrücklich. → FSS5
+- **Kapitel Multiplikation startet aus dem Endzustand der Grundlagen** — dessen Schritte
+  werden beim Kapitelwechsel still vorab abgespielt (`ui.js multEngine`); Änderungen an
+  den Grundlagen wirken sich daher auf den Startzustand der Multiplikation aus. → FSS5

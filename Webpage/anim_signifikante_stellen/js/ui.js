@@ -25,23 +25,42 @@ function setupTheme() {
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 initDOM()
 setupTheme()
-// Jedes Kapitel zeichnet in eine eigene Gruppe; sichtbar ist nur die des aktiven.
-const groups = { multiplikation: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg) }
+// Kapitel Grundlagen und Multiplikation teilen Szene und Zeichnung (Teil 1 → Teil 2),
+// Division hat eine eigene; sichtbar ist nur die Gruppe des aktiven Kapitels.
+const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg) }
+groups.mult = groups.grund
 fillSpeedCards(DOM)
+
+// Multiplikation beginnt dort, wo Grundlagen endet: dessen Schritte (+ Übergang)
+// werden vorab still auf die Szene angewendet — der Planer kennt so den Zustand.
+function multEngine(onChange, onTick) {
+  const S = store.scene = createScene()
+  const { grund, cleanup, mult } = buildSteps(S, DOM)
+  const g = window.gsap, pre = g.timeline({ paused: true })
+  grund.forEach(st => { const sub = g.timeline(); st.build(sub, S); pre.add(sub) })
+  const sub = g.timeline(); cleanup(sub); pre.add(sub)
+  pre.progress(1)
+  pre.kill()
+  return createStepEngine({ steps: mult, scene: S, render: renderScene, onChange, onTick })
+}
 
 store.presenter = createPresenter({
   root: DOM.transport,
   onChapter: id => {
-    for (const [k, g] of Object.entries(groups)) g.style.display = k === id ? '' : 'none'
+    for (const [k, g] of Object.entries(groups)) if (k !== id) g.style.display = 'none'
+    groups[id].style.display = ''
+    // Folienkarten des vorigen Kapitels sicher ausblenden (sein Vorspann ist nicht Teil der Timeline)
+    window.gsap.set(Object.values(DOM.cards), { autoAlpha: 0 })
   },
   chapters: [
     {
-      id: 'multiplikation', title: 'Multiplikation',
+      id: 'grund', title: 'Grundlagen',
       create: (onChange, onTick) => {
         const S = store.scene = createScene()
-        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange, onTick })
+        return createStepEngine({ steps: buildSteps(S, DOM).grund, scene: S, render: renderScene, onChange, onTick })
       },
     },
+    { id: 'mult', title: 'Multiplikation', create: multEngine },
     {
       id: 'division', title: 'Division',
       create: (onChange, onTick) => {

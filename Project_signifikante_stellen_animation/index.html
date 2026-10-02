@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.6.0</span>
+        <span class="version">v0.7.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -61,7 +61,7 @@ window.MathJax = {
 
       <!-- M · Messen -->
       <div class="slide-card pos-tr" data-card="intro">
-        <div class="kicker">Kapitel 1 · Messen und Multiplizieren</div>
+        <div class="kicker">Kapitel 1 · Grundlagen</div>
         <h3>Wie lang ist dieser Stab?</h3>
         <p>Als Messmittel haben wir ein Maßband zur Verfügung, auf dem die Markierungen <b>1&nbsp;m</b> auseinander liegen – feiner kann man damit nicht ablesen.</p>
       </div>
@@ -117,29 +117,48 @@ window.MathJax = {
           Die Teilung zeigt nur noch diese Grenzen: Schritte von 0,5.</p>
       </div>
 
-      <div class="slide-card pos-tr" data-card="lvl">
-        <div class="kicker">Teilung <span class="dyn" data-dyn="lvl.unit"></span></div>
-        <h3>„<span class="dyn" data-dyn="lvl.text"></span>" – zehnmal schmaler</h3>
-        <p>Stäbe mit <span class="dyn" data-dyn="lvl.rodA"></span>&thinsp;m und
-          <span class="dyn" data-dyn="lvl.rodB"></span>&thinsp;m ergeben beide
-          <span class="dyn" data-dyn="lvl.text"></span>&thinsp;m:</p>
-        <div class="formula">\(l \in\) <span class="dyn" data-dyn="lvl.iv"></span>&thinsp;m</div>
-        <p class="note">Intervallbreite <span class="dyn" data-dyn="lvl.width"></span>&thinsp;m –
-          eine Einheit der letzten notierten Stelle.</p>
+      <div class="slide-card pos-tr" data-card="unc">
+        <div class="kicker">Was heißt „unsicher"?</div>
+        <h3>Die letzte Ziffer ist unsicher</h3>
+        <p>„3&nbsp;m" bedeutet: Die wahre Länge weicht von 3&nbsp;m um höchstens eine
+          <b>halbe Einheit der letzten Stelle</b> ab.</p>
+        <div class="formula">\(l = 3\,\text{m} \pm 0{,}5\,\text{m}\)</div>
+        <p>Ob 2,62&nbsp;m, 2,97&nbsp;m oder 3,3&nbsp;m – die Ziffer an dieser Stelle steht nicht
+          fest. Deshalb heißt die letzte hingeschriebene Ziffer <span class="unc-word">unsicher</span>.</p>
       </div>
 
-      <div class="slide-card pos-tr" data-card="tenfold">
-        <div class="kicker">Merke</div>
-        <h3>3 ≠ 3,0 ≠ 3,00 ≠ 3,000</h3>
-        <p>Endnullen sind keine Kosmetik. Jede weitere Stelle macht das Intervall
-          <b>zehnmal schmaler</b> – sie dokumentiert ein genaueres Messmittel.</p>
-        <p>Diese Ziffern heißen <b>signifikante Stellen</b>: <span class="num">3,000</span>
-          hat vier davon.</p>
+      <div class="slide-card pos-tr" data-card="lvl">
+        <div class="kicker">Teilung <span class="dyn" data-dyn="lvl.unit"></span></div>
+        <h3>„<span class="dyn" data-dyn="lvl.text"></span>" – zehnmal genauer</h3>
+        <div class="formula">\(l =\) <span class="dyn" data-dyn="lvl.text"></span>&thinsp;m \(\pm\) <span class="dyn" data-dyn="lvl.half"></span>&thinsp;m</div>
+        <p>Unsicher ist jetzt die <b><span class="dyn" data-dyn="lvl.place"></span></b>. Alle Stellen davor sind <b>gesichert</b>: Dort
+          weicht die wahre Länge nur um einen Bruchteil einer Einheit ab. Stäbe mit
+          <span class="dyn" data-dyn="lvl.rodA"></span>&thinsp;m und <span class="dyn" data-dyn="lvl.rodB"></span>&thinsp;m ergeben beide <span class="dyn" data-dyn="lvl.text"></span>&thinsp;m.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="sigdef">
+        <div class="kicker">Definition</div>
+        <h3>Signifikante Stellen</h3>
+        <p>Signifikant sind alle Ziffern <b>von der ersten von Null verschiedenen bis zur
+          letzten hingeschriebenen</b> – auch Endnullen. \(3{,}000\,\text{m}\) hat vier.</p>
+        <p>Die letzte ist <span class="unc-word">unsicher</span>, alle davor sind
+          <b>gesichert</b>. Jede weitere Stelle macht das Intervall zehnmal schmaler:
+          3 ≠ 3,0 ≠ 3,00 ≠ 3,000.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="zeros">
+        <div class="kicker">Führende Nullen</div>
+        <h3>Dieselbe Messung in km, cm und mm</h3>
+        <p>Nullen <b>vor</b> der ersten Ziffer ≠ 0 zeigen nur, wo das Komma steht – sie sind
+          <b>nicht signifikant</b>. Die Zahl der signifikanten Stellen hängt nicht von der
+          Einheit ab: immer 4.</p>
+        <p class="note">„3000 mm" wäre mehrdeutig (zählen die Nullen?) – eindeutig ist
+          \(3{,}000 \cdot 10^3\,\text{mm}\).</p>
       </div>
 
       <!-- R · Fläche -->
       <div class="slide-card pos-r" data-card="axis2">
-        <div class="kicker">Zweite Messgröße</div>
+        <div class="kicker">Kapitel 2 · Multiplikation</div>
         <h3>Eine zweite Länge \(b\)</h3>
         <p>Die Zahlengerade wird zur \(l\)-Achse. Senkrecht dazu tragen wir eine zweite
           Messung ein – ebenfalls auf Millimeter genau:</p>
@@ -162,17 +181,34 @@ window.MathJax = {
           Rechtecks kann überall dort liegen, wo sich die beiden Streifen kreuzen.</p>
       </div>
 
+      <div class="slide-card pos-r" data-card="vary">
+        <div class="kicker">Mögliche Flächen</div>
+        <h3>Jede Ecke im Kreuzungsfeld ist möglich</h3>
+        <p>Für jede mögliche Ecke liefert \(l \cdot b\) eine andere Fläche. Welche ist die
+          kleinste, welche die größte?</p>
+      </div>
+
       <div class="slide-card pos-r" data-card="range">
         <div class="kicker dyn" data-dyn="cmb.kicker"></div>
-        <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn"
-            data-dyn="cmb.b"></span>&thinsp;m</h3>
-        <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m</p>
-        <p>\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
-        <p>\(A \in\) <span class="dyn" data-dyn="cmb.AIv"></span>&thinsp;m²</p>
-        <div class="formula">gesichert: \(\;A =\) <span class="dyn" data-dyn="cmb.rounded"></span>&thinsp;m²</div>
-        <p class="note">\(l\): <span class="dyn" data-dyn="cmb.lSig"></span> ·
-          \(b\): <span class="dyn" data-dyn="cmb.bSig"></span> →
-          \(A\): <span class="dyn" data-dyn="cmb.sig"></span> (signifikant)</p>
+        <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.b"></span>&thinsp;m</h3>
+        <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
+        <div class="formula" data-r="min">kleinste: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
+          = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Alo"></span>&thinsp;m²</div>
+        <div class="formula" data-r="max">größte: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
+          = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn" data-dyn="cmb.Ahi"></span>&thinsp;m²</div>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> – die letzte Ziffer ist unsicher</div>
+      </div>
+
+      <div class="slide-card pos-r" data-card="adig">
+        <div class="kicker">Welche Stelle ist unsicher?</div>
+        <h3>Stelle für Stelle hineinzoomen</h3>
+        <p>Die Klammer ist <b>eine Einheit</b> der betrachteten Stelle breit, das Band ist das
+          Intervall von \(A_{\min}\) bis \(A_{\max}\). Band nur ein Bruchteil der Klammer:
+          Ziffer <b>gesichert</b>. Etwa so breit oder breiter: <span class="unc-word">unsicher</span>.
+          Vielfach breiter: <b>bedeutungslos</b>.</p>
+        <div class="formula" data-r="res">\(A = 6{,}000\,\text{m}^2\) – 4 Stellen wie \(l\) und \(b\)</div>
+        <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
+          die letzte Ziffer wirklich ist – mal eine halbe, mal einige Einheiten.</p>
       </div>
 
       <!-- K · Kreis -->
@@ -187,39 +223,36 @@ window.MathJax = {
       <div class="slide-card pos-r" data-card="umfang">
         <div class="kicker">Umfang \(U = 2 \cdot \pi \cdot r\)</div>
         <h3>Umfang aus Radius bestimmen</h3>
-        <p>Der Umfang läuft um den größten und den kleinsten möglichen Kreis.</p>
-        <div class="formula">\(U \in\) <span class="dyn" data-dyn="circ.UIv"></span>&thinsp;m
-          \(\;\Rightarrow\; U =\) <span class="dyn" data-dyn="circ.U"></span>&thinsp;m</div>
-        <p class="note">2 und π sind exakt – unendlich viele Stellen. Nur \(r\) begrenzt:
-          <span class="dyn" data-dyn="circ.sig"></span>.</p>
+        <div class="formula" data-r="max">größter: \(U_{\max} = 2\pi \cdot r_{\max}\)<br>= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m = <span class="dyn" data-dyn="circ.Uhi"></span>&thinsp;m</div>
+        <div class="formula" data-r="min">kleinster: \(U_{\min} = 2\pi \cdot r_{\min}\)<br>= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m = <span class="dyn" data-dyn="circ.Ulo"></span>&thinsp;m</div>
+        <div class="formula" data-r="res">\(U =\) <span class="dyn res" data-dyn="circ.U"></span>&thinsp;m – nur \(r\) begrenzt: <span class="dyn" data-dyn="circ.sig"></span></div>
+        <p class="note">2 und π sind exakt – unendlich viele Stellen.</p>
       </div>
 
       <div class="slide-card pos-r" data-card="frange">
         <div class="kicker">Flächeninhalt \(A = \pi \cdot r^2\)</div>
         <h3>Fläche aus Radius bestimmen</h3>
-        <p>Die Fläche wächst bis zum größten, dann bis zum kleinsten möglichen Kreis.</p>
-        <div class="formula">\(A \in\) <span class="dyn" data-dyn="circ.AIv"></span>&thinsp;m²
-          \(\;\Rightarrow\; A =\) <span class="dyn" data-dyn="circ.A"></span>&thinsp;m²</div>
-        <p class="note">π und der Exponent 2 sind exakt. Nur \(r\) begrenzt:
-          <span class="dyn" data-dyn="circ.sig"></span>.</p>
+        <div class="formula" data-r="max">größte: \(A_{\max} = \pi \cdot r_{\max}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)² = <span class="dyn" data-dyn="circ.Ahi"></span>&thinsp;m²</div>
+        <div class="formula" data-r="min">kleinste: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn" data-dyn="circ.Alo"></span>&thinsp;m²</div>
+        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="circ.A"></span>&thinsp;m² – nur \(r\) begrenzt: <span class="dyn" data-dyn="circ.sig"></span></div>
+        <p class="note">π und der Exponent 2 sind exakt.</p>
       </div>
 
       <!-- E · Merksatz -->
       <div class="slide-card pos-c wide" data-card="rule">
-        <div class="kicker">Merke · Multiplikation und Division</div>
+        <div class="kicker">Merke · Multiplikation</div>
         <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
+        <div class="formula">Grenzen: \(A_{\min} = l_{\min} \cdot b_{\min}, \quad A_{\max} = l_{\max} \cdot b_{\max}\)</div>
         <div class="formula">\(3{,}00\,\text{m} \cdot 2{,}9\,\text{m} = 8{,}7\,\text{m}^2 \qquad
-          3{,}0\,\text{m} \cdot 2{,}00\,\text{m} = 6{,}0\,\text{m}^2\)</div>
-        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m} \qquad
-          A = \pi \cdot (3{,}0\,\text{m})^2 = 28\,\text{m}^2\)</div>
-        <p>Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
-          begrenzen die Genauigkeit nicht. Die letzte angegebene Stelle ist unsicher, alle
-          davor sind gesichert.</p>
+          U = 2 \cdot \pi \cdot 3{,}0\,\text{m} = 19\,\text{m}\)</div>
+        <p>Die letzte angegebene Ziffer ist <span class="unc-word">unsicher</span>, alle davor sind
+          gesichert. Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
+          begrenzen die Genauigkeit nicht.</p>
       </div>
 
       <!-- ══ Kapitel 2 · Division: Durchschnittsgeschwindigkeit ══ -->
       <div class="slide-card pos-tr" data-card="v_intro">
-        <div class="kicker">Kapitel 2 · Messen und Dividieren</div>
+        <div class="kicker">Kapitel 3 · Messen und Dividieren</div>
         <h3>Wie schnell ist das Auto?</h3>
         <p>Zwei Personen wollen die <b>Durchschnittsgeschwindigkeit</b> des Autos zwischen
           Start- und Ziellinie bestimmen:</p>
@@ -238,17 +271,20 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_sA">
         <div class="kicker">Strecke · Person A · Markierungen 1&nbsp;m</div>
         <h3>\(s = 20\,\text{m}\)</h3>
-        <p>Die Ziellinie liegt näher an der 20-m-Marke als an jeder anderen:</p>
+        <p>Die Ziellinie liegt näher an der 20-m-Marke als an jeder anderen. Die wahre Strecke
+          liegt also im Intervall</p>
         <div class="formula">\(19{,}5\,\text{m} \le s &lt; 20{,}5\,\text{m}\)</div>
-        <p class="note">2 signifikante Stellen</p>
+        <p class="note">2 signifikante Stellen – die <span class="unc-word">0</span> ist unsicher.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_sB">
         <div class="kicker">Strecke · Person B · Markierungen 1&nbsp;cm</div>
         <h3>\(s = 19{,}83\,\text{m}\)</h3>
-        <p>In der Lupe: Die Ziellinie liegt am nächsten an der Marke 19,83&nbsp;m.</p>
+        <p>In der Lupe: Die Ziellinie liegt am nächsten an der Marke 19,83&nbsp;m. Die wahre
+          Strecke liegt im Intervall</p>
         <div class="formula">\(19{,}825\,\text{m} \le s &lt; 19{,}835\,\text{m}\)</div>
-        <p class="note">4 signifikante Stellen – das Intervall ist hundertmal schmaler als bei A.</p>
+        <p class="note">4 signifikante Stellen – die <span class="unc-word">3</span> ist unsicher;
+          das Intervall ist hundertmal schmaler als bei A.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_barrier">
@@ -268,59 +304,63 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="v_t">
         <div class="kicker">Zeit ablesen</div>
-        <h3>A: \(t = 1{,}42\,\text{s}\) &nbsp;·&nbsp; B: \(t = 1\,\text{s}\)</h3>
-        <div class="formula">A: \(1{,}415\,\text{s} \le t &lt; 1{,}425\,\text{s}\)</div>
-        <div class="formula">B: \(0{,}5\,\text{s} \le t &lt; 1{,}5\,\text{s}\)</div>
-        <p>Der Sekundenzeiger steht näher an der 1 als an der 2. A hat 3 signifikante Stellen,
-          B nur eine.</p>
+        <h3>A: \(t = 2{,}17\,\text{s}\) &nbsp;·&nbsp; B: \(t = 2\,\text{s}\)</h3>
+        <div class="formula">A: \(2{,}165\,\text{s} \le t &lt; 2{,}175\,\text{s}\) – 3 Stellen</div>
+        <div class="formula">B: \(1{,}5\,\text{s} \le t &lt; 2{,}5\,\text{s}\) – 1 Stelle</div>
+        <p>Der Sekundenzeiger steht näher an der 2 als an der 3. Bei B kann die wahre Zeit um
+          bis zu eine halbe Sekunde abweichen.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_vA">
         <div class="kicker">Person A · \(v = s / t\)</div>
-        <h3>20&nbsp;m / 1,42&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</h3>
-        <p>Kleinstes \(v\): kürzeste Strecke durch längste Zeit – größtes \(v\) umgekehrt:</p>
-        <div class="formula"><span class="dyn" data-dyn="spd.aLo"></span>&thinsp;m/s &lt; \(v\) &lt;
-          <span class="dyn" data-dyn="spd.aHi"></span>&thinsp;m/s</div>
-        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.aV"></span></div>
-        <p class="note">\(s\): <span class="dyn" data-dyn="spd.aSigS"></span> ·
-          \(t\): <span class="dyn" data-dyn="spd.aSigT"></span> →
-          \(v\): <span class="dyn" data-dyn="spd.aSig"></span> (signifikant)</p>
+        <h3>20&nbsp;m / 2,17&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</h3>
+        <p>Welche \(s\) und \(t\) aus den Intervallen ergeben das kleinste, welche das größte \(v\)?</p>
+        <div class="formula" data-r="min">kleinstes: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}175\,\text{s}}\) = <span class="dyn" data-dyn="spd.aLo"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtes: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}165\,\text{s}}\) = <span class="dyn" data-dyn="spd.aHi"></span>&thinsp;m/s</div>
+        <p class="note">Umgekehrt wie beim Multiplizieren: kleiner Zähler und <b>großer</b> Nenner
+          ergeben das kleinste Ergebnis.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="v_digA">
+        <div class="kicker">Person A · welche Stelle ist unsicher?</div>
+        <h3>Stelle für Stelle hineinzoomen</h3>
+        <p>Die Klammer ist <b>eine Einheit</b> der Stelle breit, das Band ist das Intervall der
+          möglichen \(v\). Einer: Band nur halb so breit → <b>gesichert</b>. Zehntel: Band
+          fünfmal breiter → <span class="unc-word">unsicher</span>. Hundertstel: bedeutungslos.</p>
+        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.aV"></span> – 2 Stellen wie \(s\), die 2 ist unsicher</div>
+        <p class="note">Die Faustregel liefert die Stellenzahl; das Intervall zeigt, wie unsicher
+          die letzte Ziffer wirklich ist.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_vB">
         <div class="kicker">Person B · \(v = s / t\)</div>
-        <h3>19,83&nbsp;m / 1&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s ?</h3>
-        <div class="formula"><span class="dyn" data-dyn="spd.bLo"></span>&thinsp;m/s &lt; \(v\) &lt;
-          <span class="dyn" data-dyn="spd.bHi"></span>&thinsp;m/s</div>
-        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.bV"></span></div>
-        <p>Das feine Maßband nützt nichts: Die Zeit mit nur einer Stelle begrenzt das Ergebnis.</p>
-        <p class="note">\(s\): <span class="dyn" data-dyn="spd.bSigS"></span> ·
-          \(t\): <span class="dyn" data-dyn="spd.bSigT"></span> →
-          \(v\): <span class="dyn" data-dyn="spd.bSig"></span> (signifikant)</p>
+        <h3>19,83&nbsp;m / 2&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s ?</h3>
+        <div class="formula" data-r="min">kleinstes: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bLo"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtes: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bHi"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.bV"></span> – nur 1 Stelle: schon die Zehnerziffer ist unsicher</div>
+        <p class="note">Das feine Maßband nützt nichts – die Zeit mit nur einer Stelle begrenzt.</p>
       </div>
 
       <div class="slide-card pos-tr" data-card="v_best">
         <div class="kicker">Kombiniert · Strecke von B, Zeit von A</div>
-        <h3>19,83&nbsp;m / 1,42&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</h3>
-        <div class="formula"><span class="dyn" data-dyn="spd.cLo"></span>&thinsp;m/s &lt; \(v\) &lt;
-          <span class="dyn" data-dyn="spd.cHi"></span>&thinsp;m/s</div>
-        <div class="formula">\(\Rightarrow\; v =\) <span class="dyn res" data-dyn="spd.cV"></span></div>
-        <p>Die Endnull in 14,0 ist gesichert. Jetzt begrenzt die Zeitmessung.</p>
-        <p class="note">\(s\): <span class="dyn" data-dyn="spd.cSigS"></span> ·
-          \(t\): <span class="dyn" data-dyn="spd.cSigT"></span> →
-          \(v\): <span class="dyn" data-dyn="spd.cSig"></span> (signifikant)</p>
+        <h3>19,83&nbsp;m / 2,17&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</h3>
+        <div class="formula" data-r="min">kleinstes: \(v_{\min} = \dfrac{s_{\min}}{t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}175\,\text{s}}\) = <span class="dyn" data-dyn="spd.cLo"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="max">größtes: \(v_{\max} = \dfrac{s_{\max}}{t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}165\,\text{s}}\) = <span class="dyn" data-dyn="spd.cHi"></span>&thinsp;m/s</div>
+        <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.cV"></span> – 3 Stellen wie \(t\), die 4 ist unsicher</div>
+        <p class="note">\(s\): 4 Stellen, \(t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>
 
       <div class="slide-card pos-c wide" data-card="v_rule">
         <div class="kicker">Merke · Division</div>
         <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
           ungenaueste Messgröße.</h3>
-        <div class="formula">\(\dfrac{20\,\text{m}}{1{,}42\,\text{s}} = 14\,\text{m/s} \qquad
-          \dfrac{19{,}83\,\text{m}}{1\,\text{s}} = 2 \cdot 10^1\,\text{m/s} \qquad
-          \dfrac{19{,}83\,\text{m}}{1{,}42\,\text{s}} = 14{,}0\,\text{m/s}\)</div>
-        <p>Ein genaueres Messgerät lohnt sich nur für die Größe, die das Ergebnis gerade
-          begrenzt: Person B hätte eine bessere Uhr viel gebracht – ein noch feineres Maßband
-          gar nichts.</p>
+        <div class="formula">Grenzen – umgekehrt wie beim Multiplizieren:
+          \(\;v_{\min} = \dfrac{s_{\min}}{t_{\max}}, \quad v_{\max} = \dfrac{s_{\max}}{t_{\min}}\)</div>
+        <div class="formula">A: \(20\,\text{m} / 2{,}17\,\text{s} = 9{,}2\,\text{m/s}\) &nbsp;·&nbsp;
+          B: \(19{,}83\,\text{m} / 2\,\text{s} = 1 \cdot 10^1\,\text{m/s}\)<br>
+          kombiniert: \(19{,}83\,\text{m} / 2{,}17\,\text{s} = 9{,}14\,\text{m/s}\)</div>
+        <p>Die letzte Ziffer ist <span class="unc-word">unsicher</span>. Ein genaueres
+          Messgerät lohnt sich nur für die Größe, die das Ergebnis gerade begrenzt.</p>
       </div>
     </div>
   </div>

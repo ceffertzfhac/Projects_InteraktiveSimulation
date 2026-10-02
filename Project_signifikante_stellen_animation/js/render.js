@@ -7,15 +7,23 @@ import {
   svgEl, viewOf, createAxis, createPool, readSlots, clamp, lerp, smooth, backOut,
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
-import { TEXTS, TAPE, ROD, READING_Y, CIRCLE } from './constants.js'
-import { DYN } from './content.js'
+import {
+  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX,
+} from './constants.js'
+import { DYN, LUPE } from './content.js'
+import { placeName } from './model.js'
+import { createDigitRow, createUnitBracket, verdict } from './stellen.js'
 import { HITS } from './state.js'
 
 const E = {}
 const FAR = 4000                // Koordinaten weit außerhalb der Sicht kappen (SVG-Präzision)
 const LEVELS = [0, 1, 2, 3]
 
-const text = (parent, cls, attrs = {}) => svgEl('text', { class: cls, ...attrs }, parent)
+const text = (parent, cls, attrs = {}, content) => {
+  const t = svgEl('text', { class: cls, ...attrs }, parent)
+  if (content !== undefined) t.textContent = content
+  return t
+}
 const set = (el, attrs) => { for (const k in attrs) el.setAttribute(k, attrs[k]) }
 const op = (el, a) => { el.style.opacity = a; el.style.display = a <= 0.002 ? 'none' : '' }
 
@@ -36,6 +44,63 @@ function subLabel(parent, cls, sym, sub, attrs) {
 function gradient(defs, id, stops, vertical = true) {
   const g = svgEl('linearGradient', { id, x1: 0, y1: 0, x2: vertical ? 0 : 1, y2: vertical ? 1 : 0 }, defs)
   stops.forEach(([o, cls]) => svgEl('stop', { offset: o, class: cls }, g))
+}
+
+function subText(parent, cls, sym, sub, attrs) {
+  const t = text(parent, cls, attrs)
+  svgEl('tspan', { class: 'sym' }, t).textContent = sym
+  svgEl('tspan', { dy: 6, 'font-size': '72%' }, t).textContent = sub
+  return t
+}
+
+// Text mit markierter letzter Ziffer (= unsichere Stelle). Neu aufgebaut nur bei Änderung.
+function setMarked(el, str, on) {
+  const key = `${str}|${on}`
+  if (el._mk === key) return
+  el._mk = key
+  el.textContent = ''
+  const i = on ? str.search(/\d(?=\D*$)/) : -1
+  if (i < 0) { el.textContent = str; return }
+  el.append(str.slice(0, i))
+  svgEl('tspan', { class: 'unc-digit' }, el).textContent = str[i]
+  el.append(str.slice(i + 1))
+}
+
+// Ziffernzeile „3,000 m" mit Zählmarken 1…4 und Klammern
+function buildSigRow() {
+  E.sig = svgEl('g', { class: 'sig-row' }, E.root)
+  E.sigBr = {}
+  for (const k of ['S', 'U', 'Z']) {
+    const g = svgEl('g', { class: `sig-br sig-br-${k}` }, E.sig)
+    E.sigBr[k] = { g, path: svgEl('path', {}, g), t: text(g, 'sig-br-text', { 'text-anchor': 'middle' }) }
+  }
+  E.sigBr.S.t.textContent = 'gesichert'
+  E.sigBr.U.t.textContent = 'unsicher'
+  E.sigBr.Z.t.textContent = 'nur Stellenwert – nicht signifikant'
+  E.tok = {}
+  for (const [id, ch] of SIG_TOKENS) {
+    const unit = id[0] === 'U'
+    E.tok[id] = text(E.sig, `sig-tok ${unit ? 'sig-unit' : ''} ${id === 'D4' ? 'unc-digit' : ''}`,
+      { 'font-size': unit ? SIG_ROW.size * 0.6 : SIG_ROW.size, 'text-anchor': unit ? 'start' : 'middle' }, ch)
+  }
+  E.badges = [1, 2, 3, 4].map(n => {
+    const g = svgEl('g', { class: 'sig-badge' }, E.sig)
+    svgEl('circle', { r: 14 }, g)
+    text(g, '', { 'text-anchor': 'middle', y: 5 }, String(n))
+    return g
+  })
+}
+
+function buildLupe() {
+  const B = LUPE_BOX
+  E.lupe = svgEl('g', { class: 'lupe-panel' }, E.root)
+  svgEl('rect', { class: 'panel-bg', x: B.x, y: B.y, width: B.w, height: B.h, rx: 14 }, E.lupe)
+  text(E.lupe, 'lupe-title', { x: B.x + 20, y: B.y + 26 }, 'Welche Stelle ist unsicher?')
+  E.lupeDigits = createDigitRow(E.lupe, { size: 34 })
+  E.lupeAxis = createAxis(E.lupe, 'x', { labelGap: 20 })
+  E.lupeBand = svgEl('rect', { class: 'lupe-band', height: 14, rx: 3 }, E.lupe)
+  E.lupeBracket = createUnitBracket(E.lupe)
+  E.lupeVerdict = text(E.lupe, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 10 })
 }
 
 export function initStage(svg, DOM) {
@@ -112,6 +177,16 @@ export function initStage(svg, DOM) {
   E.bndLo = text(E.root, 'bound-label', { 'text-anchor': 'end' })
   E.bndHi = text(E.root, 'bound-label', { 'text-anchor': 'start' })
   E.hits = Array.from({ length: HITS }, () => svgEl('circle', { class: 'hit', r: 5.5 }, E.root))
+  // ±-Maßpfeile unter dem Intervall: vom Messwert bis zu den Grenzen
+  E.pm = svgEl('g', { class: 'pm' }, E.root)
+  E.pmLine = [0, 1].map(() => svgEl('line', {}, E.pm))
+  E.pmHead = [0, 1].map(() => svgEl('path', {}, E.pm))
+  E.pmTick = svgEl('line', {}, E.pm)
+  E.pmLbl = text(E.pm, 'pm-label', { 'text-anchor': 'middle' })
+  E.pmCap = text(E.pm, 'pm-cap', { 'text-anchor': 'middle' }, '½ Einheit der letzten Stelle')
+  // Markierung der unsicheren letzten Ziffer am Messpunkt-Label
+  E.ucBox = svgEl('rect', { class: 'unc-box', rx: 6 }, E.root)
+  E.ucTag = text(E.root, 'unc-tag', { 'text-anchor': 'middle' }, 'unsicher')
   E.pHalo = svgEl('circle', { class: 'halo-l' }, E.root)
   E.pDot = svgEl('circle', { class: 'dot-l' }, E.root)
   E.pl = [0, 1].map(() => text(E.root, 'value-label val-l', { 'text-anchor': 'middle' }))
@@ -144,6 +219,13 @@ export function initStage(svg, DOM) {
     const val = svgEl('tspan', { dy: -6 }, t)
     return { t, val, unit }
   })
+
+  // Grenzen l_min … b_max an den Streifenkanten (Teil R)
+  E.edge = [['l', 'min'], ['l', 'max'], ['b', 'min'], ['b', 'max']].map(([sym, sub]) =>
+    subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': sym === 'l' ? 'middle' : 'start' }))
+
+  buildSigRow()
+  buildLupe()
 
   E.ro = text(E.root, 'readout', { 'text-anchor': 'start' })
   svgEl('tspan', { class: 'sym' }, E.ro).textContent = 'l'
@@ -273,7 +355,7 @@ function renderCircle(S) {
   op(E.cRad, S.kRadA)
   const lx = (cx + ex) / 2 - 20, ly = (cy + ey) / 2 - 16
   readSlots(S, 'rl').forEach((sl, n) => {
-    set(E.rl[n].t, { x: lx, y: ly + sl.o }); E.rl[n].val.textContent = ` = ${TEXTS[sl.i]} m`
+    set(E.rl[n].t, { x: lx, y: ly + sl.o }); setMarked(E.rl[n].val, ` = ${TEXTS[sl.i]} m`, S.ucA > 0.5)
     op(E.rl[n].t, sl.a * (1 - S.rLive))
   })
   set(E.rLive.t, { x: lx, y: ly }); E.rLive.val.textContent = ` = ${fmt(S.kR, 3)} m`; op(E.rLive.t, S.rLive)
@@ -382,13 +464,13 @@ export function renderScene(S) {
   set(E.pHalo, { cx: px, cy: axY, r: 22 * S.pS }); op(E.pHalo, S.pA)
   set(E.pDot, { cx: px, cy: axY, r: 8 * S.pS }); op(E.pDot, S.pA)
   readSlots(S, 'pl').forEach((s, n) => {
-    set(E.pl[n], { x: px, y: axY - 52 + s.o }); E.pl[n].textContent = TEXTS[s.i]; op(E.pl[n], s.a)
+    set(E.pl[n], { x: px, y: axY - 52 + s.o }); setMarked(E.pl[n], TEXTS[s.i], S.ucA > 0.5); op(E.pl[n], s.a)
   })
   const qy = V.sy(2)
   set(E.qHalo, { cx: axX, cy: qy, r: 22 * S.qS }); op(E.qHalo, S.qA)
   set(E.qDot, { cx: axX, cy: qy, r: 8 * S.qS }); op(E.qDot, S.qA)
   readSlots(S, 'ql').forEach((s, n) => {
-    set(E.ql[n], { x: axX + 24, y: qy - 16 + s.o }); E.ql[n].textContent = TEXTS[s.i]; op(E.ql[n], s.a)
+    set(E.ql[n], { x: axX + 24, y: qy - 16 + s.o }); setMarked(E.ql[n], TEXTS[s.i], S.ucA > 0.5); op(E.ql[n], s.a)
   })
 
   // ── Intervall b als waagrechter Streifen ──
@@ -405,8 +487,12 @@ export function renderScene(S) {
   // ── Rechteck, Flächenbereich ──
   rectWorld(E.rectFill, V, 0, 0, S.rW, S.rH); op(E.rectFill, S.rA)
   rectWorld(E.rectStroke, V, 0, 0, S.rW, S.rH); op(E.rectStroke, S.rA)
-  rectWorld(E.minRect, V, 0, 0, S.lLo, S.bLo); op(E.minRect, S.uA)
-  rectWorld(E.maxRect, V, 0, 0, S.lHi, S.bHi); op(E.maxRect, S.uA)
+  rectWorld(E.minRect, V, 0, 0, S.lLo, S.bLo); op(E.minRect, Math.max(S.uA, S.mnA))
+  rectWorld(E.maxRect, V, 0, 0, S.lHi, S.bHi); op(E.maxRect, Math.max(S.uA, S.mxA))
+  E.minRect.classList.toggle('hot', S.mnA > 0.5); E.maxRect.classList.toggle('hot', S.mxA > 0.5)
+  // Grenzen an den Streifenkanten
+  ;[[S.lLo, 0], [S.lHi, 1]].forEach(([v, n]) => { set(E.edge[n], { x: V.sx(v), y: V.T + 22 }); op(E.edge[n], S.edA) })
+  ;[[S.bLo, 2], [S.bHi, 3]].forEach(([v, n]) => { set(E.edge[n], { x: axX + 14, y: V.sy(v) + (n === 2 ? 24 : -10) }); op(E.edge[n], S.edA) })
   const cx = v => clamp(V.sx(v), V.L - FAR, V.R + FAR), cy = v => clamp(V.sy(v), V.T - FAR, V.B + FAR)
   const [ox, oy, ix, iy, mx, my] = [cx(0), cy(0), cx(S.lLo), cy(S.bLo), cx(S.lHi), cy(S.bHi)]
   E.region.setAttribute('d', `M${ox} ${oy}H${mx}V${my}H${ox}ZM${ox} ${oy}H${ix}V${iy}H${ox}Z`)
@@ -416,11 +502,11 @@ export function renderScene(S) {
   set(E.aSym, { x: V.sx(S.rW / 2), y: V.sy(S.rH / 2) }); op(E.aSym, S.aSym)
   readSlots(S, 'dl').forEach((s, n) => {
     set(E.dl[n].t, { x: V.sx(S.rW / 2), y: V.sy(0) - 22 + s.o })
-    E.dl[n].val.textContent = ' = ' + TEXTS[s.i] + ' m'; op(E.dl[n].t, s.a)
+    setMarked(E.dl[n].val, ' = ' + TEXTS[s.i] + ' m', S.ucA > 0.5); op(E.dl[n].t, s.a)
   })
   readSlots(S, 'db').forEach((s, n) => {
     set(E.db[n].t, { x: V.sx(0) + 18, y: V.sy(S.rH / 2) + 8 + s.o })
-    E.db[n].val.textContent = ' = ' + TEXTS[s.i] + ' m'; op(E.db[n].t, s.a)
+    setMarked(E.db[n].val, ' = ' + TEXTS[s.i] + ' m', S.ucA > 0.5); op(E.db[n].t, s.a)
   })
   // Live-Produkt an der wandernden Ecke („Taschenrechner")
   set(E.ro, { x: Math.min(cx(S.rW) + 14, V.R - 150), y: Math.max(cy(S.rH) - 16, V.T + 20) })
@@ -430,6 +516,10 @@ export function renderScene(S) {
   // ── Kreis: Abrollen (Umfang) und Sektoren → Rechteck (Fläche) ──
   op(E.circ, S.kA)
   if (S.kA > 0.002) renderCircle(S)
+
+  renderUnc(S, V, axY)
+  renderSigRow(S)
+  renderLupe(S)
 
   // ── Dynamische Zahlen in den Folienkarten ──
   const key = `${Math.round(S.lvl)}|${Math.round(S.cmb)}|${Math.round(S.circ)}`
@@ -444,4 +534,83 @@ export function renderScene(S) {
     dynAlpha = S.dynA
     for (const el of E.dyn) el.style.opacity = S.dynA
   }
+}
+
+// Unsichere Ziffer am Messpunkt-Label + ±-Maßpfeile vom Messwert zu den Grenzen
+function renderUnc(S, V, axY) {
+  const sl = readSlots(S, 'pl'), n = sl[1].a > sl[0].a ? 1 : 0
+  const act = sl[n], el = E.pl[n]
+  const show = S.ucBox * act.a
+  if (show > 0.002 && el._mk && el.getNumberOfChars() > 0) {
+    const str = el.textContent, i = str.search(/\d(?=\D*$)/)
+    const r = el.getExtentOfChar(i)
+    set(E.ucBox, { x: r.x - 5, y: r.y + 2, width: r.width + 10, height: r.height - 2 })
+    set(E.ucTag, { x: r.x + r.width / 2, y: r.y - 8 })
+  }
+  op(E.ucBox, show); op(E.ucTag, show)
+
+  op(E.pm, S.pmA)
+  if (S.pmA <= 0.002) return
+  const y = axY + 72, c = V.sx(3)
+  const ends = [V.sx(S.lLo), V.sx(S.lHi)]
+  ends.forEach((e, n) => {
+    const tip = lerp(c, e, S.pmD), dir = Math.sign(e - c) || 1
+    const ok = Math.abs(tip - c) > HEAD.len + 2
+    set(E.pmLine[n], { x1: c, x2: tip - dir * HEAD.len, y1: y, y2: y })
+    set(E.pmHead[n], { d: headPath(tip, y, tip - dir * HEAD.len, y) })
+    op(E.pmLine[n], ok ? 1 : 0); op(E.pmHead[n], ok ? 1 : 0)
+  })
+  set(E.pmTick, { x1: c, x2: c, y1: y - 9, y2: y + 9 })
+  const dec = Math.round(S.lBndD)
+  set(E.pmLbl, { x: c, y: y - 12 }); E.pmLbl.textContent = `± ${fmt((S.lHi - S.lLo) / 2, dec)}`
+  set(E.pmCap, { x: c, y: y + 24 })
+}
+
+// Ziffernzeile: Token an ihren (getweenten) Spalten, Zählmarken über D1…D4
+function renderSigRow(S) {
+  op(E.sig, S.sgA)
+  if (S.sgA <= 0.002) return
+  const cw = SIG_ROW.size * 0.6, X = c => SIG_ROW.cx + c * cw
+  const y = SIG_ROW.y
+  for (const [id] of SIG_TOKENS) {
+    const t = E.tok[id], unit = id[0] === 'U'
+    set(t, { x: X(S[`tk${id}x`]) + (unit ? 0 : cw / 2), y: unit ? y - 2 : y })
+    op(t, S[`tk${id}a`])
+  }
+  const dx = id => X(S[`tk${id}x`]) + cw / 2
+  E.badges.forEach((g, n) => {
+    const a = S[`bg${n + 1}`]
+    g.setAttribute('transform', `translate(${dx(`D${n + 1}`)} ${y - SIG_ROW.size - 8}) scale(${0.6 + 0.4 * a})`)
+    op(g, a)
+  })
+  const bracket = (B, x0, x1, yy, a) => {
+    set(B.path, { d: `M${x0} ${yy - 6}V${yy}H${x1}V${yy - 6}` })
+    set(B.t, { x: (x0 + x1) / 2, y: yy + 20 }); op(B.g, a)
+  }
+  bracket(E.sigBr.S, dx('D1') - cw / 2 + 3, dx('D3') + cw / 2 - 3, y + 16, S.brS)
+  bracket(E.sigBr.U, dx('D4') - cw / 2 + 3, dx('D4') + cw / 2 - 3, y + 50, S.brU)
+  bracket(E.sigBr.Z, dx('Z1') - cw / 2 + 3, dx('Z3') + cw / 2 - 3, y + 16, S.brZ * S.tkZ1a)
+}
+
+// Tafel „Welche Stelle ist unsicher?": Ziffernzeile, Mini-Zahlengerade mit Band
+// (Intervall des Ergebnisses) und Klammer „1 Einheit" der betrachteten Stelle.
+function renderLupe(S) {
+  op(E.lupe, S.slA)
+  if (S.slA <= 0.002) return
+  const B = LUPE_BOX, L = LUPE[Math.round(S.slI)], { info } = L, p = Math.round(S.slD)
+  E.lupeDigits.render(info, L.layout, {
+    x: B.x + 22, y: B.y + 72, alpha: 1, pointerP: p, pointerA: S.slV,
+    colorFrom: S.slC, ghostA: S.slG, suffixA: S.slS, suffixText: L.suffix,
+  })
+  // Mini-Zahlengerade: Ausschnitt 4 Einheiten der Stelle slP (stetig → Zoom)
+  const w = 4 * 10 ** S.slP, x0 = Math.max(info.R - w / 2, 0)
+  const Lx = B.x + 30, Rx = B.x + B.w - 34, kx = (Rx - Lx) / w
+  const V = { x0, x1: x0 + w, kx, L: Lx, R: Rx, sx: v => Lx + (v - x0) * kx }
+  const ay = B.y + 132
+  E.lupeAxis.render(V, { at: ay, draw: 1, ticks: 1, alpha: 1 })
+  const a = clamp(V.sx(info.lo), Lx, Rx), b = clamp(V.sx(info.hi), Lx, Rx)
+  set(E.lupeBand, { x: a, y: ay - 26, width: Math.max(0, b - a) })
+  E.lupeBracket.render(V, { R: info.R, p, y0: ay - 34, y1: ay - 4, alpha: S.slB, text: `1 ${placeName(p)}` })
+  E.lupeVerdict.textContent = verdict(info, p)
+  op(E.lupeVerdict, S.slV)
 }

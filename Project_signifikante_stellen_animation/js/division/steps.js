@@ -1,15 +1,24 @@
 'use strict'
 // Drehbuch Kapitel 2 „Division": Durchschnittsgeschwindigkeit v = s / t.
-// build() hängt NUR Tweens/Sets an tl an (Reversibilitäts-Regel, Blueprint §10).
+// build() hängt NUR Tweens/Sets an tl an (Reversibilitäts-Regel, Blueprint §10);
+// Zeilen in Folienkarten (.reveal) werden per autoAlpha-Tween eingeblendet.
 //
 //  Strecke und Ausrüstung → A misst s grob (1-m-Band), B fein (cm-Band, Lupe)
-//  → Lichtschranken → Fahrt in Zeitlupe (beide Uhren laufen) → Zeiten ablesen
-//  → v für A, v für B (Zeit begrenzt!) → Kombination → Merke
+//  → Lichtschranken → Fahrt in Zeitlupe → Zeiten ablesen (je mit Intervall)
+//  → je Person: kleinstes/größtes v per Regler (s_min/t_max, s_max/t_min)
+//    → welche Stelle ist unsicher? (Zahlengerade Stelle für Stelle) → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
+import { scanPlaces } from '../stellen.js'
 import {
-  T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL, CAM_V_ZOOM,
+  T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
+import { ROW } from './content.js'
+
+const vAt = (r, ks, kt) => {
+  const { s, t } = r.e
+  return (s.lo + (s.hi - s.lo) * ks) / (t.lo + (t.hi - t.lo) * kt)
+}
 
 export function buildSpeedSteps(S, DOM) {
   const C = DOM.cards
@@ -18,7 +27,10 @@ export function buildSpeedSteps(S, DOM) {
   const steps = []
   const step = (title, build, hold) => steps.push({ title, build, hold })
   const cell = (tl, key, at) => tl.to(S, { [key]: 1, duration: 0.45, ease: EASE.reveal }, at)
+  const reveal = (tl, card, name, at) =>
+    tl.to(card.querySelector(`[data-r="${name}"]`), { autoAlpha: 1, duration: 0.5 }, at)
 
+  // ── Messen ─────────────────────────────────────────────────────────────────
   step('Die Messstrecke', tl => {
     tl.to(S, { roadA: 1, duration: 0.7 })
     tl.to(S, { lineD: 1, duration: 0.8, ease: EASE.cam }, '>-0.2')
@@ -42,7 +54,7 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { zW: 1, duration: 0.7, ease: EASE.reveal })
     tl.to(S, { tbA: 1, duration: 0.4 }, '>0.1')
     cell(tl, 'c0s', '<0.15')
-  }, 4.5)
+  }, 5)
 
   step('Person B misst die Strecke', tl => {
     deck.show(tl, C.v_sB)
@@ -52,22 +64,19 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { lpA: 1, lpT: 1, duration: 0.6 }, '>-0.1')
     tl.to(S, { lzT: 1, duration: 0.5 }, '>0.4')
     cell(tl, 'c1s', '>0.1')
-  }, 4.5)
+  }, 5)
 
   step('Lichtschranken aufbauen', tl => {
     deck.show(tl, C.v_barrier)
     tl.to(S, { lbA: 1, duration: 0.7 }, '<0.2')
-    // Lupe wechselt auf das Zifferblatt von B
-    tl.to(S, { lpT: 0, lzT: 0, duration: 0.4 }, '<')
+    tl.to(S, { lpT: 0, lzT: 0, duration: 0.4 }, '<')          // Lupe wechselt aufs Zifferblatt
     tl.to(S, { lpD: 1, duration: 0.5 }, '>')
   }, 4)
 
-  // Wagen fährt mit konstanter Geschwindigkeit (in Zeitlupe); beide Uhren laufen
-  // genau zwischen den Lichtschranken — ihre Anzeige folgt aus carX.
+  // Fliegender Start: Wagen setzt außerhalb des Bildes an und fährt mit konstanter
+  // Geschwindigkeit durch; die Uhren messen nur zwischen den Linien (Anzeige aus carX).
   step('Die Fahrt (Zeitlupe)', tl => {
     deck.show(tl, C.v_drive)
-    // Fliegender Start: Wagen setzt außerhalb des Bildes zurück und fährt mit
-    // konstanter Geschwindigkeit durch (die Uhren messen nur zwischen den Linien).
     tl.to(S, { carA: 0, duration: 0.3 }, '<0.2')
     tl.set(S, { carX: CAR_ENTRY, carA: 1 })
     tl.to(S, { carX: CAR_GONE, duration: SLOWMO * (CAR_GONE - CAR_ENTRY) / V_TRUE, ease: 'none' }, '>0.2')
@@ -83,28 +92,90 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { wGlowB: 0, duration: 0.5 }, '>0.8')
   }, 5)
 
-  step('Geschwindigkeit: Person A', tl => {
+  // ── Rechnen: Grenzen per Regler, dann Stelle für Stelle ──────────────────────
+  let hitN = 0
+  const corner = (tl, r, ks, kt, at) => {
+    tl.to(S, { ks, kt, duration: 0.8, ease: EASE.cam }, at)
+    const n = hitN++
+    tl.set(S, { [`ch${n}x`]: vAt(r, ks, kt) })
+    tl.to(S, { [`ch${n}a`]: 1, duration: 0.3, ease: EASE.pop })
+  }
+  const clearHits = tl => {
+    const v = {}
+    for (let n = 0; n < hitN; n++) v[`ch${n}a`] = 0
+    if (hitN) tl.to(S, { ...v, vlA: 0, duration: 0.35 })
+    hitN = 0
+  }
+  // Grenzen: kleinstes v = s_min / t_max, größtes v = s_max / t_min
+  const bounds = (tl, i, card, all) => {
+    const r = ROW[i]
+    if (all) {                       // alle vier Kombinationen ausprobieren
+      corner(tl, r, 0, 0, '>0.2'); corner(tl, r, 1, 0, '>0.5'); corner(tl, r, 0, 1, '>0.5'); corner(tl, r, 1, 1, '>0.5')
+      tl.to(S, { ks: 0, kt: 1, duration: 0.8, ease: EASE.cam }, '>0.6')
+    } else {
+      corner(tl, r, 0, 1, '>0.2')
+    }
+    reveal(tl, card, 'min', '<0.3')
+    if (all) tl.to(S, { ks: 1, kt: 0, duration: 0.9, ease: EASE.cam }, '>0.8')
+    else corner(tl, r, 1, 0, '>0.8')
+    reveal(tl, card, 'max', '<0.3')
+    tl.to(S, { [`bd${i}`]: 1, duration: 1, ease: 'power2.inOut' }, '>0.4')
+    clearHits(tl)
+  }
+  const zoomTo = (R, p) => ({ cx: Math.max(R, 2 * 10 ** p), w: 4 * 10 ** p })
+  const digits = (tl, i, card, full, finalW) => {
+    const r = ROW[i]
+    tl.to(S, { frA: 0, duration: 0.4 })
+    scanPlaces(tl, S, r.info, i, {
+      full, hold: full ? 1.4 : 1,
+      zoom: (tl2, p) => cam.to(tl2, zoomTo(r.info.R, p), { duration: 1.1, at: '>0.1' }),
+    })
+    // Schluß: Ergebnis mit der Klammer seiner letzten Stelle (= sein Rundungsintervall)
+    cam.to(tl, { cx: Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
+    tl.to(S, { slB: 1, [`rm${i}`]: 1, duration: 0.5 })
+    cell(tl, `c${i}v`, '<')
+    reveal(tl, card, 'res', '<0.2')
+  }
+  const startBounds = (tl, i) => {
+    tl.to(S, { slA: 0, slB: 0, frA: 0, duration: 0.35 })
+    tl.set(S, { frI: i, ks: 0.5, kt: 0.5 })
+    tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
+  }
+
+  step('Person A: kleinstes und größtes v', tl => {
     deck.show(tl, C.v_vA)
-    tl.to(S, { vAx: 1, vTk: 1, duration: 1, ease: EASE.cam }, '<0.2')
-    cell(tl, 'c0v', '>-0.2')
-    tl.to(S, { bd0: 1, duration: 0.9, ease: EASE.reveal }, '<0.2')
+    tl.to(S, { lowA: 0, duration: 0.6 }, '<')
+    tl.set(S, { frI: 0, ks: 0.5, kt: 0.5 })
+    tl.to(S, { frA: 1, duration: 0.5 })
+    tl.to(S, { vAx: 1, vTk: 1, duration: 0.9, ease: EASE.cam }, '<')
+    // zuerst hineinzoomen: um 9 m/s herum, damit Intervall und Ergebnis lesbar sind
+    cam.to(tl, { cx: 9.2, w: 1.4 }, { duration: T.cam, at: '>0.3' })
+    tl.to(S, { vlA: 1, duration: 0.4 })
+    bounds(tl, 0, C.v_vA, true)
   }, 6)
 
-  step('Geschwindigkeit: Person B', tl => {
+  step('Person A: welche Stelle ist unsicher?', tl => {
+    deck.show(tl, C.v_digA)
+    digits(tl, 0, C.v_digA, true, 0.8)
+  }, 6)
+
+  step('Person B: kleinstes und größtes v', tl => {
     deck.show(tl, C.v_vB)
-    cell(tl, 'c1v', '<0.3')
-    tl.to(S, { bd1: 1, duration: 1.4, ease: EASE.reveal }, '<0.2')
+    startBounds(tl, 1)
+    cam.to(tl, CAM_V_FULL, { duration: T.cam, at: '<' })
+    bounds(tl, 1, C.v_vB, false)
+    digits(tl, 1, C.v_vB, false, 24)
   }, 6)
 
-  step('Das Beste aus beiden', tl => {
+  step('Kombiniert: cm-Maßband und Lichtschranken', tl => {
     deck.show(tl, C.v_best)
     tl.to(S, { row2: 1, duration: 0.4 }, '<0.2')
     cell(tl, 'c2s', '<0.15')
     cell(tl, 'c2t', '<0.15')
-    cell(tl, 'c2v', '>0.1')
-    tl.to(S, { vTrue: 1, duration: 0.5 }, '<')
-    cam.to(tl, CAM_V_ZOOM, { duration: T.cam, at: '>0.2' })
-    tl.to(S, { bd2: 1, duration: 0.9, ease: EASE.reveal }, '>-0.2')
+    startBounds(tl, 2)
+    cam.to(tl, { cx: 9.14, w: 0.3 }, { duration: T.cam, at: '<' })
+    bounds(tl, 2, C.v_best, false)
+    digits(tl, 2, C.v_best, false, 0.08)
   }, 6)
 
   step('Merke', tl => {

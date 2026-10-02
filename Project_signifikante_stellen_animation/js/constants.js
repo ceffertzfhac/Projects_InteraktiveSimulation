@@ -68,3 +68,23 @@ export const textIndex = t => {
 }
 
 export const LEVEL_UNITS = ['1 m', '0,1 m', '1 cm', '1 mm']
+
+// ── Signifikante Stellen: Ziffernzeile mit Zählmarken (Teil Z, Bildschirm) ──
+// Zeichen-Token behalten ihre Identität über die Schreibweisen hinweg (gleiche
+// Messung in m, km, cm, mm) — die signifikanten Ziffern D1…D4 gleiten mit.
+export const SIG_ROW = { cx: 420, y: 214, size: 54 }
+export const SIG_TOKENS = [
+  ['D1', '3'], ['D2', '0'], ['D3', '0'], ['D4', '0'], ['C', ','],
+  ['Z1', '0'], ['Z2', '0'], ['Z3', '0'],
+  ['Um', 'm'], ['Ukm', 'km'], ['Ucm', 'cm'], ['Umm', '· 10³ mm'],
+]
+// Schreibweisen: Token → Spalte (Monospace); fehlende Token sind ausgeblendet
+export const SIG_REPS = [
+  { D1: 0, C: 1, D2: 2, D3: 3, D4: 4, Um: 5.4, w: 7 },                                   // 3,000 m
+  { Z1: 0, C: 1, Z2: 2, Z3: 3, D1: 4, D2: 5, D3: 6, D4: 7, Ukm: 8.4, w: 11 },          // 0,003000 km
+  { D1: 0, D2: 1, D3: 2, C: 3, D4: 4, Ucm: 5.4, w: 8 },                                  // 300,0 cm
+  { D1: 0, C: 1, D2: 2, D3: 3, D4: 4, Umm: 5.4, w: 12 },                                 // 3,000 · 10³ mm
+]
+
+// ── „Welche Stelle ist unsicher?" (Teil R/K): Tafel rechts unten ─────────────
+export const LUPE_BOX = { x: 756, y: 478, w: 408, h: 178 }

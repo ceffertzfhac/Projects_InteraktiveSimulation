@@ -1,11 +1,16 @@
 'use strict'
-// Drehbuch Kapitel 1 „Multiplikation": Array von Schritten { title, hold?, build(tl, S) }.
+// Drehbuch der Kapitel „Grundlagen" und „Multiplikation" (eine Szene, ein Planer):
+// buildSteps() liefert { grund, cleanup, mult } — Arrays von Schritten { title, hold?, build(tl, S) }.
+// Das Kapitel Multiplikation spielt grund + cleanup vorab still ab (Startzustand).
 // build() hängt NUR Tweens/Sets an tl an (Reversibilitäts-Regel, Blueprint §10).
 // Die Planer (Kamera, Karten, Label-Slots, Treffer) laufen zur Build-Zeit und
 // kennen den Zustand am Ende jedes Schritts — Übergänge schließen nahtlos an.
 //
 //  M  Messen: ein Stab, zwei Maßbänder (1 m, 0,1 m), zwei Stäbe → gleiche Ablesung
-//  Z  Zahlengerade: „3" als Intervall; 3,0 / 3,00 / 3,000 — je Zoom ×10, neue Teilung
+//  Z  Zahlengerade: „3" als Intervall, letzte Ziffer unsicher (± ½ Einheit);
+//     3,0 / 3,00 / 3,000 — je Zoom ×10, neue Teilung; signifikante Stellen, führende Nullen
+//  ── Kapitel Multiplikation ──
+//  R  Fläche: Ecken-Test (l_min·b_min … l_max·b_max), welche Stelle ist unsicher?
 //  R  Fläche: zweite Achse, Rechteck, Zoom auf die Ecke, mögliche Flächen
 //  C  Rückweg (erst b, dann l) · D  Mischungen · E  Merksatz
 
@@ -14,10 +19,12 @@ import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
   L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_SHORT,
   B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
+  SIG_TOKENS, SIG_REPS,
 } from './constants.js'
 import { parseMeasured, circleExample } from './model.js'
-import { CMB_FIRST_RETURN, CMB_FIRST_MIX } from './content.js'
+import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE } from './content.js'
 import { HITS } from './state.js'
+import { scanPlaces } from './stellen.js'
 
 export function buildSteps(S, DOM) {
   const C = DOM.cards
@@ -81,8 +88,27 @@ export function buildSteps(S, DOM) {
     tl.to(S, { roA: 0, duration: 0.3 }, '<0.2')
   }
 
-  const steps = []
+  let steps = []
   const step = (title, build, hold) => steps.push({ title, build, hold })
+
+  // Zeilen einer Folienkarte (data-r) nacheinander einblenden
+  const rows = card => card.querySelectorAll('[data-r]')
+  const hideRows = (tl, card, at) => tl.set(rows(card), { autoAlpha: 0 }, at)
+  const reveal = (tl, card, name, at) =>
+    tl.to(card.querySelector(`[data-r="${name}"]`), { autoAlpha: 1, duration: 0.5 }, at)
+
+  // Tafel „Welche Stelle ist unsicher?" — Zoom der Mini-Zahlengerade über slP
+  const lupeScan = (tl, idx, full, at) => {
+    const info = LUPE[idx].info
+    const first = (full ? info.places : info.places.slice(-3))[0].p
+    tl.to(S, { slA: 0, duration: 0.3 }, at)
+    tl.set(S, { slP: first })
+    scanPlaces(tl, S, info, idx, {
+      full, hold: full ? 1.4 : 1,
+      zoom: (t2, p) => t2.to(S, { slP: p, duration: 0.9, ease: EASE.cam }, '>0.1'),
+    })
+    tl.to(S, { slB: 1, duration: 0.4 })               // Schluß: Klammer der letzten Stelle
+  }
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
   // Stabende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
@@ -189,11 +215,20 @@ export function buildSteps(S, DOM) {
     RODS_LEVEL[0].slice(1).forEach(x => fire(tl, x, '>0.15'))
   }, 4.5)
 
+  step('Die letzte Ziffer ist unsicher', tl => {
+    deck.show(tl, C.unc)
+    tl.set(S, { ucA: 1 }, '<')
+    tl.to(S, { ucBox: 1, duration: 0.5 }, '<0.3')
+    tl.set(S, { pmA: 1, pmD: 0 }, '>0.3')
+    tl.to(S, { pmD: 1, duration: 1, ease: EASE.reveal })
+  }, 6)
+
   for (let k = 1; k < L.length; k++) {
     step(`Teilung ${['', '0,1 m', '1 cm', '1 mm'][k]}: „${L[k].text}"`, tl => {
       // 1) feineres Maßband, neue Ablesung, Intervall schrumpft im alten
       arrowOff(tl)
       clearHits(tl, '<')
+      tl.to(S, { pmA: 0, ucBox: 0, duration: 0.3 }, '<')
       tl.to(S, { ['tg' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '<')
       pl.show(tl, textIndex(L[k].text), { at: '<0.3' })
       if (k === 1) { tl.set(S, { lvl: 1 }, '<'); deck.show(tl, C.lvl, '<') }
@@ -207,16 +242,59 @@ export function buildSteps(S, DOM) {
       tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
       tl.set(S, { lBndD: k + 1 }, '<')
       tl.to(S, { lBndA: 1, duration: 0.4 }, '<0.6')
-      // 3) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung
+      // 3) unsichere Stelle wandert eine Stelle nach rechts: ±-Pfeile, Markierung
+      tl.set(S, { pmA: 1, pmD: 0 }, '>0.1')
+      tl.to(S, { pmD: 1, duration: 0.8, ease: EASE.reveal })
+      tl.to(S, { ucBox: 1, duration: 0.4 }, '<0.2')
+      // 4) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung
       RODS_LEVEL[k].forEach(x => fire(tl, x, '>0.1'))
-      if (k === L.length - 1) deck.show(tl, C.tenfold, '>0.2')
-    }, k === L.length - 1 ? 5.5 : 4)
+    }, 5)
+  }
+
+  // Signifikante Stellen: zählen, gesichert/unsicher; dieselbe Messung in anderen Einheiten
+  const toRep = (tl, k, at) => {
+    const r = SIG_REPS[k], v = {}
+    for (const [id] of SIG_TOKENS) {
+      if (id in r) v[`tk${id}x`] = r[id] - r.w / 2
+      v[`tk${id}a`] = id in r ? 1 : 0
+    }
+    tl.to(S, { ...v, duration: 1.1, ease: EASE.cam }, at)
+  }
+  step('Was sind signifikante Stellen?', tl => {
+    deck.show(tl, C.sigdef)
+    arrowOff(tl, '<')
+    clearHits(tl, '<')
+    tl.to(S, { pmA: 0, duration: 0.3 }, '<')
+    tl.to(S, { sgA: 1, duration: 0.5 }, '<0.2')
+    ;[1, 2, 3, 4].forEach(n => tl.to(S, { [`bg${n}`]: 1, duration: 0.4, ease: EASE.pop }, '>0.25'))
+    tl.to(S, { brS: 1, duration: 0.4 }, '>0.4')
+    tl.to(S, { brU: 1, duration: 0.4 }, '>0.3')
+  }, 7)
+
+  step('Führende Nullen zählen nicht', tl => {
+    deck.show(tl, C.zeros)
+    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '<')
+    toRep(tl, 1, '>0.1')                         // 0,003000 km
+    tl.to(S, { brZ: 1, duration: 0.4 }, '>0.1')
+    tl.to(S, { brZ: 0, duration: 0.3 }, '>1.6')
+    toRep(tl, 2, '>')                            // 300,0 cm
+    toRep(tl, 3, '>1.4')                         // 3,000 · 10³ mm
+    tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.3')
+  }, 7)
+
+  const grund = steps
+  steps = []
+  // Übergang ins Kapitel Multiplikation (still vorab abgespielt): Ziffernzeile, Karte weg
+  const cleanup = tl => {
+    tl.to(S, { sgA: 0, duration: 0.3 })
+    deck.hide(tl, '<')
   }
 
   // ── R · Fläche ─────────────────────────────────────────────────────────────
   step('Eine zweite Messgröße', tl => {
     arrowOff(tl)
     clearHits(tl, '<')
+    tl.to(S, { sgA: 0, pmA: 0, ucBox: 0, duration: 0.4 }, '<')
     pl.hide(tl, { at: '<' })
     tl.to(S, {
       pA: 0, lBndA: 0, lEndA: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
@@ -252,12 +330,50 @@ export function buildSteps(S, DOM) {
   }, 4)
 
   step('Mögliche Flächen', tl => {
+    deck.show(tl, C.vary)
     vary(tl, L[3], B, 4)
+  }, 4)
+
+  // Ecken-Test: alle vier Kombinationen der Grenzen; kleinste = l_min·b_min, größte = l_max·b_max
+  const goCorner = (tl, x, y, at) => {
+    tl.to(S, { rW: x, rH: y, duration: 0.7, ease: EASE.cam }, at)
+    markHit(tl, x, y, '>-0.05')
+  }
+  const bounds = (tl, l, b, card, all) => {
+    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
+    tl.to(S, { roA: 1, edA: 1, duration: 0.4 })
+    if (all) {
+      goCorner(tl, l.lo, b.lo, '>0.2'); goCorner(tl, l.hi, b.lo, '>0.9')
+      goCorner(tl, l.lo, b.hi, '>0.9'); goCorner(tl, l.hi, b.hi, '>0.9')
+      tl.to(S, { rW: l.lo, rH: b.lo, duration: 0.8, ease: EASE.cam }, '>1')
+    } else {
+      goCorner(tl, l.lo, b.lo, '>0.2')
+    }
+    tl.to(S, { mnA: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, card, 'min', '<')
+    if (all) tl.to(S, { rW: l.hi, rH: b.hi, duration: 0.9, ease: EASE.cam }, '>1')
+    else goCorner(tl, l.hi, b.hi, '>1')
+    tl.to(S, { mnA: 0, mxA: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, card, 'max', '<')
+    tl.to(S, { rW: l.value, rH: b.value, duration: 0.6, ease: EASE.cam }, '>1')
+    tl.to(S, { roA: 0, mxA: 0, duration: 0.3 }, '<0.2')
+    tl.to(S, { uA: 1, stripA: 0.35, duration: 0.7, ease: EASE.reveal })
+    tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.3')
+  }
+
+  step('Kleinste und größte Fläche', tl => {
+    clearHits(tl)
     tl.set(S, { cmb: 0 }, '<')
-    tl.to(S, { uA: 1, stripA: 0.35, duration: 0.8, ease: EASE.reveal })
-    tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.4')
-    deck.show(tl, C.range, '<-0.3')
+    hideRows(tl, C.range, '<')
+    deck.show(tl, C.range, '<')
+    bounds(tl, L[3], B, C.range, true)
   }, 6)
+
+  step('Welche Stelle ist unsicher?', tl => {
+    deck.show(tl, C.adig)
+    lupeScan(tl, 0, true, '<')
+    reveal(tl, C.adig, 'res', '>')
+  }, 7)
 
   // ── C · Rückweg und D · Mischungen ─────────────────────────────────────────
   let cur = { l: L[3], b: B }
@@ -274,12 +390,15 @@ export function buildSteps(S, DOM) {
   }
   const example = (title, [lt, bt], cmb, camTarget) => step(title, tl => {
     clearHits(tl)
-    tl.to(S, { uTagA: 0, duration: 0.3 }, '<')
+    tl.to(S, { uTagA: 0, uA: 0, slA: 0, duration: 0.3 }, '<')
+    deck.show(tl, C.range, '<')
     swapDyn(tl, 'cmb', cmb, '<')
+    hideRows(tl, C.range, '<')
     const { l, b } = toExample(tl, lt, bt, camTarget)
-    vary(tl, l, b, 3)
-    tl.to(S, { uTagA: 1, duration: 0.4 }, '>-0.2')
-  }, 5)
+    bounds(tl, l, b, C.range, false)
+    lupeScan(tl, cmb, false, '>0.2')
+    reveal(tl, C.range, 'res', '>')
+  }, 6)
 
   RETURN_PATH.forEach((p, j) => example(`Rückweg: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
   MIXES.forEach((p, m) => example(`Beispiel: ${p[0]} · ${p[1]}`, p, CMB_FIRST_MIX + m, CAM_OVERVIEW))
@@ -299,6 +418,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
       tl.set(S, { [`tr${i}R`]: R, [`tr${i}A`]: 1, [`tr${i}D`]: 0 })
       tl.to(S, { [`tr${i}D`]: 1, duration: 2.4, ease: 'power1.inOut' })
+      reveal(tl, C.umfang, i ? 'min' : 'max', '>-0.2')
     })
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
@@ -307,6 +427,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
       tl.set(S, { [`f${i}R`]: 0, [`f${i}A`]: 1 })
       tl.to(S, { [`f${i}R`]: R, duration: 2, ease: 'power2.inOut' })
+      reveal(tl, C.frange, i ? 'min' : 'max', '>-0.2')
     })
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
@@ -315,7 +436,7 @@ export function buildSteps(S, DOM) {
     clearHits(tl)
     dl.hide(tl, { at: '<' })
     db.hide(tl, { at: '<' })
-    tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, duration: 0.6 }, '<')
+    tl.to(S, { rA: 0, uA: 0, uTagA: 0, lA: 0, bA: 0, xA: 0, roA: 0, edA: 0, slA: 0, duration: 0.6 }, '<')
     const c = circles[0]
     tl.set(S, { kA: 1, kDraw: 0, kR: c.r.value, kLo: c.r.value, kHi: c.r.value, circ: 0 })
     tl.to(S, { kDraw: 1, duration: 1.3, ease: 'power2.inOut' })
@@ -330,7 +451,7 @@ export function buildSteps(S, DOM) {
     const c = circles[j]
     if (j > 0) {
       step(`Kreis: r = ${rt} m — Radius variieren`, tl => {
-        tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, duration: 0.5 })
+        tl.to(S, { tr0A: 0, tr1A: 0, f0A: 0, f1A: 0, slA: 0, duration: 0.5 })
         tl.set(S, { tr0D: 0, tr1D: 0, f0R: 0, f1R: 0 })
         rl.show(tl, textIndex(rt), { at: '<' })
         swapDyn(tl, 'circ', j, '<')
@@ -340,13 +461,21 @@ export function buildSteps(S, DOM) {
       }, 3)
     }
     step(`Umfang bei r = ${rt} m`, tl => {
-      deck.show(tl, C.umfang)
+      tl.to(S, { slA: 0, duration: 0.3 })
+      hideRows(tl, C.umfang, '<')
+      deck.show(tl, C.umfang, '<')
       traceU(tl, c)
-    }, 5)
+      lupeScan(tl, LUPE_CIRCLE + 2 * j, false, '>0.1')
+      reveal(tl, C.umfang, 'res', '>')
+    }, 6)
     step(`Fläche bei r = ${rt} m`, tl => {
-      deck.show(tl, C.frange)
+      tl.to(S, { slA: 0, duration: 0.3 })
+      hideRows(tl, C.frange, '<')
+      deck.show(tl, C.frange, '<')
       fillA(tl, c)
-    }, 5)
+      lupeScan(tl, LUPE_CIRCLE + 2 * j + 1, false, '>0.1')
+      reveal(tl, C.frange, 'res', '>')
+    }, 6)
   })
 
   // ── E · Merksatz ───────────────────────────────────────────────────────────
@@ -355,5 +484,5 @@ export function buildSteps(S, DOM) {
     deck.show(tl, C.rule, '<0.2')
   }, 8)
 
-  return steps
+  return { grund, cleanup, mult: steps }
 }

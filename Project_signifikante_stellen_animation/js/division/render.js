@@ -8,9 +8,11 @@ import { svgEl, viewOf, createAxis, clamp, lerp } from '../../../shared/js/step-
 import { fmt } from '../../../shared/js/format.js'
 import {
   S_TRUE, T_TRUE, V_TRUE, K, X0, xOf, ROAD, CAR, TAPES, TAPE_LEN, PANEL, WATCH_A, WATCH_B,
-  LOUPE, LOUPE_TAPE, LOUPE_DIAL, TABLE, V_AXIS_Y, BAND_Y,
+  LOUPE, LOUPE_TAPE, LOUPE_DIAL, TABLE, V_AXIS_Y, BAND_Y, FRAC, DIGITS, VERDICT_Y, READ,
 } from './constants.js'
 import { ROW } from './content.js'
+import { parseMeasured, placeName } from '../model.js'
+import { createDigitRow, createUnitBracket, verdict } from '../stellen.js'
 
 const E = {}
 const DEG = Math.PI / 180
@@ -124,6 +126,9 @@ function buildWatchB(parent) {
   svgEl('circle', { class: 'dial-hub', cx, cy, r: 4 }, g)
 }
 
+// Ablesung von B (Sekundenzeiger): Lupe zentriert auf diese Marke, Ablesebereich ±½ s
+const TB = parseMeasured(READ.tB)
+
 // Lupe: vergrößerter Ausschnitt — erst Maßband B an der Ziellinie, dann das Zifferblatt
 function buildLoupe(parent) {
   const { cx, cy, r } = LOUPE
@@ -150,19 +155,19 @@ function buildLoupe(parent) {
   svgEl('line', { class: 'finish-guide', x1: cx, x2: cx, y1: cy - r, y2: top + h }, E.lpTape)
   text(E.lpTape, 'loupe-cap', { x: cx - 6, y: cy - 30, 'text-anchor': 'end' }, 'Ziel')
 
-  // Zifferblatt: Radius R, gedreht so, daß die 1-s-Marke oben in der Lupenmitte steht
+  // Zifferblatt: Radius R, gedreht so, daß die abgelesene Marke oben in der Lupenmitte steht
   E.lpDial = svgEl('g', {}, inner)
   const R = LOUPE_DIAL.R, dcx = cx, dcy = cy - LOUPE_DIAL.drop + R
   E.dialC = { dcx, dcy, R }
   svgEl('circle', { class: 'dial-face', cx: dcx, cy: dcy, r: R }, E.lpDial)
-  const ang = sec => (sec - LOUPE_DIAL.at) * 6 * DEG
+  const ang = sec => (sec - TB.value) * 6 * DEG
   const pol = (sec, rad) => [dcx + rad * Math.sin(ang(sec)), dcy - rad * Math.cos(ang(sec))]
   const sector = (a, b, r0, r1) => {
     const [p0, p1, p2, p3] = [pol(a, r1), pol(b, r1), pol(b, r0), pol(a, r0)]
     return `M${p0}A${r1} ${r1} 0 0 1 ${p1}L${p2}A${r0} ${r0} 0 0 0 ${p3}Z`
   }
-  E.lzD = svgEl('path', { class: 'zone zone-dial', d: sector(0.5, 1.5, R - 44, R) }, E.lpDial)
-  for (let s = -3; s <= 5; s++) {
+  E.lzD = svgEl('path', { class: 'zone zone-dial', d: sector(TB.lo, TB.hi, R - 44, R) }, E.lpDial)
+  for (let s = TB.value - 4; s <= TB.value + 4; s++) {
     const [x1, y1] = pol(s, R - 2), [x2, y2] = pol(s, R - 22)
     svgEl('line', { class: 'dial-tick major', x1, y1, x2, y2 }, E.lpDial)
     const [tx, ty] = pol(s, R - 36)
@@ -175,9 +180,10 @@ function buildLoupe(parent) {
 export function initSpeedStage(svg) {
   E.defs = svgEl('defs', {}, svg)
   E.root = svgEl('g', { class: 'speed-stage' }, svg)
+  E.lower = svgEl('g', {}, E.root)          // Straße, Bänder, Tafeln — weicht später der v-Geraden
 
   // ── Straße (Draufsicht) mit Start- und Ziellinie ──
-  E.road = svgEl('g', {}, E.root)
+  E.road = svgEl('g', {}, E.lower)
   const { top, h } = ROAD
   svgEl('rect', { class: 'road', x: -40, y: top, width: 1280, height: h }, E.road)
   ;[top + 5, top + h - 5].forEach(y => svgEl('line', { class: 'road-edge', x1: -40, x2: 1240, y1: y, y2: y }, E.road))
@@ -185,11 +191,11 @@ export function initSpeedStage(svg) {
   E.lines = [X0, FINISH].map(x => svgEl('line', { class: 'road-line', x1: x, x2: x, y1: top }, E.road))
   // Fahrbahn-Beschriftung (wie aufgemalt) im unteren Fahrstreifen, innerhalb der Strecke
   E.lineLbl = [[X0 + 10, 'START', 'start'], [FINISH - 10, 'ZIEL', 'end']].map(([x, s, anchor]) =>
-    text(E.root, 'line-label', { x, y: top + h - 14, 'text-anchor': anchor }, s))
+    text(E.lower, 'line-label', { x, y: top + h - 14, 'text-anchor': anchor }, s))
 
   // ── Lichtschranken: Sender oben, Empfänger unten, Laserstrahl ──
   E.lb = [X0, FINISH].map(x => {
-    const g = svgEl('g', { class: 'barrier' }, E.root)
+    const g = svgEl('g', { class: 'barrier' }, E.lower)
     const beam = svgEl('line', { class: 'beam', x1: x, x2: x, y1: top - 2, y2: top + h + 2 }, g)
     svgEl('rect', { class: 'barrier-box', x: x - 8, y: top - 16, width: 16, height: 15, rx: 3 }, g)
     svgEl('rect', { class: 'barrier-box', x: x - 6, y: top + h + 1, width: 12, height: 6, rx: 2 }, g)
@@ -198,21 +204,55 @@ export function initSpeedStage(svg) {
     return { g, beam, led, ring, x }
   })
 
-  E.car = buildCar(E.root)
+  E.car = buildCar(E.lower)
 
   // ── Maßbänder, Ablesebereich, Hilfslinie Ziel → Bänder ──
-  E.tapes = [0, 1].map(i => buildTape(E.root, i))
+  E.tapes = [0, 1].map(i => buildTape(E.lower, i))
   E.zoneEdge = [19.5, 20.5].map(s => svgEl('line', { class: 'zone-edge', x1: xOf(s), x2: xOf(s),
-    y1: TAPES[0].top - 4, y2: TAPES[0].top + TAPES[0].h + 4 }, E.root))
-  E.guide = svgEl('line', { class: 'finish-guide', x1: FINISH, x2: FINISH, y1: top + h }, E.root)
+    y1: TAPES[0].top - 4, y2: TAPES[0].top + TAPES[0].h + 4 }, E.lower))
+  E.guide = svgEl('line', { class: 'finish-guide', x1: FINISH, x2: FINISH, y1: top + h }, E.lower)
 
   // ── Tafeln mit Uhren und Lupe ──
-  E.panels = [0, 1].map(i => buildPanel(E.root, i))
+  E.panels = [0, 1].map(i => buildPanel(E.lower, i))
   buildWatchA(E.panels[0])
   buildWatchB(E.panels[1])
   buildLoupe(E.panels[1])
 
-  // ── Messprotokoll ──
+  buildTable()
+  buildFraction()
+
+  // ── v-Zahlengerade: Bänder der möglichen v, Ecken-Treffer, Live-Marke, Ergebnis ──
+  E.vAxis = createAxis(E.root, 'x')
+  E.vName = symText(E.root, 'axis-name-sm', { 'text-anchor': 'start' }, 'v', ' / (m/s)')
+  E.bracket = createUnitBracket(E.root)
+  E.bands = ROW.map((r, i) => {
+    const cls = ['a', 'b', 'c'][i]
+    return {
+      rect: svgEl('rect', { class: `vband vband-${cls}`, height: 14, rx: 3 }, E.root),
+      lbl: text(E.root, `vband-label val-${cls}`, { 'text-anchor': 'end' }, ['A', 'B', 'A+B'][i]),
+      mark: svgEl('path', { class: `vmark vdot-${cls}` }, E.root),
+      mlbl: text(E.root, `vmark-label val-${cls}`, { 'text-anchor': 'start' }, r.v),
+    }
+  })
+  E.live = svgEl('line', { class: 'v-live' }, E.root)
+  E.hits = [0, 1, 2, 3].map(() => svgEl('circle', { class: 'v-hit', r: 5 }, E.root))
+  E.digits = createDigitRow(E.root, { size: DIGITS.size })
+  E.digitCap = text(E.root, 'digit-cap', { x: DIGITS.x, y: DIGITS.y - DIGITS.size - 6 })
+  E.verdict = text(E.root, 'verdict', { x: 110, y: VERDICT_Y })
+  return E.root
+}
+
+// Text mit markierter letzter Ziffer (= unsichere Stelle): „19,8<3> m"
+function markedText(parent, cls, attrs, str) {
+  const t = svgEl('text', { class: cls, ...attrs }, parent)
+  const i = str.search(/\d(?=\D*$)/)
+  t.append(str.slice(0, i))
+  svgEl('tspan', { class: 'unc-digit' }, t).textContent = str[i]
+  t.append(str.slice(i + 1))
+  return t
+}
+
+function buildTable() {
   E.table = svgEl('g', { class: 'proto' }, E.root)
   const [c0, c1, c2, c3] = TABLE.x, y0 = TABLE.y0
   E.tHead = svgEl('g', {}, E.table)
@@ -223,53 +263,56 @@ export function initSpeedStage(svg) {
   svgEl('tspan', { class: 'sym' }, vh).textContent = 's'
   svgEl('tspan', {}, vh).textContent = ' / '
   svgEl('tspan', { class: 'sym' }, vh).textContent = 't'
-  svgEl('line', { class: 'proto-rule', x1: c0, x2: 690, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
+  svgEl('line', { class: 'proto-rule', x1: c0, x2: 715, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
+  // Legende: markierte Ziffer = unsicher, darunter das Intervall der wahren Werte
+  const lg = text(E.tHead, 'proto-legend', { x: 715, y: y0 - 22, 'text-anchor': 'end' })
+  svgEl('tspan', { class: 'unc-digit' }, lg).textContent = '3'
+  lg.append(' = unsichere Ziffer · darunter: Intervall')
   E.rows = ROW.map((r, i) => {
-    const y = y0 + TABLE.dy * (i + 1)
+    const y = y0 + TABLE.dy * (i + 1), ys = y + TABLE.sub
     const cls = ['val-a', 'val-b', 'val-c'][i]
+    const cell = (x, val, iv, extra = '') => {
+      const g = svgEl('g', {}, E.table)
+      markedText(g, `proto-cell ${extra}`, { x, y }, val)
+      text(g, 'proto-iv', { x, y: ys }, iv)
+      return g
+    }
     return {
       name: text(E.table, `proto-name ${cls}`, { x: c0, y }, ['Person A', 'Person B', 'Kombiniert'][i]),
-      s: text(E.table, 'proto-cell', { x: c1, y }, r.s),
-      t: text(E.table, 'proto-cell', { x: c2, y }, r.t),
-      v: text(E.table, `proto-cell proto-v ${cls}`, { x: c3, y }, r.v),
+      s: cell(c1, r.s, r.sIv), t: cell(c2, r.t, r.tIv), v: cell(c3, r.v, r.vIv, `proto-v ${cls}`),
     }
   })
-
-  // ── v-Achse mit Bändern der möglichen Geschwindigkeiten ──
-  E.vAxis = createAxis(E.root, 'x')
-  E.vName = symText(E.root, 'axis-name-sm', { 'text-anchor': 'start' }, 'v', ' / (m/s)')
-  E.bands = ROW.map((r, i) => {
-    const cls = ['a', 'b', 'c'][i]
-    return {
-      rect: svgEl('rect', { class: `vband vband-${cls}`, height: 12, rx: 3 }, E.root),
-      dot: svgEl('circle', { class: `vdot vdot-${cls}`, r: 4 }, E.root),
-      lbl: text(E.root, `vband-label val-${cls}`, { 'text-anchor': 'end' }, ['A', 'B', 'A+B'][i]),
-    }
-  })
-  E.trueLine = svgEl('line', { class: 'v-true' }, E.root)
-  E.trueLbl = text(E.root, 'v-true-label', { 'text-anchor': 'middle' }, 'wahrer Wert')
-  return E.root
 }
 
-function renderBands(S, V) {
-  const L = V.L, R = V.R
-  ROW.forEach((r, i) => {
-    const g = S[`bd${i}`], B = E.bands[i], y = BAND_Y[i]
-    const { value, lo, hi } = r.e.v
-    const a = clamp(V.sx(value - (value - lo) * g), L, R), b = clamp(V.sx(value + (hi - value) * g), L, R)
-    set(B.rect, { x: a, y, width: Math.max(0, b - a) }); op(B.rect, Math.min(1, g * 3))
-    const dx = V.sx(value)
-    set(B.dot, { cx: dx, cy: y + 6 }); op(B.dot, g > 0.002 && dx >= L && dx <= R ? 1 : 0)
-    set(B.lbl, { x: L - 14, y: y + 11 }); op(B.lbl, Math.min(1, g * 3))
+// Regler für s und t: Knopf wandert im Intervall; Live-Wert v = s / t daneben
+function buildFraction() {
+  E.frac = svgEl('g', { class: 'frac' }, E.root)
+  E.frTitle = text(E.frac, 'frac-title', { x: 60, y: FRAC.y[0] - 32 })
+  E.frBars = ['s', 't'].map((sym, k) => {
+    const y = FRAC.y[k]
+    symText(E.frac, 'frac-sym', { x: 60, y: y + 7 }, sym)
+    svgEl('line', { class: 'frac-bar', x1: FRAC.x0, x2: FRAC.x1, y1: y, y2: y }, E.frac)
+    ;[FRAC.x0, FRAC.x1].forEach(x => svgEl('line', { class: 'frac-cap', x1: x, x2: x, y1: y - 9, y2: y + 9 }, E.frac))
+    const lo = svgEl('text', { class: 'frac-end', x: FRAC.x0, y: y + 28, 'text-anchor': 'middle' }, E.frac)
+    const hi = svgEl('text', { class: 'frac-end', x: FRAC.x1, y: y + 28, 'text-anchor': 'middle' }, E.frac)
+    const loT = subLabel(lo, sym, 'min'), hiT = subLabel(hi, sym, 'max')
+    const knob = svgEl('circle', { class: 'frac-knob', cy: y, r: 9 }, E.frac)
+    const val = svgEl('text', { class: 'frac-val', y: y - 15, 'text-anchor': 'middle' }, E.frac)
+    return { y, loT, hiT, knob, val }
   })
-  const tx = V.sx(V_TRUE)
-  set(E.trueLine, { x1: tx, x2: tx, y1: BAND_Y[0] - 6, y2: V_AXIS_Y })
-  set(E.trueLbl, { x: tx, y: BAND_Y[0] - 11 })
-  op(E.trueLine, S.vTrue); op(E.trueLbl, S.vTrue)
+  E.frLive = symText(E.frac, 'frac-live', { x: FRAC.live, y: (FRAC.y[0] + FRAC.y[1]) / 2 + 10 }, 'v', ' = ')
+  E.frLiveVal = svgEl('tspan', {}, E.frLive)
+}
+// „s_min = 19,5 m" in ein <text>: Symbol kursiv, Index tiefgestellt, Wert in tspan
+function subLabel(t, sym, sub) {
+  svgEl('tspan', { class: 'sym' }, t).textContent = sym
+  svgEl('tspan', { dy: 5, 'font-size': '72%' }, t).textContent = sub
+  return svgEl('tspan', { dy: -5 }, t)
 }
 
-export function renderSpeed(S) {
-  E.root.style.opacity = 1 - 0.62 * S.dim
+function renderLower(S) {
+  op(E.lower, S.lowA)
+  if (S.lowA <= 0.002) return
   const { top, h } = ROAD
   op(E.road, S.roadA)
   E.lines.forEach(l => set(l, { y2: top + h * S.lineD }))
@@ -308,7 +351,7 @@ export function renderSpeed(S) {
   op(E.glowA, S.wGlowA); op(E.glowB, S.wGlowB)
   const a = t * 6 * DEG, { cx, cy, r } = WATCH_B
   set(E.handB, { x2: cx + (r - 8) * Math.sin(a), y2: cy - (r - 8) * Math.cos(a) })
-  const { dcx, dcy, R } = E.dialC, al = (t - LOUPE_DIAL.at) * 6 * DEG
+  const { dcx, dcy, R } = E.dialC, al = (t - TB.value) * 6 * DEG
   set(E.lpHand, { x2: dcx + (R - 6) * Math.sin(al), y2: dcy - (R - 6) * Math.cos(al) })
 
   // Lupe
@@ -316,6 +359,73 @@ export function renderSpeed(S) {
   op(E.lpTape, S.lpT); op(E.conT, S.lpT)
   op(E.lpDial, S.lpD); op(E.conD, S.lpD)
   op(E.lzT, S.lzT); op(E.lzD, S.lzD)
+}
+
+// Live-Werte der Regler (Zeile frI)
+const liveST = S => {
+  const e = ROW[Math.round(S.frI)].e
+  return [lerp(e.s.lo, e.s.hi, S.ks), lerp(e.t.lo, e.t.hi, S.kt)]
+}
+
+function renderFraction(S, V) {
+  op(E.frac, S.frA)
+  const i = Math.round(S.frI), r = ROW[i]
+  if (S.frA > 0.002) {
+    E.frTitle.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: kleinstes und größtes v`
+    const [s, t] = liveST(S)
+    ;[[S.ks, s, r.sLo, r.sHi, 'm', r.e.s.decimals + 1], [S.kt, t, r.tLo, r.tHi, 's', r.e.t.decimals + 1]]
+      .forEach(([k, v, lo, hi, unit, dec], n) => {
+        const B = E.frBars[n], x = lerp(FRAC.x0, FRAC.x1, k)
+        set(B.knob, { cx: x }); set(B.val, { x })
+        B.val.textContent = `${fmt(v, dec)} ${unit}`
+        B.loT.textContent = ` = ${lo}`; B.hiT.textContent = ` = ${hi}`
+      })
+    E.frLiveVal.textContent = `${fmt(s / t, 3)} m/s`
+  }
+  // Live-Marke auf der Zahlengeraden
+  const [s, t] = liveST(S), x = V.sx(s / t)
+  set(E.live, { x1: x, x2: x, y1: BAND_Y[i] - 8, y2: V_AXIS_Y })
+  op(E.live, x >= V.L && x <= V.R ? S.vlA : 0)
+  E.hits.forEach((c, n) => {
+    const hx = V.sx(S[`ch${n}x`])
+    set(c, { cx: hx, cy: BAND_Y[i] + 7 }); op(c, hx >= V.L && hx <= V.R ? S[`ch${n}a`] : 0)
+  })
+}
+
+function renderBands(S, V) {
+  const L = V.L, R = V.R
+  ROW.forEach((r, i) => {
+    const g = S[`bd${i}`], B = E.bands[i], y = BAND_Y[i]
+    const { lo, hi } = r.e.v
+    // wächst von v_min nach v_max (die beiden Grenzen kommen aus dem Ecken-Test)
+    const a = clamp(V.sx(lo), L, R), b = clamp(V.sx(lo + (hi - lo) * g), L, R)
+    set(B.rect, { x: a, y, width: Math.max(0, b - a) }); op(B.rect, g > 0.002 ? 1 : 0)
+    set(B.lbl, { x: L - 14, y: y + 12 }); op(B.lbl, Math.min(1, g * 3))
+    // Ergebnis-Marke (gerundeter Wert) — kein „wahrer Wert"
+    const mx = V.sx(r.info.R), on = mx >= L && mx <= R ? S[`rm${i}`] : 0
+    set(B.mark, { d: `M${mx} ${y - 3}l6 10l-6 10l-6 -10Z` }); op(B.mark, on)
+    set(B.mlbl, { x: mx + 11, y: y + 12 }); op(B.mlbl, i === Math.round(S.frI) ? on : 0)
+  })
+}
+
+// „Welche Stelle ist unsicher?": Ziffernzeile, Klammer „1 Einheit", Urteil
+function renderStellen(S, V) {
+  const i = Math.round(S.slI), r = ROW[i], p = Math.round(S.slD)
+  E.digits.render(r.info, r.layout, {
+    x: DIGITS.x, y: DIGITS.y, alpha: S.slA, pointerP: p, pointerA: S.slV,
+    colorFrom: S.slC, ghostA: S.slG, suffixA: S.slS, suffixText: r.suffix,
+  })
+  E.digitCap.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: welche Stelle ist unsicher?`
+  op(E.digitCap, S.slA)
+  E.bracket.render(V, { R: r.info.R, p, y0: BAND_Y[i] - 8, y1: BAND_Y[i] + 22, alpha: S.slB,
+    text: `1 ${placeName(p)}` })
+  E.verdict.textContent = verdict(r.info, p)
+  op(E.verdict, S.slV)
+}
+
+export function renderSpeed(S) {
+  E.root.style.opacity = 1 - 0.62 * S.dim
+  renderLower(S)
 
   // Messprotokoll
   op(E.tHead, S.tbA)
@@ -324,9 +434,11 @@ export function renderSpeed(S) {
     ;['s', 't', 'v'].forEach(k => op(row[k], S[`c${i}${k}`]))
   })
 
-  // v-Achse
+  // v-Zahlengerade
   const V = viewOf(S)
   E.vAxis.render(V, { at: V_AXIS_Y, draw: S.vAx, ticks: S.vTk, alpha: S.vAx > 0.001 ? 1 : 0 })
   set(E.vName, { x: V.R + 30, y: V_AXIS_Y + 6 }); op(E.vName, S.vAx)
   renderBands(S, V)
+  renderFraction(S, V)
+  renderStellen(S, V)
 }
