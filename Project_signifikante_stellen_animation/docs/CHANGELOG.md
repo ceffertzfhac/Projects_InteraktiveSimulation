@@ -1,5 +1,23 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v0.9.0 — 2026-10-02
+
+**Neues Kapitel 4 „Addition"** (12 Schritte, → FSS1): Stab A (Maßband 0,1-m-Teilung,
+Etikett 0,4 m) und Werkstück B (mm-Maßband mit Lupe, Etikett 1,253 m) werden
+hintereinandergelegt. Botschaft: beim Addieren zählt der **Stellenwert** der letzten Ziffer
+(absolute Unsicherheit), nicht die Zahl der signifikanten Stellen.
+- Steckbrief-Tabelle: Etikett, Intervall, ±, signifikante Stellen, Nachkommastellen.
+- Kette: das Ende von A wackelt durch sein Intervall, B fährt mit; Bereich des Kettenendes
+  auf dem Maßband und als Band auf der Zahlengeraden.
+- Grenzen animiert: kürzestes A + kürzestes B, längstes + längstes; Unsicherheiten
+  addieren sich absolut (0,05 + 0,0005 = 0,0505 m).
+- „Welches Etikett?": 1,653 m (Scheingenauigkeit, Intervall rund 100-mal breiter als die
+  Klammer), 2 m (verschenkt Wissen, Klammer rund 10-mal breiter), 1,7 m (passt).
+- „Welche Stelle ist unsicher?" wie in den anderen Kapiteln; „Die Falle": die Regel der
+  Multiplikation (min. signifikante Stellen) gäbe 2 m; gleiche Einheit (4 · 10² mm, nicht
+  400 mm); Merke mit Vergleichstabelle Multiplikation ↔ Addition.
+- Modell `sumExample` (+ Vitest).
+
 ## v0.8.0 — 2026-10-02
 
 Zahlenwerte didaktisch überarbeitet (PO): keine runden Werte mehr, bei denen die unsichere

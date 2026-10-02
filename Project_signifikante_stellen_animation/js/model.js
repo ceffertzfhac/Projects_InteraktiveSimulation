@@ -124,3 +124,20 @@ export function placeAnalysis(text, lo, hi) {
   })
   return { text, R, lo, hi, digits, pLast, sci, e, places }
 }
+
+// ── Addition (Kapitel „Addition") ────────────────────────────────────────────
+// Summe zweier Messwerte (gleiche Einheit): Grenzen kleinste + kleinste und
+// größte + größte; die Unsicherheiten addieren sich absolut. Regel: das Ergebnis
+// endet beim Stellenwert des gröbsten Summanden (so viele Nachkommastellen wie
+// der Summand mit den wenigsten). Zum Vergleich die — hier falsche — Faustregel
+// der Multiplikation (Stellenzahl des ungenauesten Faktors).
+export function sumExample(aText, bText) {
+  const a = parseMeasured(aText), b = parseMeasured(bText)
+  const value = a.value + b.value, lo = a.lo + b.lo, hi = a.hi + b.hi
+  const decimals = Math.min(a.decimals, b.decimals)
+  return {
+    a, b, value, lo, hi, decimals, half: (hi - lo) / 2,
+    rounded: fmt(value, decimals),
+    sigRule: formatSig(value, Math.min(a.sig, b.sig)),
+  }
+}

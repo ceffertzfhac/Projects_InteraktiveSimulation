@@ -11,6 +11,10 @@ import { createSpeedScene } from './division/scene.js'
 import { initSpeedStage, renderSpeed } from './division/render.js'
 import { buildSpeedSteps } from './division/steps.js'
 import { fillSpeedCards } from './division/content.js'
+import { createAddScene } from './addition/scene.js'
+import { initAddStage, renderAdd } from './addition/render.js'
+import { buildAddSteps } from './addition/steps.js'
+import { fillAddCards } from './addition/content.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -27,9 +31,10 @@ initDOM()
 setupTheme()
 // Kapitel Grundlagen und Multiplikation teilen Szene und Zeichnung (Teil 1 → Teil 2),
 // Division hat eine eigene; sichtbar ist nur die Gruppe des aktiven Kapitels.
-const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg) }
+const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg), addition: initAddStage(DOM.svg) }
 groups.mult = groups.grund
 fillSpeedCards(DOM)
+fillAddCards(DOM)
 
 // Multiplikation beginnt dort, wo Grundlagen endet: dessen Schritte (+ Übergang)
 // werden vorab still auf die Szene angewendet — der Planer kennt so den Zustand.
@@ -68,6 +73,12 @@ store.presenter = createPresenter({
         return createStepEngine({ steps: buildSpeedSteps(S, DOM), scene: S, render: renderSpeed, onChange, onTick })
       },
     },
-    { id: 'addition', title: 'Addition', disabled: true },   // → BACKLOG FSS1
+    {
+      id: 'addition', title: 'Addition',
+      create: (onChange, onTick) => {
+        const S = store.scene = createAddScene()
+        return createStepEngine({ steps: buildAddSteps(S, DOM), scene: S, render: renderAdd, onChange, onTick })
+      },
+    },
   ],
 })

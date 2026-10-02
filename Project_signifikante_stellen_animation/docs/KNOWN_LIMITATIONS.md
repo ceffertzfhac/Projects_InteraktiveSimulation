@@ -3,7 +3,6 @@
 Bewußte lokale Einschränkungen und Scope-Entscheidungen. Offene Arbeit steht
 zentral in `BACKLOG.md`.
 
-- **Kapitel „Addition" fehlt noch** — Tab ist sichtbar, aber deaktiviert. → FSS1
 - **Online-Abhängigkeit** — GSAP und MathJax kommen per CDN. Ohne Internet
   (Hörsaal-WLAN!) startet die Animation nicht. Für Vorlesungen vorher prüfen
   oder als Lernvideo aufzeichnen. → I19
@@ -29,3 +28,7 @@ zentral in `BACKLOG.md`.
 - **Kapitel Multiplikation startet aus dem Endzustand der Grundlagen** — dessen Schritte
   werden beim Kapitelwechsel still vorab abgespielt (`ui.js multEngine`); Änderungen an
   den Grundlagen wirken sich daher auf den Startzustand der Multiplikation aus. → FSS5
+- **Kapitel „Addition": „1,0-m-Maßband" als 0,1-m-Teilung gelesen** — Stab A wird auf
+  eine Nachkommastelle abgelesen (0,4 m). Bei 1-m-Teilung bräuchte das Gegenbeispiel große
+  Werte (z. B. 12 m + 0,047 m). Subtraktion (Verlust signifikanter Stellen) ist nicht
+  enthalten — möglicher Ausbau. → FSS1

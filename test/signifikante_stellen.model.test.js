@@ -3,7 +3,7 @@
 import { test, expect } from 'vitest'
 import {
   sigFigs, parseMeasured, productInterval, exactStr, formatSig, areaExample, circleExample,
-  quotientInterval, speedExample, placeAnalysis,
+  quotientInterval, speedExample, placeAnalysis, sumExample,
 } from '../Project_signifikante_stellen_animation/js/model.js'
 
 test('signifikante Stellen', () => {
@@ -118,4 +118,15 @@ test('Beispielwerte der Animation (v0.8.0): keine runden Zahlen, Faustregel grei
     .toEqual(['6,686', '6,68', '6,6', '6'])
   const c = circleExample('3,3')
   expect([c.U.rounded, c.A.rounded]).toEqual(['21', '34'])
+})
+
+test('Addition: Nachkommastellen statt signifikanter Stellen', () => {
+  const s = sumExample('0,4', '1,253')
+  expect(s.lo).toBeCloseTo(0.35 + 1.2525, 12)
+  expect(s.hi).toBeCloseTo(0.45 + 1.2535, 12)
+  expect(s.half).toBeCloseTo(0.05 + 0.0005, 12)      // Unsicherheiten addieren sich absolut
+  expect(s.rounded).toBe('1,7')                      // eine Nachkommastelle wie 0,4
+  expect(s.sigRule).toBe('2')                        // Faustregel der Multiplikation: falsch
+  // „1,7" beschreibt das Intervall: Breite ≈ eine Einheit der letzten Stelle
+  expect((s.hi - s.lo) / 0.1).toBeCloseTo(1.01, 12)
 })

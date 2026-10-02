@@ -281,3 +281,30 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .vmark-label { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--stage-bg1);
   stroke-width: 3px; stroke-linejoin: round; }
 .digit-cap  { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ══ Kapitel 4 · Addition ══════════════════════════════════════════════════ */
+:root     { --wood-a: #d9b07a; --wood-b: #b07d43; }
+body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
+.wp-b       { fill: var(--wood-a); stroke: var(--wood-b); stroke-width: 1.5;
+  filter: drop-shadow(0 2px 3px rgba(26, 30, 46, .22)); }
+.tag rect   { fill: #fffdf5; stroke: #c9c2a8; stroke-width: 1; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25)); }
+.tag-text   { fill: #23262d; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tag-text .unc-digit { fill: #b86e00; }
+.col-hi     { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 2; }
+.proto-colhead { fill: var(--text2); font-size: 13px; font-weight: 700; }
+.proto-small   { fill: var(--text); font-size: 15px; font-variant-numeric: tabular-nums; }
+.chain-zone-a { fill: var(--c-l); fill-opacity: .16; stroke: var(--c-l); stroke-dasharray: 4 3; }
+.chain-zone   { fill: var(--accent); fill-opacity: .22; stroke: var(--accent); stroke-dasharray: 4 3; }
+.chain-label  { fill: var(--accent); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.band-label   { fill: var(--text2); font-size: 13px; }
+.cand-big     { fill: var(--text); font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cand-small   { font-size: 15px; font-weight: 700; }
+.cand-small.ok  { fill: var(--accent); }
+.cand-small.bad { fill: var(--text3); text-decoration: line-through; }
+.unit-line { fill: var(--text); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.unit-note { fill: var(--text3); font-size: 15px; font-weight: 400; }
+.slide-card table.cmp { width: 100%; margin-top: .7em; border-collapse: collapse; font-size: .92em; }
+.slide-card table.cmp th, .slide-card table.cmp td { padding: .35em .5em; border-bottom: 1px solid var(--card-border);
+  text-align: left; vertical-align: top; }
+.slide-card table.cmp th { color: var(--text); }
+.slide-card table.cmp td:first-child { color: var(--text3); white-space: nowrap; }

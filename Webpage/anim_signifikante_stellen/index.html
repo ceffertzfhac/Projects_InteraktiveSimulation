@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v0.8.0</span>
+        <span class="version">v0.9.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -365,6 +365,112 @@ window.MathJax = {
           kombiniert: \(19{,}83\,\text{m} / 2{,}17\,\text{s} = 9{,}14\,\text{m/s}\)</div>
         <p>Die letzte Ziffer ist <span class="unc-word">unsicher</span>. Ein genaueres
           Messgerät lohnt sich nur für die Größe, die das Ergebnis gerade begrenzt.</p>
+      </div>
+
+      <!-- ══ Kapitel 4 · Addition: zwei Werkstücke hintereinander ══ -->
+      <div class="slide-card pos-tr" data-card="a_intro">
+        <div class="kicker">Kapitel 4 · Messen und Addieren</div>
+        <h3>Zwei Werkstücke, zwei Etiketten</h3>
+        <p>Stab A messen wir mit einem Maßband mit <b>0,1-m-Teilung</b>, Werkstück B mit einem
+          <b>mm-Maßband</b>. Jedes bekommt ein Etikett mit seiner Länge.</p>
+        <p>Danach legen wir beide hintereinander. Was dürfen wir über die Gesamtlänge sagen?</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_a">
+        <div class="kicker">Stab A · Teilung 0,1&nbsp;m</div>
+        <h3>Etikett: \(l_A = 0{,}4\,\text{m}\)</h3>
+        <div class="formula"><span class="dyn" data-dyn="add.aLo"></span>&thinsp;m \(\le l_A &lt;\) <span class="dyn" data-dyn="add.aHi"></span>&thinsp;m, &nbsp;also \(\;l_A = 0{,}4\,\text{m} \pm\) <span class="dyn" data-dyn="add.aHalf"></span>&thinsp;m</div>
+        <p class="note">1 signifikante Stelle (die führende 0 zählt nicht) · 1 Nachkommastelle.
+          Die <span class="unc-word">4</span> ist unsicher.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_b">
+        <div class="kicker">Werkstück B · Teilung 1&nbsp;mm</div>
+        <h3>Etikett: \(l_B = 1{,}253\,\text{m}\)</h3>
+        <div class="formula"><span class="dyn" data-dyn="add.bLo"></span>&thinsp;m \(\le l_B &lt;\) <span class="dyn" data-dyn="add.bHi"></span>&thinsp;m, &nbsp;also \(\;\pm\) <span class="dyn" data-dyn="add.bHalf"></span>&thinsp;m</div>
+        <p class="note">4 signifikante Stellen · 3 Nachkommastellen – hundertmal genauer als A.
+          Die <span class="unc-word">3</span> ist unsicher.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_steck">
+        <div class="kicker">Steckbrief</div>
+        <h3>Was verrät eine Zahl über ihre Unsicherheit?</h3>
+        <p>Die <b>Stelle</b> der letzten Ziffer verrät die <b>absolute</b> Unsicherheit:
+          ± 0,05&nbsp;m bei A, ± 0,0005&nbsp;m bei B.</p>
+        <p>Die <b>Anzahl</b> der signifikanten Stellen verrät die <b>relative</b>:
+          A ± 12,5&nbsp;%, B ± 0,04&nbsp;%.</p>
+        <p class="note">Beim Multiplizieren zählte die relative. Und beim Addieren?</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_chain">
+        <div class="kicker">Hintereinander</div>
+        <h3>Wie lang sind beide zusammen?</h3>
+        <p>B liegt direkt an A an. Welche Aussage können wir über die Gesamtlänge \(L\) machen –
+          und was schreiben wir auf ein neues Etikett?</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_end">
+        <div class="kicker">Wo endet die Kette?</div>
+        <h3>Die Unsicherheit von A wandert mit</h3>
+        <p>Wo A endet, wissen wir nur auf ± 0,05&nbsp;m genau. B beginnt genau dort – sein Ende
+          verschiebt sich mit. B selbst fügt fast nichts hinzu.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_bounds">
+        <div class="kicker">Grenzen</div>
+        <h3>Kleinste + kleinste, größte + größte</h3>
+        <div class="formula" data-r="min">kürzeste: \(L_{\min} =\) <span class="dyn" data-dyn="add.aLo"></span>&thinsp;m + <span class="dyn" data-dyn="add.bLo"></span>&thinsp;m = <span class="dyn" data-dyn="add.lo"></span>&thinsp;m</div>
+        <div class="formula" data-r="max">längste: \(L_{\max} =\) <span class="dyn" data-dyn="add.aHi"></span>&thinsp;m + <span class="dyn" data-dyn="add.bHi"></span>&thinsp;m = <span class="dyn" data-dyn="add.hi"></span>&thinsp;m</div>
+        <div class="formula" data-r="pm">Unsicherheiten addieren sich <b>absolut</b>:
+          <span class="dyn" data-dyn="add.aHalf"></span>&thinsp;m + <span class="dyn" data-dyn="add.bHalf"></span>&thinsp;m = <span class="dyn" data-dyn="add.half"></span>&thinsp;m</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_label">
+        <div class="kicker">Welches Etikett?</div>
+        <h3>1,653&nbsp;m? 2&nbsp;m? 1,7&nbsp;m?</h3>
+        <p>Die gestrichelte Klammer zeigt, wofür ein Etikett steht: ± ½ Einheit seiner letzten
+          Stelle. Das Band zeigt, was wir wirklich wissen. Passen sollen beide.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_dig">
+        <div class="kicker">Welche Stelle ist unsicher?</div>
+        <h3>Stelle für Stelle</h3>
+        <p>Einer: Band nur 0,1 Einer breit → <b>gesichert</b>. Zehntel: etwa 1 Zehntel breit →
+          <span class="unc-word">unsicher</span>. Hundertstel: 10-mal breiter → bedeutungslos.</p>
+        <div class="formula" data-r="res">\(L =\) <span class="dyn res" data-dyn="add.rounded"></span>&thinsp;m – eine Nachkommastelle wie A</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_trap">
+        <div class="kicker">Die Falle</div>
+        <h3>Die Regel der Multiplikation passt hier nicht</h3>
+        <div class="formula" data-r="sig">signifikante Stellen: min(1; 4) = 1 → „<span class="dyn" data-dyn="add.sigRule"></span>&thinsp;m" ✗
+          – verschenkt Wissen</div>
+        <div class="formula" data-r="dec">Nachkommastellen: min(1; 3) = 1 → „<span class="dyn" data-dyn="add.rounded"></span>&thinsp;m" ✓</div>
+        <p>Beim Addieren zählt nicht, <i>wie viele</i> Stellen eine Zahl hat, sondern <i>wo</i>
+          ihre letzte Stelle steht – denn die absoluten Unsicherheiten addieren sich.</p>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="a_unit">
+        <div class="kicker">Gleiche Einheit!</div>
+        <h3>Nachkommastellen nur in derselben Einheit vergleichen</h3>
+        <p>„Nachkommastellen" meint den <b>Stellenwert</b> der letzten Ziffer. In mm hat 0,4&nbsp;m
+          gar keine Nachkommastelle – trotzdem bleibt alles gleich: gesichert ist die Stelle der
+          Hunderter-Millimeter.</p>
+      </div>
+
+      <div class="slide-card pos-c wide" data-card="a_rule">
+        <div class="kicker">Merke · Addition und Subtraktion</div>
+        <h3>Das Ergebnis endet beim Stellenwert des gröbsten Summanden.</h3>
+        <div class="formula">In gleicher Einheit: so viele Nachkommastellen wie der Summand mit
+          den wenigsten. Grenzen: kleinste + kleinste, größte + größte.</div>
+        <table class="cmp">
+          <tr><th></th><th>Multiplikation / Division</th><th>Addition / Subtraktion</th></tr>
+          <tr><td>maßgeblich</td><td>relative Unsicherheit</td><td>absolute Unsicherheit</td></tr>
+          <tr><td>Regel</td><td>so viele signifikante Stellen wie der ungenaueste Faktor</td>
+            <td>so viele Nachkommastellen wie der gröbste Summand</td></tr>
+          <tr><td>Beispiel</td><td>3,120&nbsp;m · 2,14&nbsp;m = 6,68&nbsp;m²</td>
+            <td>0,4&nbsp;m + 1,253&nbsp;m = 1,7&nbsp;m</td></tr>
+        </table>
       </div>
     </div>
   </div>
