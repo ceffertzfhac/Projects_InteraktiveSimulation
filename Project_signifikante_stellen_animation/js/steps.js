@@ -292,11 +292,42 @@ export function buildSteps(S, DOM) {
     toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
   }, 7)
 
+  // ── T · Zeitmessung am Auto (PO 2026-10-07, FSS9 j): Werte wie im Kapitel Division ──
+  step('Auch Zeiten sind Messwerte', tl => {
+    deck.show(tl, C.t_intro)
+    arrowOff(tl, '<')
+    clearHits(tl, '<')
+    pl.hide(tl, { at: '<' })
+    tl.to(S, { sgA: 0, tapeA: 0, rod0A: 0, xA: 0, pA: 0, lA: 0, lEndA: 0, lBndA: 0, ucBox: 0, pmA: 0,
+      duration: 0.6 }, '<')
+    tl.to(S, { tmA: 1, duration: 0.6 }, '>-0.1')
+    tl.to(S, { tmCar: 1.5, duration: 1.8 * 2.4, ease: 'none' }, '>0.4')      // Zeitlupe, fährt aus dem Bild
+  }, 3)
+
+  step('Stoppuhr mit Sekundenzeiger: 2 s', tl => {
+    deck.show(tl, C.t_coarse)
+    tl.to(S, { tmG0: 1, duration: 0.5 }, '<0.2')
+    tl.to(S, { tmZ: 1, duration: 0.5 }, '>0.2')
+    tl.to(S, { tmL0: 1, duration: T.draw, ease: EASE.cam }, '>0.2')
+    tl.to(S, { tmP0: 1, duration: 0.4, ease: EASE.pop }, '>-0.1')
+    tl.to(S, { tmB0: 1, duration: 0.7, ease: EASE.reveal }, '>0.3')
+  }, 5)
+
+  step('Digitale Stoppuhr: 2,14 s', tl => {
+    deck.show(tl, C.t_fine)
+    tl.to(S, { tmG0: 0, tmZ: 0, tmG1: 1, duration: 0.5 }, '<0.2')
+    tl.to(S, { tmL1: 1, duration: T.draw, ease: EASE.cam }, '>0.2')
+    tl.to(S, { tmP1: 1, duration: 0.4, ease: EASE.pop }, '>-0.1')
+    tl.to(S, { tmB1: 1, duration: 0.7, ease: EASE.reveal }, '>0.3')
+    tl.to(S, { tmCon: 1, duration: 0.8 }, '>0.4')
+    tl.to(S, { tmG1: 0, duration: 0.5 }, '>1')
+  }, 6)
+
   const grund = steps
   steps = []
   // Übergang ins Kapitel Multiplikation (still vorab abgespielt): Ziffernzeile, Karte weg
   const cleanup = tl => {
-    tl.to(S, { sgA: 0, duration: 0.3 })
+    tl.to(S, { sgA: 0, tmA: 0, duration: 0.3 })
     deck.hide(tl, '<')
   }
 
@@ -314,6 +345,7 @@ export function buildSteps(S, DOM) {
     }, '<')
     tl.set(S, { lSpan: 1 })
     cam.to(tl, CAM_OVERVIEW, { duration: T.camLong, at: '<0.1' })
+    tl.to(S, { xA: 1, duration: 0.6 }, '<0.3')          // Achse nach der Zeitmessung wieder ein
     tl.to(S, { xTicks: 1, duration: 0.8 }, '>-0.9')
     tl.set(S, { yAlpha: 1 }, '<')
     tl.to(S, { yDraw: 1, duration: 0.9, ease: EASE.cam }, '<')

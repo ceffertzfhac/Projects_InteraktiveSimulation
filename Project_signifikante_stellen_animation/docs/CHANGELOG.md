@@ -27,6 +27,7 @@
 - Taschenrechner-Zeile (Symbol · „Taschenrechner:“ · Rechnung) jetzt in allen Kapiteln: Multiplikation 2 (erscheint, wenn der Rechner fertig getippt hat), Ziffernvergleich und „Gröber gemessen“ mit „⟶ runden ⟶ 6,686 m²“, Addition 5 und 7 (2,677 m ⟶ runden ⟶ 2,7 m) (FSS9 p, s).
 - Kreis: Taschenrechner-Zeile nach „kleinstmöglich“ bei Umfang und Fläche, für beide Radien, mit Rundung (21 m, 34 m², 3 · 10¹ m² …); die doppelte Ergebniszeile entfällt – die Tafel „Ziffern vergleichen“ nennt die unsichere Stelle (FSS9 l).
 - Multiplikation: Folienkarten rechts oben bündig, damit sie die Tafel „Ziffern vergleichen“ nicht verdecken; Addition: Taschenrechner auf der Bühne unter die Karte gerückt.
+- Grundlagen-Abschluss „Zeitmessung“ in drei Schritten (neues Modul `js/zeit.js`): Ein Auto fährt von Start zu Ziel, zwei Stoppuhren laufen mit; Sekundenzeiger-Uhr (mit Lupe) → *t* = 2 s, Zahlenstrahl mit [1,5 ; 2,5) s; Digitaluhr → *t* = 2,14 s, gezoomter Zahlenstrahl mit [2,135 ; 2,145) s, als schmaler Streifen im groben Intervall verbunden. Werte wie im Kapitel Division. Grundlagen hat jetzt 16 Schritte (FSS9 j).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

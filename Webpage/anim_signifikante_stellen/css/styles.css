@@ -451,3 +451,10 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 /* Multiplikation: Karten rechts oben bündig (wie die anderen Kapitel) — mit Taschenrechner-
    Zeile (FSS9 p, s, l) bleibt so Platz bis zur Tafel „Ziffern vergleichen" darunter */
 .slide-card.pos-r { top: 3cqw; }
+
+/* Grundlagen-Abschluss: Zeitmessung am Auto (FSS9 j) */
+.tm-cap      { font-size: 14px; font-weight: 600; }
+.tm-val      { font-size: 30px; paint-order: stroke; stroke: var(--stage-bg1); stroke-width: 6px; stroke-linejoin: round; }
+.tm-sliver   { fill: var(--c-l); fill-opacity: .55; }
+.tm-con-fill { fill: var(--c-l); fill-opacity: .07; }
+.tm-con-line { stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }

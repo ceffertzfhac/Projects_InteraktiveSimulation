@@ -18,6 +18,7 @@ import {
   createCalculator, fillSummary, uncIndex,
 } from './stellen.js'
 import { HITS } from './state.js'
+import { initTimeStage, renderTime } from './zeit.js'
 
 const E = {}
 const FAR = 4000                // Koordinaten weit außerhalb der Sicht kappen (SVG-Präzision)
@@ -277,6 +278,7 @@ export function initStage(svg, DOM) {
     subText(E.root, `edge-label edge-${sym}`, sym, sub, { 'text-anchor': anchor }))
 
   buildSigRow()
+  initTimeStage(E.root, defs)                    // Zeitmessung am Auto (Grundlagen-Abschluss)
   E.calc = createCalculator(E.root, CALC)        // Taschenrechner neben dem Rechteck
   buildLupe()
   buildCompare()
@@ -596,6 +598,7 @@ export function renderScene(S) {
 
   renderUnc(S, V, axY)
   renderSigRow(S)
+  renderTime(S)
   renderLupe(S)
   renderCompare(S)
 

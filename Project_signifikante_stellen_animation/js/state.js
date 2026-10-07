@@ -6,6 +6,7 @@
 import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
 import { CAM_START, RODS_MEASURE, ROD_COARSE, SIG_TOKENS, SIG_REPS, rodTint } from './constants.js'
 import { stellenKeys, compareKeys } from './stellen.js'
+import { timeKeys } from './zeit.js'
 
 export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
 
@@ -57,6 +58,7 @@ export function createScene() {
     ...stellenKeys(), slBig: 0,            // Tafel „Welche Stelle ist unsicher?" (+ groß)
     ...compareKeys(),                      // Tafel „Ziffern vergleichen"
     calcA: 0, calcT: 0,                    // Taschenrechner im Rechteck (Deckkraft, Tippen 0…1)
+    ...timeKeys(),                         // Grundlagen-Abschluss: Zeitmessung am Auto (zeit.js)
     // Dynamische Zahlen in Folienkarten
     dynA: 1, lvl: 0, cmb: 0, circ: 0,
   }

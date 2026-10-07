@@ -50,7 +50,7 @@ function person(parent, cx, cy, cls) {
   return g
 }
 
-function buildCar(parent) {
+export function buildCar(parent) {        // auch Grundlagen-Zeitmessung (zeit.js)
   const g = svgEl('g', { class: 'car' }, parent)
   const L = CAR.len, W = CAR.w, h = W / 2
   ;[-L + 22, -40].forEach(x => [-h - 3, h - 3].forEach(y =>
