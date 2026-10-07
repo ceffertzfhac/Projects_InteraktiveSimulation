@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.1 — 2026-10-07 (PO-Review 2. Runde)
+
+- Vergleichstafel Max · Rechner · Min (alle Kapitel): Sobald das Ergebnis steht, zeigt die Rechnerzeile „⟶ runden ⟶ 6,686 m²“ in Akzentfarbe, Pfeil am tatsächlichen Zeilenende ausgerichtet; Tafel der Multiplikation etwas nach links gerückt (FSS30).
+
 ## v1.1.0 — 2026-10-07 (PO-Review 3. Runde, Minor-Release)
 
 Zusammenfassung der Patch-Stände v1.0.17–v1.0.22:

@@ -540,3 +540,8 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .verdict .res-tail { fill: var(--text2); font-weight: 600; }
 .zs-ex .zs-res { font-size: 1.15em; }
 .slide-card .zs-ex .zs-res mjx-container { color: var(--accent); }
+
+/* Vergleichstafel: Runden an der Rechnerzeile (FSS30) */
+.cmp-rnd-arrow { fill: var(--accent); font-size: 18px; font-weight: 700; }
+.cmp-rnd-cap   { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.cmp-rnd-val   { fill: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }

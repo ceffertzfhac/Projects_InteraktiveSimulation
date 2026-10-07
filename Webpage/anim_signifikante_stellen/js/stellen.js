@@ -163,6 +163,7 @@ export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
   return {
     key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result, pos: first - t.pDiff + 1,
     resultParts: [sym, ` = ${rounded} ${unit}`, tail],          // gerundetes Ergebnis hervorgehoben (FSS29)
+    roundedText: `${rounded}\u00a0${unit}`,                       // „⟶ gerundet“ an der Rechnerzeile (FSS30)
     rows: [{ sym, sub: 'max', cells: t.hi }, { sym: mid, sub: '', cells: t.val }, { sym, sub: 'min', cells: t.lo }],
   }
 }
@@ -246,10 +247,17 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
     chars: Array.from({ length: 14 }, () => svgEl('text', { class: 'dg', 'text-anchor': 'middle', 'font-size': size }, g)),
   }))
   const cw = size * 0.6
+  // Runden an der Rechnerzeile (PO 2026-10-07, FSS30): „6,68616 ⟶ 6,686 m²“, sobald das Ergebnis steht
+  const rnd = svgEl('g', { class: 'cmp-rnd' }, g)
+  const rndArrow = svgEl('text', { class: 'cmp-rnd-arrow', 'text-anchor': 'middle' }, rnd)
+  svgEl('tspan', { class: 'cmp-rnd-cap' }, rndArrow).textContent = 'runden'
+  const rndArrowSym = svgEl('tspan', { dy: 16 }, rndArrow)
+  rndArrowSym.textContent = '⟶'
+  const rndVal = svgEl('text', { class: 'cmp-rnd-val', 'font-size': size * 0.82 }, rnd)
   let lastKey = ''
   return {
     // data = { cmp, rows: [{ sym, sub, cells }] }; x = Spalte der höchsten Stelle
-    render(data, { x, y, gap, alpha, p, pointerA, colorFrom }) {
+    render(data, { x, y, gap, alpha, p, pointerA, colorFrom, final = 0 }) {
       op(g, alpha)
       if (alpha <= 0.002) return
       const top = Math.max(...data.rows.flatMap(r => r.cells.filter(c => !c.comma).map(c => c.p)))
@@ -282,6 +290,16 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
       const n = data.rows.length
       set(box, { x: cx(p) - cw / 2 - 3, y: y - size * 0.86, width: cw + 6, height: (n - 1) * gap + size * 1.08 })
       op(box, pointerA)
+      // Rechnerzeile (Zeile 1): Pfeil „runden“ und gerundetes Ergebnis rechts neben der längsten Zeile
+      // rechtes Ende der breitesten Zeile = größte x-Position eines sichtbaren Zeichens + halbe Spalte
+      let right = x
+      R.forEach(row => row.chars.forEach(t => { if (t.style.display !== 'none') right = Math.max(right, +t.getAttribute('x')) }))
+      const ax = right + cw / 2 + 28, ry = y + gap        // Pfeilmitte (Pfeil ≈ 24 px, „runden" ≈ 40 px breit)
+      set(rndArrow, { x: ax, y: ry - 22 })
+      rndArrowSym.setAttribute('x', ax)
+      rndVal.textContent = data.roundedText ?? ''
+      set(rndVal, { x: ax + 18, y: ry })
+      op(rnd, data.roundedText ? final : 0)
     },
   }
 }
