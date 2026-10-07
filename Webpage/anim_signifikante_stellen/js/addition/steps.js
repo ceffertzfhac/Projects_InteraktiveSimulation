@@ -73,7 +73,7 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { hiU: 1, duration: 0.5 }, '>0.3')
   }, 6)
 
-  step('Hintereinanderlegen', tl => {
+  step('Wie lang sind beide zusammen?', tl => {
     deck.show(tl, C.a_chain)
     tl.to(S, { hiU: 0, duration: 0.3 }, '<')
     tl.to(S, { bX: A_TRUE + 0.03, bY: LANE.up, duration: 1.1, ease: EASE.cam }, '<0.2')
