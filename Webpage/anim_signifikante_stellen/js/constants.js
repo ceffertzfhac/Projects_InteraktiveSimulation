@@ -56,11 +56,15 @@ export const ROD_FINE_OTHER = 3.1702                      // 0,1-m-Band: näher 
 // Jeder Stab hat seine Metallfarbe (leichte Abstufungen, styles.css .tint-k): verschiedene
 // Längen = verschiedene Stäbe, nicht derselbe verschoben (PO 2026-10-07, FSS9 aa)
 export const ROD_TINTS = 6
-const TINT_OF = { 3.1203: 0, 2.4132: 1, 3.1702: 2, 3.0701: 3, 3.3802: 4, 2.6401: 5, 3.1178: 1, 3.1197: 2 }
+const TINT_OF = { 3.1203: 0, 2.4132: 1, 3.1702: 2, 3.0701: 3, 3.3802: 4, 2.6401: 5, 3.1178: 1, 3.1197: 2,
+  3.1268: 3, 3.1334: 4 }
 export const rodTint = len => TINT_OF[len] ?? 0
 // Teil Z: wahre Längen, deren Pfeile je Stufe auf der Zahlengeraden landen
 export const RODS_LEVEL = [[ROD_TRUE, 3.3802, 2.6401], [ROD_TRUE, 3.0701], [ROD_TRUE, 3.1178],
   [ROD_TRUE, 3.1197]]
+// Zwischenstufe (PO 2026-10-07, FSS10): der Zoom auf die cm-Teilung zeigt zuerst Stäbe, die als
+// „3,13" abgelesen werden; danach verschiebt sich die Ansicht nur seitlich auf unsere „3,12".
+export const LEVEL_SIDE = { text: '3,13', k: 2, rods: [3.1268, 3.1334] }
 // Zweite Länge b (wahr ≈ 2,1432 m): 2 · 2,1 · 2,14 · 2,143 — ebenfalls keine runde Zahl
 export const B_FINAL = '2,143'
 // Gröber gemessen: das Ergebnis verliert Stufe für Stufe eine Stelle
@@ -78,7 +82,7 @@ export const R_SAMPLES = [[3.262, 3.341, 3.283], [2.62, 3.4, 2.8]]
 export const CORNER_SAMPLES = [[0.62, -0.4], [-0.55, 0.52], [0.2, 0.78], [-0.72, -0.62]]
 
 // Text-Tabelle für Bühnen-Labels (die Szene speichert nur Indizes).
-export const TEXTS = ['3', '3,1', '3,12', '3,120', '2', '2,1', '2,14', '2,143', '3,3',
+export const TEXTS = ['3', '3,1', '3,12', '3,120', '3,13', '2', '2,1', '2,14', '2,143', '3,3',
   '3 m', '3,1 m', '3,2 m', '2 m']
 export const textIndex = t => {
   const i = TEXTS.indexOf(t)

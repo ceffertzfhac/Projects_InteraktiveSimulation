@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.14 — 2026-10-07 (PO-Review 2. Runde)
+
+- Grundlagen: Der Zoom auf die cm-Teilung landet zuerst bei Stäben, die als „3,13“ abgelesen werden (wahr 3,1268 m und 3,1334 m, eigene Metallfarben; Intervall, ±-Pfeile, „unsicher“). Neuer Schritt „Gleiche Teilung, seitlich: 3,12“: die Ansicht fährt ohne Zoom seitlich zu unseren Stäben, dasselbe für 3,12; danach wie bisher der Zoom auf 3,120. Überschrift der Stufenkarte je Schritt („zehnmal genauer“ bzw. „gleiche Teilung, unsere Stäbe“). Grundlagen hat jetzt 18 Schritte (FSS10).
+
 ## v1.0.13 — 2026-10-07 (PO-Review 2. Runde)
 
 - „unsicher“-Kasten (Grundlagen 8–13) saß versetzt neben der Ziffer: Er wurde mit den Maßen der Ersatzschrift gesetzt, bevor DM Sans geladen war, und danach nicht neu vermessen. Die Schritt-Engine zeichnet die Bühne jetzt neu, sobald Web-Schriften geladen sind (document.fonts), Engine-API refresh(). Alle markierten Ziffern geprüft: Kasten bzw. Einfärbung trifft überall die letzte (unsichere) Ziffer (B54).

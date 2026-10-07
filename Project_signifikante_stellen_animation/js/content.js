@@ -9,24 +9,30 @@ import {
 } from './model.js'
 import { compareData } from './stellen.js'
 import {
-  L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXTS,
+  L_LEVELS, B_FINAL, RETURN_PATH, MIXES, LEVEL_UNITS, RODS_LEVEL, R_TEXTS, LEVEL_SIDE,
 } from './constants.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 const iv = m => `[${fmt(m.lo, m.decimals + 1)} ; ${fmt(m.hi, m.decimals + 1)})`
 const len = x => exactStr(x)
 
-export const LEVELS = L_LEVELS.map((text, k) => {
+// Index 0…3 = Stufen 3 / 3,1 / 3,12 / 3,120, Index 4 = Zwischenstufe 3,13 (FSS10).
+// head: Zusatz der Überschrift — beim Zoom „zehnmal genauer", bei der Seitwärtsfahrt nicht.
+const level = (text, k, rods, head) => {
   const m = parseMeasured(text)
-  const [r1, r2] = RODS_LEVEL[k].slice(-2)
+  const [r1, r2] = rods.slice(-2)
   return {
-    text, unit: LEVEL_UNITS[k], iv: iv(m),
+    text, head, unit: LEVEL_UNITS[k], iv: iv(m),
     lo: fmt(m.lo, k + 1), hi: fmt(m.hi, k + 1), width: exactStr(m.width),
     half: exactStr(m.width / 2), place: k ? `${placeName(-k)}stelle` : 'Einerstelle',
     prev: ['', 'Einerstelle', 'Zehntelstelle', 'Hundertstelstelle'][k],
     rodA: len(r1), rodB: len(r2),
   }
-})
+}
+export const LEVELS = L_LEVELS.map((text, k) => level(text, k, RODS_LEVEL[k], ' – zehnmal genauer'))
+  .concat([level(LEVEL_SIDE.text, LEVEL_SIDE.k, LEVEL_SIDE.rods, ' – zehnmal genauer')])
+LEVELS[2].head = ' – gleiche Teilung, unsere Stäbe'
+export const LEVEL_SIDE_IDX = 4
 
 const EXAMPLES = [
   ['Flächenbereich', [L_LEVELS[3], B_FINAL]],

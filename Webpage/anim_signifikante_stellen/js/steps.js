@@ -18,12 +18,12 @@
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
-  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER, rodTint,
+  L_LEVELS, RODS_LEVEL, LEVEL_SIDE, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER, rodTint,
   B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
 import { parseMeasured, circleExample } from './model.js'
-import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY, CORNERS } from './content.js'
+import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LEVEL_SIDE_IDX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY, CORNERS } from './content.js'
 import { HITS } from './state.js'
 import { scanPlaces, compareScan as scanCompare, revealComparison, revealReason } from './stellen.js'
 
@@ -233,33 +233,50 @@ export function buildSteps(S, DOM) {
     tl.to(S, { pmD: 1, duration: 1, ease: EASE.reveal })
   }, 6)
 
-  for (let k = 1; k < L.length; k++) {
-    step(`Teilung ${['', '0,1 m', '1 cm', '1 mm'][k]}: „${L[k].text}"`, tl => {
-      // 1) feineres Maßband, neue Ablesung, Intervall schrumpft im alten
+  // Abfolge der Stufen (PO 2026-10-07, FSS10): 3,1 → Zoom auf die cm-Teilung, dort zuerst Stäbe
+  // mit „3,13" → nur seitlich verschoben (gleiche Teilung) auf unsere „3,12" → Zoom auf 3,120
+  const SEQ = [
+    { k: 1, text: L_LEVELS[1], lvl: 1, rods: RODS_LEVEL[1] },
+    { k: 2, text: LEVEL_SIDE.text, lvl: LEVEL_SIDE_IDX, rods: LEVEL_SIDE.rods },
+    { k: 2, text: L_LEVELS[2], lvl: 2, rods: RODS_LEVEL[2], pan: true },
+    { k: 3, text: L_LEVELS[3], lvl: 3, rods: RODS_LEVEL[3] },
+  ]
+  let prevM = L[0]
+  for (const { k, text, lvl, rods, pan } of SEQ) {
+    const M = parseMeasured(text), G = prevM
+    const unit = ['', '0,1 m', '1 cm', '1 mm'][k]
+    step(pan ? `Gleiche Teilung, seitlich: „${text}"` : `Teilung ${unit}: „${text}"`, tl => {
+      // 1) feineres Maßband (bzw. nur seitlich verschoben), neue Ablesung, Intervall wandert
       arrowOff(tl)
       clearHits(tl, '<')
       tl.to(S, { pmA: 0, ucBox: 0, duration: 0.3 }, '<')
-      tl.to(S, { ['tg' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '<')
-      pl.show(tl, textIndex(L[k].text), { at: '<0.3' })
-      if (k === 1) { tl.set(S, { lvl: 1 }, '<'); deck.show(tl, C.lvl, '<') }
-      else swapDyn(tl, 'lvl', k, '<')
-      tl.set(S, { gLo: L[k - 1].lo, gHi: L[k - 1].hi, gA: 1 }, '<')
+      if (!pan) tl.to(S, { ['tg' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '<')
+      pl.show(tl, textIndex(text), { at: '<0.3' })
+      if (lvl === 1) { tl.set(S, { lvl: 1 }, '<'); deck.show(tl, C.lvl, '<') }
+      else swapDyn(tl, 'lvl', lvl, '<')
+      if (!pan) tl.set(S, { gLo: G.lo, gHi: G.hi, gA: 1 }, '<')
       tl.to(S, { lBndA: 0, duration: 0.2 }, '<')
-      tl.to(S, { lLo: L[k].lo, lHi: L[k].hi, pX: L[k].value, gA: 0.3, duration: 1.1, ease: EASE.cam }, '<0.2')
-      // 2) Zoom ×10 auf den neuen Messwert: alte Teilung zieht sich zurück, neue wächst
-      cam.to(tl, camA(L[k].value + 0.12 * levelWidth(k), levelWidth(k)), { duration: T.cam, anchor: { y: 0 }, at: '>0.15' })
-      tl.to(S, { ['ag' + (k - 1)]: 0, gA: 0, duration: T.cam * 0.8 }, '<')
-      tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
-      tl.set(S, { lBndD: k + 1 }, '<')
-      tl.to(S, { lBndA: 1, duration: 0.4 }, '<0.6')
-      // 3) unsichere Stelle wandert eine Stelle nach rechts: ±-Pfeile, Markierung
+      tl.to(S, { lLo: M.lo, lHi: M.hi, pX: M.value, ...(pan ? {} : { gA: 0.3 }), duration: 1.1, ease: EASE.cam }, '<0.2')
+      // 2) Zoom ×10 auf den neuen Messwert (alte Teilung zieht sich zurück, neue wächst) —
+      //    bzw. bei gleicher Teilung nur seitlich fahren
+      cam.to(tl, camA(M.value + 0.12 * levelWidth(k), levelWidth(k)), { duration: T.cam, anchor: { y: 0 },
+        at: pan ? '<' : '>0.15' })
+      if (!pan) {
+        tl.to(S, { ['ag' + (k - 1)]: 0, gA: 0, duration: T.cam * 0.8 }, '<')
+        tl.to(S, { ['ag' + k]: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.35')
+      }
+      tl.set(S, { lBndD: k + 1 }, pan ? '>' : '<')
+      tl.to(S, { lBndA: 1, duration: 0.4 }, pan ? '>' : '<0.6')
+      // 3) unsichere Stelle: ±-Pfeile, Markierung
       tl.set(S, { pmA: 1, pmD: 0 }, '>0.1')
       tl.to(S, { pmD: 1, duration: 0.8, ease: EASE.reveal })
       tl.to(S, { ucBox: 1, duration: 0.4 }, '<0.2')
       // 4) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung
-      RODS_LEVEL[k].forEach(x => fire(tl, x, '>0.1'))
+      rods.forEach(x => fire(tl, x, '>0.1'))
     }, 5)
+    prevM = M
   }
+
 
   // Signifikante Stellen: zählen, gesichert/unsicher; dieselbe Messung in anderen Einheiten
   const toRep = (tl, k, at) => {
