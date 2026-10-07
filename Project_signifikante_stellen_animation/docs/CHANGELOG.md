@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.18 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Grundlagen und Zusammenfassung 1 / 3: „Jeder Messwert – und damit fast jede physikalische Größe – steht für ein Intervall; die letzte Ziffer ist unsicher.“ (FSS24).
+
 ## v1.0.17 — 2026-10-07 (PO-Review 2. Runde)
 
 - Präsentationsmodus (Taste A, kein sichtbarer Schalter, kurze Einblendung beim Umschalten): hält zusätzlich an didaktischen Zwischenhalten innerhalb der Schritte – Grundlagen 20 → 62, Multiplikation 18 → 50, Division 15 → 42, Addition 12 → 33, Zusammenfassung 3 → 9. Halte u. a. vor jedem Messvorgang, je wahrer Länge, vor Intervall/±-Pfeilen, an der ersten abweichenden Ziffer des Ziffernvergleichs, je Zeile der Zusammenfassung. Gemeinsame Schritt-Engine: beat(tl), eine Master-Timeline für beide Modi (reversibel), Position bleibt beim Umschalten, Modus in der Adresse (#kapitel/p<schritt>) und gemerkt; Druck folgt dem aktiven Modus; Warnung, wenn ein Tween über einen Halt läuft (FSS25).
