@@ -276,15 +276,15 @@ function buildTable() {
   svgEl('tspan', {}, vh).textContent = ' / Δ'
   svgEl('tspan', { class: 'sym' }, vh).textContent = 't'
   svgEl('line', { class: 'proto-rule', x1: c0, x2: 715, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
-  // Legende (abgesetzt, rechts über der Tabelle): markierte Ziffer = unsicher,
-  // darunter das Intervall der wahren Werte — erklärt die Tabelle, nicht v
+  // Legende (abgesetzt, mittig über der Tabelle, PO 2026-10-07): markierte Ziffer =
+  // unsicher, darunter das Intervall der wahren Werte — erklärt die Tabelle, nicht v
+  const lgW = 285, lgX = (c0 + 715) / 2 - lgW / 2
   const lgG = svgEl('g', { class: 'proto-legend-box' }, E.tHead)
-  const lgR = svgEl('rect', { x: 430, y: y0 - 44, width: 285, height: 26, rx: 6 }, lgG)
-  const lg = text(lgG, 'proto-legend', { x: 442, y: y0 - 26 })
+  svgEl('rect', { x: lgX, y: y0 - 44, width: lgW, height: 26, rx: 6 }, lgG)
+  const lg = text(lgG, 'proto-legend', { x: lgX + lgW / 2, y: y0 - 26, 'text-anchor': 'middle' })
   svgEl('tspan', { class: 'proto-legend-head' }, lg).textContent = 'Legende: '
   svgEl('tspan', { class: 'unc-digit' }, lg).textContent = '3'
   lg.append(' unsichere Ziffer · [ … ) Intervall')
-  lgR.setAttribute('width', 285)
   E.rows = ROW.map((r, i) => {
     const y = y0 + TABLE.dy * (i + 1), ys = y + TABLE.sub
     const cls = ['val-a', 'val-b', 'val-c'][i]

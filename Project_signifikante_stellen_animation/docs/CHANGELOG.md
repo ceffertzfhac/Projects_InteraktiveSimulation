@@ -21,6 +21,7 @@
 - Grundlagen: Zahlengerade schon mit „l / m“ beschriftet (FSS9 ac).
 - Grundlagen: Zahlengerade, Maßband, Stäbe und Ablesung etwas tiefer, Zahlengerade rechts kürzer – „l / m“ steht frei vom Pfeil, nichts gerät unter die Folienkarten (FSS9 ad).
 - Grundlagen: Jeder Stab hat seine eigene, leicht abgestufte Metallfarbe (Stahl, Aluminium, Titan, Blaustahl, Neusilber, Dunkelstahl); beim Wechsel blendet der alte Stab aus und der neue gleitet herein – ein anderer Stab, nicht derselbe verschoben (FSS9 aa).
+- Division: Legende des Messprotokolls mittig über der Tabelle (FSS9 n).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
