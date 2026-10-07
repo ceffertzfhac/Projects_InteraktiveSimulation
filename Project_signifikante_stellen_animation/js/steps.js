@@ -273,14 +273,14 @@ export function buildSteps(S, DOM) {
   }, 7)
 
   step('Führende Nullen zählen nicht', tl => {
+    // „gesichert" und „unsicher" wandern in jeder Schreibweise mit (PO 2026-10-07);
+    // die Nullen-Klammer steht, solange es führende Nullen gibt
     deck.show(tl, C.zeros)
-    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '<')
     toRep(tl, 1, '>0.1')                         // 0,003120 km
     tl.to(S, { brZ: 1, duration: 0.4 }, '>0.1')
-    tl.to(S, { brZ: 0, duration: 0.3 }, '>1.6')
-    toRep(tl, 2, '>')                            // 312,0 cm
+    toRep(tl, 2, '>2.2')                         // 312,0 cm — Nullen-Klammer blendet mit den Nullen aus
+    tl.set(S, { brZ: 0 }, '>')
     toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
-    tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.3')
   }, 7)
 
   const grund = steps

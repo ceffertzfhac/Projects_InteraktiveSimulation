@@ -7,6 +7,7 @@
 - Grundlagen: alle wahren Stablängen mit 5 signifikanten Stellen (3,1203 / 3,0701 / 2,4132 / 3,1702 / 3,3802 / 2,6401 / 3,1178 / 3,1197 m) – als wären sie mit demselben sehr genauen Messmittel bestimmt; die Ablesungen bleiben (FSS9 c).
 - Grundlagen 8: „… die letzte hingeschriebene Ziffer – in diesem Fall die 3 – unsicher“ (FSS9 d).
 - Ziffernzeile: „unsicher“ als Pfeil auf die letzte Ziffer statt als Klammer – eine Klammer wirkt wie ein Intervall; die Klammer „gesichert“ bleibt (FSS9 e).
+- Führende Nullen: „gesichert“ und „unsicher“ bleiben in allen Schreibweisen stehen und wandern mit; die Nullen-Klammer (jetzt zweizeilig) steht, solange es führende Nullen gibt (FSS9 f).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

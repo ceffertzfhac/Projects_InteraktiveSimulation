@@ -82,7 +82,9 @@ function buildSigRow() {
   E.sigBr.U.head = svgEl('path', { class: 'sig-arrow-head' }, E.sigBr.U.g)
   E.sigBr.S.t.textContent = 'gesichert'
   E.sigBr.U.t.textContent = 'unsicher'
-  E.sigBr.Z.t.textContent = 'nur Stellenwert – nicht signifikant'
+  // zweizeilig, damit sie neben „gesichert" Platz hat (beide stehen bei 0,003120 km gleichzeitig)
+  ;['nur Stellenwert –', 'nicht signifikant'].forEach((l, n) =>
+    svgEl('tspan', { dy: n ? 17 : 0 }, E.sigBr.Z.t).textContent = l)
   E.tok = {}
   for (const [id, ch] of SIG_TOKENS) {
     const unit = id[0] === 'U'
@@ -615,7 +617,9 @@ function renderSigRow(S) {
   })
   const bracket = (B, x0, x1, yy, a) => {
     set(B.path, { d: `M${x0} ${yy - 6}V${yy}H${x1}V${yy - 6}` })
-    set(B.t, { x: (x0 + x1) / 2, y: yy + 20 }); op(B.g, a)
+    const xm = (x0 + x1) / 2
+    set(B.t, { x: xm, y: yy + 20 }); op(B.g, a)
+    for (const ts of B.t.children) ts.setAttribute('x', xm)
   }
   bracket(E.sigBr.S, dx('D1') - cw / 2 + 3, dx('D3') + cw / 2 - 3, y + 16, S.brS)
   // Pfeil von unten auf die unsichere Ziffer: Spitze knapp unter der Ziffer, Schaft endet an der Kopf-Basis
