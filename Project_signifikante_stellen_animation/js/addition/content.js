@@ -32,7 +32,7 @@ const cmp = digitCompare(exactStr(SUM.lo), exactStr(SUM.hi))
 const ORD = ['ersten', 'zweiten', 'dritten', 'vierten']
 const uncOrd = ORD[Math.max(...cmp.hi.filter(c => !c.comma).map(c => c.p)) - cmp.pDiff]
 
-// Einheiten-Tafel: dieselbe Rechnung in km, m, dm, cm und mm — ehrlich umgerechnet
+// Einheiten-Tafel: dieselbe Rechnung in km, m, dm, cm und mm — so umgerechnet, daß die signifikanten Stellen erhalten bleiben
 // (Anzahl sinnvoller Ziffern bleibt) und mit GLEICHER Zehnerpotenz für beide Summanden
 // und das Ergebnis: 0,8 · 10³ mm + 1,877 · 10³ mm = 2,677 · 10³ mm → 2,7 · 10³ mm.
 // So stehen in jeder Einheit dieselben Mantissen da — Nachkommastellen direkt vergleichbar.

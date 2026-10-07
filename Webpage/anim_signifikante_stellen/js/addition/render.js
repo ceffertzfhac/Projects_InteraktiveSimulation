@@ -159,7 +159,7 @@ function buildTable(root) {
   })
 }
 
-// Einheiten-Tafel: falsch gemischt, ehrlich umgerechnet, dann dieselbe Summe in km, m, dm,
+// Einheiten-Tafel: falsch umgerechnet (800 mm), richtig umgerechnet, dann dieselbe Summe in km, m, dm,
 // cm und mm — beide Summanden und das Ergebnis in GLEICHER Einheit und GLEICHER Zehnerpotenz.
 // Jede Rechenzeile hat drei Teile (Summanden · „= Rechner" · „→ Ergebnis"), die nacheinander
 // erscheinen (Szene u{n}, u{n}b, u{n}c).

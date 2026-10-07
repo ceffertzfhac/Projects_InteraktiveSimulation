@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.2 — 2026-10-07 (PO-Review 2. Runde)
+
+- Zusammenfassung 3 / 3: „Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.“ statt „Erst ehrlich umrechnen“; Kommentare angeglichen (FSS23).
+
 ## v1.0.1 — 2026-10-07 (PO-Review 2. Runde)
 
 - Addition 5: „Aber wo genau endet Werkstück B – und damit die Gesamtlänge?“ statt „… die Kette?“; Kommentare ohne „Kette“ (FSS20).

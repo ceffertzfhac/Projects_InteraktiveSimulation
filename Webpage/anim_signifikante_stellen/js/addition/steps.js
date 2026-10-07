@@ -6,7 +6,7 @@
 //  → B: Band rollt aus, Lupe, Etikett 1,877 m, Band rollt ein → Steckbrief
 //  → hintereinanderlegen (Taschenrechner 2,677; A-Ende wackelt) → kleinstmögliche /
 //  größtmögliche Gesamtlänge (Ziffernvergleich) → welches Etikett? (2,677 / 3 / 2,7)
-//  → die Falle (Faustregel der Multiplikation) → gleiche Einheit, ehrlich umrechnen → Merke
+//  → die Falle (Faustregel der Multiplikation) → gleiche Einheit, umrechnen ohne Stellenverlust/-gewinn → Merke
 
 import { createCardDeck } from '../../../shared/js/step-kit.js'
 import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES } from './constants.js'
@@ -127,7 +127,7 @@ export function buildAddSteps(S, DOM) {
   step('Erst umrechnen', tl => {
     deck.show(tl, C.a_unit)
     tl.to(S, { hiN: 0, nAx: 0, dcA: 0, lmMin: 0, lmMax: 0, zAe: 0, zEnd: 0, duration: 0.5 }, '<')
-    // langsam aufbauen: erst die falsche Umrechnung (800 mm), dann die ehrliche, dann je Einheit
+    // langsam aufbauen: erst die falsche Umrechnung (800 mm), dann die richtige, dann je Einheit
     // Summanden → Taschenrechner → gerundetes Ergebnis
     tl.to(S, { u1: 1, duration: 0.6 }, '>0.3')
     tl.to(S, { u2: 1, duration: 0.6 }, '>2.2')
