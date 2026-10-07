@@ -2,7 +2,7 @@
 
 ## v1.1.0 — 2026-10-07 (PO-Review 3. Runde, Minor-Release)
 
-Zusammenfassung der Patch-Stände v1.0.17–v1.0.21:
+Zusammenfassung der Patch-Stände v1.0.17–v1.0.22:
 - **Präsentationsmodus** (Taste A): ca. 2,8-mal feinere Schritte an didaktischen Zwischenhalten (FSS25).
 - Regelsätze nennen die Rechenart; „Jeder Messwert – und damit fast jede physikalische Größe – steht für ein Intervall“ (FSS24, FSS26).
 - Hinweis für Übungen und Klausur: gegebene Größen sind Messwerte (FSS27, FSS28).
