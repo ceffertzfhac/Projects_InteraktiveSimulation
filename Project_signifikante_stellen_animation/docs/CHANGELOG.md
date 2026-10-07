@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.4 — 2026-10-07 (PO-Review 2. Runde)
+
+- Zusammenfassung Multiplikation und Division: „… wie der Faktor (die Größe) mit den wenigsten signifikanten Stellen“ in Regel und Begründung (FSS18).
+
 ## v1.0.3 — 2026-10-07 (PO-Review 2. Runde)
 
 - Kapitel Zusammenfassung: „Beispiel A“ / „Beispiel B“ statt „Beispiel · einfach / komplexer“ auf allen drei Folien (FSS22).

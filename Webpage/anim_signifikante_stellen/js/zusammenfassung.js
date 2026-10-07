@@ -1,7 +1,7 @@
 'use strict'
 // Kapitel „Zusammenfassung" (→ BACKLOG FSS9 w): drei Vollfolien — Grundlagen ·
 // Multiplikation und Division · Addition und Subtraktion —, je Regel und zwei Beispiele
-// (einfach, komplexer). Keine Bühne: die Folien decken sie ganz ab; die Szene ist leer.
+// (Beispiel A, B). Keine Bühne: die Folien decken sie ganz ab; die Szene ist leer.
 
 import { svgEl, createCardDeck } from '../../shared/js/step-kit.js'
 
