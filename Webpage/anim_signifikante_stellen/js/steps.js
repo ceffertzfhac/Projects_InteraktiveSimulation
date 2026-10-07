@@ -446,6 +446,7 @@ export function buildSteps(S, DOM) {
     tl.to(mixed.map(c => row(c.i)), { autoAlpha: 0, duration: 0.5 }, '>1.2')
     tl.to(S, Object.fromEntries(mixed.map(c => [`h${c.i}a`, 0]).concat([['duration', 0.5]])), '<')
     tl.to(row(hi.i), { '--slot': 1, duration: 0.8, ease: EASE.cam }, '>0.1')
+    tl.to(K.querySelector('.corner-list'), { height: '6.3em', duration: 0.8, ease: EASE.cam }, '<')   // keine Leerfläche
     tl.to(K.querySelector('[data-r="sorted"]'), { autoAlpha: 0, duration: 0.3 }, '<')
     boundsEnd(tl, l, b)
   }, 7)

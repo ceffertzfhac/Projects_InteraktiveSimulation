@@ -409,7 +409,7 @@ function renderCircle(S) {
   const ang = -Math.PI / 5, ex = cx + rK * Math.cos(ang), ey = cy + rK * Math.sin(ang)
   set(E.cRadLine, { x2: ex, y2: ey }); set(E.cRadEnd, { cx: ex, cy: ey })
   op(E.cRad, S.kRadA)
-  const lx = (cx + ex) / 2 - 20, ly = (cy + ey) / 2 - 16
+  const lx = (cx + ex) / 2 - 58, ly = (cy + ey) / 2 - 14         // links oberhalb der Radiuslinie
   readSlots(S, 'rl').forEach((sl, n) => {
     set(E.rl[n].t, { x: lx, y: ly + sl.o }); setMarked(E.rl[n].val, ` = ${TEXTS[sl.i]} m`, S.ucA > 0.5)
     op(E.rl[n].t, sl.a * (1 - S.rLive))

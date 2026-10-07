@@ -241,6 +241,8 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .pm path  { fill: var(--c-l); }
 .pm-label { fill: var(--c-l); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pm-cap   { fill: var(--text2); font-size: 13px; }
+/* Halo: der Pfeil „wahre Länge" läuft dahinter durch, ohne die Schrift zu schneiden */
+.pm-label, .pm-cap { paint-order: stroke; stroke: var(--stage-bg1); stroke-width: 4px; stroke-linejoin: round; }
 
 /* Ziffernzeile „3,000 m" mit Zählmarken */
 .sig-tok   { fill: var(--text); font-family: var(--font-mono) !important; font-weight: 500; }

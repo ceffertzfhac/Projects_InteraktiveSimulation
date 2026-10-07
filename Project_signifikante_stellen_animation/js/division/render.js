@@ -275,10 +275,10 @@ function buildTable() {
   svgEl('tspan', { class: 'sym' }, vh).textContent = 's'
   svgEl('tspan', {}, vh).textContent = ' / Δ'
   svgEl('tspan', { class: 'sym' }, vh).textContent = 't'
-  svgEl('line', { class: 'proto-rule', x1: c0, x2: 715, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
+  svgEl('line', { class: 'proto-rule', x1: c0, x2: TABLE.x1, y1: y0 + 10, y2: y0 + 10 }, E.tHead)
   // Legende (abgesetzt, mittig über der Tabelle, PO 2026-10-07): markierte Ziffer =
   // unsicher, darunter das Intervall der wahren Werte — erklärt die Tabelle, nicht v
-  const lgW = 285, lgX = (c0 + 715) / 2 - lgW / 2
+  const lgW = 285, lgX = (c0 + TABLE.x1) / 2 - lgW / 2
   const lgG = svgEl('g', { class: 'proto-legend-box' }, E.tHead)
   svgEl('rect', { x: lgX, y: y0 - 44, width: lgW, height: 26, rx: 6 }, lgG)
   const lg = text(lgG, 'proto-legend', { x: lgX + lgW / 2, y: y0 - 26, 'text-anchor': 'middle' })

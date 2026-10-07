@@ -188,7 +188,7 @@ export function buildSpeedSteps(S, DOM) {
     startBounds(tl, 2)
     cam.to(tl, { cx: 9.27, w: 0.3 }, { duration: T.cam, at: '<' })
     bounds(tl, 2, C.v_best)
-    digits(tl, 2, C.v_best, 0.1, 9.29)          // Marke von A (9,3) bleibt links der Karte
+    digits(tl, 2, C.v_best, 0.1, 9.275)         // Band A+B und Marke von A (9,3) im Bild
   }, 6)
 
   step('Zusammenfassung: Vergleich', tl => {

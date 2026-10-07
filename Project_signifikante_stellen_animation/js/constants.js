@@ -13,13 +13,14 @@ export const ROD = [{ top: 501, h: 20 }, { top: 476, h: 20 }]
 export const READING_Y = 632                      // „abgelesener Messwert: …" unter dem Maßband
 
 // Teil R (Fläche): Plot links, Folienkarten rechts.
-export const VIEW_B = { vL: 110, vR: 700, vT: 82, vB: 592 }
-export const OVERVIEW_H = 3.2
+export const VIEW_B = { vL: 110, vR: 650, vT: 82, vB: 592 }   // rechts Platz für „l / m“ vor der Tafel
+export const OVERVIEW_H = 3.6                  // Übersicht reicht bis l = 3,5 m (3 m · 2 m)
 
 const aspect = v => (v.vB - v.vT) / (v.vR - v.vL)
 export const ASPECT_B = aspect(VIEW_B)
 const ovW = OVERVIEW_H / ASPECT_B
-export const CAM_OVERVIEW = { view: VIEW_B, cx: ovW / 2, cy: OVERVIEW_H / 2, w: ovW }
+// Mitte minimal links, damit der Tick „0“ sicher im Bild liegt (Gleitkomma am Rand)
+export const CAM_OVERVIEW = { view: VIEW_B, cx: ovW / 2 - 0.003, cy: OVERVIEW_H / 2 - 0.003, w: ovW }
 // Kamera für Teil A: y = 0 (Zahlengerade) liegt immer bei AXIS_Y.
 export const camA = (cx, w) => ({ view: VIEW_A, cx, w, cy: (0.5 - AXIS_FRAC_A) * w * aspect(VIEW_A) })
 export const CAM_START = camA(2.15, 4.7)          // ganzer Stab samt Maßband-Anfang

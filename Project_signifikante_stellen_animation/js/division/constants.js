@@ -44,14 +44,15 @@ export const LOUPE_DIAL = { R: 380, drop: 16 }                 // Zifferblatt-Ra
 
 // ── Messprotokoll (oben links; Folienkarten oben rechts) ─────────────────────
 // Je Zelle: Wert (letzte Ziffer = unsicher markiert) und darunter das Intervall.
-export const TABLE = { x: [60, 200, 370, 540], y0: 56, dy: 44, sub: 19 }
+export const TABLE = { x: [60, 222, 390, 556], y0: 56, dy: 44, sub: 19, x1: 735 }
 
 // ── Ab den Geschwindigkeits-Schritten: Straße weg, unten breite v-Zahlengerade ──
-export const FRAC = { y: [262, 342], x0: 160, x1: 430, live: 486 }   // Regler s und t
+export const FRAC = { y: [274, 354], x0: 160, x1: 430, live: 486 }   // Regler s und t (unter dem Protokoll)
 export const DIGITS = { x: 112, y: 424, size: 38 }                   // Ziffernzeile des Ergebnisses
-export const VIEW_V = { vL: 110, vR: 1080, vT: 440, vB: 600 }
-export const V_AXIS_Y = 560
-export const BAND_Y = [462, 490, 518]                 // Bänder A, B, Kombination (Höhe 14)
+// v-Zahlengerade links der Folienkarten und unter ihnen (Karten mit Rechnerzeile sind höher)
+export const VIEW_V = { vL: 110, vR: 715, vT: 468, vB: 628 }
+export const V_AXIS_Y = 590
+export const BAND_Y = [490, 518, 546]                 // Bänder A, B, Kombination (Höhe 14)
 export const VERDICT_Y = 630
 export const CAM_V_FULL = { view: VIEW_V, cx: 7.5, cy: 0, w: 15 }   // 0 … 15 m/s
 
