@@ -227,7 +227,6 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .unc-box   { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 1.5; }
 .unc-tag   { fill: var(--c-unc); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
 .slide-card [data-r] { visibility: hidden; opacity: 0; }
-.slide-card [data-r="four"] { display: none; }        /* nur im ersten Ecken-Test (steps.js) */
 
 /* ±-Maßpfeile am Intervall */
 .pm line  { stroke: var(--c-l); stroke-width: 2; }
@@ -414,3 +413,19 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .corner-row .c-val { grid-column: 2 / 4; font-size: .84em; font-variant-numeric: tabular-nums; color: var(--text2); }
 .c-dot.cp1 { background: var(--c-p1); } .c-dot.cp2 { background: var(--c-p2); }
 .c-dot.cp3 { background: var(--c-p3); } .c-dot.cp4 { background: var(--c-p4); }
+
+/* Taschenrechner-Zeile: Symbol · „Taschenrechner:" · Rechnung, nach dem Ziffernvergleich
+   „⟶ runden ⟶ Ergebnis" in derselben Zeile (FSS9 p, q) */
+.slide-card .calc-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3em .5em;
+  margin: .2em 0 .55em; padding: .45em .75em; border-radius: .5em;
+  background: var(--formula-bg); border-left: 3px solid var(--text3);
+  color: var(--text); font-weight: 600; font-size: 1.04em; font-variant-numeric: tabular-nums;
+}
+.calc-ico { display: inline-flex; color: var(--text2); }
+.calc-ico svg { width: 1.25em; height: 1.25em; }
+.calc-lbl { font-size: .78em; font-weight: 700; letter-spacing: .03em; color: var(--text2); }
+.calc-rnd { display: inline-flex; align-items: center; gap: .45em; }
+.rnd-arrow { display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
+  color: var(--accent); font-size: 1.1em; }
+.rnd-arrow small { font-size: .5em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }

@@ -15,6 +15,7 @@ import { createAddScene } from './addition/scene.js'
 import { initAddStage, renderAdd } from './addition/render.js'
 import { buildAddSteps } from './addition/steps.js'
 import { fillAddCards } from './addition/content.js'
+import { fillCalcIcons } from './stellen.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -35,6 +36,7 @@ const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.sv
 groups.mult = groups.grund
 fillSpeedCards(DOM)
 fillAddCards(DOM)
+fillCalcIcons(document)
 
 // Multiplikation beginnt dort, wo Grundlagen endet: dessen Schritte (+ Übergang)
 // werden vorab still auf die Szene angewendet — der Planer kennt so den Zustand.

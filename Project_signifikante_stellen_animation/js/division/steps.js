@@ -133,6 +133,7 @@ export function buildSpeedSteps(S, DOM) {
     cam.to(tl, { cx: finalCx ?? Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
     tl.to(S, { [`rm${i}`]: 1, duration: 0.5 })
     cell(tl, `c${i}v`, '<')
+    reveal(tl, card, 'rnd', '<0.2')                    // Taschenrechner-Zeile: ⟶ runden ⟶ Ergebnis
     reveal(tl, card, 'res', '<0.2')
   }
   const startBounds = (tl, i) => {

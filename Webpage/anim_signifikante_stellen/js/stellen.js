@@ -292,3 +292,11 @@ export function createCalculator(parent, { x, y, w, h }) {
     },
   }
 }
+
+// Kleines Taschenrechner-Symbol für die Taschenrechner-Zeilen der Folienkarten
+// (currentColor → hell/dunkel automatisch); einmal beim Start eingesetzt
+export const CALC_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+  <rect x="4" y="1.8" width="12" height="16.4" rx="2"/><rect x="6.3" y="4.2" width="7.4" height="3.6" rx=".6"/>
+  ${[0, 1, 2].flatMap(r => [0, 1, 2].map(c =>
+    `<circle cx="${7 + 3 * c}" cy="${10.8 + 2.9 * r}" r=".75" fill="currentColor" stroke="none"/>`)).join('')}</svg>`
+export const fillCalcIcons = root => root.querySelectorAll('.calc-ico').forEach(el => { el.innerHTML = CALC_ICON })
