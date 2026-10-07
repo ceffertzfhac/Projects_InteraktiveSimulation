@@ -317,7 +317,7 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
       // auf- oder abrunden: entscheidet die erste weggelassene Ziffer der Rechnerzeile
       const drop = data.rows[1]?.cells.find(c => !c.comma && c.p === data.cmp.pDiff - 1)
       rndCap.textContent = drop ? (+drop.ch >= 5 ? 'aufrunden' : 'abrunden') : 'runden'
-      const vx = ax + 19
+      const vx = ax + 25
       if (rndVal.textContent !== (data.roundedText ?? '')) rndVal.textContent = data.roundedText ?? ''
       set(rndVal, { x: vx, y: ry })
       const w = rndVal.getComputedTextLength?.() || 0

@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.6 — 2026-10-07 (PO-Review 2. Runde)
+
+- Schlusskontrolle: Rundungs-Plakette mit Abstand zum Pfeil; Vergleichstafel der Multiplikation etwas nach links, damit die Plakette in der Tafel bleibt.
+
 ## v1.1.5 — 2026-10-07 (PO-Review 2. Runde)
 
 - Grenz-Kästen in allen Kapiteln einheitlich wie die Vergleichstafel: größtmöglich oben, Taschenrechner dazwischen, kleinstmöglich unten; je Kasten Bezeichnung + Formel, darunter eingesetzte Werte links und Ergebnis rechtsbündig (Ergebnisse untereinander) – Rechteck, Kreis (Umfang, Fläche), Division (A, B, kombiniert), Addition (FSS34).
