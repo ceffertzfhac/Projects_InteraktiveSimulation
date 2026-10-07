@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.15</span>
+        <span class="version">v1.0.16</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -238,13 +238,16 @@ window.MathJax = {
       <div class="slide-card full merke" data-card="g_rule">
         <div class="kicker">Merke · Grundlagen</div>
         <h3>Jeder Messwert steht für ein Intervall – seine letzte Ziffer ist unsicher.</h3>
-        <div class="formula">\(l = 3{,}1\,\text{m}\) bedeutet \(3{,}05\,\text{m} \le l &lt; 3{,}15\,\text{m}\),
-          also \(l = 3{,}1\,\text{m} \pm 0{,}05\,\text{m}\) – eine halbe Einheit der letzten Stelle.</div>
+        <div class="formula">\(l = 3{,}120\,\text{m}\) bedeutet \(3{,}1195\,\text{m} \le l &lt; 3{,}1205\,\text{m}\),
+          also \(l = 3{,}120\,\text{m} \pm 0{,}0005\,\text{m}\) – eine halbe Einheit der letzten Stelle.</div>
+        <div class="sd-grid">
+          <div class="sig-demo"><span class="sd-sure"><span class="sd-d"><i>1</i>3</span><span class="sd-c">,</span><span class="sd-d"><i>2</i>1</span><span class="sd-d"><i>3</i>2</span></span><span class="sd-d sd-unc"><i>4</i>0</span><span class="sd-u">m</span></div>
+          <div class="sig-demo"><span class="sd-zero"><span class="sd-z">0</span><span class="sd-c">,</span><span class="sd-z">00</span></span><span class="sd-sure"><span class="sd-d"><i>1</i>3</span><span class="sd-d"><i>2</i>1</span><span class="sd-d"><i>3</i>2</span></span><span class="sd-d sd-unc"><i>4</i>0</span><span class="sd-u">km</span></div>
+        </div>
         <p><b>Signifikant</b> sind alle Ziffern von der ersten von Null verschiedenen bis zur letzten
-          hingeschriebenen. Führende Nullen zählen nicht (0,003120&nbsp;km: 4 Stellen), gemessene Endnullen
-          schon (3120&nbsp;mm: 4 Stellen).</p>
-        <p>Je feiner das Messmittel, desto mehr Stellen: 3&nbsp;m → 3,1&nbsp;m → 3,12&nbsp;m → 3,120&nbsp;m;
-          2&nbsp;s mit der Zeigeruhr, 2,14&nbsp;s mit der Digitaluhr.</p>
+          hingeschriebenen – auch gemessene Endnullen. Führende Nullen zeigen nur, wo das Komma steht.
+          Beim Umrechnen bleiben die signifikanten Stellen erhalten, zur Not mit Zehnerpotenz:
+          \(3{,}1\,\text{m} = 3{,}1 \cdot 10^2\,\text{cm}\).</p>
         <p class="note">Keine Messung ist unendlich genau – außer Zählungen kleiner Mengen.</p>
       </div>
 

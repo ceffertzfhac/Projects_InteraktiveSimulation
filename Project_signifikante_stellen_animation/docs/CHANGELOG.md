@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.16 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Grundlagen: zwei Beispiele wie die Ziffernzeile der Bühne – 3,120 m und 0,003120 km mit Zählmarken 1–4 über den signifikanten Ziffern, Klammer „gesichert“, Pfeil „unsicher“ auf die letzte Ziffer, Klammer „nicht signifikant“ über den führenden Nullen; Text gestrafft, Umrechnungsregel ergänzt (FSS13).
+
 ## v1.0.15 — 2026-10-07 (PO-Review 2. Runde)
 
 - Grundlagen: zwei neue Schritte nach „Führende Nullen“. (1) „Umrechnen: die signifikanten Stellen bleiben“ – die Ziffernzeile zeigt 3,1 m (2 Zählmarken, die 1 unsicher), dann „310 cm“ mit der vorgetäuschten, nicht gemessenen 0 ✗, dann 3,1 · 10² cm ✓. (2) „Die Zehnerpotenz gehört zur Einheit“ – Klammer unter „· 10² cm“: gehört zur Einheit, zählt nicht; ± 0,05 · 10² cm = ± 5 cm. Ziffernzeile mit variabler Stellenzahl und echter Hochstellung in 10². Grundlagen hat jetzt 20 Schritte (FSS15).

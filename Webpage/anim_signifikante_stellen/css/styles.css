@@ -505,3 +505,27 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .sig-tok.sig-fake { fill: var(--c-b); }
 .sig-br-F path { stroke: var(--c-b); }  .sig-br-F text { fill: var(--c-b); }
 .sig-br-E path { stroke: var(--accent); }  .sig-br-E text { fill: var(--accent); }
+
+/* Merke Grundlagen (FSS13): Ziffernzeile wie auf der Bühne — Zählmarken über den signifikanten
+   Ziffern, Klammer „gesichert", Pfeil „unsicher", Klammer „nicht signifikant" über führenden Nullen */
+.sd-grid { display: flex; justify-content: center; gap: 8cqw; margin: 3.2em 0 4.4em; }
+.sig-demo { display: inline-flex; align-items: baseline; font-family: var(--font-mono); font-size: 2.3em;
+  font-weight: 500; color: var(--text); line-height: 1; }
+.sd-d { position: relative; display: inline-block; width: .6em; text-align: center; }
+.sd-d i { position: absolute; left: 50%; top: -2.25em; transform: translateX(-50%); width: 1.3em; height: 1.3em;
+  border-radius: 50%; background: var(--accent); color: #fff; font: 700 .4em/1.3em var(--font-ui); font-style: normal; }
+.sd-c, .sd-z { display: inline-block; width: .6em; text-align: center; }
+.sd-z { width: auto; color: var(--text3); }
+.sd-u { margin-left: .35em; font-size: .6em; color: var(--text2); }
+.sd-sure, .sd-zero { position: relative; display: inline-flex; align-items: baseline; }
+.sd-sure::after, .sd-zero::after { position: absolute; left: .08em; right: .08em; top: 1.05em; height: .14em;
+  border: 2px solid var(--text2); border-top: none; content: ''; }
+/* Pseudo-Elemente mit eigener Schriftgröße .3em: Abstände in deren em (1 Zeichen-em = 3,33 em) */
+.sd-sure::before, .sd-zero::before { position: absolute; left: -2em; right: -2em; top: 4.4em; text-align: center;
+  font: 700 .3em var(--font-ui); color: var(--text2); white-space: nowrap; }
+.sd-sure::before { content: 'gesichert'; }
+.sd-zero::after { border-color: var(--text3); }
+.sd-zero::before { content: 'nicht signifikant'; color: var(--text3); font-weight: 500; }
+.sd-unc { color: var(--c-unc); font-weight: 700; }
+.sd-unc::after { position: absolute; left: 50%; top: 3.3em; transform: translateX(-50%); content: '↑\A\A unsicher';
+  white-space: pre; text-align: center; font: 700 .3em/1.25 var(--font-ui); color: var(--c-unc); }
