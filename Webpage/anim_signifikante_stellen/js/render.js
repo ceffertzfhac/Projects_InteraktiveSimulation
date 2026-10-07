@@ -132,7 +132,9 @@ export function initStage(svg, DOM) {
   // Rundstab: dunkle Kanten, Glanzstreifen im oberen Drittel, Reflex unten (Zylinder-Schattierung)
   gradient(defs, 'grad_rod', [[0, 'rod-lo'], [0.14, 'rod-mid'], [0.3, 'rod-hi'], [0.42, 'rod-mid'],
     [0.78, 'rod-lo'], [0.9, 'rod-edge-s'], [1, 'rod-mid']])
-  gradient(defs, 'grad_rod_end', [[0, 'rod-mid'], [0.5, 'rod-hi'], [1, 'rod-lo']], false)
+  // Stirnfläche: gedrehte, leicht gewölbte Scheibe (hell oben links → dunkel unten rechts)
+  const rg = svgEl('radialGradient', { id: 'grad_rod_end', cx: 0.4, cy: 0.35, r: 0.75 }, defs)
+  ;[[0, 'rod-hi'], [0.55, 'rod-mid'], [1, 'rod-lo']].forEach(([o, cls]) => svgEl('stop', { offset: o, class: cls }, rg))
   gradient(defs, 'grad_tape', [[0, 'tape-hi'], [1, 'tape-lo']])
   const clip = svgEl('clipPath', { id: 'plot_clip' }, defs)
   E.clipRect = svgEl('rect', {}, clip)
@@ -151,9 +153,12 @@ export function initStage(svg, DOM) {
   E.rods = ROD.map(() => {
     const g = svgEl('g', { class: 'rod' }, E.root)
     return {
-      g, body: svgEl('rect', { class: 'rod-body', rx: 2 }, g),
+      g, back: svgEl('ellipse', { class: 'rod-back' }, g),                     // linkes Ende: Zylinderrundung
+      body: svgEl('rect', { class: 'rod-body' }, g),
+      line: svgEl('path', { class: 'rod-outline' }, g),                     // Mantellinien oben/unten
       gloss: svgEl('rect', { class: 'rod-gloss', rx: 1 }, g),                 // Glanzlicht
-      cap: svgEl('ellipse', { class: 'rod-cap' }, g),                          // runde Stirnfläche
+      cap: svgEl('ellipse', { class: 'rod-cap' }, g),                          // rechtes Ende: Stirnfläche
+      capHi: svgEl('ellipse', { class: 'rod-cap-hi' }, g),
     }
   })
   E.marks = ROD.map(() => svgEl('line', { class: 'rod-marker' }, E.root))
@@ -420,10 +425,16 @@ export function renderScene(S) {
     const R = E.rods[i], len = S[`rod${i}`], sh = S[`rod${i}S`]
     op(R.g, S[`rod${i}A`])
     const a = clamp(V.sx(sh), V.L - FAR, V.R + FAR), b = clamp(V.sx(sh + len), V.L - FAR, V.R + FAR)
-    const y = ROD[i].top + S.tapeY, h = ROD[i].h
-    set(R.body, { x: a, y, width: Math.max(0, b - a), height: h })
-    set(R.gloss, { x: a + 6, y: y + h * 0.24, width: Math.max(0, b - a - 14), height: 2.2 })
-    set(R.cap, { cx: b - 3.5, cy: y + h / 2, rx: 3.5, ry: h / 2 })   // endet genau am Stabende
+    // Zylinder in leichter Schrägsicht: Mantel zwischen zwei Ellipsen (Halbachse ER);
+    // die Stirnfläche rechts endet genau am Stabende (Ablesung!)
+    const y = ROD[i].top + S.tapeY, h = ROD[i].h, ER = 5, cy = y + h / 2
+    const m0 = a + ER, m1 = Math.max(m0, b - ER)
+    set(R.back, { cx: m0, cy, rx: ER, ry: h / 2 })
+    set(R.body, { x: m0, y, width: m1 - m0, height: h })
+    set(R.line, { d: `M${m0} ${y + 0.5}H${m1}M${m0} ${y + h - 0.5}H${m1}` })
+    set(R.gloss, { x: m0 + 2, y: y + h * 0.24, width: Math.max(0, m1 - m0 - 4), height: 2.2 })
+    set(R.cap, { cx: m1, cy, rx: ER, ry: h / 2 })
+    set(R.capHi, { cx: m1 - 1, cy: cy - h * 0.14, rx: ER * 0.45, ry: h * 0.22 })
   })
   // ── Ablesebereich, Stabende, „Einrasten" auf die nächste Marke ──
   const zb = top + TAPE.h

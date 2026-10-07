@@ -9,7 +9,7 @@
 - Ziffernzeile: „unsicher“ als Pfeil auf die letzte Ziffer statt als Klammer – eine Klammer wirkt wie ein Intervall; die Klammer „gesichert“ bleibt (FSS9 e).
 - Führende Nullen: „gesichert“ und „unsicher“ bleiben in allen Schreibweisen stehen und wandern mit; die Nullen-Klammer (jetzt zweizeilig) steht, solange es führende Nullen gibt (FSS9 f).
 - Schritt-Engine (gemeinsam): aktuelle Position in der Adresse `#kapitel/schritt` – Neuladen bleibt an derselben Stelle, Links auf einzelne Schritte möglich (FSS9 v).
-- Grundlagen: Metallstab als Rundstab gezeichnet – Zylinder-Schattierung mit Glanzlicht, runde Stirnfläche, Schatten, etwas dicker (FSS9 x).
+- Grundlagen: Metallstab als Rundstab gezeichnet – Zylinder-Schattierung mit Glanzlicht, runde Stirnfläche, Schatten, etwas dicker; beide Enden zylinderförmig (links gerundet, rechts gewölbte Stirnfläche, die genau am Stabende abschließt) (FSS9 x).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

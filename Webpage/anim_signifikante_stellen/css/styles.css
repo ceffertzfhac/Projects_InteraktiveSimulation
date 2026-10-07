@@ -24,11 +24,15 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .rod-mid { stop-color: var(--rod-mid); }
 .rod-lo  { stop-color: var(--rod-lo); }
 .rod-edge-s { stop-color: var(--rod-edge); }
-.rod-body { fill: url(#grad_rod); stroke: var(--rod-edge); stroke-width: 1;
+/* Rundstab: hintere Ellipse (links) · Mantel ohne Seitenkanten · Mantellinien · Stirnfläche rechts */
+.rod-back { fill: url(#grad_rod); stroke: var(--rod-edge); stroke-width: 1;
   filter: drop-shadow(0 3px 3px rgba(26, 30, 46, .3)); }
+.rod-body { fill: url(#grad_rod); filter: drop-shadow(0 3px 3px rgba(26, 30, 46, .3)); }
+.rod-outline { fill: none; stroke: var(--rod-edge); stroke-width: 1; }
 .rod-gloss { fill: #fff; fill-opacity: .75; }
 body.dark .rod-gloss { fill-opacity: .5; }
 .rod-cap  { fill: url(#grad_rod_end); stroke: var(--rod-edge); stroke-width: 1; }
+.rod-cap-hi { fill: #fff; fill-opacity: .55; }
 
 /* Ablesebereich (Rundungsintervall auf dem Maßband), Stabende, Einrast-Pfeil */
 .zone      { fill: #ffffff; fill-opacity: .55; }
