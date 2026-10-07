@@ -543,5 +543,10 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 
 /* Vergleichstafel: Runden an der Rechnerzeile (FSS30) */
 .cmp-rnd-arrow { fill: var(--accent); font-size: 18px; font-weight: 700; }
-.cmp-rnd-cap   { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.cmp-rnd-sym   { font-size: 30px; }
+.cmp-rnd-cap   { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .cmp-rnd-val   { fill: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
+.cmp-rnd-pill  { fill: var(--accent); fill-opacity: .14; stroke: var(--accent); stroke-width: 2; }
+/* Ergebniszeilen der Karten: gerundetes Ergebnis als Plakette (FSS32) */
+.slide-card .formula .dyn.res { padding: .02em .35em; border-radius: .35em;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); }

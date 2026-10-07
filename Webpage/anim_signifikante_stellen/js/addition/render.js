@@ -260,7 +260,7 @@ function renderEval(S, V) {
   op(E.cmpG, S.dcA)
   if (S.dcA > 0.002) {
     E.cmp.render(CMP, { x: CMP_BOX.x + 130, y: CMP_BOX.y + 44, gap: 38, alpha: 1, p: Math.round(S.dcP),
-      pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF })
+      pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
     setCompareLine(E.cmpVerdict, S, CMP)
   }
   E.units.forEach((parts, i) => {

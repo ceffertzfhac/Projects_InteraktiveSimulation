@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.3 — 2026-10-07 (PO-Review 2. Runde)
+
+- Runden in der Vergleichstafel inszeniert: die sinnlosen Ziffern der Rechnerzeile weichen, Pfeil mit „aufrunden“/„abrunden“ (aus der ersten weggelassenen Ziffer), das gerundete Ergebnis springt als Plakette mit Nachfedern auf; eigener Halt im Präsentationsmodus. Ergebniszeilen der Karten als Plakette (FSS32). Reihenfolge: Schlußzeile der Tafel, Karten-Ergebniszeilen, Protokollzelle und Ergebnis-Marke erscheinen erst nach dem Runden (FSS33).
+
 ## v1.1.2 — 2026-10-07 (PO-Review 2. Runde)
 
 - Merke Division: Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen … Ergebnisse immer sinnvoll runden.“ (FSS31).

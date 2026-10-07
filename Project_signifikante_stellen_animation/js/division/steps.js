@@ -133,8 +133,9 @@ export function buildSpeedSteps(S, DOM) {
     B(tl)
     tl.to(S, { frA: 0, vlA: 0, duration: 0.4 }, '>')
     compareScan(tl, S, CMP[i], i)
+    const rounded = tl.duration()                     // Runden in der Tafel ist fertig (FSS33)
     cam.to(tl, { cx: finalCx ?? Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
-    tl.to(S, { [`rm${i}`]: 1, duration: 0.5 })
+    tl.to(S, { [`rm${i}`]: 1, duration: 0.5 }, rounded)
     cell(tl, `c${i}v`, '<')
     reveal(tl, card, 'rnd', '<0.2')                    // Taschenrechner-Zeile: ⟶ runden ⟶ Ergebnis
     reveal(tl, card, 'res', '<0.2')

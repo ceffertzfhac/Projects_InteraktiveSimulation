@@ -11,7 +11,7 @@
 // (stetig, für den Zoom), slD Stelle (diskret, für Angabe/Klammer/Text), slB Klammer,
 // slV Urteil, slC bis zu welcher Stelle schon eingefärbt.
 
-import { svgEl, clamp } from '../../shared/js/step-kit.js'
+import { svgEl, clamp, smooth } from '../../shared/js/step-kit.js'
 import { placeName, compareTriple } from './model.js'
 import { fmt } from '../../shared/js/format.js'
 import { beat as B } from '../../shared/js/step-engine.js'   // Zwischenhalt (Präsentationsmodus)
@@ -150,7 +150,7 @@ export function scanPlaces(tl, S, info, idx, { full, zoom, hold = 1.1, at }) {
 // untereinander, bündig nach Stellenwert. Daten: model.js digitCompare(). Ein
 // Spaltenzeiger läuft von links nach rechts; Ziffern ab Stelle colorFrom tragen ihre
 // Kategorie-Farbe (sicher / unsicher / sinnlos).
-export const compareKeys = () => ({ dcA: 0, dcI: 0, dcP: 0, dcV: 0, dcC: 99, dcF: 0 })
+export const compareKeys = () => ({ dcA: 0, dcI: 0, dcP: 0, dcV: 0, dcC: 99, dcF: 0, dcR: 0 })   // dcR: Runden 0…1
 
 // Daten einer Vergleichstafel: Maximum oben, Taschenrechner-Wert in der Mitte, Minimum
 // unten (Strings mit Komma). result = Schlußzeile, z. B. „→ A = 6,686 m² (4. Stelle unsicher)".
@@ -203,7 +203,7 @@ export const revealReason = (tl, card, reveal) => {
 export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
   const { pDiff } = D.cmp
   const list = D.places.filter(p => p >= pDiff - 1)
-  tl.set(S, { dcI: idx, dcC: 99, dcV: 0, dcF: 0, dcP: list[0] }, at)
+  tl.set(S, { dcI: idx, dcC: 99, dcV: 0, dcF: 0, dcR: 0, dcP: list[0] }, at)
   tl.to(S, { dcA: 1, duration: 0.4 })
   list.forEach((p, n) => {
     if (n) tl.to(S, { dcV: 0, duration: 0.2 })
@@ -216,13 +216,18 @@ export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
   tl.to(S, { dcV: 0, duration: 0.25 })
   tl.set(S, { dcC: -99, dcP: pDiff, dcF: 1 })          // alles eingefärbt, Ergebnis
   tl.to(S, { dcV: 1, duration: 0.4 })
+  // Runden inszeniert (FSS32): sinnlose Ziffern weichen, Pfeil „auf-/abrunden", Ergebnis springt auf
+  B(tl)
+  tl.to(S, { dcR: 1, duration: 2.2, ease: 'none' }, '>0.3')
 }
+// Ergebnis erst, wenn das Runden in der Tafel fertig ist (FSS33) — vorher das Urteil der Spalte
+const rounded = S => S.dcF > 0.5 && S.dcR > 0.85
 export const compareLine = (S, D) =>
-  (S.dcF > 0.5 ? D.result : compareVerdict(D.cmp, Math.round(S.dcP)))
+  (rounded(S) ? D.result : compareVerdict(D.cmp, Math.round(S.dcP)))
 // Schlußzeile der Tafel ins <text>: während des Scans das Urteil, am Ende „→ A = 6,686 m²"
 // groß in Akzentfarbe (gerundetes Ergebnis prominent, PO 2026-10-07, FSS29) + Stelle
 export function setCompareLine(el, S, D) {
-  const done = S.dcF > 0.5, key = done ? `R|${D.key}` : compareLine(S, D)
+  const done = rounded(S), key = done ? `R|${D.key}` : compareLine(S, D)
   if (el._cl === key) return
   el._cl = key
   el.textContent = ''
@@ -248,16 +253,20 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
   }))
   const cw = size * 0.6
   // Runden an der Rechnerzeile (PO 2026-10-07, FSS30): „6,68616 ⟶ 6,686 m²“, sobald das Ergebnis steht
+  // Runden inszeniert (FSS32): Phasen von t = dcR — 0–0,35 sinnlose Ziffern der Rechnerzeile weichen,
+  // 0,25–0,55 Pfeil mit „aufrunden"/„abrunden", 0,5–0,8 Ergebnis-Plakette springt auf, danach Leuchten
   const rnd = svgEl('g', { class: 'cmp-rnd' }, g)
   const rndArrow = svgEl('text', { class: 'cmp-rnd-arrow', 'text-anchor': 'middle' }, rnd)
-  svgEl('tspan', { class: 'cmp-rnd-cap' }, rndArrow).textContent = 'runden'
-  const rndArrowSym = svgEl('tspan', { dy: 16 }, rndArrow)
+  const rndCap = svgEl('tspan', { class: 'cmp-rnd-cap' }, rndArrow)
+  const rndArrowSym = svgEl('tspan', { dy: size * 0.8 - 2, class: 'cmp-rnd-sym' }, rndArrow)
   rndArrowSym.textContent = '⟶'
-  const rndVal = svgEl('text', { class: 'cmp-rnd-val', 'font-size': size * 0.82 }, rnd)
+  const rndPop = svgEl('g', {}, rnd)
+  const rndPill = svgEl('rect', { class: 'cmp-rnd-pill', rx: 8 }, rndPop)
+  const rndVal = svgEl('text', { class: 'cmp-rnd-val', 'font-size': size * 0.84 }, rndPop)
   let lastKey = ''
   return {
     // data = { cmp, rows: [{ sym, sub, cells }] }; x = Spalte der höchsten Stelle
-    render(data, { x, y, gap, alpha, p, pointerA, colorFrom, final = 0 }) {
+    render(data, { x, y, gap, alpha, p, pointerA, colorFrom, final = 0, round = final }) {
       op(g, alpha)
       if (alpha <= 0.002) return
       const top = Math.max(...data.rows.flatMap(r => r.cells.filter(c => !c.comma).map(c => c.p)))
@@ -277,6 +286,10 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
           }
           const on = !c.comma && c.p >= colorFrom
           t.setAttribute('class', `dg dg-${c.comma ? 'plain' : on ? c.cat : 'plain'}${c.implicit ? ' dg-implicit' : ''}`)
+          // beim Runden weichen die sinnlosen Ziffern der Rechnerzeile (dunkler, leicht nach rechts)
+          const fade = i === 1 && !c.comma && c.p < data.cmp.pDiff ? smooth(0, 0.35, round) : 0
+          t.style.opacity = 1 - 0.75 * fade
+          t.setAttribute('transform', fade ? `translate(${(8 * fade).toFixed(2)} 0)` : '')
         })
         if (d && key !== lastKey) {
           row.label.textContent = ''
@@ -295,11 +308,23 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
       let right = x
       R.forEach(row => row.chars.forEach(t => { if (t.style.display !== 'none') right = Math.max(right, +t.getAttribute('x')) }))
       const ax = right + cw / 2 + 28, ry = y + gap        // Pfeilmitte (Pfeil ≈ 24 px, „runden" ≈ 40 px breit)
-      set(rndArrow, { x: ax, y: ry - 22 })
+      // Beschriftung über der Plakettenoberkante, Pfeil auf Zeilenhöhe
+      set(rndArrow, { x: ax, y: ry - size * 0.8 - 6 })
       rndArrowSym.setAttribute('x', ax)
-      rndVal.textContent = data.roundedText ?? ''
-      set(rndVal, { x: ax + 18, y: ry })
-      op(rnd, data.roundedText ? final : 0)
+      // auf- oder abrunden: entscheidet die erste weggelassene Ziffer der Rechnerzeile
+      const drop = data.rows[1]?.cells.find(c => !c.comma && c.p === data.cmp.pDiff - 1)
+      rndCap.textContent = drop ? (+drop.ch >= 5 ? 'aufrunden' : 'abrunden') : 'runden'
+      const vx = ax + 19
+      if (rndVal.textContent !== (data.roundedText ?? '')) rndVal.textContent = data.roundedText ?? ''
+      set(rndVal, { x: vx, y: ry })
+      const w = rndVal.getComputedTextLength?.() || 0
+      set(rndPill, { x: vx - 6, y: ry - size * 0.8, width: w + 12, height: size * 1.04 })
+      const aIn = smooth(0.25, 0.55, round), pop = smooth(0.5, 0.8, round)
+      const sc = pop < 1 ? 0.6 + 0.4 * pop + 0.18 * Math.sin(Math.PI * pop) : 1     // Nachfedern
+      rndPop.setAttribute('transform', `translate(${vx} ${ry}) scale(${sc.toFixed(3)}) translate(${-vx} ${-ry})`)
+      op(rndArrow, aIn); op(rndPop, pop)
+      rndPill.style.strokeOpacity = smooth(0.8, 0.9, round) * (1 - smooth(0.9, 1, round)) + 0.35
+      op(rnd, data.roundedText && round > 0.002 ? 1 : 0)
     },
   }
 }
