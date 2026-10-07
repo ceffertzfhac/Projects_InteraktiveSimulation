@@ -93,7 +93,7 @@ body.dark .rod-gloss { fill-opacity: .5; }
 .dim-label   { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .dim-l       { fill: var(--c-l); }
 .dim-b       { fill: var(--c-b); }
-.axis-name   { fill: var(--text); font-size: 24px; font-style: italic; font-weight: 500; }
+.axis-name   { fill: var(--text); font-size: 22px; font-weight: 500; }
 
 /* Dynamische Zahlen in Karten: Farbe nach Größe */
 .slide-card .dyn[data-dyn="cmb.l"], .slide-card .dyn[data-dyn="lvl.text"] { color: var(--c-l); font-weight: 600; }

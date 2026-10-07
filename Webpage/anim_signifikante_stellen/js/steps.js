@@ -10,7 +10,7 @@
 //  Z  Zahlengerade: „3" als Intervall, letzte Ziffer unsicher (± ½ Einheit);
 //     3,0 / 3,00 / 3,000 — je Zoom ×10, neue Teilung; signifikante Stellen, führende Nullen
 //  ── Kapitel Multiplikation ──
-//  R  Fläche: zweite Achse, Rechteck + Taschenrechner, Zoom auf die Ecke, mögliche Flächen,
+//  R  Fläche: Achsen l / m und b / m mit Rechteck, Taschenrechner, Zoom auf die Ecke, mögliche Flächen,
 //     Ecken-Test (l_min·b_min … l_max·b_max), Ziffern vergleichen (erste abweichende Ziffer
 //     = unsichere), groß: wie viele Stellen gebe ich an? (Band gegen Klammer)
 //  C  Gröber gemessen (b, dann beide: 6,686 → 6,68 → 6) · K Kreis · E Merksatz
@@ -292,36 +292,36 @@ export function buildSteps(S, DOM) {
   }
 
   // ── R · Fläche ─────────────────────────────────────────────────────────────
-  step('Eine zweite Messgröße', tl => {
+  // Gleich zu Beginn als Flächenbestimmung erkennbar: Achsen l / m und b / m,
+  // Rechteck mit beiden Kantenlängen und A (PO 2026-10-07, FSS9 g)
+  step('Flächenbestimmung', tl => {
     arrowOff(tl)
     clearHits(tl, '<')
-    tl.to(S, { sgA: 0, pmA: 0, ucBox: 0, duration: 0.4 }, '<')
+    tl.to(S, { sgA: 0, pmA: 0, ucBox: 0, lA: 0, duration: 0.4 }, '<')
     pl.hide(tl, { at: '<' })
     tl.to(S, {
       pA: 0, lBndA: 0, lEndA: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
       tapeA: 0, tapeY: 70, rod0A: 0, duration: 0.6,
     }, '<')
+    tl.set(S, { lSpan: 1 })
     cam.to(tl, CAM_OVERVIEW, { duration: T.camLong, at: '<0.1' })
-    tl.to(S, { lSpan: 1, duration: T.camLong * 0.8, ease: EASE.cam }, '<')
     tl.to(S, { xTicks: 1, duration: 0.8 }, '>-0.9')
     tl.set(S, { yAlpha: 1 }, '<')
     tl.to(S, { yDraw: 1, duration: 0.9, ease: EASE.cam }, '<')
     tl.to(S, { names: 1, duration: 0.5 }, '>-0.3')
-    tl.to(S, { qA: 1, qS: 1, duration: T.pop, ease: EASE.pop }, '>-0.1')
-    ql.show(tl, textIndex(B_FINAL), { at: '<0.15' })
-    tl.to(S, { bA: 1, bLo: B.lo, bHi: B.hi, duration: 0.6 }, '<')
-    deck.show(tl, C.axis2, 0.5)
-  }, 3.5)
-
-  step('Das Rechteck', tl => {
-    tl.to(S, { rA: 1, rW: L[3].value, duration: 0.8, ease: EASE.cam })
+    deck.show(tl, C.axis2, '<')
+    tl.to(S, { rA: 1, rW: L[3].value, duration: 0.8, ease: EASE.cam }, '>0.1')
     tl.to(S, { rH: B.value, duration: 0.8, ease: EASE.cam }, '>-0.1')
-    ql.hide(tl, { at: '<' })
-    tl.to(S, { qA: 0, duration: 0.4 }, '<')
     dl.show(tl, textIndex(L_LEVELS[3]), { at: '<0.3' })
     db.show(tl, textIndex(B_FINAL), { at: '<0.15' })
     tl.to(S, { aSym: 1, duration: 0.6 }, '<')
-    deck.show(tl, C.area, '<')
+  }, 4)
+
+  step('Messwerte und Taschenrechner', tl => {
+    deck.show(tl, C.area)
+    // Rundungsintervalle beider Messwerte als Streifen
+    tl.set(S, { bLo: B.value, bHi: B.value }, '<')
+    tl.to(S, { lA: 1, bA: 1, bLo: B.lo, bHi: B.hi, duration: 0.6 }, '<0.2')
     // Taschenrechner: Eingabe Taste für Taste, dann alle Stellen des Produkts —
     // mehr, als die Messung hergibt
     tl.set(S, { calcT: 0 }, '>0.3')

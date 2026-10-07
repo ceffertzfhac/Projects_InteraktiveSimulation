@@ -198,10 +198,11 @@ export function initStage(svg, DOM) {
 
   E.xAxis = createAxis(E.root, 'x')
   E.yAxis = createAxis(E.root, 'y', { skipZero: true })
-  E.nameL = text(E.root, 'axis-name', { 'text-anchor': 'start' })
-  E.nameL.textContent = 'l'
-  E.nameB = text(E.root, 'axis-name', { 'text-anchor': 'middle' })
-  E.nameB.textContent = 'b'
+  // Achsenbeschriftung „l / m", „b / m": Größe kursiv, Einheit aufrecht
+  E.nameL = symbolLabel(E.root, 'axis-name', 'l', { 'text-anchor': 'start' }).t
+  E.nameL.lastChild.textContent = ' / m'
+  E.nameB = symbolLabel(E.root, 'axis-name', 'b', { 'text-anchor': 'middle' }).t
+  E.nameB.lastChild.textContent = ' / m'
 
   E.tagMin = subLabel(E.root, 'area-tag', 'A', 'min', { 'text-anchor': 'end' })
   E.tagMax = subLabel(E.root, 'area-tag', 'A', 'max', { 'text-anchor': 'start' })

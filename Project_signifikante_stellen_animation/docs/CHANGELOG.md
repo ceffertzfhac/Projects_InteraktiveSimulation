@@ -10,6 +10,7 @@
 - Führende Nullen: „gesichert“ und „unsicher“ bleiben in allen Schreibweisen stehen und wandern mit; die Nullen-Klammer (jetzt zweizeilig) steht, solange es führende Nullen gibt (FSS9 f).
 - Schritt-Engine (gemeinsam): aktuelle Position in der Adresse `#kapitel/schritt` – Neuladen bleibt an derselben Stelle, Links auf einzelne Schritte möglich (FSS9 v).
 - Grundlagen: Metallstab als Rundstab gezeichnet – Zylinder-Schattierung mit Glanzlicht, runde Stirnfläche, Schatten, etwas dicker; beide Enden zylinderförmig (links gerundet, rechts gewölbte Stirnfläche; der Messstrich läuft durch ihre Mitte) (FSS9 x).
+- Multiplikation 1: sofort als Flächenbestimmung erkennbar – Achsen „l / m“ und „b / m“ (Größe kursiv, Einheit aufrecht), Rechteck mit beiden Kantenlängen und A = l · b; kein „zweite Länge b“ und kein Übergang „Zahlengerade wird zur l-Achse“. Schritt 2 „Messwerte und Taschenrechner“ zeigt die Intervalle als Streifen und den Taschenrechner (FSS9 g).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
