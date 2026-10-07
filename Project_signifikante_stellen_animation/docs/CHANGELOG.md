@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.2 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Division: Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen … Ergebnisse immer sinnvoll runden.“ (FSS31).
+
 ## v1.1.1 — 2026-10-07 (PO-Review 2. Runde)
 
 - Vergleichstafel Max · Rechner · Min (alle Kapitel): Sobald das Ergebnis steht, zeigt die Rechnerzeile „⟶ runden ⟶ 6,686 m²“ in Akzentfarbe, Pfeil am tatsächlichen Zeilenende ausgerichtet; Tafel der Multiplikation etwas nach links gerückt (FSS30).
