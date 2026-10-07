@@ -101,6 +101,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     get total() { return N },
     get playing() { return playing },
     get busy() { return !!mover },
+    title: i => (i > 0 ? steps[i - 1].title : 'Start'),     // Schritt-Titel (Druck, step-print.js)
     next() {
       if (mover) { snap(); emit(); return }
       moveTo(index + 1, speed)
@@ -305,5 +306,9 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
   window.addEventListener('hashchange', () => {
     if (location.hash !== lastHash) go(readHash())
   })
-  return { get engine() { return engine }, selectChapter }
+  return {
+    get engine() { return engine }, selectChapter,
+    get chapter() { return chapter?.id },
+    chapters: chapters.filter(c => !c.disabled).map(({ id, title }) => ({ id, title })),
+  }
 }

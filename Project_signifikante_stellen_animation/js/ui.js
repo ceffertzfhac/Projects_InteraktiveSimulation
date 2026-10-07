@@ -4,6 +4,7 @@
 // Tastatursteuerung und erzeugt pro Kapitel eine frische Szene + Engine.
 
 import { createStepEngine, createPresenter } from '../../shared/js/step-engine.js'
+import { createPrint } from '../../shared/js/step-print.js'
 import { store, DOM, initDOM, createScene } from './state.js'
 import { initStage, renderScene } from './render.js'
 import { buildSteps } from './steps.js'
@@ -92,4 +93,11 @@ store.presenter = createPresenter({
       },
     },
   ],
+})
+
+// Drucken / PDF: Endzustand jedes Schritts, aktuelles Kapitel oder alle (FSS9 z)
+createPrint({
+  presenter: store.presenter, button: document.getElementById('print_btn'),
+  popover: document.getElementById('print_pop'), stage: document.querySelector('.stage'),
+  docTitle: 'Signifikante Stellen',
 })

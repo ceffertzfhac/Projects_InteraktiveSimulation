@@ -41,6 +41,15 @@ window.MathJax = {
          title="Lehr- und Forschungsgebiet Physik – FB 8">
   </div>
   <div class="topbar-right">
+    <button class="print-btn" id="print_btn" popovertarget="print_pop" title="Drucken / PDF: Endzustand jedes Schritts"
+            aria-label="Drucken oder als PDF sichern"></button>
+    <div id="print_pop" class="print-pop" popover>
+      <h4>Drucken / PDF</h4>
+      Je Schritt eine Seite mit dem Endzustand.
+      <button data-print="chapter">Aktuelles Kapitel</button>
+      <button data-print="all">Alle Kapitel</button>
+      <p>Im Druckdialog „Als PDF sichern“ wählen.</p>
+    </div>
     <button class="info-btn" popovertarget="limits_pop" title="Bekannte Vereinfachungen"
             aria-label="Bekannte Vereinfachungen">i</button>
     <div id="limits_pop" class="limits-pop" popover>
