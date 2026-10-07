@@ -149,7 +149,7 @@ abweichenden Ziffer** des Ziffernvergleichs, je Zeile/Beispiel in Zusammenfassun
 Der Animationsmodus spielt dieselbe Timeline ohne diese Halte.
 **Gleiche Schritte, gleiche Nummern (FSS37):** Fortschrittsleiste und Zähler zählen in beiden
 Modi die Schritte des Animationsmodus („8 / 18“); die Halte des Präsentationsmodus sind
-Teilstriche im Segment, der Titel nennt den Teil („· 2/5“). So kann jeder beiden Fassungen folgen.
+Teilstriche im Segment (nur im Präsentationsmodus sichtbar), der Titel bleibt der des Schritts. So kann jeder beiden Fassungen folgen.
 
 **Logo auf der letzten Folie** jedes Kapitels (Merke bzw. Schluss der Zusammenfassung): groß oben
 rechts, `<img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="…">` als Kind der

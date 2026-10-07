@@ -143,10 +143,11 @@ body.ui-hidden .stage { border-radius: 0; box-shadow: none; }
 .tp-seg::after  { transform: scaleX(var(--h, 0)); opacity: .35; }
 .tp-seg:hover { height: 8px; }
 .tp-seg.current { height: 7px; box-shadow: 0 0 0 3px rgba(0, 177, 172, .18); }
-/* Zwischenhalte des Präsentationsmodus als Teilstriche im Schritt-Segment (FSS37) — in beiden
-   Modi sichtbar, damit Animation und Präsentation dieselben Schritte und Nummern zeigen */
+/* Zwischenhalte des Präsentationsmodus als Teilstriche im Schritt-Segment (FSS37) — nur im
+   Präsentationsmodus; Schritte und Nummern sind in beiden Modi dieselben */
 .tp-sub { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; z-index: 1;
   background: var(--surface); pointer-events: none; }
+body:not(.mode-pres) .tp-sub { display: none; }
 
 .tp-row {
   /* rechte Spalte darf schrumpfen (minmax 0): der Titel wird gekürzt statt über die

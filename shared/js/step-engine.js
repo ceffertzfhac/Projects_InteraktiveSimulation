@@ -64,9 +64,9 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
         + ` (${Object.keys(k.vars).filter(v => !['duration', 'ease'].includes(v)).join(', ')}:`
         + ` ${k.startTime().toFixed(2)}–${(k.startTime() + k.totalDuration()).toFixed(2)} s)`)
     }
-    const m = beats.length + 1, n = i + 1, start = tl.labels['s' + i]
-    beats.forEach((b, k) => STOPS.pres.push({ t: t0 + b, title: `${step.title} · ${k + 1}/${m}`, hold: BEAT_HOLD, step: n }))
-    STOPS.pres.push({ t: end, title: m > 1 ? `${step.title} · ${m}/${m}` : step.title, hold: step.hold, step: n })
+    const n = i + 1, start = tl.labels['s' + i]
+    beats.forEach(b => STOPS.pres.push({ t: t0 + b, title: step.title, hold: BEAT_HOLD, step: n }))
+    STOPS.pres.push({ t: end, title: step.title, hold: step.hold, step: n })
     STOPS.anim.push({ t: end, title: step.title, hold: step.hold, step: n })
     SUBS.push(beats.map(b => (t0 + b - start) / (end - start)))
   })
@@ -303,7 +303,7 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     btn.play.innerHTML = st.playing ? `${svgIcon('pause')}Pause` : `${svgIcon('play')}Auto-Play`
     btn.play.classList.toggle('active', st.playing)
     // Zähler und Leiste in Schritten des Animationsmodus (beide Modi gleich, FSS37); die
-    // Zwischenhalte des Präsentationsmodus als Teilstriche im Segment, der Titel nennt „· 2/3"
+    // Zwischenhalte des Präsentationsmodus als Teilstriche im Segment (nur dort sichtbar)
     count.innerHTML = `<b>${st.step}</b> / ${st.steps}<span class="tp-title">${st.title}</span>`
     if (scrub.children.length !== st.steps || scrub._subs !== st.subs) {
       scrub._subs = st.subs

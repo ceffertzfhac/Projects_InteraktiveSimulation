@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.3.1 — 2026-10-07 (PO-Review 2. Runde)
+
+- Teilstriche der Fortschrittsleiste nur im Präsentationsmodus; Titel ohne Teilangabe („· 2/5“ entfällt) (FSS37).
+
 ## v1.3.0 — 2026-10-07 (PO-Review 2. Runde)
 
 - Präsentationsmodus mit denselben Schritten und Nummern wie der Animationsmodus: Fortschrittsleiste und Zähler zählen die Schritte der Animation („8 / 18“), die Zwischenhalte erscheinen als Teilstriche im Segment, der Titel nennt den Teil („· 2/5“); Klick auf ein Segment springt an dessen Ende; der Druck nennt die Schrittnummer der Animation (FSS37).
