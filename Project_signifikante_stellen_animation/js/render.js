@@ -152,7 +152,7 @@ export function initStage(svg, DOM) {
   })
   E.rd = [0, 1].map(() => {
     const t = text(E.root, 'reading', { 'text-anchor': 'middle' })
-    svgEl('tspan', { class: 'reading-pre' }, t).textContent = 'abgelesen: '
+    svgEl('tspan', { class: 'reading-pre' }, t).textContent = 'abgelesener Messwert: '
     return { t, val: svgEl('tspan', {}, t) }
   })
 

@@ -113,7 +113,7 @@ export function buildSteps(S, DOM) {
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
   // Stabende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
-  // geschwungener Pfeil rastet auf der Marke ein → „abgelesen: …"
+  // geschwungener Pfeil rastet auf der Marke ein → „abgelesener Messwert: …"
   const shown = { mk: [false, false], zone: false, rd: -1 }
   const markRod = (tl, i, at) => {
     if (shown.mk[i]) return
