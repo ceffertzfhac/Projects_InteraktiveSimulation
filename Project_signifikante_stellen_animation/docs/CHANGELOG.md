@@ -3,6 +3,7 @@
 ## v1.0.0 — 2026-10-07 (Branch `feat/ziffernvergleich-primaer`, PO-Review → BACKLOG FSS9)
 
 - Grundlagen: Beschriftung unter dem Maßband „abgelesener Messwert: …“ statt „abgelesen: …“ (FSS9 a).
+- Grundlagen 5: Titel „Verschieden lang – gleicher Messwert“, Schritt „Zwei Stäbe, ein Messwert“ (FSS9 b).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

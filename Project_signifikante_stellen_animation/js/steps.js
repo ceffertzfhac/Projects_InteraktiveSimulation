@@ -182,7 +182,7 @@ export function buildSteps(S, DOM) {
     snap(tl, 0, 3.2, '3,2 m', '>0.05')
   }, 4)
 
-  step('Zwei Stäbe, eine Ablesung', tl => {
+  step('Zwei Stäbe, ein Messwert', tl => {
     unsnap(tl, 0)
     deck.show(tl, C.two, '<')
     rodTo(tl, RODS_MEASURE[0], '<0.1')
