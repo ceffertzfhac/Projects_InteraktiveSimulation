@@ -53,6 +53,7 @@ export function createScene() {
     ucA: 0, ucBox: 0, pmA: 0, pmD: 0,
     // Signifikante Stellen: Zählmarken, Klammern „gesichert"/„unsicher"/„nur Stellenwert"
     sgA: 0, bg1: 0, bg2: 0, bg3: 0, bg4: 0, brS: 0, brU: 0, brZ: 0,
+    sgN: 4, sgDY: 0, brF: 0, brE: 0,       // Stellenzahl, Versatz der Zeile, „nicht gemessen“, „Einheit“ (FSS15)
     // Teil R: Grenzen markieren (l_min … b_max), kleinstes/größtes Rechteck
     edA: 0, mnA: 0, mxA: 0,
     ...stellenKeys(), slBig: 0,            // Tafel „Welche Stelle ist unsicher?" (+ groß)

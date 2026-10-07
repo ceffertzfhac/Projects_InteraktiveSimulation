@@ -100,6 +100,7 @@ export const SIG_TOKENS = [
   ['D1', '3'], ['D2', '1'], ['D3', '2'], ['D4', '0'], ['C', ','],
   ['Z1', '0'], ['Z2', '0'], ['Z3', '0'],
   ['Um', 'm'], ['Ukm', 'km'], ['Ucm', 'cm'], ['Umm', 'mm'],
+  ['X', '·'], ['P', '10²'],                   // Zehnerpotenz-Schreibweise (FSS15)
 ]
 // Schreibweisen: Token → Spalte (Monospace); fehlende Token sind ausgeblendet
 export const SIG_REPS = [
@@ -107,6 +108,10 @@ export const SIG_REPS = [
   { Z1: 0, C: 1, Z2: 2, Z3: 3, D1: 4, D2: 5, D3: 6, D4: 7, Ukm: 8.4, w: 11 },          // 0,003120 km
   { D1: 0, D2: 1, D3: 2, C: 3, D4: 4, Ucm: 5.4, w: 8 },                                  // 312,0 cm
   { D1: 0, D2: 1, D3: 2, D4: 3, Umm: 4.4, w: 6 },                                        // 3120 mm
+  // Einheiten umrechnen (PO 2026-10-07, FSS15): eine andere Messung, 3,1 m (0,1-m-Maßband)
+  { D1: 0, C: 1, D2: 2, Um: 3.4, w: 5 },                                                 // 3,1 m
+  { D1: 0, D2: 1, Z1: 2, Ucm: 3.4, w: 5.5 },                                             // 310 cm ✗
+  { D1: 0, C: 1, D2: 2, X: 3.1, P: 4.9, Ucm: 6.9, w: 8.3 },                              // 3,1 · 10² cm
 ]
 
 // ── „Welche Stelle ist unsicher?" (Teil R/K): Tafel rechts unten ─────────────

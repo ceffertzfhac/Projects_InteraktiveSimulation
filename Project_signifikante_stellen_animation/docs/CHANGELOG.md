@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.15 — 2026-10-07 (PO-Review 2. Runde)
+
+- Grundlagen: zwei neue Schritte nach „Führende Nullen“. (1) „Umrechnen: die signifikanten Stellen bleiben“ – die Ziffernzeile zeigt 3,1 m (2 Zählmarken, die 1 unsicher), dann „310 cm“ mit der vorgetäuschten, nicht gemessenen 0 ✗, dann 3,1 · 10² cm ✓. (2) „Die Zehnerpotenz gehört zur Einheit“ – Klammer unter „· 10² cm“: gehört zur Einheit, zählt nicht; ± 0,05 · 10² cm = ± 5 cm. Ziffernzeile mit variabler Stellenzahl und echter Hochstellung in 10². Grundlagen hat jetzt 20 Schritte (FSS15).
+
 ## v1.0.14 — 2026-10-07 (PO-Review 2. Runde)
 
 - Grundlagen: Der Zoom auf die cm-Teilung landet zuerst bei Stäben, die als „3,13“ abgelesen werden (wahr 3,1268 m und 3,1334 m, eigene Metallfarben; Intervall, ±-Pfeile, „unsicher“). Neuer Schritt „Gleiche Teilung, seitlich: 3,12“: die Ansicht fährt ohne Zoom seitlich zu unseren Stäben, dasselbe für 3,12; danach wie bisher der Zoom auf 3,120. Überschrift der Stufenkarte je Schritt („zehnmal genauer“ bzw. „gleiche Teilung, unsere Stäbe“). Grundlagen hat jetzt 18 Schritte (FSS10).

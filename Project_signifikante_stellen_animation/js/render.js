@@ -75,7 +75,7 @@ function setMarked(el, str, on) {
 function buildSigRow() {
   E.sig = svgEl('g', { class: 'sig-row' }, E.root)
   E.sigBr = {}
-  for (const k of ['S', 'U', 'Z']) {
+  for (const k of ['S', 'U', 'Z', 'F', 'E']) {
     const g = svgEl('g', { class: `sig-br sig-br-${k}` }, E.sig)
     E.sigBr[k] = { g, path: svgEl('path', {}, g), t: text(g, 'sig-br-text', { 'text-anchor': 'middle' }) }
   }
@@ -86,11 +86,19 @@ function buildSigRow() {
   // zweizeilig, damit sie neben „gesichert" Platz hat (beide stehen bei 0,003120 km gleichzeitig)
   ;['nur Stellenwert –', 'nicht signifikant'].forEach((l, n) =>
     svgEl('tspan', { dy: n ? 17 : 0 }, E.sigBr.Z.t).textContent = l)
+  // Einheiten umrechnen (FSS15): vorgetäuschte Null, Zehnerpotenz gehört zur Einheit
+  ;['nicht gemessen –', 'vorgetäuscht ✗'].forEach((l, n) =>
+    svgEl('tspan', { dy: n ? 17 : 0 }, E.sigBr.F.t).textContent = l)
+  ;['gehört zur Einheit –', 'zählt nicht'].forEach((l, n) =>
+    svgEl('tspan', { dy: n ? 17 : 0 }, E.sigBr.E.t).textContent = l)
   E.tok = {}
   for (const [id, ch] of SIG_TOKENS) {
     const unit = id[0] === 'U'
     E.tok[id] = text(E.sig, `sig-tok ${unit ? 'sig-unit' : ''} ${id === 'D4' ? 'unc-digit' : ''}`,
-      { 'font-size': unit ? SIG_ROW.size * 0.6 : SIG_ROW.size, 'text-anchor': unit ? 'start' : 'middle' }, ch)
+      { 'font-size': unit ? SIG_ROW.size * 0.6 : SIG_ROW.size, 'text-anchor': unit ? 'start' : 'middle' },
+      id === 'P' ? '10' : ch)
+    // „10²": echte Hochstellung statt des breiten Mono-Glyphen ²
+    if (id === 'P') svgEl('tspan', { dy: -SIG_ROW.size * 0.42, 'font-size': '58%' }, E.tok[id]).textContent = '2'
   }
   E.badges = [1, 2, 3, 4].map(n => {
     const g = svgEl('g', { class: 'sig-badge' }, E.sig)
@@ -650,20 +658,25 @@ function renderUnc(S, V, axY) {
   set(E.pmCap, { x: c, y: y + 24 })
 }
 
-// Ziffernzeile: Token an ihren (getweenten) Spalten, Zählmarken über D1…D4
+// Ziffernzeile: Token an ihren (getweenten) Spalten, Zählmarken über D1…D(sgN).
+// sgN = Zahl der signifikanten Stellen (4 für 3,120 m, 2 für 3,1 m); die letzte ist unsicher.
 function renderSigRow(S) {
   op(E.sig, S.sgA)
   if (S.sgA <= 0.002) return
   const cw = SIG_ROW.size * 0.6, X = c => SIG_ROW.cx + c * cw
-  const y = SIG_ROW.y
+  const y = SIG_ROW.y + S.sgDY, last = Math.round(S.sgN)
   for (const [id] of SIG_TOKENS) {
     const t = E.tok[id], unit = id[0] === 'U'
     set(t, { x: X(S[`tk${id}x`]) + (unit ? 0 : cw / 2), y: unit ? y - 2 : y })
     op(t, S[`tk${id}a`])
+    if (id[0] === 'D' || id === 'Z1') {
+      const cls = `sig-tok${id === `D${last}` ? ' unc-digit' : ''}${id === 'Z1' && S.brF > 0.5 ? ' sig-fake' : ''}`
+      if (t._cls !== cls) { t._cls = cls; t.setAttribute('class', cls) }
+    }
   }
   const dx = id => X(S[`tk${id}x`]) + cw / 2
   E.badges.forEach((g, n) => {
-    const a = S[`bg${n + 1}`]
+    const a = n < last ? S[`bg${n + 1}`] : 0
     g.setAttribute('transform', `translate(${dx(`D${n + 1}`)} ${y - SIG_ROW.size - 8}) scale(${0.6 + 0.4 * a})`)
     op(g, a)
   })
@@ -673,13 +686,20 @@ function renderSigRow(S) {
     set(B.t, { x: xm, y: yy + 20 }); op(B.g, a)
     for (const ts of B.t.children) ts.setAttribute('x', xm)
   }
-  bracket(E.sigBr.S, dx('D1') - cw / 2 + 3, dx('D3') + cw / 2 - 3, y + 16, S.brS)
+  bracket(E.sigBr.S, dx('D1') - cw / 2 + 3, dx(`D${Math.max(1, last - 1)}`) + cw / 2 - 3, y + 16, S.brS)
   // Pfeil von unten auf die unsichere Ziffer: Spitze knapp unter der Ziffer, Schaft endet an der Kopf-Basis
-  const ux = dx('D4'), tipY = y + 14, footY = y + 52
+  const ux = dx(`D${last}`), tipY = y + 14, footY = y + 52
   set(E.sigBr.U.path, { d: `M${ux} ${footY}V${tipY + HEAD.len}` })
   set(E.sigBr.U.head, { d: headPath(ux, tipY, ux, tipY + HEAD.len) })
   set(E.sigBr.U.t, { x: ux, y: footY + 20 }); op(E.sigBr.U.g, S.brU)
   bracket(E.sigBr.Z, dx('Z1') - cw / 2 + 3, dx('Z3') + cw / 2 - 3, y + 16, S.brZ * S.tkZ1a)
+  bracket(E.sigBr.F, dx('Z1') - cw / 2 + 3, dx('Z1') + cw / 2 - 3, y + 16, S.brF * S.tkZ1a)
+  // Zehnerpotenz samt Einheit: Klammer unter „· 10² cm" (Zählmarken stehen nur über der Zahl)
+  // Beschriftung zweizeilig und rechtsbündig an der Klammer — frei vom „unsicher"-Pfeil links daneben
+  const e0 = dx('X') - cw / 2 + 4, e1 = X(S.tkUcmx) + 1.25 * cw
+  bracket(E.sigBr.E, e0, e1, y + 16, S.brE * S.tkPa)
+  E.sigBr.E.t.setAttribute('text-anchor', 'end')
+  for (const ts of E.sigBr.E.t.children) ts.setAttribute('x', e1)
 }
 
 // Tafel „Welche Stelle ist unsicher?": Angabe bis zur betrachteten Stelle, Mini-

@@ -500,3 +500,8 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .grp-brace { width: .55em; border: 2px solid var(--accent); border-left: none; border-radius: 0 .6em .6em 0; }
 .slide-card table.sum tr.grp-first td { border-top: 2px solid var(--card-border); }
 .slide-card table.sum tr.grp-first td.grp { border-top: none; }
+
+/* Einheiten umrechnen (FSS15): vorgetäuschte Null, Zehnerpotenz gehört zur Einheit */
+.sig-tok.sig-fake { fill: var(--c-b); }
+.sig-br-F path { stroke: var(--c-b); }  .sig-br-F text { fill: var(--c-b); }
+.sig-br-E path { stroke: var(--accent); }  .sig-br-E text { fill: var(--accent); }

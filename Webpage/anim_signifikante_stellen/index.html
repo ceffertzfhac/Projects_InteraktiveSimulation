@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.14</span>
+        <span class="version">v1.0.15</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -182,6 +182,29 @@ window.MathJax = {
           Einheit ab: immer 4.</p>
         <p class="note">Nullen <b>nach</b> der ersten Ziffer ≠ 0 zählen voll: \(3120\,\text{mm}\) hat
           ebenfalls vier signifikante Stellen – die Endnull wurde gemessen.</p>
+      </div>
+
+      <!-- U · Einheiten umrechnen (FSS15) -->
+      <div class="slide-card pos-tr" data-card="u_conv">
+        <div class="kicker">Einheiten umrechnen</div>
+        <h3>Beim Umrechnen bleiben die signifikanten Stellen erhalten</h3>
+        <p>Mit dem 0,1-m-Maßband haben wir <b>3,1&nbsp;m</b> gemessen: 2 signifikante Stellen,
+          die 1 ist <span class="unc-word">unsicher</span>. Wie schreibt man das in cm?</p>
+        <div class="formula" data-r="bad">\(3{,}1\,\text{m} = 310\,\text{cm}\) ✗ – die 0 wurde nicht gemessen.
+          310&nbsp;cm hätte 3 signifikante Stellen und behauptete \(\pm 0{,}5\,\text{cm}\).</div>
+        <div class="formula" data-r="ok">\(3{,}1\,\text{m} = 3{,}1 \cdot 10^2\,\text{cm}\) ✓ – weiterhin
+          2 signifikante Stellen. Reichen die Ziffern nicht, schreibt man mit Zehnerpotenz.</div>
+      </div>
+
+      <div class="slide-card pos-tr" data-card="u_pow">
+        <div class="kicker">Zehnerpotenz</div>
+        <h3>Die Zehnerpotenz gehört zur Einheit</h3>
+        <p>\(3{,}1 \cdot 10^2\,\text{cm}\) heißt: 3,1 Einheiten zu je \(10^2\,\text{cm}\) (=&nbsp;1&nbsp;m).
+          Signifikant ist nur die Zahl davor – die \(10^2\) ist exakt, wird nicht gezählt und geht
+          nicht in die Unsicherheit ein.</p>
+        <div class="formula">\(\pm 0{,}05 \cdot 10^2\,\text{cm} = \pm 5\,\text{cm}\) – genau so unsicher wie
+          \(3{,}1\,\text{m} \pm 0{,}05\,\text{m}\).</div>
+        <p class="note">Ebenso: \(0{,}8\,\text{m} = 0{,}8 \cdot 10^3\,\text{mm}\), nicht 800&nbsp;mm.</p>
       </div>
 
       <!-- T · Zeitmessung am Auto (Grundlagen-Abschluss, FSS9 j) -->

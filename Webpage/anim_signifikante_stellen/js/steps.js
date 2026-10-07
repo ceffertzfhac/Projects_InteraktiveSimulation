@@ -309,6 +309,37 @@ export function buildSteps(S, DOM) {
     toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
   }, 7)
 
+  // ── U · Einheiten umrechnen (PO 2026-10-07, FSS15): signifikante Stellen bleiben erhalten,
+  //    zur Not mit Zehnerpotenz; die Zehnerpotenz gehört zur Einheit, nicht zur Unsicherheit ──
+  step('Umrechnen: die signifikanten Stellen bleiben', tl => {
+    deck.show(tl, C.u_conv)
+    // Zahlengerade, Maßband und Stab treten zurück, die Ziffernzeile rückt in die Mitte
+    arrowOff(tl, '<')
+    clearHits(tl, '<')
+    pl.hide(tl, { at: '<' })
+    tl.to(S, { tapeA: 0, rod0A: 0, xA: 0, pA: 0, lA: 0, lEndA: 0, lBndA: 0, ucBox: 0, pmA: 0, sgDY: 120,
+      duration: 0.8, ease: EASE.cam }, '<')
+    // eine andere Messung: 3,1 m (0,1-m-Maßband) — 2 signifikante Stellen
+    toRep(tl, 4, '>0.2')
+    tl.to(S, { bg3: 0, bg4: 0, duration: 0.4 }, '<')
+    tl.set(S, { sgN: 2 }, '<0.5')
+    // „310 cm": die 0 wäre eine dritte, nicht gemessene Stelle
+    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '>1.6')
+    toRep(tl, 5, '>')
+    tl.to(S, { brF: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, C.u_conv, 'bad', '<')
+    // richtig: 3,1 · 10² cm — weiterhin 2 signifikante Stellen
+    tl.to(S, { brF: 0, duration: 0.3 }, '>2')
+    toRep(tl, 6, '>')
+    tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, C.u_conv, 'ok', '<')
+  }, 6)
+
+  step('Die Zehnerpotenz gehört zur Einheit', tl => {
+    deck.show(tl, C.u_pow)
+    tl.to(S, { brE: 1, duration: 0.5 }, '<0.3')
+  }, 7)
+
   // ── T · Zeitmessung am Auto (PO 2026-10-07, FSS9 j): Werte wie im Kapitel Division ──
   step('Das gilt für alle Messwerte: Zeiten', tl => {
     deck.show(tl, C.t_intro)
