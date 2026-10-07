@@ -550,3 +550,4 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 /* Ergebniszeilen der Karten: gerundetes Ergebnis als Plakette (FSS32) */
 .slide-card .formula .dyn.res { padding: .02em .35em; border-radius: .35em;
   background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.slide-card .rnd-arrow .dyn { color: inherit; font-weight: inherit; }

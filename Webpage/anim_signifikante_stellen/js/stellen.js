@@ -164,6 +164,7 @@ export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
     key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result, pos: first - t.pDiff + 1,
     resultParts: [sym, ` = ${rounded} ${unit}`, tail],          // gerundetes Ergebnis hervorgehoben (FSS29)
     roundedText: `${rounded}\u00a0${unit}`,                       // „⟶ gerundet“ an der Rechnerzeile (FSS30)
+    needsRound: val !== rounded,                                  // 3 · 2 = 6: nichts zu runden (FSS35)
     rows: [{ sym, sub: 'max', cells: t.hi }, { sym: mid, sub: '', cells: t.val }, { sym, sub: 'min', cells: t.lo }],
   }
 }
@@ -216,7 +217,9 @@ export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
   tl.to(S, { dcV: 0, duration: 0.25 })
   tl.set(S, { dcC: -99, dcP: pDiff, dcF: 1 })          // alles eingefärbt, Ergebnis
   tl.to(S, { dcV: 1, duration: 0.4 })
-  // Runden inszeniert (FSS32): sinnlose Ziffern weichen, Pfeil „auf-/abrunden", Ergebnis springt auf
+  // Runden inszeniert (FSS32): sinnlose Ziffern weichen, Pfeil „auf-/abrunden", Ergebnis springt auf.
+  // Ist das Rechnerergebnis schon richtig gerundet, entfällt das Runden (FSS35).
+  if (D.needsRound === false) { tl.set(S, { dcR: 1 }, '>'); return }
   B(tl)
   tl.to(S, { dcR: 1, duration: 2.2, ease: 'none' }, '>0.3')
 }
@@ -324,7 +327,7 @@ export function createCompareBoard(parent, { size = 30, rows = 3 } = {}) {
       rndPop.setAttribute('transform', `translate(${vx} ${ry}) scale(${sc.toFixed(3)}) translate(${-vx} ${-ry})`)
       op(rndArrow, aIn); op(rndPop, pop)
       rndPill.style.strokeOpacity = smooth(0.8, 0.9, round) * (1 - smooth(0.9, 1, round)) + 0.35
-      op(rnd, data.roundedText && round > 0.002 ? 1 : 0)
+      op(rnd, data.roundedText && data.needsRound !== false && round > 0.002 ? 1 : 0)
     },
   }
 }

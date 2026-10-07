@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.4 — 2026-10-07 (PO-Review 2. Runde)
+
+- Ist das Taschenrechner-Ergebnis schon richtig gerundet (3 m · 2 m = 6 m²), entfällt die Rundungs-Animation der Vergleichstafel samt Halt; die Karte zeigt „nicht nötig ✓“ statt „runden ⟶“ (FSS35).
+
 ## v1.1.3 — 2026-10-07 (PO-Review 2. Runde)
 
 - Runden in der Vergleichstafel inszeniert: die sinnlosen Ziffern der Rechnerzeile weichen, Pfeil mit „aufrunden“/„abrunden“ (aus der ersten weggelassenen Ziffer), das gerundete Ergebnis springt als Plakette mit Nachfedern auf; eigener Halt im Präsentationsmodus. Ergebniszeilen der Karten als Plakette (FSS32). Reihenfolge: Schlußzeile der Tafel, Karten-Ergebniszeilen, Protokollzelle und Ergebnis-Marke erscheinen erst nach dem Runden (FSS33).
