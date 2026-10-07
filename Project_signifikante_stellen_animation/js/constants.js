@@ -65,7 +65,8 @@ export const RODS_LEVEL = [[ROD_TRUE, 3.3802, 2.6401], [ROD_TRUE, 3.0701], [ROD_
 export const B_FINAL = '2,143'
 // Gröber gemessen: das Ergebnis verliert Stufe für Stufe eine Stelle
 // (6,686 → 6,68 → 6). PO 2026-10-02: Beispiel 3,1 · 2,143 gestrichen.
-export const RETURN_PATH = [['3,120', '2,14'], ['3', '2']]
+// PO 2026-10-07 (FSS17): 3 · 2,1 zusätzlich zum Vergleich mit 3 · 2 — Entscheidung offen
+export const RETURN_PATH = [['3,120', '2,14'], ['3', '2,1'], ['3', '2']]
 export const MIXES = []
 // Kreis: gemessener Radius (wahr ≈ 3,26 m) — erst 3,3 (3 gesichert, 3 unsicher), dann nur 3
 export const R_TEXTS = ['3,3', '3']

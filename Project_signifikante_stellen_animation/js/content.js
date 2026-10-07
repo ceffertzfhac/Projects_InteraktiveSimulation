@@ -30,7 +30,7 @@ export const LEVELS = L_LEVELS.map((text, k) => {
 
 const EXAMPLES = [
   ['Flächenbereich', [L_LEVELS[3], B_FINAL]],
-  ...RETURN_PATH.map((p, j) => [`${['b gröber', 'beide grob'][j]} gemessen · ${j + 1} / ${RETURN_PATH.length}`, p]),
+  ...RETURN_PATH.map((p, j) => [`${['b gröber', 'beide grob', 'beide grob'][j]} gemessen · ${j + 1} / ${RETURN_PATH.length}`, p]),
   ...MIXES.map((p, j) => [`Beispiel ${j + 1} / ${MIXES.length}`, p]),
 ]
 export const CMB_FIRST_RETURN = 1

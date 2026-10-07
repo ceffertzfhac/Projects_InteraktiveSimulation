@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.11 — 2026-10-07 (PO-Review 2. Runde)
+
+- Multiplikation: zusätzliches Beispiel „Gröber: 3 · 2,1“ (A ∈ [5,125 ; 7,525) m², Rechner 6,3 m² → 6 m², 1 Stelle) zwischen 3,120 · 2,14 und 3 · 2, zum Vergleich für die PO-Entscheidung; Zusammenfassungstabelle vorerst mit beiden Zeilen. Multiplikation hat jetzt 18 Schritte (FSS17, Entscheidung offen).
+
 ## v1.0.10 — 2026-10-07 (PO-Review 2. Runde)
 
 - Zusammenfassung Multiplikation: Klammern mit Beschriftung „Rechteck“ (drei Rechtecksflächen) und „Kreis“ (Umfang/Fläche bei r = 3,3 m und 3 m) links neben den Zeilen, Trennlinie zwischen den Gruppen; Spaltenfarben aller Zusammenfassungstabellen über Klassen statt Spaltenposition (FSS16).
