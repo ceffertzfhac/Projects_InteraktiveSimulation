@@ -215,3 +215,11 @@ body.ui-hidden .stage { border-radius: 0; box-shadow: none; }
   .print-stage .slide-card { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .print-cap { margin-top: 3mm; font: 9pt var(--font-ui); color: #555; display: flex; justify-content: space-between; }
 }
+
+/* Modus-Einblendung (Taste A, step-engine.js): kurz, mittig über der Transportleiste */
+.tp-toast { position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 8px); z-index: 50;
+  padding: 8px 16px; border-radius: 999px; background: var(--surface); color: var(--text);
+  border: 1px solid var(--accent); box-shadow: 0 6px 20px rgba(26, 30, 46, .2);
+  font: 600 .82rem var(--font-ui); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+.tp-toast.on { opacity: 1; transform: translate(-50%, 0); }
+@media print { .tp-toast { display: none; } }

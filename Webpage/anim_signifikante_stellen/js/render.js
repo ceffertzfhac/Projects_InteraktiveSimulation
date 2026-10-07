@@ -14,7 +14,7 @@ import { DYN, LUPE, COMPARE, RANGES, SUMMARY, SUMMARY_GROUPS, CORNERS } from './
 import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
-  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
+  createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine, setCompareLine,
   createCalculator, fillSummary, uncIndex, calcHtml,
 } from './stellen.js'
 import { HITS } from './state.js'
@@ -735,7 +735,7 @@ function renderCompare(S) {
   op(E.cmpPanel, S.dcA)
   if (S.dcA <= 0.002) return
   const B = LUPE_BOX, D = COMPARE[Math.round(S.dcI)], p = Math.round(S.dcP)
-  E.cmp.render(D, { x: B.x + 120, y: B.y + 64, gap: 34, alpha: 1, p, pointerA: S.dcV, colorFrom: S.dcC })
-  E.cmpVerdict.textContent = compareLine(S, D)
+  E.cmp.render(D, { x: B.x + 78, y: B.y + 64, gap: 34, alpha: 1, p, pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+  setCompareLine(E.cmpVerdict, S, D)
   op(E.cmpVerdict, S.dcV)
 }

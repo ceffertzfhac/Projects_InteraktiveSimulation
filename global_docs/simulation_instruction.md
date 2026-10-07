@@ -933,8 +933,10 @@ python3 -m http.server 8000
 
 ## 10. Schritt-Animation (Lehr-Animation) — eigener Projekttyp
 
-> → BACKLOG **I19**. Referenz: `Project_signifikante_stellen_animation/` v0.1.0,
-> Vorlage `_scaffold_schritt_animation/`.
+> → BACKLOG **I19**. Referenz: `Project_signifikante_stellen_animation/` (v1.1.0),
+> Vorlage `_scaffold_schritt_animation/`. **Didaktik, Gestaltung, Bedienung, Abnahme:**
+> `global_docs/animation_guideline.md`; Ablauf und Prüfwerkzeuge: Skill `create-step-animation`.
+> Präsentationsmodus (Taste A): Zwischenhalte `beat(tl)` aus `shared/js/step-engine.js`.
 
 **Wofür:** Inhalte, die in Vorlesung oder Lernvideo **vorgeführt** werden — ein
 festes Drehbuch, Schritt für Schritt, mit vielen Annotationen auf der Bühne und
@@ -1034,5 +1036,4 @@ Szene muß zahlengleich sein (so für v0.1.0 durchgeführt).
 ### 10.6 Bekannte Grenzen des Typs
 
 - GSAP und MathJax per CDN → ohne Internet keine Animation (vor der Vorlesung prüfen).
-- Sync-/Drift-Skripte (`scripts/`) kennen bisher nur `Project_*_simulation` und
-  spiegeln `shared/css/step-animation.css` nicht → Veröffentlichung siehe FSS3.
+- Sync-/Drift-Skripte führen Animationen in der Liste `ANIMS` (→ FSS3).

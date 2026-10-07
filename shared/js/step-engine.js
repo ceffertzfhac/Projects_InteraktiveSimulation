@@ -17,12 +17,31 @@ const MIN_STEP = 0.3        // s — jeder Schritt hat eine echte Dauer (Label-A
 const DEFAULT_HOLD = 2.4    // s bei 1× — Verweildauer nach einem Schritt im Auto-Play
 const START_HOLD = 0.5      // s — Auto-Play ab Schritt 0 beginnt fast sofort
 const BACK_RATE = 2.5       // Zurückspulen sichtbar, aber zügig
+const BEAT_HOLD = 1.8       // s bei 1× — Verweildauer nach einem Zwischenhalt (Präsentationsmodus)
 
-export function createStepEngine({ steps, scene, render, onChange = () => {}, onTick = () => {} }) {
+// ── Zwischenhalte (Präsentationsmodus, → BACKLOG FSS25) ─────────────────────
+// beat(tl) markiert im Drehbuch eines Schritts eine Stelle, an der der Präsentations-
+// modus anhält (ein eigener Schritt). Der Animationsmodus spielt darüber hinweg.
+// Ein Zwischenhalt liegt am Ende alles bisher Gebauten. Ein leerer Null-Tween am Halt sorgt
+// dafür, daß sich '>' / '<' des nächsten Tweens auf den Halt beziehen (nicht auf den zuletzt
+// eingefügten, evtl. früher endenden Tween). Nichts darf über einen Halt hinweglaufen —
+// die Engine warnt sonst (negative Versätze wie '>-0.2' direkt nach einem Halt vermeiden).
+let _beatN = 0
+export const beat = tl => {
+  const name = 'beat_' + (++_beatN)
+  tl.addLabel(name)
+  tl.set({}, {}, name)
+  return name
+}
+export const MODES = ['anim', 'pres']
+
+export function createStepEngine({ steps, scene, render, onChange = () => {}, onTick = () => {}, mode = 'anim' }) {
   const g = window.gsap
-  const N = steps.length
   const tl = g.timeline({ paused: true })
   tl.addLabel('s0', 0)
+  // Haltepunkte je Modus: { t, title, hold } — Animationsmodus nur Schrittenden,
+  // Präsentationsmodus zusätzlich die Zwischenhalte (beat) innerhalb der Schritte
+  const STOPS = { anim: [{ t: 0, title: 'Start' }], pres: [{ t: 0, title: 'Start' }] }
   steps.forEach((step, i) => {
     const sub = g.timeline()
     step.build(sub, scene)
@@ -31,12 +50,29 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     // Vorschritts und bliebe beim Zurückspringen auf dieses Label angewendet.
     tl.add(sub, '+=0.001')
     tl.addLabel('s' + (i + 1))
+    const t0 = sub.startTime(), end = tl.labels['s' + (i + 1)]
+    const beats = Object.entries(sub.labels).filter(([k]) => k.startsWith('beat_'))
+      .map(([, t]) => t).filter(t => t > 0.05 && t < sub.duration() - 0.05).sort((a, b) => a - b)
+    // Prüfen: läuft ein Tween über einen Zwischenhalt hinweg? (Drehbuch-Fehler)
+    const kids = sub.getChildren(true, true, false)
+    for (const b of beats) {
+      const k = kids.find(c => c.startTime() < b - 1e-4 && c.startTime() + c.totalDuration() > b + 1e-4)
+      if (k) console.warn(`[step-engine] Zwischenhalt in „${step.title}" bei ${b.toFixed(2)} s überlappt einen Tween`
+        + ` (${Object.keys(k.vars).filter(v => !['duration', 'ease'].includes(v)).join(', ')}:`
+        + ` ${k.startTime().toFixed(2)}–${(k.startTime() + k.totalDuration()).toFixed(2)} s)`)
+    }
+    const m = beats.length + 1
+    beats.forEach((b, k) => STOPS.pres.push({ t: t0 + b, title: `${step.title} · ${k + 1}/${m}`, hold: BEAT_HOLD }))
+    STOPS.pres.push({ t: end, title: m > 1 ? `${step.title} · ${m}/${m}` : step.title, hold: step.hold })
+    STOPS.anim.push({ t: end, title: step.title, hold: step.hold })
   })
+  let stops = STOPS[mode] ?? STOPS.anim
+  let N = stops.length - 1
 
   let index = 0, target = 0, mover = null, moverRate = 1   // moverRate: Rate bei Erzeugung
   let playing = false, speed = 1, wait = null
 
-  const labelTime = i => tl.labels['s' + i]
+  const labelTime = i => stops[i].t
   // Kontinuierliche Position in Schritt-Einheiten (2,4 = Schritt 3 zu 40 % gelaufen)
   // und Countdown der Auto-Play-Wartezeit → Füllung der Fortschrittsleiste.
   const position = () => {
@@ -50,7 +86,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
   const tick = (hold = 0) => onTick({ pos: position(), hold, holdIndex: index + 1 })
   const emit = () => onChange({
     index: target, total: N, playing, busy: !!mover,
-    title: target > 0 ? steps[target - 1].title : 'Start',
+    title: stops[target].title, mode,
   })
 
   function snap() {
@@ -87,7 +123,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
   function scheduleNext() {
     wait?.kill()
     if (index >= N) { playing = false; emit(); return }
-    const hold = index === 0 ? START_HOLD : (steps[index - 1].hold ?? DEFAULT_HOLD)
+    const hold = index === 0 ? START_HOLD : (stops[index].hold ?? DEFAULT_HOLD)
     const h = { v: 0 }
     wait = g.to(h, {
       v: 1, duration: hold / speed, ease: 'none',
@@ -101,7 +137,20 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     get total() { return N },
     get playing() { return playing },
     get busy() { return !!mover },
-    title: i => (i > 0 ? steps[i - 1].title : 'Start'),     // Schritt-Titel (Druck, step-print.js)
+    title: i => stops[i]?.title ?? '',                       // Schritt-Titel (Druck, step-print.js)
+    get mode() { return mode },
+    get hasBeats() { return STOPS.pres.length > STOPS.anim.length },
+    // Modus wechseln, ohne die Stelle zu verlieren: letzter Haltepunkt des neuen Modus
+    // an oder vor der aktuellen Zeit (im Animationsmodus also der Anfang des Schritts)
+    setMode(m) {
+      if (!STOPS[m] || m === mode) return
+      wait?.kill(); mover?.kill(); mover = null
+      const t = tl.time()
+      mode = m; stops = STOPS[m]; N = stops.length - 1
+      let i = 0
+      while (i < N && stops[i + 1].t <= t + 1e-6) i++
+      api.goto(i)
+    },
     refresh() { render(scene) },          // neu zeichnen ohne Zeitsprung (z. B. nach Schrift-Nachladen)
     next() {
       if (mover) { snap(); emit(); return }
@@ -170,6 +219,10 @@ const fmtSpeed = s => String(s).replace('.', ',') + '×'
 
 export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapter = () => {} }) {
   let engine = null, chapter = null, speed = 1
+  // Modus: Animation (Schritte) oder Präsentation (feinere Schritte) — Taste A, gemerkt
+  const MODE_KEY = 'fh_step_mode'
+  let mode = 'anim'
+  try { if (localStorage.getItem(MODE_KEY) === 'pres') mode = 'pres' } catch { /* ohne Speicher */ }
 
   root.innerHTML = `
     <div class="tp-scrub" role="group" aria-label="Fortschritt"></div>
@@ -192,9 +245,21 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
       </div>
       <div class="tp-meta">
         <span class="tp-count" aria-live="polite"></span>
-        <span class="tp-keys" title="← → Schritt · Leertaste weiter · P Auto-Play · Pos1 Anfang · F Vollbild · H Bedienung ausblenden">⌨</span>
+        <span class="tp-keys" title="← → Schritt · Leertaste weiter · P Auto-Play · Pos1 Anfang · F Vollbild · A Animations-/Präsentationsmodus · H Bedienung ausblenden">⌨</span>
       </div>
     </div>`
+  // kurze Einblendung beim Umschalten des Modus (kein dauerhaft sichtbarer Schalter)
+  const toast = document.createElement('div')
+  toast.className = 'tp-toast'
+  toast.setAttribute('aria-live', 'polite')
+  document.body.append(toast)
+  let toastTimer = null
+  const showToast = text => {
+    toast.textContent = text
+    toast.classList.add('on')
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 1600)
+  }
 
   const q = s => root.querySelector(s)
   const scrub = q('.tp-scrub')
@@ -206,14 +271,15 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
   // Links auf einen Schritt sind möglich. replaceState → keine Verlaufs-Flut.
   let lastHash = ''
   function writeHash(index) {
-    const h = `#${chapter.id}/${index}`
+    const h = `#${chapter.id}/${mode === 'pres' ? 'p' : ''}${index}`
     if (h === lastHash) return
     lastHash = h
     history.replaceState(null, '', h)
   }
   function readHash() {
-    const m = location.hash.match(/^#([\w-]+)(?:\/(\d+))?$/)
-    return m ? { id: m[1], index: m[2] === undefined ? 0 : +m[2] } : null
+    const m = location.hash.match(/^#([\w-]+)(?:\/(p?)(\d+))?$/)
+    return m ? { id: m[1], mode: m[2] ? 'pres' : m[3] !== undefined ? 'anim' : null,
+      index: m[3] === undefined ? 0 : +m[3] } : null
   }
 
   function update(st) {
@@ -250,6 +316,7 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     })
     onChapter(id)
     engine = ch.create(update, progress)
+    engine.setMode?.(mode)
     engine.setSpeed(speed)
   }
 
@@ -290,13 +357,27 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     else if (k === 'End') { engine.pause(); engine.goto(engine.total) }
     else if (k === 'p' || k === 'P') act.play()
     else if (k === 'h' || k === 'H') document.body.classList.toggle('ui-hidden')
+    else if (k === 'a' || k === 'A') setMode(mode === 'pres' ? 'anim' : 'pres', true)
     else return
     e.preventDefault()
     if (document.activeElement?.blur && document.activeElement !== document.body) document.activeElement.blur()
   })
 
+  function setMode(m, announce) {
+    if (m === mode) return
+    mode = m
+    try { localStorage.setItem(MODE_KEY, m) } catch { /* ohne Speicher */ }
+    engine.pause()
+    engine.setMode?.(m)
+    document.body.classList.toggle('mode-pres', m === 'pres')
+    if (announce) showToast(m === 'pres' ? 'Präsentationsmodus – kleinere Schritte' : 'Animationsmodus')
+  }
+  document.body.classList.toggle('mode-pres', mode === 'pres')
+
   // Start: Position aus der Adresse, sonst erstes Kapitel
   const go = h => {
+    if (h?.mode && h.mode !== mode && engine) setMode(h.mode)
+    else if (h?.mode) { mode = h.mode; document.body.classList.toggle('mode-pres', mode === 'pres') }
     const ok = h && chapters.some(c => c.id === h.id && !c.disabled)
     selectChapter(ok ? h.id : chapters.find(c => !c.disabled).id)
     if (ok && h.index) { engine.pause(); engine.goto(h.index) }
@@ -316,6 +397,7 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
   return {
     get engine() { return engine }, selectChapter,
     get chapter() { return chapter?.id },
+    get mode() { return mode }, setMode,
     chapters: chapters.filter(c => !c.disabled).map(({ id, title }) => ({ id, title })),
   }
 }

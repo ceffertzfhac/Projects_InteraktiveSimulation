@@ -12,6 +12,7 @@ import { createCardDeck } from '../../../shared/js/step-kit.js'
 import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES } from './constants.js'
 import { SUM, CMP, SUMMARY } from './content.js'
 import { compareScan, revealComparison, revealReason } from '../stellen.js'
+import { beat as B } from '../../../shared/js/step-engine.js'   // Zwischenhalt (Präsentationsmodus, FSS25)
 
 export function buildAddSteps(S, DOM) {
   const C = DOM.cards
@@ -44,14 +45,16 @@ export function buildAddSteps(S, DOM) {
   step('Zwei Werkstücke, zwei Maßbänder', tl => {
     deck.show(tl, C.a_intro)
     tl.to(S, { aA: 1, duration: 0.6 }, '<0.2')
-    tl.to(S, { bA: 1, duration: 0.6 }, '<0.3')
+    B(tl)
+    tl.to(S, { bA: 1, duration: 0.6 }, '>0.1')
   }, 3)
 
   step('Stab A messen', tl => {
     deck.show(tl, C.a_a)
     rollOut(tl, 0, '<0.2')
     tl.to(S, { zA: 1, duration: 0.5 }, '>0.2')
-    label(tl, 'A', '>0.4')
+    B(tl)
+    label(tl, 'A', '>0.3')
     tl.to(S, { tbA: 1, r0: 1, duration: 0.5 }, '<0.8')
     tl.to(S, { zA: 0, duration: 0.3 }, '>0.3')
     rollIn(tl, 0, '<')
@@ -60,9 +63,11 @@ export function buildAddSteps(S, DOM) {
   step('Werkstück B messen', tl => {
     deck.show(tl, C.a_b)
     rollOut(tl, 1, '<0.2')
+    B(tl)
     tl.to(S, { lpA: 1, duration: 0.5 }, '>0.1')
     tl.to(S, { lzA: 1, duration: 0.4 }, '>0.3')
-    label(tl, 'B', '>0.4')
+    B(tl)
+    label(tl, 'B', '>0.3')
     tl.to(S, { r1: 1, duration: 0.5 }, '<0.8')
     tl.to(S, { lpA: 0, lzA: 0, duration: 0.4 }, '>0.3')
     rollIn(tl, 1, '<')
@@ -70,6 +75,7 @@ export function buildAddSteps(S, DOM) {
 
   step('Steckbrief', tl => {
     deck.show(tl, C.a_steck)
+    B(tl)
     tl.to(S, { hiU: 1, duration: 0.5 }, '>0.3')
   }, 6)
 
@@ -79,14 +85,17 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { bX: A_TRUE + 0.03, bY: LANE.up, duration: 1.1, ease: EASE.cam }, '<0.2')
     tl.to(S, { bX: A_TRUE, duration: 0.35, ease: 'power2.in' })
     // Taschenrechner: 0,8 + 1,877 = 2,677
+    B(tl)
     tl.set(S, { calcT: 0 }, '>0.2')
     tl.to(S, { calcA: 1, duration: 0.4 })
     tl.to(S, { calcT: 1, duration: 2.6, ease: 'none' }, '>0.1')
     reveal(tl, C.a_chain, 'calc', '>0.2')
     // Wo endet B? A wackelt durch sein Intervall, B fährt mit
-    tl.to(S, { zAe: 1, duration: 0.5 }, '>0.8')
+    B(tl)
+    tl.to(S, { zAe: 1, duration: 0.5 }, '>0.4')
     reveal(tl, C.a_chain, 'end', '<')
     A_SAMPLES.forEach((x, i) => chain(tl, x, null, i ? '>0.5' : '>0.2'))
+    B(tl)
     tl.to(S, { zEnd: 1, duration: 0.6 }, '>0.2')
     chain(tl, A_TRUE, null, '<')
   }, 5)
@@ -97,10 +106,13 @@ export function buildAddSteps(S, DOM) {
     chain(tl, SUM.a.lo, SUM.b.lo, '<0.3', 0.8)
     tl.to(S, { lmMin: 1, duration: 0.4 })
     reveal(tl, C.a_bounds, 'min', '<')
-    chain(tl, SUM.a.hi, SUM.b.hi, '>0.9', 0.9)
+    B(tl)
+    chain(tl, SUM.a.hi, SUM.b.hi, '>0.5', 0.9)
     tl.to(S, { lmMax: 1, duration: 0.4 })
     reveal(tl, C.a_bounds, 'max', '<')
-    reveal(tl, C.a_bounds, 'pm', '>0.6')
+    B(tl)
+    reveal(tl, C.a_bounds, 'pm', '>0.4')
+    B(tl)
     chain(tl, A_TRUE, B_TRUE, '>0.4', 0.6)
     tl.to(S, { nAx: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
     tl.to(S, { bd: 1, duration: 0.9, ease: 'power2.inOut' }, '>-0.2')
@@ -120,7 +132,8 @@ export function buildAddSteps(S, DOM) {
     deck.show(tl, C.a_trap)
     tl.to(S, { hiS: 1, duration: 0.5 }, '<0.3')
     reveal(tl, C.a_trap, 'sig', '<')
-    tl.to(S, { hiS: 0, hiN: 1, duration: 0.5 }, '>1.6')
+    B(tl)
+    tl.to(S, { hiS: 0, hiN: 1, duration: 0.5 }, '>0.4')
     reveal(tl, C.a_trap, 'dec', '<')
   }, 7)
 
@@ -130,9 +143,11 @@ export function buildAddSteps(S, DOM) {
     // langsam aufbauen: erst die falsche Umrechnung (800 mm), dann die richtige, dann je Einheit
     // Summanden → Taschenrechner → gerundetes Ergebnis
     tl.to(S, { u1: 1, duration: 0.6 }, '>0.3')
-    tl.to(S, { u2: 1, duration: 0.6 }, '>2.2')
+    B(tl)
+    tl.to(S, { u2: 1, duration: 0.6 }, '>0.6')
     ;[3, 4, 5, 6, 7].forEach(n => {
-      tl.to(S, { [`u${n}`]: 1, duration: 0.6 }, '>2')
+      B(tl)
+      tl.to(S, { [`u${n}`]: 1, duration: 0.6 }, '>0.6')
       tl.to(S, { [`u${n}b`]: 1, duration: 0.5 }, '>1.2')
       tl.to(S, { [`u${n}c`]: 1, duration: 0.5 }, '>1.2')
     })

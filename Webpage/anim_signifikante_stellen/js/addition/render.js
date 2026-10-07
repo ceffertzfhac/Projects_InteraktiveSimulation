@@ -6,7 +6,7 @@
 
 import { svgEl, viewOf, createAxis, clamp } from '../../../shared/js/step-kit.js'
 import { fmt } from '../../../shared/js/format.js'
-import { createCalculator, createCompareBoard, compareLine, uncIndex } from '../stellen.js'
+import { createCalculator, createCompareBoard, compareLine, setCompareLine, uncIndex } from '../stellen.js'
 import {
   xOf, K, ROD_H, TAPES, LOUPE, TAG_FLY, CALC, TABLE, AXIS_Y, BAND_Y, CMP_BOX, UNITS, B_TRUE, READ,
 } from './constants.js'
@@ -260,8 +260,8 @@ function renderEval(S, V) {
   op(E.cmpG, S.dcA)
   if (S.dcA > 0.002) {
     E.cmp.render(CMP, { x: CMP_BOX.x + 130, y: CMP_BOX.y + 44, gap: 38, alpha: 1, p: Math.round(S.dcP),
-      pointerA: S.dcV, colorFrom: S.dcC })
-    E.cmpVerdict.textContent = compareLine(S, CMP)
+      pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+    setCompareLine(E.cmpVerdict, S, CMP)
   }
   E.units.forEach((parts, i) => {
     const t = parts.at(-1), n = i + 1

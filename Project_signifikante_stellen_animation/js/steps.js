@@ -16,6 +16,7 @@
 //  C  Gröber gemessen (b, dann beide: 6,686 → 6,68 → 6) · K Kreis · E Merksatz
 
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
+import { beat as halt } from '../../shared/js/step-engine.js'   // Zwischenhalt (Präsentationsmodus, FSS25)
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
   L_LEVELS, RODS_LEVEL, LEVEL_SIDE, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER, rodTint,
@@ -151,19 +152,23 @@ export function buildSteps(S, DOM) {
   const unsnap = (tl, i, at) => tl.to(S, { [`sn${i}A`]: 0, duration: 0.25 }, at)
   const rodTo = (tl, x, at) => { if (x !== rodLen) swapRod(tl, x, at) }
 
+  // Zwischenhalte halt(tl) = eigene Schritte im Präsentationsmodus (FSS25); danach beginnt der
+  // nächste Tween immer mit '>' (nichts läuft über einen Halt hinweg)
   step('Ein Metallstab', tl => {
     tl.to(S, { rod0A: 1, rod0S: 0, duration: 1.1, ease: EASE.reveal })
+    deck.show(tl, C.intro, '<0.3')
+    halt(tl)
     // Maßband: Haken am Stabanfang, dann aus dem Gehäuse ausrollen; die Teilung wächst mit
-    tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.6, ease: EASE.reveal }, '<0.5')
+    tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.6, ease: EASE.reveal }, '>')
     tl.to(S, { tapeR: 1, duration: 2.4, ease: 'power2.out' }, '>')       // Tempo 0,75 (PO, FSS9 ab)
     tl.to(S, { tg0: 1, duration: T.grow, ease: 'power1.inOut' }, '<0.3')
-    deck.show(tl, C.intro, '<')
   }, 3)
 
   step('Ablesen: 3 m', tl => {
     deck.show(tl, C.read1)
     markRod(tl, 0, '<0.2')
     zoneTo(tl, 2.5, 3.5, '>0.1')
+    halt(tl)
     snap(tl, 0, 3, '3 m', '>0.1')
   }, 4)
 
@@ -171,7 +176,8 @@ export function buildSteps(S, DOM) {
     unsnap(tl, 0)
     deck.show(tl, C.short, '<')
     rodTo(tl, ROD_SHORT, '<0.15')
-    zoneTo(tl, 1.5, 2.5, '>-0.2')
+    halt(tl)
+    zoneTo(tl, 1.5, 2.5, '>0.1')
     snap(tl, 0, 2, '2 m', '>0.05')
   }, 4)
 
@@ -181,10 +187,12 @@ export function buildSteps(S, DOM) {
     cam.to(tl, CAM_ROD_END, { duration: T.cam, anchor: { y: 0 }, at: '<' })
     rodTo(tl, RODS_MEASURE[0], '<0.2')
     tl.to(S, { tg1: 1, duration: T.grow, ease: 'power1.inOut' }, '>-0.6')
-    zoneTo(tl, 3.05, 3.15, '<0.3')
+    halt(tl)
+    zoneTo(tl, 3.05, 3.15, '>0.1')
     snap(tl, 0, 3.1, '3,1 m', '>0.05')
+    halt(tl)
     // Gegenprobe: etwas länger → nächste Marke ist 3,2
-    unsnap(tl, 0, '>0.9')
+    unsnap(tl, 0, '>0.4')
     rodTo(tl, ROD_FINE_OTHER, '<')
     zoneTo(tl, 3.15, 3.25, '>-0.3')
     snap(tl, 0, 3.2, '3,2 m', '>0.05')
@@ -196,6 +204,7 @@ export function buildSteps(S, DOM) {
     rodTo(tl, RODS_MEASURE[0], '<0.1')
     zoneTo(tl, 3.05, 3.15, '<0.2')
     snap(tl, 0, 3.1, '3,1 m', '>0.05')
+    halt(tl)
     tl.to(S, { rod1A: 1, rod1S: 0, duration: 1, ease: EASE.reveal }, '>0.2')
     markRod(tl, 1, '>-0.1')
     snap(tl, 1, 3.1, '3,1 m', '>0.05')
@@ -209,26 +218,30 @@ export function buildSteps(S, DOM) {
     tl.to(S, { tg1: 0, duration: 0.8 }, '<')
     tl.to(S, { axisDraw: 1, duration: T.draw, ease: EASE.cam }, '<0.4')
     tl.to(S, { nameLA: 1, duration: 0.5 }, '>-0.3')                    // Achse „l / m“ (FSS9 ac)
-    tl.to(S, { pA: 1, pS: 1, duration: T.pop, ease: EASE.pop }, '>-0.2')
-    pl.show(tl, textIndex('3'), { at: '<0.1' })
     deck.show(tl, C.line, '<')
-    fire(tl, RODS_LEVEL[0][0], '>0.2')
+    halt(tl)
+    tl.to(S, { pA: 1, pS: 1, duration: T.pop, ease: EASE.pop }, '>')
+    pl.show(tl, textIndex('3'), { at: '<0.1' })
+    halt(tl)
+    fire(tl, RODS_LEVEL[0][0], '>0.1')
   }, 3.5)
 
   step('Rundungsintervall von „3"', tl => {
     deck.show(tl, C.int)
     tl.to(S, { ag0: 1, duration: T.grow, ease: 'power1.inOut' }, '<')
-    tl.to(S, { lA: 1, lLo: L[0].lo, lHi: L[0].hi, duration: 1, ease: EASE.reveal }, '<0.3')
+    halt(tl)
+    tl.to(S, { lA: 1, lLo: L[0].lo, lHi: L[0].hi, duration: 1, ease: EASE.reveal }, '>')
     tl.to(S, { lEndA: 1, duration: 0.4 }, '<0.5')
     tl.set(S, { lBndD: 1 }, '<')
     tl.to(S, { lBndA: 1, duration: 0.4 }, '<0.1')
-    RODS_LEVEL[0].slice(1).forEach(x => fire(tl, x, '>0.15'))
+    RODS_LEVEL[0].slice(1).forEach(x => { halt(tl); fire(tl, x, '>0.15') })
   }, 4.5)
 
   step('Die letzte Ziffer ist unsicher', tl => {
     deck.show(tl, C.unc)
     tl.set(S, { ucA: 1 }, '<')
     tl.to(S, { ucBox: 1, duration: 0.5 }, '<0.3')
+    halt(tl)
     tl.set(S, { pmA: 1, pmD: 0 }, '>0.3')
     tl.to(S, { pmD: 1, duration: 1, ease: EASE.reveal })
   }, 6)
@@ -259,6 +272,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { lLo: M.lo, lHi: M.hi, pX: M.value, ...(pan ? {} : { gA: 0.3 }), duration: 1.1, ease: EASE.cam }, '<0.2')
       // 2) Zoom ×10 auf den neuen Messwert (alte Teilung zieht sich zurück, neue wächst) —
       //    bzw. bei gleicher Teilung nur seitlich fahren
+      if (!pan) halt(tl)
       cam.to(tl, camA(M.value + 0.12 * levelWidth(k), levelWidth(k)), { duration: T.cam, anchor: { y: 0 },
         at: pan ? '<' : '>0.15' })
       if (!pan) {
@@ -268,11 +282,12 @@ export function buildSteps(S, DOM) {
       tl.set(S, { lBndD: k + 1 }, pan ? '>' : '<')
       tl.to(S, { lBndA: 1, duration: 0.4 }, pan ? '>' : '<0.6')
       // 3) unsichere Stelle: ±-Pfeile, Markierung
+      halt(tl)
       tl.set(S, { pmA: 1, pmD: 0 }, '>0.1')
       tl.to(S, { pmD: 1, duration: 0.8, ease: EASE.reveal })
       tl.to(S, { ucBox: 1, duration: 0.4 }, '<0.2')
-      // 4) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung
-      rods.forEach(x => fire(tl, x, '>0.1'))
+      // 4) Stäbe mit verschiedenen wahren Längen — gleiche Ablesung (je Stab ein Halt)
+      rods.forEach(x => { halt(tl); fire(tl, x, '>0.1') })
     }, 5)
     prevM = M
   }
@@ -293,8 +308,11 @@ export function buildSteps(S, DOM) {
     clearHits(tl, '<')
     tl.to(S, { pmA: 0, duration: 0.3 }, '<')
     tl.to(S, { sgA: 1, duration: 0.5 }, '<0.2')
+    halt(tl)
     ;[1, 2, 3, 4].forEach(n => tl.to(S, { [`bg${n}`]: 1, duration: 0.4, ease: EASE.pop }, '>0.25'))
+    halt(tl)
     tl.to(S, { brS: 1, duration: 0.4 }, '>0.4')
+    halt(tl)
     tl.to(S, { brU: 1, duration: 0.4 }, '>0.3')
   }, 7)
 
@@ -303,10 +321,13 @@ export function buildSteps(S, DOM) {
     // die Nullen-Klammer steht, solange es führende Nullen gibt
     deck.show(tl, C.zeros)
     toRep(tl, 1, '>0.1')                         // 0,003120 km
+    halt(tl)
     tl.to(S, { brZ: 1, duration: 0.4 }, '>0.1')
-    toRep(tl, 2, '>2.2')                         // 312,0 cm — Nullen-Klammer blendet mit den Nullen aus
+    halt(tl)
+    toRep(tl, 2, '>1.2')                         // 312,0 cm — Nullen-Klammer blendet mit den Nullen aus
     tl.set(S, { brZ: 0 }, '>')
-    toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
+    halt(tl)
+    toRep(tl, 3, '>0.8')                         // 3120 mm (Endnull zählt)
   }, 7)
 
   // ── U · Einheiten umrechnen (PO 2026-10-07, FSS15): signifikante Stellen bleiben erhalten,
@@ -324,12 +345,14 @@ export function buildSteps(S, DOM) {
     tl.to(S, { bg3: 0, bg4: 0, duration: 0.4 }, '<')
     tl.set(S, { sgN: 2 }, '<0.5')
     // „310 cm": die 0 wäre eine dritte, nicht gemessene Stelle
-    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '>1.6')
+    halt(tl)
+    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '>0.8')
     toRep(tl, 5, '>')
     tl.to(S, { brF: 1, duration: 0.4 }, '>0.1')
     reveal(tl, C.u_conv, 'bad', '<')
     // richtig: 3,1 · 10² cm — weiterhin 2 signifikante Stellen
-    tl.to(S, { brF: 0, duration: 0.3 }, '>2')
+    halt(tl)
+    tl.to(S, { brF: 0, duration: 0.3 }, '>1')
     toRep(tl, 6, '>')
     tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.1')
     reveal(tl, C.u_conv, 'ok', '<')
@@ -337,7 +360,8 @@ export function buildSteps(S, DOM) {
 
   step('Die Zehnerpotenz gehört zur Einheit', tl => {
     deck.show(tl, C.u_pow)
-    tl.to(S, { brE: 1, duration: 0.5 }, '<0.3')
+    halt(tl)
+    tl.to(S, { brE: 1, duration: 0.5 }, '>0.2')
   }, 7)
 
   // ── T · Zeitmessung am Auto (PO 2026-10-07, FSS9 j): Werte wie im Kapitel Division ──
@@ -349,6 +373,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { sgA: 0, tapeA: 0, rod0A: 0, xA: 0, pA: 0, lA: 0, lEndA: 0, lBndA: 0, ucBox: 0, pmA: 0,
       duration: 0.6 }, '<')
     tl.to(S, { tmA: 1, duration: 0.6 }, '>-0.1')
+    halt(tl)
     tl.to(S, { tmCar: 1.5, duration: 1.8 * 2.4, ease: 'none' }, '>0.4')      // Zeitlupe, fährt aus dem Bild
   }, 3)
 
@@ -356,17 +381,22 @@ export function buildSteps(S, DOM) {
     deck.show(tl, C.t_coarse)
     tl.to(S, { tmG0: 1, duration: 0.5 }, '<0.2')
     tl.to(S, { tmZ: 1, duration: 0.5 }, '>0.2')
+    halt(tl)
     tl.to(S, { tmL0: 1, duration: T.draw, ease: EASE.cam }, '>0.2')
     tl.to(S, { tmP0: 1, duration: 0.4, ease: EASE.pop }, '>-0.1')
+    halt(tl)
     tl.to(S, { tmB0: 1, duration: 0.7, ease: EASE.reveal }, '>0.3')
   }, 5)
 
   step('Digitale Stoppuhr: 2,14 s', tl => {
     deck.show(tl, C.t_fine)
     tl.to(S, { tmG0: 0, tmZ: 0, tmG1: 1, duration: 0.5 }, '<0.2')
+    halt(tl)
     tl.to(S, { tmL1: 1, duration: T.draw, ease: EASE.cam }, '>0.2')
     tl.to(S, { tmP1: 1, duration: 0.4, ease: EASE.pop }, '>-0.1')
+    halt(tl)
     tl.to(S, { tmB1: 1, duration: 0.7, ease: EASE.reveal }, '>0.3')
+    halt(tl)
     tl.to(S, { tmCon: 1, duration: 0.8 }, '>0.4')
     tl.to(S, { tmG1: 0, duration: 0.5 }, '>1')
   }, 6)
@@ -404,6 +434,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { yDraw: 1, duration: 0.9, ease: EASE.cam }, '<')
     tl.to(S, { names: 1, duration: 0.5 }, '>-0.3')
     deck.show(tl, C.axis2, '<')
+    halt(tl)
     tl.to(S, { rA: 1, rW: L[3].value, duration: 0.8, ease: EASE.cam }, '>0.1')
     tl.to(S, { rH: B.value, duration: 0.8, ease: EASE.cam }, '>-0.1')
     dl.show(tl, textIndex(L_LEVELS[3]), { at: '<0.3' })
@@ -418,6 +449,7 @@ export function buildSteps(S, DOM) {
     tl.to(S, { lA: 1, bA: 1, bLo: B.lo, bHi: B.hi, duration: 0.6 }, '<0.2')
     // Taschenrechner: Eingabe Taste für Taste, dann alle Stellen des Produkts —
     // mehr, als die Messung hergibt
+    halt(tl)
     tl.set(S, { calcT: 0 }, '>0.3')
     tl.to(S, { calcA: 1, duration: 0.5 })
     tl.to(S, { calcT: 1, duration: 3.2, ease: 'none' }, '>0.1')
@@ -448,12 +480,14 @@ export function buildSteps(S, DOM) {
     tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.3')
   }
   const bounds = (tl, l, b, card) => {
-    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
+    halt(tl)
+    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 }, '>')
     tl.to(S, { roA: 1, edA: 1, duration: 0.4 })
     goCorner(tl, l.lo, b.lo, '>0.2')
     tl.to(S, { mnA: 1, duration: 0.4 }, '>0.1')
     reveal(tl, card, 'min', '<')
-    goCorner(tl, l.hi, b.hi, '>1')
+    halt(tl)
+    goCorner(tl, l.hi, b.hi, '>0.6')
     tl.to(S, { mnA: 0, mxA: 1, duration: 0.4 }, '>0.1')
     reveal(tl, card, 'max', '<')
     boundsEnd(tl, l, b)
@@ -479,11 +513,13 @@ export function buildSteps(S, DOM) {
       tl.to(row(c.i), { autoAlpha: 1, duration: 0.45 }, '<')
     })
     // nach Größe sortieren
+    halt(tl)
     CORNERS.forEach(c => tl.to(row(c.i), { '--slot': c.rank, duration: 0.9, ease: EASE.cam }, c.i ? '<' : '>1'))
     reveal(tl, K, 'sorted', '>0.2')
     // A_min und A_max markieren — am Bild die Rechtecke
     const lo = CORNERS.find(c => c.rank === 0), hi = CORNERS.find(c => c.rank === 3)
-    tl.to(tag(lo.i), { autoAlpha: 1, duration: 0.4 }, '>0.8')
+    halt(tl)
+    tl.to(tag(lo.i), { autoAlpha: 1, duration: 0.4 }, '>0.4')
     tl.set(row(lo.i), { outline: '2px solid var(--accent)' }, '<')
     tl.to(S, { rW: l.lo, rH: b.lo, mnA: 1, duration: 0.7, ease: EASE.cam }, '<')
     tl.to(tag(hi.i), { autoAlpha: 1, duration: 0.4 }, '>0.9')
@@ -491,7 +527,8 @@ export function buildSteps(S, DOM) {
     tl.to(S, { rW: l.hi, rH: b.hi, mxA: 1, duration: 0.7, ease: EASE.cam }, '<')
     // gemischte Ecken heraus, A_max rückt nach
     const mixed = CORNERS.filter(c => c.rank === 1 || c.rank === 2)
-    tl.to(mixed.map(c => row(c.i)), { autoAlpha: 0, duration: 0.5 }, '>1.2')
+    halt(tl)
+    tl.to(mixed.map(c => row(c.i)), { autoAlpha: 0, duration: 0.5 }, '>0.6')
     tl.to(S, Object.fromEntries(mixed.map(c => [`h${c.i}a`, 0]).concat([['duration', 0.5]])), '<')
     tl.to(row(hi.i), { '--slot': 1, duration: 0.8, ease: EASE.cam }, '>0.1')
     tl.to(K.querySelector('.corner-list'), { height: 'calc(2 * var(--row-h))', duration: 0.8, ease: EASE.cam }, '<')   // keine Leerfläche
@@ -548,21 +585,25 @@ export function buildSteps(S, DOM) {
   }
   const traceU = (tl, c) => {
     ;[[c.r.hi, 0], [c.r.lo, 1]].forEach(([R, i]) => {
+      if (i) halt(tl)
       tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
       tl.set(S, { [`tr${i}R`]: R, [`tr${i}A`]: 1, [`tr${i}D`]: 0 })
       tl.to(S, { [`tr${i}D`]: 1, duration: 2.4, ease: 'power1.inOut' })
       reveal(tl, C.umfang, i ? 'min' : 'max', '>-0.2')
     })
+    halt(tl)
     reveal(tl, C.umfang, 'calc', '>0.2')                // Taschenrechner nach „kleinstmöglich" (FSS9 l)
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
   const fillA = (tl, c) => {
     ;[[c.r.hi, 0], [c.r.lo, 1]].forEach(([R, i]) => {
+      if (i) halt(tl)
       tl.to(S, { kR: R, rLive: 1, duration: 0.8, ease: EASE.cam }, '>0.2')
       tl.set(S, { [`f${i}R`]: 0, [`f${i}A`]: 1 })
       tl.to(S, { [`f${i}R`]: R, duration: 2, ease: 'power2.inOut' })
       reveal(tl, C.frange, i ? 'min' : 'max', '>-0.2')
     })
+    halt(tl)
     reveal(tl, C.frange, 'calc', '>0.2')
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
@@ -578,7 +619,9 @@ export function buildSteps(S, DOM) {
     tl.to(S, { kDisc: 1, kRadA: 1, duration: 0.6 }, '>-0.4')
     rl.show(tl, textIndex(R_TEXTS[0]), { at: '<' })
     deck.show(tl, C.circle0, '<')
+    halt(tl)
     tl.to(S, { kRing: 1, kLo: c.r.lo, kHi: c.r.hi, duration: 0.8, ease: EASE.reveal }, '>0.2')
+    halt(tl)
     varyR(tl, R_SAMPLES[0], c.r)
   }, 3)
 
@@ -592,6 +635,7 @@ export function buildSteps(S, DOM) {
         swapDyn(tl, 'circ', j, '<')
         deck.show(tl, C.circle0, '<')
         tl.to(S, { kLo: c.r.lo, kHi: c.r.hi, duration: 1.1, ease: EASE.cam }, '<0.2')
+        halt(tl)
         varyR(tl, R_SAMPLES[j], c.r)
       }, 3)
     }

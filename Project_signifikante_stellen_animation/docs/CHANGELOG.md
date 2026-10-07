@@ -1,5 +1,61 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.6 — 2026-10-07 (PO-Review 2. Runde)
+
+- Schlusskontrolle: Rundungs-Plakette mit Abstand zum Pfeil; Vergleichstafel der Multiplikation etwas nach links, damit die Plakette in der Tafel bleibt.
+
+## v1.1.5 — 2026-10-07 (PO-Review 2. Runde)
+
+- Grenz-Kästen in allen Kapiteln einheitlich wie die Vergleichstafel: größtmöglich oben, Taschenrechner dazwischen, kleinstmöglich unten; je Kasten Bezeichnung + Formel, darunter eingesetzte Werte links und Ergebnis rechtsbündig (Ergebnisse untereinander) – Rechteck, Kreis (Umfang, Fläche), Division (A, B, kombiniert), Addition (FSS34).
+
+## v1.1.4 — 2026-10-07 (PO-Review 2. Runde)
+
+- Ist das Taschenrechner-Ergebnis schon richtig gerundet (3 m · 2 m = 6 m²), entfällt die Rundungs-Animation der Vergleichstafel samt Halt; die Karte zeigt „nicht nötig ✓“ statt „runden ⟶“ (FSS35).
+
+## v1.1.3 — 2026-10-07 (PO-Review 2. Runde)
+
+- Runden in der Vergleichstafel inszeniert: die sinnlosen Ziffern der Rechnerzeile weichen, Pfeil mit „aufrunden“/„abrunden“ (aus der ersten weggelassenen Ziffer), das gerundete Ergebnis springt als Plakette mit Nachfedern auf; eigener Halt im Präsentationsmodus. Ergebniszeilen der Karten als Plakette (FSS32). Reihenfolge: Schlußzeile der Tafel, Karten-Ergebniszeilen, Protokollzelle und Ergebnis-Marke erscheinen erst nach dem Runden (FSS33).
+
+## v1.1.2 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Division: Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen … Ergebnisse immer sinnvoll runden.“ (FSS31).
+
+## v1.1.1 — 2026-10-07 (PO-Review 2. Runde)
+
+- Vergleichstafel Max · Rechner · Min (alle Kapitel): Sobald das Ergebnis steht, zeigt die Rechnerzeile „⟶ runden ⟶ 6,686 m²“ in Akzentfarbe, Pfeil am tatsächlichen Zeilenende ausgerichtet; Tafel der Multiplikation etwas nach links gerückt (FSS30).
+
+## v1.1.0 — 2026-10-07 (PO-Review 3. Runde, Minor-Release)
+
+Zusammenfassung der Patch-Stände v1.0.17–v1.0.22:
+- **Präsentationsmodus** (Taste A): ca. 2,8-mal feinere Schritte an didaktischen Zwischenhalten (FSS25).
+- Regelsätze nennen die Rechenart; „Jeder Messwert – und damit fast jede physikalische Größe – steht für ein Intervall“ (FSS24, FSS26).
+- Hinweis für Übungen und Klausur: gegebene Größen sind Messwerte (FSS27, FSS28).
+- Gerundete Ergebnisse prominenter (FSS29).
+
+## v1.0.22 — 2026-10-07 (PO-Review 2. Runde)
+
+- Gerundete Ergebnisse prominenter: in der Taschenrechner-Zeile als Akzent-Plakette samt Einheit, in Ergebniszeilen größer, in der Schlußzeile der Tafel „Ziffern vergleichen“ „→ A = 6,686 m²“ groß in Akzentfarbe, in der Gesamtzusammenfassung die ⇒-Zeilen in Akzentfarbe (FSS29).
+
+## v1.0.21 — 2026-10-07 (PO-Review 2. Runde)
+
+- Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ schon auf der Merke-Folie der Grundlagen, auf Zusammenfassung 1 / 3 und auf der allerletzten Folie (3 / 3, dort zusätzlich „Ergebnisse immer sinnvoll runden“) (FSS28).
+
+## v1.0.20 — 2026-10-07 (PO-Review 2. Runde)
+
+- Zusammenfassung 1 / 3: Hinweis „In Übungsaufgaben: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ (erscheint nach den Beispielen, eigener Halt im Präsentationsmodus) (FSS27).
+
+## v1.0.19 — 2026-10-07 (PO-Review 2. Runde)
+
+- Regelsätze nennen die Rechenart: „Das Ergebnis einer Multiplikation / einer Division / einer Addition oder Subtraktion hat …“ – in den Merke-Folien, den Regel-Zeilen der Kapitel-Zusammenfassungen und im Kapitel Zusammenfassung 2 / 3 und 3 / 3 (FSS26).
+
+## v1.0.18 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Grundlagen und Zusammenfassung 1 / 3: „Jeder Messwert – und damit fast jede physikalische Größe – steht für ein Intervall; die letzte Ziffer ist unsicher.“ (FSS24).
+
+## v1.0.17 — 2026-10-07 (PO-Review 2. Runde)
+
+- Präsentationsmodus (Taste A, kein sichtbarer Schalter, kurze Einblendung beim Umschalten): hält zusätzlich an didaktischen Zwischenhalten innerhalb der Schritte – Grundlagen 20 → 62, Multiplikation 18 → 50, Division 15 → 42, Addition 12 → 33, Zusammenfassung 3 → 9. Halte u. a. vor jedem Messvorgang, je wahrer Länge, vor Intervall/±-Pfeilen, an der ersten abweichenden Ziffer des Ziffernvergleichs, je Zeile der Zusammenfassung. Gemeinsame Schritt-Engine: beat(tl), eine Master-Timeline für beide Modi (reversibel), Position bleibt beim Umschalten, Modus in der Adresse (#kapitel/p<schritt>) und gemerkt; Druck folgt dem aktiven Modus; Warnung, wenn ein Tween über einen Halt läuft (FSS25).
+
 ## v1.0.16 — 2026-10-07 (PO-Review 2. Runde)
 
 - Merke Grundlagen: zwei Beispiele wie die Ziffernzeile der Bühne – 3,120 m und 0,003120 km mit Zählmarken 1–4 über den signifikanten Ziffern, Klammer „gesichert“, Pfeil „unsicher“ auf die letzte Ziffer, Klammer „nicht signifikant“ über den führenden Nullen; Text gestrafft, Umrechnungsregel ergänzt (FSS13).
