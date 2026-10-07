@@ -52,6 +52,11 @@ export const RODS_MEASURE = [ROD_TRUE, 3.0701]            // Teil M: zwei Stäbe
 export const ROD_COARSE = ROD_TRUE                        // 1-m-Band: näher an 3 → „3 m"
 export const ROD_SHORT = 2.4132                           // 1-m-Band: näher an 2 → „2 m"
 export const ROD_FINE_OTHER = 3.1702                      // 0,1-m-Band: näher an 3,2 → „3,2 m"
+// Jeder Stab hat seine Metallfarbe (leichte Abstufungen, styles.css .tint-k): verschiedene
+// Längen = verschiedene Stäbe, nicht derselbe verschoben (PO 2026-10-07, FSS9 aa)
+export const ROD_TINTS = 6
+const TINT_OF = { 3.1203: 0, 2.4132: 1, 3.1702: 2, 3.0701: 3, 3.3802: 4, 2.6401: 5, 3.1178: 1, 3.1197: 2 }
+export const rodTint = len => TINT_OF[len] ?? 0
 // Teil Z: wahre Längen, deren Pfeile je Stufe auf der Zahlengeraden landen
 export const RODS_LEVEL = [[ROD_TRUE, 3.3802, 2.6401], [ROD_TRUE, 3.0701], [ROD_TRUE, 3.1178],
   [ROD_TRUE, 3.1197]]

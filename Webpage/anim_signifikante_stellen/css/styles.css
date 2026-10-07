@@ -31,7 +31,15 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .rod-outline { fill: none; stroke: var(--rod-edge); stroke-width: 1; }
 .rod-gloss { fill: #fff; fill-opacity: .75; }
 body.dark .rod-gloss { fill-opacity: .5; }
-.rod-cap  { fill: url(#grad_rod_end); stroke: var(--rod-edge); stroke-width: 1; }
+.rod-cap  { stroke: var(--rod-edge); stroke-width: 1; }
+/* Metallfarben der Stäbe (Grundlagen): leichte Abstufungen, in beiden Themes gleich
+   (physische Objekte) — Stahl · Aluminium · Titan · Blaustahl · Neusilber · Dunkelstahl */
+.tint-0 { --rod-hi: #f4f6fa; --rod-mid: #b9c0cc; --rod-lo: #7d8696; --rod-edge: #5f6776; }
+.tint-1 { --rod-hi: #fbfbfb; --rod-mid: #cfd1d4; --rod-lo: #93969b; --rod-edge: #6e7176; }
+.tint-2 { --rod-hi: #f7f3ec; --rod-mid: #c2baad; --rod-lo: #877e71; --rod-edge: #665e53; }
+.tint-3 { --rod-hi: #edf3fa; --rod-mid: #a7b9cc; --rod-lo: #687e96; --rod-edge: #4c5f75; }
+.tint-4 { --rod-hi: #f8f5e8; --rod-mid: #c9c09f; --rod-lo: #8d8467; --rod-edge: #6a624a; }
+.tint-5 { --rod-hi: #e4e6ea; --rod-mid: #9aa0aa; --rod-lo: #5f6672; --rod-edge: #444a55; }
 .rod-cap-hi { fill: #fff; fill-opacity: .55; }
 
 /* Ablesebereich (Rundungsintervall auf dem Maßband), Stabende, Einrast-Pfeil */

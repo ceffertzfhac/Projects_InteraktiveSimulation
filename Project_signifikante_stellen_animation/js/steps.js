@@ -18,7 +18,7 @@
 import { createCamera, createCardDeck, createSlots } from '../../shared/js/step-kit.js'
 import {
   T, EASE, CAM_START, CAM_ROD_END, CAM_OVERVIEW, camA, levelWidth, camForExample,
-  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER,
+  L_LEVELS, RODS_LEVEL, RODS_MEASURE, ROD_SHORT, ROD_FINE_OTHER, rodTint,
   B_FINAL, RETURN_PATH, MIXES, CORNER_SAMPLES, R_TEXTS, R_SAMPLES, textIndex,
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
@@ -60,10 +60,19 @@ export function buildSteps(S, DOM) {
   // Pfeil „wahre Länge": Stab auf Länge x bringen, Pfeil steigt vom
   // Stabende zur Zahlengeraden, landet mit Impulsring, hinterläßt Treffer.
   let arUp = false, rodLen = S.rod0
+  // Anderer Stab statt desselben verschoben (FSS9 aa): alter Stab blendet aus, der neue —
+  // eigene Metallfarbe — gleitet von links an seine Länge
+  const swapRod = (tl, x, at, d = 0.9) => {
+    tl.to(S, { rod0A: 0, duration: 0.25 }, at)
+    tl.set(S, { rod0: x, rod0T: rodTint(x), rod0S: -0.6 })
+    tl.to(S, { rod0A: 1, rod0S: 0, duration: d * 0.7, ease: EASE.reveal })
+    rodLen = x
+  }
   const fire = (tl, x, at) => {
     if (arUp) tl.to(S, { arD: 0, duration: 0.28, ease: 'power2.in' }, at)
-    if (x !== rodLen) tl.to(S, { rod0: x, duration: 0.6, ease: EASE.cam }, arUp ? '>' : at)
-    tl.set(S, { arA: 1 }, arUp || x !== rodLen ? '>' : at)
+    const other = x !== rodLen
+    if (other) swapRod(tl, x, arUp ? '>' : at, 0.8)
+    tl.set(S, { arA: 1 }, arUp || other ? '>' : at)
     tl.to(S, { arD: 1, duration: 0.55, ease: 'power3.out' })
     tl.set(S, { ping: 0 })
     tl.to(S, { ping: 1, duration: 0.7, ease: 'power2.out' })
@@ -140,10 +149,7 @@ export function buildSteps(S, DOM) {
     }
   }
   const unsnap = (tl, i, at) => tl.to(S, { [`sn${i}A`]: 0, duration: 0.25 }, at)
-  const rodTo = (tl, x, at) => {
-    tl.to(S, { rod0: x, duration: 0.9, ease: EASE.cam }, at)
-    rodLen = x
-  }
+  const rodTo = (tl, x, at) => { if (x !== rodLen) swapRod(tl, x, at) }
 
   step('Ein Metallstab', tl => {
     tl.to(S, { rod0A: 1, rod0S: 0, duration: 1.1, ease: EASE.reveal })

@@ -8,7 +8,7 @@ import {
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
 import {
-  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL,
+  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL, ROD_TINTS,
 } from './constants.js'
 import { DYN, LUPE, COMPARE, RANGES, SUMMARY, CORNERS } from './content.js'
 import { parseMeasured } from './model.js'
@@ -134,11 +134,15 @@ export function initStage(svg, DOM) {
   const defs = svgEl('defs', {}, svg)
   gradient(defs, 'grad_l', [[0, 'gl-edge'], [0.5, 'gl-mid'], [1, 'gl-edge']])
   // Rundstab: dunkle Kanten, Glanzstreifen im oberen Drittel, Reflex unten (Zylinder-Schattierung)
+  // je Metallfarbe ein Mantel- und ein Stirnflächen-Verlauf (Farben: styles.css .tint-k)
+  for (let k = 0; k < ROD_TINTS; k++) {
+    gradient(defs, `grad_rod_${k}`, [[0, 'rod-lo'], [0.14, 'rod-mid'], [0.3, 'rod-hi'], [0.42, 'rod-mid'],
+      [0.78, 'rod-lo'], [0.9, 'rod-edge-s'], [1, 'rod-mid']].map(([o, c]) => [o, `${c} tint-${k}`]))
+    const re = svgEl('radialGradient', { id: `grad_rod_end_${k}`, cx: 0.4, cy: 0.35, r: 0.75 }, defs)
+    ;[[0, 'rod-hi'], [0.55, 'rod-mid'], [1, 'rod-lo']].forEach(([o, c]) => svgEl('stop', { offset: o, class: `${c} tint-${k}` }, re))
+  }
   gradient(defs, 'grad_rod', [[0, 'rod-lo'], [0.14, 'rod-mid'], [0.3, 'rod-hi'], [0.42, 'rod-mid'],
-    [0.78, 'rod-lo'], [0.9, 'rod-edge-s'], [1, 'rod-mid']])
-  // Stirnfläche: gedrehte, leicht gewölbte Scheibe (hell oben links → dunkel unten rechts)
-  const rg = svgEl('radialGradient', { id: 'grad_rod_end', cx: 0.4, cy: 0.35, r: 0.75 }, defs)
-  ;[[0, 'rod-hi'], [0.55, 'rod-mid'], [1, 'rod-lo']].forEach(([o, cls]) => svgEl('stop', { offset: o, class: cls }, rg))
+    [0.78, 'rod-lo'], [0.9, 'rod-edge-s'], [1, 'rod-mid']])            // Addition (Stab A)
   gradient(defs, 'grad_tape', [[0, 'tape-hi'], [1, 'tape-lo']])
   const clip = svgEl('clipPath', { id: 'plot_clip' }, defs)
   E.clipRect = svgEl('rect', {}, clip)
@@ -451,6 +455,13 @@ export function renderScene(S) {
     set(R.line, { d: `M${m0} ${y + 0.5}H${m1}M${m0} ${y + h - 0.5}H${m1}` })
     set(R.gloss, { x: m0 + 2, y: y + h * 0.24, width: Math.max(0, m1 - m0 - 4), height: 2.2 })
     set(R.cap, { cx: m1, cy, rx: ER, ry: h / 2 })
+    const k = Math.round(S[`rod${i}T`])                         // Metallfarbe dieses Stabs
+    if (R.tint !== k) {
+      R.tint = k
+      R.back.style.fill = R.body.style.fill = `url(#grad_rod_${k})`
+      R.cap.style.fill = `url(#grad_rod_end_${k})`
+      R.g.setAttribute('class', `rod tint-${k}`)
+    }
     set(R.capHi, { cx: m1 - 1, cy: cy - h * 0.14, rx: ER * 0.45, ry: h * 0.22 })
   })
   // ── Ablesebereich, Stabende, „Einrasten" auf die nächste Marke ──
@@ -464,7 +475,7 @@ export function renderScene(S) {
   ;[0, 1].forEach(i => {
     const x = V.sx(S[`rod${i}`]), ya = ROD[i].top + S.tapeY - 6
     set(E.marks[i], { x1: x, x2: x, y1: ya, y2: lerp(ya, zb + 2, S[`mk${i}D`]) })
-    op(E.marks[i], S[`mk${i}A`] * smooth(0, 0.05, S[`mk${i}D`]))
+    op(E.marks[i], S[`mk${i}A`] * S[`rod${i}A`] * smooth(0, 0.05, S[`mk${i}D`]))   // Markierung gehört zum Stab
     snapArc(E.snaps[i], x, V.sx(S.rdX), zb, S[`sn${i}D`], S[`sn${i}A`])
   })
 

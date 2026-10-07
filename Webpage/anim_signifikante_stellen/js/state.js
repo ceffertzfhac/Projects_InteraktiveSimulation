@@ -4,7 +4,7 @@
 // content.js DYN), damit jeder Schritt exakt rückwärts abspielbar ist.
 
 import { cameraKeys, slotKeys } from '../../shared/js/step-kit.js'
-import { CAM_START, RODS_MEASURE, ROD_COARSE, SIG_TOKENS, SIG_REPS } from './constants.js'
+import { CAM_START, RODS_MEASURE, ROD_COARSE, SIG_TOKENS, SIG_REPS, rodTint } from './constants.js'
 import { stellenKeys, compareKeys } from './stellen.js'
 
 export const store = { presenter: null, scene: null }   // scene = Szene des aktiven Kapitels
@@ -18,6 +18,7 @@ export function createScene() {
     tapeA: 0, tapeY: 60, tapeR: 0, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
     // Stäbe: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
     rod0: ROD_COARSE, rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
+    rod0T: rodTint(ROD_COARSE), rod1T: rodTint(RODS_MEASURE[1]),   // Metallfarbe je Stab
     // Ablesung unter dem Maßband
     rdX: 3, rdA: 0, ...slotKeys('rd'),
     // Ablesebereich auf dem Maßband, Stabende-Markierung, „Einrast"-Pfeil je Stab
