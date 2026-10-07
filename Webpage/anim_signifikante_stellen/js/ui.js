@@ -16,6 +16,7 @@ import { initAddStage, renderAdd } from './addition/render.js'
 import { buildAddSteps } from './addition/steps.js'
 import { fillAddCards } from './addition/content.js'
 import { fillCalcIcons } from './stellen.js'
+import { createSummaryScene, initSummaryStage, renderSummary, buildSummarySteps } from './zusammenfassung.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -32,7 +33,8 @@ initDOM()
 setupTheme()
 // Kapitel Grundlagen und Multiplikation teilen Szene und Zeichnung (Teil 1 → Teil 2),
 // Division hat eine eigene; sichtbar ist nur die Gruppe des aktiven Kapitels.
-const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg), addition: initAddStage(DOM.svg) }
+const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg), addition: initAddStage(DOM.svg),
+  summary: initSummaryStage(DOM.svg) }
 groups.mult = groups.grund
 fillSpeedCards(DOM)
 fillAddCards(DOM)
@@ -80,6 +82,13 @@ store.presenter = createPresenter({
       create: (onChange, onTick) => {
         const S = store.scene = createAddScene()
         return createStepEngine({ steps: buildAddSteps(S, DOM), scene: S, render: renderAdd, onChange, onTick })
+      },
+    },
+    {
+      id: 'summary', title: 'Zusammenfassung',
+      create: (onChange, onTick) => {
+        const S = store.scene = createSummaryScene()
+        return createStepEngine({ steps: buildSummarySteps(S, DOM), scene: S, render: renderSummary, onChange, onTick })
       },
     },
   ],

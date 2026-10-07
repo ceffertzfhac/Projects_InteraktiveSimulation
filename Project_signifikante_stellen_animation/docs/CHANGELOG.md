@@ -29,6 +29,7 @@
 - Multiplikation: Folienkarten rechts oben bündig, damit sie die Tafel „Ziffern vergleichen“ nicht verdecken; Addition: Taschenrechner auf der Bühne unter die Karte gerückt.
 - Grundlagen-Abschluss „Zeitmessung“ in drei Schritten (neues Modul `js/zeit.js`): Ein Auto fährt von Start zu Ziel, zwei Stoppuhren laufen mit; Sekundenzeiger-Uhr (mit Lupe) → *t* = 2 s, Zahlenstrahl mit [1,5 ; 2,5) s; Digitaluhr → *t* = 2,14 s, gezoomter Zahlenstrahl mit [2,135 ; 2,145) s, als schmaler Streifen im groben Intervall verbunden. Werte wie im Kapitel Division. Grundlagen hat jetzt 16 Schritte (FSS9 j).
 - Zusammenfassung als Vollfolie in zwei Schritten – „Vergleich“ (Tabelle + Beobachtung) und „Begründung und Regel“ –, danach Merke als eigene Vollfolie, in Multiplikation, Division und Addition; die Folien decken die Bühne ganz ab. Grundlagen endet mit einer Merke-Folie (Intervall, unsichere letzte Ziffer, Definition, „Keine Messung ist unendlich genau – außer Zählungen kleiner Mengen.“). Merke Multiplikation: Beispiele in zwei Zeilen statt überlaufender Formel (FSS9 m).
+- Neues Kapitel „Zusammenfassung“ (`js/zusammenfassung.js`): drei Vollfolien – Grundlagen („Keine Messung ist unendlich genau – außer Zählungen kleiner Mengen.“), Multiplikation und Division, Addition und Subtraktion –, je Regel und zwei Beispiele (einfach, komplexer), die nacheinander erscheinen (FSS9 w).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
