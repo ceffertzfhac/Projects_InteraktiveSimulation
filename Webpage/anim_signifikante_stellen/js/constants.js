@@ -116,6 +116,8 @@ export const SIG_REPS = [
 
 // ── „Welche Stelle ist unsicher?" (Teil R/K): Tafel rechts unten ─────────────
 export const LUPE_BOX = { x: 756, y: 478, w: 408, h: 178 }
+// Tafel „Ziffern vergleichen": höher als die Lupe — Platz für die Ergebniszeile (FSS36)
+export const CMP_BOX = { x: 756, y: 402, w: 408, h: 254 }
 // Erklärschritt „Wie viele Stellen gebe ich an?": dieselbe Tafel groß links (Karte rechts)
 export const LUPE_BIG = { x: 44, y: 150, w: 680 }
 // Taschenrechner im Rechteck (Schritt „Das Rechteck")

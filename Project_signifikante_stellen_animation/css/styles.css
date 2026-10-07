@@ -428,8 +428,8 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .c-dot.cp1 { background: var(--c-p1); } .c-dot.cp2 { background: var(--c-p2); }
 .c-dot.cp3 { background: var(--c-p3); } .c-dot.cp4 { background: var(--c-p4); }
 
-/* Taschenrechner-Zeile: Symbol · „Taschenrechner:" · Rechnung, nach dem Ziffernvergleich
-   „⟶ runden ⟶ Ergebnis" in derselben Zeile (FSS9 p, q) */
+/* Taschenrechner-Zeile: Symbol · „Taschenrechner:" · Rechnung. Gerundet wird in der
+   Tafel „Ziffern vergleichen" (FSS36) — nicht noch einmal auf der Karte */
 .slide-card .calc-row {
   display: flex; flex-wrap: wrap; align-items: center; gap: .3em .5em;
   margin: .2em 0 .55em; padding: .45em .75em; border-radius: .5em;
@@ -439,10 +439,6 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .calc-ico { display: inline-flex; color: var(--text2); }
 .calc-ico svg { width: 1.25em; height: 1.25em; }
 .calc-lbl { font-size: .78em; font-weight: 700; letter-spacing: .03em; color: var(--text2); }
-.calc-rnd { display: inline-flex; align-items: center; gap: .45em; }
-.rnd-arrow { display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
-  color: var(--accent); font-size: 1.1em; }
-.rnd-arrow small { font-size: .5em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 
 /* Grenzen kleinstmöglich / größtmöglich: Bezeichnung, darunter Gleichung | Ergebnis —
    Ergebnisse rechtsbündig in einer Spalte, damit sie untereinander stehen (FSS9 o) */
@@ -533,21 +529,22 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
   color: var(--text); }
 
 /* Gerundete Ergebnisse prominent (FSS29): Rechnerzeile, Ergebniszeilen, Tafel, Zusammenfassung */
-.slide-card .calc-rnd > :last-child { font-size: 1.22em; font-weight: 700; color: var(--accent); white-space: nowrap;
-  padding: .02em .4em; border-radius: .35em; background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .slide-card .formula .dyn.res { font-size: 1.12em; }
 .verdict .res-val { fill: var(--accent); font-size: 1.3em; font-weight: 800; }
 .verdict .res-tail { fill: var(--text2); font-weight: 600; }
 .zs-ex .zs-res { font-size: 1.15em; }
 .slide-card .zs-ex .zs-res mjx-container { color: var(--accent); }
 
-/* Vergleichstafel: Runden an der Rechnerzeile (FSS30) */
-.cmp-rnd-arrow { fill: var(--accent); font-size: 18px; font-weight: 700; }
-.cmp-rnd-sym   { font-size: 30px; }
-.cmp-rnd-cap   { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-.cmp-rnd-val   { fill: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
-.cmp-rnd-pill  { fill: var(--accent); fill-opacity: .14; stroke: var(--accent); stroke-width: 2; }
+/* Vergleichstafel: Ergebniszeile unter den drei Zeilen — Rechenstrich, „A =", gerundetes
+   Ergebnis stellengenau unter den Ziffern als Plakette, „aufgerundet"/„abgerundet" (FSS36) */
+.cmp-rnd-rule { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
+.cmp-rnd-lbl  { fill: var(--accent); font-weight: 700; }
+.cmp-rnd-cap  { fill: var(--accent); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cmp-rnd-val  { fill: var(--accent); font-weight: 800; }
+.cmp-rnd-num  { font-family: var(--font-mono); }
+.cmp-rnd-num.pow { font-family: var(--font-ui); }
+.cmp-rnd-unit { font-family: var(--font-ui); font-weight: 700; }
+.cmp-rnd-pill { fill: var(--accent); fill-opacity: .14; stroke: var(--accent); stroke-width: 2; }
 /* Ergebniszeilen der Karten: gerundetes Ergebnis als Plakette (FSS32) */
 .slide-card .formula .dyn.res { padding: .02em .35em; border-radius: .35em;
   background: color-mix(in srgb, var(--accent) 16%, transparent); }
-.slide-card .rnd-arrow .dyn { color: inherit; font-weight: inherit; }

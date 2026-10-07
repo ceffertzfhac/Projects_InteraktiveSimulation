@@ -41,6 +41,11 @@ body.step-anim > .stage-wrap { grid-row: 2; }
 body.step-anim > .transport  { grid-row: 3; }
 body.ui-hidden > .topbar,
 body.ui-hidden > .transport { display: none; }
+/* Vollbild im Animationsmodus: Topbar weg, die Bühne wächst in die frei werdende Höhe
+   (PO 2026-10-07). Im Präsentationsmodus bleibt sie. Getrennte Regeln: ein unbekannter
+   Pseudo-Selektor in einer Liste würde die ganze Regel verwerfen. */
+:root:fullscreen body.step-anim:not(.mode-pres) > .topbar { display: none; }
+:root:-webkit-full-screen body.step-anim:not(.mode-pres) > .topbar { display: none; }
 
 /* ── Bühne ────────────────────────────────────────────────────── */
 .stage-wrap {

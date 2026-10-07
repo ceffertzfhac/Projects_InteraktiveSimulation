@@ -159,7 +159,7 @@ function buildTable(root) {
   })
 }
 
-// Einheiten-Tafel: falsch umgerechnet (800 mm), richtig umgerechnet, dann dieselbe Summe in km, m, dm,
+// Einheiten-Tafel: falsch umgerechnet (800 mm), richtig umgerechnet, dann dieselbe Summe in km, m,
 // cm und mm — beide Summanden und das Ergebnis in GLEICHER Einheit und GLEICHER Zehnerpotenz.
 // Jede Rechenzeile hat drei Teile (Summanden · „= Rechner" · „→ Ergebnis"), die nacheinander
 // erscheinen (Szene u{n}, u{n}b, u{n}c).
@@ -259,8 +259,9 @@ function renderEval(S, V) {
   set(E.bandLbl, { x: (a + b) / 2, y: BAND_Y + 32 }); op(E.bandLbl, S.bd * S.nAx)
   op(E.cmpG, S.dcA)
   if (S.dcA > 0.002) {
-    E.cmp.render(CMP, { x: CMP_BOX.x + 130, y: CMP_BOX.y + 44, gap: 38, alpha: 1, p: Math.round(S.dcP),
+    const bottom = E.cmp.render(CMP, { x: CMP_BOX.x + 130, y: CMP_BOX.y + 44, gap: 38, alpha: 1, p: Math.round(S.dcP),
       pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+    E.cmpVerdict.setAttribute('y', bottom + 34)
     setCompareLine(E.cmpVerdict, S, CMP)
   }
   E.units.forEach((parts, i) => {

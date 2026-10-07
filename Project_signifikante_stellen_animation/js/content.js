@@ -60,8 +60,6 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
     calcDec: `${dec} ${dec === 1 ? 'Nachkommastelle' : 'Nachkommastellen'}`,
     calcIn: `${lt} × ${bt} =`, calcOut: ex.valueStr,
     calcEq: `${lt} m · ${bt} m = ${ex.valueStr} m²`,          // Taschenrechner-Zeile der Folien
-    // nichts zu runden (3 · 2 = 6): statt „runden ⟶" ein „✓ nicht nötig" (FSS35)
-    rndCap: ex.valueStr === ex.rounded ? 'nicht nötig' : 'runden', rndSym: ex.valueStr === ex.rounded ? '✓' : '⟶',
     lLo: bnd(ex.l, ex.l.lo), lHi: bnd(ex.l, ex.l.hi), bLo: bnd(ex.b, ex.b.lo), bHi: bnd(ex.b, ex.b.hi),
     Alo: ex.loStr, Ahi: ex.hiStr,
     AIv: `[${ex.loStr} ; ${ex.hiStr})`, valueStr: ex.valueStr, rounded: ex.rounded,

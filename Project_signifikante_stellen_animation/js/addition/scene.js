@@ -24,9 +24,9 @@ export function createAddScene() {
     tbA: 0, r0: 0, r1: 0, r2: 0, hiS: 0, hiN: 0, hiU: 0,
     // Auswertung: Zahlengerade mit Band der Summe, Vergleichstafel
     nAx: 0, bd: 0, ...compareKeys(),
-    // Einheiten-Tafel: acht Zeilen; Rechenzeilen 3–7 in drei Teilen (Summanden, Rechner, Ergebnis)
-    u1: 0, u2: 0, u3: 0, u4: 0, u5: 0, u6: 0, u7: 0, u8: 0,
-    u3b: 0, u4b: 0, u5b: 0, u6b: 0, u7b: 0, u3c: 0, u4c: 0, u5c: 0, u6c: 0, u7c: 0,
+    // Einheiten-Tafel: sieben Zeilen; Rechenzeilen 3–6 in drei Teilen (Summanden, Rechner, Ergebnis)
+    u1: 0, u2: 0, u3: 0, u4: 0, u5: 0, u6: 0, u7: 0,
+    u3b: 0, u4b: 0, u5b: 0, u6b: 0, u3c: 0, u4c: 0, u5c: 0, u6c: 0,
     dim: 0,
   }
 }

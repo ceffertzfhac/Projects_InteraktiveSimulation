@@ -470,7 +470,9 @@ export function renderSpeed(S) {
   if (S.dcA > 0.002) {
     const i = Math.round(S.dcI), D = CMP[i]
     E.cmpTitle.textContent = `${['Person A', 'Person B', 'Kombiniert'][i]}: Ziffern vergleichen`
-    E.cmp.render(D, { x: 240, y: FRAC.y[0] + 6, gap: 38, alpha: 1, p: Math.round(S.dcP), pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+    const bottom = E.cmp.render(D, { x: 240, y: FRAC.y[0] + 6, gap: 38, alpha: 1, p: Math.round(S.dcP),
+      pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+    E.cmpVerdict.setAttribute('y', bottom + 34)
     setCompareLine(E.cmpVerdict, S, D)
   }
 }

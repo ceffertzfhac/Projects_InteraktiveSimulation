@@ -36,10 +36,10 @@ export const TABLE = { x: [60, 205, 300, 462, 590, 676], y0: 64, dy: 34 }
 export const VIEW_N = { vL: 110, vR: 1080, vT: 520, vB: 640 }
 export const AXIS_Y = 612
 export const BAND_Y = 566
-export const CMP_BOX = { x: 96, y: 440 }              // Vergleichstafel L_max · Rechner · L_min
+export const CMP_BOX = { x: 96, y: 404 }              // Vergleichstafel L_max · Rechner · L_min
 export const CAM_N = { view: VIEW_N, cx: 2.68, cy: 0, w: 0.4 }
 // Einheiten-Tafel („Gleiche Einheit"): fünf Zeilen
-export const UNITS = { x: 96, y: 336, dy: 38 }
+export const UNITS = { x: 96, y: 336, dy: 42 }
 
 export const T = { cam: 1.3, reveal: 0.7 }
 export const EASE = { cam: 'power2.inOut', reveal: 'power3.out', pop: 'back.out(2.2)' }

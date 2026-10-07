@@ -1,5 +1,12 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.2.0 — 2026-10-07 (PO-Review 2. Runde)
+
+- Vergleichstafel Max · Rechner · Min entzerrt: das gerundete Ergebnis steht als eigene Ergebniszeile unter den drei Zeilen – Rechenstrich, „A =", Plakette stellengenau unter den Ziffern, daneben „aufgerundet“/„abgerundet“ bzw. „nichts zu runden ✓“ – statt Pfeil und Plakette rechts neben der Rechnerzeile. Schlußzeile nur noch „Unsicherheit auf der n. Stelle“. Tafel der Multiplikation größer und höher (Ziffern 32 px), Tafeln in Division und Addition passend versetzt (FSS36).
+- Doppelungen gestrichen: keine Rundung mehr in den Taschenrechner-Zeilen der Karten (gerundet wird nur in der Tafel), Ergebniszeile der Karte „Wo weichen die Ziffern ab?“ entfällt (FSS36).
+- Addition „Erst umrechnen“: ohne dm – km, m, cm, mm (FSS36).
+- Vollbild (F) im Animationsmodus: Topbar ausgeblendet, die Bühne nutzt die Höhe (FSS36).
+
 ## v1.1.6 — 2026-10-07 (PO-Review 2. Runde)
 
 - Schlusskontrolle: Rundungs-Plakette mit Abstand zum Pfeil; Vergleichstafel der Multiplikation etwas nach links, damit die Plakette in der Tafel bleibt.

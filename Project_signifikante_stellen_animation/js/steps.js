@@ -537,11 +537,8 @@ export function buildSteps(S, DOM) {
   }, 7)
 
   step('Ziffern vergleichen', tl => {
-    hideRows(tl, C.cmp, '<')
     deck.show(tl, C.cmp)
     scanCompare(tl, S, COMPARE[0], 0, { at: '<' })
-    reveal(tl, C.cmp, 'rnd', '>')                       // ⟶ runden ⟶ (FSS9 s)
-    reveal(tl, C.cmp, 'res', '>0.3')
   }, 6)
 
   // ── C · Gröber gemessen ────────────────────────────────────────────────────
@@ -567,7 +564,6 @@ export function buildSteps(S, DOM) {
     bounds(tl, l, b, C.range)
     tl.to(S, { dcA: 0, duration: 0.3 }, '>0.2')
     scanCompare(tl, S, COMPARE[cmb], cmb)
-    reveal(tl, C.range, 'rnd', '>')                     // Ergebnis: Rundung + Schlußzeile der Tafel
   }, 6)
 
   RETURN_PATH.forEach((p, j) => example(`Gröber: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
@@ -645,7 +641,6 @@ export function buildSteps(S, DOM) {
       deck.show(tl, C.umfang, '<')
       traceU(tl, c)
       scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j], LUPE_CIRCLE + 2 * j, { at: '>0.1' })
-      reveal(tl, C.umfang, 'rnd', '>')                    // Ergebnis: Rundung + Schlußzeile der Tafel
     }, 6)
     step(`Fläche bei r = ${rt} m`, tl => {
       tl.to(S, { dcA: 0, duration: 0.3 })
@@ -653,7 +648,6 @@ export function buildSteps(S, DOM) {
       deck.show(tl, C.frange, '<')
       fillA(tl, c)
       scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j + 1], LUPE_CIRCLE + 2 * j + 1, { at: '>0.1' })
-      reveal(tl, C.frange, 'rnd', '>')                    // Ergebnis: Rundung + Schlußzeile der Tafel
     }, 6)
   })
 

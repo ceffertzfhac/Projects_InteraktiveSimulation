@@ -8,7 +8,7 @@ import {
 } from '../../shared/js/step-kit.js'
 import { fmt } from '../../shared/js/format.js'
 import {
-  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL, ROD_TINTS,
+  TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, CMP_BOX, LUPE_BIG, CALC, B_FINAL, ROD_TINTS,
 } from './constants.js'
 import { DYN, LUPE, COMPARE, RANGES, SUMMARY, SUMMARY_GROUPS, CORNERS } from './content.js'
 import { parseMeasured } from './model.js'
@@ -124,12 +124,12 @@ function buildLupe() {
 
 // Tafel „Ziffern vergleichen": A_max, A_min, l · b untereinander, Spaltenzeiger
 function buildCompare() {
-  const B = LUPE_BOX
+  const B = CMP_BOX
   E.cmpPanel = svgEl('g', { class: 'lupe-panel' }, E.top)
   svgEl('rect', { class: 'panel-bg', x: B.x, y: B.y, width: B.w, height: B.h, rx: 14 }, E.cmpPanel)
-  text(E.cmpPanel, 'lupe-title', { x: B.x + 20, y: B.y + 24 }, 'Ziffern vergleichen')
-  E.cmp = createCompareBoard(E.cmpPanel, { size: 28 })
-  E.cmpVerdict = text(E.cmpPanel, 'verdict verdict-sm', { x: B.x + 20, y: B.y + B.h - 10 })
+  text(E.cmpPanel, 'lupe-title', { x: B.x + 20, y: B.y + 26 }, 'Ziffern vergleichen')
+  E.cmp = createCompareBoard(E.cmpPanel, { size: 32 })
+  E.cmpVerdict = text(E.cmpPanel, 'verdict', { x: B.x + 20 })
 }
 
 export function initStage(svg, DOM) {
@@ -734,8 +734,10 @@ function renderLupe(S) {
 function renderCompare(S) {
   op(E.cmpPanel, S.dcA)
   if (S.dcA <= 0.002) return
-  const B = LUPE_BOX, D = COMPARE[Math.round(S.dcI)], p = Math.round(S.dcP)
-  E.cmp.render(D, { x: B.x + 78, y: B.y + 64, gap: 34, alpha: 1, p, pointerA: S.dcV, colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+  const B = CMP_BOX, D = COMPARE[Math.round(S.dcI)], p = Math.round(S.dcP)
+  const bottom = E.cmp.render(D, { x: B.x + 104, y: B.y + 68, gap: 39, alpha: 1, p, pointerA: S.dcV,
+    colorFrom: S.dcC, final: S.dcF, round: S.dcR })
+  E.cmpVerdict.setAttribute('y', bottom + 30)
   setCompareLine(E.cmpVerdict, S, D)
   op(E.cmpVerdict, S.dcV)
 }

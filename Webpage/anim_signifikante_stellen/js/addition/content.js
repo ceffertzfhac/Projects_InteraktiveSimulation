@@ -32,13 +32,13 @@ const cmp = digitCompare(exactStr(SUM.lo), exactStr(SUM.hi))
 const ORD = ['ersten', 'zweiten', 'dritten', 'vierten']
 const uncOrd = ORD[Math.max(...cmp.hi.filter(c => !c.comma).map(c => c.p)) - cmp.pDiff]
 
-// Einheiten-Tafel: dieselbe Rechnung in km, m, dm, cm und mm — so umgerechnet, daß die signifikanten Stellen erhalten bleiben
+// Einheiten-Tafel: dieselbe Rechnung in km, m, cm und mm (ohne dm, PO 2026-10-07) — so umgerechnet, daß die signifikanten Stellen erhalten bleiben
 // (Anzahl sinnvoller Ziffern bleibt) und mit GLEICHER Zehnerpotenz für beide Summanden
 // und das Ergebnis: 0,8 · 10³ mm + 1,877 · 10³ mm = 2,677 · 10³ mm → 2,7 · 10³ mm.
 // So stehen in jeder Einheit dieselben Mantissen da — Nachkommastellen direkt vergleichbar.
 const SUPS = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' }
 const pow = e => (e ? ` · 10${[...String(e)].map(c => SUPS[c]).join('')}` : '')
-export const UNITS_POW = [['km', -3], ['m', 0], ['dm', 1], ['cm', 2], ['mm', 3]].map(([u, e]) => ({
+export const UNITS_POW = [['km', -3], ['m', 0], ['cm', 2], ['mm', 3]].map(([u, e]) => ({
   u, a: a.text + pow(e), b: b.text + pow(e), raw: raw + pow(e), res: SUM.rounded + pow(e),
 }))
 const inUnit = f => ({

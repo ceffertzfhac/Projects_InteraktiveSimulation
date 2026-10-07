@@ -123,7 +123,6 @@ export function buildAddSteps(S, DOM) {
     deck.show(tl, C.a_label)
     tl.to(S, { nAx: 0, duration: 0.5 }, '<')
     compareScan(tl, S, CMP, 0, { at: '>0.1' })
-    reveal(tl, C.a_label, 'rnd', '>0.4')                 // ⟶ runden ⟶ 2,7 m (FSS9 s)
     reveal(tl, C.a_label, 'res', '>0.3')
     tl.to(S, { r2: 1, duration: 0.5 }, '<')
   }, 6)
@@ -145,13 +144,13 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { u1: 1, duration: 0.6 }, '>0.3')
     B(tl)
     tl.to(S, { u2: 1, duration: 0.6 }, '>0.6')
-    ;[3, 4, 5, 6, 7].forEach(n => {
+    ;[3, 4, 5, 6].forEach(n => {
       B(tl)
       tl.to(S, { [`u${n}`]: 1, duration: 0.6 }, '>0.6')
       tl.to(S, { [`u${n}b`]: 1, duration: 0.5 }, '>1.2')
       tl.to(S, { [`u${n}c`]: 1, duration: 0.5 }, '>1.2')
     })
-    tl.to(S, { u8: 1, duration: 0.6 }, '>1.6')
+    tl.to(S, { u7: 1, duration: 0.6 }, '>1.6')
   }, 8)
 
   step('Zusammenfassung: Vergleich', tl => {
