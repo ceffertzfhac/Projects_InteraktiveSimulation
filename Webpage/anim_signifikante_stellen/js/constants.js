@@ -8,7 +8,7 @@ export const AXIS_Y = 372                         // Bildschirmlage der Zahlenge
 const AXIS_FRAC_A = (VIEW_A.vB - AXIS_Y) / (VIEW_A.vB - VIEW_A.vT)
 // Maßband und Stäbe (feste Bildschirmhöhen; x folgt der Kamera)
 export const TAPE = { top: 506, h: 40 }
-export const ROD = [{ top: 484, h: 16 }, { top: 460, h: 16 }]
+export const ROD = [{ top: 481, h: 20 }, { top: 456, h: 20 }]
 export const READING_Y = 614                      // „abgelesener Messwert: …" unter dem Maßband
 
 // Teil R (Fläche): Plot links, Folienkarten rechts.

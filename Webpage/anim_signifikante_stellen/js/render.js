@@ -129,7 +129,10 @@ export function initStage(svg, DOM) {
   fillSummary(DOM.cards.m_sum, SUMMARY)
   const defs = svgEl('defs', {}, svg)
   gradient(defs, 'grad_l', [[0, 'gl-edge'], [0.5, 'gl-mid'], [1, 'gl-edge']])
-  gradient(defs, 'grad_rod', [[0, 'rod-hi'], [0.35, 'rod-mid'], [1, 'rod-lo']])
+  // Rundstab: dunkle Kanten, Glanzstreifen im oberen Drittel, Reflex unten (Zylinder-Schattierung)
+  gradient(defs, 'grad_rod', [[0, 'rod-lo'], [0.14, 'rod-mid'], [0.3, 'rod-hi'], [0.42, 'rod-mid'],
+    [0.78, 'rod-lo'], [0.9, 'rod-edge-s'], [1, 'rod-mid']])
+  gradient(defs, 'grad_rod_end', [[0, 'rod-mid'], [0.5, 'rod-hi'], [1, 'rod-lo']], false)
   gradient(defs, 'grad_tape', [[0, 'tape-hi'], [1, 'tape-lo']])
   const clip = svgEl('clipPath', { id: 'plot_clip' }, defs)
   E.clipRect = svgEl('rect', {}, clip)
@@ -147,7 +150,11 @@ export function initStage(svg, DOM) {
   E.tapeLabels = createPool(svgEl('g', {}, E.tape), () => svgEl('text', { class: 'tape-label', 'text-anchor': 'middle' }))
   E.rods = ROD.map(() => {
     const g = svgEl('g', { class: 'rod' }, E.root)
-    return { g, body: svgEl('rect', { class: 'rod-body', rx: 3 }, g), cap: svgEl('rect', { class: 'rod-cap', rx: 1.5 }, g) }
+    return {
+      g, body: svgEl('rect', { class: 'rod-body', rx: 2 }, g),
+      gloss: svgEl('rect', { class: 'rod-gloss', rx: 1 }, g),                 // Glanzlicht
+      cap: svgEl('ellipse', { class: 'rod-cap' }, g),                          // runde Stirnfläche
+    }
   })
   E.marks = ROD.map(() => svgEl('line', { class: 'rod-marker' }, E.root))
   E.snaps = ROD.map(() => {
@@ -413,8 +420,10 @@ export function renderScene(S) {
     const R = E.rods[i], len = S[`rod${i}`], sh = S[`rod${i}S`]
     op(R.g, S[`rod${i}A`])
     const a = clamp(V.sx(sh), V.L - FAR, V.R + FAR), b = clamp(V.sx(sh + len), V.L - FAR, V.R + FAR)
-    set(R.body, { x: a, y: ROD[i].top + S.tapeY, width: Math.max(0, b - a), height: ROD[i].h })
-    set(R.cap, { x: b - 3, y: ROD[i].top + S.tapeY - 2, width: 3, height: ROD[i].h + 4 })
+    const y = ROD[i].top + S.tapeY, h = ROD[i].h
+    set(R.body, { x: a, y, width: Math.max(0, b - a), height: h })
+    set(R.gloss, { x: a + 6, y: y + h * 0.24, width: Math.max(0, b - a - 14), height: 2.2 })
+    set(R.cap, { cx: b - 3.5, cy: y + h / 2, rx: 3.5, ry: h / 2 })   // endet genau am Stabende
   })
   // ── Ablesebereich, Stabende, „Einrasten" auf die nächste Marke ──
   const zb = top + TAPE.h
