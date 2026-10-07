@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.7 — 2026-10-07 (PO-Review 2. Runde)
+
+- Additionsregel didaktisch vereinfacht, einheitlich in Addition 11, 12 und Zusammenfassung 3 / 3: „Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.“ – Voraussetzung: alle Werte in derselben Einheit. Paralleler Satzbau zur Multiplikationsregel (Merkpaar: mal/geteilt → signifikante Stellen, plus/minus → Nachkommastellen). Recherche: OpenStax College Physics 2e, Kap. 1.3 („no more decimal places than the least precise measurement“), Hochschul-Tutorien (Uni Graz, LMU); typische Fehlvorstellung ist die Verwechslung mit der Multiplikationsregel (FSS21).
+
 ## v1.0.6 — 2026-10-07 (PO-Review 2. Runde)
 
 - Grundlagen 14: „Das gilt für alle Messwerte – zum Beispiel für Zeiten“; Einleitung „Intervall, unsichere letzte Ziffer, signifikante Stellen: Das gilt nicht nur für Längen, sondern für jede Messung.“, die Zeitmessung als Beispiel (FSS11).

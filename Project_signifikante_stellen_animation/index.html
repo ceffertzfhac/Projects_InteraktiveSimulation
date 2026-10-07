@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.6</span>
+        <span class="version">v1.0.7</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -621,21 +621,20 @@ window.MathJax = {
         <div class="concl-grid">
           <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Einheit endet das Ergebnis an derselben Stelle wie der ungenaueste Summand (Zehntel m = Zehner cm = Hunderter mm). Die Zahl der signifikanten Stellen sagt darüber nichts.</span></p>
           <p data-r="why"><span class="concl-k">Begründung</span><span>Beim Addieren addieren sich die <b>absoluten</b> Unsicherheiten: <span class="nw">± 0,05 m</span> + <span class="nw">± 0,0005 m</span> ≈ <span class="nw">± 0,05 m</span>. Die größere bestimmt allein, wo das Ergebnis unsicher wird.</span></p>
-          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Die Summe endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden – bei Dezimalzahlen in derselben Einheit: so viele Nachkommastellen wie dieser.</span></div>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</b> Voraussetzung: alle Werte in derselben Einheit.</span></div>
         </div>
       </div>
 
       <div class="slide-card full merke" data-card="a_rule">
         <div class="kicker">Merke · Addition und Subtraktion</div>
-        <h3>Das Ergebnis endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden.</h3>
-        <div class="formula">Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen
-          wie der ungenaueste Summand. Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht
+        <h3>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
+        <div class="formula">Voraussetzung: alle Werte in derselben Einheit. Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht
           (0,8 m = 0,8 · 10³ mm, nicht 800 mm). Für den Vergleich alle Werte in gleicher Einheit und gleicher Zehnerpotenz.</div>
         <table class="cmp">
           <tr><th></th><th>Multiplikation / Division</th><th>Addition / Subtraktion</th></tr>
           <tr><td>maßgeblich</td><td>relative Unsicherheit</td><td>absolute Unsicherheit</td></tr>
           <tr><td>Regel</td><td>so viele signifikante Stellen wie der ungenaueste Faktor</td>
-            <td>Ende beim Stellenwert des ungenauesten Summanden (gleiche Einheit: Nachkommastellen)</td></tr>
+            <td>so viele Nachkommastellen wie der Summand mit den wenigsten</td></tr>
           <tr><td>Beispiel</td><td>3,120&nbsp;m · 2,14&nbsp;m = 6,68&nbsp;m²</td>
             <td>0,8&nbsp;m + 1,877&nbsp;m = 2,7&nbsp;m</td></tr>
         </table>
@@ -667,9 +666,9 @@ window.MathJax = {
 
       <div class="slide-card full zs" data-card="zs_add">
         <div class="kicker">Zusammenfassung · 3 / 3 · Addition und Subtraktion</div>
-        <h3>Das Ergebnis endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden.</h3>
-        <div class="formula"><span class="concl-k">Regel</span> Maßgeblich ist die <b>absolute</b> Unsicherheit –
-          in derselben Einheit: so viele Nachkommastellen wie der ungenaueste Summand.</div>
+        <h3>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
+        <div class="formula"><span class="concl-k">Regel</span> Voraussetzung: alle Werte in derselben Einheit.
+          Maßgeblich ist die <b>absolute</b> Unsicherheit – die größte bestimmt, wo das Ergebnis unsicher wird.</div>
         <div class="zs-grid">
           <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}677\,\text{m}\)</p><p>\(\Rightarrow L = 2{,}7\,\text{m}\)</p><p class="note">Eine Nachkommastelle wie 0,8 m – nicht 1 signifikante Stelle (3 m).</p></div>
           <div class="zs-ex"><div class="zs-lbl">Beispiel B</div><p>\(0{,}8\,\text{m} + 1877\,\text{mm}\)</p><p>\(= 0{,}8 \cdot 10^3\,\text{mm} + 1{,}877 \cdot 10^3\,\text{mm}\)</p><p>\(\Rightarrow 2{,}7 \cdot 10^3\,\text{mm}\)</p><p class="note">Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.</p></div>
