@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.12 — 2026-10-07 (PO-Review 2. Runde)
+
+- Ecken-Test (Multiplikation 5) und „Vier Kombinationen“ (Division 8): Rechnungen in voller Kartenschrift statt 84 %, Ergebnis fett in Akzentfarbe, breitere Karte (40 % der Bühne), höhere Zeilen; Division mit flachem Bruch Δs_min / Δt_max statt gestapeltem (FSS14).
+
 ## v1.0.11 — 2026-10-07 (PO-Review 2. Runde)
 
 - Multiplikation: zusätzliches Beispiel „Gröber: 3 · 2,1“ (A ∈ [5,125 ; 7,525) m², Rechner 6,3 m² → 6 m², 1 Stelle) zwischen 3,120 · 2,14 und 3 · 2, zum Vergleich für die PO-Entscheidung; Zusammenfassungstabelle vorerst mit beiden Zeilen. Multiplikation hat jetzt 18 Schritte (FSS17, Entscheidung offen).

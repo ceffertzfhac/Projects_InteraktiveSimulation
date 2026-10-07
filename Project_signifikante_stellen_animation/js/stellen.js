@@ -313,4 +313,9 @@ export const CALC_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentCo
   <rect x="4" y="1.8" width="12" height="16.4" rx="2"/><rect x="6.3" y="4.2" width="7.4" height="3.6" rx=".6"/>
   ${[0, 1, 2].flatMap(r => [0, 1, 2].map(c =>
     `<circle cx="${7 + 3 * c}" cy="${10.8 + 2.9 * r}" r=".75" fill="currentColor" stroke="none"/>`)).join('')}</svg>`
+// „3,1195 m · 2,1425 m = 6,68352875 m²“ → Rechnung, Ergebnis fett hervorgehoben (Ecken-Test, FSS14)
+export const calcHtml = text => {
+  const k = text.lastIndexOf(' = ')
+  return `${text.slice(0, k)} = <b class="c-res">${text.slice(k + 3)}</b>`
+}
 export const fillCalcIcons = root => root.querySelectorAll('.calc-ico').forEach(el => { el.innerHTML = CALC_ICON })

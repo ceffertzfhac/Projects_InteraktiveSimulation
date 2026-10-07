@@ -6,7 +6,7 @@
 import { fmt } from '../../../shared/js/format.js'
 import { speedExample, exactStr, placeAnalysis, digitCompare, compareHtml } from '../model.js'
 import { READ, ROWS } from './constants.js'
-import { compareData, fillSummary } from '../stellen.js'
+import { compareData, fillSummary, calcHtml } from '../stellen.js'
 
 const stellen = n => `${n} ${n === 1 ? 'Stelle' : 'Stellen'}`
 // Taschenrechner-Wert: exakt, wenn er kurz ist (19,83 / 2), sonst gekürzt mit „…"
@@ -65,7 +65,7 @@ ROW.forEach((r, i) => {
 export function fillSpeedCards(DOM) {
   fillSummary(DOM.cards.v_sum, SUMMARY)
   DOM.cards.v_combo.querySelectorAll('.corner-row').forEach((row, i) => {
-    row.querySelector('.c-val').textContent = COMBOS[i].text
+    row.querySelector('.c-val').innerHTML = calcHtml(COMBOS[i].text)
     row.querySelector('.c-tag').textContent = RANK_TAG[COMBOS[i].rank]
     row.style.setProperty('--slot', i)
   })

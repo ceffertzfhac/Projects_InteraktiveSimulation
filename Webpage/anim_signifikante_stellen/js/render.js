@@ -15,7 +15,7 @@ import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
   createClaimRow, createUnitBracket, verdict, claimLabel, claimRange, createCompareBoard, compareLine,
-  createCalculator, fillSummary, uncIndex,
+  createCalculator, fillSummary, uncIndex, calcHtml,
 } from './stellen.js'
 import { HITS } from './state.js'
 import { initTimeStage, renderTime } from './zeit.js'
@@ -129,7 +129,7 @@ export function initStage(svg, DOM) {
   E.dyn = DOM.dyn.filter(el => el.dataset.dyn.split('.')[0] in DYN)
   fillSummary(DOM.cards.m_sum, SUMMARY, SUMMARY_GROUPS)
   DOM.cards.corners.querySelectorAll('.corner-row').forEach((row, i) => {
-    row.querySelector('.c-val').textContent = CORNERS[i].text
+    row.querySelector('.c-val').innerHTML = calcHtml(CORNERS[i].text)
     row.style.setProperty('--slot', i)
   })
   const defs = svgEl('defs', {}, svg)
