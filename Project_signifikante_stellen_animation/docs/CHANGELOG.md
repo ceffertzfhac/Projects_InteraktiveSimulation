@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.21 — 2026-10-07 (PO-Review 2. Runde)
+
+- Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ schon auf der Merke-Folie der Grundlagen, auf Zusammenfassung 1 / 3 und auf der allerletzten Folie (3 / 3, dort zusätzlich „Ergebnisse immer sinnvoll runden“) (FSS28).
+
 ## v1.0.20 — 2026-10-07 (PO-Review 2. Runde)
 
 - Zusammenfassung 1 / 3: Hinweis „In Übungsaufgaben: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ (erscheint nach den Beispielen, eigener Halt im Präsentationsmodus) (FSS27).
