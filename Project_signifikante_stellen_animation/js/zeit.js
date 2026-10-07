@@ -1,7 +1,7 @@
 'use strict'
 // Grundlagen-Abschluss „Zeitmessung" (→ BACKLOG FSS9 j): ein Auto fährt von der Start- zur
 // Ziellinie, zwei Stoppuhren messen die Fahrzeit — eine mit nur einem Sekundenzeiger
-// (Lupe auf das Zifferblatt), eine digitale mit Hundertstelsekunden. Je Uhr ein Zahlenstrahl
+// (Lupe auf das Zifferblatt), eine digitale (Auflösung nur an der Anzeige, PO: FSS12). Je Uhr ein Zahlenstrahl
 // mit Rundungsintervall; der feine liegt als schmaler Streifen im groben (Verbindungslinien).
 // Werte wie im Kapitel Division (wahr 2,1415 s → 2 s bzw. 2,14 s).
 // Bildschirmkoordinaten, keine Kamera. Szene-Schlüssel: timeKeys(); render liest nur Zahlen.
@@ -168,7 +168,7 @@ export function initTimeStage(root, defs) {
   text(E.watches, 'panel-item tm-cap', { x: (DIAL.cx + LOUPE.cx) / 2, y: DIAL.cy + 92, 'text-anchor': 'middle' },
     'Stoppuhr mit Sekundenzeiger')
   text(E.watches, 'panel-item tm-cap', { x: LCD.cx, y: DIAL.cy + 92, 'text-anchor': 'middle' },
-    'Digitale Stoppuhr · 0,01 s')
+    'Digitale Stoppuhr')
   E.lines = LINES.map(L => buildLine(E.g, L))
   // feines Intervall als Streifen im groben, Verbindungslinien zum feinen Zahlenstrahl
   const [A, B] = LINES, m = T_FINE

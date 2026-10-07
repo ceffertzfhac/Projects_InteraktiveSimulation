@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.5 — 2026-10-07 (PO-Review 2. Runde)
+
+- Grundlagen-Zeitmessung: „Digitale Stoppuhr“ ohne „· 0,01 s“ (Bühne und Karte), Einleitung „eine Stoppuhr mit Sekundenzeiger und eine digitale Stoppuhr“ – die Auflösung sieht man an der Anzeige (FSS12).
+
 ## v1.0.4 — 2026-10-07 (PO-Review 2. Runde)
 
 - Zusammenfassung Multiplikation und Division: „… wie der Faktor (die Größe) mit den wenigsten signifikanten Stellen“ in Regel und Begründung (FSS18).
