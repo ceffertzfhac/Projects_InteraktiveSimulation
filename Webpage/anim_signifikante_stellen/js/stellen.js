@@ -166,10 +166,20 @@ export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
 
 // Zusammenfassungs-Tabelle einer Folienkarte füllen: je Zeile <tr data-r="rN">, die
 // Zeilen blendet das Drehbuch nacheinander ein (Inhalte reiner Text aus dem Modell).
-export function fillSummary(card, rows) {
+// groups (optional): [{ label, n }] — Klammer mit Beschriftung links neben je n Zeilen
+// (erscheint mit der ersten Zeile ihrer Gruppe), dünne Trennlinie zwischen den Gruppen
+export function fillSummary(card, rows, groups) {
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-  card.querySelector('tbody').innerHTML = rows
-    .map((r, i) => `<tr data-r="r${i}">${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')
+  const head = {}
+  let k = 0
+  for (const g of groups ?? []) { head[k] = g; k += g.n }
+  if (groups) card.querySelector('thead tr').insertAdjacentHTML('afterbegin', '<th class="grp-h"></th>')
+  card.querySelector('tbody').innerHTML = rows.map((r, i) => {
+    const g = head[i]
+    const grp = g ? `<td class="grp" rowspan="${g.n}"><span class="grp-in"><span class="grp-lbl">${esc(g.label)}</span>`
+      + '<span class="grp-brace"></span></span></td>' : ''
+    return `<tr data-r="r${i}"${g && i ? ' class="grp-first"' : ''}>${grp}${r.map((c, n) => `<td class="sc${n}">${esc(c)}</td>`).join('')}</tr>`
+  }).join('')
 }
 // Zusammenfassung als Vollfolie in zwei Schritten (PO 2026-10-07, FSS9 m):
 // 1) Vergleich (Tabelle Zeile für Zeile) + Beobachtung, 2) Begründung + Regel

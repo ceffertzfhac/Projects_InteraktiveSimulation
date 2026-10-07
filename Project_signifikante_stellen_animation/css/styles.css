@@ -396,9 +396,10 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 
 /* Zusammenfassung am Kapitelende: Tabelle aller Ergebnisse, Zeilen erscheinen nacheinander */
 .slide-card table.sum { font-size: .86em; margin-top: .4em; }
-.slide-card table.sum td:first-child { color: var(--text); font-weight: 600; }
-.slide-card table.sum td:nth-child(3) { color: var(--c-unc); font-weight: 700; }
-.slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.slide-card table.sum td.sc0 { color: var(--text); font-weight: 600; white-space: nowrap; }
+.slide-card table.sum td.sc1 { color: var(--text2); font-weight: 400; }
+.slide-card table.sum td.sc2 { color: var(--c-unc); font-weight: 700; }
+.slide-card table.sum td.sc3 { color: var(--accent); font-weight: 700; white-space: nowrap; }
 .slide-card table.sum th { font-size: .9em; }
 .slide-card table.sum + .formula { margin-top: .8em; }
 .concl-grid { margin-top: .7em; display: grid; gap: .35em; font-size: .92em; }
@@ -488,3 +489,14 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .slide-card .formula.merke-ex { margin-top: 1em; padding: .9em 1.2em; }
 .formula.merke-ex .concl-k { display: block; margin-bottom: .4em; }
 .formula.merke-ex p { margin: .25em 0 0; font-size: 1.1em; }
+
+/* Zusammenfassung: Gruppen-Klammer links neben den Tabellenzeilen (FSS16) */
+.slide-card table.sum td.grp, .slide-card table.sum th.grp-h { width: 6.4em; padding: .3em .5em .3em 0;
+  border-bottom: none; vertical-align: middle; }
+.slide-card table.sum td.grp { height: 1px; }
+.grp-in { display: flex; align-items: stretch; justify-content: flex-end; gap: .45em; height: 100%; }
+.grp-lbl { align-self: center; font-size: .78em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); }
+.grp-brace { width: .55em; border: 2px solid var(--accent); border-left: none; border-radius: 0 .6em .6em 0; }
+.slide-card table.sum tr.grp-first td { border-top: 2px solid var(--card-border); }
+.slide-card table.sum tr.grp-first td.grp { border-top: none; }

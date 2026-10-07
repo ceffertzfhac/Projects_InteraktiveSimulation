@@ -125,6 +125,9 @@ export const SUMMARY = [
   }),
 ]
 
+// Gruppen der Zusammenfassung: erst die Rechteckflächen, dann der Kreis (PO 2026-10-07, FSS16)
+export const SUMMARY_GROUPS = [{ label: 'Rechteck', n: EXAMPLES.length }, { label: 'Kreis', n: 2 * R_TEXTS.length }]
+
 // Ecken-Test (Multiplikation, „Grenzen der Fläche"): alle vier Ecken des Kreuzungsfelds
 // in natürlicher Reihenfolge, je Farbe (Kategorialfarbe P1…P4), Produkt und Rang nach Größe
 const exC = areaExample(L_LEVELS[3], B_FINAL)

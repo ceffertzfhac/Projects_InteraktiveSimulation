@@ -10,7 +10,7 @@ import { fmt } from '../../shared/js/format.js'
 import {
   TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL, ROD_TINTS,
 } from './constants.js'
-import { DYN, LUPE, COMPARE, RANGES, SUMMARY, CORNERS } from './content.js'
+import { DYN, LUPE, COMPARE, RANGES, SUMMARY, SUMMARY_GROUPS, CORNERS } from './content.js'
 import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
@@ -127,7 +127,7 @@ function buildCompare() {
 export function initStage(svg, DOM) {
   // nur die eigenen dynamischen Zahlen (lvl/cmb/circ) — andere Kapitel füllen ihre selbst
   E.dyn = DOM.dyn.filter(el => el.dataset.dyn.split('.')[0] in DYN)
-  fillSummary(DOM.cards.m_sum, SUMMARY)
+  fillSummary(DOM.cards.m_sum, SUMMARY, SUMMARY_GROUPS)
   DOM.cards.corners.querySelectorAll('.corner-row').forEach((row, i) => {
     row.querySelector('.c-val').textContent = CORNERS[i].text
     row.style.setProperty('--slot', i)

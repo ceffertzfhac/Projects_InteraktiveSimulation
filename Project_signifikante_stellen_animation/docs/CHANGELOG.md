@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.10 — 2026-10-07 (PO-Review 2. Runde)
+
+- Zusammenfassung Multiplikation: Klammern mit Beschriftung „Rechteck“ (drei Rechtecksflächen) und „Kreis“ (Umfang/Fläche bei r = 3,3 m und 3 m) links neben den Zeilen, Trennlinie zwischen den Gruppen; Spaltenfarben aller Zusammenfassungstabellen über Klassen statt Spaltenposition (FSS16).
+
 ## v1.0.9 — 2026-10-07 (PO-Review 2. Runde)
 
 - Merke Division: Grenzen-Kasten und Erklärtext entfallen, Regel + Kasten „Beispiele“ (9,3 m/s · 1 · 10¹ m/s · 9,27 m/s). Merke Addition: nur Addition/Subtraktion – Vergleichstabelle mit der Multiplikation entfällt; Regel, Voraussetzung gleiche Einheit, Kasten „Beispiele“. Zusammenfassung 3 / 3: Hinweis auf die Multiplikationsregel entfernt (FSS19).
