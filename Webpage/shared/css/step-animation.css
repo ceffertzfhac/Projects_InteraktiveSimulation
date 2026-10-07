@@ -107,6 +107,12 @@ body.ui-hidden .stage { border-radius: 0; box-shadow: none; }
 .slide-card .formula + p { margin-top: .65em; }
 .slide-card .note { margin-top: .6em; font-size: .86em; color: var(--text3); }
 .slide-card mjx-container { color: var(--text); }
+/* Physik-Logo groß auf der letzten Folie eines Kapitels (PO 2026-10-07): oben rechts, skaliert
+   mit der Bühne; Kicker und Überschrift halten den Platz frei. <img class="end-logo"> in der Vollfolie. */
+.slide-card .end-logo { position: absolute; right: 2.6cqw; top: 2.4cqw; height: 7.6cqw; width: auto;
+  opacity: .9; pointer-events: none; }
+.slide-card:has(> .end-logo) > .kicker,
+.slide-card:has(> .end-logo) > h3 { margin-right: 6cqw; }
 
 /* Positionen: nur über left/right/top — transform gehört GSAP (y-Versatz) */
 .pos-tl { left: 3cqw; top: 3cqw; }
@@ -137,6 +143,10 @@ body.ui-hidden .stage { border-radius: 0; box-shadow: none; }
 .tp-seg::after  { transform: scaleX(var(--h, 0)); opacity: .35; }
 .tp-seg:hover { height: 8px; }
 .tp-seg.current { height: 7px; box-shadow: 0 0 0 3px rgba(0, 177, 172, .18); }
+/* Zwischenhalte des Präsentationsmodus als Teilstriche im Schritt-Segment (FSS37) — in beiden
+   Modi sichtbar, damit Animation und Präsentation dieselben Schritte und Nummern zeigen */
+.tp-sub { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; z-index: 1;
+  background: var(--surface); pointer-events: none; }
 
 .tp-row {
   /* rechte Spalte darf schrumpfen (minmax 0): der Titel wird gekürzt statt über die

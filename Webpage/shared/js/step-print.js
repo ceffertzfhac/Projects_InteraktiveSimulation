@@ -25,7 +25,7 @@ export function createPrint({ presenter, button, popover, stage, docTitle }) {
     run(which === 'all' ? presenter.chapters.map(c => c.id) : [presenter.chapter])
   })
 
-  function capture(ch, i, n) {
+  function capture(ch, i) {
     const E = presenter.engine
     const page = document.createElement('section')
     page.className = 'print-page'
@@ -41,7 +41,7 @@ export function createPrint({ presenter, button, popover, stage, docTitle }) {
     st.append(svg, layer)
     const cap = document.createElement('div')
     cap.className = 'print-cap'
-    cap.innerHTML = `<span><b>${docTitle}</b> · ${ch.title} · Schritt ${i} / ${n}</span><span>${E.title(i)}</span>`
+    cap.innerHTML = `<span><b>${docTitle}</b> · ${ch.title} · Schritt ${E.stepOf(i)} / ${E.steps}</span><span>${E.title(i)}</span>`
     page.append(st, cap)
     return page
   }
@@ -58,7 +58,7 @@ export function createPrint({ presenter, button, popover, stage, docTitle }) {
       E.pause()
       for (let i = 1; i <= E.total; i++) {
         E.goto(i)
-        box.append(capture(ch, i, E.total))
+        box.append(capture(ch, i))
       }
     }
     presenter.selectChapter(back.chapter)

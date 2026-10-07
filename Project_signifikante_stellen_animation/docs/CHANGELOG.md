@@ -1,5 +1,10 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.3.0 — 2026-10-07 (PO-Review 2. Runde)
+
+- Präsentationsmodus mit denselben Schritten und Nummern wie der Animationsmodus: Fortschrittsleiste und Zähler zählen die Schritte der Animation („8 / 18“), die Zwischenhalte erscheinen als Teilstriche im Segment, der Titel nennt den Teil („· 2/5“); Klick auf ein Segment springt an dessen Ende; der Druck nennt die Schrittnummer der Animation (FSS37).
+- Physik-Logo groß oben rechts auf der letzten Folie jedes Kapitels – Merke Grundlagen, Multiplikation, Division, Addition und Schlussfolie der Zusammenfassung (FSS38).
+
 ## v1.2.1 — 2026-10-07 (PO-Review 2. Runde)
 
 - Topbar verschwindet im Vollbild im **Präsentationsmodus** (nicht im Animationsmodus) – so war es gemeint (FSS36).

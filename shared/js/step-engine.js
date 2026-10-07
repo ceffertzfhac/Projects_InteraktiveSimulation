@@ -41,7 +41,10 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
   tl.addLabel('s0', 0)
   // Haltepunkte je Modus: { t, title, hold } — Animationsmodus nur Schrittenden,
   // Präsentationsmodus zusätzlich die Zwischenhalte (beat) innerhalb der Schritte
-  const STOPS = { anim: [{ t: 0, title: 'Start' }], pres: [{ t: 0, title: 'Start' }] }
+  // step: zugehöriger Schritt (Nummer wie im Animationsmodus, FSS37) — Zähler und Leiste
+  // zeigen in beiden Modi dieselben Schritte, die Zwischenhalte als Teilstriche darin
+  const STOPS = { anim: [{ t: 0, title: 'Start', step: 0 }], pres: [{ t: 0, title: 'Start', step: 0 }] }
+  const SUBS = []                                       // je Schritt: Anteile der Zwischenhalte (0…1)
   steps.forEach((step, i) => {
     const sub = g.timeline()
     step.build(sub, scene)
@@ -61,10 +64,11 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
         + ` (${Object.keys(k.vars).filter(v => !['duration', 'ease'].includes(v)).join(', ')}:`
         + ` ${k.startTime().toFixed(2)}–${(k.startTime() + k.totalDuration()).toFixed(2)} s)`)
     }
-    const m = beats.length + 1
-    beats.forEach((b, k) => STOPS.pres.push({ t: t0 + b, title: `${step.title} · ${k + 1}/${m}`, hold: BEAT_HOLD }))
-    STOPS.pres.push({ t: end, title: m > 1 ? `${step.title} · ${m}/${m}` : step.title, hold: step.hold })
-    STOPS.anim.push({ t: end, title: step.title, hold: step.hold })
+    const m = beats.length + 1, n = i + 1, start = tl.labels['s' + i]
+    beats.forEach((b, k) => STOPS.pres.push({ t: t0 + b, title: `${step.title} · ${k + 1}/${m}`, hold: BEAT_HOLD, step: n }))
+    STOPS.pres.push({ t: end, title: m > 1 ? `${step.title} · ${m}/${m}` : step.title, hold: step.hold, step: n })
+    STOPS.anim.push({ t: end, title: step.title, hold: step.hold, step: n })
+    SUBS.push(beats.map(b => (t0 + b - start) / (end - start)))
   })
   let stops = STOPS[mode] ?? STOPS.anim
   let N = stops.length - 1
@@ -73,20 +77,26 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
   let playing = false, speed = 1, wait = null
 
   const labelTime = i => stops[i].t
-  // Kontinuierliche Position in Schritt-Einheiten (2,4 = Schritt 3 zu 40 % gelaufen)
-  // und Countdown der Auto-Play-Wartezeit → Füllung der Fortschrittsleiste.
-  const position = () => {
-    const t = tl.time()
-    for (let j = 1; j <= N; j++) {
-      const a = labelTime(j - 1), b = labelTime(j)
+  // Kontinuierliche Position in Schritt-Einheiten des Animationsmodus (2,4 = Schritt 3 zu
+  // 40 % gelaufen) — in beiden Modi, damit die Leiste dieselben Schritte zeigt (FSS37)
+  const A = STOPS.anim, NA = A.length - 1
+  const posAt = t => {
+    for (let j = 1; j <= NA; j++) {
+      const a = A[j - 1].t, b = A[j].t
       if (t <= b + 1e-9) return j - 1 + Math.max(0, Math.min(1, (t - a) / (b - a)))
     }
-    return N
+    return NA
   }
-  const tick = (hold = 0) => onTick({ pos: position(), hold, holdIndex: index + 1 })
+  // Auto-Play-Countdown: heller Vorlauf im Segment des nächsten Wegstücks, vom aktuellen
+  // Stand bis zum nächsten Halt (Präsentationsmodus: bis zum nächsten Teilstrich)
+  const tick = (hold = 0) => {
+    const pc = posAt(labelTime(index)), pn = index < N ? posAt(labelTime(index + 1)) : pc
+    const seg = pn > pc ? Math.floor(pc + 1e-9) : -1
+    onTick({ pos: posAt(tl.time()), hold: seg < 0 ? 0 : pc - seg + hold * (pn - pc), holdIndex: seg + 1 })
+  }
   const emit = () => onChange({
     index: target, total: N, playing, busy: !!mover,
-    title: stops[target].title, mode,
+    title: stops[target].title, mode, step: stops[target].step, steps: NA, subs: SUBS,
   })
 
   function snap() {
@@ -138,8 +148,12 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     get playing() { return playing },
     get busy() { return !!mover },
     title: i => stops[i]?.title ?? '',                       // Schritt-Titel (Druck, step-print.js)
+    stepOf: i => stops[i]?.step ?? 0,                        // Schrittnummer des Animationsmodus (FSS37)
+    get steps() { return NA },
     get mode() { return mode },
     get hasBeats() { return STOPS.pres.length > STOPS.anim.length },
+    // Schritt n (Nummer des Animationsmodus) im aktiven Modus anspringen: dessen Ende
+    gotoStep(n) { api.goto(stops.findIndex(s => s.step === n && s.t >= A[n].t - 1e-6)) },
     // Modus wechseln, ohne die Stelle zu verlieren: letzter Haltepunkt des neuen Modus
     // an oder vor der aktuellen Zeit (im Animationsmodus also der Anfang des Schritts)
     setMode(m) {
@@ -288,12 +302,16 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     btn.next.disabled = st.index === st.total && !st.busy
     btn.play.innerHTML = st.playing ? `${svgIcon('pause')}Pause` : `${svgIcon('play')}Auto-Play`
     btn.play.classList.toggle('active', st.playing)
-    count.innerHTML = `<b>${st.index}</b> / ${st.total}<span class="tp-title">${st.title}</span>`
-    if (scrub.children.length !== st.total) {
-      scrub.innerHTML = Array.from({ length: st.total }, (_, i) =>
-        `<button class="tp-seg" data-i="${i + 1}" aria-label="Schritt ${i + 1}"></button>`).join('')
+    // Zähler und Leiste in Schritten des Animationsmodus (beide Modi gleich, FSS37); die
+    // Zwischenhalte des Präsentationsmodus als Teilstriche im Segment, der Titel nennt „· 2/3"
+    count.innerHTML = `<b>${st.step}</b> / ${st.steps}<span class="tp-title">${st.title}</span>`
+    if (scrub.children.length !== st.steps || scrub._subs !== st.subs) {
+      scrub._subs = st.subs
+      scrub.innerHTML = st.subs.map((fr, i) =>
+        `<button class="tp-seg" data-i="${i + 1}" aria-label="Schritt ${i + 1}">${fr.map(f =>
+          `<i class="tp-sub" style="left:${(100 * f).toFixed(2)}%"></i>`).join('')}</button>`).join('')
     }
-    ;[...scrub.children].forEach((seg, i) => seg.classList.toggle('current', i + 1 === st.index))
+    ;[...scrub.children].forEach((seg, i) => seg.classList.toggle('current', i + 1 === st.step && st.step > 0))
   }
 
   // Füllung je Segment: Fortschritt des Schritts + Auto-Play-Countdown im nächsten
@@ -330,7 +348,7 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
   Object.entries(btn).forEach(([k, el]) => el.addEventListener('click', act[k]))
   scrub.addEventListener('click', e => {
     const i = e.target.closest('.tp-seg')?.dataset.i
-    if (i) { engine.pause(); engine.goto(+i) }
+    if (i) { engine.pause(); engine.gotoStep(+i) }
   })
   q('.tp-chapters').addEventListener('click', e => {
     const id = e.target.closest('.tp-tab')?.dataset.ch
