@@ -20,13 +20,13 @@ export function buildAddSteps(S, DOM) {
   const step = (title, build, hold) => steps.push({ title, build, hold })
   const reveal = (tl, card, name, at) =>
     tl.to(card.querySelector(`[data-r="${name}"]`), { autoAlpha: 1, duration: 0.5 }, at)
-  // Maßband ausrollen / einrollen
+  // Maßband ausrollen / einrollen (Tempo 0,75 gegenüber v0.14, PO 2026-10-07, FSS9 ab)
   const rollOut = (tl, i, at) => {
     tl.set(S, { [`tp${i}A`]: 1, [`tp${i}R`]: 0 }, at)
-    tl.to(S, { [`tp${i}R`]: 1, duration: 1.4, ease: 'power2.out' })
+    tl.to(S, { [`tp${i}R`]: 1, duration: 1.4 / 0.75, ease: 'power2.out' })
   }
   const rollIn = (tl, i, at) => {
-    tl.to(S, { [`tp${i}R`]: 0, duration: 1, ease: 'power2.in' }, at)
+    tl.to(S, { [`tp${i}R`]: 0, duration: 1 / 0.75, ease: 'power2.in' }, at)
     tl.to(S, { [`tp${i}A`]: 0, duration: 0.3 })
   }
   // Etikett: anfliegen, andrücken, „wird beschriftet: …" ein- und wieder ausblenden

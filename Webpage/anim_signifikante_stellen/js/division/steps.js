@@ -48,7 +48,7 @@ export function buildSpeedSteps(S, DOM) {
   step('Person A misst die Strecke', tl => {
     deck.show(tl, C.v_sA)
     tl.to(S, { tpA0: 1, duration: 0.3 }, '<')
-    tl.to(S, { tpD0: 1, duration: 1.4, ease: 'power2.inOut' }, '<')
+    tl.to(S, { tpD0: 1, duration: 1.4 / 0.75, ease: 'power2.inOut' }, '<')   // Tempo 0,75 (FSS9 ab)
     tl.to(S, { guideD: 1, duration: 0.6, ease: EASE.cam }, '>-0.1')
     tl.set(S, { zA: 1 }, '>0.1')
     tl.to(S, { zW: 1, duration: 0.7, ease: EASE.reveal })
@@ -60,7 +60,7 @@ export function buildSpeedSteps(S, DOM) {
     deck.show(tl, C.v_sB)
     tl.to(S, { zA: 0, duration: 0.4 }, '<')
     tl.to(S, { tpA1: 1, duration: 0.3 }, '<')
-    tl.to(S, { tpD1: 1, duration: 1.4, ease: 'power2.inOut' }, '<')
+    tl.to(S, { tpD1: 1, duration: 1.4 / 0.75, ease: 'power2.inOut' }, '<')   // Tempo 0,75 (FSS9 ab)
     tl.to(S, { lpA: 1, lpT: 1, duration: 0.6 }, '>-0.1')
     tl.to(S, { lzT: 1, duration: 0.5 }, '>0.4')
     cell(tl, 'c1s', '>0.1')
