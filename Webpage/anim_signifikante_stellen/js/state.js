@@ -25,7 +25,7 @@ export function createScene() {
     mk0A: 0, mk0D: 0, mk1A: 0, mk1D: 0, sn0A: 0, sn0D: 0, sn1A: 0, sn1D: 0,
     // Zahlengerade und Teilung je Stufe (wächst gestaffelt aus der Achse)
     axisDraw: 0, ag0: 0, ag1: 0, ag2: 0, ag3: 0,
-    xTicks: 0, yDraw: 0, yAlpha: 0, names: 0,
+    xTicks: 0, yDraw: 0, yAlpha: 0, names: 0, nameLA: 0,   // nameLA: „l / m“ schon an der Zahlengeraden
     // Pfeil „wahre Länge" vom Stabende zur Zahlengeraden + Landeimpuls
     arD: 0, arA: 0, ping: 1,
     // Messpunkt auf der Zahlengeraden

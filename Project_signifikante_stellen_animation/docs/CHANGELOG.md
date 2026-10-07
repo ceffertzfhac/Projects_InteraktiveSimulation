@@ -18,6 +18,7 @@
 - Division: Taschenrechner-Zeile mit kleinem Taschenrechner-Symbol und Beschriftung „Taschenrechner:“; nach dem Ziffernvergleich in derselben Zeile „⟶ runden ⟶ gerundetes Ergebnis“ (FSS9 p, q).
 - Division: Schritt „Person A: Grenzen von v“ geteilt – zuerst „alle Kombinationen“ (vier farbige Treffer, Liste nach Größe sortiert: kleinstes · dazwischen · größtes), dann „kleinstes und größtes v“. Grenz-Boxen einheitlich: Bezeichnung, darunter Gleichung, Ergebnis rechtsbündig – die Ergebnisse stehen untereinander. Division hat jetzt 14 Schritte (FSS9 o).
 - Maßband-Animationen (Ausrollen in Grundlagen, Division, Addition) mit Tempo 0,75 (FSS9 ab).
+- Grundlagen: Zahlengerade schon mit „l / m“ beschriftet (FSS9 ac).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

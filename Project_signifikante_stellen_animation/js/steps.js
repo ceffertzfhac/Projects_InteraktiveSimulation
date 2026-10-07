@@ -202,6 +202,7 @@ export function buildSteps(S, DOM) {
     cam.to(tl, camA(3 + 0.12 * levelWidth(0), levelWidth(0)), { duration: T.cam, at: '<0.2', anchor: { y: 0 } })
     tl.to(S, { tg1: 0, duration: 0.8 }, '<')
     tl.to(S, { axisDraw: 1, duration: T.draw, ease: EASE.cam }, '<0.4')
+    tl.to(S, { nameLA: 1, duration: 0.5 }, '>-0.3')                    // Achse „l / m“ (FSS9 ac)
     tl.to(S, { pA: 1, pS: 1, duration: T.pop, ease: EASE.pop }, '>-0.2')
     pl.show(tl, textIndex('3'), { at: '<0.1' })
     deck.show(tl, C.line, '<')
