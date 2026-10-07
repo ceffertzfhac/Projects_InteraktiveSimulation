@@ -138,7 +138,7 @@ Ein Abschlusskapitel „Zusammenfassung“ wiederholt je Rechenart Regel + Beisp
 | → / Leertaste / ← | Schritt vor / zurück (Zurück spult sichtbar, 2,5-fach) |
 | P | Auto-Play (Haltezeit je Schritt `hold`, Tempo 0,5× / 1× / 2×) |
 | **A** | **Animations- ↔ Präsentationsmodus** (kein sichtbarer Schalter, kurze Einblendung) |
-| F / H | Vollbild (im Animationsmodus ohne Topbar, Bühne größer) / Bedienung ausblenden (Aufnahme) |
+| F / H | Vollbild (im Präsentationsmodus ohne Topbar, Bühne größer) / Bedienung ausblenden (Aufnahme) |
 | Pos1 / Ende | Anfang / Ende |
 | Adresse `#kapitel/schritt` bzw. `#kapitel/p<schritt>` | Neuladen bleibt an der Stelle; Links auf Schritte |
 | Druckersymbol | PDF mit dem Endzustand jedes Schritts (Kapitel oder alle, aktiver Modus) |

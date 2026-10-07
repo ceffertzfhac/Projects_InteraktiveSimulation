@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.2.1 — 2026-10-07 (PO-Review 2. Runde)
+
+- Topbar verschwindet im Vollbild im **Präsentationsmodus** (nicht im Animationsmodus) – so war es gemeint (FSS36).
+
 ## v1.2.0 — 2026-10-07 (PO-Review 2. Runde)
 
 - Vergleichstafel Max · Rechner · Min entzerrt: das gerundete Ergebnis steht als eigene Ergebniszeile unter den drei Zeilen – Rechenstrich, „A =", Plakette stellengenau unter den Ziffern, daneben „aufgerundet“/„abgerundet“ bzw. „nichts zu runden ✓“ – statt Pfeil und Plakette rechts neben der Rechnerzeile. Schlußzeile nur noch „Unsicherheit auf der n. Stelle“. Tafel der Multiplikation größer und höher (Ziffern 32 px), Tafeln in Division und Addition passend versetzt (FSS36).
