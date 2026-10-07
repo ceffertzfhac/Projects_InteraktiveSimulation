@@ -27,7 +27,7 @@ export const LOUPE = { cx: xOf(1.877) + 40, cy: 500, r: 58, k: 4000 }   // 4 px 
 // Etiketten: Start des Anflugs (relativ zur Zielposition) und Beschriftungs-Text
 export const TAG_FLY = { dx: 150, dy: -120, rot: -28 }
 // Taschenrechner (Schritt „Hintereinanderlegen")
-export const CALC = { x: 930, y: 300, w: 200, h: 250 }
+export const CALC = { x: 930, y: 360, w: 200, h: 250 }   // unter der Folienkarte
 
 // ── Protokoll („Steckbrief") oben links ──────────────────────────────────────
 export const TABLE = { x: [60, 205, 300, 462, 590, 676], y0: 64, dy: 34 }

@@ -58,6 +58,7 @@ export const ADD = {
   lo: exactStr(SUM.lo), hi: exactStr(SUM.hi), loH: compareHtml(cmp.lo), hiH: compareHtml(cmp.hi),
   raw, half: exactStr(SUM.half), aHalf: half(a), bHalf: half(b), aPct: pct(a), bPct: pct(b),
   rounded: SUM.rounded, sigRule: SUM.sigRule, uncOrd,
+  calcEq: `${a.text} m + ${b.text} m = ${raw} m`,
   a: a.text, b: b.text, aSig: String(a.sig), bSig: String(b.sig), aDec: String(a.decimals), bDec: String(b.decimals),
   aMm: UNIT.aMmPow, bMm: UNIT.mm.b, resMm: UNIT.mm.res,
   aMmFalse: UNIT.aMmFalse, aFalseSig: String(UNIT.aFalseSig), aFalseHalf: UNIT.aFalseHalf, aHalfMm: UNIT.aHalfMm,

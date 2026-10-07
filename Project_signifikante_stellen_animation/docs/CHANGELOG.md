@@ -24,6 +24,9 @@
 - Division: Legende des Messprotokolls mittig über der Tabelle (FSS9 n).
 - Addition 5: Schritt heißt wie die Folie „Wie lang sind beide zusammen?“ (FSS9 r).
 - Addition 9 „Erst umrechnen, ohne die Genauigkeit zu verfälschen“: zuerst „0,8 m ≠ 800 mm“ (1 gegen 3 signifikante Stellen – andere Genauigkeit), dann „0,8 m = 0,8 · 10³ mm“ und die Umrechnungen in km … mm (FSS9 t, u).
+- Taschenrechner-Zeile (Symbol · „Taschenrechner:“ · Rechnung) jetzt in allen Kapiteln: Multiplikation 2 (erscheint, wenn der Rechner fertig getippt hat), Ziffernvergleich und „Gröber gemessen“ mit „⟶ runden ⟶ 6,686 m²“, Addition 5 und 7 (2,677 m ⟶ runden ⟶ 2,7 m) (FSS9 p, s).
+- Kreis: Taschenrechner-Zeile nach „kleinstmöglich“ bei Umfang und Fläche, für beide Radien, mit Rundung (21 m, 34 m², 3 · 10¹ m² …); die doppelte Ergebniszeile entfällt – die Tafel „Ziffern vergleichen“ nennt die unsichere Stelle (FSS9 l).
+- Multiplikation: Folienkarten rechts oben bündig, damit sie die Tafel „Ziffern vergleichen“ nicht verdecken; Addition: Taschenrechner auf der Bühne unter die Karte gerückt.
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

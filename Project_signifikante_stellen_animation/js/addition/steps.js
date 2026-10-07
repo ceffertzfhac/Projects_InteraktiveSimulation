@@ -111,7 +111,8 @@ export function buildAddSteps(S, DOM) {
     deck.show(tl, C.a_label)
     tl.to(S, { nAx: 0, duration: 0.5 }, '<')
     compareScan(tl, S, CMP, 0, { at: '>0.1' })
-    reveal(tl, C.a_label, 'res', '>0.4')
+    reveal(tl, C.a_label, 'rnd', '>0.4')                 // ⟶ runden ⟶ 2,7 m (FSS9 s)
+    reveal(tl, C.a_label, 'res', '>0.3')
     tl.to(S, { r2: 1, duration: 0.5 }, '<')
   }, 6)
 

@@ -447,3 +447,7 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .corner-list.v-combo .corner-row { grid-template-columns: 1.1em auto 1fr; }
 .corner-list.v-combo { height: 15.6em; }
 .v-combo .corner-row { top: calc(var(--slot, 0) * 3.9em); }
+
+/* Multiplikation: Karten rechts oben bündig (wie die anderen Kapitel) — mit Taschenrechner-
+   Zeile (FSS9 p, s, l) bleibt so Platz bis zur Tafel „Ziffern vergleichen" darunter */
+.slide-card.pos-r { top: 3cqw; }

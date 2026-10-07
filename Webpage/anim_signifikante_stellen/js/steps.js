@@ -336,6 +336,7 @@ export function buildSteps(S, DOM) {
     tl.set(S, { calcT: 0 }, '>0.3')
     tl.to(S, { calcA: 1, duration: 0.5 })
     tl.to(S, { calcT: 1, duration: 3.2, ease: 'none' }, '>0.1')
+    reveal(tl, C.area, 'calc', '>0.2')                  // Taschenrechner-Zeile der Folie (FSS9 p)
   }, 5)
 
   step('Zoom auf die Ecke', tl => {
@@ -416,7 +417,8 @@ export function buildSteps(S, DOM) {
     hideRows(tl, C.cmp, '<')
     deck.show(tl, C.cmp)
     scanCompare(tl, S, COMPARE[0], 0, { at: '<' })
-    reveal(tl, C.cmp, 'res', '>')
+    reveal(tl, C.cmp, 'rnd', '>')                       // ⟶ runden ⟶ (FSS9 s)
+    reveal(tl, C.cmp, 'res', '>0.3')
   }, 6)
 
   // ── C · Gröber gemessen ────────────────────────────────────────────────────
@@ -442,7 +444,7 @@ export function buildSteps(S, DOM) {
     bounds(tl, l, b, C.range)
     tl.to(S, { dcA: 0, duration: 0.3 }, '>0.2')
     scanCompare(tl, S, COMPARE[cmb], cmb)
-    reveal(tl, C.range, 'res', '>')
+    reveal(tl, C.range, 'rnd', '>')                     // Ergebnis: Rundung + Schlußzeile der Tafel
   }, 6)
 
   RETURN_PATH.forEach((p, j) => example(`Gröber: ${p[0]} · ${p[1]}`, p, CMB_FIRST_RETURN + j))
@@ -465,6 +467,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { [`tr${i}D`]: 1, duration: 2.4, ease: 'power1.inOut' })
       reveal(tl, C.umfang, i ? 'min' : 'max', '>-0.2')
     })
+    reveal(tl, C.umfang, 'calc', '>0.2')                // Taschenrechner nach „kleinstmöglich" (FSS9 l)
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
   const fillA = (tl, c) => {
@@ -474,6 +477,7 @@ export function buildSteps(S, DOM) {
       tl.to(S, { [`f${i}R`]: R, duration: 2, ease: 'power2.inOut' })
       reveal(tl, C.frange, i ? 'min' : 'max', '>-0.2')
     })
+    reveal(tl, C.frange, 'calc', '>0.2')
     tl.to(S, { kR: c.r.value, rLive: 0, duration: 0.7, ease: EASE.cam }, '>0.4')
   }
 
@@ -511,7 +515,7 @@ export function buildSteps(S, DOM) {
       deck.show(tl, C.umfang, '<')
       traceU(tl, c)
       scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j], LUPE_CIRCLE + 2 * j, { at: '>0.1' })
-      reveal(tl, C.umfang, 'res', '>')
+      reveal(tl, C.umfang, 'rnd', '>')                    // Ergebnis: Rundung + Schlußzeile der Tafel
     }, 6)
     step(`Fläche bei r = ${rt} m`, tl => {
       tl.to(S, { dcA: 0, duration: 0.3 })
@@ -519,7 +523,7 @@ export function buildSteps(S, DOM) {
       deck.show(tl, C.frange, '<')
       fillA(tl, c)
       scanCompare(tl, S, COMPARE[LUPE_CIRCLE + 2 * j + 1], LUPE_CIRCLE + 2 * j + 1, { at: '>0.1' })
-      reveal(tl, C.frange, 'res', '>')
+      reveal(tl, C.frange, 'rnd', '>')                    // Ergebnis: Rundung + Schlußzeile der Tafel
     }, 6)
   })
 

@@ -53,6 +53,7 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
     AloH: compareHtml(cmp.lo), AhiH: compareHtml(cmp.hi), uncOrd: ordOf(cmp),
     calcDec: `${dec} ${dec === 1 ? 'Nachkommastelle' : 'Nachkommastellen'}`,
     calcIn: `${lt} × ${bt} =`, calcOut: ex.valueStr,
+    calcEq: `${lt} m · ${bt} m = ${ex.valueStr} m²`,          // Taschenrechner-Zeile der Folien
     lLo: bnd(ex.l, ex.l.lo), lHi: bnd(ex.l, ex.l.hi), bLo: bnd(ex.b, ex.b.lo), bHi: bnd(ex.b, ex.b.hi),
     Alo: ex.loStr, Ahi: ex.hiStr,
     AIv: `[${ex.loStr} ; ${ex.hiStr})`, valueStr: ex.valueStr, rounded: ex.rounded,
@@ -62,12 +63,14 @@ export const RANGES = EXAMPLES.map(([kicker, [lt, bt]]) => {
 
 const cmpH = (lo, hi) => { const c = digitCompare(lo, hi); return [compareHtml(c.lo), compareHtml(c.hi), ordOf(c)] }
 const civ = p => `[${fmt(p.lo, 2)} ; ${fmt(p.hi, 2)})`
+const calc4 = x => `${fmt(x, 4)}…`                            // Taschenrechner, gekürzt
 export const CIRC = R_TEXTS.map(rt => {
   const c = circleExample(rt)
   return {
     kicker: { '3,3': 'Kreis · zwei signifikante Stellen', '3': 'Kreis · nur eine Stelle' }[rt],
     r: rt, rIv: iv(c.r), sig: stellen(c.sig),
     UIv: civ(c.U), U: c.U.rounded, AIv: civ(c.A), A: c.A.rounded,
+    UCalc: `2π · ${rt} m = ${calc4(c.U.value)} m`, ACalc: `π · (${rt} m)² = ${calc4(c.A.value)} m²`,
     rLo: fmt(c.r.lo, c.r.decimals + 1), rHi: fmt(c.r.hi, c.r.decimals + 1),
     UloH: cmpH(fmt(c.U.lo, 2), fmt(c.U.hi, 2))[0], UhiH: cmpH(fmt(c.U.lo, 2), fmt(c.U.hi, 2))[1],
     AloH: cmpH(fmt(c.A.lo, 2), fmt(c.A.hi, 2))[0], AhiH: cmpH(fmt(c.A.lo, 2), fmt(c.A.hi, 2))[1],

@@ -190,9 +190,11 @@ window.MathJax = {
         <h3>Jeder Messwert steht für ein Intervall</h3>
         <div class="formula">\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m</div>
         <div class="formula">\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</div>
-        <p>Der Taschenrechner zeigt \(l \cdot b =\) <span class="dyn" data-dyn="cmb.valueStr"></span>&thinsp;m² –
-          mit <b><span class="dyn" data-dyn="cmb.calcDec"></span></b>. \(l\) und \(b\) haben aber nur je
-          4 signifikante Stellen. Wie viele Stellen von \(A\) sind sinnvoll?</p>
+        <div data-r="calc">
+          <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="cmb.calcEq"></span></div>
+          <p>Das sind <b><span class="dyn" data-dyn="cmb.calcDec"></span></b>. \(l\) und \(b\) haben aber nur je
+            4 signifikante Stellen. Wie viele Stellen von \(A\) sind sinnvoll?</p>
+        </div>
       </div>
 
       <div class="slide-card pos-r" data-card="corner">
@@ -239,13 +241,12 @@ window.MathJax = {
       <div class="slide-card pos-r" data-card="range">
         <div class="kicker dyn" data-dyn="cmb.kicker"></div>
         <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.b"></span>&thinsp;m</h3>
-        <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
+        <p class="note iv-note">\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
+        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="cmb.calcEq"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m²</span></span></div>
         <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
           = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AloH"></span>&thinsp;m²</div>
         <div class="formula" data-r="max">größtmöglich: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
           = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AhiH"></span>&thinsp;m²</div>
-        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> –
-          \(A_{\min}\) und \(A_{\max}\) unterscheiden sich ab der <span class="dyn" data-dyn="cmb.uncOrd"></span> Stelle</div>
       </div>
 
       <div class="slide-card pos-r" data-card="cmp">
@@ -255,6 +256,7 @@ window.MathJax = {
           Taschenrechnerergebnis, das dazwischen liegt. Von links gelesen: gleiche Ziffern sind <b>sicher</b>, die erste
           abweichende ist <span class="unc-word">unsicher</span> – dort runden wir. Dahinter:
           <span class="ghost-word">sinnlos</span>.</p>
+        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="cmb.calcEq"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m²</span></span></div>
         <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² – <span class="dyn" data-dyn="cmb.sig"></span>, die letzte ist unsicher</div>
       </div>
 
@@ -272,7 +274,7 @@ window.MathJax = {
         <h3>Umfang aus Radius bestimmen</h3>
         <div class="formula" data-r="max">größtmöglich: \(U_{\max} = 2\pi \cdot r_{\max}\)<br>= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UhiH"></span>&thinsp;m</div>
         <div class="formula" data-r="min">kleinstmöglich: \(U_{\min} = 2\pi \cdot r_{\min}\)<br>= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UloH"></span>&thinsp;m</div>
-        <div class="formula" data-r="res">\(U =\) <span class="dyn res" data-dyn="circ.U"></span>&thinsp;m – Unsicherheit auf der <span class="dyn" data-dyn="circ.UOrd"></span> Stelle</div>
+        <div class="calc-row" data-r="calc"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="circ.UCalc"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="circ.U"></span>&thinsp;m</span></span></div>
         <p class="note">2 und π sind exakt – nur \(r\) begrenzt (<span class="dyn" data-dyn="circ.sig"></span>).</p>
       </div>
 
@@ -281,7 +283,7 @@ window.MathJax = {
         <h3>Fläche aus Radius bestimmen</h3>
         <div class="formula" data-r="max">größtmöglich: \(A_{\max} = \pi \cdot r_{\max}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AhiH"></span>&thinsp;m²</div>
         <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AloH"></span>&thinsp;m²</div>
-        <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="circ.A"></span>&thinsp;m² – Unsicherheit auf der <span class="dyn" data-dyn="circ.AOrd"></span> Stelle</div>
+        <div class="calc-row" data-r="calc"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="circ.ACalc"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="circ.A"></span>&thinsp;m²</span></span></div>
         <p class="note">π und der Exponent 2 sind exakt.</p>
       </div>
 
@@ -508,8 +510,10 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="a_chain">
         <div class="kicker">Hintereinander</div>
         <h3>Wie lang sind beide zusammen?</h3>
-        <p data-r="calc">Der Taschenrechner meldet \(L =\) <span class="dyn" data-dyn="add.raw"></span>&thinsp;m. Aber wo genau
-          endet die Kette?</p>
+        <div data-r="calc">
+          <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="add.calcEq"></span></div>
+          <p>Aber wo genau endet die Kette?</p>
+        </div>
         <p data-r="end">Wo A endet, wissen wir nur auf ± <span class="dyn" data-dyn="add.aHalf"></span>&nbsp;m genau. B beginnt
           genau dort – sein Ende verschiebt sich mit. B selbst fügt fast nichts hinzu.</p>
       </div>
@@ -529,6 +533,7 @@ window.MathJax = {
         <p>Wie bei der Multiplikation: größtmögliche Länge oben, kleinstmögliche unten, dazwischen
           der Taschenrechner. Die erste abweichende Ziffer ist <span class="unc-word">unsicher</span> –
           dort hört man auf.</p>
+        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="add.calcEq"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="add.rounded"></span>&thinsp;m</span></span></div>
         <div class="formula" data-r="res">Unsicherheit auf der <span class="dyn" data-dyn="add.uncOrd"></span> Stelle:
           \(L =\) <span class="dyn res" data-dyn="add.rounded"></span>&thinsp;m – eine Nachkommastelle wie A</div>
       </div>
