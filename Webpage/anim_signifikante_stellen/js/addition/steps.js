@@ -11,7 +11,7 @@
 import { createCardDeck } from '../../../shared/js/step-kit.js'
 import { EASE, LANE, A_TRUE, B_TRUE, A_SAMPLES } from './constants.js'
 import { SUM, CMP, SUMMARY } from './content.js'
-import { compareScan, revealSummary } from '../stellen.js'
+import { compareScan, revealComparison, revealReason } from '../stellen.js'
 
 export function buildAddSteps(S, DOM) {
   const C = DOM.cards
@@ -139,11 +139,15 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { u8: 1, duration: 0.6 }, '>1.6')
   }, 8)
 
-  step('Zusammenfassung', tl => {
+  step('Zusammenfassung: Vergleich', tl => {
     tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
     deck.show(tl, C.a_sum, '<0.2')
-    revealSummary(tl, C.a_sum, SUMMARY.length, reveal)
+    revealComparison(tl, C.a_sum, SUMMARY.length, reveal)
   }, 8)
+
+  step('Zusammenfassung: Begründung und Regel', tl => {
+    revealReason(tl, C.a_sum, reveal)
+  }, 9)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, duration: 0.8 })

@@ -25,7 +25,7 @@ import {
 import { parseMeasured, circleExample } from './model.js'
 import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY, CORNERS } from './content.js'
 import { HITS } from './state.js'
-import { scanPlaces, compareScan as scanCompare, revealSummary } from './stellen.js'
+import { scanPlaces, compareScan as scanCompare, revealComparison, revealReason } from './stellen.js'
 
 export function buildSteps(S, DOM) {
   const C = DOM.cards
@@ -323,11 +323,16 @@ export function buildSteps(S, DOM) {
     tl.to(S, { tmG1: 0, duration: 0.5 }, '>1')
   }, 6)
 
+  step('Merke', tl => {
+    tl.to(S, { dim: 1, duration: 0.8 })
+    deck.show(tl, C.g_rule, '<0.2')
+  }, 9)
+
   const grund = steps
   steps = []
   // Übergang ins Kapitel Multiplikation (still vorab abgespielt): Ziffernzeile, Karte weg
   const cleanup = tl => {
-    tl.to(S, { sgA: 0, tmA: 0, duration: 0.3 })
+    tl.to(S, { sgA: 0, tmA: 0, dim: 0, duration: 0.3 })
     deck.hide(tl, '<')
   }
 
@@ -560,11 +565,15 @@ export function buildSteps(S, DOM) {
   })
 
   // ── Z · Zusammenfassung → E · Merksatz ─────────────────────────────────────
-  step('Zusammenfassung', tl => {
+  step('Zusammenfassung: Vergleich', tl => {
     tl.to(S, { dim: 1, slA: 0, dcA: 0, duration: 0.8 })
     deck.show(tl, C.m_sum, '<0.2')
-    revealSummary(tl, C.m_sum, SUMMARY.length, reveal)
+    revealComparison(tl, C.m_sum, SUMMARY.length, reveal)
   }, 8)
+
+  step('Zusammenfassung: Begründung und Regel', tl => {
+    revealReason(tl, C.m_sum, reveal)
+  }, 9)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, slA: 0, dcA: 0, duration: 0.8 })

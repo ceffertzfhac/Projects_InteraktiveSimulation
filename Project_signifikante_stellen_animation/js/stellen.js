@@ -171,10 +171,14 @@ export function fillSummary(card, rows) {
   card.querySelector('tbody').innerHTML = rows
     .map((r, i) => `<tr data-r="r${i}">${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')
 }
-export const revealSummary = (tl, card, n, reveal) => {
+// Zusammenfassung als Vollfolie in zwei Schritten (PO 2026-10-07, FSS9 m):
+// 1) Vergleich (Tabelle Zeile für Zeile) + Beobachtung, 2) Begründung + Regel
+export const revealComparison = (tl, card, n, reveal) => {
   for (let i = 0; i < n; i++) reveal(tl, card, `r${i}`, i ? '>0.45' : '>0.3')
-  reveal(tl, card, 'obs', '>0.9')                     // Beobachtung → Begründung → Regel
-  reveal(tl, card, 'why', '>1.6')
+  reveal(tl, card, 'obs', '>0.9')
+}
+export const revealReason = (tl, card, reveal) => {
+  reveal(tl, card, 'why', '>0.2')
   reveal(tl, card, 'concl', '>1.6')
 }
 

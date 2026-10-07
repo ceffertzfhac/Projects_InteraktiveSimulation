@@ -200,6 +200,20 @@ window.MathJax = {
         <p class="note">Dieselbe Fahrt, zwei Messwerte: Wie genau gemessen wurde, verrät die Zahl der Stellen.</p>
       </div>
 
+      <!-- Merke · Grundlagen (FSS9 m) -->
+      <div class="slide-card full merke" data-card="g_rule">
+        <div class="kicker">Merke · Grundlagen</div>
+        <h3>Jeder Messwert steht für ein Intervall – seine letzte Ziffer ist unsicher.</h3>
+        <div class="formula">\(l = 3{,}1\,\text{m}\) bedeutet \(3{,}05\,\text{m} \le l &lt; 3{,}15\,\text{m}\),
+          also \(l = 3{,}1\,\text{m} \pm 0{,}05\,\text{m}\) – eine halbe Einheit der letzten Stelle.</div>
+        <p><b>Signifikant</b> sind alle Ziffern von der ersten von Null verschiedenen bis zur letzten
+          hingeschriebenen. Führende Nullen zählen nicht (0,003120&nbsp;km: 4 Stellen), gemessene Endnullen
+          schon (3120&nbsp;mm: 4 Stellen).</p>
+        <p>Je feiner das Messmittel, desto mehr Stellen: 3&nbsp;m → 3,1&nbsp;m → 3,12&nbsp;m → 3,120&nbsp;m;
+          2&nbsp;s mit der Zeigeruhr, 2,14&nbsp;s mit der Digitaluhr.</p>
+        <p class="note">Keine Messung ist unendlich genau – außer Zählungen kleiner Mengen.</p>
+      </div>
+
       <!-- R · Fläche -->
       <div class="slide-card pos-r" data-card="axis2">
         <div class="kicker">Kapitel 2 · Multiplikation</div>
@@ -312,7 +326,7 @@ window.MathJax = {
         <p class="note">π und der Exponent 2 sind exakt.</p>
       </div>
 
-      <div class="slide-card pos-c wide sum-card" data-card="m_sum">
+      <div class="slide-card full sum-card" data-card="m_sum">
         <div class="kicker">Zusammenfassung · Multiplikation</div>
         <h3>Was haben alle Rechnungen gemeinsam?</h3>
         <table class="cmp sum">
@@ -327,12 +341,12 @@ window.MathJax = {
       </div>
 
       <!-- E · Merksatz -->
-      <div class="slide-card pos-c wide" data-card="rule">
+      <div class="slide-card full merke" data-card="rule">
         <div class="kicker">Merke · Multiplikation</div>
         <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
         <div class="formula">Grenzen: \(A_{\min} = l_{\min} \cdot b_{\min}, \quad A_{\max} = l_{\max} \cdot b_{\max}\)</div>
-        <div class="formula">\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}68\,\text{m}^2 \qquad
-          U = 2 \cdot \pi \cdot 3{,}3\,\text{m} = 21\,\text{m}\)</div>
+        <div class="formula">\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}68\,\text{m}^2\)</div>
+        <div class="formula">\(U = 2 \cdot \pi \cdot 3{,}3\,\text{m} = 21\,\text{m}\)</div>
         <p>Die erste Ziffer, in der sich \(A_{\min}\) und \(A_{\max}\) unterscheiden, ist die
           <span class="unc-word">unsichere</span> – dort hört man auf. Alle davor sind sicher, alle
           dahinter sinnlos. Exakte Zahlen wie <b>2</b> oder <b>π</b> haben unendlich viele Stellen – sie
@@ -469,7 +483,7 @@ window.MathJax = {
         <p class="note">\(\Delta s\): 4 Stellen, \(\Delta t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>
 
-      <div class="slide-card pos-c wide sum-card" data-card="v_sum">
+      <div class="slide-card full sum-card" data-card="v_sum">
         <div class="kicker">Zusammenfassung · Division</div>
         <h3>Was haben alle drei Rechnungen gemeinsam?</h3>
         <table class="cmp sum">
@@ -483,7 +497,7 @@ window.MathJax = {
         </div>
       </div>
 
-      <div class="slide-card pos-c wide" data-card="v_rule">
+      <div class="slide-card full merke" data-card="v_rule">
         <div class="kicker">Merke · Division</div>
         <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
           ungenaueste Messgröße.</h3>
@@ -586,7 +600,7 @@ window.MathJax = {
           schreiben – in km, m, dm, cm und mm kommt dasselbe heraus.</p>
       </div>
 
-      <div class="slide-card pos-c wide sum-card" data-card="a_sum">
+      <div class="slide-card full sum-card" data-card="a_sum">
         <div class="kicker">Zusammenfassung · Addition</div>
         <h3>Dieselbe Summe in m, cm und mm – gleiche Zehnerpotenz</h3>
         <table class="cmp sum">
@@ -600,7 +614,7 @@ window.MathJax = {
         </div>
       </div>
 
-      <div class="slide-card pos-c wide" data-card="a_rule">
+      <div class="slide-card full merke" data-card="a_rule">
         <div class="kicker">Merke · Addition und Subtraktion</div>
         <h3>Das Ergebnis endet beim Stellenwert der letzten Ziffer des ungenauesten Summanden.</h3>
         <div class="formula">Kurzform für Dezimalzahlen in derselben Einheit: so viele Nachkommastellen

@@ -399,7 +399,6 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
 .slide-card table.sum th { font-size: .9em; }
 .slide-card table.sum + .formula { margin-top: .8em; }
-.slide-card.sum-card { width: 62cqw; top: 3cqw; }
 .concl-grid { margin-top: .7em; display: grid; gap: .35em; font-size: .92em; }
 .concl-grid p, .concl-grid .formula { margin: 0; display: grid; grid-template-columns: 8.2em 1fr;
   column-gap: .6em; align-items: baseline; }
@@ -458,3 +457,15 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .tm-sliver   { fill: var(--c-l); fill-opacity: .55; }
 .tm-con-fill { fill: var(--c-l); fill-opacity: .07; }
 .tm-con-line { stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }
+
+/* Vollfolien: Zusammenfassung (zwei Schritte) und Merke je Kapitel (FSS9 m) —
+   decken die Bühne ganz ab, eigene Folie statt Karte über der gedimmten Szene */
+.slide-card.full { inset: 0; width: auto; border: none; border-radius: 0; box-shadow: none;
+  padding: 3cqw 5.5cqw; background: var(--stage-bg1); -webkit-backdrop-filter: none; backdrop-filter: none;
+  font-size: 1.42cqw; display: flex; flex-direction: column; }
+.slide-card.full h3 { font-size: 1.45em; }
+.slide-card.full.merke { justify-content: center; padding: 3cqw 8cqw; font-size: 1.6cqw; }
+.slide-card.full.merke h3 { font-size: 1.5em; margin-bottom: .7em; }
+.slide-card.full.merke .note { font-size: .9em; }
+.slide-card.full table.sum { font-size: .9em; }
+.slide-card.full .concl-grid { margin-top: 1em; gap: .6em; }

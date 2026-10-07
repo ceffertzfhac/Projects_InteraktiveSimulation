@@ -9,7 +9,7 @@
 //    → welche Stelle ist unsicher? (Zahlengerade Stelle für Stelle) → Merke
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
-import { compareScan, revealSummary } from '../stellen.js'
+import { compareScan, revealComparison, revealReason } from '../stellen.js'
 import {
   T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
@@ -191,11 +191,15 @@ export function buildSpeedSteps(S, DOM) {
     digits(tl, 2, C.v_best, 0.1, 9.29)          // Marke von A (9,3) bleibt links der Karte
   }, 6)
 
-  step('Zusammenfassung', tl => {
+  step('Zusammenfassung: Vergleich', tl => {
     tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
     deck.show(tl, C.v_sum, '<0.2')
-    revealSummary(tl, C.v_sum, SUMMARY.length, reveal)
+    revealComparison(tl, C.v_sum, SUMMARY.length, reveal)
   }, 8)
+
+  step('Zusammenfassung: Begründung und Regel', tl => {
+    revealReason(tl, C.v_sum, reveal)
+  }, 9)
 
   step('Merke', tl => {
     tl.to(S, { dim: 1, dcA: 0, duration: 0.8 })
