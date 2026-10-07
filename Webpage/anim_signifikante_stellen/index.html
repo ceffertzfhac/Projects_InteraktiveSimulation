@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.2</span>
+        <span class="version">v1.0.3</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -647,8 +647,8 @@ window.MathJax = {
           angegebene Ziffer ist <span class="unc-word">unsicher</span> (± ½ Einheit dieser Stelle). Signifikant sind alle
           Ziffern von der ersten von Null verschiedenen bis zur letzten.</div>
         <div class="zs-grid">
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · einfach</div><p>\(l = 3{,}1\,\text{m}\)</p><p>\(3{,}05\,\text{m} \le l &lt; 3{,}15\,\text{m}\)</p><p class="note">2 signifikante Stellen – die 1 ist unsicher.</p></div>
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · komplexer</div><p>\(0{,}003120\,\text{km} = 3{,}120\,\text{m} = 3120\,\text{mm}\)</p><p class="note">Immer 4 signifikante Stellen: führende Nullen zeigen nur das Komma, die gemessene Endnull zählt.</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(l = 3{,}1\,\text{m}\)</p><p>\(3{,}05\,\text{m} \le l &lt; 3{,}15\,\text{m}\)</p><p class="note">2 signifikante Stellen – die 1 ist unsicher.</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel B</div><p>\(0{,}003120\,\text{km} = 3{,}120\,\text{m} = 3120\,\text{mm}\)</p><p class="note">Immer 4 signifikante Stellen: führende Nullen zeigen nur das Komma, die gemessene Endnull zählt.</p></div>
         </div>
       </div>
 
@@ -658,8 +658,8 @@ window.MathJax = {
         <div class="formula"><span class="concl-k">Regel</span> Maßgeblich ist die <b>relative</b> Unsicherheit.
           Exakte Zahlen (2, π, Exponenten, Zählungen) begrenzen nicht.</div>
         <div class="zs-grid">
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · einfach</div><p>\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}6768\,\text{m}^2\)</p><p>\(\Rightarrow A = 6{,}68\,\text{m}^2\)</p><p class="note">4 und 3 Stellen → 3 Stellen.</p></div>
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · komplexer</div><p>\(U = 2 \cdot \pi \cdot 3{,}3\,\text{m} \approx 20{,}73\,\text{m}\)</p><p>\(\Rightarrow U = 21\,\text{m}\)</p><p class="note">2 und π sind exakt – nur \(r\) mit 2 Stellen begrenzt. Ebenso \(19{,}83\,\text{m} / 2{,}14\,\text{s} = 9{,}27\,\text{m/s}\).</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}6768\,\text{m}^2\)</p><p>\(\Rightarrow A = 6{,}68\,\text{m}^2\)</p><p class="note">4 und 3 Stellen → 3 Stellen.</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel B</div><p>\(U = 2 \cdot \pi \cdot 3{,}3\,\text{m} \approx 20{,}73\,\text{m}\)</p><p>\(\Rightarrow U = 21\,\text{m}\)</p><p class="note">2 und π sind exakt – nur \(r\) mit 2 Stellen begrenzt. Ebenso \(19{,}83\,\text{m} / 2{,}14\,\text{s} = 9{,}27\,\text{m/s}\).</p></div>
         </div>
       </div>
 
@@ -669,8 +669,8 @@ window.MathJax = {
         <div class="formula"><span class="concl-k">Regel</span> Maßgeblich ist die <b>absolute</b> Unsicherheit –
           in derselben Einheit: so viele Nachkommastellen wie der ungenaueste Summand.</div>
         <div class="zs-grid">
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · einfach</div><p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}677\,\text{m}\)</p><p>\(\Rightarrow L = 2{,}7\,\text{m}\)</p><p class="note">Eine Nachkommastelle wie 0,8 m – nicht 1 signifikante Stelle (3 m).</p></div>
-          <div class="zs-ex"><div class="zs-lbl">Beispiel · komplexer</div><p>\(0{,}8\,\text{m} + 1877\,\text{mm}\)</p><p>\(= 0{,}8 \cdot 10^3\,\text{mm} + 1{,}877 \cdot 10^3\,\text{mm}\)</p><p>\(\Rightarrow 2{,}7 \cdot 10^3\,\text{mm}\)</p><p class="note">Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}677\,\text{m}\)</p><p>\(\Rightarrow L = 2{,}7\,\text{m}\)</p><p class="note">Eine Nachkommastelle wie 0,8 m – nicht 1 signifikante Stelle (3 m).</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel B</div><p>\(0{,}8\,\text{m} + 1877\,\text{mm}\)</p><p>\(= 0{,}8 \cdot 10^3\,\text{mm} + 1{,}877 \cdot 10^3\,\text{mm}\)</p><p>\(\Rightarrow 2{,}7 \cdot 10^3\,\text{mm}\)</p><p class="note">Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.</p></div>
         </div>
       </div>
     </div>

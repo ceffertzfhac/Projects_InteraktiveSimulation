@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.3 — 2026-10-07 (PO-Review 2. Runde)
+
+- Kapitel Zusammenfassung: „Beispiel A“ / „Beispiel B“ statt „Beispiel · einfach / komplexer“ auf allen drei Folien (FSS22).
+
 ## v1.0.2 — 2026-10-07 (PO-Review 2. Runde)
 
 - Zusammenfassung 3 / 3: „Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.“ statt „Erst ehrlich umrechnen“; Kommentare angeglichen (FSS23).
