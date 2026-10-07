@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.8</span>
+        <span class="version">v1.0.9</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -507,15 +507,12 @@ window.MathJax = {
 
       <div class="slide-card full merke" data-card="v_rule">
         <div class="kicker">Merke · Division</div>
-        <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die
-          ungenaueste Messgröße.</h3>
-        <div class="formula">Grenzen – umgekehrt wie beim Multiplizieren:
-          \(\;v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}}, \quad v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}}\)</div>
-        <div class="formula">A: \(20\,\text{m} / 2{,}14\,\text{s} = 9{,}3\,\text{m/s}\) &nbsp;·&nbsp;
-          B: \(19{,}83\,\text{m} / 2\,\text{s} = 1 \cdot 10^1\,\text{m/s}\)<br>
-          kombiniert: \(19{,}83\,\text{m} / 2{,}14\,\text{s} = 9{,}27\,\text{m/s}\)</div>
-        <p>Die letzte Ziffer ist <span class="unc-word">unsicher</span>. Ein genaueres
-          Messgerät lohnt sich nur für die Größe, die das Ergebnis gerade begrenzt.</p>
+        <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die ungenaueste Messgröße.</h3>
+        <div class="formula merke-ex"><span class="concl-k">Beispiele</span>
+          <p>\(20\,\text{m} / 2{,}14\,\text{s} = 9{,}3\,\text{m/s}\)</p>
+          <p>\(19{,}83\,\text{m} / 2\,\text{s} = 1 \cdot 10^1\,\text{m/s}\)</p>
+          <p>\(19{,}83\,\text{m} / 2{,}14\,\text{s} = 9{,}27\,\text{m/s}\)</p>
+        </div>
       </div>
 
       <!-- ══ Kapitel 4 · Addition: zwei Werkstücke hintereinander ══ -->
@@ -625,16 +622,11 @@ window.MathJax = {
       <div class="slide-card full merke" data-card="a_rule">
         <div class="kicker">Merke · Addition und Subtraktion</div>
         <h3>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
-        <div class="formula">Voraussetzung: alle Werte in derselben Einheit. Beim Umrechnen ändert sich die Zahl der sinnvollen Ziffern nicht
-          (0,8 m = 0,8 · 10³ mm, nicht 800 mm). Für den Vergleich alle Werte in gleicher Einheit und gleicher Zehnerpotenz.</div>
-        <table class="cmp">
-          <tr><th></th><th>Multiplikation / Division</th><th>Addition / Subtraktion</th></tr>
-          <tr><td>maßgeblich</td><td>relative Unsicherheit</td><td>absolute Unsicherheit</td></tr>
-          <tr><td>Regel</td><td>so viele signifikante Stellen wie der ungenaueste Faktor</td>
-            <td>so viele Nachkommastellen wie der Summand mit den wenigsten</td></tr>
-          <tr><td>Beispiel</td><td>3,120&nbsp;m · 2,14&nbsp;m = 6,68&nbsp;m²</td>
-            <td>0,8&nbsp;m + 1,877&nbsp;m = 2,7&nbsp;m</td></tr>
-        </table>
+        <p>Voraussetzung: alle Werte in derselben Einheit – beim Umrechnen bleiben die signifikanten Stellen erhalten.</p>
+        <div class="formula merke-ex"><span class="concl-k">Beispiele</span>
+          <p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}7\,\text{m}\)</p>
+          <p>\(0{,}8 \cdot 10^3\,\text{mm} + 1{,}877 \cdot 10^3\,\text{mm} = 2{,}7 \cdot 10^3\,\text{mm}\)</p>
+        </div>
       </div>
 
       <!-- ══ Kapitel 5 · Zusammenfassung (FSS9 w) ══ -->
@@ -667,7 +659,7 @@ window.MathJax = {
         <div class="formula"><span class="concl-k">Regel</span> Voraussetzung: alle Werte in derselben Einheit.
           Maßgeblich ist die <b>absolute</b> Unsicherheit – die größte bestimmt, wo das Ergebnis unsicher wird.</div>
         <div class="zs-grid">
-          <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}677\,\text{m}\)</p><p>\(\Rightarrow L = 2{,}7\,\text{m}\)</p><p class="note">Eine Nachkommastelle wie 0,8 m – nicht 1 signifikante Stelle (3 m).</p></div>
+          <div class="zs-ex"><div class="zs-lbl">Beispiel A</div><p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}677\,\text{m}\)</p><p>\(\Rightarrow L = 2{,}7\,\text{m}\)</p><p class="note">Eine Nachkommastelle wie 0,8 m.</p></div>
           <div class="zs-ex"><div class="zs-lbl">Beispiel B</div><p>\(0{,}8\,\text{m} + 1877\,\text{mm}\)</p><p>\(= 0{,}8 \cdot 10^3\,\text{mm} + 1{,}877 \cdot 10^3\,\text{mm}\)</p><p>\(\Rightarrow 2{,}7 \cdot 10^3\,\text{mm}\)</p><p class="note">Erst umrechnen – die signifikanten Stellen bleiben erhalten: 0,8 m = 0,8 · 10³ mm, nicht 800 mm.</p></div>
         </div>
       </div>

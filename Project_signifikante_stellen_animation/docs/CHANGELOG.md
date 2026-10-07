@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.9 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Division: Grenzen-Kasten und Erklärtext entfallen, Regel + Kasten „Beispiele“ (9,3 m/s · 1 · 10¹ m/s · 9,27 m/s). Merke Addition: nur Addition/Subtraktion – Vergleichstabelle mit der Multiplikation entfällt; Regel, Voraussetzung gleiche Einheit, Kasten „Beispiele“. Zusammenfassung 3 / 3: Hinweis auf die Multiplikationsregel entfernt (FSS19).
+
 ## v1.0.8 — 2026-10-07 (PO-Review 2. Runde)
 
 - Merke Multiplikation: nur noch Regel „Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.“ und ein Kasten „Beispiele“ (3,120 m · 2,14 m = 6,68 m², U = 2 · π · 3,3 m = 21 m); Grenzen-Kasten und Erklärtext entfallen (FSS19).
