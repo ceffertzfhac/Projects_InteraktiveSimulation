@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.1.4</span>
+        <span class="version">v1.1.5</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -319,11 +319,9 @@ window.MathJax = {
         <div class="kicker dyn" data-dyn="cmb.kicker"></div>
         <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.b"></span>&thinsp;m</h3>
         <p class="note iv-note">\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich: \(A_{\max} = l_{\max} \cdot b_{\max}\)</span><span class="b-eq">= <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="cmb.AhiH"></span>&thinsp;m²</span></div>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="cmb.calcEq"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small class="dyn" data-dyn="cmb.rndCap">runden</small><span class="dyn" data-dyn="cmb.rndSym">⟶</span></span><span><span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m²</span></span></div>
-        <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
-          = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AloH"></span>&thinsp;m²</div>
-        <div class="formula" data-r="max">größtmöglich: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
-          = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AhiH"></span>&thinsp;m²</div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich: \(A_{\min} = l_{\min} \cdot b_{\min}\)</span><span class="b-eq">= <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="cmb.AloH"></span>&thinsp;m²</span></div>
       </div>
 
       <div class="slide-card pos-r" data-card="cmp">
@@ -349,18 +347,18 @@ window.MathJax = {
       <div class="slide-card pos-r" data-card="umfang">
         <div class="kicker">Umfang \(U = 2 \cdot \pi \cdot r\)</div>
         <h3>Umfang aus Radius bestimmen</h3>
-        <div class="formula" data-r="max">größtmöglich: \(U_{\max} = 2\pi \cdot r_{\max}\)<br>= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UhiH"></span>&thinsp;m</div>
-        <div class="formula" data-r="min">kleinstmöglich: \(U_{\min} = 2\pi \cdot r_{\min}\)<br>= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="circ.UloH"></span>&thinsp;m</div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich: \(U_{\max} = 2\pi \cdot r_{\max}\)</span><span class="b-eq">= 2π · <span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="circ.UhiH"></span>&thinsp;m</span></div>
         <div class="calc-row" data-r="calc"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="circ.UCalc"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="circ.U"></span>&thinsp;m</span></span></div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich: \(U_{\min} = 2\pi \cdot r_{\min}\)</span><span class="b-eq">= 2π · <span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="circ.UloH"></span>&thinsp;m</span></div>
         <p class="note">2 und π sind exakt – nur \(r\) begrenzt (<span class="dyn" data-dyn="circ.sig"></span>).</p>
       </div>
 
       <div class="slide-card pos-r" data-card="frange">
         <div class="kicker">Flächeninhalt \(A = \pi \cdot r^2\)</div>
         <h3>Fläche aus Radius bestimmen</h3>
-        <div class="formula" data-r="max">größtmöglich: \(A_{\max} = \pi \cdot r_{\max}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AhiH"></span>&thinsp;m²</div>
-        <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = \pi \cdot r_{\min}^2\)<br>= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)² = <span class="dyn cmp" data-dyn="circ.AloH"></span>&thinsp;m²</div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich: \(A_{\max} = \pi \cdot r_{\max}^2\)</span><span class="b-eq">= π · (<span class="dyn" data-dyn="circ.rHi"></span>&thinsp;m)²</span><span class="b-res">= <span class="dyn cmp" data-dyn="circ.AhiH"></span>&thinsp;m²</span></div>
         <div class="calc-row" data-r="calc"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="circ.ACalc"></span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span><span class="dyn res" data-dyn="circ.A"></span>&thinsp;m²</span></span></div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich: \(A_{\min} = \pi \cdot r_{\min}^2\)</span><span class="b-eq">= π · (<span class="dyn" data-dyn="circ.rLo"></span>&thinsp;m)²</span><span class="b-res">= <span class="dyn cmp" data-dyn="circ.AloH"></span>&thinsp;m²</span></div>
         <p class="note">π und der Exponent 2 sind exakt.</p>
       </div>
 
@@ -479,10 +477,10 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_vA">
         <div class="kicker">Person A · \(v = \Delta s / \Delta t\)</div>
         <h3>Kleinstes und größtes \(v\)</h3>
-        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">20&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</span></div>
         <p>Welche \(\Delta s\) und \(\Delta t\) aus den Intervallen ergeben das kleinstmögliche, welche das größtmögliche <span style="white-space:nowrap">\(v\)?</span></p>
-        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</span></div>
         <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}135\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.aHiH"></span>&thinsp;m/s</span></div>
+        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">20&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</span></div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</span></div>
         <p class="note">Umgekehrt wie beim Multiplizieren: kleiner Zähler und <b>großer</b> Nenner
           ergeben das kleinste Ergebnis.</p>
       </div>
@@ -501,9 +499,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_vB">
         <div class="kicker">Person B · \(v = \Delta s / \Delta t\)</div>
         <h3>Kleinstes und größtes \(v\)</h3>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</span></div>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">19,83&nbsp;m / 2&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s</span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span class="dyn res" data-dyn="spd.bV"></span></span></div>
         <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</span></div>
-        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</span></div>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.bV"></span> – nur 1 Stelle: schon die Zehnerziffer ist unsicher</div>
         <p class="note">Das feine Maßband nützt nichts – die Zeit mit nur einer Stelle begrenzt.</p>
       </div>
@@ -511,9 +509,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="v_best">
         <div class="kicker">Kombiniert · Strecke von B, Zeit von A</div>
         <h3>Kleinstes und größtes \(v\)</h3>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</span></div>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">19,83&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span class="dyn res" data-dyn="spd.cV"></span></span></div>
         <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}145\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.cLoH"></span>&thinsp;m/s</span></div>
-        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</span></div>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.cV"></span> – 3 Stellen wie \(\Delta t\), die 7 ist unsicher</div>
         <p class="note">\(\Delta s\): 4 Stellen, \(\Delta t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>
@@ -593,8 +591,9 @@ window.MathJax = {
       <div class="slide-card pos-tr" data-card="a_bounds">
         <div class="kicker">Grenzen</div>
         <h3>Kleinstmögliche und größtmögliche Gesamtlänge</h3>
-        <div class="formula" data-r="min">kleinstmöglich: \(L_{\min} =\) <span class="dyn" data-dyn="add.aLo"></span>&thinsp;m + <span class="dyn" data-dyn="add.bLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="add.loH"></span>&thinsp;m</div>
-        <div class="formula" data-r="max">größtmöglich: \(L_{\max} =\) <span class="dyn" data-dyn="add.aHi"></span>&thinsp;m + <span class="dyn" data-dyn="add.bHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="add.hiH"></span>&thinsp;m</div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich: \(L_{\max} = l_{A,\max} + l_{B,\max}\)</span><span class="b-eq">= <span class="dyn" data-dyn="add.aHi"></span>&thinsp;m + <span class="dyn" data-dyn="add.bHi"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="add.hiH"></span>&thinsp;m</span></div>
+        <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq dyn" data-dyn="add.calcEq"></span></div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich: \(L_{\min} = l_{A,\min} + l_{B,\min}\)</span><span class="b-eq">= <span class="dyn" data-dyn="add.aLo"></span>&thinsp;m + <span class="dyn" data-dyn="add.bLo"></span>&thinsp;m</span><span class="b-res">= <span class="dyn cmp" data-dyn="add.loH"></span>&thinsp;m</span></div>
         <div class="formula" data-r="pm">Unsicherheiten addieren sich <b>absolut</b>:
           <span class="dyn" data-dyn="add.aHalf"></span>&thinsp;m + <span class="dyn" data-dyn="add.bHalf"></span>&thinsp;m = <span class="dyn" data-dyn="add.half"></span>&thinsp;m</div>
       </div>

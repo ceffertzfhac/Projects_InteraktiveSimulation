@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.1.5 — 2026-10-07 (PO-Review 2. Runde)
+
+- Grenz-Kästen in allen Kapiteln einheitlich wie die Vergleichstafel: größtmöglich oben, Taschenrechner dazwischen, kleinstmöglich unten; je Kasten Bezeichnung + Formel, darunter eingesetzte Werte links und Ergebnis rechtsbündig (Ergebnisse untereinander) – Rechteck, Kreis (Umfang, Fläche), Division (A, B, kombiniert), Addition (FSS34).
+
 ## v1.1.4 — 2026-10-07 (PO-Review 2. Runde)
 
 - Ist das Taschenrechner-Ergebnis schon richtig gerundet (3 m · 2 m = 6 m²), entfällt die Rundungs-Animation der Vergleichstafel samt Halt; die Karte zeigt „nicht nötig ✓“ statt „runden ⟶“ (FSS35).
