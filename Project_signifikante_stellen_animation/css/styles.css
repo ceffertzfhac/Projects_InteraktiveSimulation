@@ -529,3 +529,5 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .sd-unc { color: var(--c-unc); font-weight: 700; }
 .sd-unc::after { position: absolute; left: 50%; top: 3.3em; transform: translateX(-50%); content: '↑\A\A unsicher';
   white-space: pre; text-align: center; font: 700 .3em/1.25 var(--font-ui); color: var(--c-unc); }
+.slide-card .zs-task { margin-top: 1.3em; padding: .7em 1em; border-radius: .5em; border: 1px dashed var(--accent);
+  color: var(--text); }

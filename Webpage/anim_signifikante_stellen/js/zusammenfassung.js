@@ -24,6 +24,8 @@ export function buildSummarySteps(S, DOM) {
       B(tl)
       tl.to(ex, { autoAlpha: 1, duration: 0.5 }, i ? '>0.3' : '>0.6')
     })
+    const task = card.querySelector('[data-r="task"]')       // Hinweis Übungsaufgaben (FSS27)
+    if (task) { B(tl); tl.to(task, { autoAlpha: 1, duration: 0.5 }, '>0.4') }
   } })
   step('Grundlagen', C.zs_grund)
   step('Multiplikation und Division', C.zs_mult)

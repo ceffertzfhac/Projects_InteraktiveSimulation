@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.20 — 2026-10-07 (PO-Review 2. Runde)
+
+- Zusammenfassung 1 / 3: Hinweis „In Übungsaufgaben: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ (erscheint nach den Beispielen, eigener Halt im Präsentationsmodus) (FSS27).
+
 ## v1.0.19 — 2026-10-07 (PO-Review 2. Runde)
 
 - Regelsätze nennen die Rechenart: „Das Ergebnis einer Multiplikation / einer Division / einer Addition oder Subtraktion hat …“ – in den Merke-Folien, den Regel-Zeilen der Kapitel-Zusammenfassungen und im Kapitel Zusammenfassung 2 / 3 und 3 / 3 (FSS26).
