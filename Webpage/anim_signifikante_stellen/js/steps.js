@@ -147,8 +147,10 @@ export function buildSteps(S, DOM) {
 
   step('Ein Metallstab', tl => {
     tl.to(S, { rod0A: 1, rod0S: 0, duration: 1.1, ease: EASE.reveal })
-    tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.9, ease: EASE.reveal }, '<0.5')
-    tl.to(S, { tg0: 1, duration: T.grow, ease: 'power1.inOut' }, '<0.25')
+    // Maßband: Haken am Stabanfang, dann aus dem Gehäuse ausrollen; die Teilung wächst mit
+    tl.to(S, { tapeA: 1, tapeY: 0, duration: 0.6, ease: EASE.reveal }, '<0.5')
+    tl.to(S, { tapeR: 1, duration: 1.8, ease: 'power2.out' }, '>')
+    tl.to(S, { tg0: 1, duration: T.grow, ease: 'power1.inOut' }, '<0.3')
     deck.show(tl, C.intro, '<')
   }, 3)
 

@@ -150,6 +150,14 @@ export function initStage(svg, DOM) {
   E.zoneEdge = [0, 1].map(() => svgEl('line', { class: 'zone-edge' }, E.tape))
   E.tapeMarks = createPool(svgEl('g', {}, E.tape), () => svgEl('line', { class: 'tape-mark' }))
   E.tapeLabels = createPool(svgEl('g', {}, E.tape), () => svgEl('text', { class: 'tape-label', 'text-anchor': 'middle' }))
+  // Gehäuse am Bandende (Ausrollen in Schritt 1, wie in der Addition); die Spule dreht mit
+  const th = TAPE.h
+  E.tapeCase = svgEl('g', { class: 'tape-case' }, E.tape)
+  svgEl('rect', { class: 'tape-case-body', x: 0, y: -th / 2 - 12, width: 2 * th + 10, height: th + 24, rx: 14 }, E.tapeCase)
+  E.tapeReel = svgEl('g', {}, E.tapeCase)
+  svgEl('circle', { class: 'tape-case-reel', cx: th + 5, cy: 0, r: th / 2 + 4 }, E.tapeReel)
+  svgEl('line', { class: 'tape-case-spoke', x1: th + 5, y1: -th / 2, x2: th + 5, y2: th / 2 }, E.tapeReel)
+  svgEl('line', { class: 'tape-case-spoke', x1: 5 + th / 2, y1: 0, x2: 5 + 1.5 * th, y2: 0 }, E.tapeReel)
   E.rods = ROD.map(() => {
     const g = svgEl('g', { class: 'rod' }, E.root)
     return {
@@ -283,7 +291,7 @@ function rectWorld(el, V, x0, y0, x1, y1) {
 
 // Maßband-Teilung: je Stufe k Striche im Abstand 10^-k, wachsen gestaffelt
 // vom Stabende aus; gröbere Striche sind länger. Beschriftung, sobald Platz ist.
-function renderTape(S, V, top) {
+function renderTape(S, V, top, xe) {
   const marks = new Map()
   const half = (V.x1 - V.x0) / 2
   for (const k of LEVELS) {
@@ -310,7 +318,7 @@ function renderTape(S, V, top) {
   E.tapeMarks.begin(); E.tapeLabels.begin()
   for (const m of marks.values()) {
     const x = V.sx(m.v)
-    if (x < V.L - 30 || x > V.R + 30 || m.mo < 0.01) continue
+    if (x < V.L - 30 || x > Math.min(V.R + 30, xe) || m.mo < 0.01) continue
     const ln = E.tapeMarks.next()
     set(ln, { x1: x, x2: x, y1: top, y2: top + m.len }); ln.style.opacity = m.mo
     if (m.la < 0.01) continue
@@ -417,9 +425,13 @@ export function renderScene(S) {
   op(E.tape, S.tapeA)
   if (S.tapeA > 0.002) {
     const x0 = clamp(V.sx(0), V.L - 80, V.R + 80)
-    set(E.tapeBody, { x: x0 - 10, y: top, width: Math.max(0, V.R + 80 - x0), height: TAPE.h })
+    const xe = lerp(x0, V.R + 80, S.tapeR)                     // ausgerolltes Bandende
+    set(E.tapeBody, { x: x0 - 10, y: top, width: Math.max(0, xe - x0 + 10), height: TAPE.h })
     set(E.tapeHook, { x: x0 - 14, y: top - 6, width: 8, height: TAPE.h + 6 })
-    renderTape(S, V, top)
+    E.tapeCase.setAttribute('transform', `translate(${xe} ${top + TAPE.h / 2})`)
+    E.tapeReel.setAttribute('transform', `rotate(${(S.tapeR * 1080) % 360} ${TAPE.h + 5} 0)`)
+    op(E.tapeCase, S.tapeR < 0.999 ? 1 : 0)
+    renderTape(S, V, top, xe)
   }
   // ── Stäbe ──
   ;[0, 1].forEach(i => {

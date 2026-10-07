@@ -14,8 +14,8 @@ export const HITS = 5            // Treffer-Markierungen (Zahlengerade bzw. Rech
 export function createScene() {
   const S = {
     ...cameraKeys(CAM_START),
-    // Maßband: Deckkraft, Einflug von unten, Teilung je Stufe (grow 0…1)
-    tapeA: 0, tapeY: 60, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
+    // Maßband: Deckkraft, Einflug von unten, ausgerollt 0…1, Teilung je Stufe (grow 0…1)
+    tapeA: 0, tapeY: 60, tapeR: 0, tg0: 0, tg1: 0, tg2: 0, tg3: 0,
     // Stäbe: wahre Länge, Deckkraft, Einschub von links (Weltlänge)
     rod0: ROD_COARSE, rod0A: 0, rod0S: -1.2, rod1: RODS_MEASURE[1], rod1A: 0, rod1S: -1.2,
     // Ablesung unter dem Maßband
