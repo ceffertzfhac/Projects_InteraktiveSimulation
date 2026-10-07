@@ -31,7 +31,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Signifikante Stellen
-        <span class="version">v1.0.18</span>
+        <span class="version">v1.0.19</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -373,14 +373,14 @@ window.MathJax = {
         <div class="concl-grid">
           <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Zeile hat das Ergebnis so viele signifikante Stellen wie der <b>ungenaueste Messwert</b> – egal, wie genau der andere ist.</span></p>
           <p data-r="why"><span class="concl-k">Begründung</span><span>Beim Multiplizieren überträgt sich die <b>relative</b> Unsicherheit. Den größten Anteil hat der Messwert mit den wenigsten signifikanten Stellen – er bestimmt, wie weit \(A_{\min}\) und \(A_{\max}\) auseinanderliegen. Exakte Zahlen (2, π, Exponent) sind keine Messwerte und begrenzen nichts.</span></p>
-          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Das Produkt hat so viele signifikante Stellen wie der Faktor mit den wenigsten signifikanten Stellen.</span></div>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Das Ergebnis einer Multiplikation hat so viele signifikante Stellen wie der Faktor mit den wenigsten signifikanten Stellen.</span></div>
         </div>
       </div>
 
       <!-- E · Merksatz -->
       <div class="slide-card full merke" data-card="rule">
         <div class="kicker">Merke · Multiplikation</div>
-        <h3>Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
+        <h3>Das Ergebnis einer Multiplikation hat so viele signifikante Stellen wie der ungenaueste Faktor.</h3>
         <div class="formula merke-ex"><span class="concl-k">Beispiele</span>
           <p>\(3{,}120\,\text{m} \cdot 2{,}14\,\text{m} = 6{,}68\,\text{m}^2\)</p>
           <p>\(U = 2 \cdot \pi \cdot 3{,}3\,\text{m} = 21\,\text{m}\)</p>
@@ -527,13 +527,13 @@ window.MathJax = {
         <div class="concl-grid">
           <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Zeile hat \(v\) so viele signifikante Stellen wie die ungenauere der beiden Messgrößen. Bei Person B nützt das feine Maßband nichts – \(\Delta t\) hat nur eine Stelle.</span></p>
           <p data-r="why"><span class="concl-k">Begründung</span><span>Wie beim Multiplizieren überträgt sich die <b>relative</b> Unsicherheit; die Größe mit den wenigsten signifikanten Stellen hat die größte.</span></p>
-          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Der Quotient hat so viele signifikante Stellen wie die Größe mit den wenigsten signifikanten Stellen.</span></div>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Ein Ergebnis kann nie genauer sein als die ungenaueste Größe:</b> Das Ergebnis einer Division hat so viele signifikante Stellen wie die Größe mit den wenigsten signifikanten Stellen.</span></div>
         </div>
       </div>
 
       <div class="slide-card full merke" data-card="v_rule">
         <div class="kicker">Merke · Division</div>
-        <h3>Auch beim Dividieren hat das Ergebnis so viele signifikante Stellen wie die ungenaueste Messgröße.</h3>
+        <h3>Das Ergebnis einer Division hat so viele signifikante Stellen wie die ungenaueste Messgröße.</h3>
         <div class="formula merke-ex"><span class="concl-k">Beispiele</span>
           <p>\(20\,\text{m} / 2{,}14\,\text{s} = 9{,}3\,\text{m/s}\)</p>
           <p>\(19{,}83\,\text{m} / 2\,\text{s} = 1 \cdot 10^1\,\text{m/s}\)</p>
@@ -641,13 +641,13 @@ window.MathJax = {
         <div class="concl-grid">
           <p data-r="obs"><span class="concl-k">Beobachtung</span><span>In jeder Einheit endet das Ergebnis an derselben Stelle wie der ungenaueste Summand (Zehntel m = Zehner cm = Hunderter mm). Die Zahl der signifikanten Stellen sagt darüber nichts.</span></p>
           <p data-r="why"><span class="concl-k">Begründung</span><span>Beim Addieren addieren sich die <b>absoluten</b> Unsicherheiten: <span class="nw">± 0,05 m</span> + <span class="nw">± 0,0005 m</span> ≈ <span class="nw">± 0,05 m</span>. Die größere bestimmt allein, wo das Ergebnis unsicher wird.</span></p>
-          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</b> Voraussetzung: alle Werte in derselben Einheit.</span></div>
+          <div class="formula" data-r="concl"><span class="concl-k">Regel</span><span><b>Das Ergebnis einer Addition oder Subtraktion hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</b> Voraussetzung: alle Werte in derselben Einheit.</span></div>
         </div>
       </div>
 
       <div class="slide-card full merke" data-card="a_rule">
         <div class="kicker">Merke · Addition und Subtraktion</div>
-        <h3>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
+        <h3>Das Ergebnis einer Addition oder Subtraktion hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
         <p>Voraussetzung: alle Werte in derselben Einheit – beim Umrechnen bleiben die signifikanten Stellen erhalten.</p>
         <div class="formula merke-ex"><span class="concl-k">Beispiele</span>
           <p>\(0{,}8\,\text{m} + 1{,}877\,\text{m} = 2{,}7\,\text{m}\)</p>
@@ -670,7 +670,7 @@ window.MathJax = {
 
       <div class="slide-card full zs" data-card="zs_mult">
         <div class="kicker">Zusammenfassung · 2 / 3 · Multiplikation und Division</div>
-        <h3>Das Ergebnis hat so viele signifikante Stellen wie die ungenaueste Größe.</h3>
+        <h3>Das Ergebnis einer Multiplikation oder Division hat so viele signifikante Stellen wie die ungenaueste Größe.</h3>
         <div class="formula"><span class="concl-k">Regel</span> Maßgeblich ist die <b>relative</b> Unsicherheit.
           Exakte Zahlen (2, π, Exponenten, Zählungen) begrenzen nicht.</div>
         <div class="zs-grid">
@@ -681,7 +681,7 @@ window.MathJax = {
 
       <div class="slide-card full zs" data-card="zs_add">
         <div class="kicker">Zusammenfassung · 3 / 3 · Addition und Subtraktion</div>
-        <h3>Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
+        <h3>Das Ergebnis einer Addition oder Subtraktion hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.</h3>
         <div class="formula"><span class="concl-k">Regel</span> Voraussetzung: alle Werte in derselben Einheit.
           Maßgeblich ist die <b>absolute</b> Unsicherheit – die größte bestimmt, wo das Ergebnis unsicher wird.</div>
         <div class="zs-grid">
