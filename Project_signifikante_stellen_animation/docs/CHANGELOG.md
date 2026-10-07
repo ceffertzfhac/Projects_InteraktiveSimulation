@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.13 — 2026-10-07 (PO-Review 2. Runde)
+
+- „unsicher“-Kasten (Grundlagen 8–13) saß versetzt neben der Ziffer: Er wurde mit den Maßen der Ersatzschrift gesetzt, bevor DM Sans geladen war, und danach nicht neu vermessen. Die Schritt-Engine zeichnet die Bühne jetzt neu, sobald Web-Schriften geladen sind (document.fonts), Engine-API refresh(). Alle markierten Ziffern geprüft: Kasten bzw. Einfärbung trifft überall die letzte (unsichere) Ziffer (B54).
+
 ## v1.0.12 — 2026-10-07 (PO-Review 2. Runde)
 
 - Ecken-Test (Multiplikation 5) und „Vier Kombinationen“ (Division 8): Rechnungen in voller Kartenschrift statt 84 %, Ergebnis fett in Akzentfarbe, breitere Karte (40 % der Bühne), höhere Zeilen; Division mit flachem Bruch Δs_min / Δt_max statt gestapeltem (FSS14).

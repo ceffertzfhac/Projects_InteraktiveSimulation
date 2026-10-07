@@ -102,6 +102,7 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     get playing() { return playing },
     get busy() { return !!mover },
     title: i => (i > 0 ? steps[i - 1].title : 'Start'),     // Schritt-Titel (Druck, step-print.js)
+    refresh() { render(scene) },          // neu zeichnen ohne Zeitsprung (z. B. nach Schrift-Nachladen)
     next() {
       if (mover) { snap(); emit(); return }
       moveTo(index + 1, speed)
@@ -303,6 +304,12 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     writeHash(engine.index)           // ungültige Adresse durch die tatsächliche Position ersetzen
   }
   go(readHash())
+  // Textmaße (Kästen um Ziffern, Beschriftungsbreiten) hängen von der Schrift ab: sobald
+  // eine Web-Schrift nachgeladen ist, die Bühne neu zeichnen — sonst bleiben Kästen an den
+  // Maßen der Ersatzschrift hängen (BACKLOG B54)
+  const refresh = () => engine?.refresh()
+  document.fonts?.ready.then(refresh)
+  document.fonts?.addEventListener?.('loadingdone', refresh)
   window.addEventListener('hashchange', () => {
     if (location.hash !== lastHash) go(readHash())
   })
