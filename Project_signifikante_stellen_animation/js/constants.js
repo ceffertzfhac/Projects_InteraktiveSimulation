@@ -2,14 +2,15 @@
 // Konstanten: Bühnengeometrie, Kamera-Presets, Timing, Inhalte. Keine Logik.
 
 // Bühne: SVG-viewBox 1200×675 (16:9). Sichtfenster der Kamera in SVG-Pixeln.
-// Teil M/Z (Messen, Zahlengerade): volle Breite, Folienkarten oben rechts.
-export const VIEW_A = { vL: 80, vR: 1120, vT: 120, vB: 600 }
-export const AXIS_Y = 372                         // Bildschirmlage der Zahlengeraden
+// Teil M/Z (Messen, Zahlengerade): volle Breite, Folienkarten oben rechts. Zahlengerade und
+// alles darunter so tief, daß nichts unter die Karten gerät (PO 2026-10-07, FSS9 ad).
+export const VIEW_A = { vL: 80, vR: 1095, vT: 120, vB: 600 }   // rechts Platz für „l / m“
+export const AXIS_Y = 392                         // Bildschirmlage der Zahlengeraden
 const AXIS_FRAC_A = (VIEW_A.vB - AXIS_Y) / (VIEW_A.vB - VIEW_A.vT)
 // Maßband und Stäbe (feste Bildschirmhöhen; x folgt der Kamera)
-export const TAPE = { top: 506, h: 40 }
-export const ROD = [{ top: 481, h: 20 }, { top: 456, h: 20 }]
-export const READING_Y = 614                      // „abgelesener Messwert: …" unter dem Maßband
+export const TAPE = { top: 526, h: 40 }
+export const ROD = [{ top: 501, h: 20 }, { top: 476, h: 20 }]
+export const READING_Y = 632                      // „abgelesener Messwert: …" unter dem Maßband
 
 // Teil R (Fläche): Plot links, Folienkarten rechts.
 export const VIEW_B = { vL: 110, vR: 700, vT: 82, vB: 592 }

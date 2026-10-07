@@ -19,6 +19,7 @@
 - Division: Schritt „Person A: Grenzen von v“ geteilt – zuerst „alle Kombinationen“ (vier farbige Treffer, Liste nach Größe sortiert: kleinstes · dazwischen · größtes), dann „kleinstes und größtes v“. Grenz-Boxen einheitlich: Bezeichnung, darunter Gleichung, Ergebnis rechtsbündig – die Ergebnisse stehen untereinander. Division hat jetzt 14 Schritte (FSS9 o).
 - Maßband-Animationen (Ausrollen in Grundlagen, Division, Addition) mit Tempo 0,75 (FSS9 ab).
 - Grundlagen: Zahlengerade schon mit „l / m“ beschriftet (FSS9 ac).
+- Grundlagen: Zahlengerade, Maßband, Stäbe und Ablesung etwas tiefer, Zahlengerade rechts kürzer – „l / m“ steht frei vom Pfeil, nichts gerät unter die Folienkarten (FSS9 ad).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

@@ -490,7 +490,7 @@ export function renderScene(S) {
     fixed: LEVELS.map(k => ({ step: 0.5 * 10 ** -k, grow: S['ag' + k], center: S.pX })),
   })
   E.yAxis.render(V, { at: axX, draw: S.yDraw, alpha: S.yAlpha * S.xA, ticks: S.yAlpha })
-  set(E.nameL, { x: V.R + 32, y: axY + 7 }); op(E.nameL, Math.max(S.names, S.nameLA) * S.xA)
+  set(E.nameL, { x: V.R + 42, y: axY + 7 }); op(E.nameL, Math.max(S.names, S.nameLA) * S.xA)
   set(E.nameB, { x: axX, y: V.T - 34 }); op(E.nameB, S.names * S.xA)
 
   // ── Intervall l: kompaktes Band auf der Zahlengeraden ↔ Streifen im 2D-Teil ──
