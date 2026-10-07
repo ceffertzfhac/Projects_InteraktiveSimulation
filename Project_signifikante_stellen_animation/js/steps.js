@@ -23,7 +23,7 @@ import {
   SIG_TOKENS, SIG_REPS,
 } from './constants.js'
 import { parseMeasured, circleExample } from './model.js'
-import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY } from './content.js'
+import { CMB_FIRST_RETURN, CMB_FIRST_MIX, LUPE, LUPE_CIRCLE, COMPARE, SUMMARY, CORNERS } from './content.js'
 import { HITS } from './state.js'
 import { scanPlaces, compareScan as scanCompare, revealSummary } from './stellen.js'
 
@@ -51,9 +51,9 @@ export function buildSteps(S, DOM) {
     if (hitN) tl.to(S, { ...v, duration: 0.35 }, at)
     hitN = 0
   }
-  const markHit = (tl, x, y, at) => {
+  const markHit = (tl, x, y, at, color = 0) => {
     const h = `h${hitN++ % HITS}`
-    tl.set(S, { [h + 'x']: x, [h + 'y']: y }, at)
+    tl.set(S, { [h + 'x']: x, [h + 'y']: y, [h + 'c']: color }, at)
     tl.to(S, { [h + 'a']: 1, duration: 0.3, ease: EASE.pop }, '<')
   }
 
@@ -343,42 +343,67 @@ export function buildSteps(S, DOM) {
     vary(tl, L[3], B, 4)
   }, 4)
 
-  // Ecken-Test: alle vier Kombinationen der Grenzen; kleinste = l_min·b_min, größte = l_max·b_max
-  const goCorner = (tl, x, y, at) => {
+  // Grenzen eines Rechenbeispiels: kleinste = l_min·b_min, größte = l_max·b_max
+  const goCorner = (tl, x, y, at, color) => {
     tl.to(S, { rW: x, rH: y, duration: 0.7, ease: EASE.cam }, at)
-    markHit(tl, x, y, '>-0.05')
+    markHit(tl, x, y, '>-0.05', color)
   }
-  const bounds = (tl, l, b, card, all) => {
-    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
-    tl.to(S, { roA: 1, edA: 1, duration: 0.4 })
-    if (all) {
-      goCorner(tl, l.lo, b.lo, '>0.2'); goCorner(tl, l.hi, b.lo, '>0.9')
-      goCorner(tl, l.lo, b.hi, '>0.9'); goCorner(tl, l.hi, b.hi, '>0.9')
-      tl.set(card.querySelector('[data-r="four"]'), { display: 'block' }, '>0.3')
-      reveal(tl, card, 'four', '>')
-      tl.to(S, { rW: l.lo, rH: b.lo, duration: 0.8, ease: EASE.cam }, '>1')
-    } else {
-      goCorner(tl, l.lo, b.lo, '>0.2')
-    }
-    tl.to(S, { mnA: 1, duration: 0.4 }, '>0.1')
-    reveal(tl, card, 'min', '<')
-    if (all) tl.to(S, { rW: l.hi, rH: b.hi, duration: 0.9, ease: EASE.cam }, '>1')
-    else goCorner(tl, l.hi, b.hi, '>1')
-    tl.to(S, { mnA: 0, mxA: 1, duration: 0.4 }, '>0.1')
-    reveal(tl, card, 'max', '<')
+  const boundsEnd = (tl, l, b) => {
     tl.to(S, { rW: l.value, rH: b.value, duration: 0.6, ease: EASE.cam }, '>1')
-    tl.to(S, { roA: 0, mxA: 0, duration: 0.3 }, '<0.2')
+    tl.to(S, { roA: 0, mxA: 0, mnA: 0, duration: 0.3 }, '<0.2')
     tl.to(S, { uA: 1, stripA: 0.35, duration: 0.7, ease: EASE.reveal })
     tl.to(S, { uTagA: 1, duration: 0.5 }, '<0.3')
   }
+  const bounds = (tl, l, b, card) => {
+    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
+    tl.to(S, { roA: 1, edA: 1, duration: 0.4 })
+    goCorner(tl, l.lo, b.lo, '>0.2')
+    tl.to(S, { mnA: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, card, 'min', '<')
+    goCorner(tl, l.hi, b.hi, '>1')
+    tl.to(S, { mnA: 0, mxA: 1, duration: 0.4 }, '>0.1')
+    reveal(tl, card, 'max', '<')
+    boundsEnd(tl, l, b)
+  }
 
+  // Ecken-Test (FSS9 h): alle vier Ecken anfahren — je Ecke ein farbiger Treffer und die
+  // Zeile gleicher Farbe in der Liste —, dann nach Größe sortieren, A_min und A_max
+  // markieren, die gemischten Ecken herausnehmen
   step('Grenzen der Fläche', tl => {
     clearHits(tl)
-    tl.set(S, { cmb: 0 }, '<')
-    hideRows(tl, C.range, '<')
-    deck.show(tl, C.range, '<')
-    bounds(tl, L[3], B, C.range, true)
-  }, 6)
+    const K = C.corners, row = i => K.querySelector(`[data-c="${i}"]`)
+    const tag = i => K.querySelector(`[data-ct="${i}"]`)
+    const l = L[3], b = B
+    tl.set(K.querySelectorAll('.corner-row'), { autoAlpha: 0 }, '<')
+    tl.set(K.querySelector('[data-r="sorted"]'), { autoAlpha: 0 }, '<')
+    CORNERS.forEach(c => { tl.set(row(c.i), { '--slot': c.i }, '<'); tl.set(tag(c.i), { autoAlpha: 0 }, '<') })
+    tl.set(K.querySelectorAll('.corner-row'), { outline: 'none' }, '<')
+    deck.show(tl, K, '<')
+    tl.set(S, { roD: Math.max(l.decimals, b.decimals) + 2 })
+    tl.to(S, { roA: 1, edA: 1, duration: 0.4 })
+    CORNERS.forEach((c, n) => {
+      goCorner(tl, c.ls === 'min' ? l.lo : l.hi, c.bs === 'min' ? b.lo : b.hi, n ? '>0.9' : '>0.2', c.i + 1)
+      tl.to(row(c.i), { autoAlpha: 1, duration: 0.45 }, '<')
+    })
+    // nach Größe sortieren
+    CORNERS.forEach(c => tl.to(row(c.i), { '--slot': c.rank, duration: 0.9, ease: EASE.cam }, c.i ? '<' : '>1'))
+    reveal(tl, K, 'sorted', '>0.2')
+    // A_min und A_max markieren — am Bild die Rechtecke
+    const lo = CORNERS.find(c => c.rank === 0), hi = CORNERS.find(c => c.rank === 3)
+    tl.to(tag(lo.i), { autoAlpha: 1, duration: 0.4 }, '>0.8')
+    tl.set(row(lo.i), { outline: '2px solid var(--accent)' }, '<')
+    tl.to(S, { rW: l.lo, rH: b.lo, mnA: 1, duration: 0.7, ease: EASE.cam }, '<')
+    tl.to(tag(hi.i), { autoAlpha: 1, duration: 0.4 }, '>0.9')
+    tl.set(row(hi.i), { outline: '2px solid var(--accent)' }, '<')
+    tl.to(S, { rW: l.hi, rH: b.hi, mxA: 1, duration: 0.7, ease: EASE.cam }, '<')
+    // gemischte Ecken heraus, A_max rückt nach
+    const mixed = CORNERS.filter(c => c.rank === 1 || c.rank === 2)
+    tl.to(mixed.map(c => row(c.i)), { autoAlpha: 0, duration: 0.5 }, '>1.2')
+    tl.to(S, Object.fromEntries(mixed.map(c => [`h${c.i}a`, 0]).concat([['duration', 0.5]])), '<')
+    tl.to(row(hi.i), { '--slot': 1, duration: 0.8, ease: EASE.cam }, '>0.1')
+    tl.to(K.querySelector('[data-r="sorted"]'), { autoAlpha: 0, duration: 0.3 }, '<')
+    boundsEnd(tl, l, b)
+  }, 7)
 
   step('Ziffern vergleichen', tl => {
     hideRows(tl, C.cmp, '<')
@@ -406,9 +431,8 @@ export function buildSteps(S, DOM) {
     deck.show(tl, C.range, '<')
     swapDyn(tl, 'cmb', cmb, '<')
     hideRows(tl, C.range, '<')
-    tl.set(C.range.querySelector('[data-r="four"]'), { display: 'none' }, '<')
     const { l, b } = toExample(tl, lt, bt, camTarget)
-    bounds(tl, l, b, C.range, false)
+    bounds(tl, l, b, C.range)
     tl.to(S, { dcA: 0, duration: 0.3 }, '>0.2')
     scanCompare(tl, S, COMPARE[cmb], cmb)
     reveal(tl, C.range, 'res', '>')

@@ -12,6 +12,7 @@
 - Grundlagen: Metallstab als Rundstab gezeichnet – Zylinder-Schattierung mit Glanzlicht, runde Stirnfläche, Schatten, etwas dicker; beide Enden zylinderförmig (links gerundet, rechts gewölbte Stirnfläche; der Messstrich läuft durch ihre Mitte) (FSS9 x).
 - Multiplikation 1: sofort als Flächenbestimmung erkennbar – Achsen „l / m“ und „b / m“ (Größe kursiv, Einheit aufrecht), Rechteck mit beiden Kantenlängen und A = l · b; kein „zweite Länge b“ und kein Übergang „Zahlengerade wird zur l-Achse“. Schritt 2 „Messwerte und Taschenrechner“ zeigt die Intervalle als Streifen und den Taschenrechner (FSS9 g).
 - Grundlagen 1: Das Maßband rollt aus seinem Gehäuse aus (wie in der Addition), die Teilung wächst mit (FSS9 y).
+- Multiplikation 5 „Grenzen der Fläche“: Ecken-Test als Liste aller vier Produkte; jede Ecke hat ihre Farbe (Treffer im Bild = Punkt in der Liste, Kategorialfarben P1–P4), die Liste sortiert sich nach Größe, A_min und A_max werden markiert, die gemischten Ecken verschwinden (FSS9 h).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

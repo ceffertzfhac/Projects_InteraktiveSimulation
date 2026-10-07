@@ -64,7 +64,7 @@ export function createScene() {
   for (const [id] of SIG_TOKENS) {
     Object.assign(S, { [`tk${id}x`]: (r0[id] ?? 0) - r0.w / 2, [`tk${id}a`]: id in r0 ? 1 : 0 })
   }
-  for (let i = 0; i < HITS; i++) Object.assign(S, { [`h${i}x`]: 3, [`h${i}y`]: 2, [`h${i}a`]: 0 })
+  for (let i = 0; i < HITS; i++) Object.assign(S, { [`h${i}x`]: 3, [`h${i}y`]: 2, [`h${i}a`]: 0, [`h${i}c`]: 0 })
   return S
 }
 

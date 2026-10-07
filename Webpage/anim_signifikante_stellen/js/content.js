@@ -122,4 +122,16 @@ export const SUMMARY = [
   }),
 ]
 
+// Ecken-Test (Multiplikation, „Grenzen der Fläche"): alle vier Ecken des Kreuzungsfelds
+// in natürlicher Reihenfolge, je Farbe (Kategorialfarbe P1…P4), Produkt und Rang nach Größe
+const exC = areaExample(L_LEVELS[3], B_FINAL)
+const lb = m => [m.lo, m.hi]
+export const CORNERS = [['min', 'min'], ['min', 'max'], ['max', 'min'], ['max', 'max']].map(([ls, bs], i) => {
+  const l = lb(exC.l)[ls === 'max' ? 1 : 0], b = lb(exC.b)[bs === 'max' ? 1 : 0]
+  return { i, ls, bs, l, b, A: l * b,
+    text: `${bnd(exC.l, l)} m · ${bnd(exC.b, b)} m = ${exactStr(l * b)} m²` }
+})
+const byA = [...CORNERS].sort((p, q) => p.A - q.A)
+CORNERS.forEach(c => { c.rank = byA.indexOf(c) })
+
 export const DYN = { lvl: LEVELS, cmb: RANGES, circ: CIRC }

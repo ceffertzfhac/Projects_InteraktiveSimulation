@@ -209,14 +209,39 @@ window.MathJax = {
           <b>kleinstmögliche</b>, welches die <b>größtmögliche</b> Fläche?</p>
       </div>
 
+      <!-- Ecken-Test: Liste aller vier Produkte, Farbe = Ecke im Bild; sortieren,
+           A_min/A_max markieren, gemischte Ecken herausnehmen (FSS9 h) -->
+      <div class="slide-card pos-r" data-card="corners">
+        <div class="kicker">Ecken-Test</div>
+        <h3>Vier Ecken – vier mögliche Flächen</h3>
+        <p>Die Grenzen von \(l\) und \(b\) lassen sich auf vier Arten kombinieren. Jede Farbe gehört zu einer Ecke im Bild.</p>
+        <div class="corner-list">
+          <div class="corner-row" data-c="0"><span class="c-dot cp1"></span>
+            <span class="c-term">\(A = l_{\min} \cdot b_{\min}\)</span>
+            <span class="c-tag" data-ct="0">\(A_{\min}\)</span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="1"><span class="c-dot cp2"></span>
+            <span class="c-term">\(A = l_{\min} \cdot b_{\max}\)</span>
+            <span class="c-tag" data-ct="1">\(A_{\min}\)</span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="2"><span class="c-dot cp3"></span>
+            <span class="c-term">\(A = l_{\max} \cdot b_{\min}\)</span>
+            <span class="c-tag" data-ct="2">\(A_{\max}\)</span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="3"><span class="c-dot cp4"></span>
+            <span class="c-term">\(A = l_{\max} \cdot b_{\max}\)</span>
+            <span class="c-tag" data-ct="3">\(A_{\max}\)</span>
+            <span class="c-val"></span></div>
+        </div>
+        <p class="note" data-r="sorted">Nach Größe sortiert: Die gemischten Ecken liegen dazwischen – sie begrenzen nichts.</p>
+      </div>
+
       <div class="slide-card pos-r" data-card="range">
         <div class="kicker dyn" data-dyn="cmb.kicker"></div>
         <h3>\(A\) = <span class="dyn" data-dyn="cmb.l"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.b"></span>&thinsp;m</h3>
         <p>\(l \in\) <span class="dyn" data-dyn="cmb.lIv"></span>&thinsp;m, &nbsp;\(b \in\) <span class="dyn" data-dyn="cmb.bIv"></span>&thinsp;m</p>
         <div class="formula" data-r="min">kleinstmöglich: \(A_{\min} = l_{\min} \cdot b_{\min}\)<br>
           = <span class="dyn" data-dyn="cmb.lLo"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bLo"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AloH"></span>&thinsp;m²</div>
-        <div class="formula" data-r="four">Alle vier Ecken probiert: Die gemischten
-          \(l_{\min} \cdot b_{\max}\) und \(l_{\max} \cdot b_{\min}\) liegen dazwischen.</div>
         <div class="formula" data-r="max">größtmöglich: \(A_{\max} = l_{\max} \cdot b_{\max}\)<br>
           = <span class="dyn" data-dyn="cmb.lHi"></span>&thinsp;m · <span class="dyn" data-dyn="cmb.bHi"></span>&thinsp;m = <span class="dyn cmp" data-dyn="cmb.AhiH"></span>&thinsp;m²</div>
         <div class="formula" data-r="res">\(A =\) <span class="dyn res" data-dyn="cmb.rounded"></span>&thinsp;m² · <span class="dyn" data-dyn="cmb.sig"></span> –

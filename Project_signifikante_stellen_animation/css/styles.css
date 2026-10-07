@@ -50,6 +50,8 @@ body.dark .rod-gloss { fill-opacity: .5; }
 .true-arrow path { fill: var(--c-true); }
 .ping { fill: none; stroke: var(--c-true); stroke-width: 2.5; }
 .hit  { fill: var(--c-true); stroke: var(--stage-bg1); stroke-width: 2; }
+/* Ecken-Test: Treffer und Listenpunkte in den Kategorialfarben P1…P4 (FSS9 h) */
+.hit.hc1 { fill: var(--c-p1); } .hit.hc2 { fill: var(--c-p2); } .hit.hc3 { fill: var(--c-p3); } .hit.hc4 { fill: var(--c-p4); }
 
 /* Live-Produkt an der Rechteckecke */
 .readout { fill: var(--c-true); font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums;
@@ -397,3 +399,18 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
   color: var(--accent); }
 .slide-card .nw { white-space: nowrap; }
 .slide-card table.sum + .concl-grid .formula { margin-top: .2em; }
+
+/* Ecken-Test: Liste der vier Produkte; Platz je Zeile = --slot (GSAP tweent ihn → sortieren) */
+.corner-list { position: relative; height: 12.4em; margin-top: .6em; }
+.corner-row {
+  position: absolute; left: 0; right: 0; top: calc(var(--slot, 0) * 3.1em);
+  display: grid; grid-template-columns: 1.1em auto 1fr; grid-template-rows: auto auto;
+  column-gap: .5em; align-items: center;
+  padding: .2em .6em; border-radius: .5em; background: var(--formula-bg);
+}
+.corner-row .c-dot { grid-row: 1 / 3; width: .85em; height: .85em; border-radius: 50%; }
+.corner-row .c-term { color: var(--text); }
+.corner-row .c-tag { justify-self: end; color: var(--accent); font-weight: 700; visibility: hidden; opacity: 0; }
+.corner-row .c-val { grid-column: 2 / 4; font-size: .84em; font-variant-numeric: tabular-nums; color: var(--text2); }
+.c-dot.cp1 { background: var(--c-p1); } .c-dot.cp2 { background: var(--c-p2); }
+.c-dot.cp3 { background: var(--c-p3); } .c-dot.cp4 { background: var(--c-p4); }

@@ -10,7 +10,7 @@ import { fmt } from '../../shared/js/format.js'
 import {
   TEXTS, TAPE, ROD, READING_Y, CIRCLE, SIG_ROW, SIG_TOKENS, LUPE_BOX, LUPE_BIG, CALC, B_FINAL,
 } from './constants.js'
-import { DYN, LUPE, COMPARE, RANGES, SUMMARY } from './content.js'
+import { DYN, LUPE, COMPARE, RANGES, SUMMARY, CORNERS } from './content.js'
 import { parseMeasured } from './model.js'
 const B_VALUE = parseMeasured(B_FINAL).value
 import {
@@ -127,6 +127,10 @@ export function initStage(svg, DOM) {
   // nur die eigenen dynamischen Zahlen (lvl/cmb/circ) — andere Kapitel füllen ihre selbst
   E.dyn = DOM.dyn.filter(el => el.dataset.dyn.split('.')[0] in DYN)
   fillSummary(DOM.cards.m_sum, SUMMARY)
+  DOM.cards.corners.querySelectorAll('.corner-row').forEach((row, i) => {
+    row.querySelector('.c-val').textContent = CORNERS[i].text
+    row.style.setProperty('--slot', i)
+  })
   const defs = svgEl('defs', {}, svg)
   gradient(defs, 'grad_l', [[0, 'gl-edge'], [0.5, 'gl-mid'], [1, 'gl-edge']])
   // Rundstab: dunkle Kanten, Glanzstreifen im oberen Drittel, Reflex unten (Zylinder-Schattierung)
@@ -515,6 +519,7 @@ export function renderScene(S) {
   // ── Treffer (wahre Werte) — auf der Achse bzw. an der Rechteckecke ──
   E.hits.forEach((c, i) => {
     set(c, { cx: V.sx(S[`h${i}x`]), cy: V.sy(S[`h${i}y`]) }); op(c, S[`h${i}a`])
+    set(c, { class: `hit hc${Math.round(S[`h${i}c`])}` })            // Ecken-Test: Farbe der Ecke
   })
 
   // ── Messpunkte mit Wertelabel ──
