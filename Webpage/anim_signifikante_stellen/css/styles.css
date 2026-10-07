@@ -483,3 +483,8 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
 .zs-ex .note { margin-top: .6em; }
 .zs-lbl { font-size: .68em; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
   color: var(--accent); margin-bottom: .5em; }
+
+/* Merke-Folien: Regel als Überschrift, darunter ein Kasten „Beispiele“ (FSS19) */
+.slide-card .formula.merke-ex { margin-top: 1em; padding: .9em 1.2em; }
+.formula.merke-ex .concl-k { display: block; margin-bottom: .4em; }
+.formula.merke-ex p { margin: .25em 0 0; font-size: 1.1em; }

@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.8 — 2026-10-07 (PO-Review 2. Runde)
+
+- Merke Multiplikation: nur noch Regel „Das Ergebnis hat so viele signifikante Stellen wie der ungenaueste Faktor.“ und ein Kasten „Beispiele“ (3,120 m · 2,14 m = 6,68 m², U = 2 · π · 3,3 m = 21 m); Grenzen-Kasten und Erklärtext entfallen (FSS19).
+
 ## v1.0.7 — 2026-10-07 (PO-Review 2. Runde)
 
 - Additionsregel didaktisch vereinfacht, einheitlich in Addition 11, 12 und Zusammenfassung 3 / 3: „Das Ergebnis hat so viele Nachkommastellen wie der Summand mit den wenigsten Nachkommastellen.“ – Voraussetzung: alle Werte in derselben Einheit. Paralleler Satzbau zur Multiplikationsregel (Merkpaar: mal/geteilt → signifikante Stellen, plus/minus → Nachkommastellen). Recherche: OpenStax College Physics 2e, Kap. 1.3 („no more decimal places than the least precise measurement“), Hochschul-Tutorien (Uni Graz, LMU); typische Fehlvorstellung ist die Verwechslung mit der Multiplikationsregel (FSS21).
