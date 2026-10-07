@@ -426,9 +426,9 @@ export function renderScene(S) {
     op(R.g, S[`rod${i}A`])
     const a = clamp(V.sx(sh), V.L - FAR, V.R + FAR), b = clamp(V.sx(sh + len), V.L - FAR, V.R + FAR)
     // Zylinder in leichter Schrägsicht: Mantel zwischen zwei Ellipsen (Halbachse ER);
-    // die Stirnfläche rechts endet genau am Stabende (Ablesung!)
+    // der Mittelpunkt der Stirnfläche rechts liegt genau am Stabende — dort läuft der Messstrich
     const y = ROD[i].top + S.tapeY, h = ROD[i].h, ER = 5, cy = y + h / 2
-    const m0 = a + ER, m1 = Math.max(m0, b - ER)
+    const m0 = a + ER, m1 = Math.max(m0, b)
     set(R.back, { cx: m0, cy, rx: ER, ry: h / 2 })
     set(R.body, { x: m0, y, width: m1 - m0, height: h })
     set(R.line, { d: `M${m0} ${y + 0.5}H${m1}M${m0} ${y + h - 0.5}H${m1}` })
