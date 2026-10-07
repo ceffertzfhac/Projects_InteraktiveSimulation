@@ -236,6 +236,7 @@ body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
 .sig-br-text      { font-size: 15px; font-weight: 700; }
 .sig-br-S path { stroke: var(--text2); }  .sig-br-S text { fill: var(--text2); }
 .sig-br-U path { stroke: var(--c-unc); }  .sig-br-U text { fill: var(--c-unc); }
+.sig-br-U .sig-arrow-head { fill: var(--c-unc); stroke: none; }
 .sig-br-Z path { stroke: var(--text3); }  .sig-br-Z text { fill: var(--text3); font-weight: 500; }
 
 /* Grenzen im Rechteck-Teil */

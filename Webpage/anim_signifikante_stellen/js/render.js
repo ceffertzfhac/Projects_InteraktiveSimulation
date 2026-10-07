@@ -78,9 +78,13 @@ function buildSigRow() {
     const g = svgEl('g', { class: `sig-br sig-br-${k}` }, E.sig)
     E.sigBr[k] = { g, path: svgEl('path', {}, g), t: text(g, 'sig-br-text', { 'text-anchor': 'middle' }) }
   }
+  // „unsicher" als Pfeil auf die letzte Ziffer (eine Klammer sähe wie ein Intervall aus)
+  E.sigBr.U.head = svgEl('path', { class: 'sig-arrow-head' }, E.sigBr.U.g)
   E.sigBr.S.t.textContent = 'gesichert'
   E.sigBr.U.t.textContent = 'unsicher'
-  E.sigBr.Z.t.textContent = 'nur Stellenwert – nicht signifikant'
+  // zweizeilig, damit sie neben „gesichert" Platz hat (beide stehen bei 0,003120 km gleichzeitig)
+  ;['nur Stellenwert –', 'nicht signifikant'].forEach((l, n) =>
+    svgEl('tspan', { dy: n ? 17 : 0 }, E.sigBr.Z.t).textContent = l)
   E.tok = {}
   for (const [id, ch] of SIG_TOKENS) {
     const unit = id[0] === 'U'
@@ -152,7 +156,7 @@ export function initStage(svg, DOM) {
   })
   E.rd = [0, 1].map(() => {
     const t = text(E.root, 'reading', { 'text-anchor': 'middle' })
-    svgEl('tspan', { class: 'reading-pre' }, t).textContent = 'abgelesen: '
+    svgEl('tspan', { class: 'reading-pre' }, t).textContent = 'abgelesener Messwert: '
     return { t, val: svgEl('tspan', {}, t) }
   })
 
@@ -613,10 +617,16 @@ function renderSigRow(S) {
   })
   const bracket = (B, x0, x1, yy, a) => {
     set(B.path, { d: `M${x0} ${yy - 6}V${yy}H${x1}V${yy - 6}` })
-    set(B.t, { x: (x0 + x1) / 2, y: yy + 20 }); op(B.g, a)
+    const xm = (x0 + x1) / 2
+    set(B.t, { x: xm, y: yy + 20 }); op(B.g, a)
+    for (const ts of B.t.children) ts.setAttribute('x', xm)
   }
   bracket(E.sigBr.S, dx('D1') - cw / 2 + 3, dx('D3') + cw / 2 - 3, y + 16, S.brS)
-  bracket(E.sigBr.U, dx('D4') - cw / 2 + 3, dx('D4') + cw / 2 - 3, y + 50, S.brU)
+  // Pfeil von unten auf die unsichere Ziffer: Spitze knapp unter der Ziffer, Schaft endet an der Kopf-Basis
+  const ux = dx('D4'), tipY = y + 14, footY = y + 52
+  set(E.sigBr.U.path, { d: `M${ux} ${footY}V${tipY + HEAD.len}` })
+  set(E.sigBr.U.head, { d: headPath(ux, tipY, ux, tipY + HEAD.len) })
+  set(E.sigBr.U.t, { x: ux, y: footY + 20 }); op(E.sigBr.U.g, S.brU)
   bracket(E.sigBr.Z, dx('Z1') - cw / 2 + 3, dx('Z3') + cw / 2 - 3, y + 16, S.brZ * S.tkZ1a)
 }
 

@@ -9,7 +9,7 @@ const AXIS_FRAC_A = (VIEW_A.vB - AXIS_Y) / (VIEW_A.vB - VIEW_A.vT)
 // Maßband und Stäbe (feste Bildschirmhöhen; x folgt der Kamera)
 export const TAPE = { top: 506, h: 40 }
 export const ROD = [{ top: 484, h: 16 }, { top: 460, h: 16 }]
-export const READING_Y = 614                      // „abgelesen: …" unter dem Maßband
+export const READING_Y = 614                      // „abgelesener Messwert: …" unter dem Maßband
 
 // Teil R (Fläche): Plot links, Folienkarten rechts.
 export const VIEW_B = { vL: 110, vR: 700, vT: 82, vB: 592 }
@@ -45,12 +45,15 @@ export const EASE = {
 // 3,120 ist gemessen und zählt).
 export const ROD_TRUE = 3.1203
 export const L_LEVELS = ['3', '3,1', '3,12', '3,120']   // Ablesungen bei 1 m … 1 mm Teilung
-export const RODS_MEASURE = [ROD_TRUE, 3.07]              // Teil M: zwei Stäbe, beide „3,1 m"
+// Alle wahren Längen mit 5 signifikanten Stellen — als wären sie mit demselben sehr
+// genauen Messmittel bestimmt (PO 2026-10-07, FSS9 c)
+export const RODS_MEASURE = [ROD_TRUE, 3.0701]            // Teil M: zwei Stäbe, beide „3,1 m"
 export const ROD_COARSE = ROD_TRUE                        // 1-m-Band: näher an 3 → „3 m"
-export const ROD_SHORT = 2.4                              // 1-m-Band: näher an 2 → „2 m"
-export const ROD_FINE_OTHER = 3.17                        // 0,1-m-Band: näher an 3,2 → „3,2 m"
+export const ROD_SHORT = 2.4132                           // 1-m-Band: näher an 2 → „2 m"
+export const ROD_FINE_OTHER = 3.1702                      // 0,1-m-Band: näher an 3,2 → „3,2 m"
 // Teil Z: wahre Längen, deren Pfeile je Stufe auf der Zahlengeraden landen
-export const RODS_LEVEL = [[ROD_TRUE, 3.38, 2.64], [ROD_TRUE, 3.07], [ROD_TRUE, 3.118], [ROD_TRUE, 3.1197]]
+export const RODS_LEVEL = [[ROD_TRUE, 3.3802, 2.6401], [ROD_TRUE, 3.0701], [ROD_TRUE, 3.1178],
+  [ROD_TRUE, 3.1197]]
 // Zweite Länge b (wahr ≈ 2,1432 m): 2 · 2,1 · 2,14 · 2,143 — ebenfalls keine runde Zahl
 export const B_FINAL = '2,143'
 // Gröber gemessen: das Ergebnis verliert Stufe für Stufe eine Stelle

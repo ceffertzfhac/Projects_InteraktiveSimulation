@@ -200,7 +200,22 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     next: q('[data-act=next]'), play: q('[data-act=play]') }
   const count = q('.tp-count')
 
+  // Position in der Adresse (#kapitel/schritt): Neuladen bleibt an derselben Stelle,
+  // Links auf einen Schritt sind möglich. replaceState → keine Verlaufs-Flut.
+  let lastHash = ''
+  function writeHash(index) {
+    const h = `#${chapter.id}/${index}`
+    if (h === lastHash) return
+    lastHash = h
+    history.replaceState(null, '', h)
+  }
+  function readHash() {
+    const m = location.hash.match(/^#([\w-]+)(?:\/(\d+))?$/)
+    return m ? { id: m[1], index: m[2] === undefined ? 0 : +m[2] } : null
+  }
+
   function update(st) {
+    writeHash(st.index)
     btn.prev.disabled = st.index === 0
     btn.next.disabled = st.index === st.total && !st.busy
     btn.play.innerHTML = st.playing ? `${svgIcon('pause')}Pause` : `${svgIcon('play')}Auto-Play`
@@ -278,6 +293,17 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     if (document.activeElement?.blur && document.activeElement !== document.body) document.activeElement.blur()
   })
 
-  selectChapter(chapters.find(c => !c.disabled).id)
+  // Start: Position aus der Adresse, sonst erstes Kapitel
+  const go = h => {
+    const ok = h && chapters.some(c => c.id === h.id && !c.disabled)
+    selectChapter(ok ? h.id : chapters.find(c => !c.disabled).id)
+    if (ok && h.index) { engine.pause(); engine.goto(h.index) }
+    lastHash = ''
+    writeHash(engine.index)           // ungültige Adresse durch die tatsächliche Position ersetzen
+  }
+  go(readHash())
+  window.addEventListener('hashchange', () => {
+    if (location.hash !== lastHash) go(readHash())
+  })
   return { get engine() { return engine }, selectChapter }
 }

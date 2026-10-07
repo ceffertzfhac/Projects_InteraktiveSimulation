@@ -113,7 +113,7 @@ export function buildSteps(S, DOM) {
 
   // ── M · Messen ─────────────────────────────────────────────────────────────
   // Stabende markieren → Ablesebereich der nächsten Marke aufleuchten lassen →
-  // geschwungener Pfeil rastet auf der Marke ein → „abgelesen: …"
+  // geschwungener Pfeil rastet auf der Marke ein → „abgelesener Messwert: …"
   const shown = { mk: [false, false], zone: false, rd: -1 }
   const markRod = (tl, i, at) => {
     if (shown.mk[i]) return
@@ -182,7 +182,7 @@ export function buildSteps(S, DOM) {
     snap(tl, 0, 3.2, '3,2 m', '>0.05')
   }, 4)
 
-  step('Zwei Stäbe, eine Ablesung', tl => {
+  step('Zwei Stäbe, ein Messwert', tl => {
     unsnap(tl, 0)
     deck.show(tl, C.two, '<')
     rodTo(tl, RODS_MEASURE[0], '<0.1')
@@ -273,14 +273,14 @@ export function buildSteps(S, DOM) {
   }, 7)
 
   step('Führende Nullen zählen nicht', tl => {
+    // „gesichert" und „unsicher" wandern in jeder Schreibweise mit (PO 2026-10-07);
+    // die Nullen-Klammer steht, solange es führende Nullen gibt
     deck.show(tl, C.zeros)
-    tl.to(S, { brS: 0, brU: 0, duration: 0.3 }, '<')
     toRep(tl, 1, '>0.1')                         // 0,003120 km
     tl.to(S, { brZ: 1, duration: 0.4 }, '>0.1')
-    tl.to(S, { brZ: 0, duration: 0.3 }, '>1.6')
-    toRep(tl, 2, '>')                            // 312,0 cm
+    toRep(tl, 2, '>2.2')                         // 312,0 cm — Nullen-Klammer blendet mit den Nullen aus
+    tl.set(S, { brZ: 0 }, '>')
     toRep(tl, 3, '>1.4')                         // 3120 mm (Endnull zählt)
-    tl.to(S, { brS: 1, brU: 1, duration: 0.4 }, '>0.3')
   }, 7)
 
   const grund = steps
