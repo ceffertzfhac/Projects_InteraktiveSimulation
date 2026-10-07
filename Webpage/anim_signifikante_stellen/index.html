@@ -545,12 +545,15 @@ window.MathJax = {
 
       <div class="slide-card pos-tr" data-card="a_unit">
         <div class="kicker">Gleiche Einheit!</div>
-        <h3>Gleiche Einheit, gleiche Zehnerpotenz</h3>
-        <p>Erst ehrlich umrechnen – die Zahl der sinnvollen Ziffern bleibt:
-          <span class="dyn" data-dyn="add.a"></span>&nbsp;m = <span class="dyn" data-dyn="add.aMm"></span>&nbsp;mm, nicht 800&nbsp;mm.</p>
-        <p>Dann beide Summanden <b>und</b> das Ergebnis mit derselben Einheit und derselben
-          Zehnerpotenz schreiben. So lassen sich die Nachkommastellen direkt vergleichen –
-          in km, m, dm, cm und mm kommt dasselbe heraus.</p>
+        <h3>Erst umrechnen, ohne die Genauigkeit zu verfälschen</h3>
+        <p>Addieren lassen sich nur Werte in derselben Einheit. Aber:
+          <span class="dyn" data-dyn="add.a"></span>&nbsp;m ≠ <span class="dyn" data-dyn="add.aMmFalse"></span>&nbsp;mm –
+          <span class="dyn" data-dyn="add.aMmFalse"></span>&nbsp;mm hat <span class="dyn" data-dyn="add.aFalseSig"></span> signifikante
+          Stellen und behauptet ± <span class="dyn" data-dyn="add.aFalseHalf"></span>&nbsp;mm. Gemessen wurde nur auf
+          ± <span class="dyn" data-dyn="add.aHalfMm"></span>&nbsp;mm.</p>
+        <p>Richtig: <span class="dyn" data-dyn="add.a"></span>&nbsp;m = <span class="dyn" data-dyn="add.aMm"></span>&nbsp;mm.
+          Dann beide Summanden <b>und</b> das Ergebnis in derselben Einheit und Zehnerpotenz
+          schreiben – in km, m, dm, cm und mm kommt dasselbe heraus.</p>
       </div>
 
       <div class="slide-card pos-c wide sum-card" data-card="a_sum">

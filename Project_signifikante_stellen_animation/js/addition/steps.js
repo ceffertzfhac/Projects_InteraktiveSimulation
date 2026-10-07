@@ -123,10 +123,10 @@ export function buildAddSteps(S, DOM) {
     reveal(tl, C.a_trap, 'dec', '<')
   }, 7)
 
-  step('Gleiche Einheit', tl => {
+  step('Erst umrechnen', tl => {
     deck.show(tl, C.a_unit)
     tl.to(S, { hiN: 0, nAx: 0, dcA: 0, lmMin: 0, lmMax: 0, zAe: 0, zEnd: 0, duration: 0.5 }, '<')
-    // langsam aufbauen: erst falsch gemischt, dann ehrlich umgerechnet, dann je Einheit
+    // langsam aufbauen: erst die falsche Umrechnung (800 mm), dann die ehrliche, dann je Einheit
     // Summanden → Taschenrechner → gerundetes Ergebnis
     tl.to(S, { u1: 1, duration: 0.6 }, '>0.3')
     tl.to(S, { u2: 1, duration: 0.6 }, '>2.2')

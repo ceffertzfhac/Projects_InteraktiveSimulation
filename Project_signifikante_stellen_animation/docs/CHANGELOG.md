@@ -23,6 +23,7 @@
 - Grundlagen: Jeder Stab hat seine eigene, leicht abgestufte Metallfarbe (Stahl, Aluminium, Titan, Blaustahl, Neusilber, Dunkelstahl); beim Wechsel blendet der alte Stab aus und der neue gleitet herein – ein anderer Stab, nicht derselbe verschoben (FSS9 aa).
 - Division: Legende des Messprotokolls mittig über der Tabelle (FSS9 n).
 - Addition 5: Schritt heißt wie die Folie „Wie lang sind beide zusammen?“ (FSS9 r).
+- Addition 9 „Erst umrechnen, ohne die Genauigkeit zu verfälschen“: zuerst „0,8 m ≠ 800 mm“ (1 gegen 3 signifikante Stellen – andere Genauigkeit), dann „0,8 m = 0,8 · 10³ mm“ und die Umrechnungen in km … mm (FSS9 t, u).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 

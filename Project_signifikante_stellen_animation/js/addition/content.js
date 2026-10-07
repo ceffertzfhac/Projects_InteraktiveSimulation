@@ -3,7 +3,7 @@
 // Etiketten-Kandidaten, Einheiten-Tafel, Folienzahlen (<span data-dyn="add.feld">).
 
 import { fmt } from '../../../shared/js/format.js'
-import { sumExample, exactStr, formatSig, digitCompare, compareHtml, placeAnalysis, placeName } from '../model.js'
+import { sumExample, parseMeasured, exactStr, formatSig, digitCompare, compareHtml, placeAnalysis, placeName } from '../model.js'
 import { compareData, fillSummary } from '../stellen.js'
 import { READ } from './constants.js'
 
@@ -45,8 +45,11 @@ const inUnit = f => ({
   a: formatSig(a.value * f, a.sig), b: fmt(b.value * f, Math.max(0, b.decimals - Math.round(Math.log10(f)))),
   raw: exactStr(SUM.value * f), res: formatSig(SUM.value * f, 2),
 })
-export const UNIT = { mm: inUnit(1000), cm: inUnit(100), m: inUnit(1), aMmFalse: exactStr(a.value * 1000),
-  aMmPow: a.text + pow(3) }
+// „800 mm" wäre falsch umgerechnet: mehr signifikante Stellen = vorgetäuschte Genauigkeit
+const aFalse = exactStr(a.value * 1000), aFalseM = parseMeasured(aFalse)
+export const UNIT = { mm: inUnit(1000), cm: inUnit(100), m: inUnit(1), aMmFalse: aFalse,
+  aMmPow: a.text + pow(3), aFalseSig: aFalseM.sig, aFalseHalf: exactStr(aFalseM.width / 2),
+  aHalfMm: exactStr(a.width / 2 * 1000) }
 
 // Folienzahlen
 export const ADD = {
@@ -57,6 +60,7 @@ export const ADD = {
   rounded: SUM.rounded, sigRule: SUM.sigRule, uncOrd,
   a: a.text, b: b.text, aSig: String(a.sig), bSig: String(b.sig), aDec: String(a.decimals), bDec: String(b.decimals),
   aMm: UNIT.aMmPow, bMm: UNIT.mm.b, resMm: UNIT.mm.res,
+  aMmFalse: UNIT.aMmFalse, aFalseSig: String(UNIT.aFalseSig), aFalseHalf: UNIT.aFalseHalf, aHalfMm: UNIT.aHalfMm,
 }
 // Zusammenfassung: dieselbe Summe in m, cm und mm — Stellenwert der letzten Ziffer je
 // Summand und beim Ergebnis; zuletzt die (falsche) Faustregel der Multiplikation

@@ -176,9 +176,11 @@ function buildUnits(root) {
     }).concat([t])
   }
   E.units = [
-    line(0, [[[`${UNIT.m.a} m + ${UNIT.mm.b} mm`, ''], ['   verschiedene Einheiten – so nicht vergleichbar ✗', 'bad']]]),
+    // zuerst die Falle beim Umrechnen (PO 2026-10-07, FSS9 u), dann die Umrechnungen
+    line(0, [[[`${UNIT.m.a} m ≠ ${UNIT.aMmFalse} mm`, ''],
+      [`   ${SUM.a.sig} signifikante Stelle ≠ ${UNIT.aFalseSig} – andere Genauigkeit ✗`, 'bad']]]),
     line(1, [[[`${UNIT.m.a} m = `, ''], ...num(UNIT.aMmPow), [' mm', ''],
-      [`   nicht „${UNIT.aMmFalse} mm" – das täuschte 3 sinnvolle Ziffern vor`, 'n']]]),
+      [`   ${SUM.a.sig} signifikante Stelle – dieselbe Genauigkeit ✓`, 'ok']]]),
     ...UNITS_POW.map((r, i) => line(i + 2, [
       [...num(r.a), [` ${r.u} + `, ''], ...num(r.b), [` ${r.u}`, '']],
       [[` = ${r.raw} ${r.u}`, '']],
