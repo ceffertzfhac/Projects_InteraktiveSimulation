@@ -14,6 +14,7 @@
 - Grundlagen 1: Das Maßband rollt aus seinem Gehäuse aus (wie in der Addition), die Teilung wächst mit (FSS9 y).
 - Multiplikation 5 „Grenzen der Fläche“: Ecken-Test als Liste aller vier Produkte; jede Ecke hat ihre Farbe (Treffer im Bild = Punkt in der Liste, Kategorialfarben P1–P4), die Liste sortiert sich nach Größe, A_min und A_max werden markiert, die gemischten Ecken verschwinden (FSS9 h).
 - Multiplikation 6 „Ziffern vergleichen“: „Wir vergleichen nun die größtmögliche und die kleinstmögliche Fläche mit dem Taschenrechnerergebnis, das dazwischen liegt.“ (FSS9 i).
+- Kreis: „Messwert des Radius: r = …“ statt „Radius gemessen“ (FSS9 k).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
