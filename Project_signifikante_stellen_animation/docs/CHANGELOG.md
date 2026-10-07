@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.22 — 2026-10-07 (PO-Review 2. Runde)
+
+- Gerundete Ergebnisse prominenter: in der Taschenrechner-Zeile als Akzent-Plakette samt Einheit, in Ergebniszeilen größer, in der Schlußzeile der Tafel „Ziffern vergleichen“ „→ A = 6,686 m²“ groß in Akzentfarbe, in der Gesamtzusammenfassung die ⇒-Zeilen in Akzentfarbe (FSS29).
+
 ## v1.0.21 — 2026-10-07 (PO-Review 2. Runde)
 
 - Hinweis „In den Übungen und in der Klausur: Gegebene Größen sind immer als Messwerte aufzufassen – außer, es ist ausdrücklich anders angegeben.“ schon auf der Merke-Folie der Grundlagen, auf Zusammenfassung 1 / 3 und auf der allerletzten Folie (3 / 3, dort zusätzlich „Ergebnisse immer sinnvoll runden“) (FSS28).

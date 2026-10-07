@@ -531,3 +531,12 @@ body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
   white-space: pre; text-align: center; font: 700 .3em/1.25 var(--font-ui); color: var(--c-unc); }
 .slide-card .zs-task { margin-top: 1.3em; padding: .7em 1em; border-radius: .5em; border: 1px dashed var(--accent);
   color: var(--text); }
+
+/* Gerundete Ergebnisse prominent (FSS29): Rechnerzeile, Ergebniszeilen, Tafel, Zusammenfassung */
+.slide-card .calc-rnd > :last-child { font-size: 1.22em; font-weight: 700; color: var(--accent); white-space: nowrap;
+  padding: .02em .4em; border-radius: .35em; background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.slide-card .formula .dyn.res { font-size: 1.12em; }
+.verdict .res-val { fill: var(--accent); font-size: 1.3em; font-weight: 800; }
+.verdict .res-tail { fill: var(--text2); font-weight: 600; }
+.zs-ex .zs-res { font-size: 1.15em; }
+.slide-card .zs-ex .zs-res mjx-container { color: var(--accent); }

@@ -158,9 +158,11 @@ const ORDINAL = ['1.', '2.', '3.', '4.', '5.', '6.']
 export function compareData({ lo, val, hi, sym, mid, unit, rounded }) {
   const t = compareTriple(lo, val, hi)
   const first = t.hi.find(c => !c.comma && c.ch !== '0' && !c.implicit)?.p ?? t.top
-  const result = `→ ${sym} = ${rounded} ${unit}: Unsicherheit auf der ${ORDINAL[first - t.pDiff] ?? '?'} Stelle`
+  const tail = `: Unsicherheit auf der ${ORDINAL[first - t.pDiff] ?? '?'} Stelle`
+  const result = `→ ${sym} = ${rounded} ${unit}${tail}`
   return {
     key: `${lo}|${val}|${hi}`, cmp: { pDiff: t.pDiff }, places: t.places, result, pos: first - t.pDiff + 1,
+    resultParts: [sym, ` = ${rounded} ${unit}`, tail],          // gerundetes Ergebnis hervorgehoben (FSS29)
     rows: [{ sym, sub: 'max', cells: t.hi }, { sym: mid, sub: '', cells: t.val }, { sym, sub: 'min', cells: t.lo }],
   }
 }
@@ -216,6 +218,21 @@ export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
 }
 export const compareLine = (S, D) =>
   (S.dcF > 0.5 ? D.result : compareVerdict(D.cmp, Math.round(S.dcP)))
+// Schlußzeile der Tafel ins <text>: während des Scans das Urteil, am Ende „→ A = 6,686 m²"
+// groß in Akzentfarbe (gerundetes Ergebnis prominent, PO 2026-10-07, FSS29) + Stelle
+export function setCompareLine(el, S, D) {
+  const done = S.dcF > 0.5, key = done ? `R|${D.key}` : compareLine(S, D)
+  if (el._cl === key) return
+  el._cl = key
+  el.textContent = ''
+  if (!done) { el.textContent = key; return }
+  const [sym, val, tail] = D.resultParts
+  el.append('→ ')
+  const r = svgEl('tspan', { class: 'res-val' }, el)
+  svgEl('tspan', { class: 'sym' }, r).textContent = sym
+  r.append(val)
+  svgEl('tspan', { class: 'res-tail' }, el).textContent = tail
+}
 
 const CMP_WORD = { sure: 'gleich → sicher', unc: 'verschieden → unsicher', ghost: 'dahinter: sinnlos' }
 export const compareVerdict = (cmp, p) =>
