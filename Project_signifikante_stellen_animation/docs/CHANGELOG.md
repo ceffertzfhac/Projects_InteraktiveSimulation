@@ -4,6 +4,7 @@
 
 - Grundlagen: Beschriftung unter dem Maßband „abgelesener Messwert: …“ statt „abgelesen: …“ (FSS9 a).
 - Grundlagen 5: Titel „Verschieden lang – gleicher Messwert“, Schritt „Zwei Stäbe, ein Messwert“ (FSS9 b).
+- Grundlagen: alle wahren Stablängen mit 5 signifikanten Stellen (3,1203 / 3,0701 / 2,4132 / 3,1702 / 3,3802 / 2,6401 / 3,1178 / 3,1197 m) – als wären sie mit demselben sehr genauen Messmittel bestimmt; die Ablesungen bleiben (FSS9 c).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
