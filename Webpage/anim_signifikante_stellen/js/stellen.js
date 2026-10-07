@@ -14,6 +14,7 @@
 import { svgEl, clamp } from '../../shared/js/step-kit.js'
 import { placeName, compareTriple } from './model.js'
 import { fmt } from '../../shared/js/format.js'
+import { beat as B } from '../../shared/js/step-engine.js'   // Zwischenhalt (Präsentationsmodus)
 
 export const stellenKeys = () => ({
   slA: 0, slI: 0, slP: 0, slD: 0, slB: 0, slV: 0, slC: 99,
@@ -185,11 +186,13 @@ export function fillSummary(card, rows, groups) {
 // 1) Vergleich (Tabelle Zeile für Zeile) + Beobachtung, 2) Begründung + Regel
 export const revealComparison = (tl, card, n, reveal) => {
   for (let i = 0; i < n; i++) reveal(tl, card, `r${i}`, i ? '>0.45' : '>0.3')
-  reveal(tl, card, 'obs', '>0.9')
+  B(tl)
+  reveal(tl, card, 'obs', '>0.5')
 }
 export const revealReason = (tl, card, reveal) => {
   reveal(tl, card, 'why', '>0.2')
-  reveal(tl, card, 'concl', '>1.6')
+  B(tl)
+  reveal(tl, card, 'concl', '>0.5')
 }
 
 // Build-Zeit: Spaltenzeiger von der höchsten Stelle bis eine hinter die erste
@@ -205,6 +208,7 @@ export function compareScan(tl, S, D, idx, { at, hold = 0.9 } = {}) {
     tl.to(S, { dcV: 1, duration: 0.35 })
     tl.set(S, { dcC: p })
     tl.to(S, { dcV: 1, duration: p === pDiff ? 1.6 : hold })
+    if (p === pDiff) B(tl)                             // Halt an der ersten abweichenden Ziffer
   })
   tl.to(S, { dcV: 0, duration: 0.25 })
   tl.set(S, { dcC: -99, dcP: pDiff, dcF: 1 })          // alles eingefärbt, Ergebnis

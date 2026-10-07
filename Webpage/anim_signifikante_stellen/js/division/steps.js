@@ -10,6 +10,7 @@
 
 import { createCamera, createCardDeck } from '../../../shared/js/step-kit.js'
 import { compareScan, revealComparison, revealReason } from '../stellen.js'
+import { beat as B } from '../../../shared/js/step-engine.js'   // Zwischenhalt (Präsentationsmodus, FSS25)
 import {
   T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
@@ -42,7 +43,8 @@ export function buildSpeedSteps(S, DOM) {
   step('Zwei Ausrüstungen', tl => {
     deck.show(tl, C.v_equip)
     tl.to(S, { pnA0: 1, pnY0: 0, duration: T.reveal, ease: EASE.reveal }, '<')
-    tl.to(S, { pnA1: 1, pnY1: 0, duration: T.reveal, ease: EASE.reveal }, '<0.35')
+    B(tl)
+    tl.to(S, { pnA1: 1, pnY1: 0, duration: T.reveal, ease: EASE.reveal }, '>0.1')
   }, 5)
 
   step('Person A misst die Strecke', tl => {
@@ -50,6 +52,7 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { tpA0: 1, duration: 0.3 }, '<')
     tl.to(S, { tpD0: 1, duration: 1.4 / 0.75, ease: 'power2.inOut' }, '<')   // Tempo 0,75 (FSS9 ab)
     tl.to(S, { guideD: 1, duration: 0.6, ease: EASE.cam }, '>-0.1')
+    B(tl)
     tl.set(S, { zA: 1 }, '>0.1')
     tl.to(S, { zW: 1, duration: 0.7, ease: EASE.reveal })
     tl.to(S, { tbA: 1, duration: 0.4 }, '>0.1')
@@ -61,8 +64,10 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { zA: 0, duration: 0.4 }, '<')
     tl.to(S, { tpA1: 1, duration: 0.3 }, '<')
     tl.to(S, { tpD1: 1, duration: 1.4 / 0.75, ease: 'power2.inOut' }, '<')   // Tempo 0,75 (FSS9 ab)
-    tl.to(S, { lpA: 1, lpT: 1, duration: 0.6 }, '>-0.1')
-    tl.to(S, { lzT: 1, duration: 0.5 }, '>0.4')
+    B(tl)
+    tl.to(S, { lpA: 1, lpT: 1, duration: 0.6 }, '>0.1')
+    B(tl)
+    tl.to(S, { lzT: 1, duration: 0.5 }, '>0.2')
     cell(tl, 'c1s', '>0.1')
   }, 5)
 
@@ -86,7 +91,8 @@ export function buildSpeedSteps(S, DOM) {
     deck.show(tl, C.v_t)
     tl.to(S, { wGlowA: 1, duration: 0.5 }, '<0.2')
     cell(tl, 'c0t', '<0.2')
-    tl.to(S, { wGlowA: 0, wGlowB: 1, duration: 0.5 }, '>0.8')
+    B(tl)
+    tl.to(S, { wGlowA: 0, wGlowB: 1, duration: 0.5 }, '>0.4')
     tl.to(S, { lzD: 1, duration: 0.5 }, '<0.2')
     cell(tl, 'c1t', '>0.3')
     tl.to(S, { wGlowB: 0, duration: 0.5 }, '>0.8')
@@ -113,16 +119,19 @@ export function buildSpeedSteps(S, DOM) {
     const r = ROW[i]
     corner(tl, r, 0, 1, '>0.3')
     reveal(tl, card, 'min', '<0.6')
-    corner(tl, r, 1, 0, '>2')
+    B(tl)
+    corner(tl, r, 1, 0, '>0.6')
     reveal(tl, card, 'max', '<0.6')
     tl.to(S, { ks: 1, duration: 1.4 }, '>')           // Standzeit: Grenze lesen
-    tl.to(S, { [`bd${i}`]: 1, duration: 1, ease: 'power2.inOut' }, '>0.4')
+    B(tl)
+    tl.to(S, { [`bd${i}`]: 1, duration: 1, ease: 'power2.inOut' }, '>0.2')
     clearHits(tl)
   }
   // Ziffern vergleichen: v_max · Rechner · v_min untereinander (an der Stelle der Regler)
   const digits = (tl, i, card, finalW, finalCx) => {
     const r = ROW[i]
-    tl.to(S, { frA: 0, vlA: 0, duration: 0.4 })
+    B(tl)
+    tl.to(S, { frA: 0, vlA: 0, duration: 0.4 }, '>')
     compareScan(tl, S, CMP[i], i)
     cam.to(tl, { cx: finalCx ?? Math.max(r.info.R, finalW / 2), w: finalW }, { duration: 1.1, at: '<' })
     tl.to(S, { [`rm${i}`]: 1, duration: 0.5 })
@@ -131,7 +140,8 @@ export function buildSpeedSteps(S, DOM) {
     reveal(tl, card, 'res', '<0.2')
   }
   const startBounds = (tl, i) => {
-    tl.to(S, { dcA: 0, frA: 0, duration: 0.35 })
+    B(tl)
+    tl.to(S, { dcA: 0, frA: 0, duration: 0.35 }, '>')
     tl.set(S, { frI: i, ks: 0.5, kt: 0.5 })
     tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
   }
@@ -148,16 +158,20 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { frA: 1, duration: 0.5 })
     tl.to(S, { vAx: 1, vTk: 1, duration: 0.9, ease: EASE.cam }, '<')
     // hineinzoomen: alle vier Kombinationen (9,09 … 9,60 m/s) links der Folienkarte
+    B(tl)
     cam.to(tl, { cx: 9.5, w: 1.8 }, { duration: T.cam, at: '>0.3' })
     tl.to(S, { vlA: 1, duration: 0.4 })
     COMBOS.forEach((c, n) => {
-      corner(tl, ROW[0], c.ks, c.kt, n ? '>1.2' : '>0.3', c.i + 1)
+      if (n) B(tl)
+      corner(tl, ROW[0], c.ks, c.kt, n ? '>0.4' : '>0.3', c.i + 1)
       tl.to(row(c.i), { autoAlpha: 1, duration: 0.45 }, '<')
     })
     // nach Größe sortieren, dann benennen: kleinstes · dazwischen · größtes
-    COMBOS.forEach(c => tl.to(row(c.i), { '--slot': c.rank, duration: 0.9, ease: 'power2.inOut' }, c.i ? '<' : '>1.2'))
+    B(tl)
+    COMBOS.forEach(c => tl.to(row(c.i), { '--slot': c.rank, duration: 0.9, ease: 'power2.inOut' }, c.i ? '<' : '>0.4'))
     reveal(tl, K, 'sorted', '>0.2')
-    tl.to(K.querySelectorAll('.c-tag'), { autoAlpha: 1, duration: 0.4, stagger: 0.25 }, '>0.4')
+    B(tl)
+    tl.to(K.querySelectorAll('.c-tag'), { autoAlpha: 1, duration: 0.4, stagger: 0.25 }, '>0.2')
   }, 6)
 
   step('Person A: kleinstes und größtes v', tl => {

@@ -1,5 +1,9 @@
 # Changelog – Signifikante Stellen (Schritt-Animation)
 
+## v1.0.17 — 2026-10-07 (PO-Review 2. Runde)
+
+- Präsentationsmodus (Taste A, kein sichtbarer Schalter, kurze Einblendung beim Umschalten): hält zusätzlich an didaktischen Zwischenhalten innerhalb der Schritte – Grundlagen 20 → 62, Multiplikation 18 → 50, Division 15 → 42, Addition 12 → 33, Zusammenfassung 3 → 9. Halte u. a. vor jedem Messvorgang, je wahrer Länge, vor Intervall/±-Pfeilen, an der ersten abweichenden Ziffer des Ziffernvergleichs, je Zeile der Zusammenfassung. Gemeinsame Schritt-Engine: beat(tl), eine Master-Timeline für beide Modi (reversibel), Position bleibt beim Umschalten, Modus in der Adresse (#kapitel/p<schritt>) und gemerkt; Druck folgt dem aktiven Modus; Warnung, wenn ein Tween über einen Halt läuft (FSS25).
+
 ## v1.0.16 — 2026-10-07 (PO-Review 2. Runde)
 
 - Merke Grundlagen: zwei Beispiele wie die Ziffernzeile der Bühne – 3,120 m und 0,003120 km mit Zählmarken 1–4 über den signifikanten Ziffern, Klammer „gesichert“, Pfeil „unsicher“ auf die letzte Ziffer, Klammer „nicht signifikant“ über den führenden Nullen; Text gestrafft, Umrechnungsregel ergänzt (FSS13).
