@@ -37,7 +37,7 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { [`tg${k}s`]: 1, duration: 0.45, ease: 'power1.inOut' })
     tl.to(S, { [`tg${k}c`]: 0, duration: 0.4 }, '>1.2')
   }
-  // Kette: A-Länge und B-Anfang gemeinsam (B liegt an A an)
+  // hintereinander: A-Länge und B-Anfang gemeinsam (B liegt an A an)
   const chain = (tl, aL, bL, at, d = 0.6) =>
     tl.to(S, { aL, bX: aL, ...(bL ? { bL } : {}), duration: d, ease: EASE.cam }, at)
 
@@ -83,7 +83,7 @@ export function buildAddSteps(S, DOM) {
     tl.to(S, { calcA: 1, duration: 0.4 })
     tl.to(S, { calcT: 1, duration: 2.6, ease: 'none' }, '>0.1')
     reveal(tl, C.a_chain, 'calc', '>0.2')
-    // Wo endet die Kette? A wackelt durch sein Intervall, B fährt mit
+    // Wo endet B? A wackelt durch sein Intervall, B fährt mit
     tl.to(S, { zAe: 1, duration: 0.5 }, '>0.8')
     reveal(tl, C.a_chain, 'end', '<')
     A_SAMPLES.forEach((x, i) => chain(tl, x, null, i ? '>0.5' : '>0.2'))

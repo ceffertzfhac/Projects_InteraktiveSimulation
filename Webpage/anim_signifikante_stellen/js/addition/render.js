@@ -201,7 +201,7 @@ export function initAddStage(svg) {
   E.zone = svgEl('rect', { class: 'zone', x: xOf(SUM.a.lo), y: T0.top, width: SUM.a.width * K, height: T0.h }, E.root)
   E.zoneEdge = [SUM.a.lo, SUM.a.hi].map(s => svgEl('line', { class: 'zone-edge', x1: xOf(s), x2: xOf(s),
     y1: T0.top - 8, y2: T0.top + T0.h + 8 }, E.root))
-  // Bereiche der Kette (hinter den Werkstücken)
+  // mögliche Lage des A-Endes und des Gesamt-Endes (hinter den Werkstücken)
   E.zAe = svgEl('rect', { class: 'chain-zone-a', x: xOf(SUM.a.lo), width: SUM.a.width * K, rx: 3 }, E.root)
   E.zEnd = svgEl('rect', { class: 'chain-zone', x: xOf(SUM.lo), width: (SUM.hi - SUM.lo) * K, rx: 3 }, E.root)
   E.rodA = svgEl('rect', { class: 'rod-body', height: ROD_H, rx: 3 }, E.root)

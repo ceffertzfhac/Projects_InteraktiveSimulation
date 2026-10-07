@@ -1,7 +1,7 @@
 'use strict'
 // Szene des Kapitels „Addition": flaches Objekt aus ZAHLEN (Reversibilitäts-Regel).
 // Stablängen aL/bL sind die gezeichneten (wahren bzw. probierten) Längen; das Ende
-// der Kette ergibt sich daraus — nichts wird doppelt gespeichert.
+// der Gesamtlänge ergibt sich daraus — nichts wird doppelt gespeichert.
 
 import { cameraKeys } from '../../../shared/js/step-kit.js'
 import { compareKeys } from '../stellen.js'
@@ -18,7 +18,7 @@ export function createAddScene() {
     tp0A: 0, tp0R: 0, tp1A: 0, tp1R: 0, zA: 0, lpA: 0, lzA: 0,
     // Taschenrechner: Deckkraft, Tippen 0…1
     calcA: 0, calcT: 0,
-    // Kette: Bereich des A-Endes und des Kettenendes, Grenz-Beschriftung
+    // hintereinander: Bereich des A-Endes und des Gesamt-Endes, Grenz-Beschriftung
     zAe: 0, zEnd: 0, lmMin: 0, lmMax: 0,
     // Steckbrief: Kopf, Zeilen, Hervorhebung der Spalten (sign. Stellen / Nachkommastellen)
     tbA: 0, r0: 0, r1: 0, r2: 0, hiS: 0, hiN: 0, hiU: 0,

@@ -12,7 +12,7 @@ export const B_TRUE = 1.8771
 export const A_SAMPLES = [0.762, 0.846, 0.781, 0.833]   // mögliche wahre Längen von A
 
 // ── Werkbank: Maßstab und Lagen (Bildschirm) ─────────────────────────────────
-// K so, daß die ganze Kette (bis 2,73 m) links der Folienkarten Platz hat
+// K so, daß beide Werkstücke hintereinander (bis 2,73 m) links der Folienkarten Platz hat
 export const K = 230                                  // px pro Meter
 export const X0 = 96                                  // Nullpunkt (Anfang der Werkstücke)
 export const xOf = s => X0 + s * K
