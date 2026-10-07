@@ -293,7 +293,7 @@ export function buildSteps(S, DOM) {
   }, 7)
 
   // ── T · Zeitmessung am Auto (PO 2026-10-07, FSS9 j): Werte wie im Kapitel Division ──
-  step('Auch Zeiten sind Messwerte', tl => {
+  step('Das gilt für alle Messwerte: Zeiten', tl => {
     deck.show(tl, C.t_intro)
     arrowOff(tl, '<')
     clearHits(tl, '<')
