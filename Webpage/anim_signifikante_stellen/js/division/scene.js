@@ -23,7 +23,8 @@ export function createSpeedScene() {
     tbA: 0, c0s: 0, c0t: 0, c0v: 0, c1s: 0, c1t: 0, c1v: 0, c2s: 0, c2t: 0, c2v: 0, row2: 0,
     // Regler s und t (Anteil im Intervall 0…1), Zeile, Live-Wert auf der Zahlengeraden
     frA: 0, frI: 0, ks: 0.5, kt: 0.5, vlA: 0,
-    ch0x: 9, ch0a: 0, ch1x: 9, ch1a: 0, ch2x: 9, ch2a: 0, ch3x: 9, ch3a: 0,
+    // Ecken-Treffer: Lage, Deckkraft, Farbe (0 = Akzent, 1…4 = Kategorialfarbe der Kombination)
+    ch0x: 9, ch0a: 0, ch0c: 0, ch1x: 9, ch1a: 0, ch1c: 0, ch2x: 9, ch2a: 0, ch2c: 0, ch3x: 9, ch3a: 0, ch3c: 0,
     // v-Zahlengerade, Bänder (0…1 von v_min nach v_max), Ergebnis-Marken
     vAx: 0, vTk: 0, bd0: 0, bd1: 0, bd2: 0, rm0: 0, rm1: 0, rm2: 0,
     dim: 0,

@@ -13,7 +13,7 @@ import { compareScan, revealSummary } from '../stellen.js'
 import {
   T, EASE, CAR_PARK, CAR_ENTRY, CAR_GONE, SLOWMO, V_TRUE, CAM_V_FULL,
 } from './constants.js'
-import { ROW, CMP, SUMMARY } from './content.js'
+import { ROW, CMP, SUMMARY, COMBOS } from './content.js'
 
 const vAt = (r, ks, kt) => {
   const { s, t } = r.e
@@ -96,10 +96,10 @@ export function buildSpeedSteps(S, DOM) {
   let hitN = 0
   // Ecke anfahren (langsam, PO 2026-10-02) — die Beschriftung der Kombination steht
   // an den Reglern, solange der Knopf an der Ecke steht
-  const corner = (tl, r, ks, kt, at) => {
+  const corner = (tl, r, ks, kt, at, color = 0) => {
     tl.to(S, { ks, kt, duration: 1.3, ease: EASE.cam }, at)
     const n = hitN++
-    tl.set(S, { [`ch${n}x`]: vAt(r, ks, kt) })
+    tl.set(S, { [`ch${n}x`]: vAt(r, ks, kt), [`ch${n}c`]: color })
     tl.to(S, { [`ch${n}a`]: 1, duration: 0.3, ease: EASE.pop })
   }
   const clearHits = tl => {
@@ -109,17 +109,11 @@ export function buildSpeedSteps(S, DOM) {
     hitN = 0
   }
   // Grenzen: kleinstes v = s_min / t_max, größtes v = s_max / t_min
-  const bounds = (tl, i, card, all) => {
+  const bounds = (tl, i, card) => {
     const r = ROW[i]
-    if (all) {                       // alle vier Kombinationen ausprobieren
-      corner(tl, r, 0, 0, '>0.3'); corner(tl, r, 1, 0, '>1.6'); corner(tl, r, 0, 1, '>1.6'); corner(tl, r, 1, 1, '>1.6')
-      tl.to(S, { ks: 0, kt: 1, duration: 1.3, ease: EASE.cam }, '>1.6')
-    } else {
-      corner(tl, r, 0, 1, '>0.3')
-    }
+    corner(tl, r, 0, 1, '>0.3')
     reveal(tl, card, 'min', '<0.6')
-    if (all) tl.to(S, { ks: 1, kt: 0, duration: 1.4, ease: EASE.cam }, '>2')
-    else corner(tl, r, 1, 0, '>2')
+    corner(tl, r, 1, 0, '>2')
     reveal(tl, card, 'max', '<0.6')
     tl.to(S, { ks: 1, duration: 1.4 }, '>')           // Standzeit: Grenze lesen
     tl.to(S, { [`bd${i}`]: 1, duration: 1, ease: 'power2.inOut' }, '>0.4')
@@ -142,16 +136,35 @@ export function buildSpeedSteps(S, DOM) {
     tl.to(S, { frA: 1, vlA: 1, duration: 0.5 })
   }
 
-  step('Person A: Grenzen von v', tl => {
-    deck.show(tl, C.v_vA)
+  // Person A in zwei Schritten (FSS9 o): erst alle vier Kombinationen bilden und nach
+  // Größe ordnen, dann kleinstes und größtes v auswählen
+  step('Person A: alle Kombinationen', tl => {
+    const K = C.v_combo, row = n => K.querySelector(`[data-c="${n}"]`)
+    tl.set(K.querySelectorAll('.corner-row, .c-tag'), { autoAlpha: 0 })
+    COMBOS.forEach(c => tl.set(row(c.i), { '--slot': c.i }))
+    deck.show(tl, K)
     tl.to(S, { lowA: 0, duration: 0.6 }, '<')
     tl.set(S, { frI: 0, ks: 0.5, kt: 0.5 })
     tl.to(S, { frA: 1, duration: 0.5 })
     tl.to(S, { vAx: 1, vTk: 1, duration: 0.9, ease: EASE.cam }, '<')
-    // zuerst hineinzoomen: um 9,3 m/s herum, damit Intervall und Ergebnis lesbar sind
-    cam.to(tl, { cx: 9.35, w: 1.4 }, { duration: T.cam, at: '>0.3' })
+    // hineinzoomen: alle vier Kombinationen (9,09 … 9,60 m/s) links der Folienkarte
+    cam.to(tl, { cx: 9.5, w: 1.8 }, { duration: T.cam, at: '>0.3' })
     tl.to(S, { vlA: 1, duration: 0.4 })
-    bounds(tl, 0, C.v_vA, true)
+    COMBOS.forEach((c, n) => {
+      corner(tl, ROW[0], c.ks, c.kt, n ? '>1.2' : '>0.3', c.i + 1)
+      tl.to(row(c.i), { autoAlpha: 1, duration: 0.45 }, '<')
+    })
+    // nach Größe sortieren, dann benennen: kleinstes · dazwischen · größtes
+    COMBOS.forEach(c => tl.to(row(c.i), { '--slot': c.rank, duration: 0.9, ease: 'power2.inOut' }, c.i ? '<' : '>1.2'))
+    reveal(tl, K, 'sorted', '>0.2')
+    tl.to(K.querySelectorAll('.c-tag'), { autoAlpha: 1, duration: 0.4, stagger: 0.25 }, '>0.4')
+  }, 6)
+
+  step('Person A: kleinstes und größtes v', tl => {
+    deck.show(tl, C.v_vA)
+    clearHits(tl)                                        // nimmt auch die Live-Marke weg …
+    tl.to(S, { ks: 0.5, kt: 0.5, vlA: 1, duration: 0.8, ease: EASE.cam })   // … und holt sie zurück
+    bounds(tl, 0, C.v_vA)
   }, 6)
 
   step('Person A: Ziffern vergleichen', tl => {
@@ -163,7 +176,7 @@ export function buildSpeedSteps(S, DOM) {
     deck.show(tl, C.v_vB)
     startBounds(tl, 1)
     cam.to(tl, CAM_V_FULL, { duration: T.cam, at: '<' })
-    bounds(tl, 1, C.v_vB, false)
+    bounds(tl, 1, C.v_vB)
     digits(tl, 1, C.v_vB, 24)
   }, 6)
 
@@ -174,7 +187,7 @@ export function buildSpeedSteps(S, DOM) {
     cell(tl, 'c2t', '<0.15')
     startBounds(tl, 2)
     cam.to(tl, { cx: 9.27, w: 0.3 }, { duration: T.cam, at: '<' })
-    bounds(tl, 2, C.v_best, false)
+    bounds(tl, 2, C.v_best)
     digits(tl, 2, C.v_best, 0.1, 9.29)          // Marke von A (9,3) bleibt links der Karte
   }, 6)
 

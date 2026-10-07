@@ -44,6 +44,18 @@ export const SUMMARY = ROW.map(({ e }, i) => [
   `${e.s.text} m / ${e.t.text} s`, `${e.s.sig} und ${e.t.sig}`, `${CMP[i].pos}. Stelle`, `${e.rounded} m/s (${stellen(e.sig)})`,
 ])
 
+// Person A: alle vier Kombinationen der Grenzen (Reihenfolge der Liste = Reihenfolge
+// der Treffer), je Farbe P1…P4, Wert und Rang nach Größe (FSS9 o)
+const eA = ROW[0].e
+export const COMBOS = [[0, 0], [0, 1], [1, 0], [1, 1]].map(([ks, kt], i) => {
+  const s = ks ? eA.s.hi : eA.s.lo, t = kt ? eA.t.hi : eA.t.lo
+  return { i, ks, kt, v: s / t,
+    text: `${fmt(s, eA.s.decimals + 1)} m / ${fmt(t, eA.t.decimals + 1)} s = ${fmt(s / t, 4)}… m/s` }
+})
+const byV = [...COMBOS].sort((p, q) => p.v - q.v)
+COMBOS.forEach(c => { c.rank = byV.indexOf(c) })
+const RANK_TAG = ['kleinstes v', 'dazwischen', 'dazwischen', 'größtes v']
+
 export const SPD = {}
 ROW.forEach((r, i) => {
   const p = 'abc'[i]
@@ -52,6 +64,11 @@ ROW.forEach((r, i) => {
 
 export function fillSpeedCards(DOM) {
   fillSummary(DOM.cards.v_sum, SUMMARY)
+  DOM.cards.v_combo.querySelectorAll('.corner-row').forEach((row, i) => {
+    row.querySelector('.c-val').textContent = COMBOS[i].text
+    row.querySelector('.c-tag').textContent = RANK_TAG[COMBOS[i].rank]
+    row.style.setProperty('--slot', i)
+  })
   for (const el of DOM.dyn) {
     const [grp, field] = el.dataset.dyn.split('.')
     // Felder mit Endung „H" sind vorberechnetes HTML aus model.js (Ziffern-Spans)

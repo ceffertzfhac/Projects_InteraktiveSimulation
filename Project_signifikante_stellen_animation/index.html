@@ -373,13 +373,40 @@ window.MathJax = {
           bis zu eine halbe Sekunde abweichen.</p>
       </div>
 
+      <!-- Person A: alle vier Kombinationen der Grenzen, sortiert (FSS9 o) -->
+      <div class="slide-card pos-tr" data-card="v_combo">
+        <div class="kicker">Person A · \(v = \Delta s / \Delta t\)</div>
+        <h3>Vier Kombinationen der Grenzen</h3>
+        <p>Für \(\Delta s\) und \(\Delta t\) gibt es je eine kleinste und eine größte mögliche
+          Zahl. Jede Farbe gehört zu einem Treffer auf der Zahlengeraden.</p>
+        <div class="corner-list v-combo">
+          <div class="corner-row" data-c="0"><span class="c-dot cp1"></span>
+            <span class="c-term">\(\dfrac{\Delta s_{\min}}{\Delta t_{\min}}\)</span>
+            <span class="c-tag" data-ct="0"></span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="1"><span class="c-dot cp2"></span>
+            <span class="c-term">\(\dfrac{\Delta s_{\min}}{\Delta t_{\max}}\)</span>
+            <span class="c-tag" data-ct="1"></span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="2"><span class="c-dot cp3"></span>
+            <span class="c-term">\(\dfrac{\Delta s_{\max}}{\Delta t_{\min}}\)</span>
+            <span class="c-tag" data-ct="2"></span>
+            <span class="c-val"></span></div>
+          <div class="corner-row" data-c="3"><span class="c-dot cp4"></span>
+            <span class="c-term">\(\dfrac{\Delta s_{\max}}{\Delta t_{\max}}\)</span>
+            <span class="c-tag" data-ct="3"></span>
+            <span class="c-val"></span></div>
+        </div>
+        <p class="note" data-r="sorted">Nach Größe sortiert: kleinstes \(v\) oben, größtes unten, die beiden anderen dazwischen.</p>
+      </div>
+
       <div class="slide-card pos-tr" data-card="v_vA">
         <div class="kicker">Person A · \(v = \Delta s / \Delta t\)</div>
         <h3>Kleinstes und größtes \(v\)</h3>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">20&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.aRaw"></span>&thinsp;m/s</span></div>
         <p>Welche \(\Delta s\) und \(\Delta t\) aus den Intervallen ergeben das kleinstmögliche, welche das größtmögliche <span style="white-space:nowrap">\(v\)?</span></p>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.aHiH"></span>&thinsp;m/s</div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}5\,\text{m}}{2{,}145\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.aLoH"></span>&thinsp;m/s</span></div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{20{,}5\,\text{m}}{2{,}135\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.aHiH"></span>&thinsp;m/s</span></div>
         <p class="note">Umgekehrt wie beim Multiplizieren: kleiner Zähler und <b>großer</b> Nenner
           ergeben das kleinste Ergebnis.</p>
       </div>
@@ -399,8 +426,8 @@ window.MathJax = {
         <div class="kicker">Person B · \(v = \Delta s / \Delta t\)</div>
         <h3>Kleinstes und größtes \(v\)</h3>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">19,83&nbsp;m / 2&nbsp;s = <span class="dyn" data-dyn="spd.bRaw"></span>&thinsp;m/s</span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span class="dyn res" data-dyn="spd.bV"></span></span></div>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\) = <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}5\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.bLoH"></span>&thinsp;m/s</span></div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{1{,}5\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.bHiH"></span>&thinsp;m/s</span></div>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.bV"></span> – nur 1 Stelle: schon die Zehnerziffer ist unsicher</div>
         <p class="note">Das feine Maßband nützt nichts – die Zeit mit nur einer Stelle begrenzt.</p>
       </div>
@@ -409,8 +436,8 @@ window.MathJax = {
         <div class="kicker">Kombiniert · Strecke von B, Zeit von A</div>
         <h3>Kleinstes und größtes \(v\)</h3>
         <div class="calc-row"><span class="calc-ico"></span><span class="calc-lbl">Taschenrechner:</span><span class="calc-eq">19,83&nbsp;m / 2,14&nbsp;s = <span class="dyn" data-dyn="spd.cRaw"></span>&thinsp;m/s</span><span class="calc-rnd" data-r="rnd"><span class="rnd-arrow"><small>runden</small>⟶</span><span class="dyn res" data-dyn="spd.cV"></span></span></div>
-        <div class="formula" data-r="min">kleinstmöglich: \(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}145\,\text{s}}\) = <span class="dyn" data-dyn="spd.cLoH"></span>&thinsp;m/s</div>
-        <div class="formula" data-r="max">größtmöglich: \(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\) = <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</div>
+        <div class="formula bound" data-r="min"><span class="b-lbl">kleinstmöglich:</span><span class="b-eq">\(v_{\min} = \dfrac{\Delta s_{\min}}{\Delta t_{\max}} = \dfrac{19{,}825\,\text{m}}{2{,}145\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.cLoH"></span>&thinsp;m/s</span></div>
+        <div class="formula bound" data-r="max"><span class="b-lbl">größtmöglich:</span><span class="b-eq">\(v_{\max} = \dfrac{\Delta s_{\max}}{\Delta t_{\min}} = \dfrac{19{,}835\,\text{m}}{2{,}135\,\text{s}}\)</span><span class="b-res">= <span class="dyn" data-dyn="spd.cHiH"></span>&thinsp;m/s</span></div>
         <div class="formula" data-r="res">\(v =\) <span class="dyn res" data-dyn="spd.cV"></span> – 3 Stellen wie \(\Delta t\), die 7 ist unsicher</div>
         <p class="note">\(\Delta s\): 4 Stellen, \(\Delta t\): 3 Stellen – jetzt begrenzt die Zeitmessung.</p>
       </div>

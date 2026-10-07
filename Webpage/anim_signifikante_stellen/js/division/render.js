@@ -415,7 +415,8 @@ function renderFraction(S, V) {
   op(E.live, x >= V.L && x <= V.R ? S.vlA : 0)
   E.hits.forEach((c, n) => {
     const hx = V.sx(S[`ch${n}x`])
-    set(c, { cx: hx, cy: BAND_Y[i] + 7 }); op(c, hx >= V.L && hx <= V.R ? S[`ch${n}a`] : 0)
+    set(c, { cx: hx, cy: BAND_Y[i] + 7, class: `v-hit hc${Math.round(S[`ch${n}c`])}` })
+    op(c, hx >= V.L && hx <= V.R ? S[`ch${n}a`] : 0)
   })
 }
 

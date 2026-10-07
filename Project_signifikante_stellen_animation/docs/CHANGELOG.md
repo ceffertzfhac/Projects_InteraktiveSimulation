@@ -16,6 +16,7 @@
 - Multiplikation 6 „Ziffern vergleichen“: „Wir vergleichen nun die größtmögliche und die kleinstmögliche Fläche mit dem Taschenrechnerergebnis, das dazwischen liegt.“ (FSS9 i).
 - Kreis: „Messwert des Radius: r = …“ statt „Radius gemessen“ (FSS9 k).
 - Division: Taschenrechner-Zeile mit kleinem Taschenrechner-Symbol und Beschriftung „Taschenrechner:“; nach dem Ziffernvergleich in derselben Zeile „⟶ runden ⟶ gerundetes Ergebnis“ (FSS9 p, q).
+- Division: Schritt „Person A: Grenzen von v“ geteilt – zuerst „alle Kombinationen“ (vier farbige Treffer, Liste nach Größe sortiert: kleinstes · dazwischen · größtes), dann „kleinstes und größtes v“. Grenz-Boxen einheitlich: Bezeichnung, darunter Gleichung, Ergebnis rechtsbündig – die Ergebnisse stehen untereinander. Division hat jetzt 14 Schritte (FSS9 o).
 
 ## v0.14.0 — 2026-10-02 (Branch `feat/ziffernvergleich-primaer`)
 
