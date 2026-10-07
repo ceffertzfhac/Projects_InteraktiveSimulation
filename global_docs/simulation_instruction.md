@@ -951,6 +951,10 @@ Ordnername `Project_<name>_animation/`.
 | rAF-Loop über `simulatedTime` | **GSAP-Timeline** mit einem Label je Schritt |
 | keine Fremdbibliotheken | **GSAP 3.13 per CDN** (klassisches `<script>` *vor* den Modulen → `window.gsap`) |
 
+Die Position steht in der Adresse (`#<kapitel>/<schritt>`, per `history.replaceState`,
+→ BACKLOG FSS9 v): Neuladen bleibt an derselben Stelle, Links auf einen Schritt sind
+möglich. Das erledigt `createPresenter()` in `shared/js/step-engine.js` — nichts pro Animation.
+
 Unverändert gelten: Design-Tokens/Dark Mode (`fh_theme`), Physik-Logo,
 Typografie (Größen kursiv, Komma-Dezimal), statische MathJax, Farbregeln,
 „State nur in `state.js`", „Physik/Modell DOM-frei".

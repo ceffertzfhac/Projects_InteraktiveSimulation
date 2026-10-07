@@ -101,6 +101,8 @@ export function createStepEngine({ steps, scene, render, onChange = () => {}, on
     get total() { return N },
     get playing() { return playing },
     get busy() { return !!mover },
+    title: i => (i > 0 ? steps[i - 1].title : 'Start'),     // Schritt-Titel (Druck, step-print.js)
+    refresh() { render(scene) },          // neu zeichnen ohne Zeitsprung (z. B. nach Schrift-Nachladen)
     next() {
       if (mover) { snap(); emit(); return }
       moveTo(index + 1, speed)
@@ -200,7 +202,22 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     next: q('[data-act=next]'), play: q('[data-act=play]') }
   const count = q('.tp-count')
 
+  // Position in der Adresse (#kapitel/schritt): Neuladen bleibt an derselben Stelle,
+  // Links auf einen Schritt sind möglich. replaceState → keine Verlaufs-Flut.
+  let lastHash = ''
+  function writeHash(index) {
+    const h = `#${chapter.id}/${index}`
+    if (h === lastHash) return
+    lastHash = h
+    history.replaceState(null, '', h)
+  }
+  function readHash() {
+    const m = location.hash.match(/^#([\w-]+)(?:\/(\d+))?$/)
+    return m ? { id: m[1], index: m[2] === undefined ? 0 : +m[2] } : null
+  }
+
   function update(st) {
+    writeHash(st.index)
     btn.prev.disabled = st.index === 0
     btn.next.disabled = st.index === st.total && !st.busy
     btn.play.innerHTML = st.playing ? `${svgIcon('pause')}Pause` : `${svgIcon('play')}Auto-Play`
@@ -278,6 +295,27 @@ export function createPresenter({ root, chapters, speeds = [0.5, 1, 2], onChapte
     if (document.activeElement?.blur && document.activeElement !== document.body) document.activeElement.blur()
   })
 
-  selectChapter(chapters.find(c => !c.disabled).id)
-  return { get engine() { return engine }, selectChapter }
+  // Start: Position aus der Adresse, sonst erstes Kapitel
+  const go = h => {
+    const ok = h && chapters.some(c => c.id === h.id && !c.disabled)
+    selectChapter(ok ? h.id : chapters.find(c => !c.disabled).id)
+    if (ok && h.index) { engine.pause(); engine.goto(h.index) }
+    lastHash = ''
+    writeHash(engine.index)           // ungültige Adresse durch die tatsächliche Position ersetzen
+  }
+  go(readHash())
+  // Textmaße (Kästen um Ziffern, Beschriftungsbreiten) hängen von der Schrift ab: sobald
+  // eine Web-Schrift nachgeladen ist, die Bühne neu zeichnen — sonst bleiben Kästen an den
+  // Maßen der Ersatzschrift hängen (BACKLOG B54)
+  const refresh = () => engine?.refresh()
+  document.fonts?.ready.then(refresh)
+  document.fonts?.addEventListener?.('loadingdone', refresh)
+  window.addEventListener('hashchange', () => {
+    if (location.hash !== lastHash) go(readHash())
+  })
+  return {
+    get engine() { return engine }, selectChapter,
+    get chapter() { return chapter?.id },
+    chapters: chapters.filter(c => !c.disabled).map(({ id, title }) => ({ id, title })),
+  }
 }

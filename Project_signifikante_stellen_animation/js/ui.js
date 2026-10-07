@@ -4,9 +4,20 @@
 // Tastatursteuerung und erzeugt pro Kapitel eine frische Szene + Engine.
 
 import { createStepEngine, createPresenter } from '../../shared/js/step-engine.js'
+import { createPrint } from '../../shared/js/step-print.js'
 import { store, DOM, initDOM, createScene } from './state.js'
 import { initStage, renderScene } from './render.js'
 import { buildSteps } from './steps.js'
+import { createSpeedScene } from './division/scene.js'
+import { initSpeedStage, renderSpeed } from './division/render.js'
+import { buildSpeedSteps } from './division/steps.js'
+import { fillSpeedCards } from './division/content.js'
+import { createAddScene } from './addition/scene.js'
+import { initAddStage, renderAdd } from './addition/render.js'
+import { buildAddSteps } from './addition/steps.js'
+import { fillAddCards } from './addition/content.js'
+import { fillCalcIcons } from './stellen.js'
+import { createSummaryScene, initSummaryStage, renderSummary, buildSummarySteps } from './zusammenfassung.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -21,18 +32,72 @@ function setupTheme() {
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 initDOM()
 setupTheme()
-initStage(DOM.svg, DOM)
+// Kapitel Grundlagen und Multiplikation teilen Szene und Zeichnung (Teil 1 → Teil 2),
+// Division hat eine eigene; sichtbar ist nur die Gruppe des aktiven Kapitels.
+const groups = { grund: initStage(DOM.svg, DOM), division: initSpeedStage(DOM.svg), addition: initAddStage(DOM.svg),
+  summary: initSummaryStage(DOM.svg) }
+groups.mult = groups.grund
+fillSpeedCards(DOM)
+fillAddCards(DOM)
+fillCalcIcons(document)
+
+// Multiplikation beginnt dort, wo Grundlagen endet: dessen Schritte (+ Übergang)
+// werden vorab still auf die Szene angewendet — der Planer kennt so den Zustand.
+function multEngine(onChange, onTick) {
+  const S = store.scene = createScene()
+  const { grund, cleanup, mult } = buildSteps(S, DOM)
+  const g = window.gsap, pre = g.timeline({ paused: true })
+  grund.forEach(st => { const sub = g.timeline(); st.build(sub, S); pre.add(sub) })
+  const sub = g.timeline(); cleanup(sub); pre.add(sub)
+  pre.progress(1)
+  pre.kill()
+  return createStepEngine({ steps: mult, scene: S, render: renderScene, onChange, onTick })
+}
 
 store.presenter = createPresenter({
   root: DOM.transport,
+  onChapter: id => {
+    for (const [k, g] of Object.entries(groups)) if (k !== id) g.style.display = 'none'
+    groups[id].style.display = ''
+    // Folienkarten des vorigen Kapitels sicher ausblenden (sein Vorspann ist nicht Teil der Timeline)
+    window.gsap.set(Object.values(DOM.cards), { autoAlpha: 0 })
+  },
   chapters: [
     {
-      id: 'multiplikation', title: 'Multiplikation',
+      id: 'grund', title: 'Grundlagen',
       create: (onChange, onTick) => {
         const S = store.scene = createScene()
-        return createStepEngine({ steps: buildSteps(S, DOM), scene: S, render: renderScene, onChange, onTick })
+        return createStepEngine({ steps: buildSteps(S, DOM).grund, scene: S, render: renderScene, onChange, onTick })
       },
     },
-    { id: 'addition', title: 'Addition', disabled: true },   // → BACKLOG FSS1
+    { id: 'mult', title: 'Multiplikation', create: multEngine },
+    {
+      id: 'division', title: 'Division',
+      create: (onChange, onTick) => {
+        const S = store.scene = createSpeedScene()
+        return createStepEngine({ steps: buildSpeedSteps(S, DOM), scene: S, render: renderSpeed, onChange, onTick })
+      },
+    },
+    {
+      id: 'addition', title: 'Addition',
+      create: (onChange, onTick) => {
+        const S = store.scene = createAddScene()
+        return createStepEngine({ steps: buildAddSteps(S, DOM), scene: S, render: renderAdd, onChange, onTick })
+      },
+    },
+    {
+      id: 'summary', title: 'Zusammenfassung',
+      create: (onChange, onTick) => {
+        const S = store.scene = createSummaryScene()
+        return createStepEngine({ steps: buildSummarySteps(S, DOM), scene: S, render: renderSummary, onChange, onTick })
+      },
+    },
   ],
+})
+
+// Drucken / PDF: Endzustand jedes Schritts, aktuelles Kapitel oder alle (FSS9 z)
+createPrint({
+  presenter: store.presenter, button: document.getElementById('print_btn'),
+  popover: document.getElementById('print_pop'), stage: document.querySelector('.stage'),
+  docTitle: 'Signifikante Stellen',
 })

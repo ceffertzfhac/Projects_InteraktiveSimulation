@@ -23,9 +23,24 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .rod-hi  { stop-color: var(--rod-hi); }
 .rod-mid { stop-color: var(--rod-mid); }
 .rod-lo  { stop-color: var(--rod-lo); }
-.rod-body { fill: url(#grad_rod); stroke: var(--rod-edge); stroke-width: 1;
-  filter: drop-shadow(0 2px 3px rgba(26, 30, 46, .22)); }
-.rod-cap  { fill: var(--rod-edge); }
+.rod-edge-s { stop-color: var(--rod-edge); }
+/* Rundstab: hintere Ellipse (links) · Mantel ohne Seitenkanten · Mantellinien · Stirnfläche rechts */
+.rod-back { fill: url(#grad_rod); stroke: var(--rod-edge); stroke-width: 1;
+  filter: drop-shadow(0 3px 3px rgba(26, 30, 46, .3)); }
+.rod-body { fill: url(#grad_rod); filter: drop-shadow(0 3px 3px rgba(26, 30, 46, .3)); }
+.rod-outline { fill: none; stroke: var(--rod-edge); stroke-width: 1; }
+.rod-gloss { fill: #fff; fill-opacity: .75; }
+body.dark .rod-gloss { fill-opacity: .5; }
+.rod-cap  { stroke: var(--rod-edge); stroke-width: 1; }
+/* Metallfarben der Stäbe (Grundlagen): leichte Abstufungen, in beiden Themes gleich
+   (physische Objekte) — Stahl · Aluminium · Titan · Blaustahl · Neusilber · Dunkelstahl */
+.tint-0 { --rod-hi: #f4f6fa; --rod-mid: #b9c0cc; --rod-lo: #7d8696; --rod-edge: #5f6776; }
+.tint-1 { --rod-hi: #fbfbfb; --rod-mid: #cfd1d4; --rod-lo: #93969b; --rod-edge: #6e7176; }
+.tint-2 { --rod-hi: #f7f3ec; --rod-mid: #c2baad; --rod-lo: #877e71; --rod-edge: #665e53; }
+.tint-3 { --rod-hi: #edf3fa; --rod-mid: #a7b9cc; --rod-lo: #687e96; --rod-edge: #4c5f75; }
+.tint-4 { --rod-hi: #f8f5e8; --rod-mid: #c9c09f; --rod-lo: #8d8467; --rod-edge: #6a624a; }
+.tint-5 { --rod-hi: #e4e6ea; --rod-mid: #9aa0aa; --rod-lo: #5f6672; --rod-edge: #444a55; }
+.rod-cap-hi { fill: #fff; fill-opacity: .55; }
 
 /* Ablesebereich (Rundungsintervall auf dem Maßband), Stabende, Einrast-Pfeil */
 .zone      { fill: #ffffff; fill-opacity: .55; }
@@ -43,6 +58,8 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .true-arrow path { fill: var(--c-true); }
 .ping { fill: none; stroke: var(--c-true); stroke-width: 2.5; }
 .hit  { fill: var(--c-true); stroke: var(--stage-bg1); stroke-width: 2; }
+/* Ecken-Test: Treffer und Listenpunkte in den Kategorialfarben P1…P4 (FSS9 h) */
+.hit.hc1 { fill: var(--c-p1); } .hit.hc2 { fill: var(--c-p2); } .hit.hc3 { fill: var(--c-p3); } .hit.hc4 { fill: var(--c-p4); }
 
 /* Live-Produkt an der Rechteckecke */
 .readout { fill: var(--c-true); font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums;
@@ -86,7 +103,7 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .dim-label   { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .dim-l       { fill: var(--c-l); }
 .dim-b       { fill: var(--c-b); }
-.axis-name   { fill: var(--text); font-size: 24px; font-style: italic; font-weight: 500; }
+.axis-name   { fill: var(--text); font-size: 22px; font-weight: 500; }
 
 /* Dynamische Zahlen in Karten: Farbe nach Größe */
 .slide-card .dyn[data-dyn="cmb.l"], .slide-card .dyn[data-dyn="lvl.text"] { color: var(--c-l); font-weight: 600; }
@@ -94,11 +111,421 @@ body.dark { --c-l: #56b4e9; --c-b: #ff9a5c; --c-area: var(--accent); --c-true: #
 .slide-card .dyn[data-dyn="cmb.rounded"] { color: var(--accent); font-weight: 600; font-size: 1.05em; }
 .slide-card .kicker.dyn { font-weight: 700; color: var(--accent); }
 
-/* Kreis */
-.circ-disc   { fill: var(--accent); fill-opacity: .10; }
-.circ-line   { fill: none; stroke: var(--text); stroke-width: 2.6; stroke-linecap: round; }
-.circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .45; }
+/* Kreis: Umfang = Akzent (Länge), Fläche = Blau; größter Kreis hell, kleinster kräftig */
+.circ-disc   { fill: var(--c-l); fill-opacity: .08; }
+.fill-max    { fill: var(--c-l); fill-opacity: .22; }
+.fill-min    { fill: var(--c-l); fill-opacity: .42; }
+.circ-line   { fill: none; stroke: var(--text); stroke-width: 2.4; }
+.circ-ring   { fill: none; stroke: var(--c-l); stroke-opacity: .35; }
 .circ-edge   { fill: none; stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }
 .circ-radius { stroke: var(--c-l); stroke-width: 2.4; stroke-linecap: round; }
 .circ-radius-end, .circ-center { fill: var(--c-l); }
-.circ-readout { fill: var(--c-true); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.r-live      { fill: var(--c-true); }
+.trace polyline { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.trace-max polyline { stroke: var(--accent); stroke-opacity: .55; }
+.trace-min polyline { stroke: var(--accent); }
+.trace circle { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px var(--accent)); }
+.log-line    { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.log-u       { fill: var(--accent); }
+.log-a       { fill: var(--c-l); }
+
+/* ══ Kapitel 2 · Division: Geschwindigkeit ══════════════════════════════════
+   Person A = Blau (--c-l), Person B = Zinnober (--c-b), Kombination = Akzent.
+   Straße, Auto, Uhren, Lupe sind physische Objekte: in beiden Themes ähnlich. */
+:root     { --road: #5b616c; --road-paint: #f4f5f7; --car: #dfe3ea; --car-edge: #6d7584;
+             --glass: #34495e; --laser: #ff2a2a; --lcd: #cfe3c8; --lcd-ink: #17260f;
+             --dial: #fbfbf7; --dial-ink: #23262d; }
+body.dark { --road: #353a43; --road-paint: #d9dce2; --car: #c9ced8; --car-edge: #4a5160;
+             --glass: #22303e; --laser: #ff4d4d; --lcd: #b9d3b1; --lcd-ink: #142010;
+             --dial: #eceee8; --dial-ink: #1b1d22; }
+
+.road        { fill: var(--road); }
+.road-edge   { stroke: var(--road-paint); stroke-width: 2.5; stroke-opacity: .85; }
+.road-center { stroke: var(--road-paint); stroke-width: 2.5; stroke-dasharray: 26 22; stroke-opacity: .6; }
+.road-line   { stroke: var(--road-paint); stroke-width: 5; }
+.line-label  { fill: var(--road-paint); fill-opacity: .9; font-size: 15px; font-weight: 700; letter-spacing: .14em; }
+
+.car-body   { fill: var(--car); stroke: var(--car-edge); stroke-width: 1.5;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .35)); }
+.car-roof   { fill: var(--car); stroke: var(--car-edge); stroke-width: 1; }
+.car-glass  { fill: var(--glass); }
+.car-wheel  { fill: #15171b; }
+.car-light  { fill: #fff3b0; }
+.car-mirror { fill: var(--car-edge); }
+
+.barrier-box  { fill: #2c3038; stroke: #15171b; stroke-width: 1; }
+.barrier-led  { fill: #6b1b1b; }
+.barrier-led.on { fill: #ffd34d; }
+.beam         { stroke: var(--laser); stroke-width: 2.5; filter: drop-shadow(0 0 4px var(--laser)); }
+.barrier-ring { fill: none; stroke: #ffd34d; stroke-width: 3; }
+
+.badge circle    { stroke: var(--stage-bg1); stroke-width: 2; }
+.badge-a circle  { fill: var(--c-l); }
+.badge-b circle  { fill: var(--c-b); }
+.badge-text      { fill: #fff; font-size: 12px; font-weight: 700; }
+.spd-tape-label  { font-size: 11px; }
+.finish-guide    { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 4 4; }
+
+/* Tafeln der Personen */
+.panel-bg   { fill: var(--surface); fill-opacity: .82; stroke: var(--border); stroke-width: 1;
+  filter: drop-shadow(0 4px 12px rgba(26, 30, 46, .12)); }
+.person.p-a { fill: var(--c-l); }
+.person.p-b { fill: var(--c-b); }
+.panel-name { font-size: 15px; font-weight: 700; }
+.name-a, .val-a { fill: var(--c-l); }
+.name-b, .val-b { fill: var(--c-b); }
+.val-c { fill: var(--accent); }
+.panel-item { fill: var(--text2); font-size: 15px; font-weight: 500; }
+
+/* Uhren */
+.watch-case { fill: #23272f; stroke: var(--border); stroke-width: 1.5; }
+.watch-btn  { fill: #4a505c; }
+.watch-glow { fill: none; stroke: var(--accent); stroke-width: 3; filter: drop-shadow(0 0 8px var(--accent)); }
+.lcd        { fill: var(--lcd); }
+.lcd-text   { fill: var(--lcd-ink); font-family: var(--font-mono) !important; font-size: 32px; font-weight: 500; }
+.lcd-unit   { fill: var(--lcd-ink); font-size: 18px; font-weight: 600; }
+.dial-face  { fill: var(--dial); stroke: var(--dial-ink); stroke-width: 3; }
+.dial-tick  { stroke: var(--dial-ink); stroke-width: 1.2; }
+.dial-tick.major { stroke-width: 2.4; }
+.dial-num   { fill: var(--dial-ink); font-size: 11px; font-weight: 700; }
+.dial-hand  { stroke: var(--c-b); stroke-width: 3; stroke-linecap: round; }
+.dial-hub   { fill: var(--dial-ink); }
+
+/* Lupe */
+.loupe-bg     { fill: var(--surface); }
+.loupe-frame  { fill: none; stroke: var(--text); stroke-width: 4; }
+.loupe-handle { stroke: var(--text); stroke-width: 9; stroke-linecap: round; }
+.loupe-con    { stroke: var(--text2); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.loupe-label  { font-size: 12px; }
+.loupe-num    { font-size: 17px; }
+.loupe-cap    { fill: var(--text2); font-size: 13px; font-weight: 600; }
+
+/* Messprotokoll */
+.proto-head { fill: var(--text); font-size: 18px; font-weight: 700; }
+.proto-rule { stroke: var(--border); stroke-width: 1.5; }
+.proto-name { font-size: 18px; font-weight: 700; }
+.proto-cell { fill: var(--text); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.proto-v    { font-weight: 700; }
+
+/* v-Achse mit Bändern */
+.axis-name-sm { fill: var(--text); font-size: 18px; font-weight: 500; }
+.vband   { fill-opacity: .38; }
+.vband-a { fill: var(--c-l); }
+.vband-b { fill: var(--c-b); }
+.vband-c { fill: var(--accent); fill-opacity: .6; }
+.vdot-a  { fill: var(--c-l); }
+.vdot-b  { fill: var(--c-b); }
+.vdot-c  { fill: var(--accent); }
+.vdot    { stroke: var(--stage-bg1); stroke-width: 1.5; }
+.vband-label  { font-size: 14px; font-weight: 700; }
+.v-true       { stroke: var(--c-true); stroke-width: 2; stroke-dasharray: 5 4; }
+.v-true-label { fill: var(--c-true); font-size: 13px; font-weight: 700; }
+
+.slide-card .dyn.res { color: var(--accent); font-weight: 700; }
+.zone-dial { fill: var(--c-b); fill-opacity: .22; }
+
+/* ══ Unsichere Ziffer, signifikante Stellen, „Welche Stelle ist unsicher?" ══
+   Bernstein = unsichere (letzte) Ziffer — in allen Kapiteln dieselbe Farbe. */
+:root     { --c-unc: #c97a00; --c-unc-bg: rgba(230, 159, 0, .2); }
+body.dark { --c-unc: #f2b33d; --c-unc-bg: rgba(242, 179, 61, .2); }
+
+.unc-digit { fill: var(--c-unc); color: var(--c-unc); font-weight: 800; }
+.slide-card .unc-word { color: var(--c-unc); font-weight: 700; }
+.unc-box   { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 1.5; }
+.unc-tag   { fill: var(--c-unc); font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+.slide-card [data-r] { visibility: hidden; opacity: 0; }
+
+/* ±-Maßpfeile am Intervall */
+.pm line  { stroke: var(--c-l); stroke-width: 2; }
+.pm path  { fill: var(--c-l); }
+.pm-label { fill: var(--c-l); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pm-cap   { fill: var(--text2); font-size: 13px; }
+/* Halo: der Pfeil „wahre Länge" läuft dahinter durch, ohne die Schrift zu schneiden */
+.pm-label, .pm-cap { paint-order: stroke; stroke: var(--stage-bg1); stroke-width: 4px; stroke-linejoin: round; }
+
+/* Ziffernzeile „3,000 m" mit Zählmarken */
+.sig-tok   { fill: var(--text); font-family: var(--font-mono) !important; font-weight: 500; }
+.sig-unit  { fill: var(--text2); }
+.sig-tok.unc-digit { fill: var(--c-unc); font-weight: 700; }
+.sig-badge circle { fill: var(--accent); }
+.sig-badge text   { fill: #fff; font-size: 15px; font-weight: 700; }
+.sig-br path      { fill: none; stroke-width: 2; }
+.sig-br-text      { font-size: 15px; font-weight: 700; }
+.sig-br-S path { stroke: var(--text2); }  .sig-br-S text { fill: var(--text2); }
+.sig-br-U path { stroke: var(--c-unc); }  .sig-br-U text { fill: var(--c-unc); }
+.sig-br-U .sig-arrow-head { fill: var(--c-unc); stroke: none; }
+.sig-br-Z path { stroke: var(--text3); }  .sig-br-Z text { fill: var(--text3); font-weight: 500; }
+
+/* Grenzen im Rechteck-Teil */
+.edge-label { font-size: 17px; font-weight: 700; paint-order: stroke; stroke: var(--stage-bg1);
+  stroke-width: 4px; stroke-linejoin: round; }
+.edge-l { fill: var(--c-l); }
+.edge-b { fill: var(--c-b); }
+.area-bound.hot { stroke: var(--c-true); stroke-width: 3; stroke-dasharray: none;
+  fill: var(--c-true); fill-opacity: .08; }
+
+/* Ziffernzeile eines Ergebnisses (stellen.js) */
+.dg        { font-family: var(--font-mono) !important; font-weight: 500; fill: var(--text); }
+.dg-sure   { fill: var(--text); font-weight: 700; }
+.dg-unc    { fill: var(--c-unc); font-weight: 800; }
+.dg-suffix { fill: var(--text2); font-family: var(--font-ui) !important; }
+.dg-pointer { fill: var(--c-unc-bg); fill-opacity: .6; stroke: var(--accent); stroke-width: 2; }
+.unit-bracket rect { fill: var(--accent); fill-opacity: .08; stroke: var(--accent); stroke-width: 2;
+  stroke-dasharray: 6 4; }
+.unit-bracket text { fill: var(--accent); font-size: 14px; font-weight: 700; paint-order: stroke;
+  stroke: var(--stage-bg1); stroke-width: 4px; stroke-linejoin: round; }
+.verdict    { fill: var(--text); font-size: 18px; font-weight: 700; }
+.verdict-sm { font-size: 15px; }
+.dg-plain   { fill: var(--text); }
+.dg-ghost   { fill: var(--text3); font-weight: 700; text-decoration: line-through; }
+.claim-row  { fill: var(--text); }
+
+/* Ziffernvergleich: Tafel und Folienkarten (sicher / unsicher / sinnlos) */
+.cmp-label  { fill: var(--text2); font-size: 20px; font-weight: 600; }
+.cmp-label .sym { font-style: italic; }
+.cmp-label .cmp-mid { font-style: normal; fill: var(--text3); font-size: 15px; }
+.dg-implicit { opacity: .4; }
+.cmp-legend { fill: var(--text3); font-size: 12px; }
+.slide-card .cmp-sure  { color: var(--text); font-weight: 700; }
+.slide-card .cmp-unc   { color: var(--c-unc); font-weight: 800; background: var(--c-unc-bg);
+  border-radius: 3px; padding: 0 1px; }
+.slide-card .cmp-ghost { color: var(--text3); font-weight: 500; }
+.slide-card .cmp-implicit { opacity: .45; }
+.slide-card .ghost-word { color: var(--text3); font-weight: 700; }
+.slide-card .key-band, .slide-card .key-bracket { color: var(--text); font-weight: 700; white-space: nowrap; }
+.slide-card .key-band::before, .slide-card .key-bracket::before {
+  content: ''; display: inline-block; width: 1.6em; height: .7em; margin-right: .35em;
+  vertical-align: .05em; border-radius: 2px; }
+.slide-card .key-band::before    { background: var(--c-area); opacity: .55; }
+.slide-card .key-bracket::before { border: 2px dashed var(--accent); background: transparent; }
+
+/* Taschenrechner (Kapitel Multiplikation) */
+.calc-case  { fill: #2b3038; stroke: var(--border); stroke-width: 1.5;
+  filter: drop-shadow(0 6px 14px rgba(26, 30, 46, .25)); }
+.calc-key   { fill: #4a515d; }
+.calc-eq    { fill: var(--accent); }
+.calc-key.pressed { fill: var(--accent); filter: brightness(1.25) drop-shadow(0 0 6px var(--accent)); }
+.calc-key-t { fill: #eef1f5; font-size: 17px; font-weight: 600; }
+.calc-in    { fill: var(--lcd-ink); font-family: var(--font-mono) !important; font-size: 14px; opacity: .75; }
+.calc-out   { font-size: 30px; }
+
+/* Tafel „Welche Stelle ist unsicher?" (alle Kapitel) */
+.lupe-title { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.lupe-band  { fill: var(--c-area); fill-opacity: .55; }
+.lupe-panel.big .panel-bg { fill-opacity: .97; }
+
+/* Kapitel Division: Intervalle im Protokoll, Regler, Live-Wert, Ergebnis-Marken */
+.proto-iv     { fill: var(--text3); font-size: 13px; font-variant-numeric: tabular-nums; }
+.proto-legend { fill: var(--text3); font-size: 13px; }
+.frac-title { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.frac-sym   { fill: var(--text); font-size: 22px; font-weight: 600; }
+.frac-bar   { stroke: var(--border); stroke-width: 6; stroke-linecap: round; }
+.frac-cap   { stroke: var(--text2); stroke-width: 2; }
+.frac-end   { fill: var(--text2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.frac-knob  { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2.5; }
+.frac-val   { fill: var(--text); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.frac-live  { fill: var(--text); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.v-live     { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; }
+.v-hit      { fill: var(--accent); stroke: var(--stage-bg1); stroke-width: 2; }
+.v-hit.hc1 { fill: var(--c-p1); } .v-hit.hc2 { fill: var(--c-p2); } .v-hit.hc3 { fill: var(--c-p3); } .v-hit.hc4 { fill: var(--c-p4); }
+.vmark      { stroke: var(--stage-bg1); stroke-width: 1.5; }
+.vmark-label { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--stage-bg1);
+  stroke-width: 3px; stroke-linejoin: round; }
+.digit-cap  { fill: var(--text2); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ══ Kapitel 4 · Addition ══════════════════════════════════════════════════ */
+:root     { --wood-a: #d9b07a; --wood-b: #b07d43; }
+body.dark { --wood-a: #c49a64; --wood-b: #8c6233; }
+.wp-b       { fill: var(--wood-a); stroke: var(--wood-b); stroke-width: 1.5;
+  filter: drop-shadow(0 2px 3px rgba(26, 30, 46, .22)); }
+.tag rect   { fill: #fffdf5; stroke: #c9c2a8; stroke-width: 1; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25)); }
+.tag-text   { fill: #23262d; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tag-text .unc-digit { fill: #b86e00; }
+.col-hi     { fill: var(--c-unc-bg); stroke: var(--c-unc); stroke-width: 2; }
+.proto-colhead { fill: var(--text2); font-size: 13px; font-weight: 700; }
+.proto-small   { fill: var(--text); font-size: 15px; font-variant-numeric: tabular-nums; }
+.chain-zone-a { fill: var(--c-l); fill-opacity: .16; stroke: var(--c-l); stroke-dasharray: 4 3; }
+.chain-zone   { fill: var(--accent); fill-opacity: .22; stroke: var(--accent); stroke-dasharray: 4 3; }
+.chain-label  { fill: var(--accent); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.band-label   { fill: var(--text2); font-size: 13px; }
+.cand-big     { fill: var(--text); font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cand-small   { font-size: 15px; font-weight: 700; }
+.cand-small.ok  { fill: var(--accent); }
+.cand-small.bad { fill: var(--text3); text-decoration: line-through; }
+.unit-line { fill: var(--text); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.unit-note { fill: var(--text3); font-size: 15px; font-weight: 400; }
+.slide-card table.cmp { width: 100%; margin-top: .7em; border-collapse: collapse; font-size: .92em; }
+.slide-card table.cmp th, .slide-card table.cmp td { padding: .35em .5em; border-bottom: 1px solid var(--card-border);
+  text-align: left; vertical-align: top; }
+.slide-card table.cmp th { color: var(--text); }
+.slide-card table.cmp td:first-child { color: var(--text3); white-space: nowrap; }
+
+/* ══ Info-Knopf „Bekannte Vereinfachungen" (Topbar) ═══════════════════════ */
+.info-btn { width: 22px; height: 22px; margin-right: 12px; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid var(--text3); background: transparent; color: var(--text3);
+  font: italic 700 13px/1 Georgia, serif; opacity: .75; }
+.info-btn:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
+.limits-pop { inset: auto 16px auto auto; top: 64px; margin: 0; max-width: 430px;
+  padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2); box-shadow: 0 10px 30px rgba(26, 30, 46, .25);
+  font-size: 13.5px; line-height: 1.45; }
+.limits-pop h4 { margin: 0 0 6px; color: var(--text); font-size: 14px; }
+.limits-pop ul { margin: 0; padding-left: 18px; }
+.limits-pop li + li { margin-top: 5px; }
+.limits-pop b { color: var(--text); }
+
+/* Addition: Maßband mit Gehäuse (Aus-/Einrollen), Etikett-Anflug, Einheiten-Tafel */
+.tape-case-body  { fill: #2f3540; stroke: #1c2027; stroke-width: 1.5;
+  filter: drop-shadow(0 3px 6px rgba(26, 30, 46, .3)); }
+.tape-case-reel  { fill: #4a515d; stroke: #f2c94c; stroke-width: 3; }
+.tape-case-spoke { stroke: #f2c94c; stroke-width: 2.5; stroke-linecap: round; }
+.add-tape-label  { font-size: 10px; }
+.tape-mark-fine  { stroke-opacity: .55; }
+.tag-corner      { fill: #e9e2c7; stroke: #c9c2a8; stroke-width: 1; }
+.tag-caption     { fill: var(--text2); font-size: 15px; font-weight: 600; }
+.tag-caption-val { fill: var(--accent); font-weight: 800; }
+.unit-line { white-space: pre; }
+.unit-bad  { fill: var(--c-b); font-size: 16px; font-weight: 600; }
+.unit-ok   { fill: var(--accent); font-size: 16px; font-weight: 700; }
+
+/* Division: abgesetzte Legende über dem Messprotokoll, Kombination an den Reglern */
+.proto-legend-box rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+.proto-legend-head { font-weight: 700; fill: var(--text2); }
+.frac-cap-text { fill: var(--accent); font-size: 16px; font-weight: 700; }
+
+/* Zusammenfassung am Kapitelende: Tabelle aller Ergebnisse, Zeilen erscheinen nacheinander */
+.slide-card table.sum { font-size: .86em; margin-top: .4em; }
+.slide-card table.sum td.sc0 { color: var(--text); font-weight: 600; white-space: nowrap; }
+.slide-card table.sum td.sc1 { color: var(--text2); font-weight: 400; }
+.slide-card table.sum td.sc2 { color: var(--c-unc); font-weight: 700; }
+.slide-card table.sum td.sc3 { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.slide-card table.sum th { font-size: .9em; }
+.slide-card table.sum + .formula { margin-top: .8em; }
+.concl-grid { margin-top: .7em; display: grid; gap: .35em; font-size: .92em; }
+.concl-grid p, .concl-grid .formula { margin: 0; display: grid; grid-template-columns: 8.2em 1fr;
+  column-gap: .6em; align-items: baseline; }
+.concl-k { font-size: .78em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); }
+.slide-card .nw { white-space: nowrap; }
+.slide-card table.sum + .concl-grid .formula { margin-top: .2em; }
+
+/* Ecken-Test: Liste der vier Produkte; Platz je Zeile = --slot (GSAP tweent ihn → sortieren) */
+.corner-list { --row-h: 3.55em; position: relative; height: calc(4 * var(--row-h)); margin-top: .6em; }
+.corner-row {
+  position: absolute; left: 0; right: 0; top: calc(var(--slot, 0) * var(--row-h));
+  display: grid; grid-template-columns: 1.1em 1fr auto; grid-template-rows: auto auto;
+  column-gap: .55em; row-gap: .1em; align-items: center;
+  padding: .3em .7em; border-radius: .5em; background: var(--formula-bg);
+}
+.corner-row .c-dot { grid-row: 1 / 3; width: .9em; height: .9em; border-radius: 50%; }
+.corner-row .c-term { color: var(--text); }
+.corner-row .c-tag { justify-self: end; color: var(--accent); font-weight: 700; visibility: hidden; opacity: 0; }
+.corner-row .c-val { grid-column: 2 / 4; font-size: 1.04em; font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+.corner-row .c-res { color: var(--accent); font-weight: 700; }
+/* Ecken-Test / Kombinationen: breitere Karte, damit die Rechnung in voller Größe in eine Zeile passt (FSS14) */
+.slide-card.calc-list { width: 40cqw; }
+.c-dot.cp1 { background: var(--c-p1); } .c-dot.cp2 { background: var(--c-p2); }
+.c-dot.cp3 { background: var(--c-p3); } .c-dot.cp4 { background: var(--c-p4); }
+
+/* Taschenrechner-Zeile: Symbol · „Taschenrechner:" · Rechnung, nach dem Ziffernvergleich
+   „⟶ runden ⟶ Ergebnis" in derselben Zeile (FSS9 p, q) */
+.slide-card .calc-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3em .5em;
+  margin: .2em 0 .55em; padding: .45em .75em; border-radius: .5em;
+  background: var(--formula-bg); border-left: 3px solid var(--text3);
+  color: var(--text); font-weight: 600; font-size: 1.04em; font-variant-numeric: tabular-nums;
+}
+.calc-ico { display: inline-flex; color: var(--text2); }
+.calc-ico svg { width: 1.25em; height: 1.25em; }
+.calc-lbl { font-size: .78em; font-weight: 700; letter-spacing: .03em; color: var(--text2); }
+.calc-rnd { display: inline-flex; align-items: center; gap: .45em; }
+.rnd-arrow { display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
+  color: var(--accent); font-size: 1.1em; }
+.rnd-arrow small { font-size: .5em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Grenzen kleinstmöglich / größtmöglich: Bezeichnung, darunter Gleichung | Ergebnis —
+   Ergebnisse rechtsbündig in einer Spalte, damit sie untereinander stehen (FSS9 o) */
+.slide-card .formula.bound { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: .6em; }
+.formula.bound .b-lbl { grid-column: 1 / 3; font-weight: 600; }
+.formula.bound .b-res { justify-self: end; white-space: nowrap; }
+
+/* Multiplikation: Karten rechts oben bündig (wie die anderen Kapitel) — mit Taschenrechner-
+   Zeile (FSS9 p, s, l) bleibt so Platz bis zur Tafel „Ziffern vergleichen" darunter */
+.slide-card.pos-r { top: 3cqw; }
+
+/* Grundlagen-Abschluss: Zeitmessung am Auto (FSS9 j) */
+.tm-cap      { font-size: 14px; font-weight: 600; }
+.tm-val      { font-size: 30px; paint-order: stroke; stroke: var(--stage-bg1); stroke-width: 6px; stroke-linejoin: round; }
+.tm-sliver   { fill: var(--c-l); fill-opacity: .55; }
+.tm-con-fill { fill: var(--c-l); fill-opacity: .07; }
+.tm-con-line { stroke: var(--c-l); stroke-width: 1.4; stroke-dasharray: 5 4; }
+
+/* Vollfolien: Zusammenfassung (zwei Schritte) und Merke je Kapitel (FSS9 m) —
+   decken die Bühne ganz ab, eigene Folie statt Karte über der gedimmten Szene */
+.slide-card.full { inset: 0; width: auto; border: none; border-radius: 0; box-shadow: none;
+  padding: 3cqw 5.5cqw; background: var(--stage-bg1); -webkit-backdrop-filter: none; backdrop-filter: none;
+  font-size: 1.42cqw; display: flex; flex-direction: column; }
+.slide-card.full h3 { font-size: 1.45em; }
+.slide-card.full.merke { justify-content: center; padding: 3cqw 8cqw; font-size: 1.6cqw; }
+.slide-card.full.merke h3 { font-size: 1.5em; margin-bottom: .7em; }
+.slide-card.full.merke .note { font-size: .9em; }
+.slide-card.full table.sum { font-size: .9em; }
+.slide-card.full .concl-grid { margin-top: 1em; gap: .6em; }
+
+/* Kapitel Zusammenfassung (FSS9 w): Regel, darunter zwei Beispiele nebeneinander */
+.slide-card.full.zs { justify-content: center; padding: 3cqw 6cqw; font-size: 1.55cqw; }
+.slide-card.full.zs h3 { font-size: 1.55em; margin-bottom: .6em; }
+.zs .formula .concl-k { margin-right: .6em; }
+.zs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6cqw; margin-top: 1.4em; }
+.zs-ex { visibility: hidden; opacity: 0; padding: 1em 1.2em; border-radius: .6em;
+  border: 1px solid var(--card-border); background: var(--surface); color: var(--text); }
+.zs-ex p + p { margin-top: .3em; }
+.zs-ex .note { margin-top: .6em; }
+.zs-lbl { font-size: .68em; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: .5em; }
+
+/* Merke-Folien: Regel als Überschrift, darunter ein Kasten „Beispiele“ (FSS19) */
+.slide-card .formula.merke-ex { margin-top: 1em; padding: .9em 1.2em; }
+.formula.merke-ex .concl-k { display: block; margin-bottom: .4em; }
+.formula.merke-ex p { margin: .25em 0 0; font-size: 1.1em; }
+
+/* Zusammenfassung: Gruppen-Klammer links neben den Tabellenzeilen (FSS16) */
+.slide-card table.sum td.grp, .slide-card table.sum th.grp-h { width: 6.4em; padding: .3em .5em .3em 0;
+  border-bottom: none; vertical-align: middle; }
+.slide-card table.sum td.grp { height: 1px; }
+.grp-in { display: flex; align-items: stretch; justify-content: flex-end; gap: .45em; height: 100%; }
+.grp-lbl { align-self: center; font-size: .78em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); }
+.grp-brace { width: .55em; border: 2px solid var(--accent); border-left: none; border-radius: 0 .6em .6em 0; }
+.slide-card table.sum tr.grp-first td { border-top: 2px solid var(--card-border); }
+.slide-card table.sum tr.grp-first td.grp { border-top: none; }
+
+/* Einheiten umrechnen (FSS15): vorgetäuschte Null, Zehnerpotenz gehört zur Einheit */
+.sig-tok.sig-fake { fill: var(--c-b); }
+.sig-br-F path { stroke: var(--c-b); }  .sig-br-F text { fill: var(--c-b); }
+.sig-br-E path { stroke: var(--accent); }  .sig-br-E text { fill: var(--accent); }
+
+/* Merke Grundlagen (FSS13): Ziffernzeile wie auf der Bühne — Zählmarken über den signifikanten
+   Ziffern, Klammer „gesichert", Pfeil „unsicher", Klammer „nicht signifikant" über führenden Nullen */
+.sd-grid { display: flex; justify-content: center; gap: 8cqw; margin: 3.2em 0 4.4em; }
+.sig-demo { display: inline-flex; align-items: baseline; font-family: var(--font-mono); font-size: 2.3em;
+  font-weight: 500; color: var(--text); line-height: 1; }
+.sd-d { position: relative; display: inline-block; width: .6em; text-align: center; }
+.sd-d i { position: absolute; left: 50%; top: -2.25em; transform: translateX(-50%); width: 1.3em; height: 1.3em;
+  border-radius: 50%; background: var(--accent); color: #fff; font: 700 .4em/1.3em var(--font-ui); font-style: normal; }
+.sd-c, .sd-z { display: inline-block; width: .6em; text-align: center; }
+.sd-z { width: auto; color: var(--text3); }
+.sd-u { margin-left: .35em; font-size: .6em; color: var(--text2); }
+.sd-sure, .sd-zero { position: relative; display: inline-flex; align-items: baseline; }
+.sd-sure::after, .sd-zero::after { position: absolute; left: .08em; right: .08em; top: 1.05em; height: .14em;
+  border: 2px solid var(--text2); border-top: none; content: ''; }
+/* Pseudo-Elemente mit eigener Schriftgröße .3em: Abstände in deren em (1 Zeichen-em = 3,33 em) */
+.sd-sure::before, .sd-zero::before { position: absolute; left: -2em; right: -2em; top: 4.4em; text-align: center;
+  font: 700 .3em var(--font-ui); color: var(--text2); white-space: nowrap; }
+.sd-sure::before { content: 'gesichert'; }
+.sd-zero::after { border-color: var(--text3); }
+.sd-zero::before { content: 'nicht signifikant'; color: var(--text3); font-weight: 500; }
+.sd-unc { color: var(--c-unc); font-weight: 700; }
+.sd-unc::after { position: absolute; left: 50%; top: 3.3em; transform: translateX(-50%); content: '↑\A\A unsicher';
+  white-space: pre; text-align: center; font: 700 .3em/1.25 var(--font-ui); color: var(--c-unc); }
