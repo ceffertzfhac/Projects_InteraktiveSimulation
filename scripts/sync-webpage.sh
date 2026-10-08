@@ -33,7 +33,7 @@ ANIMS=( signifikante_stellen )
 # gespiegelt und geht damit nicht auf die Pages-Site. Zum Freigeben: Namen hier
 # entfernen, oben in SIMS aufnehmen, Webpage/sim_<name>/ anlegen, Karte in
 # Webpage/index.html ergänzen, sync + Drift-Check. → BACKLOG I15.
-NICHT_OEFFENTLICH=( )
+NICHT_OEFFENTLICH=( busfahrt )
 
 # Ausgeschlossene Sims dürfen im Deploy-Bundle gar nicht erst liegen. Nicht
 # stillschweigend löschen — lieber laut abbrechen, als unbemerkt zu publizieren
