@@ -135,7 +135,7 @@ export function drawGraph() {
     STOP_POSITIONS.forEach((xs, i) => {
       const yp = scY(xs)
       DOM.overlayGroup.appendChild(el('line', { x1: 0, y1: yp, x2: PLOT_W, y2: yp, class: 'stop-line' }))
-      const lbl = el('text', { x: GRAPH_W + 4, y: yp + 4, class: 'stop-line-label' })
+      const lbl = el('text', { x: GRAPH_W + 14, y: yp + 4, class: 'stop-line-label' })   // rechts der t-Pfeilspitze
       lbl.textContent = STOP_LABELS[i]
       DOM.overlayGroup.appendChild(lbl)
     })

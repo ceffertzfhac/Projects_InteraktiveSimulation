@@ -1,5 +1,10 @@
 # Changelog – Busfahrt (Weg-Zeit-Diagramm)
 
+## v1.1.1 — 2026-10-08
+
+Fix: Haltestellen-Label „H1“ rechts vom Diagramm stieß an die Pfeilspitze der
+t-Achse — alle Hx-Labels 10 px weiter nach rechts.
+
 ## v1.1.0 — 2026-10-08
 
 PO-Wunsch: Der betrachtete Punkt des Busses ist jetzt sein **Schwerpunkt**
