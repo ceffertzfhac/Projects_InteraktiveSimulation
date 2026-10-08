@@ -19,7 +19,7 @@ cd "$(dirname "$0")/.."
 
 # Öffentlich: wird nach Webpage/sim_*/ gespiegelt und mit Pages deployt.
 SIMS=(
-  3massen_umlenkrollen ableitung atwood atwood_energy federpendel freier_fall
+  3massen_umlenkrollen ableitung atwood atwood_energy busfahrt federpendel freier_fall
   geschwindigkeit grundbegriffe_kinematik integration kreis_spiralbewegung kreisbewegung lineal
   lorentz_force rolling_bodies schraeger_wurf stoss wellen zykloide
 )
@@ -33,7 +33,7 @@ ANIMS=( signifikante_stellen )
 # gespiegelt und geht damit nicht auf die Pages-Site. Zum Freigeben: Namen hier
 # entfernen, oben in SIMS aufnehmen, Webpage/sim_<name>/ anlegen, Karte in
 # Webpage/index.html ergänzen, sync + Drift-Check. → BACKLOG I15.
-NICHT_OEFFENTLICH=( busfahrt )
+NICHT_OEFFENTLICH=( )
 
 # Ausgeschlossene Sims dürfen im Deploy-Bundle gar nicht erst liegen. Nicht
 # stillschweigend löschen — lieber laut abbrechen, als unbemerkt zu publizieren

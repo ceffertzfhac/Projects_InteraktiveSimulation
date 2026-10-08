@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Busfahrt – Weg-Zeit-Diagramm – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    <div class="topbar-title-text">
+      <div class="topbar-title-line">
+        Busfahrt – Weg-Zeit-Diagramm
+        <span class="version">v1.1.1</span>
+        <span class="inst">FH Aachen – FB 8 – Physik</span>
+      </div>
+      <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
+    </div>
+    <img src="../shared/img/logo_physik_mint.png" class="topbar-logo"
+         alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8"
+         title="Lehr- und Forschungsgebiet Physik – FB 8">
+  </div>
+  <div class="topbar-right">
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+    <button class="btn primary" id="play_btn">▶ Play</button>
+    <button class="btn" id="pause_btn" disabled><span class="btn-icon">⏸</span> Pause</button>
+    <button class="btn" id="reset_btn"><span class="btn-icon">↺</span> Reset</button>
+    <button class="btn" id="export_diagram_btn">Diagramm (CSV)</button>
+    <button class="btn" id="export_all_btn">Alle Daten (CSV)</button>
+  </div>
+</header>
+
+<div class="app-layout analysis-collapsed">
+
+  <!-- ── LINKE SIDEBAR: Steuerung (Akkordeon-Cluster) ──────────────────────── -->
+  <aside class="panel left-panel">
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Zeitpunkt<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Zeit \(t\)</div>
+      <div class="slider-row">
+        <input type="range" id="t_slider" min="0" max="400" value="0" step="0.5">
+        <span class="slider-val" id="t_value">0,0 s</span>
+      </div>
+      <div class="speed-pills">
+        <label class="speed-pill"><input type="radio" name="speed" value="4"><span>4×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="12" checked><span>12×</span></label>
+        <label class="speed-pill"><input type="radio" name="speed" value="60"><span>60×</span></label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Diagramm<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <select id="graph_select" class="select-field">
+        <option value="ort" selected>Ort-Zeit x(t)</option>
+        <option value="geschw">Geschwindigkeit-Zeit v(t)</option>
+        <option value="beschl">Beschleunigung-Zeit a(t)</option>
+      </select>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Anzeige<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="vis-toggle-row" id="row_haltestellen" title="Nur im Ort-Zeit-Diagramm">
+        <span class="vis-label">Haltestellen H1 … H4</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_haltestellen">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Ankunft/Abfahrt</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_ereignisse">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Ableselinien</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_ableselinien">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-label">Phasen einfärben</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tog_phasen">
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="legend-grid">
+        <div class="legend-swatch sw-kurve"></div>
+        <div class="legend-label">Bus und Kurve (Linie 42)</div>
+        <div class="legend-swatch sw-cross">✕</div>
+        <div class="legend-label">Schwerpunkt des Busses (betrachteter Punkt)</div>
+        <div class="legend-swatch sw-halt"></div>
+        <div class="legend-label">Halt</div>
+        <div class="legend-swatch sw-anfahren"></div>
+        <div class="legend-label">Anfahren \((a &gt; 0)\)</div>
+        <div class="legend-swatch sw-konstant"></div>
+        <div class="legend-label">Gleichförmig \((a = 0)\)</div>
+        <div class="legend-swatch sw-bremsen"></div>
+        <div class="legend-label">Bremsen \((a &lt; 0)\)</div>
+      </div>
+      <div class="legend-note">Phasenfarben bei „Phasen einfärben“.</div>
+    </div>
+
+  </aside>
+
+  <!-- ── MITTE: Straße (links) + Diagramm (rechts) in EINER SVG ─────────────── -->
+  <main class="center-area">
+    <div class="sim-wrapper">
+      <svg id="main_svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow-axis" markerWidth="4.95" markerHeight="3.465" refX="0" refY="1.7325" orient="auto">
+            <polygon points="0 0, 4.95 1.7325, 0 3.465"/>
+          </marker>
+        </defs>
+
+        <!-- Straße: senkrecht, gleicher Maßstab wie die Ort-Achse -->
+        <g id="street_group"></g>
+        <g id="bus"></g>
+
+        <!-- Diagramm -->
+        <g id="graph_group" transform="translate(270, 50)">
+          <g id="grid_group"></g>
+          <g id="overlay_group"></g>
+          <g id="curve_group"></g>
+          <g id="drop_group"></g>
+          <circle id="graph_point" r="5" visibility="hidden"/>
+          <text id="graph_title" x="270" y="-22" text-anchor="middle" class="graph-title-text"></text>
+          <line id="graph_hover_line" class="graph-hover-line" visibility="hidden"/>
+          <circle id="graph_hover_point" class="graph-hover-point" r="6" visibility="hidden"/>
+          <g id="graph_hover_tooltip" visibility="hidden">
+            <rect id="graph_hover_tooltip_bg" class="graph-hover-tooltip-bg" x="0" y="0"/>
+            <text id="graph_hover_tooltip_text" class="graph-hover-tooltip-text"></text>
+          </g>
+          <rect id="graph_hit_rect" class="graph-hit-rect"/>
+        </g>
+      </svg>
+      <div class="time-label" id="time_label"><i>t</i> = 0,0 s</div>
+    </div>
+  </main>
+
+  <!-- ── RECHTE SIDEBAR: Analyse (einklappbar, Default eingeklappt) ─────────── -->
+  <aside class="panel right-panel" id="right_panel">
+    <button class="panel-header" id="analysis_toggle" type="button"
+            title="Live-Analyse ein-/ausklappen" aria-expanded="false" aria-controls="right_panel">
+      <span class="ph-label">Analyse</span>
+      <svg class="ph-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 4 L8 8 L3 12"/><path d="M8 4 L13 8 L8 12"/>
+      </svg>
+    </button>
+
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="panel-label">Live-Analyse</div>
+        <div class="analysis-subject">
+          <div class="analysis-grid">
+            <div class="analysis-cell key">Zeit \(t\)</div>
+            <div class="analysis-cell val" id="live_t">0,0 s</div>
+            <div class="analysis-cell key">Ort \(x(t)\)</div>
+            <div class="analysis-cell val" id="live_x">0,0 m</div>
+            <div class="analysis-cell key">Geschw. \(v(t)\)</div>
+            <div class="analysis-cell val" id="live_v">0,00 m/s</div>
+            <div class="analysis-cell key">Beschl. \(a(t)\)</div>
+            <div class="analysis-cell val" id="live_a">0,000 m/s²</div>
+            <div class="analysis-cell key">Phase</div>
+            <div class="analysis-cell val" id="live_phase">Halt</div>
+            <div class="analysis-cell key">Haltestelle</div>
+            <div class="analysis-cell val" id="live_stop">H1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Physik</div>
+        <div class="formula-box">
+          <div class="formula-cap">Je Bewegungsphase ist \(a\) konstant (\(\tau = t - t_0\)):</div>
+          <div>\[x(t) = x_0 + v_0\,\tau + \tfrac12\,a\,\tau^2\]</div>
+          <div>\[v(t) = v_0 + a\,\tau\]</div>
+          <div class="formula-cap">Trapez-Profil einer Fahrt (Dauer \(\Delta t\), Strecke \(\Delta x\), \(r = 0{,}3\)):</div>
+          <div>\[t_{\text{acc}} = r\,\Delta t,\qquad v_{\max} = \frac{\Delta x}{(1-r)\,\Delta t},\qquad a = \frac{v_{\max}}{t_{\text{acc}}}\]</div>
+          <div class="formula-cap">Halt: \(v = a = 0\), \(x = \text{const}\).</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-label">Fahrplan</div>
+        <table class="fahrplan">
+          <thead><tr><th>Fahrt</th><th>\(\Delta t\)</th><th>\(v_{\max}\)</th><th>\(|a|\)</th></tr></thead>
+          <tbody>
+            <tr><td>H1&nbsp;→&nbsp;H2</td><td>90&nbsp;s</td><td>7,94&nbsp;m/s</td><td>0,294&nbsp;m/s²</td></tr>
+            <tr><td>H2&nbsp;→&nbsp;H3</td><td>85&nbsp;s</td><td>8,40&nbsp;m/s</td><td>0,330&nbsp;m/s²</td></tr>
+            <tr><td>H3&nbsp;→&nbsp;H4</td><td>95&nbsp;s</td><td>7,52&nbsp;m/s</td><td>0,264&nbsp;m/s²</td></tr>
+          </tbody>
+        </table>
+        <div class="legend-note">Je \(\Delta x = 500\,\text{m}\); Halte: H1 30 s, H2 35 s, H3 35 s, H4 30 s.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="module" src="../shared/js/panel-toggle.js"></script>
+<script type="module" src="../shared/js/fullscreen.js"></script>
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

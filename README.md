@@ -22,7 +22,7 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
   - `Project_federpendel_simulation/` — Federpendel
   - `Project_freier_fall_simulation/` — Freier Fall / senkrechter Wurf
   - `Project_geschwindigkeit_simulation/` — Geschwindigkeit als Steigung der Ort-Zeit-Kurve
-  - `Project_busfahrt_simulation/` — Busfahrt der Linie 42: Straße + x(t)/v(t)/a(t) synchron (aus dem Interaktiven Skript, Abb. 1.2; noch nicht öffentlich)
+  - `Project_busfahrt_simulation/` — Busfahrt der Linie 42: Straße + x(t)/v(t)/a(t) synchron (aus dem Interaktiven Skript, Abb. 1.2)
   - `Project_grundbegriffe_kinematik_simulation/` — Grundbegriffe der Kinematik
   - `Project_kreis_spiralbewegung_simulation/` — Kreis- und Spiralbewegung
   - `Project_kreisbewegung_simulation/` — Kreisbewegung
