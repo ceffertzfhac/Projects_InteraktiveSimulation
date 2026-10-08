@@ -1,0 +1,101 @@
+/* Sim-spezifisches CSS. Struktur + Tokens kommen aus shared/css/design-system.css. */
+
+/* Diagramm- und Szenen-Tokens (dark/light). Kurve/Bus: Linie 42 (firebrick aus
+   dem Notebook, dunkel aufgehellt wie im Interaktiven Skript). Phasenfarben aus
+   der farbfehlsichtigkeitssicheren Okabe-Ito-Palette. */
+:root {
+  --graph-bg: #ffffff; --grid-line: #e6e9f2;
+  --c-kurve: #b22222; --c-bus-edge: #7a1818;
+  --c-halt: #8c8c8c; --c-anfahren: #0072b2; --c-konstant: #e69f00; --c-bremsen: #cc79a7;
+  --c-haltestelle: #555555; --c-ereignis: #9a9a9a;
+  --c-road: #d9d9d9; --c-road-edge: #b8b8b8; --c-road-mid: #ffffff;
+}
+body.dark {
+  --graph-bg: #12151f; --grid-line: #242a3d;
+  --c-kurve: #ff7777; --c-bus-edge: #b33a3a;
+  --c-halt: #9a9a9a; --c-anfahren: #56b4e9; --c-konstant: #f0e442; --c-bremsen: #e078c3;
+  --c-haltestelle: #b0b4c0; --c-ereignis: #6c7286;
+  --c-road: #3a3f4f; --c-road-edge: #555b6e; --c-road-mid: #c8cbd4;
+}
+
+/* Diagramm */
+.graph-bg         { fill: var(--graph-bg); }
+.grid-line        { stroke: var(--grid-line); stroke-width: 1; }
+.axis-line        { stroke: var(--text); stroke-width: 2; }
+.axis-label       { fill: var(--text);  font-size: 13px; font-family: var(--font-ui); }
+.tick-label       { fill: var(--text2); font-size: 11px; font-family: var(--font-mono); }
+.graph-title-text { fill: var(--text);  font-size: 15px; font-weight: 600; font-family: var(--font-ui); }
+#arrow-axis polygon { fill: var(--text); }
+
+.curve { fill: none; stroke: var(--c-kurve); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.curve.phase-halt     { stroke: var(--c-halt); }
+.curve.phase-anfahren { stroke: var(--c-anfahren); }
+.curve.phase-konstant { stroke: var(--c-konstant); }
+.curve.phase-bremsen  { stroke: var(--c-bremsen); }
+.curve-jump { stroke: var(--text3); stroke-width: 1.2; stroke-dasharray: 3 3; }
+
+.stop-line       { stroke: var(--c-haltestelle); stroke-width: 1; stroke-dasharray: 6 4; }
+.stop-line-label { fill: var(--c-haltestelle); font-size: 12px; font-weight: 600; font-family: var(--font-ui); stroke: none; }
+.event-line      { stroke: var(--c-ereignis); stroke-width: 1; stroke-dasharray: 2 3; }
+.drop-line       { stroke: var(--c-kurve); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .75; }
+.drop-mark       { fill: var(--c-kurve); }
+#graph_point     { fill: var(--c-kurve); stroke: var(--graph-bg); stroke-width: 2; }
+#graph_hover_point { stroke: var(--c-kurve); }
+
+/* Straßenszene */
+.road           { fill: var(--c-road); stroke: var(--c-road-edge); stroke-width: 1; }
+.road-mid       { stroke: var(--c-road-mid); stroke-width: 2; stroke-dasharray: 12 9; }
+.stop-post      { stroke: var(--c-haltestelle); stroke-width: 2; }
+.stop-label     { fill: var(--text2); font-size: 13px; font-weight: 600; font-family: var(--font-ui); }
+.street-caption { fill: var(--text2); font-size: 12px; font-family: var(--font-ui); }
+.bus-body       { fill: var(--c-kurve); stroke: var(--c-bus-edge); stroke-width: 1; }
+.bus-window     { fill: #cfe8ff; }
+.bus-wheel      { fill: #2a2a2a; }
+.cm-cross-halo  { stroke: #1a1a1a; stroke-width: 4; stroke-linecap: round; }
+.cm-cross       { stroke: #ffd400; stroke-width: 2; stroke-linecap: round; }
+
+/* Legende */
+.sw-kurve    { background: var(--c-kurve); }
+.sw-cross    { background: var(--c-kurve); color: #ffd400; font-size: 9px; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.sw-halt     { background: var(--c-halt); }
+.sw-anfahren { background: var(--c-anfahren); }
+.sw-konstant { background: var(--c-konstant); }
+.sw-bremsen  { background: var(--c-bremsen); }
+.legend-note { margin-top: 8px; font-size: .74rem; color: var(--text3); line-height: 1.35; }
+
+/* Deaktivierte Toggle-Zeile (Haltestellen nur im Ort-Zeit-Diagramm) */
+.vis-toggle-row.disabled { opacity: .45; }
+.vis-toggle-row.disabled .toggle-switch { cursor: not-allowed; }
+
+/* Formeln + Fahrplan */
+.formula-cap { font-size: .78rem; color: var(--text2); margin-top: 6px; }
+.fahrplan { width: 100%; border-collapse: collapse; font-size: .76rem; }
+.fahrplan th, .fahrplan td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--border); }
+.fahrplan th:first-child, .fahrplan td:first-child { text-align: left; }
+.fahrplan td { font-family: var(--font-mono); }
+.fahrplan td:first-child { font-family: var(--font-ui); }
+
+/* Zeit-Label als Overlay unten links im Sim-Bereich */
+.time-label {
+  position: absolute; left: 16px; right: auto; bottom: 12px;
+  font-family: var(--font-mono); font-size: .8rem; color: var(--text2);
+  background: var(--surface); padding: 3px 8px;
+  border-radius: var(--r); border: 1px solid var(--border);
+}
+
+/* ── Akkordeon-Steuerungs-Sidebar links (per-Sim, Blueprint §3 / I8) ────────── */
+.panel-section.collapsible > .panel-label {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; margin-bottom: 11px; padding: 2px 0;
+  background: transparent; border: none; text-align: left;
+  font-family: var(--font-ui); cursor: pointer; user-select: none;
+  transition: color .15s;
+}
+.panel-section.collapsible > .panel-label:hover { color: var(--text2); }
+.panel-section.collapsible > .panel-label:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.acc-chevron { flex: 0 0 auto; color: var(--text3); font-size: 1.4rem; line-height: 1; transition: transform .2s ease; }
+.panel-section.collapsed > .panel-label { margin-bottom: 0; }
+.panel-section.collapsed > .panel-label .acc-chevron { transform: rotate(-90deg); }
+.panel-section.collapsed > .panel-label ~ * { display: none !important; }
