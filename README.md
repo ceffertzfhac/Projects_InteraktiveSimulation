@@ -40,6 +40,7 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
   GSAP-Timeline statt Echtzeit-Loop (Blueprint §10, BACKLOG I19). Vorlage:
   `_scaffold_schritt_animation/`.
   - `Project_signifikante_stellen_animation/` — Signifikante Stellen (Kapitel Grundlagen, Multiplikation, Division und Addition; öffentlich als `Webpage/anim_signifikante_stellen/`)
+  - `Project_messunsicherheit_animation/` — Bestwert, Standardabweichung, Messunsicherheit (Schritt-Animation, öffentlich seit 2026-10-15)
 
 - **`Webpage/`** — deploybare Kopie der **öffentlichen** Simulationen als statische
   Site (relative Pfade, `sim_<name>/`), deployt via GitHub Actions zu GitHub Pages.

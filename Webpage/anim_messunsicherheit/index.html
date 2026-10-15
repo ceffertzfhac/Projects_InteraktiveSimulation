@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Bestwert, Standardabweichung, Messunsicherheit – FH Aachen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false },
+  startup: { typeset: false }      // Setzen erst nach Schrift-Laden und Layout (js/ui.js), sonst Breite „Infinity“
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!-- GSAP (Animations-Engine, kostenlos, Standard-Lizenz) — klassisch, VOR den Modulen -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<link rel="stylesheet" href="../shared/css/design-system.css">
+<link rel="stylesheet" href="../shared/css/step-animation.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light step-anim">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="../index.html" class="back-btn">← Übersicht</a>
+  </div>
+  <div class="topbar-title">
+    <div class="topbar-title-text">
+      <div class="topbar-title-line">
+        Bestwert, Standardabweichung, Messunsicherheit
+        <span class="version">v0.3.1</span>
+        <span class="inst">FH Aachen – FB 8 – Physik</span>
+      </div>
+      <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
+    </div>
+    <img src="../shared/img/logo_physik_mint.png" class="topbar-logo"
+         alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8"
+         title="Lehr- und Forschungsgebiet Physik – FB 8">
+  </div>
+  <div class="topbar-right">
+    <button class="print-btn" id="print_btn" popovertarget="print_pop" title="Drucken / PDF: Endzustand jedes Schritts"
+            aria-label="Drucken oder als PDF sichern"></button>
+    <div id="print_pop" class="print-pop" popover>
+      <h4>Drucken / PDF</h4>
+      Je Schritt eine Seite mit dem Endzustand.
+      <button data-print="chapter">Aktuelles Kapitel</button>
+      <button data-print="all">Alle Kapitel</button>
+      <p>Im Druckdialog „Als PDF sichern“ wählen.</p>
+    </div>
+    <span id="seed_info" class="seed-info"></span>
+    <button class="btn" id="new_run" title="Neue Zufallswerte ziehen">↻ Neuer Durchlauf</button>
+    <div class="theme-toggle-wrap">
+      <span style="font-size:.82rem">🌙</span>
+      <button class="theme-toggle" id="theme_toggle" title="Dark/Light Mode"></button>
+      <span style="font-size:.82rem">☀️</span>
+    </div>
+  </div>
+</header>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <svg id="stage_svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet"
+         aria-label="Animationsbühne"></svg>
+    <div class="col-bg"></div>
+
+    <!-- Erläuterungsspalte (rechtes Drittel) und Vollfolien: statisches HTML, MathJax tippt einmal
+         beim Laden; Zahlen als data-dyn-Spans (js/content.js). Sichtbarkeit steuert die Timeline. -->
+    <div class="slide-layer">
+      <!-- Kapitel 1: Bestwert -->
+      <div class="slide-card pos-col" data-card="k1_g">
+        <div class="kicker">Bestwert</div>
+        <h3>Wir messen die Fallbeschleunigung \(g\)</h3>
+        <p>Jede Messung liefert einen Zahlenwert auf dieser Zahlengeraden.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k1_true">
+        <div class="kicker">Messgröße</div>
+        <h3>Der „wahre Wert“</h3>
+        <p>Die Messgröße \(g\) hat einen „wahren Wert“:</p>
+        <div class="formula">\(g = 9{,}81\,\text{m/s}^2\)</div>
+      </div>
+      <div class="slide-card pos-col" data-card="k1_unknown">
+        <div class="kicker">Messgröße</div>
+        <h3>Wir kennen ihn nicht</h3>
+        <p>Der „wahre Wert“ ist unbekannt. Wir versuchen, uns ihm durch Messungen zu nähern.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k1_series">
+        <div class="kicker">Messreihe</div>
+        <h3>Wir messen zehnmal</h3>
+        <p>Jede Messung liefert einen anderen Wert \(g_1 \ldots g_{10}\): Die Messwerte <b>streuen</b>.</p>
+        <p class="note">Gleicher Aufbau, gleiche Messgröße – trotzdem schwanken die Werte.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k1_mean">
+        <div class="kicker">Bestwert</div>
+        <h3>Der Mittelwert der Messreihe</h3>
+        <div class="formula">\(\bar g = \dfrac{1}{n}\sum_{i=1}^{n} g_i\)</div>
+        <p>Summe der \(n = 10\) Werte: <span class="dyn" data-dyn="sum10"></span>&nbsp;m/s²</p>
+        <p>\(\bar g = \) <span class="dyn" data-dyn="sum10"></span>&nbsp;m/s² \(/\, 10 = \) <b><span class="dyn" data-dyn="mean10"></span>&nbsp;m/s²</b></p>
+      </div>
+      <div class="slide-card full merke" data-card="k1_rule">
+        <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
+        <div class="kicker">Merke · Bestwert</div>
+        <h3>Der Bestwert \(\bar g\) ist der Mittelwert der Messreihe.</h3>
+        <div class="formula">\(\bar g = \dfrac{1}{n}\sum_{i=1}^{n} g_i\)</div>
+        <p>Der Bestwert ist die <b>beste Angabe</b> zur Messgröße, die wir auf Basis unserer Messwerte derzeit machen können – nicht der „wahre Wert“.</p>
+        <div class="formula"><b>Beispiel:</b> \(\bar g = \) <span class="dyn" data-dyn="mean10"></span>&nbsp;m/s² aus \(n = 10\) Messwerten</div>
+      </div>
+
+      <!-- Kapitel 2: Standardabweichung -->
+      <div class="slide-card pos-col" data-card="k2_sigma">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Wie stark streuen die Einzelwerte?</h3>
+        <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
+        <div data-r="calc">
+          <p>Für \(n = 10\): \(\sigma_g = \) <b><span class="dyn" data-dyn="sigma10"></span>&nbsp;m/s²</b></p>
+          <p class="note">Geteilt durch \(n-1\): Der Bestwert \(\bar g\) wurde schon aus denselben Werten gebildet.</p>
+        </div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_interval">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Wo liegt der nächste Messwert?</h3>
+        <p>Mit etwa <b>68,3&nbsp;%</b> liegt der nächste Messwert im Intervall \(\bar g \pm \sigma_g\) (bei normalverteilten Messwerten).</p>
+        <div class="formula"><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean10"></span> ± <span class="dyn" data-dyn="sigma10"></span>&nbsp;m/s²</div>
+        <div class="formula"><span class="dyn" data-dyn="lo10"></span>&nbsp;m/s² ≤ <i>g</i> ≤ <span class="dyn" data-dyn="hi10"></span>&nbsp;m/s²</div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_more">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Zehn weitere Messwerte</h3>
+        <p>Liegen sie im Intervall \(\bar g \pm \sigma_g\) der ersten zehn?</p>
+        <p><span class="key key-in">innerhalb</span> <span class="key key-out">außerhalb</span></p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_tally">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Strichliste</h3>
+        <p><b class="c-in"><span class="dyn" data-dyn="tIn"></span>&nbsp;von&nbsp;10</b> Werten liegen innerhalb, <b class="c-out"><span class="dyn" data-dyn="tOut"></span></b> außerhalb.</p>
+        <div data-r="cmp"><p>Erwartet: etwa 68,3&nbsp;%, also rund 7&nbsp;von&nbsp;10.</p>
+          <p class="dyn" data-dyn="tallyText"></p></div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_new">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Alle 20 Werte auswerten</h3>
+        <p data-r="m"><b>1. Bestwert</b><br><span class="nb"><span class="dyn" data-dyn="mean10"></span> → <b><span class="dyn" data-dyn="mean20"></span>&nbsp;m/s²</b></span></p>
+        <p data-r="s"><b>2. Standardabweichung \(\sigma_g\)</b><br><span class="nb"><span class="dyn" data-dyn="sigma10"></span> → <b><span class="dyn" data-dyn="sigma20"></span>&nbsp;m/s²</b></span></p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_conv">
+        <div class="kicker">Standardabweichung</div>
+        <h3>\(\sigma_g\) wird mit mehr Messungen nicht systematisch kleiner</h3>
+        <p>Am Anfang schwankt \(\sigma_g\) stark, dann pendelt es sich auf einen Wert ein.</p>
+        <p class="note">Die Summe unter der Wurzel wächst mit \(n\); geteilt durch \(n-1\) bleibt das Ergebnis etwa gleich.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_meaning">
+        <div class="kicker">Standardabweichung</div>
+        <h3>\(\sigma_g\) gehört zum Messaufbau</h3>
+        <p>\(\sigma_g\) heißt auch <b>mittlerer Fehler der Einzelwerte</b>. Es bewertet das gesamte Messsetup:</p>
+        <div class="formula"><b>Messaufbau</b><br><b>Messumstände</b><br><b>Messmittel</b></div>
+      </div>
+      <div class="slide-card full merke" data-card="k2_rule">
+        <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
+        <div class="kicker">Merke · Standardabweichung</div>
+        <h3>Die Standardabweichung \(\sigma_g\) beschreibt die Streuung der Einzelwerte.</h3>
+        <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
+        <p>Sie hängt von Messaufbau, Messumständen und Messmittel ab – mehr Messungen verkleinern sie nicht.
+          Mit etwa 68,3&nbsp;% liegt der nächste Einzelwert in \(\bar g \pm \sigma_g\).</p>
+        <div class="formula"><b>Beispiel:</b> <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="sigma20"></span>&nbsp;m/s² aus <i>n</i> = 20 Messwerten</div>
+      </div>
+
+      <!-- Kapitel 3: Messunsicherheit -->
+      <div class="slide-card pos-col" data-card="k3_u">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Wie genau ist der Bestwert?</h3>
+        <div class="formula">\(\mu_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
+        <div data-r="calc">
+          <p>\(\mu_g = \) <span class="dyn" data-dyn="sigma20"></span> / √20 = <b><span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</b></p>
+          <p class="note">Messunsicherheit vom Typ A (aus der Streuung der Messwerte).</p>
+        </div>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_series">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>\(\mu_g\) beschreibt die ganze Messserie</h3>
+        <p>Weil durch \(\sqrt{n}\) geteilt wird, wird \(\mu_g\) mit mehr Messungen <b>kleiner</b> – \(\sigma_g\) dagegen nicht.</p>
+        <p class="note">Viermal so viele Messungen: halb so große Messunsicherheit.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_mu">
+        <div class="kicker">Erwartungswert</div>
+        <h3>Der Erwartungswert \(g_{\text{E}}\)</h3>
+        <p>Angenommen, wir würden die Messserie unendlich oft mit dem <b>gleichen Aufbau</b>, unter den
+          <b>gleichen Bedingungen</b> und mit dem <b>gleichen Messmittel</b> wiederholen und jedes Mal den Bestwert bestimmen:
+          Der Mittelwert dieser Bestwerte wäre der Erwartungswert \(g_{\text{E}}\).</p>
+        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span>&nbsp;m/s²</div>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_gap">
+        <div class="kicker">Erwartungswert</div>
+        <h3>\(g_{\text{E}}\) ist nicht der „wahre Wert“</h3>
+        <p>Der Abstand ist der <b>systematische Fehler</b> des Messaufbaus.</p>
+        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span>&nbsp;m/s² ≠ <span class="dyn" data-dyn="gTrue"></span>&nbsp;m/s²</div>
+        <p>Erwartungswert und „wahrer Wert“ sind zwei getrennte Größen.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_conv">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Mehr Messungen: <span class="nb">\(\bar g\) nähert sich \(g_{\text{E}}\)</span></h3>
+        <p>\(\mu_g\) wird kleiner, \(\sigma_g\) bleibt.</p>
+        <table class="conv">
+          <thead><tr><th><i>n</i></th><th><i>ḡ</i> / (m/s²)</th><th><i>μ</i><sub><i>g</i></sub> / (m/s²)</th><th class="dim"><i>σ</i><sub><i>g</i></sub> / (m/s²)</th></tr></thead>
+          <tbody>
+            <tr data-r="n20"><td>20</td><td><span class="dyn" data-dyn="mean20"></span></td><td><span class="dyn" data-dyn="u20"></span></td><td class="dim"><span class="dyn" data-dyn="sigma20"></span></td></tr>
+            <tr data-r="n30"><td>30</td><td><span class="dyn" data-dyn="mean30"></span></td><td><span class="dyn" data-dyn="u30"></span></td><td class="dim"><span class="dyn" data-dyn="sigma30"></span></td></tr>
+            <tr data-r="n40"><td>40</td><td><span class="dyn" data-dyn="mean40"></span></td><td><span class="dyn" data-dyn="u40"></span></td><td class="dim"><span class="dyn" data-dyn="sigma40"></span></td></tr>
+            <tr data-r="n100"><td>100</td><td><span class="dyn" data-dyn="mean100u"></span></td><td><span class="dyn" data-dyn="u100"></span></td><td class="dim"><span class="dyn" data-dyn="sigma100"></span></td></tr>
+          </tbody>
+        </table>
+        <p data-r="n100note">Der „wahre Wert“ liegt weiter außerhalb von \(\bar g \pm \mu_g\): der systematische Fehler bleibt.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_meaning">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Was sagt \(\bar g \pm \mu_g\)?</h3>
+        <div class="formula"><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean20"></span> ± <span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</div>
+        <p>Mit etwa <b class="c-in">68,3&nbsp;%</b> liegt der <b>Erwartungswert \(g_{\text{E}}\)</b> in diesem Intervall.</p>
+        <p data-r="out">Mit etwa <b class="c-out">31,7&nbsp;%</b> liegt er <b>außerhalb</b>.</p>
+        <p class="note">Das Intervall sagt nichts über den „wahren Wert“.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_limit">
+        <div class="kicker">Grenze</div>
+        <h3>Was ein Experiment leisten kann</h3>
+        <p>Ein Experiment grenzt \(g_{\text{E}}\) ein – nicht automatisch \(g\).</p>
+        <p>Für eine Aussage über \(g\) braucht man eine genaue Analyse des systematischen Fehlers oder mehrere
+          <b>unabhängige</b> Messaufbauten mit verschiedenen Messmitteln.</p>
+      </div>
+      <div class="slide-card full zs" data-card="k3_sum">
+        <div class="kicker">Zusammenfassung · Messunsicherheit</div>
+        <h3>Bestwert, Standardabweichung, Messunsicherheit: Drei Größen mit unterschiedlicher Bedeutung</h3>
+        <table class="sum">
+          <thead><tr><th></th><th>Formel</th><th>beschreibt</th><th>beschreibt nicht</th><th>Beispiel</th></tr></thead>
+          <tbody>
+            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean100u"></span>&nbsp;m/s²</td></tr>
+            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s²</td></tr>
+            <tr data-r="r3"><td>Messunsicherheit \(\mu_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(g_{\text{E}}\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</td></tr>
+          </tbody>
+        </table>
+        <div class="concl">
+          <p data-r="c0"><span class="concl-k">Zusammenhang</span> Der Bestwert \(\bar g\) nähert \(g_{\text{E}}\) mit der Genauigkeit \(\mu_g\).</p>
+          <p data-r="c1"><span class="concl-k">Abgrenzung</span> \(g_{\text{E}}\) und der „wahre Wert“ unterscheiden sich um den systematischen Fehler.</p>
+          <p data-r="c2"><span class="concl-k">Konsequenz</span> Kleine \(\mu_g\) heißt nicht „nah am wahren Wert“ – dafür: Systematik analysieren oder unabhängige Messaufbauten vergleichen.</p>
+        </div>
+      </div>
+      <div class="slide-card full zs" data-card="k3_total">
+        <div class="kicker">Gesamtergebnis · Messunsicherheit</div>
+        <h3>Was sagen \(\bar g \pm \sigma_g\) und \(\bar g \pm \mu_g\)?</h3>
+        <div class="total-grid">
+          <div class="total-col" data-r="b1">
+            <div class="total-h">Bestwert ± Standardabweichung</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100s"></span> ± <span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s²</div>
+            <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loS100"></span> ; <span class="dyn" data-dyn="hiS100"></span>] m/s²</div>
+            <p>Der <b>nächste Einzelmesswert</b> liegt mit etwa 68,3&nbsp;% in diesem Intervall.</p>
+          </div>
+          <div class="total-col" data-r="b2">
+            <div class="total-h">Bestwert ± Messunsicherheit</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</div>
+            <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loU100"></span> ; <span class="dyn" data-dyn="hiU100"></span>] m/s²</div>
+            <p>Der <b>Erwartungswert \(g_{\text{E}}\)</b> liegt mit etwa 68,3&nbsp;% in diesem Intervall.</p>
+          </div>
+        </div>
+        <p class="note">Beide Angaben aus \(n = 100\) Messwerten; keine sagt etwas über den „wahren Wert“.</p>
+      </div>
+      <div class="slide-card full merke" data-card="k3_rule">
+        <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
+        <div class="kicker">Merke · Messunsicherheit</div>
+        <h3>Die Messunsicherheit \(\mu_g\) grenzt den Erwartungswert \(g_{\text{E}}\) ein – nicht den „wahren Wert“.</h3>
+        <div class="formula">\(\mu_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
+        <p>Mit etwa 68,3&nbsp;% liegt \(g_{\text{E}}\) in \(\bar g \pm \mu_g\). Mehr Messungen verkleinern \(\mu_g\), nicht den systematischen Fehler.</p>
+        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span>&nbsp;m/s² (<i>n</i> = 100)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="transport" id="transport"></footer>
+
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

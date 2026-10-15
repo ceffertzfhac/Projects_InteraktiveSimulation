@@ -26,7 +26,7 @@ SIMS=(
 
 # Schritt-Animationen (→ BACKLOG I19): Project_<name>_animation/ → Webpage/anim_<name>/,
 # gleiche Spiegel-Regeln wie bei den Sims.
-ANIMS=( signifikante_stellen )
+ANIMS=( signifikante_stellen messunsicherheit )
 
 # NICHT öffentlich (PO-Entscheidung): bleibt als Project_*_simulation/ im Repo
 # und auf der internen Übersicht AllAnimations/, wird aber NICHT nach Webpage/

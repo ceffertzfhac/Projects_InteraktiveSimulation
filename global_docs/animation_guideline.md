@@ -68,6 +68,8 @@ jede Zahl nachrechenbar, jede Folie kollisionsfrei.
 - **Regeln kurz, merkbar, parallel gebaut** und fachdidaktisch belegt (Recherche vor dem
   Formulieren; Quelle im CHANGELOG): mal/geteilt → signifikante Stellen,
   plus/minus → Nachkommastellen (+ Voraussetzung „gleiche Einheit“).
+- **Keine „Motorhaube“-Texte** (PO 2026-10-15): Karten erklären den *Sachinhalt*, nie die Optik der Bühne
+  („Die Marke wandert, die Breite bleibt“, „Jetzt ändert sich das Intervall“). Was man sieht, braucht keinen Kommentar.
 - Neutrale Beschriftungen („Beispiel A / B“ statt „einfach / komplexer“).
 - Bezug zur Prüfungspraxis herstellen („In den Übungen und in der Klausur: …“).
 
