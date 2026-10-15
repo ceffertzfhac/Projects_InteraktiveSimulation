@@ -8,7 +8,7 @@ Entwurf 2026-10-15, nach PO-Diktat. Status: **zur Freigabe**.
 - **Lernziel:** Bestwert ḡ, Standardabweichung σ_g und Messunsicherheit μ_g (Typ A) unterscheiden –
   was sie bedeuten und was nicht. Bestwert ↔ Erwartungswert g_E ↔ „wahrer Wert“ trennen.
 - **Beispiel:** Messung der Fallbeschleunigung *g*. „Wahrer Wert“ 9,81 m/s² (immer in Anführungszeichen),
-  Erwartungswert des Messaufbaus g_E = 9,32 m/s² (systematischer Fehler), σ der Verteilung = 1,23 m/s².
+  Erwartungswert des Messaufbaus g_E = 9,13 m/s² (systematischer Fehler), σ der Verteilung = 0,74 m/s².
 - **Zufall:** g_E und σ fest, nur die Messwerte sind pro Durchlauf zufällig (Seed im URL-Hash,
   Knopf „Neuer Durchlauf“). 40 Werte werden einmal erzeugt; Schritte nutzen die ersten 10 / 20 / 30 / 40.
   Alle Texte mit Zahlen laufen über `data-dyn`; Strichlisten-Text passt sich dem Ergebnis an.
@@ -35,7 +35,7 @@ Entwurf 2026-10-15, nach PO-Diktat. Status: **zur Freigabe**.
 |---|---|---|---|---|
 | 1 | Streuung | σ_g = √(Σ(gᵢ−ḡ)²/(n−1)), Rechnerzeile | Abstände der Punkte zu ḡ kurz markiert | vor Formel, vor Ergebnis |
 | 2 | Intervall ḡ ± σ_g | ≈ 68,3 % der nächsten Messwerte liegen in ḡ ± σ_g (normalverteilt) | ± -Darstellung + Intervallband auf der Geraden (wie Rundungsintervalle) | vor Band |
-| 3 | Zehn weitere Werte | Liegen die neuen Werte im Intervall? | Punkte erscheinen, innen / außen eingefärbt | je 5 Punkte |
+| 3 | Zehn weitere Werte | Liegen die neuen Werte im Intervall? | Punkte erscheinen, innen / außen eingefärbt | – (ein Durchlauf) |
 | 4 | Strichliste | Strichliste innen / außen, Vergleich mit 68 % (Text dynamisch, bei 10 Werten schwankt der Anteil stark) | Strichliste | vor Vergleich |
 | 5 | Neue Auswertung | n = 20: ḡ und σ_g neu | alter Marker wandert auf neuen ḡ, Intervall passt sich an | vor Verschiebung |
 | 6 | σ_g konvergiert | Mehr Messungen verkleinern σ_g nicht systematisch | Diagramm σ_g(n), n = 2…40: schwankt am Anfang, dann konstant | vor Diagramm, am Ende |
@@ -50,7 +50,7 @@ Startet still im Endzustand von K2 (n = 20).
 |---|---|---|---|---|
 | 1 | Messunsicherheit | μ_g = σ_g/√n, Rechnerzeile | Formel, Wert; Marker mit Band ḡ ± μ_g | vor Ergebnis |
 | 2 | Maß für die Serie | μ_g bewertet die ganze Messserie; durch √n wird sie mit mehr Messungen kleiner | Karte, Band | – |
-| 3 | Erwartungswert | g_E: Wert des Bestwerts bei unendlich oft wiederholter Messserie (Text: nur was ist) | Marker g_E = 9,32 erscheint | vor Marker |
+| 3 | Erwartungswert | g_E: Wert des Bestwerts bei unendlich oft wiederholter Messserie (Text: nur was ist) | Marker g_E = 9,13 erscheint | vor Marker |
 | 4 | g_E ≠ „wahrer Wert“ | Der Abstand ist der systematische Fehler | „wahrer Wert“ 9,81 wieder kräftig, Klammer g_E ↔ 9,81 | vor Klammer |
 | 5 | Konvergenz | ḡ nähert sich g_E, μ_g sinkt | n = 20 → 30 → 40, Zoom auf μ_g-Band, Diagramm ḡ(n), μ_g(n) | je Zehnerschritt |
 | 6 | Bedeutung von ḡ ± μ_g | g_E liegt mit ≈ 68,3 % in ḡ ± μ_g, nicht der „wahre Wert“ | Intervall auf Gerade, g_E darin | vor Intervall |

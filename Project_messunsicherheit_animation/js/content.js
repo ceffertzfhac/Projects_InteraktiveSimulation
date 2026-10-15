@@ -2,6 +2,7 @@
 // Füllt die data-dyn-Spans der Folienkarten aus dem Modell (eine Quelle für jede Zahl).
 import { fmt } from '../../shared/js/format.js'
 import { store } from './state.js'
+import { MU, G_TRUE } from './model.js'
 
 export function fillCards(root = document) {
   const D = store.data
@@ -12,6 +13,7 @@ export function fillCards(root = document) {
     ? 'Das passt zu etwa 68 %.'
     : 'Das weicht ab: Bei nur 10 Werten schwankt der Anteil stark. Erst viele Messungen nähern sich 68,3 %.'
   const v = {
+    gE: f(MU), gTrue: f(G_TRUE),
     sum10: f(sum(10)), mean10: f(D.n10.mean), sigma10: f(D.n10.sigma),
     lo10: f(D.n10.mean - D.n10.sigma), hi10: f(D.n10.mean + D.n10.sigma),
     tIn: String(t.inside), tOut: String(t.outside), tallyText,

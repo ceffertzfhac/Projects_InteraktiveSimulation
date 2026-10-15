@@ -3,8 +3,8 @@
 // der Animation kommen von hier. Beispiel: Messung der Fallbeschleunigung g.
 
 export const G_TRUE = 9.81        // „wahrer Wert“ (in der Realität unbekannt)
-export const MU = 9.32            // Erwartungswert des Messaufbaus (systematische Abweichung)
-export const SIGMA = 1.23         // Streuung der Einzelmessungen (Messaufbau)
+export const MU = 9.13            // Erwartungswert des Messaufbaus (systematische Abweichung)
+export const SIGMA = 0.74         // Streuung der Einzelmessungen (Messaufbau)
 export const N_MAX = 40           // so viele Werte werden je Durchlauf erzeugt
 
 // Seed-RNG (mulberry32), gleichverteilt in [0, 1)

@@ -119,12 +119,8 @@ export function buildSteps(S, DOM) {
       title: 'Zehn weitere Werte', hold: 6,
       build: tl => {
         deck.show(tl, C.k2_more, '<')
-        dots(tl, 10, 15)
-        classify(tl, 10, 15, '<0.4')
-        beat(tl)
-        dots(tl, 15, 20)
-        classify(tl, 15, 20, '<0.4')
-        beat(tl)
+        dots(tl, 10, 20)
+        classify(tl, 10, 20, '<0.4')
       },
     },
     {
