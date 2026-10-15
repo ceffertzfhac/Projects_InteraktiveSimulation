@@ -97,8 +97,8 @@ window.MathJax = {
         <div class="kicker">Bestwert</div>
         <h3>Der Mittelwert der Messreihe</h3>
         <div class="formula">\(\bar g = \dfrac{1}{n}\sum_{i=1}^{n} g_i\)</div>
-        <p>Summe der \(n = 10\) Werte: <span class="dyn" data-dyn="sum10"></span> m/s²</p>
-        <p>\(\bar g = \) <span class="dyn" data-dyn="sum10"></span> m/s² \(/\, 10 = \) <b><span class="dyn" data-dyn="mean10"></span> m/s²</b></p>
+        <p>Summe der \(n = 10\) Werte: <span class="dyn" data-dyn="sum10"></span>&nbsp;m/s²</p>
+        <p>\(\bar g = \) <span class="dyn" data-dyn="sum10"></span>&nbsp;m/s² \(/\, 10 = \) <b><span class="dyn" data-dyn="mean10"></span>&nbsp;m/s²</b></p>
       </div>
       <div class="slide-card full merke" data-card="k1_rule">
         <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
@@ -106,7 +106,7 @@ window.MathJax = {
         <h3>Der Bestwert \(\bar g\) ist der Mittelwert der Messreihe.</h3>
         <div class="formula">\(\bar g = \dfrac{1}{n}\sum_{i=1}^{n} g_i\)</div>
         <p>Der Bestwert ist die <b>beste Angabe</b> zur Messgröße, die wir auf Basis unserer Messwerte derzeit machen können – nicht der „wahre Wert“.</p>
-        <div class="formula"><b>Beispiel:</b> \(\bar g = \) <span class="dyn" data-dyn="mean10"></span> m/s² aus \(n = 10\) Messwerten</div>
+        <div class="formula"><b>Beispiel:</b> \(\bar g = \) <span class="dyn" data-dyn="mean10"></span>&nbsp;m/s² aus \(n = 10\) Messwerten</div>
       </div>
 
       <!-- Kapitel 2: Standardabweichung -->
@@ -115,16 +115,16 @@ window.MathJax = {
         <h3>Wie stark streuen die Einzelwerte?</h3>
         <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
         <div data-r="calc">
-          <p>Für \(n = 10\): \(\sigma_g = \) <b><span class="dyn" data-dyn="sigma10"></span> m/s²</b></p>
+          <p>Für \(n = 10\): \(\sigma_g = \) <b><span class="dyn" data-dyn="sigma10"></span>&nbsp;m/s²</b></p>
           <p class="note">Geteilt durch \(n-1\): Der Bestwert \(\bar g\) wurde schon aus denselben Werten gebildet.</p>
         </div>
       </div>
       <div class="slide-card pos-col" data-card="k2_interval">
         <div class="kicker">Standardabweichung</div>
         <h3>Wo liegt der nächste Messwert?</h3>
-        <p>Mit etwa <b>68,3 %</b> liegt der nächste Messwert im Intervall \(\bar g \pm \sigma_g\) (bei normalverteilten Messwerten).</p>
-        <div class="formula"><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean10"></span> ± <span class="dyn" data-dyn="sigma10"></span> m/s²</div>
-        <div class="formula"><span class="dyn" data-dyn="lo10"></span> m/s² ≤ <i>g</i> ≤ <span class="dyn" data-dyn="hi10"></span> m/s²</div>
+        <p>Mit etwa <b>68,3&nbsp;%</b> liegt der nächste Messwert im Intervall \(\bar g \pm \sigma_g\) (bei normalverteilten Messwerten).</p>
+        <div class="formula"><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean10"></span> ± <span class="dyn" data-dyn="sigma10"></span>&nbsp;m/s²</div>
+        <div class="formula"><span class="dyn" data-dyn="lo10"></span>&nbsp;m/s² ≤ <i>g</i> ≤ <span class="dyn" data-dyn="hi10"></span>&nbsp;m/s²</div>
       </div>
       <div class="slide-card pos-col" data-card="k2_more">
         <div class="kicker">Standardabweichung</div>
@@ -135,15 +135,15 @@ window.MathJax = {
       <div class="slide-card pos-col" data-card="k2_tally">
         <div class="kicker">Standardabweichung</div>
         <h3>Strichliste</h3>
-        <p><b class="c-in"><span class="dyn" data-dyn="tIn"></span> von 10</b> Werten liegen innerhalb, <b class="c-out"><span class="dyn" data-dyn="tOut"></span></b> außerhalb.</p>
-        <div data-r="cmp"><p>Erwartet: etwa 68,3 %, also rund 7 von 10.</p>
+        <p><b class="c-in"><span class="dyn" data-dyn="tIn"></span>&nbsp;von&nbsp;10</b> Werten liegen innerhalb, <b class="c-out"><span class="dyn" data-dyn="tOut"></span></b> außerhalb.</p>
+        <div data-r="cmp"><p>Erwartet: etwa 68,3&nbsp;%, also rund 7&nbsp;von&nbsp;10.</p>
           <p class="dyn" data-dyn="tallyText"></p></div>
       </div>
       <div class="slide-card pos-col" data-card="k2_new">
         <div class="kicker">Standardabweichung</div>
         <h3>Alle 20 Werte auswerten</h3>
-        <p data-r="m"><b>1. Bestwert:</b> <span class="dyn" data-dyn="mean10"></span> → <b><span class="dyn" data-dyn="mean20"></span> m/s²</b></p>
-        <p data-r="s"><b>2. Standardabweichung:</b> \(\sigma_g\): <span class="dyn" data-dyn="sigma10"></span> → <b><span class="dyn" data-dyn="sigma20"></span> m/s²</b></p>
+        <p data-r="m"><b>1. Bestwert</b><br><span class="nb"><span class="dyn" data-dyn="mean10"></span> → <b><span class="dyn" data-dyn="mean20"></span>&nbsp;m/s²</b></span></p>
+        <p data-r="s"><b>2. Standardabweichung \(\sigma_g\)</b><br><span class="nb"><span class="dyn" data-dyn="sigma10"></span> → <b><span class="dyn" data-dyn="sigma20"></span>&nbsp;m/s²</b></span></p>
       </div>
       <div class="slide-card pos-col" data-card="k2_conv">
         <div class="kicker">Standardabweichung</div>
@@ -163,8 +163,8 @@ window.MathJax = {
         <h3>Die Standardabweichung \(\sigma_g\) beschreibt die Streuung der Einzelwerte.</h3>
         <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
         <p>Sie hängt von Messaufbau, Messumständen und Messmittel ab – mehr Messungen verkleinern sie nicht.
-          Mit etwa 68,3 % liegt der nächste Einzelwert in \(\bar g \pm \sigma_g\).</p>
-        <div class="formula"><b>Beispiel:</b> <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="sigma20"></span> m/s² aus <i>n</i> = 20 Messwerten</div>
+          Mit etwa 68,3&nbsp;% liegt der nächste Einzelwert in \(\bar g \pm \sigma_g\).</p>
+        <div class="formula"><b>Beispiel:</b> <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="sigma20"></span>&nbsp;m/s² aus <i>n</i> = 20 Messwerten</div>
       </div>
 
       <!-- Kapitel 3: Messunsicherheit -->
@@ -173,7 +173,7 @@ window.MathJax = {
         <h3>Wie genau ist der Bestwert?</h3>
         <div class="formula">\(\mu_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
         <div data-r="calc">
-          <p>\(\mu_g = \) <span class="dyn" data-dyn="sigma20"></span> / √20 = <b><span class="dyn" data-dyn="u20"></span> m/s²</b></p>
+          <p>\(\mu_g = \) <span class="dyn" data-dyn="sigma20"></span> / √20 = <b><span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</b></p>
           <p class="note">Messunsicherheit vom Typ A (aus der Streuung der Messwerte).</p>
         </div>
       </div>
@@ -189,39 +189,39 @@ window.MathJax = {
         <p>Angenommen, wir würden die Messserie unendlich oft mit dem <b>gleichen Aufbau</b>, unter den
           <b>gleichen Bedingungen</b> und mit dem <b>gleichen Messmittel</b> wiederholen und jedes Mal den Bestwert bestimmen:
           Der Mittelwert dieser Bestwerte wäre der Erwartungswert \(g_{\text{E}}\).</p>
-        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span> m/s²</div>
+        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span>&nbsp;m/s²</div>
       </div>
       <div class="slide-card pos-col" data-card="k3_gap">
         <div class="kicker">Erwartungswert</div>
         <h3>\(g_{\text{E}}\) ist nicht der „wahre Wert“</h3>
         <p>Der Abstand ist der <b>systematische Fehler</b> des Messaufbaus.</p>
-        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span> m/s² ≠ <span class="dyn" data-dyn="gTrue"></span> m/s²</div>
+        <div class="formula"><i>g</i><sub>E</sub> = <span class="dyn" data-dyn="gE"></span>&nbsp;m/s² ≠ <span class="dyn" data-dyn="gTrue"></span>&nbsp;m/s²</div>
         <p>Erwartungswert und „wahrer Wert“ sind zwei getrennte Größen.</p>
       </div>
       <div class="slide-card pos-col" data-card="k3_conv">
         <div class="kicker">Messunsicherheit</div>
-        <h3>Mehr Messungen: \(\bar g\) nähert sich \(g_{\text{E}}\)</h3>
+        <h3>Mehr Messungen: <span class="nb">\(\bar g\) nähert sich \(g_{\text{E}}\)</span></h3>
         <p>\(\mu_g\) wird kleiner. Der Abstand zum „wahren Wert“ bleibt.</p>
         <div class="swap">
-          <p class="note" data-r="n20">\(n = 20\): \(\bar g = \) <span class="dyn" data-dyn="mean20"></span> m/s², \(\mu_g = \) <span class="dyn" data-dyn="u20"></span> m/s²</p>
-          <p class="note" data-r="n30">\(n = 30\): \(\bar g = \) <span class="dyn" data-dyn="mean30"></span> m/s², \(\mu_g = \) <span class="dyn" data-dyn="u30"></span> m/s²</p>
-          <p class="note" data-r="n40">\(n = 40\): \(\bar g = \) <span class="dyn" data-dyn="mean40"></span> m/s², \(\mu_g = \) <span class="dyn" data-dyn="u40"></span> m/s²</p>
+          <p class="note" data-r="n20">\(n = 20\): \(\bar g = \) <span class="dyn" data-dyn="mean20"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</p>
+          <p class="note" data-r="n30">\(n = 30\): \(\bar g = \) <span class="dyn" data-dyn="mean30"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u30"></span>&nbsp;m/s²</p>
+          <p class="note" data-r="n40">\(n = 40\): \(\bar g = \) <span class="dyn" data-dyn="mean40"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u40"></span>&nbsp;m/s²</p>
         </div>
       </div>
       <div class="slide-card pos-col" data-card="k3_meaning">
         <div class="kicker">Messunsicherheit</div>
         <h3>Was sagt \(\bar g \pm \mu_g\)?</h3>
-        <div class="formula"><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean20"></span> ± <span class="dyn" data-dyn="u20"></span> m/s²</div>
-        <p>Mit etwa <b class="c-in">68,3 %</b> liegt der <b>Erwartungswert \(g_{\text{E}}\)</b> in diesem Intervall.</p>
-        <p data-r="out">Mit etwa <b class="c-out">31,7 %</b> liegt er <b>außerhalb</b>.</p>
+        <div class="formula"><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean20"></span> ± <span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</div>
+        <p>Mit etwa <b class="c-in">68,3&nbsp;%</b> liegt der <b>Erwartungswert \(g_{\text{E}}\)</b> in diesem Intervall.</p>
+        <p data-r="out">Mit etwa <b class="c-out">31,7&nbsp;%</b> liegt er <b>außerhalb</b>.</p>
         <p class="note">Das Intervall sagt nichts über den „wahren Wert“.</p>
       </div>
       <div class="slide-card pos-col" data-card="k3_n100">
         <div class="kicker">Messunsicherheit</div>
         <h3>Noch mehr Messungen: \(n = 100\)</h3>
         <p>\(\bar g\) liegt jetzt dicht bei \(g_{\text{E}}\), \(\mu_g\) ist klein.</p>
-        <div class="formula"><i>ḡ</i> = <span class="dyn" data-dyn="mean100u"></span> m/s²<br><i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="u100"></span> m/s²</div>
-        <p>\(\sigma_g = \) <span class="dyn" data-dyn="sigma100"></span> m/s² – praktisch unverändert.</p>
+        <div class="formula"><i>ḡ</i> = <span class="dyn" data-dyn="mean100u"></span>&nbsp;m/s²<br><i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</div>
+        <p>\(\sigma_g = \) <span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s² – praktisch unverändert.</p>
         <p class="note">Der „wahre Wert“ liegt weiter außerhalb von \(\bar g \pm \mu_g\): der systematische Fehler bleibt.</p>
       </div>
       <div class="slide-card pos-col" data-card="k3_limit">
@@ -237,9 +237,9 @@ window.MathJax = {
         <table class="sum">
           <thead><tr><th></th><th>Formel</th><th>beschreibt</th><th>beschreibt nicht</th><th>Beispiel</th></tr></thead>
           <tbody>
-            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean100u"></span> m/s²</td></tr>
-            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma100"></span> m/s²</td></tr>
-            <tr data-r="r3"><td>Messunsicherheit \(\mu_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(g_{\text{E}}\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u100"></span> m/s²</td></tr>
+            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean100u"></span>&nbsp;m/s²</td></tr>
+            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s²</td></tr>
+            <tr data-r="r3"><td>Messunsicherheit \(\mu_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(g_{\text{E}}\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</td></tr>
           </tbody>
         </table>
         <div class="concl">
@@ -254,15 +254,15 @@ window.MathJax = {
         <div class="total-grid">
           <div class="total-col" data-r="b1">
             <div class="total-h">Bestwert ± Standardabweichung</div>
-            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100s"></span> ± <span class="dyn" data-dyn="sigma100"></span> m/s²</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100s"></span> ± <span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s²</div>
             <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loS100"></span> ; <span class="dyn" data-dyn="hiS100"></span>] m/s²</div>
-            <p>Der <b>nächste Einzelmesswert</b> liegt mit etwa 68,3 % in diesem Intervall.</p>
+            <p>Der <b>nächste Einzelmesswert</b> liegt mit etwa 68,3&nbsp;% in diesem Intervall.</p>
           </div>
           <div class="total-col" data-r="b2">
             <div class="total-h">Bestwert ± Messunsicherheit</div>
-            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span> m/s²</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</div>
             <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loU100"></span> ; <span class="dyn" data-dyn="hiU100"></span>] m/s²</div>
-            <p>Der <b>Erwartungswert \(g_{\text{E}}\)</b> liegt mit etwa 68,3 % in diesem Intervall.</p>
+            <p>Der <b>Erwartungswert \(g_{\text{E}}\)</b> liegt mit etwa 68,3&nbsp;% in diesem Intervall.</p>
           </div>
         </div>
         <p class="note">Beide Angaben aus \(n = 100\) Messwerten; keine sagt etwas über den „wahren Wert“.</p>
@@ -272,8 +272,8 @@ window.MathJax = {
         <div class="kicker">Merke · Messunsicherheit</div>
         <h3>Die Messunsicherheit \(\mu_g\) grenzt den Erwartungswert \(g_{\text{E}}\) ein – nicht den „wahren Wert“.</h3>
         <div class="formula">\(\mu_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
-        <p>Mit etwa 68,3 % liegt \(g_{\text{E}}\) in \(\bar g \pm \mu_g\). Mehr Messungen verkleinern \(\mu_g\), nicht den systematischen Fehler.</p>
-        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span> m/s² (<i>n</i> = 100)</div>
+        <p>Mit etwa 68,3&nbsp;% liegt \(g_{\text{E}}\) in \(\bar g \pm \mu_g\). Mehr Messungen verkleinern \(\mu_g\), nicht den systematischen Fehler.</p>
+        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span>&nbsp;m/s² (<i>n</i> = 100)</div>
       </div>
     </div>
   </div>

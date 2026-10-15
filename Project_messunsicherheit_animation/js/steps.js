@@ -236,8 +236,10 @@ export function buildSteps(S, DOM) {
       build: tl => {
         deck.show(tl, C.k3_conv, '<')
         tl.to(S, { gapA: 0, bA: 0, uA: 1, duration: 0.5 }, '<')
-        tl.set(S, { plM: 1, pn: 20, px: 20 })
+        tl.set(S, { plM: 1, pn: 2, px: 20 })
         tl.to(S, { plA: 1, duration: 0.6 })
+        beat(tl)
+        tl.to(S, { pn: 20, duration: 3.2, ease: 'none' })
         beat(tl)
         tl.to(C.k3_conv.querySelector('[data-r="n20"]'), { autoAlpha: 0, duration: 0.3 })
         part(tl, C.k3_conv, 'n30')
