@@ -141,9 +141,15 @@ export function buildSteps(S, DOM) {
       build: tl => {
         deck.show(tl, C.k2_new, '<')
         tl.to(S, { tlA: 0, duration: 0.5 }, '<')
+        for (let i = 10; i < 20; i++) tl.to(S, { ['i' + i]: 0, ['o' + i]: 0, duration: 0.4 }, '<')
         beat(tl)
-        for (let i = 10; i < 20; i++) tl.to(S, { ['i' + i]: 0, ['o' + i]: 0, duration: 0.5 }, i === 10 ? '>' : '<')
-        tl.to(S, { mx: D.n20.mean, sh: D.n20.sigma, duration: T.move, ease: EASE.cam }, '<')
+        // 1) nur der Bestwert wandert — das Intervall behält seine Breite
+        part(tl, C.k2_new, 'm')
+        tl.to(S, { mx: D.n20.mean, duration: T.move, ease: EASE.cam }, '<')
+        beat(tl)
+        // 2) danach ändert sich nur die Breite des Intervalls (σ_g)
+        part(tl, C.k2_new, 's')
+        tl.to(S, { sh: D.n20.sigma, duration: T.move, ease: EASE.cam }, '<')
         beat(tl)
       },
     },
