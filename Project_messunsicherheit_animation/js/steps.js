@@ -56,7 +56,9 @@ export function buildSteps(S, DOM) {
       build: tl => {
         deck.show(tl, C.k1_series, '<')
         dots(tl, 0, 1)
+        tl.to(S, { v1a: 1, duration: 0.5 }, '>-0.1')
         beat(tl)
+        tl.to(S, { v1a: 0, duration: 0.4 })
         dots(tl, 1, 10)
         beat(tl)
       },
@@ -237,9 +239,13 @@ export function buildSteps(S, DOM) {
         tl.set(S, { plM: 1, pn: 20, px: 20 })
         tl.to(S, { plA: 1, duration: 0.6 })
         beat(tl)
+        tl.to(C.k3_conv.querySelector('[data-r="n20"]'), { autoAlpha: 0, duration: 0.3 })
+        part(tl, C.k3_conv, 'n30')
         dots(tl, 20, 30, { gap: 0.12 })
         tl.to(S, { mx: D.n30.mean, uh: D.n30.u, pn: 30, px: 30, duration: 2, ease: 'power1.inOut' }, '<0.3')
         beat(tl)
+        tl.to(C.k3_conv.querySelector('[data-r="n30"]'), { autoAlpha: 0, duration: 0.3 })
+        part(tl, C.k3_conv, 'n40')
         dots(tl, 30, 40, { gap: 0.12 })
         tl.to(S, { mx: D.n40.mean, uh: D.n40.u, pn: 40, px: 40, duration: 2, ease: 'power1.inOut' }, '<0.3')
         beat(tl)
@@ -264,7 +270,8 @@ export function buildSteps(S, DOM) {
       title: 'Grenze eines Experiments', hold: 10,
       build: tl => {
         deck.show(tl, C.k3_limit, '<')
-        tl.to(S, { gapA: 1, duration: 0.8 }, '<0.3')
+        tl.to(S, { plA: 0, duration: 0.6 }, '<')
+        tl.to(S, { gapA: 1, duration: 0.8 }, '>-0.1')
         beat(tl)
       },
     },

@@ -1,5 +1,18 @@
 # Changelog – Bestwert, Standardabweichung, Messunsicherheit
 
+## v0.3.0 — 2026-10-15 (PO-Review Runde 1, FMU1–FMU18)
+
+- Nomenklatur: Messunsicherheit μ_g (Typ A), Erwartungswert *g*_E; σ = 0,74 m/s², *g*_E = 9,13 m/s².
+- Bestwert: Text „Wir versuchen, uns ihm durch Messungen zu nähern“, Strichmarkierungen auf dem Zahlenstrahl
+  (oben und unten, Punktfarbe), erster Messwert mit Zahlenwert, neue Formulierung der Merke-Folie.
+- Standardabweichung: zehn Werte in einem Zug, Bestwert und Intervallbreite nacheinander, Diagramm mit
+  Achsenpfeilen und sichtbarem Endpunkt.
+- Messunsicherheit: ausführlichere Erklärung des Erwartungswerts, neuer Zwischenschritt „Bedeutung von ḡ ± μ_g“
+  (68,3 % innen / 31,7 % außen), Diagramm-Legende, Karte mit n = 20 → 30 → 40, neuer Schritt n = 100,
+  Zusammenfassung „Drei Größen mit unterschiedlicher Bedeutung“, neue Folie „Gesamtergebnis“ (± und Intervall).
+  Schlussbeispiele mit n = 100 und 2 signifikanten Stellen der Unsicherheit.
+- Modell: 100 Werte je Durchlauf.
+
 ## v0.2.1 — 2026-10-15
 
 Druckknopf (PDF mit dem Endzustand jedes Schritts), Textanker der Diagrammbeschriftungen, zusätzliche

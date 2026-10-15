@@ -89,3 +89,10 @@ body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078
 .total-h { font-weight: 700; color: var(--text); margin-bottom: .2em; }
 .total-col .formula { margin-top: .5em; }
 .total-col .concl-k { display: block; min-width: 0; margin-bottom: .15em; }
+
+.dot-mark { stroke-linecap: round; }
+.val-callout { fill: var(--c-val); font-size: 24px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; stroke-linejoin: round; }
+
+.swap { display: grid; }
+.swap > p { grid-area: 1 / 1; margin: 0; }

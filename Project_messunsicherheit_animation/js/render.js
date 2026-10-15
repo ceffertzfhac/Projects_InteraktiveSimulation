@@ -61,6 +61,7 @@ export function initStage(svg) {
   E.dot = []
   for (let i = 0; i < 100; i++) {
     const g = svgEl('g', {}, E.dots)
+    const mark = svgEl('line', { class: 'dot-mark' }, g)
     const base = svgEl('circle', { class: 'dot' }, g)
     const cin = svgEl('circle', { class: 'dot dot-in' }, g)
     const cout = svgEl('circle', { class: 'dot dot-out' }, g)
@@ -69,7 +70,7 @@ export function initStage(svg) {
       num = NS_I(g, '', { class: 'dot-num' })
       sym(num, 'g', String(i + 1))
     }
-    E.dot.push({ g, base, cin, cout, num })
+    E.dot.push({ g, mark, base, cin, cout, num })
   }
 
   const top = svgEl('g', { 'clip-path': 'url(#clip_view)' }, svg)
@@ -84,6 +85,8 @@ export function initStage(svg) {
   E.trueLab[0].textContent = '„wahrer Wert“'
   E.trueLab[1].textContent = fmt(G_TRUE, 2) + ' m/s²'
 
+  E.val = NS_I(top, '', { class: 'val-callout' })
+  sym(E.val, 'g', '1', ' = ' + fmt(store.data.values[0], 2) + ' m/s²')
   E.tally = initTally(svg)
   return svg
 }
@@ -250,10 +253,23 @@ export function renderScene(S) {
     const x = V.sx(v), y = ay - DOT.base - r * 0 - store.rows[i] * rowH - rr
     for (const c of [o.base, o.cin, o.cout]) { c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r) }
     o.base.style.opacity = a
+    // Strichmarkierung auf dem Zahlenstrahl (nach oben und unten), Farbe wie der Punkt
+    o.mark.setAttribute('x1', x); o.mark.setAttribute('x2', x)
+    o.mark.setAttribute('y1', ay - 11 * a); o.mark.setAttribute('y2', ay + 11 * a)
+    o.mark.style.stroke = S['i' + i] > 0.5 ? 'var(--c-in)' : S['o' + i] > 0.5 ? 'var(--c-out)' : 'var(--c-val)'
+    o.mark.style.strokeWidth = 3 - 1.2 * S.dsm
     o.cin.style.opacity = S['i' + i]
     o.cout.style.opacity = S['o' + i]
     if (o.num) { o.num.setAttribute('x', x); o.num.setAttribute('y', y + 1); o.num.style.opacity = S.nl * a }
   })
+
+  // Erster Messwert mit tatsächlichem Zahlenwert
+  {
+    const o = store.rows[0] * rowH
+    E.val.setAttribute('x', V.sx(d.values[0]))
+    E.val.setAttribute('y', ay - DOT.base - o - 2 * DOT.r0 - 18)
+    E.val.style.opacity = S.v1a
+  }
 
   // Bestwert-Marker
   const mxp = V.sx(S.mx)

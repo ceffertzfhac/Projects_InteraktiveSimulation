@@ -30,6 +30,7 @@ export function createScene() {
     ...cameraKeys(START),
     axisDraw: 0, ticks: 0,
     tv: 0, tvF: 1,               // „wahrer Wert“: Deckkraft, Auffälligkeit (1 = kräftig)
+    v1a: 0,                      // Zahlenwert am ersten Messpunkt
     nl: 1,                       // Nummern in den Punkten (1) → kleine Punkte ohne Nummer (0)
     mA: 0, mx: CENTER,           // Bestwert-Marker: Deckkraft, Lage
     bA: 0, sh: 0, bE: 0,         // σ-Intervall um mx: Deckkraft, Halbbreite, Randbeschriftung
