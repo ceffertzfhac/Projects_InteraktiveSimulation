@@ -1,5 +1,13 @@
 # Changelog – Bestwert, Standardabweichung, Messunsicherheit
 
+## v0.3.1 — 2026-10-15
+
+- Messunsicherheit 6/7: Diagramm ḡ(n) läuft ab dem 2. Messwert bis n = 20, dann 30, 40, 100; die Karte ist eine
+  Tabelle (n · ḡ · μ_g · dezent σ_g), deren Zeilen nacheinander dazukommen (n = 20, 30, 40, 100).
+- Zoom mäßiger (Messwerte bis ≈ ±3 σ bleiben im Bild); n = 100 als große Übersicht, der letzte Zoom folgt
+  im Schritt „Grenze eines Experiments“.
+- Keine Karten-Kommentare zur Bühnenoptik, keine Zeilenumbrüche innerhalb logischer Einheiten (FMU21, FMU22).
+
 ## v0.3.0 — 2026-10-15 (PO-Review Runde 1, FMU1–FMU18)
 
 - Nomenklatur: Messunsicherheit μ_g (Typ A), Erwartungswert *g*_E; σ = 0,74 m/s², *g*_E = 9,13 m/s².

@@ -94,10 +94,16 @@ body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078
 .val-callout { fill: var(--c-val); font-size: 24px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums;
   paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; stroke-linejoin: round; }
 
-.swap { display: grid; }
-.swap > p { grid-area: 1 / 1; margin: 0; }
 
 /* Keine Zeilenumbrüche innerhalb logischer Einheiten (PO 2026-10-15): Zahl+Einheit, Formeln, Bezeichner */
 .nb, .dyn, .key, .c-in, .c-out { white-space: nowrap; }
 .slide-card.pos-col .formula { white-space: nowrap; }
 .slide-card p, .slide-card h3 { hyphens: manual; text-wrap: pretty; }
+
+/* Konvergenz-Tabelle: Zeilen kommen nacheinander dazu, σ_g dezent */
+table.conv { border-collapse: collapse; margin: .5em 0 .7em; width: 100%; font-variant-numeric: tabular-nums; }
+table.conv th { text-align: right; font-size: .78em; font-weight: 600; color: var(--text3); padding: .15em .5em .3em;
+  border-bottom: 2px solid var(--card-border); white-space: nowrap; }
+table.conv td { text-align: right; padding: .3em .5em; color: var(--text); font-weight: 600; border-bottom: 1px solid var(--card-border); }
+table.conv th:first-child, table.conv td:first-child { text-align: left; }
+table.conv .dim, table.conv td.dim { color: var(--text3); font-weight: 400; opacity: .75; }

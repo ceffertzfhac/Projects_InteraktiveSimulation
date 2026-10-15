@@ -32,7 +32,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Bestwert, Standardabweichung, Messunsicherheit
-        <span class="version">v0.3.0</span>
+        <span class="version">v0.3.1</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -201,12 +201,17 @@ window.MathJax = {
       <div class="slide-card pos-col" data-card="k3_conv">
         <div class="kicker">Messunsicherheit</div>
         <h3>Mehr Messungen: <span class="nb">\(\bar g\) nähert sich \(g_{\text{E}}\)</span></h3>
-        <p>\(\mu_g\) wird kleiner. Der Abstand zum „wahren Wert“ bleibt.</p>
-        <div class="swap">
-          <p class="note" data-r="n20">\(n = 20\): \(\bar g = \) <span class="dyn" data-dyn="mean20"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u20"></span>&nbsp;m/s²</p>
-          <p class="note" data-r="n30">\(n = 30\): \(\bar g = \) <span class="dyn" data-dyn="mean30"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u30"></span>&nbsp;m/s²</p>
-          <p class="note" data-r="n40">\(n = 40\): \(\bar g = \) <span class="dyn" data-dyn="mean40"></span>&nbsp;m/s², \(\mu_g = \) <span class="dyn" data-dyn="u40"></span>&nbsp;m/s²</p>
-        </div>
+        <p>\(\mu_g\) wird kleiner, \(\sigma_g\) bleibt.</p>
+        <table class="conv">
+          <thead><tr><th><i>n</i></th><th><i>ḡ</i> / (m/s²)</th><th><i>μ</i><sub><i>g</i></sub> / (m/s²)</th><th class="dim"><i>σ</i><sub><i>g</i></sub> / (m/s²)</th></tr></thead>
+          <tbody>
+            <tr data-r="n20"><td>20</td><td><span class="dyn" data-dyn="mean20"></span></td><td><span class="dyn" data-dyn="u20"></span></td><td class="dim"><span class="dyn" data-dyn="sigma20"></span></td></tr>
+            <tr data-r="n30"><td>30</td><td><span class="dyn" data-dyn="mean30"></span></td><td><span class="dyn" data-dyn="u30"></span></td><td class="dim"><span class="dyn" data-dyn="sigma30"></span></td></tr>
+            <tr data-r="n40"><td>40</td><td><span class="dyn" data-dyn="mean40"></span></td><td><span class="dyn" data-dyn="u40"></span></td><td class="dim"><span class="dyn" data-dyn="sigma40"></span></td></tr>
+            <tr data-r="n100"><td>100</td><td><span class="dyn" data-dyn="mean100u"></span></td><td><span class="dyn" data-dyn="u100"></span></td><td class="dim"><span class="dyn" data-dyn="sigma100"></span></td></tr>
+          </tbody>
+        </table>
+        <p data-r="n100note">Der „wahre Wert“ liegt weiter außerhalb von \(\bar g \pm \mu_g\): der systematische Fehler bleibt.</p>
       </div>
       <div class="slide-card pos-col" data-card="k3_meaning">
         <div class="kicker">Messunsicherheit</div>
@@ -215,14 +220,6 @@ window.MathJax = {
         <p>Mit etwa <b class="c-in">68,3&nbsp;%</b> liegt der <b>Erwartungswert \(g_{\text{E}}\)</b> in diesem Intervall.</p>
         <p data-r="out">Mit etwa <b class="c-out">31,7&nbsp;%</b> liegt er <b>außerhalb</b>.</p>
         <p class="note">Das Intervall sagt nichts über den „wahren Wert“.</p>
-      </div>
-      <div class="slide-card pos-col" data-card="k3_n100">
-        <div class="kicker">Messunsicherheit</div>
-        <h3>Noch mehr Messungen: \(n = 100\)</h3>
-        <p>\(\bar g\) liegt jetzt dicht bei \(g_{\text{E}}\), \(\mu_g\) ist klein.</p>
-        <div class="formula"><i>ḡ</i> = <span class="dyn" data-dyn="mean100u"></span>&nbsp;m/s²<br><i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="u100"></span>&nbsp;m/s²</div>
-        <p>\(\sigma_g = \) <span class="dyn" data-dyn="sigma100"></span>&nbsp;m/s² – praktisch unverändert.</p>
-        <p class="note">Der „wahre Wert“ liegt weiter außerhalb von \(\bar g \pm \mu_g\): der systematische Fehler bleibt.</p>
       </div>
       <div class="slide-card pos-col" data-card="k3_limit">
         <div class="kicker">Grenze</div>

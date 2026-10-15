@@ -241,30 +241,27 @@ export function buildSteps(S, DOM) {
         beat(tl)
         tl.to(S, { pn: 20, duration: 3.2, ease: 'none' })
         beat(tl)
-        tl.to(C.k3_conv.querySelector('[data-r="n20"]'), { autoAlpha: 0, duration: 0.3 })
         part(tl, C.k3_conv, 'n30')
         dots(tl, 20, 30, { gap: 0.12 })
         tl.to(S, { mx: D.n30.mean, uh: D.n30.u, pn: 30, px: 30, duration: 2, ease: 'power1.inOut' }, '<0.3')
         beat(tl)
-        tl.to(C.k3_conv.querySelector('[data-r="n30"]'), { autoAlpha: 0, duration: 0.3 })
         part(tl, C.k3_conv, 'n40')
         dots(tl, 30, 40, { gap: 0.12 })
         tl.to(S, { mx: D.n40.mean, uh: D.n40.u, pn: 40, px: 40, duration: 2, ease: 'power1.inOut' }, '<0.3')
-        beat(tl)
-        cam.to(tl, { w: 2.8, cx: 9.55 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
+        // mäßiger Zoom: die Messwerte bis etwa ±3 σ bleiben im Bild
+        cam.to(tl, { w: 4.8, cx: 9.4 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
         beat(tl)
       },
     },
     {
       title: 'Noch mehr Messungen: n = 100', hold: 9,
       build: tl => {
-        deck.show(tl, C.k3_n100, '<')
+        part(tl, C.k3_conv, 'n100')
         beat(tl)
         tl.to(S, { dsm: 1, duration: 0.7 })
         dots(tl, 40, 100, { gap: 0.04 })
         tl.to(S, { mx: D.n100.mean, uh: D.n100.u, pn: 100, px: 100, pyLo: 8.8, pyHi: 10.0, duration: 3.5, ease: 'power1.inOut' }, '<0.3')
-        beat(tl)
-        cam.to(tl, { w: 1.6, cx: 9.45 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
+        part(tl, C.k3_conv, 'n100note')
         beat(tl)
       },
     },
@@ -273,6 +270,8 @@ export function buildSteps(S, DOM) {
       build: tl => {
         deck.show(tl, C.k3_limit, '<')
         tl.to(S, { plA: 0, duration: 0.6 }, '<')
+        // letzter Zoom: ḡ ± μ_g, g_E und „wahrer Wert“ im Bild
+        cam.to(tl, { w: 1.6, cx: 9.45 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
         tl.to(S, { gapA: 1, duration: 0.8 }, '>-0.1')
         beat(tl)
       },

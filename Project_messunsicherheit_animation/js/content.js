@@ -24,7 +24,7 @@ export function fillCards(root = document) {
     lo10: f(D.n10.mean - D.n10.sigma), hi10: f(D.n10.mean + D.n10.sigma),
     tIn: String(t.inside), tOut: String(t.outside), tallyText,
     mean20: fR(D.n20.mean, D.n20), sigma20: f(D.n20.sigma), u20: fR(D.n20.u, D.n20),
-    mean30: fR(D.n30.mean, D.n30), u30: fR(D.n30.u, D.n30),
+    mean30: fR(D.n30.mean, D.n30), u30: fR(D.n30.u, D.n30), sigma30: f(D.n30.sigma),
     mean40: fR(D.n40.mean, D.n40), sigma40: f(D.n40.sigma), u40: fR(D.n40.u, D.n40),
   }
   root.querySelectorAll('[data-dyn]').forEach(el => {
