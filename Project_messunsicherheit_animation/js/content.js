@@ -2,7 +2,7 @@
 // Füllt die data-dyn-Spans der Folienkarten aus dem Modell (eine Quelle für jede Zahl).
 import { fmt } from '../../shared/js/format.js'
 import { store } from './state.js'
-import { MU, G_TRUE, decimalsFor } from './model.js'
+import { MU, G_TRUE, uncertaintyDecimals } from './model.js'
 
 export function fillCards(root = document) {
   const D = store.data
@@ -12,19 +12,20 @@ export function fillCards(root = document) {
   const tallyText = t.inside >= 5 && t.inside <= 9
     ? 'Das passt zu etwa 68 %.'
     : 'Das weicht ab: Bei nur 10 Werten schwankt der Anteil stark. Erst viele Messungen nähern sich 68,3 %.'
-  const dU = decimalsFor(D.n100.u), dS = decimalsFor(D.n100.sigma)   // 2 signifikante Stellen
-  const fU = x => fmt(x, dU), fS = x => fmt(x, dS)
+  // ḡ und μ_g je Stichprobengröße mit den Nachkommastellen nach FMU20; σ_g wie die Messwerte
+  const dec = r => uncertaintyDecimals(r.u)
+  const fR = (x, r) => fmt(x, dec(r))
   const v = {
-    mean100u: fU(D.n100.mean), u100: fU(D.n100.u), mean100s: fS(D.n100.mean), sigma100: fS(D.n100.sigma),
-    loU100: fU(D.n100.mean - D.n100.u), hiU100: fU(D.n100.mean + D.n100.u),
-    loS100: fS(D.n100.mean - D.n100.sigma), hiS100: fS(D.n100.mean + D.n100.sigma),
+    mean100u: fR(D.n100.mean, D.n100), u100: fR(D.n100.u, D.n100), mean100s: f(D.n100.mean), sigma100: f(D.n100.sigma),
+    loU100: fR(D.n100.mean - D.n100.u, D.n100), hiU100: fR(D.n100.mean + D.n100.u, D.n100),
+    loS100: f(D.n100.mean - D.n100.sigma), hiS100: f(D.n100.mean + D.n100.sigma),
     gE: f(MU), gTrue: f(G_TRUE),
     sum10: f(sum(10)), mean10: f(D.n10.mean), sigma10: f(D.n10.sigma),
     lo10: f(D.n10.mean - D.n10.sigma), hi10: f(D.n10.mean + D.n10.sigma),
     tIn: String(t.inside), tOut: String(t.outside), tallyText,
-    mean20: f(D.n20.mean), sigma20: f(D.n20.sigma), u20: f(D.n20.u),
-    mean30: f(D.n30.mean), u30: f(D.n30.u),
-    mean40: f(D.n40.mean), sigma40: f(D.n40.sigma), u40: f(D.n40.u),
+    mean20: fR(D.n20.mean, D.n20), sigma20: f(D.n20.sigma), u20: fR(D.n20.u, D.n20),
+    mean30: fR(D.n30.mean, D.n30), u30: fR(D.n30.u, D.n30),
+    mean40: fR(D.n40.mean, D.n40), sigma40: f(D.n40.sigma), u40: fR(D.n40.u, D.n40),
   }
   root.querySelectorAll('[data-dyn]').forEach(el => {
     const k = el.dataset.dyn

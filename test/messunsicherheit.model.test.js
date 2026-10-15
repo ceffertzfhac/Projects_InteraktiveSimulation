@@ -1,7 +1,7 @@
 // Seed-Test: Messunsicherheit (Schritt-Animation) — Bestwert, Standardabweichung, u. → BACKLOG N11.
 import { test, expect } from 'vitest'
 import {
-  drawValues, bestwert, stabw, unsicherheit, strichliste, reihen, decimalsFor, fmt, parseSeed,
+  uncertaintyDecimals, drawValues, bestwert, stabw, unsicherheit, strichliste, reihen, decimalsFor, fmt, parseSeed,
   MU, SIGMA, N_MAX,
 } from '../Project_messunsicherheit_animation/js/model.js'
 
@@ -47,4 +47,12 @@ test('Rundung: u auf 2 signifikante Stellen, Dezimalkomma', () => {
 test('Seed aus Hash lesen', () => {
   expect(parseSeed('#k3/5?s=42')).toBe(42)
   expect(parseSeed('#k3/5')).toBeNull()
+})
+
+test('Nachkommastellen von ḡ und μ_g: 2, erweitert nur bei weiter hinten liegender signifikanter Stelle', () => {
+  expect(uncertaintyDecimals(0.17)).toBe(2)     // 0,17 → 2 Stellen
+  expect(uncertaintyDecimals(0.074)).toBe(2)    // 0,07 liegt auf der 2. Nachkommastelle
+  expect(uncertaintyDecimals(0.0074)).toBe(3)   // erste signifikante Stelle auf der 3.
+  expect(uncertaintyDecimals(1.4)).toBe(2)
+  expect(uncertaintyDecimals(0.00074)).toBe(4)
 })

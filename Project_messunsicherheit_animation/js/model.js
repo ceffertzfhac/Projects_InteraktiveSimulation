@@ -83,6 +83,14 @@ export function decimalsFor(u, sig = 2) {
   return Math.max(0, sig - 1 - Math.floor(Math.log10(u)))
 }
 
+// Nachkommastellen für ḡ und μ_g (PO-Regel FMU20): Die Messwerte haben `base` (2) Nachkommastellen,
+// ḡ und μ_g behalten sie. Nur wenn die erste signifikante Stelle von μ_g weiter hinten liegt
+// (z. B. 0,0074), wird bis dorthin erweitert — μ_g hat dann mindestens eine signifikante Stelle.
+export function uncertaintyDecimals(u, base = 2) {
+  if (!(u > 0)) return base
+  return Math.max(base, -Math.floor(Math.log10(u)))
+}
+
 // Zahl mit Dezimalkomma
 export function fmt(x, decimals) {
   return x.toFixed(decimals).replace('.', ',')

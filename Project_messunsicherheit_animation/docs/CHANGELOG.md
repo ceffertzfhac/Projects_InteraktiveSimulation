@@ -12,6 +12,8 @@
   Zusammenfassung „Drei Größen mit unterschiedlicher Bedeutung“, neue Folie „Gesamtergebnis“ (± und Intervall).
   Schlussbeispiele mit n = 100 und 2 signifikanten Stellen der Unsicherheit.
 - Modell: 100 Werte je Durchlauf.
+- Rundung (FMU20): ḡ und μ_g mit 2 Nachkommastellen wie die Messwerte, nur bei weiter hinten liegender
+  erster signifikanter Stelle von μ_g erweitert (`uncertaintyDecimals`). Diagramm blendet vor der Klammer „systematischer Fehler“ aus (FMU19).
 
 ## v0.2.1 — 2026-10-15
 
