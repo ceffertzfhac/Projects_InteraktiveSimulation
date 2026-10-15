@@ -220,6 +220,16 @@ export function buildSteps(S, DOM) {
       },
     },
     {
+      title: 'Bedeutung von ḡ ± μ_g', hold: 9,
+      build: tl => {
+        deck.show(tl, C.k3_meaning, '<')
+        tl.to(S, { gapA: 0, duration: 0.6 }, '<')
+        beat(tl)
+        part(tl, C.k3_meaning, 'out')
+        beat(tl)
+      },
+    },
+    {
       title: 'Mehr Messungen', hold: 9,
       build: tl => {
         deck.show(tl, C.k3_conv, '<')
@@ -234,14 +244,6 @@ export function buildSteps(S, DOM) {
         tl.to(S, { mx: D.n40.mean, uh: D.n40.u, pn: 40, px: 40, duration: 2, ease: 'power1.inOut' }, '<0.3')
         beat(tl)
         cam.to(tl, { w: 2.8, cx: 9.55 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
-        beat(tl)
-      },
-    },
-    {
-      title: 'Bedeutung von ḡ ± μ_g', hold: 9,
-      build: tl => {
-        deck.show(tl, C.k3_meaning, '<')
-        tl.to(S, { plA: 0, duration: 0.6 }, '<')
         beat(tl)
       },
     },
