@@ -93,3 +93,29 @@ export function parseSeed(text) {
   const m = /(?:^|[?&])s=(\d+)/.exec(String(text || ''))
   return m ? Number(m[1]) >>> 0 : null
 }
+
+// Zeile im Punktdiagramm (greedy, in Reihenfolge der Messung): niedrigste Zeile, in der
+// kein früherer Punkt näher als dist liegt. dists = [für die ersten k, für die übrigen].
+export function stackRows(values, dists, k = 10) {
+  const rows = []
+  const placed = []            // je Zeile: Werte
+  values.forEach((v, i) => {
+    const d = i < k ? dists[0] : dists[1]
+    let r = 0
+    while (placed[r] && placed[r].some(x => Math.abs(x - v) < d)) r++
+    ;(placed[r] ??= []).push(v)
+    rows.push(r)
+  })
+  return rows
+}
+
+// Alle Kennzahlen eines Durchlaufs (Bühne und Karten lesen nur daraus)
+export function analyse(values) {
+  const at = n => ({ n, mean: bestwert(values, n), sigma: stabw(values, n), u: unsicherheit(values, n) })
+  return {
+    values,
+    n10: at(10), n20: at(20), n30: at(30), n40: at(40),
+    tally: strichliste(values, 10, 10, 20),
+    series: reihen(values, values.length),
+  }
+}
