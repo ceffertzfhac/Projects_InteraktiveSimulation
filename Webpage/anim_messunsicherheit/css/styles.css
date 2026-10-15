@@ -1,0 +1,109 @@
+/* Messunsicherheit — Layout ⅔ Bühne | ⅓ Erläuterung, Farben, SVG-Klassen.
+   Gemeinsames: shared/css/step-animation.css. Schrift der Spalte ≈ 1,2× „Signifikante Stellen“
+   (Beamer, PO 2026-10-15). */
+
+:root     { --c-val: #0072b2; --c-in: #009e73; --c-out: #d55e00; --c-true: #b0479a; --c-mu: #e69f00;
+            --c-unc: #b45f06; }
+body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078c3; --c-mu: #f0e442;
+            --c-unc: #f0b24a; }
+
+/* Erläuterungsspalte: rechtes Drittel, Karten stehen übereinander und überblenden */
+.col-bg { position: absolute; top: 0; right: 0; bottom: 0; width: 33.333cqw;
+  background: var(--card-bg); border-left: 1px solid var(--card-border); }
+.slide-card.pos-col { position: absolute; right: 0; top: 0; bottom: 0; width: 33.333cqw; box-sizing: border-box;
+  border: none; border-radius: 0; background: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  padding: 2.4cqw 2.2cqw; font-size: 1.58cqw; display: grid; align-content: center; }
+.slide-card.pos-col h3 { font-size: 1.25em; }
+.slide-card.pos-col .formula { font-size: 1em; }
+.slide-card.full { position: absolute; inset: 0; width: auto; box-sizing: border-box;
+  background: var(--stage-bg1); border: none; border-radius: 0; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; display: grid; align-content: center;
+  padding: 3cqw 6cqw; font-size: 1.7cqw; }
+.slide-card.full h3 { font-size: 1.35em; }
+
+/* Zahlengerade und Marker */
+.true-bar   { fill: var(--c-true); }
+.true-label { fill: var(--c-true); font-size: 22px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; stroke-linejoin: round; }
+.dot        { fill: var(--c-val); stroke: var(--stage-bg2); stroke-width: 2px; }
+.dot-in     { fill: var(--c-in); }
+.dot-out    { fill: var(--c-out); }
+.dot-num    { fill: #fff; font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central;
+  pointer-events: none; }
+.mean-rod   { stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+.mean-label { fill: var(--text); font-size: 24px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; stroke-linejoin: round;
+  font-variant-numeric: tabular-nums; }
+.band-sigma { fill: var(--c-val); fill-opacity: .13; }
+.band-u     { fill: var(--accent); fill-opacity: .30; }
+.band-edge  { stroke: var(--c-val); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.edge-label { fill: var(--c-val); font-size: 19px; font-weight: 600; text-anchor: middle;
+  font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; }
+.mu-rod     { stroke: var(--c-mu); stroke-width: 4; stroke-dasharray: 3 6; stroke-linecap: round; }
+.mu-label   { fill: var(--c-mu); font-size: 24px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; }
+.gap-line   { stroke: var(--c-unc); stroke-width: 3; }
+.gap-label  { fill: var(--c-unc); font-size: 19px; font-weight: 700; text-anchor: middle;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; }
+
+/* Strichliste */
+.tally-head { fill: var(--text2); font-size: 20px; font-weight: 700; text-anchor: middle; }
+.tally-stroke { stroke-width: 4; stroke-linecap: round; }
+.tally-in  { stroke: var(--c-in); }
+.tally-out { stroke: var(--c-out); }
+.tally-num { font-size: 26px; font-weight: 700; text-anchor: start; font-variant-numeric: tabular-nums; }
+
+/* Diagramm */
+.plot-axis  { stroke: var(--text); stroke-width: 2; }
+.plot-grid  { stroke: var(--text2); stroke-opacity: .25; stroke-width: 1; }
+.plot-tick  { fill: var(--text2); font-size: 16px; font-variant-numeric: tabular-nums; }
+.plot-name  { fill: var(--text); font-size: 20px; }
+.plot-line  { fill: none; stroke: var(--c-val); stroke-width: 3; stroke-linejoin: round; }
+.plot-pt    { fill: var(--c-val); }
+.plot-band  { fill: var(--accent); fill-opacity: .30; }
+.seed-info { font-size: .78rem; color: var(--text3); margin-right: .6rem; font-variant-numeric: tabular-nums; }
+
+/* Schlüsselwörter, Tabellen der Zusammenfassung */
+.key { display: inline-block; padding: .05em .55em; border-radius: 1em; font-weight: 700; color: #fff; }
+.key-in { background: var(--c-in); } .key-out { background: var(--c-out); }
+.c-in { color: var(--c-in); } .c-out { color: var(--c-out); }
+.slide-card .formula sub { font-size: .72em; }
+.slide-card.full.zs { padding: 3cqw 4cqw; font-size: 1.5cqw; }
+.slide-card table.sum { width: 100%; border-collapse: collapse; margin-top: .6em; font-size: .92em; }
+.slide-card table.sum th { text-align: left; font-size: .8em; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text3); padding: .3em .6em; border-bottom: 2px solid var(--card-border); }
+.slide-card table.sum td { padding: .55em .6em; vertical-align: top; border-bottom: 1px solid var(--card-border);
+  color: var(--text2); }
+.slide-card table.sum td:first-child { color: var(--text); font-weight: 700; white-space: nowrap; }
+.slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.concl { margin-top: 1em; display: grid; gap: .45em; }
+.concl p { margin: 0; }
+.concl-k { display: inline-block; min-width: 8.5em; font-size: .78em; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--accent); }
+
+.plot-leg { fill: var(--text); font-size: 15px; }
+.axis-head { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.total-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: 1em; }
+.total-h { font-weight: 700; color: var(--text); margin-bottom: .2em; }
+.total-col .formula { margin-top: .5em; }
+.total-col .concl-k { display: block; min-width: 0; margin-bottom: .15em; }
+
+.dot-mark { stroke-linecap: round; }
+.val-callout { fill: var(--c-val); font-size: 24px; font-weight: 700; text-anchor: middle; font-variant-numeric: tabular-nums;
+  paint-order: stroke; stroke: var(--stage-bg2); stroke-width: 5px; stroke-linejoin: round; }
+
+
+/* Keine Zeilenumbrüche innerhalb logischer Einheiten (PO 2026-10-15): Zahl+Einheit, Formeln, Bezeichner */
+.nb, .dyn, .key, .c-in, .c-out { white-space: nowrap; }
+.slide-card.pos-col .formula { white-space: nowrap; }
+.slide-card p, .slide-card h3 { hyphens: manual; text-wrap: pretty; }
+
+/* Konvergenz-Tabelle: Zeilen kommen nacheinander dazu, σ_g dezent */
+table.conv { border-collapse: collapse; margin: .5em 0 .7em; width: 100%; font-variant-numeric: tabular-nums; }
+table.conv th { text-align: right; font-size: .78em; font-weight: 600; color: var(--text3); padding: .15em .5em .3em;
+  border-bottom: 2px solid var(--card-border); white-space: nowrap; }
+table.conv td { text-align: right; padding: .3em .5em; color: var(--text); font-weight: 600; border-bottom: 1px solid var(--card-border); }
+table.conv th:first-child, table.conv td:first-child { text-align: left; }
+table.conv .dim, table.conv td.dim { color: var(--text3); font-weight: 400; opacity: .75; }
