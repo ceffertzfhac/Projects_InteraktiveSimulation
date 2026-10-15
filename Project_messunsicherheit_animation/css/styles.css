@@ -63,3 +63,21 @@ body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078
 .plot-pt    { fill: var(--c-val); }
 .plot-band  { fill: var(--accent); fill-opacity: .30; }
 .seed-info { font-size: .78rem; color: var(--text3); margin-right: .6rem; font-variant-numeric: tabular-nums; }
+
+/* Schlüsselwörter, Tabellen der Zusammenfassung */
+.key { display: inline-block; padding: .05em .55em; border-radius: 1em; font-weight: 700; color: #fff; }
+.key-in { background: var(--c-in); } .key-out { background: var(--c-out); }
+.c-in { color: var(--c-in); } .c-out { color: var(--c-out); }
+.slide-card .formula sub { font-size: .72em; }
+.slide-card.full.zs { padding: 3cqw 4cqw; font-size: 1.5cqw; }
+.slide-card table.sum { width: 100%; border-collapse: collapse; margin-top: .6em; font-size: .92em; }
+.slide-card table.sum th { text-align: left; font-size: .8em; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text3); padding: .3em .6em; border-bottom: 2px solid var(--card-border); }
+.slide-card table.sum td { padding: .55em .6em; vertical-align: top; border-bottom: 1px solid var(--card-border);
+  color: var(--text2); }
+.slide-card table.sum td:first-child { color: var(--text); font-weight: 700; white-space: nowrap; }
+.slide-card table.sum td:last-child { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.concl { margin-top: 1em; display: grid; gap: .45em; }
+.concl p { margin: 0; }
+.concl-k { display: inline-block; min-width: 8.5em; font-size: .78em; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--accent); }

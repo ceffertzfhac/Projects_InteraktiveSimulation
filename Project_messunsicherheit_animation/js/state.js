@@ -37,7 +37,8 @@ export function createScene() {
     muA: 0, gapA: 0,             // Erwartungswert-Marker, Abstand zum „wahren Wert“
     tlA: 0, tIn: 0, tOut: 0,     // Strichliste: Deckkraft, Anzahl innen/außen (gebrochen = wächst)
     plA: 0, plM: 0, pn: 2,       // Diagramm: Deckkraft, Modus (0 σ(n), 1 ḡ(n)), gezeichnete Punkte
-    pyLo: 0, pyHi: 2.5,
+    px: 20,                      // größtes n auf der Diagrammachse
+    pyLo: 8.5, pyHi: 10.5,       // Wertebereich im Modus ḡ(n)
   }
   for (let i = 0; i < 40; i++) Object.assign(S, { ['d' + i]: 0, ['i' + i]: 0, ['o' + i]: 0 })
   return S

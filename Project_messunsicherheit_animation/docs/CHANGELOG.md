@@ -1,5 +1,13 @@
 # Changelog – Bestwert, Standardabweichung, Messunsicherheit
 
+## v0.2.0 — 2026-10-15
+
+Kapitel 2 „Standardabweichung“ (8 Schritte) und Kapitel 3 „Messunsicherheit“ (10 Schritte):
+σ_g mit 1/(n−1), Intervall ḡ ± σ_g (± und Band), zehn weitere Werte innerhalb/außerhalb,
+Strichliste mit angepasstem Text, σ_g(n)-Diagramm; u_g = σ_g/√n, Erwartungswert μ_g,
+systematischer Fehler, Konvergenz ḡ(n) mit u_g-Band bis n = 40 samt Zoom, Zusammenfassung
+(Tabelle + Abgrenzung), Merke-Folien. Kapitel bauen über stille Vorspänne aufeinander auf.
+
 ## v0.1.0 — 2026-10-15
 
 Kapitel 1 „Bestwert“ (6 Schritte, Drehbuch `docs/DREHBUCH.md`). Layout ⅔ Bühne | ⅓ Erläuterungsspalte,

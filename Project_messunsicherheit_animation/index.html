@@ -32,7 +32,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Bestwert, Standardabweichung, Messunsicherheit
-        <span class="version">v0.1.0</span>
+        <span class="version">v0.2.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -98,6 +98,141 @@ window.MathJax = {
         <div class="formula">\(\bar g = \dfrac{1}{n}\sum_{i=1}^{n} g_i\)</div>
         <p>Er ist die beste Schätzung aus <b>dieser</b> Messreihe – nicht der „wahre Wert“.</p>
         <div class="formula"><b>Beispiel:</b> \(\bar g = \) <span class="dyn" data-dyn="mean10"></span> m/s² aus \(n = 10\) Messwerten</div>
+      </div>
+
+      <!-- Kapitel 2: Standardabweichung -->
+      <div class="slide-card pos-col" data-card="k2_sigma">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Wie stark streuen die Einzelwerte?</h3>
+        <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
+        <div data-r="calc">
+          <p>Für \(n = 10\): \(\sigma_g = \) <b><span class="dyn" data-dyn="sigma10"></span> m/s²</b></p>
+          <p class="note">Geteilt durch \(n-1\): Der Bestwert \(\bar g\) wurde schon aus denselben Werten gebildet.</p>
+        </div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_interval">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Wo liegt der nächste Messwert?</h3>
+        <p>Mit etwa <b>68,3 %</b> liegt der nächste Messwert im Intervall \(\bar g \pm \sigma_g\) (bei normalverteilten Messwerten).</p>
+        <div class="formula"><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean10"></span> ± <span class="dyn" data-dyn="sigma10"></span> m/s²</div>
+        <div class="formula"><span class="dyn" data-dyn="lo10"></span> m/s² ≤ <i>g</i> ≤ <span class="dyn" data-dyn="hi10"></span> m/s²</div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_more">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Zehn weitere Messwerte</h3>
+        <p>Liegen sie im Intervall \(\bar g \pm \sigma_g\) der ersten zehn?</p>
+        <p><span class="key key-in">innerhalb</span> <span class="key key-out">außerhalb</span></p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_tally">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Strichliste</h3>
+        <p><b class="c-in"><span class="dyn" data-dyn="tIn"></span> von 10</b> Werten liegen innerhalb, <b class="c-out"><span class="dyn" data-dyn="tOut"></span></b> außerhalb.</p>
+        <div data-r="cmp"><p>Erwartet: etwa 68,3 %, also rund 7 von 10.</p>
+          <p class="dyn" data-dyn="tallyText"></p></div>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_new">
+        <div class="kicker">Standardabweichung</div>
+        <h3>Alle 20 Werte auswerten</h3>
+        <p>Bestwert: <span class="dyn" data-dyn="mean10"></span> → <b><span class="dyn" data-dyn="mean20"></span> m/s²</b></p>
+        <p>\(\sigma_g\): <span class="dyn" data-dyn="sigma10"></span> → <b><span class="dyn" data-dyn="sigma20"></span> m/s²</b></p>
+        <p class="note">\(n = 20\) Werte, Intervall \(\bar g \pm \sigma_g\) neu.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_conv">
+        <div class="kicker">Standardabweichung</div>
+        <h3>\(\sigma_g\) wird mit mehr Messungen nicht systematisch kleiner</h3>
+        <p>Am Anfang schwankt \(\sigma_g\) stark, dann pendelt es sich auf einen Wert ein.</p>
+        <p class="note">Die Summe unter der Wurzel wächst mit \(n\); geteilt durch \(n-1\) bleibt das Ergebnis etwa gleich.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k2_meaning">
+        <div class="kicker">Standardabweichung</div>
+        <h3>\(\sigma_g\) gehört zum Messaufbau</h3>
+        <p>\(\sigma_g\) heißt auch <b>mittlerer Fehler der Einzelwerte</b>. Es bewertet das gesamte Messsetup:</p>
+        <div class="formula"><b>Messaufbau</b><br><b>Messumstände</b><br><b>Messmittel</b></div>
+      </div>
+      <div class="slide-card full merke" data-card="k2_rule">
+        <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
+        <div class="kicker">Merke · Standardabweichung</div>
+        <h3>Die Standardabweichung \(\sigma_g\) beschreibt die Streuung der Einzelwerte.</h3>
+        <div class="formula">\(\sigma_g = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n}\left(g_i-\bar g\right)^2}\)</div>
+        <p>Sie hängt von Messaufbau, Messumständen und Messmittel ab – mehr Messungen verkleinern sie nicht.
+          Mit etwa 68,3 % liegt der nächste Einzelwert in \(\bar g \pm \sigma_g\).</p>
+        <div class="formula"><b>Beispiel:</b> <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="sigma20"></span> m/s² aus <i>n</i> = 20 Messwerten</div>
+      </div>
+
+      <!-- Kapitel 3: Messunsicherheit -->
+      <div class="slide-card pos-col" data-card="k3_u">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Wie genau ist der Bestwert?</h3>
+        <div class="formula">\(u_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
+        <div data-r="calc">
+          <p>\(u_g = \) <span class="dyn" data-dyn="sigma20"></span> / √20 = <b><span class="dyn" data-dyn="u20"></span> m/s²</b></p>
+          <p class="note">Messunsicherheit vom Typ A (aus der Streuung der Messwerte).</p>
+        </div>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_series">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>\(u_g\) beschreibt die ganze Messserie</h3>
+        <p>Weil durch \(\sqrt{n}\) geteilt wird, wird \(u_g\) mit mehr Messungen <b>kleiner</b> – \(\sigma_g\) dagegen nicht.</p>
+        <p class="note">Viermal so viele Messungen: halb so große Messunsicherheit.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_mu">
+        <div class="kicker">Erwartungswert</div>
+        <h3>Der Erwartungswert \(\mu_g\)</h3>
+        <p>Angenommen, wir würden die Messserie unendlich oft wiederholen und jedes Mal den Bestwert bestimmen:
+          Der Mittelwert dieser Bestwerte wäre der Erwartungswert \(\mu_g\).</p>
+        <div class="formula">\(\mu_g = 9{,}32\,\text{m/s}^2\)</div>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_gap">
+        <div class="kicker">Erwartungswert</div>
+        <h3>\(\mu_g\) ist nicht der „wahre Wert“</h3>
+        <p>Der Abstand ist der <b>systematische Fehler</b> des Messaufbaus.</p>
+        <div class="formula">\(\mu_g = 9{,}32\,\text{m/s}^2 \ne 9{,}81\,\text{m/s}^2\)</div>
+        <p>Erwartungswert und „wahrer Wert“ sind zwei getrennte Größen.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_conv">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Mehr Messungen: \(\bar g\) nähert sich \(\mu_g\)</h3>
+        <p>\(u_g\) wird kleiner. Der Abstand zum „wahren Wert“ bleibt.</p>
+        <p class="note">\(n = 40\): \(\bar g = \) <span class="dyn" data-dyn="mean40"></span> m/s², \(u_g = \) <span class="dyn" data-dyn="u40"></span> m/s²</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_meaning">
+        <div class="kicker">Messunsicherheit</div>
+        <h3>Was sagt \(\bar g \pm u_g\)?</h3>
+        <div class="formula"><i>ḡ</i> ± <i>u</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean40"></span> ± <span class="dyn" data-dyn="u40"></span> m/s²</div>
+        <p>Mit etwa <b>68,3 %</b> liegt der <b>Erwartungswert \(\mu_g\)</b> in diesem Intervall.</p>
+        <p>Nicht der „wahre Wert“.</p>
+      </div>
+      <div class="slide-card pos-col" data-card="k3_limit">
+        <div class="kicker">Grenze</div>
+        <h3>Was ein Experiment leisten kann</h3>
+        <p>Ein Experiment grenzt \(\mu_g\) ein – nicht automatisch \(g\).</p>
+        <p>Für eine Aussage über \(g\) braucht man eine genaue Analyse des systematischen Fehlers oder mehrere
+          <b>unabhängige</b> Messaufbauten mit verschiedenen Messmitteln.</p>
+      </div>
+      <div class="slide-card full zs" data-card="k3_sum">
+        <div class="kicker">Zusammenfassung · Messunsicherheit</div>
+        <h3>Drei Größen, drei Bedeutungen</h3>
+        <table class="sum">
+          <thead><tr><th></th><th>Formel</th><th>beschreibt</th><th>beschreibt nicht</th><th>Beispiel</th></tr></thead>
+          <tbody>
+            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean40"></span> m/s²</td></tr>
+            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma40"></span> m/s²</td></tr>
+            <tr data-r="r3"><td>Messunsicherheit \(u_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(\mu_g\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u40"></span> m/s²</td></tr>
+          </tbody>
+        </table>
+        <div class="concl">
+          <p data-r="c0"><span class="concl-k">Zusammenhang</span> Der Bestwert \(\bar g\) nähert \(\mu_g\) mit der Genauigkeit \(u_g\).</p>
+          <p data-r="c1"><span class="concl-k">Abgrenzung</span> \(\mu_g\) und der „wahre Wert“ unterscheiden sich um den systematischen Fehler.</p>
+          <p data-r="c2"><span class="concl-k">Konsequenz</span> Kleine \(u_g\) heißt nicht „nah am wahren Wert“ – dafür: Systematik analysieren oder unabhängige Messaufbauten vergleichen.</p>
+        </div>
+      </div>
+      <div class="slide-card full merke" data-card="k3_rule">
+        <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
+        <div class="kicker">Merke · Messunsicherheit</div>
+        <h3>Die Messunsicherheit \(u_g\) grenzt den Erwartungswert \(\mu_g\) ein – nicht den „wahren Wert“.</h3>
+        <div class="formula">\(u_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
+        <p>Mit etwa 68,3 % liegt \(\mu_g\) in \(\bar g \pm u_g\). Mehr Messungen verkleinern \(u_g\), nicht den systematischen Fehler.</p>
+        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean40"></span> ± <span class="dyn" data-dyn="u40"></span> m/s² (<i>n</i> = 40)</div>
       </div>
     </div>
   </div>

@@ -58,8 +58,8 @@ store.presenter = createPresenter({
   onChapter: () => { window.gsap.set(Object.values(DOM.cards), { autoAlpha: 0 }) },
   chapters: [
     { id: 'bestwert', title: 'Bestwert', create: (c, t) => engineFor('k1', c, t) },
-    { id: 'stabw', title: 'Standardabweichung', disabled: true },
-    { id: 'unsicherheit', title: 'Messunsicherheit', disabled: true },
+    { id: 'stabw', title: 'Standardabweichung', create: (c, t) => engineFor('k2', c, t) },
+    { id: 'unsicherheit', title: 'Messunsicherheit', create: (c, t) => engineFor('k3', c, t) },
   ],
 })
 

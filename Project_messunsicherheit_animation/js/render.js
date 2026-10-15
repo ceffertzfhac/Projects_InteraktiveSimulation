@@ -130,9 +130,9 @@ function initPlot(svg) {
   P.line = svgEl('polyline', { class: 'plot-line' }, c)
   P.pt = svgEl('circle', { class: 'plot-pt', r: 5 }, c)
   P.trueLab = NS_I(g, '„wahrer Wert“', { class: 'gap-label', 'text-anchor': 'end', fill: 'var(--c-true)' })
-  P.trueLab.style.fill = 'var(--c-true)'
+  P.trueLab.style.fill = 'var(--c-true)'; P.trueLab.style.textAnchor = 'end'
   P.muLab = NS_I(g, '', { class: 'gap-label', 'text-anchor': 'end' })
-  P.muLab.style.fill = 'var(--c-mu)'; sym(P.muLab, 'μ', 'g')
+  P.muLab.style.fill = 'var(--c-mu)'; P.muLab.style.textAnchor = 'end'; sym(P.muLab, 'μ', 'g')
   return P
 }
 
@@ -149,14 +149,15 @@ function renderPlot(S) {
   const mode1 = S.plM
   const yLo = lerp(0, S.pyLo, mode1), yHi = lerp(2.5, S.pyHi, mode1)
   const lo = mode1 > 0.5 ? S.pyLo : 0, hi = mode1 > 0.5 ? S.pyHi : 2.5
-  const sx = n => PLOT.x0 + n / 40 * (PLOT.x1 - PLOT.x0)
+  const sx = n => PLOT.x0 + n / S.px * (PLOT.x1 - PLOT.x0)
   const sy = y => PLOT.y1 - (y - yLo) / (yHi - yLo) * (PLOT.y1 - PLOT.y0)
   P.nameY[0].style.opacity = 1 - mode1
   P.nameY[1].style.opacity = mode1
   // Teilungen
   const stepY = niceStep(hi - lo, 4)
   P.ticksX.begin(); P.ticksY.begin(); P.gridPool.begin()
-  for (let n = 0; n <= 40; n += 10) {
+  const stepX = S.px <= 24 ? 5 : 10
+  for (let n = 0; n <= S.px + 1e-9; n += stepX) {
     const t = P.ticksX.next(); t.setAttribute('x', sx(n)); t.setAttribute('y', PLOT.y1 + 24); setText(t, String(n))
   }
   for (let v = Math.ceil((lo - 1e-9) / stepY) * stepY; v <= hi + 1e-9; v += stepY) {
@@ -288,7 +289,7 @@ export function renderScene(S) {
   for (let c = 0; c < 2; c++) {
     T.strokes[c].forEach((el, j) => { el.style.opacity = clamp(cnt[c] - j, 0, 1) })
     setText(T.nums[c], String(Math.round(cnt[c])))
-    T.nums[c].setAttribute('x', 235 + c * 330 + 100)
+    T.nums[c].setAttribute('x', 235 + c * 330 + 70)
   }
 
   renderPlot(S)
