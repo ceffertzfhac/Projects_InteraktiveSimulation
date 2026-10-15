@@ -34,7 +34,7 @@ export function initStage(svg) {
   const cv = svgEl('clipPath', { id: 'clip_view' }, defs)
   svgEl('rect', { x: VIEW.vL - 16, y: 0, width: VIEW.vR - VIEW.vL + 38, height: 675 }, cv)
   const cp = svgEl('clipPath', { id: 'clip_plot' }, defs)
-  svgEl('rect', { x: PLOT.x0, y: PLOT.y0, width: PLOT.x1 - PLOT.x0, height: PLOT.y1 - PLOT.y0 }, cp)
+  svgEl('rect', { x: PLOT.x0, y: PLOT.y0 - 10, width: PLOT.x1 - PLOT.x0 + 14, height: PLOT.y1 - PLOT.y0 + 20 }, cp)
 
   E.plot = initPlot(svg)
   const view = svgEl('g', { 'clip-path': 'url(#clip_view)' }, svg)
@@ -117,10 +117,13 @@ function initPlot(svg) {
   P.ticksX = createPool(g, () => NS_I(null, '', { class: 'plot-tick', 'text-anchor': 'middle' }))
   P.ticksY = createPool(g, () => NS_I(null, '', { class: 'plot-tick', 'text-anchor': 'end', 'dominant-baseline': 'middle' }))
   P.gridPool = createPool(P.grid, () => svgEl('line', { class: 'plot-grid' }))
-  svgEl('line', { class: 'plot-axis', x1: PLOT.x0, x2: PLOT.x1, y1: PLOT.y1, y2: PLOT.y1 }, g)
-  svgEl('line', { class: 'plot-axis', x1: PLOT.x0, x2: PLOT.x0, y1: PLOT.y0 - 6, y2: PLOT.y1 }, g)
-  P.nameX = NS_I(g, 'n', { class: 'plot-name', x: PLOT.x1 + 8, y: PLOT.y1 + 6, 'font-style': 'italic' })
-  P.nameY = [0, 1].map(() => NS_I(g, '', { class: 'plot-name', x: PLOT.x0 - 8, y: PLOT.y0 - 16, 'text-anchor': 'start' }))
+  const xe = PLOT.x1 + 24, ye = PLOT.y0 - 10
+  svgEl('line', { class: 'plot-axis', x1: PLOT.x0, x2: xe, y1: PLOT.y1, y2: PLOT.y1 }, g)
+  svgEl('line', { class: 'plot-axis', x1: PLOT.x0, x2: PLOT.x0, y1: PLOT.y1, y2: ye }, g)
+  svgEl('path', { class: 'axis-head', d: `M${xe - 11} ${PLOT.y1 - 5.5}L${xe} ${PLOT.y1}L${xe - 11} ${PLOT.y1 + 5.5}` }, g)
+  svgEl('path', { class: 'axis-head', d: `M${PLOT.x0 - 5.5} ${ye + 11}L${PLOT.x0} ${ye}L${PLOT.x0 + 5.5} ${ye + 11}` }, g)
+  P.nameX = NS_I(g, 'n', { class: 'plot-name', x: PLOT.x1 + 34, y: PLOT.y1 + 6, 'font-style': 'italic' })
+  P.nameY = [0, 1].map(() => NS_I(g, '', { class: 'plot-name', x: PLOT.x0 - 8, y: PLOT.y0 - 24, 'text-anchor': 'start' }))
   sym(P.nameY[0], 'σ', 'g', ' / (m/s²)')
   sym(P.nameY[1], 'ḡ', '', ' / (m/s²)')
   const c = svgEl('g', { 'clip-path': 'url(#clip_plot)' }, g)
@@ -129,10 +132,26 @@ function initPlot(svg) {
   P.muLine = svgEl('line', { stroke: 'var(--c-mu)', 'stroke-width': 2.5, 'stroke-dasharray': '3 6', 'stroke-linecap': 'round' }, c)
   P.line = svgEl('polyline', { class: 'plot-line' }, c)
   P.pt = svgEl('circle', { class: 'plot-pt', r: 5 }, c)
-  P.trueLab = NS_I(g, '„wahrer Wert“', { class: 'gap-label', 'text-anchor': 'end', fill: 'var(--c-true)' })
-  P.trueLab.style.fill = 'var(--c-true)'; P.trueLab.style.textAnchor = 'end'
-  P.muLab = NS_I(g, '', { class: 'gap-label', 'text-anchor': 'end' })
-  P.muLab.style.fill = 'var(--c-mu)'; P.muLab.style.textAnchor = 'end'; sym(P.muLab, 'g', 'E')
+  // Legende (nur im Modus ḡ(n)): Band, Linien, Erwartungswert, „wahrer Wert“
+  P.leg = svgEl('g', {}, g)
+  let lx = PLOT.x0 + 108
+  const ly = PLOT.y0 - 24
+  const W = 7.0                      // geschätzte Zeichenbreite bei 15 px
+  const item = (kind, chars, build) => {
+    if (kind === 'band') svgEl('rect', { class: 'plot-band', x: lx, y: ly - 13, width: 24, height: 15, rx: 3 }, P.leg)
+    else svgEl('line', { x1: lx, x2: lx + 24, y1: ly - 5, y2: ly - 5, stroke: kind === 'mu' ? 'var(--c-mu)' : 'var(--c-true)',
+      'stroke-width': 3, 'stroke-dasharray': kind === 'mu' ? '3 5' : 'none', 'stroke-linecap': 'round' }, P.leg)
+    build(NS_I(P.leg, '', { class: 'plot-leg', x: lx + 30, y: ly }))
+    lx += 30 + chars * W + 10
+  }
+  item('band', 26, t => {
+    sym(t, 'ḡ', '', ' ± ')
+    svgEl('tspan', { 'font-style': 'italic' }, t).textContent = 'μ'
+    svgEl('tspan', { 'font-style': 'italic', 'baseline-shift': 'sub', 'font-size': '72%' }, t).textContent = 'g'
+    svgEl('tspan', {}, t).textContent = ' (Messunsicherheit)'
+  })
+  item('mu', 20, t => sym(t, 'g', 'E', ' (Erwartungswert)'))
+  item('true', 13, t => { t.textContent = '„wahrer Wert“' })
   return P
 }
 
@@ -187,7 +206,7 @@ function renderPlot(S) {
 
   // Modus 1: Band ḡ ± μ_g, Erwartungswert-Linie, „wahrer Wert“
   const m1 = mode1 > 0.002
-  for (const el of [P.bandPoly, P.trueLine, P.muLine, P.trueLab, P.muLab]) el.style.opacity = mode1
+  for (const el of [P.bandPoly, P.trueLine, P.muLine, P.leg]) el.style.opacity = mode1
   if (m1) {
     const up = [], dn = []
     for (const r of ser) { if (r.n > last) break; up.push([sx(r.n), sy(r.mean + r.u)]); dn.push([sx(r.n), sy(r.mean - r.u)]) }
@@ -196,8 +215,6 @@ function renderPlot(S) {
       el.setAttribute('x1', PLOT.x0); el.setAttribute('x2', PLOT.x1)
       el.setAttribute('y1', sy(v)); el.setAttribute('y2', sy(v))
     }
-    P.trueLab.setAttribute('x', PLOT.x1 - 4); P.trueLab.setAttribute('y', sy(G_TRUE) - 7)
-    P.muLab.setAttribute('x', PLOT.x1 - 4); P.muLab.setAttribute('y', sy(MU) + 22)
   }
 }
 

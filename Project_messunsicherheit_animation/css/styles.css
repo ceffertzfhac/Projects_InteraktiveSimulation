@@ -81,3 +81,6 @@ body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078
 .concl p { margin: 0; }
 .concl-k { display: inline-block; min-width: 8.5em; font-size: .78em; font-weight: 700; letter-spacing: .06em;
   text-transform: uppercase; color: var(--accent); }
+
+.plot-leg { fill: var(--text); font-size: 15px; }
+.axis-head { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

@@ -21,4 +21,4 @@ export const DOT = { r0: 14, r1: 7, row0: 30, row1: 17, base: 18 }
 export const STACK_DIST = [0.27, 0.14]    // Mindestabstand (Welt) für die ersten 10 / die übrigen
 
 // Diagramm unten links
-export const PLOT = { x0: 140, x1: 735, y0: 440, y1: 600 }
+export const PLOT = { x0: 140, x1: 725, y0: 468, y1: 612 }
