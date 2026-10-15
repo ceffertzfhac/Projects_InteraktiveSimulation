@@ -285,6 +285,14 @@ export function buildSteps(S, DOM) {
       },
     },
     {
+      title: 'Gesamtergebnis', hold: 10,
+      build: tl => {
+        deck.show(tl, C.k3_total, '<')
+        for (const r of ['b1', 'b2']) { beat(tl); part(tl, C.k3_total, r) }
+        beat(tl)
+      },
+    },
+    {
       title: 'Merke · Messunsicherheit', hold: 9,
       build: tl => {
         deck.show(tl, C.k3_rule, '<')

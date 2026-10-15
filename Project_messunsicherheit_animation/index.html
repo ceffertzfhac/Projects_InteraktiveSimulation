@@ -235,9 +235,9 @@ window.MathJax = {
         <table class="sum">
           <thead><tr><th></th><th>Formel</th><th>beschreibt</th><th>beschreibt nicht</th><th>Beispiel</th></tr></thead>
           <tbody>
-            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean40"></span> m/s²</td></tr>
-            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma40"></span> m/s²</td></tr>
-            <tr data-r="r3"><td>Messunsicherheit \(\mu_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(g_{\text{E}}\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u40"></span> m/s²</td></tr>
+            <tr data-r="r1"><td>Bestwert \(\bar g\)</td><td>\(\dfrac{1}{n}\sum g_i\)</td><td>beste Schätzung aus dieser Messreihe</td><td>den „wahren Wert“</td><td><span class="dyn" data-dyn="mean100u"></span> m/s²</td></tr>
+            <tr data-r="r2"><td>Standardabweichung \(\sigma_g\)</td><td>\(\sqrt{\dfrac{\sum (g_i-\bar g)^2}{n-1}}\)</td><td>Streuung der Einzelwerte, Güte des Messsetups</td><td>die Güte des Bestwerts; sinkt nicht mit \(n\)</td><td><span class="dyn" data-dyn="sigma100"></span> m/s²</td></tr>
+            <tr data-r="r3"><td>Messunsicherheit \(\mu_g\)</td><td>\(\dfrac{\sigma_g}{\sqrt{n}}\)</td><td>Streuung des Bestwerts um \(g_{\text{E}}\) (zufällige Anteile)</td><td>systematische Fehler</td><td><span class="dyn" data-dyn="u100"></span> m/s²</td></tr>
           </tbody>
         </table>
         <div class="concl">
@@ -246,13 +246,32 @@ window.MathJax = {
           <p data-r="c2"><span class="concl-k">Konsequenz</span> Kleine \(\mu_g\) heißt nicht „nah am wahren Wert“ – dafür: Systematik analysieren oder unabhängige Messaufbauten vergleichen.</p>
         </div>
       </div>
+      <div class="slide-card full zs" data-card="k3_total">
+        <div class="kicker">Gesamtergebnis · Messunsicherheit</div>
+        <h3>Was sagen \(\bar g \pm \sigma_g\) und \(\bar g \pm \mu_g\)?</h3>
+        <div class="total-grid">
+          <div class="total-col" data-r="b1">
+            <div class="total-h">Bestwert ± Standardabweichung</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>σ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100s"></span> ± <span class="dyn" data-dyn="sigma100"></span> m/s²</div>
+            <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loS100"></span> ; <span class="dyn" data-dyn="hiS100"></span>] m/s²</div>
+            <p>Der <b>nächste Einzelmesswert</b> liegt mit etwa 68,3 % in diesem Intervall.</p>
+          </div>
+          <div class="total-col" data-r="b2">
+            <div class="total-h">Bestwert ± Messunsicherheit</div>
+            <div class="formula"><span class="concl-k">± Schreibweise</span><i>ḡ</i> ± <i>μ</i><sub><i>g</i></sub> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span> m/s²</div>
+            <div class="formula"><span class="concl-k">Intervall</span>[<span class="dyn" data-dyn="loU100"></span> ; <span class="dyn" data-dyn="hiU100"></span>] m/s²</div>
+            <p>Der <b>Erwartungswert \(g_{\text{E}}\)</b> liegt mit etwa 68,3 % in diesem Intervall.</p>
+          </div>
+        </div>
+        <p class="note">Beide Angaben aus \(n = 100\) Messwerten; keine sagt etwas über den „wahren Wert“.</p>
+      </div>
       <div class="slide-card full merke" data-card="k3_rule">
         <img src="../shared/img/logo_physik_mint.png" class="end-logo" alt="Lehr- und Forschungsgebiet Physik, FH Aachen FB 8">
         <div class="kicker">Merke · Messunsicherheit</div>
         <h3>Die Messunsicherheit \(\mu_g\) grenzt den Erwartungswert \(g_{\text{E}}\) ein – nicht den „wahren Wert“.</h3>
         <div class="formula">\(\mu_g = \dfrac{\sigma_g}{\sqrt{n}}\)</div>
         <p>Mit etwa 68,3 % liegt \(g_{\text{E}}\) in \(\bar g \pm \mu_g\). Mehr Messungen verkleinern \(\mu_g\), nicht den systematischen Fehler.</p>
-        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean40"></span> ± <span class="dyn" data-dyn="u40"></span> m/s² (<i>n</i> = 40)</div>
+        <div class="formula"><b>Beispiel:</b> <i>g</i> = <span class="dyn" data-dyn="mean100u"></span> ± <span class="dyn" data-dyn="u100"></span> m/s² (<i>n</i> = 100)</div>
       </div>
     </div>
   </div>

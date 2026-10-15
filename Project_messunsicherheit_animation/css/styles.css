@@ -84,3 +84,8 @@ body.dark { --c-val: #56b4e9; --c-in: #2fd0a0; --c-out: #ff9a5c; --c-true: #e078
 
 .plot-leg { fill: var(--text); font-size: 15px; }
 .axis-head { fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.total-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: 1em; }
+.total-h { font-weight: 700; color: var(--text); margin-bottom: .2em; }
+.total-col .formula { margin-top: .5em; }
+.total-col .concl-k { display: block; min-width: 0; margin-bottom: .15em; }
