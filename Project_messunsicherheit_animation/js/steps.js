@@ -36,16 +36,19 @@ export function buildSteps(S, DOM) {
     {
       title: '„Wahrer Wert“', hold: 4,
       build: tl => {
+        deck.show(tl, C.k1_true, '<')
+        beat(tl)
         tl.to(S, { tv: 1, duration: T.pop, ease: 'power2.out' })
-        deck.show(tl, C.k1_true, '<0.1')
         beat(tl)
       },
     },
     {
       title: 'Unbekannt', hold: 4,
       build: tl => {
-        tl.to(S, { tvF: 0, duration: 1.1, ease: 'power1.inOut' })
         deck.show(tl, C.k1_unknown, '<')
+        beat(tl)
+        tl.to(S, { tvF: 0, duration: 1.1, ease: 'power1.inOut' })
+        beat(tl)
       },
     },
     {
@@ -129,7 +132,9 @@ export function buildSteps(S, DOM) {
       build: tl => {
         deck.show(tl, C.k2_tally, '<')
         tl.to(S, { tlA: 1, duration: 0.6 }, '<')
-        tl.to(S, { tIn: D.tally.inside, tOut: D.tally.outside, duration: 0.5 + 0.2 * 10, ease: 'none' })
+        tl.to(S, { tIn: D.tally.inside, duration: 0.3 + 0.2 * D.tally.inside, ease: 'none' })
+        beat(tl)
+        tl.to(S, { tOut: D.tally.outside, duration: 0.3 + 0.2 * D.tally.outside, ease: 'none' })
         beat(tl)
         part(tl, C.k2_tally, 'cmp')
         beat(tl)

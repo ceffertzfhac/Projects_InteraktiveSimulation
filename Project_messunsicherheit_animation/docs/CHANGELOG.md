@@ -1,5 +1,11 @@
 # Changelog – Bestwert, Standardabweichung, Messunsicherheit
 
+## v0.2.1 — 2026-10-15
+
+Druckknopf (PDF mit dem Endzustand jedes Schritts), Textanker der Diagrammbeschriftungen, zusätzliche
+Zwischenhalte im Präsentationsmodus (Strichliste je Spalte, „wahrer Wert“, Unbekannt). Prüfung:
+Vorwärts = Rückwärts = Sprung in beiden Modi, keine Warnungen.
+
 ## v0.2.0 — 2026-10-15
 
 Kapitel 2 „Standardabweichung“ (8 Schritte) und Kapitel 3 „Messunsicherheit“ (10 Schritte):

@@ -8,6 +8,7 @@ import { store, DOM, initDOM, initData, createScene } from './state.js'
 import { initStage, renderScene } from './render.js'
 import { buildSteps } from './steps.js'
 import { fillCards } from './content.js'
+import { createPrint } from '../../shared/js/step-print.js'
 
 function setupTheme() {
   document.body.classList.add(localStorage.getItem('fh_theme') || 'light')
@@ -61,6 +62,13 @@ store.presenter = createPresenter({
     { id: 'stabw', title: 'Standardabweichung', create: (c, t) => engineFor('k2', c, t) },
     { id: 'unsicherheit', title: 'Messunsicherheit', create: (c, t) => engineFor('k3', c, t) },
   ],
+})
+
+// Drucken / PDF: Endzustand jedes Schritts, aktuelles Kapitel oder alle
+createPrint({
+  presenter: store.presenter, button: document.getElementById('print_btn'),
+  popover: document.getElementById('print_pop'), stage: document.querySelector('.stage'),
+  docTitle: 'Bestwert, Standardabweichung, Messunsicherheit',
 })
 
 // Formeln einmal setzen (statisches HTML, kein Setzen zur Laufzeit) — erst, wenn Layout und

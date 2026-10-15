@@ -32,7 +32,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Bestwert, Standardabweichung, Messunsicherheit
-        <span class="version">v0.2.0</span>
+        <span class="version">v0.2.1</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -42,6 +42,15 @@ window.MathJax = {
          title="Lehr- und Forschungsgebiet Physik – FB 8">
   </div>
   <div class="topbar-right">
+    <button class="print-btn" id="print_btn" popovertarget="print_pop" title="Drucken / PDF: Endzustand jedes Schritts"
+            aria-label="Drucken oder als PDF sichern"></button>
+    <div id="print_pop" class="print-pop" popover>
+      <h4>Drucken / PDF</h4>
+      Je Schritt eine Seite mit dem Endzustand.
+      <button data-print="chapter">Aktuelles Kapitel</button>
+      <button data-print="all">Alle Kapitel</button>
+      <p>Im Druckdialog „Als PDF sichern“ wählen.</p>
+    </div>
     <span id="seed_info" class="seed-info"></span>
     <button class="btn" id="new_run" title="Neue Zufallswerte ziehen">↻ Neuer Durchlauf</button>
     <div class="theme-toggle-wrap">
