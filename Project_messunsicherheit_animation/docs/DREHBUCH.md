@@ -5,15 +5,15 @@ Entwurf 2026-10-15, nach PO-Diktat. Status: **zur Freigabe**.
 ## Rahmen
 
 - **Zielgruppe:** Erstsemester Ingenieurwissenschaften, Einführung ins physikalische Praktikum.
-- **Lernziel:** Bestwert ḡ, Standardabweichung σ_g und Messunsicherheit u_g (Typ A) unterscheiden –
-  was sie bedeuten und was nicht. Bestwert ↔ Erwartungswert μ_g ↔ „wahrer Wert“ trennen.
+- **Lernziel:** Bestwert ḡ, Standardabweichung σ_g und Messunsicherheit μ_g (Typ A) unterscheiden –
+  was sie bedeuten und was nicht. Bestwert ↔ Erwartungswert g_E ↔ „wahrer Wert“ trennen.
 - **Beispiel:** Messung der Fallbeschleunigung *g*. „Wahrer Wert“ 9,81 m/s² (immer in Anführungszeichen),
-  Erwartungswert des Messaufbaus μ_g = 9,32 m/s² (systematischer Fehler), σ der Verteilung = 1,23 m/s².
-- **Zufall:** μ_g und σ fest, nur die Messwerte sind pro Durchlauf zufällig (Seed im URL-Hash,
+  Erwartungswert des Messaufbaus g_E = 9,32 m/s² (systematischer Fehler), σ der Verteilung = 1,23 m/s².
+- **Zufall:** g_E und σ fest, nur die Messwerte sind pro Durchlauf zufällig (Seed im URL-Hash,
   Knopf „Neuer Durchlauf“). 40 Werte werden einmal erzeugt; Schritte nutzen die ersten 10 / 20 / 30 / 40.
   Alle Texte mit Zahlen laufen über `data-dyn`; Strichlisten-Text passt sich dem Ergebnis an.
 - **Layout:** Zwei Spalten, ⅔ Bühne (Visual) | ⅓ Erläuterung; Schrift ≈ 1,2× „Signifikante Stellen“.
-- **Nomenklatur:** `\bar g`, `\sigma_g`, `u_g = \sigma_g/\sqrt n`, `\mu_g`. σ_g mit 1/(n−1).
+- **Nomenklatur:** `\bar g`, `\sigma_g`, `μ_g = \sigma_g/\sqrt n`, `\mμ_g`. σ_g mit 1/(n−1).
 - **Tonspur:** Mechanismus („Angenommen, wir würden die Messung unendlich oft wiederholen …“)
   wird gesprochen; die Folie zeigt nur, was ist.
 - **Kapitelenden:** K1 und K2 je Merke-Vollfolie; K3 Zusammenfassung (2 Schritte) + Merke.
@@ -48,23 +48,23 @@ Startet still im Endzustand von K2 (n = 20).
 
 | # | Titel | Karte | Bühne | Halte |
 |---|---|---|---|---|
-| 1 | Messunsicherheit | u_g = σ_g/√n, Rechnerzeile | Formel, Wert; Marker mit Band ḡ ± u_g | vor Ergebnis |
-| 2 | Maß für die Serie | u_g bewertet die ganze Messserie; durch √n wird sie mit mehr Messungen kleiner | Karte, Band | – |
-| 3 | Erwartungswert | μ_g: Wert des Bestwerts bei unendlich oft wiederholter Messserie (Text: nur was ist) | Marker μ_g = 9,32 erscheint | vor Marker |
-| 4 | μ_g ≠ „wahrer Wert“ | Der Abstand ist der systematische Fehler | „wahrer Wert“ 9,81 wieder kräftig, Klammer μ_g ↔ 9,81 | vor Klammer |
-| 5 | Konvergenz | ḡ nähert sich μ_g, u_g sinkt | n = 20 → 30 → 40, Zoom auf u_g-Band, Diagramm ḡ(n), u_g(n) | je Zehnerschritt |
-| 6 | Bedeutung von ḡ ± u_g | μ_g liegt mit ≈ 68,3 % in ḡ ± u_g, nicht der „wahre Wert“ | Intervall auf Gerade, μ_g darin | vor Intervall |
-| 7 | Grenze eines Experiments | Ein Experiment nähert μ_g, nicht automatisch *g*; Abhilfe: rigorose Betrachtung der Systematik oder mehrere unabhängige Messaufbauten | Karte | – |
-| 8 | Zusammenfassung – Vergleich | Tabelle ḡ / σ_g / u_g: Formel, beschreibt, beschreibt nicht | Vollfolie, Zeilen nacheinander | je Zeile |
-| 9 | Zusammenfassung – Abgrenzung | ḡ ↔ μ_g ↔ „wahrer Wert“ | gleiche Folie | je Zeile |
-| 10 | Merke 3 | u_g = σ_g/√n; ḡ ± u_g grenzt μ_g ein | Vollfolie + Logo | – |
+| 1 | Messunsicherheit | μ_g = σ_g/√n, Rechnerzeile | Formel, Wert; Marker mit Band ḡ ± μ_g | vor Ergebnis |
+| 2 | Maß für die Serie | μ_g bewertet die ganze Messserie; durch √n wird sie mit mehr Messungen kleiner | Karte, Band | – |
+| 3 | Erwartungswert | g_E: Wert des Bestwerts bei unendlich oft wiederholter Messserie (Text: nur was ist) | Marker g_E = 9,32 erscheint | vor Marker |
+| 4 | g_E ≠ „wahrer Wert“ | Der Abstand ist der systematische Fehler | „wahrer Wert“ 9,81 wieder kräftig, Klammer g_E ↔ 9,81 | vor Klammer |
+| 5 | Konvergenz | ḡ nähert sich g_E, μ_g sinkt | n = 20 → 30 → 40, Zoom auf μ_g-Band, Diagramm ḡ(n), μ_g(n) | je Zehnerschritt |
+| 6 | Bedeutung von ḡ ± μ_g | g_E liegt mit ≈ 68,3 % in ḡ ± μ_g, nicht der „wahre Wert“ | Intervall auf Gerade, g_E darin | vor Intervall |
+| 7 | Grenze eines Experiments | Ein Experiment nähert g_E, nicht automatisch *g*; Abhilfe: rigorose Betrachtung der Systematik oder mehrere unabhängige Messaufbauten | Karte | – |
+| 8 | Zusammenfassung – Vergleich | Tabelle ḡ / σ_g / μ_g: Formel, beschreibt, beschreibt nicht | Vollfolie, Zeilen nacheinander | je Zeile |
+| 9 | Zusammenfassung – Abgrenzung | ḡ ↔ g_E ↔ „wahrer Wert“ | gleiche Folie | je Zeile |
+| 10 | Merke 3 | μ_g = σ_g/√n; ḡ ± μ_g grenzt g_E ein | Vollfolie + Logo | – |
 
 Summe: 6 + 8 + 10 = 24 Schritte, Präsentationsmodus ≈ 60 Halte.
 
 ## Technische Folgen
 
 - `model.js`: Seed-RNG (mulberry32 + Box-Muller), `draw(seed, n)`, `bestwert`, `stabw(n−1)`, `unsicherheit`,
-  `innen/außen`, Reihen ḡ(n), σ_g(n), u_g(n) für n = 2…40. Vitest.
+  `innen/außen`, Reihen ḡ(n), σ_g(n), μ_g(n) für n = 2…40. Vitest.
 - Engine: Zwei-Spalten-Layout (⅔|⅓) statt Karte oben rechts, Schrift ×1,2 → Abweichung vom Standard,
   in CHANGELOG und Leitlinie festhalten.
-- Rundung: u_g auf 2 signifikante Stellen, ḡ und σ_g auf dieselbe Nachkommastelle (Bezug „Signifikante Stellen“).
+- Rundung: μ_g auf 2 signifikante Stellen, ḡ und σ_g auf dieselbe Nachkommastelle (Bezug „Signifikante Stellen“).

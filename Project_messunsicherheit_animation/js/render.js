@@ -78,7 +78,7 @@ export function initStage(svg) {
   E.meanLab = NS_I(E.mean, '', { class: 'mean-label' })
   E.edgeLabs = [0, 1].map(() => NS_I(top, '', { class: 'edge-label' }))
   E.muLab = NS_I(top, '', { class: 'mu-label' })
-  sym(E.muLab, 'μ', 'g', ' = ' + fmt(MU, 2))
+  sym(E.muLab, 'g', 'E', ' = ' + fmt(MU, 2))
   E.gapLab = NS_I(top, 'systematischer Fehler', { class: 'gap-label' })
   E.trueLab = [0, 1].map(() => NS_I(top, '', { class: 'true-label' }))
   E.trueLab[0].textContent = '„wahrer Wert“'
@@ -132,7 +132,7 @@ function initPlot(svg) {
   P.trueLab = NS_I(g, '„wahrer Wert“', { class: 'gap-label', 'text-anchor': 'end', fill: 'var(--c-true)' })
   P.trueLab.style.fill = 'var(--c-true)'; P.trueLab.style.textAnchor = 'end'
   P.muLab = NS_I(g, '', { class: 'gap-label', 'text-anchor': 'end' })
-  P.muLab.style.fill = 'var(--c-mu)'; P.muLab.style.textAnchor = 'end'; sym(P.muLab, 'μ', 'g')
+  P.muLab.style.fill = 'var(--c-mu)'; P.muLab.style.textAnchor = 'end'; sym(P.muLab, 'g', 'E')
   return P
 }
 
@@ -185,7 +185,7 @@ function renderPlot(S) {
   P.pt.style.display = tip ? '' : 'none'
   if (tip) { P.pt.setAttribute('cx', tip[0]); P.pt.setAttribute('cy', tip[1]) }
 
-  // Modus 1: Band ḡ ± u, μ-Linie, „wahrer Wert“
+  // Modus 1: Band ḡ ± μ_g, Erwartungswert-Linie, „wahrer Wert“
   const m1 = mode1 > 0.002
   for (const el of [P.bandPoly, P.trueLine, P.muLine, P.trueLab, P.muLab]) el.style.opacity = mode1
   if (m1) {

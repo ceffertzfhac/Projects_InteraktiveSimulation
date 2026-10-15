@@ -181,7 +181,7 @@ export function buildSteps(S, DOM) {
   // ── Kapitel 3: Messunsicherheit ────────────────────────────────────────────
   const k3 = [
     {
-      title: 'Messunsicherheit u_g', hold: 7,
+      title: 'Messunsicherheit μ_g', hold: 7,
       build: tl => {
         deck.show(tl, C.k3_u, '<')
         tl.to(S, { plA: 0, bA: 0, duration: 0.7 }, '<')
@@ -199,7 +199,7 @@ export function buildSteps(S, DOM) {
       },
     },
     {
-      title: 'Erwartungswert μ_g', hold: 9,
+      title: 'Erwartungswert g_E', hold: 9,
       build: tl => {
         deck.show(tl, C.k3_mu, '<')
         beat(tl)
@@ -208,7 +208,7 @@ export function buildSteps(S, DOM) {
       },
     },
     {
-      title: 'μ_g ≠ „wahrer Wert“', hold: 8,
+      title: 'g_E ≠ „wahrer Wert“', hold: 8,
       build: tl => {
         deck.show(tl, C.k3_gap, '<')
         tl.to(S, { tvF: 1, duration: 0.8 }, '<')
@@ -236,7 +236,7 @@ export function buildSteps(S, DOM) {
       },
     },
     {
-      title: 'Bedeutung von ḡ ± u_g', hold: 9,
+      title: 'Bedeutung von ḡ ± μ_g', hold: 9,
       build: tl => {
         deck.show(tl, C.k3_meaning, '<')
         tl.to(S, { plA: 0, duration: 0.6 }, '<')
