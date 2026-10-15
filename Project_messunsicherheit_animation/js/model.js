@@ -5,7 +5,7 @@
 export const G_TRUE = 9.81        // „wahrer Wert“ (in der Realität unbekannt)
 export const MU = 9.13            // Erwartungswert des Messaufbaus (systematische Abweichung)
 export const SIGMA = 0.74         // Streuung der Einzelmessungen (Messaufbau)
-export const N_MAX = 40           // so viele Werte werden je Durchlauf erzeugt
+export const N_MAX = 100          // so viele Werte werden je Durchlauf erzeugt
 
 // Seed-RNG (mulberry32), gleichverteilt in [0, 1)
 export function rng(seed) {
@@ -114,7 +114,7 @@ export function analyse(values) {
   const at = n => ({ n, mean: bestwert(values, n), sigma: stabw(values, n), u: unsicherheit(values, n) })
   return {
     values,
-    n10: at(10), n20: at(20), n30: at(30), n40: at(40),
+    n10: at(10), n20: at(20), n30: at(30), n40: at(40), n100: at(100),
     tally: strichliste(values, 10, 10, 20),
     series: reihen(values, values.length),
   }

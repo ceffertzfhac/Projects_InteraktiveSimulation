@@ -59,7 +59,7 @@ export function initStage(svg) {
 
   E.dots = svgEl('g', { 'clip-path': 'url(#clip_view)' }, svg)
   E.dot = []
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 100; i++) {
     const g = svgEl('g', {}, E.dots)
     const base = svgEl('circle', { class: 'dot' }, g)
     const cin = svgEl('circle', { class: 'dot dot-in' }, g)
@@ -175,7 +175,7 @@ function renderPlot(S) {
   // Teilungen
   const stepY = niceStep(hi - lo, 4)
   P.ticksX.begin(); P.ticksY.begin(); P.gridPool.begin()
-  const stepX = S.px <= 24 ? 5 : 10
+  const stepX = S.px <= 24 ? 5 : S.px <= 60 ? 10 : 20
   for (let n = 0; n <= S.px + 1e-9; n += stepX) {
     const t = P.ticksX.next(); t.setAttribute('x', sx(n)); t.setAttribute('y', PLOT.y1 + 24); setText(t, String(n))
   }
@@ -239,13 +239,15 @@ export function renderScene(S) {
   })
 
   // Punkte
-  const rowH = lerp(DOT.row1, DOT.row0, S.nl)
+  const kd = 1 - 0.43 * S.dsm
+  const rowH = lerp(DOT.row1, DOT.row0, S.nl) * (1 - 0.41 * S.dsm)
   d.values.forEach((v, i) => {
     const o = E.dot[i], a = S['d' + i]
     o.g.style.display = a <= 0.002 ? 'none' : ''
     if (a <= 0.002) return
-    const r = (i < 10 ? lerp(DOT.r1, DOT.r0, S.nl) : DOT.r1) * a
-    const x = V.sx(v), y = ay - DOT.base - r * 0 - store.rows[i] * rowH - (i < 10 ? lerp(DOT.r1, DOT.r0, S.nl) : DOT.r1)
+    const rr = (i < 10 ? lerp(DOT.r1, DOT.r0, S.nl) : DOT.r1) * kd
+    const r = rr * a
+    const x = V.sx(v), y = ay - DOT.base - r * 0 - store.rows[i] * rowH - rr
     for (const c of [o.base, o.cin, o.cout]) { c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', r) }
     o.base.style.opacity = a
     o.cin.style.opacity = S['i' + i]

@@ -248,6 +248,19 @@ export function buildSteps(S, DOM) {
       },
     },
     {
+      title: 'Noch mehr Messungen: n = 100', hold: 9,
+      build: tl => {
+        deck.show(tl, C.k3_n100, '<')
+        beat(tl)
+        tl.to(S, { dsm: 1, duration: 0.7 })
+        dots(tl, 40, 100, { gap: 0.04 })
+        tl.to(S, { mx: D.n100.mean, uh: D.n100.u, pn: 100, px: 100, pyLo: 8.8, pyHi: 10.0, duration: 3.5, ease: 'power1.inOut' }, '<0.3')
+        beat(tl)
+        cam.to(tl, { w: 1.6, cx: 9.45 }, { duration: T.cam + 0.4, anchor: { y: 0 } })
+        beat(tl)
+      },
+    },
+    {
       title: 'Grenze eines Experiments', hold: 10,
       build: tl => {
         deck.show(tl, C.k3_limit, '<')
