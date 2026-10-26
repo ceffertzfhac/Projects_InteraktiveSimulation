@@ -1,5 +1,17 @@
 # Changelog — Schräger Wurf
 
+## v1.10.0 — 2026-10-26
+
+### Neu
+- **Hover-Cursor auch bei der Bahnkurve \(y(x)\) und \(x(y)\) (→ BACKLOG B56).**
+  Bisher reagierte die Bahnkurve nicht auf die Maus (nur die Zeit-Diagramme).
+  Jetzt sitzt der Ring auf dem Kurvenpunkt, der der Maus am nächsten liegt
+  (Suche auf den Strecken zwischen den Stützpunkten, also stufenlos), und das
+  Tooltip zeigt *t*, *x* und *y* in der gewählten Achsen-Konfiguration. Wie bei
+  den Zeit-Diagrammen nur auf dem bereits gezeichneten Abschnitt; während der
+  Wiedergabe wird der nächste Punkt jeden Frame neu gesucht. Das Tooltip steht
+  neben dem Punkt und klappt am Rand auf die freie Seite.
+
 ## v1.9.1 — 2026-10-26
 
 ### Behoben

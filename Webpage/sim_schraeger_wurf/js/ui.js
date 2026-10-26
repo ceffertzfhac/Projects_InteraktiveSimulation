@@ -496,7 +496,7 @@ document.querySelectorAll('.panel-section.collapsible > .panel-label').forEach(b
 // zu 3 Graph-Gruppen (single/top/bottom) in derselben #main_svg existieren.
 ;['single', 'top', 'bottom'].forEach(slot => {
   attachGraphHover(DOM.graphHitRect[slot], {
-    onMove: x => updateGraphHover(slot, x),
+    onMove: (x, y) => updateGraphHover(slot, x, y),
     onLeave: () => updateGraphHover(slot, null),
   })
 })

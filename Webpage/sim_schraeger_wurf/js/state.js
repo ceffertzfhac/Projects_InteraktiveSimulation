@@ -39,11 +39,12 @@ export const store = {
 
   // Hover-Werte (I5): pro Diagramm-Slot ('single'/'top'/'bottom'), da bis zu
   // 3 Graph-Gruppen in derselben #main_svg existieren (Single- vs. Stacked-
-  // Modus). Nur bei Zeit-Achsen-Diagrammen aktiv (nicht bei der Bahnkurve
-  // y(x)/x(y) im Single-Modus — siehe render.js drawSingleGraph()).
+  // Modus). Bei der Bahnkurve y(x)/x(y) mit Nearest-Point-Suche (B56), dafür
+  // braucht es auch die y-Koordinate der Maus (hoverLocalY).
   graphScale: { single: null, top: null, bottom: null },
   hoverActive: { single: false, top: false, bottom: false },
   hoverLocalX: { single: null, top: null, bottom: null },
+  hoverLocalY: { single: null, top: null, bottom: null },
 
   // I14: Dual-Sync — hoverSourceSlot = der Slot, über dem die Maus tatsächlich
   // steht (null = kein Hover); hoverT = daraus abgeleitete Zeit, geteilt mit
