@@ -1,5 +1,21 @@
 # Changelog — Schräger Wurf
 
+## v1.9.1 — 2026-10-26
+
+### Behoben
+- **Bahnkurve \(x(y)\) bei jeder Y-Achsen-Konfiguration vollständig (→ BACKLOG B55).**
+  Die waagerechte Höhenachse begann fest bei 0. Bei „Nullpunkt: Start“ und bei
+  „↓ positiv“ werden die angezeigten Höhen negativ, deshalb lag die Kurve ganz
+  oder teilweise links außerhalb des Diagramms (bei „↓ positiv, Nullpunkt: Boden“
+  fehlte sie vollständig). Jetzt reicht die Achse bis zur kleinsten Höhe,
+  die Teilstriche beginnen dort, und die Ordinate steht bei *y* = 0, sodaß sich
+  beide Achsen im Ursprung kreuzen. Bei „↑ positiv, Nullpunkt: Boden“ bleibt
+  das Diagramm unverändert.
+- **Achsenbeschriftung der Bahnkurve am unteren Plotrand** (wie seit v1.8.2 bei
+  den Zeit-Diagrammen): Bei \(y(x)\) mit „↓ positiv“ oder „Nullpunkt: Start“
+  lag die Nulllinie oben bzw. mitten im Feld; „Wurfweite *x* / m“ und die
+  Teilstrich-Zahlen kreuzten dort die Kurve.
+
 ## v1.9.0 — 2026-10-01
 
 Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.

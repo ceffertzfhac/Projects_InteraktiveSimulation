@@ -302,7 +302,9 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
 
   const isTraj = ['yx', 'xy'].includes(type)
 
-  let xData, yData, xMax, yMin, yMax, xLabel, yLabel, plotX, plotY
+  // xMin: Untergrenze der waagerechten Achse — bei Zeit und Wurfweite 0, bei
+  // x(y) die Höhe, die je nach Y-Achsen-Konfiguration negativ wird (B55).
+  let xData, yData, xMin = 0, xMax, yMin, yMax, xLabel, yLabel, plotX, plotY
 
   if (isTraj) {
     // Hover-Werte (I5): Bahnkurve y(x)/x(y) bewusst außen vor (räumliche,
@@ -319,6 +321,8 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
       plotX = currentX; plotY = currentY !== null ? getDisplayY(currentY) : null
     } else {
       xData = yDisplay; yData = store.xtData
+      // Negativ nur, wenn die Höhe wirklich negativ wird (sonst wie bisher ab 0)
+      xMin = Math.min(...yDisplay) < -1e-9 ? store.axisLimits.yt_display.min : 0
       xMax = store.axisLimits.yt_display.max
       yMin = store.axisLimits.xt.min; yMax = store.axisLimits.xt.max
       xLabel = 'Höhe <i>y</i> / m'; yLabel = 'Wurfweite <i>x</i> / m'
@@ -353,9 +357,15 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
     store.graphScale[slot] = { effType: type, suffix: useYAxisConfig && ['yt', 'vyt', 'ayt'].includes(type) ? '_display' : '', xMax, yMin, yMax, yLabel }
   }
 
-  const scX = v => padL + (v / (xMax || 1)) * plotW
+  // Untergrenze auf den Teilstrich-Raster abrunden (wie yMin oben)
+  const xStep = tAxisStep((xMax - xMin) || 1)
+  if (xMin < 0) xMin = Math.floor(xMin / xStep) * xStep
+
+  const scX = v => padL + ((v - xMin) / (xMax - xMin || 1)) * plotW
   const scY = v => padT + plotH - ((v - yMin) / (yMax - yMin || 1)) * plotH
   const y0 = scY(0)
+  // Ordinate bei x = 0, damit sich die Achsen im Ursprung kreuzen (B55)
+  const x0 = scX(0)
 
   // X-Ticks (T10): kanonischer tAxisStep statt fixer Teilstrich-Anzahl —
   // garantiert ≥3 Divisionen mit runden Werten statt beliebiger Brüche.
@@ -363,10 +373,11 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
   // (Konvention „Abszisse am Nulldurchgang", FW9): bei v_y(t) liegt die
   // Nulllinie mitten im Feld — dort kreuzte die Beschriftung die Kurve und
   // „0,0" stieß an die „0" der Werteachse. Die Achse selbst bleibt bei 0.
-  // Bahnkurve (isTraj): unverändert an der Nulllinie (= Erdboden).
-  const tBase = isTraj ? y0 : padT + plotH
-  const xStep = tAxisStep(xMax || 1)
-  for (let xv = 0; xv <= xMax + xStep * 1e-6; xv += xStep) {
+  // Bahnkurve ebenso (B55): bei y(x) mit ↓-Achse oder Nullpunkt Start liegt
+  // die Nulllinie oben bzw. mitten im Feld, die Beschriftung kreuzte die Kurve.
+  const tBase = padT + plotH
+  for (let k = 0; xMin + k * xStep <= xMax + xStep * 1e-6; k++) {
+    const xv = Math.round((xMin + k * xStep) / xStep) * xStep
     const xp = scX(xv)
     gridEl.appendChild(el('line', { x1: xp, y1: padT, x2: xp, y2: padT + plotH, class: 'grid-line' }))
     const t = el('text', { x: xp, y: tBase + 15, 'text-anchor': 'middle', class: 'tick-label' })
@@ -382,7 +393,7 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
   }
 
   gridEl.appendChild(el('line', { x1: padL, y1: y0, x2: padL + plotW, y2: y0, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }))
-  gridEl.appendChild(el('line', { x1: padL, y1: padT + plotH, x2: padL, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }))
+  gridEl.appendChild(el('line', { x1: x0, y1: padT + plotH, x2: x0, y2: padT, class: 'axis-line', 'stroke-width': 1.5, 'marker-end': 'url(#arrowhead)' }))
 
   // Im Stapel teilen beide Diagramme die Zeitachse: „Zeit t / s" nur unter
   // dem unteren — unter dem oberen läge sie auf dem Titel des unteren.
