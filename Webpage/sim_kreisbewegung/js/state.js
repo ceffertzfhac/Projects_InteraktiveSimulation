@@ -27,6 +27,8 @@ export const store = {
   graphScale: { single: null, top: null, bottom: null },
   hoverSourceSlot: null,
   hoverT: null,
+  // Mausposition (lokal) für die Nearest-Point-Suche auf der Bahnkurve (B57)
+  hoverLocal: null,
   isDigitalDisplay: false,
   layoutSplit: false,   // Probe-Layout: Sim & Diagramm nebeneinander (true) statt übereinander (false)
 

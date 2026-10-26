@@ -20,6 +20,7 @@ import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
+import { nearestOnSegment } from '../../shared/js/hover.js'
 export { fmt }
 
 // ── Layout-abhängige Geometrie (gestapelt ↔ nebeneinander) ───────────────────
@@ -434,22 +435,17 @@ function drawGraphSlot(attrs) {
   titleEl.setAttribute('y', plotT - 10)
   setGraphTitle(titleEl, graphTitles[type] ?? type)
 
-  // Hover-Werte (I13.1): nur bei Zeit-Achsen-Diagrammen — die Bahnkurve (yx/xy)
-  // hat keine Zeitachse und bräuchte eine Nearest-Point-Suche statt der
-  // einfachen Pixel→Zeit-Umkehrung (KNOWN_LIMITATIONS → I13.4). Hit-Rect-
-  // Geometrie wird aus denselben Lokalen wie scX/scY synchronisiert.
-  if (!limits.xIsTime) {
-    store.graphScale[slot] = null
-    hideGraphHover(slot)
-  } else {
-    DOM.graphHitRect[slot].setAttribute('x', plotL)
-    DOM.graphHitRect[slot].setAttribute('y', plotT)
-    DOM.graphHitRect[slot].setAttribute('width', plotW)
-    DOM.graphHitRect[slot].setAttribute('height', plotH)
-    store.graphScale[slot] = {
-      plotL, plotT, plotW, plotH, xMin, xMax, yMin, yMax, type,
-      nowT: Math.min(currentTime, xMax),
-    }
+  // Hover-Werte (I13.1): Hit-Rect-Geometrie aus denselben Lokalen wie scX/scY.
+  // Bahnkurve (yx/xy) ohne Zeitachse: Nearest-Point-Suche (B57, drawTrajHover)
+  // auf der bis traceEnd gezeichneten Spur statt Pixel→Zeit-Umkehrung.
+  DOM.graphHitRect[slot].setAttribute('x', plotL)
+  DOM.graphHitRect[slot].setAttribute('y', plotT)
+  DOM.graphHitRect[slot].setAttribute('width', plotW)
+  DOM.graphHitRect[slot].setAttribute('height', plotH)
+  store.graphScale[slot] = {
+    plotL, plotT, plotW, plotH, xMin, xMax, yMin, yMax, type,
+    nowT: Math.min(currentTime, xMax), traj: isTraj,
+    traceEnd: store.T === Infinity ? currentTime : Math.min(currentTime, store.T),
   }
 
   // Daten-Polyline
@@ -601,24 +597,67 @@ function drawHoverAtT(slot, t) {
   DOM.hoverPoint[slot].setAttribute('visibility', 'visible')
 
   const unit = (store.axisLimits[type]?.yLabel || '').split(' / ').pop()
-  renderHoverTooltip(slot, t, val, unit, xPix, plotL, plotW, plotT)
+  renderHoverTooltip(slot, [
+    { sym: 't', text: ` = ${fmt(t, 2)} s` },
+    { text: `${fmt(val, 3)} ${unit}` },
+  ], xPix, plotL, plotW, plotT)
 }
 
-function renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT) {
+// Hover-Cursor auf der Bahnkurve y(x)/x(y) (B57): Ring auf dem Punkt der
+// gezeichneten Spur, der der Maus am nächsten liegt; Tooltip t, x, y. Die Spur
+// reicht bis traceEnd = min(t, T) — nach dem ersten Umlauf ist der Kreis
+// geschlossen, t ist dann der Zeitpunkt des ersten Durchgangs.
+function drawTrajHover(slot, gs) {
+  const { tData, xData, yData } = store
+  const loc = store.hoverLocal
+  if (!loc || tData.length === 0) { hideGraphHover(slot); return }
+  const { plotL, plotT, plotW, plotH, xMin, xMax, yMin, yMax, type, traceEnd } = gs
+  const scX = v => plotL + ((v - xMin) / ((xMax - xMin) || 1)) * plotW
+  const scY = v => plotT + plotH - ((v - yMin) / ((yMax - yMin) || 1)) * plotH
+  const pix = i => type === 'yx' ? [scX(xData[i]), scY(yData[i])] : [scX(yData[i]), scY(xData[i])]
+
+  // dieselben Stützpunkte wie die gezeichnete Polyline (s. drawGraphSlot)
+  const n = Math.min(linePlotIndex(traceEnd), tData.length)
+  if (n === 0) { hideGraphHover(slot); return }
+  let bi = 0, ba = 0, bd = Infinity
+  if (n === 1) bd = 0
+  for (let i = 0; i + 1 < n; i++) {
+    const [ax, ay] = pix(i), [bx, by] = pix(i + 1)
+    const { a, d2 } = nearestOnSegment(loc.x, loc.y, ax, ay, bx, by)
+    if (d2 < bd) { bd = d2; bi = i; ba = a }
+  }
+  const j = Math.min(bi + 1, n - 1)
+  const lerp = arr => arr[bi] + ba * (arr[j] - arr[bi])
+  const t = lerp(tData), x = lerp(xData), y = lerp(yData)
+  store.hoverT = t
+  const cx = type === 'yx' ? scX(x) : scX(y)
+  const cy = type === 'yx' ? scY(y) : scY(x)
+
+  DOM.hoverLine[slot].setAttribute('visibility', 'hidden')
+  DOM.hoverPoint[slot].setAttribute('cx', cx)
+  DOM.hoverPoint[slot].setAttribute('cy', cy)
+  DOM.hoverPoint[slot].setAttribute('visibility', 'visible')
+  renderHoverTooltip(slot, [
+    { sym: 't', text: ` = ${fmt(t, 2)} s` },
+    { sym: 'x', text: ` = ${fmt(x, 3)} m` },
+    { sym: 'y', text: ` = ${fmt(y, 3)} m` },
+  ], cx, plotL, plotW, plotT, { yPix: cy, plotH })
+}
+
+// rows: [{ sym?, text }] — sym kursiv (Größe), text aufrecht. Ohne opts steht
+// das Tooltip oben im Plot (Zeit-Diagramme); mit opts.yPix neben dem Punkt,
+// auf die jeweils freie Seite geklappt (Bahnkurve).
+function renderHoverTooltip(slot, rows, xPix, padL, plotW, padT, opts = null) {
   const textEl = DOM.hoverTooltipText[slot]
   textEl.innerHTML = ''
   const lineH = 15
-  const rows = [
-    { text: `t = ${fmt(t, 2)} s`, italic: true },
-    { text: `${fmt(val, 3)} ${unit}` },
-  ]
   rows.forEach((row, i) => {
     const tspan = el('tspan', { x: 8, y: 16 + i * lineH })
-    if (row.italic) {
+    if (row.sym) {
       const sym = el('tspan', { 'font-style': 'italic' })
-      sym.textContent = 't'
+      sym.textContent = row.sym
       tspan.appendChild(sym)
-      tspan.appendChild(document.createTextNode(row.text.slice(1)))
+      tspan.appendChild(document.createTextNode(row.text))
     } else {
       tspan.textContent = row.text
     }
@@ -632,9 +671,15 @@ function renderHoverTooltip(slot, t, val, unit, xPix, padL, plotW, padT) {
   DOM.hoverTooltipBg[slot].setAttribute('x', 0)
   DOM.hoverTooltipBg[slot].setAttribute('y', 0)
 
-  let tx = xPix + 12
+  let tx = xPix + 12, ty = padT + 6
+  if (opts) {
+    if (tx + boxW > padL + plotW) tx = xPix - 12 - boxW
+    ty = opts.yPix + 12
+    if (ty + boxH > padT + opts.plotH) ty = opts.yPix - 12 - boxH
+    ty = Math.max(padT, ty)
+  }
   tx = Math.max(padL, Math.min(padL + plotW - boxW, tx))
-  DOM.hoverTooltip[slot].setAttribute('transform', `translate(${tx}, ${padT + 6})`)
+  DOM.hoverTooltip[slot].setAttribute('transform', `translate(${tx}, ${ty})`)
   DOM.hoverTooltip[slot].setAttribute('visibility', 'visible')
 }
 
@@ -650,6 +695,8 @@ function refreshHover() {
     if (store.isStacked) { const o = otherSlot(slot); if (o) hideGraphHover(o) }
     return
   }
+  // Bahnkurve: nächster Punkt jeden Frame neu, da die Spur wächst
+  if (gs.traj) { drawTrajHover(slot, gs); return }
   const t = Math.max(0, Math.min(store.hoverT, gs.xMax, gs.nowT))
   store.hoverT = t
   drawHoverAtT(slot, t)
@@ -671,17 +718,24 @@ function refreshHover() {
  * (I14), da beide dort stets dieselbe Zeitachse teilen (Bahnkurven sind im
  * Dual-Modus generell gefiltert, s. drawGraphSlot).
  */
-export function updateGraphHover(slot, localX) {
+export function updateGraphHover(slot, localX, localY = null) {
   if (localX === null) {
     if (store.hoverSourceSlot === slot) {
       store.hoverSourceSlot = null
       store.hoverT = null
+      store.hoverLocal = null
       hideGraphHover('single'); hideGraphHover('top'); hideGraphHover('bottom')
     }
     return
   }
   const gs = store.graphScale[slot]
   if (!gs) { hideGraphHover(slot); return }
+  if (gs.traj) {
+    store.hoverSourceSlot = slot
+    store.hoverLocal = { x: localX, y: localY }
+    refreshHover()
+    return
+  }
   const xClamped = Math.max(gs.plotL, Math.min(gs.plotL + gs.plotW, localX))
   const rawT = ((xClamped - gs.plotL) / gs.plotW) * gs.xMax
   store.hoverSourceSlot = slot

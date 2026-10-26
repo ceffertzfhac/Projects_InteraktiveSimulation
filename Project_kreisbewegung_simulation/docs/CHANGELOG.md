@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.7.0 — 2026-10-26
+
+### Neu
+- **Hover-Cursor auch bei der Bahnkurve \(y(x)\) und \(x(y)\) (→ BACKLOG B57, I13.4).**
+  Bisher reagierten nur die Zeit-Diagramme auf die Maus. Jetzt sitzt der Ring
+  auf dem Punkt der gezeichneten Spur, der der Maus am nächsten liegt
+  (stufenlos zwischen den Stützpunkten), das Tooltip zeigt *t*, *x* und *y*
+  und steht neben dem Punkt, am Rand auf die freie Seite geklappt. Nach dem
+  ersten Umlauf ist der Kreis geschlossen; *t* ist dann der Zeitpunkt des
+  ersten Durchgangs (die Spur wird nur bis *T* gezeichnet). Die
+  Abstandsrechnung kommt aus `shared/js/hover.js` (`nearestOnSegment`).
+
 ## v1.6.0 — 2026-10-01
 
 Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.

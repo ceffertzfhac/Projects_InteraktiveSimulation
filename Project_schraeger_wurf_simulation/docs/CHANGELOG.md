@@ -1,5 +1,12 @@
 # Changelog — Schräger Wurf
 
+## v1.10.1 — 2026-10-26
+
+### Intern
+- `nearestOnSegment` (Hover auf der Bahnkurve, B56) nach `shared/js/hover.js`
+  verschoben und mit der Kreisbewegung geteilt (→ BACKLOG I13.4). Kein
+  sichtbarer Unterschied.
+
 ## v1.10.0 — 2026-10-26
 
 ### Neu

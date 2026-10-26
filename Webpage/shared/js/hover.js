@@ -37,3 +37,16 @@ export function attachGraphHover(hitRectEl, { onMove, onLeave }) {
     hitRectEl.removeEventListener('pointercancel', leave)
   }
 }
+
+/**
+ * Nächster Punkt auf einer Strecke A→B zum Punkt P (alles in Pixeln) — für den
+ * Hover auf räumlichen Bahnkurven (I13.4: y(x)/x(y)), wo es keine Pixel→Zeit-
+ * Umkehrung gibt. Liefert den Parameter a ∈ [0, 1] des Lotfußpunkts (zum
+ * Interpolieren von t, x, y zwischen zwei Stützpunkten) und den Abstand².
+ */
+export function nearestOnSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy
+  const a = l2 > 0 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2)) : 0
+  const qx = ax + a * dx - px, qy = ay + a * dy - py
+  return { a, d2: qx * qx + qy * qy }
+}

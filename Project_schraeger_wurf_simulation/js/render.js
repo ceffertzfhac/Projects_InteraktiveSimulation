@@ -19,6 +19,7 @@ import { fmt } from '../../shared/js/format.js'
 import { setAxisLabel } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
+import { nearestOnSegment } from '../../shared/js/hover.js'
 export { fmt }
 
 const NS = 'http://www.w3.org/2000/svg'
@@ -431,14 +432,6 @@ function drawSingleGraph({ slot, titleEl, gridEl, lineEl, pointEl, type,
     pointEl.setAttribute('cy', scY(plotY))
     pointEl.style.visibility = 'visible'
   }
-}
-
-// Abstand² Punkt–Strecke in Pixeln + Parameter a ∈ [0, 1] des Lotfußpunkts
-function nearestOnSegment(px, py, ax, ay, bx, by) {
-  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy
-  const a = l2 > 0 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2)) : 0
-  const qx = ax + a * dx - px, qy = ay + a * dy - py
-  return { a, d2: qx * qx + qy * qy }
 }
 
 // Hover-Cursor auf der Bahnkurve y(x)/x(y) (B56): Ring auf dem Kurvenpunkt,
