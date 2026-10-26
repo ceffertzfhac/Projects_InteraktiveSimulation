@@ -5,6 +5,16 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.7.1 — 2026-10-26
+
+### Behoben
+- **Hover-Cursor nach „Zwei Diagramme“ → „Ein Diagramm“ wieder aktiv (→ BACKLOG B58).**
+  Das unsichtbare Hit-Rect des ausgeblendeten zweiten Diagramms fing weiter die
+  Maus ab (`pointer-events: all` reagiert auch bei `visibility: hidden`) und lag
+  über dem sichtbaren Diagramm — der Cursor erschien nicht mehr bzw. im
+  unsichtbaren Slot. Behoben zentral in `shared/css/design-system.css`
+  (`pointer-events: visible`).
+
 ## v1.7.0 — 2026-10-26
 
 ### Neu

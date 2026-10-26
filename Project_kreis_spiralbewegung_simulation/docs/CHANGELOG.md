@@ -3,6 +3,16 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.10.1] — 2026-10-26
+
+### Behoben
+- **Hover-Cursor nach „Zwei Diagramme“ → „Ein Diagramm“ wieder aktiv (→ BACKLOG B58).**
+  Das unsichtbare Hit-Rect des ausgeblendeten zweiten Diagramms fing weiter die
+  Maus ab (`pointer-events: all` reagiert auch bei `visibility: hidden`) und lag
+  über dem sichtbaren Diagramm — der Cursor erschien nicht mehr bzw. im
+  unsichtbaren Slot. Behoben zentral in `shared/css/design-system.css`
+  (`pointer-events: visible`).
+
 ## [1.10.0] — 2026-10-01
 
 Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
