@@ -20,11 +20,38 @@ const animCenter = sceneCenter
 // ── Schattenprojektion (FK6): Hinweistext zur gewählten Leinwand ─────────────
 // Beide Varianten stehen statisch in index.html (MathJax beim Laden), JS blendet
 // nur um.
+// Leinwandauswahl kontextsensitiv (FK8 g): nebeneinander (hohe Zelle) nur
+// oben/unten, übereinander (breite Zelle) nur links/rechts — dort ist Platz
+// für den Linienschreiber. Unzulässige Wahl wird auf die entsprechende Seite
+// des anderen Paars umgestellt.
+const SIDE_SWAP = { left: 'top', right: 'bottom', top: 'left', bottom: 'right' }
+function applyShadowOptions() {
+  const allowed = store.layoutSplit ? ['off', 'top', 'bottom'] : ['off', 'left', 'right']
+  for (const o of DOM.shadowSelect.options) {
+    const ok = allowed.includes(o.value)
+    o.hidden = !ok; o.disabled = !ok
+  }
+  if (!allowed.includes(DOM.shadowSelect.value)) {
+    DOM.shadowSelect.value = SIDE_SWAP[DOM.shadowSelect.value]
+    store.shadowSide = DOM.shadowSelect.value
+    store.recStart = store.simulatedTime
+  }
+  applyShadowInfo()
+}
+
+// Ein-/Aus-Protokoll fortschreiben (FK8): aus → neues Intervall, an → schließen
+function logToggle(log, nowOn, t) {
+  if (!nowOn) { log.push([t, null]); return }
+  const last = log[log.length - 1]
+  if (last && last[1] === null) last[1] = t
+}
+
 function applyShadowInfo() {
   const side = store.shadowSide
   const vert = side === 'left' || side === 'right'
   DOM.shadowInfoY.style.display = side !== 'off' && vert ? '' : 'none'
   DOM.shadowInfoX.style.display = side !== 'off' && !vert ? '' : 'none'
+  DOM.recorderInfo.style.display = side !== 'off' && store.showRecorder ? '' : 'none'
 }
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
@@ -124,6 +151,7 @@ function applyLayout() {
 // wird nicht gestört).
 function relayout() {
   applyLayout()
+  applyShadowOptions()
   setupScene()
   const { p, v, a } = liveObjects(store.simulatedTime)
   updateScene(store.simulatedTime, p, v, a, animCenter())
@@ -161,7 +189,14 @@ function resetSim(isPlayTrigger = false) {
   store.showAccelerationComponents = DOM.togAccelerationComponents.checked
   store.showTrajectory = DOM.togTrajectory.checked
   store.shadowSide = DOM.shadowSelect.value
-  applyShadowInfo()
+  store.showRecorder = DOM.togRecorder.checked
+  if (!isPlayTrigger) {
+    // neue Zeitachse: Protokolle neu, ausgeschaltete Geräte ab t = 0 aus
+    store.lampOffLog = store.lampOn ? [] : [[0, null]]
+    store.recOffLog = store.recorderOn ? [] : [[0, null]]
+    store.recStart = 0
+  }
+  applyShadowOptions()
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
 
   recomputeDerived()
@@ -346,20 +381,34 @@ function setupUI() {
   // Leinwand-Wahl (FK6): Szene neu aufbauen, Sim-Zeit bleibt (wie Layout-Wechsel)
   DOM.shadowSelect.addEventListener('change', () => {
     store.shadowSide = DOM.shadowSelect.value
+    store.recStart = store.simulatedTime          // neue Aufzeichnung ab jetzt
+    applyShadowInfo()
+    relayout()
+  })
+  DOM.togRecorder.addEventListener('change', () => {
+    store.showRecorder = DOM.togRecorder.checked
+    store.recStart = store.simulatedTime
     applyShadowInfo()
     relayout()
   })
 
   // An-/Aus-Schalter an der Leuchte (FK7): Teil der neu aufgebauten Szene,
   // daher per Delegation; Enter/Leertaste für die Tastatur
-  const toggleLamp = () => { store.lampOn = !store.lampOn; relayout() }
-  DOM.shadowStatic.addEventListener('click', e => {
-    if (e.target.closest('[data-role="lamp-switch"]')) toggleLamp()
-  })
+  // Kippschalter in der Szene (FK7/FK8): Lampe und Linienschreiber; Teil der
+  // neu aufgebauten Szene, daher per Delegation; Enter/Leertaste für die Tastatur
+  const toggleScene = role => {
+    const t = store.simulatedTime
+    if (role === 'lamp-switch') { store.lampOn = !store.lampOn; logToggle(store.lampOffLog, store.lampOn, t) }
+    if (role === 'recorder-switch') { store.recorderOn = !store.recorderOn; logToggle(store.recOffLog, store.recorderOn, t) }
+    relayout()
+  }
+  const roleOf = e => e.target.closest('[data-role]')?.dataset.role
+  DOM.shadowStatic.addEventListener('click', e => { const r = roleOf(e); if (r) toggleScene(r) })
   DOM.shadowStatic.addEventListener('keydown', e => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('[data-role="lamp-switch"]')) {
-      e.preventDefault(); toggleLamp()
-      document.querySelector('[data-role="lamp-switch"]')?.focus()
+    const r = roleOf(e)
+    if (r && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault(); e.stopPropagation(); toggleScene(r)
+      document.querySelector(`[data-role="${r}"]`)?.focus()
     }
   })
 

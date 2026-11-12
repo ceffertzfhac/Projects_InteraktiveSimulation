@@ -33,7 +33,6 @@ export const SHADOW_R_MAX = 140     // max. Kreisradius (px) bei aktiver Leinwan
 export const SHADOW_GAP = 40        // Abstand Kreisrand → Leinwand-Innenkante bzw. Linse (px)
 export const SCREEN_THICK = 8       // Leinwand-Dicke inkl. Rückwand (px)
 export const LAMP_DEPTH = 22        // Tiefe der Leuchte: Montageschiene + Fassungen + Röhre (px)
-export const SWITCH_LEN = 24        // Länge des Schalters am Ende der Leuchte (px)
 // Linienschreiber hinter der Leinwand (FK7 d): Schreibwerk mit Stiftschlitten an
 // der Leinwand, Papier läuft mit STRIP_SPEED nach außen auf eine Aufwickelrolle;
 // sichtbar sind (STRIP_LEN − STRIP_HEAD) / STRIP_SPEED = 5 s Aufzeichnung.
@@ -45,10 +44,18 @@ export const STRIP_LEN = 214        // Papierlänge ab Schreibwerk-Innenkante (p
 export const STRIP_SPEED = 40       // Vorschub (px/s)
 export const STRIP_LABEL = { V: 30, H: 16 }   // Platz für die Skalenbeschriftung am Streifenende
 export const BEAM_OVERHANG = 14     // Lichtband/Leinwand/Lampe ragen so weit über den Kreis (px)
-// Szenenzentrum je Layout × Leinwand-Ausrichtung (V = links/rechts, H = oben/unten)
+// Szenenzentrum je Layout × Leinwand-Ausrichtung (V = links/rechts, H = oben/unten).
+// Erlaubt sind nur übereinander+V und nebeneinander+H (FK8 g); die Stoppuhr weicht
+// in die freie Ecke neben der Lampe aus (STOPWATCH_SHIFT), der Kreis bleibt mittig.
 export const SHADOW_CENTERS = {
-  stackV: { cx: 225, cy: 300 }, stackH: { cx: 186, cy: 260 },
-  splitV: { cx: 225, cy: 360 }, splitH: { cx: 186, cy: 360 },
+  stackV: { cx: 225, cy: 240 }, stackH: { cx: 186, cy: 260 },
+  splitV: { cx: 225, cy: 360 }, splitH: { cx: 225, cy: 360 },
+}
+// Stoppuhr-Versatz (px) je Leinwandseite und Layout; Grund-bbox x 347–463, y 25–141
+export const STOPWATCH_BBOX = { x0: 347, y0: 25, x1: 463, y1: 141 }
+export const STOPWATCH_SHIFT = {
+  stack: { left: { dx: 125, dy: 0 }, right: { dx: -485, dy: 0 } },
+  split: { top: { dx: 0, dy: 552 } },
 }
 
 // ── Slider-Grenzen ────────────────────────────────────────────────────────────

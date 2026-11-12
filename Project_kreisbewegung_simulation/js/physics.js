@@ -41,6 +41,17 @@ export function shadowCoord(side, t) {
   const p = position(t)
   return side === 'left' || side === 'right' ? p.y : p.x
 }
+// Ein-/Aus-Protokolle (FK8): Liste [Beginn, Ende|null] der Aus-Intervalle in Sim-Zeit.
+// inIntervals: war zum Zeitpunkt t ausgeschaltet? recorderTime: Papierzeit τ des
+// Linienschreibers = t minus die bis t ausgeschaltete Zeit (Papier steht dann).
+export function inIntervals(t, log) {
+  return log.some(([s, e]) => t >= s && (e === null || t < e))
+}
+export function recorderTime(t, log) {
+  let off = 0
+  for (const [s, e] of log) if (s < t) off += Math.min(e === null ? t : e, t) - s
+  return t - off
+}
 export function angleDeg(t) {
   const a = (angleRad(t) * 180) / Math.PI
   // auf [0°, 360°) normieren

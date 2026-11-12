@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreisbewegung
-        <span class="version">v1.9.0</span>
+        <span class="version">v1.10.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -194,6 +194,13 @@ window.MathJax = {
           <option value="bottom">Leinwand unten · Lampe oben</option>
         </select>
       </div>
+      <div class="vis-toggle-row" style="margin-top:8px">
+        <span class="vis-label">Linienschreiber hinter der Leinwand</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle_recorder" checked>
+          <span class="toggle-track"></span><span class="toggle-thumb"></span>
+        </label>
+      </div>
       <div class="note shadow-info" id="shadow_info_y" style="display:none">
         Paralleles Licht längs \(x\): Der Schatten zeigt nur die
         \(y\)-Koordinate,
@@ -206,12 +213,20 @@ window.MathJax = {
         \[x(t) = R\cos(\varphi_0 + \omega\,t),\]
         eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
       </div>
+      <div class="note shadow-info" id="recorder_info" style="display:none">
+        Der Linienschreiber zeichnet die Lage des Schattens auf einem Papierstreifen
+        auf, der gleichmäßig von der Leinwand weg läuft. So wird aus der Hin- und
+        Herbewegung eine Kurve über der Zeit: dieselbe Sinus- bzw. Kosinusfunktion
+        wie im Diagramm. Lampe und Schreiber lassen sich in der Szene mit ihren
+        Schaltern an- und ausschalten; bei ausgeschalteter Lampe gibt es keinen
+        Schatten und damit keine Aufzeichnung.
+      </div>
     </div>
 
   </aside>
 
   <!-- ── CENTER: Simulation (oben) + Diagramm (unten, gestapelt) ──────── -->
-  <main class="center-area" id="center_area">
+  <main class="center-area" id="center_area" data-resizable-split>
     <div class="sim-wrapper">
       <svg id="main_svg" viewBox="0 0 450 480" preserveAspectRatio="xMidYMid meet">
         <defs>
@@ -415,6 +430,8 @@ window.MathJax = {
 <!-- I17: Bedien-Sidebar links ein-/ausklappbar (Kopfleiste „Bedienung“) -->
 <script type="module" src="../shared/js/panel-toggle.js"></script>
 <script type="module" src="../shared/js/fullscreen.js"></script>
+<!-- I24: Trennlinie Simulation/Diagramm verschiebbar (Pilot) -->
+<script type="module" src="../shared/js/split-divider.js"></script>
 <script type="module" src="js/ui.js"></script>
 </body>
 </html>

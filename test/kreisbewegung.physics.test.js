@@ -33,3 +33,23 @@ test('Schatten ist harmonisch: Amplitude R, Periode T, s\'\' = −ω²·s', () =
   const acc = (shadowCoord('top', t + h) - 2 * shadowCoord('top', t) + shadowCoord('top', t - h)) / (h * h)
   expect(acc).toBeCloseTo(-omega * omega * shadowCoord('top', t), 4)
 })
+
+// Linienschreiber (→ BACKLOG FK8): Papierzeit und Aus-Intervalle
+import { recorderTime, inIntervals } from '../Project_kreisbewegung_simulation/js/physics.js'
+
+test('Papier steht, solange der Schreiber aus ist', () => {
+  const log = [[1, 2.5], [4, null]]
+  expect(recorderTime(0.5, log)).toBeCloseTo(0.5, 12)
+  expect(recorderTime(2, log)).toBeCloseTo(1, 12)       // seit 1 s aus
+  expect(recorderTime(3, log)).toBeCloseTo(1.5, 12)     // 1,5 s Pause abgezogen
+  expect(recorderTime(6, log)).toBeCloseTo(2.5, 12)     // seit 4 s wieder aus
+  expect(recorderTime(3, [])).toBe(3)
+})
+
+test('inIntervals erkennt Aus-Zeiten (Beginn inklusive, Ende exklusive)', () => {
+  const log = [[1, 2], [3, null]]
+  expect(inIntervals(0.9, log)).toBe(false)
+  expect(inIntervals(1, log)).toBe(true)
+  expect(inIntervals(2, log)).toBe(false)
+  expect(inIntervals(99, log)).toBe(true)
+})

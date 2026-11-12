@@ -5,6 +5,32 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.10.0 — 2026-11-12
+
+### Neu
+- **Kippschalter für Lampe und Linienschreiber (→ BACKLOG FK8 a/b):** breite
+  Schiene mit rundem Knopf und Ein-Symbol, „AN“/„AUS“ in der Schiene; Klick
+  oder Enter/Leertaste. Ersetzt den kaum erkennbaren Wippschalter.
+- **Linienschreiber schaltbar:** Schreiber aus → Papier steht, Stift schreibt
+  nicht; Lampe aus → kein Schatten, der Stift bleibt stehen und schreibt erst
+  nach dem Wiedereinschalten weiter (Lücke in der Spur, FK8 h). Leinwandwechsel
+  oder erneutes Einblenden startet eine neue Aufzeichnung.
+- **Sidebar:** Schalter „Linienschreiber hinter der Leinwand“ (ohne Schreiber
+  sitzt die Skala wieder direkt an der Leinwand) und kurze Erklärung zum
+  Linienschreiber (FK8 c/i). Angabe „5 s“ entfernt (FK8 d).
+- **Aufwickelrolle dreht sich** sichtbar mit dem Papiervorschub (FK8 f).
+- **Leinwandauswahl kontextsensitiv (FK8 g):** im Layout „übereinander“ nur
+  links/rechts, „nebeneinander“ nur oben/unten; beim Layoutwechsel springt die
+  Wahl auf die entsprechende Seite.
+- **Kreis bleibt mittig (FK8 e):** die Zeichenfläche ist symmetrisch um den
+  Kreismittelpunkt, die Stoppuhr weicht bei aktiver Leinwand in die freie Ecke
+  neben der Lampe aus.
+- **Trennlinie Simulation ↔ Diagramm verschiebbar (Pilot, → BACKLOG I24):**
+  Griff auf der Trennlinie ziehen (40:60 … 60:40), Pfeiltasten ±2 %, Doppelklick
+  bzw. Pos1 = 50:50; Standard jetzt 50:50 (bisher 45:55 übereinander).
+  Gemeinsames Modul `shared/js/split-divider.js`.
+- Physik-Helfer `recorderTime()`/`inIntervals()` mit Vitest-Tests.
+
 ## v1.9.0 — 2026-11-12
 
 ### Neu (→ BACKLOG FK7)

@@ -98,7 +98,7 @@ body.dark .shadow-column { opacity: .35; }
 .recorder-carriage { fill: #d9dce2; stroke: #2e323a; stroke-width: .8; }
 .strip-pen       { fill: #c62828; stroke: #7a1515; stroke-width: .6; }
 .strip-arrow     { stroke: var(--text2); stroke-width: 1.2; }
-.strip-label     { fill: var(--text2); font-size: 9px; font-family: var(--font-ui); }
+.strip-label     { fill: var(--text2); font-size: 10px; font-family: var(--font-ui); }
 .shadow-tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
 .shadow-tick-label.r-label { fill: var(--accent); font-weight: 600; }
 .shadow-axis-label { fill: var(--text); font-size: 11px; font-family: var(--font-ui); }
@@ -109,15 +109,18 @@ body.dark .shadow-column { opacity: .35; }
 .tube-glow       { fill: var(--c-light); opacity: .45; }
 .tube-body       { fill: var(--c-tube); stroke: var(--c-light); stroke-width: 1; }
 .tube-body.off   { fill: var(--c-tube-off); stroke: #8a8f9a; }
-.lamp-switch     { cursor: pointer; }
-.lamp-switch:focus-visible { outline: none; }
-.lamp-switch:focus-visible .switch-plate { stroke: var(--accent); stroke-width: 2; }
-.switch-plate    { fill: var(--surface); stroke: var(--text2); stroke-width: 1; }
-.lamp-switch:hover .switch-plate { stroke: var(--accent); }
-.switch-rocker   { fill: #d4d6dc; stroke: #7a7f8a; stroke-width: .7; }
-.switch-rocker.pressed { fill: #8d919c; }
-.switch-rocker.on { fill: var(--accent); }
-.switch-mark     { fill: #1e1e22; font-size: 8px; font-family: var(--font-mono); font-weight: 700; pointer-events: none; }
+.scene-toggle    { cursor: pointer; }
+.scene-toggle:focus { outline: none; }
+.tg-track        { fill: #c9ccd4; stroke: #7a7f8a; stroke-width: .8; }
+.tg-track.on     { fill: var(--accent); stroke: var(--accent); }
+.scene-toggle:hover .tg-track, .scene-toggle:focus-visible .tg-track { stroke: var(--text); stroke-width: 1.6; }
+.tg-knob         { fill: #ffffff; stroke: #7a7f8a; stroke-width: .8; }
+.tg-icon         { fill: none; stroke: #7a7f8a; stroke-width: 1.1; stroke-linecap: round; }
+.tg-icon.on      { stroke: var(--accent); }
+.tg-label        { fill: var(--text); font-size: 11px; font-weight: 600; font-family: var(--font-ui); pointer-events: none; }
+.tg-state        { fill: #3a3e47; font-size: 9px; font-weight: 700; font-family: var(--font-ui); letter-spacing: .03em; pointer-events: none; }
+.tg-state.on     { fill: #ffffff; }
+.strip-roll-line { stroke: #b3ad98; stroke-width: 1; }
 .shadow-info     { font-size: .7rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
 
 /* ── Vektoren ──────────────────────────────────────────────────────────────── */
@@ -162,7 +165,7 @@ body.dark .shadow-column { opacity: .35; }
 .graph-title-text.small { font-size: 13px; }
 
 /* ── Center-Layout: Simulation oben, Diagramm unten (gestapelt) ──────────── */
-.center-area  { display: grid; grid-template-rows: 0.9fr 1.1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area  { display: grid; grid-template-rows: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); overflow: hidden; background: var(--bg); transition: background 0.3s; }
 .sim-wrapper  { position: relative; overflow: hidden; border-bottom: 3px solid var(--border2); background: var(--bg); }
 .graph-wrapper{ position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 
@@ -172,14 +175,13 @@ body.dark .shadow-column { opacity: .35; }
    ihn in der schmalen Zelle (für eine echte Portrait-Variante müssten
    GRAPH_W/GRAPH_H und Plot-Geometrie getauscht werden — bewußt offen für
    Folge-Iteration, da nur Probe). */
-.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.center-area.layout-split { grid-template-columns: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); grid-template-rows: 1fr; }
 .center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
 .center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
 
 @media (max-width: 1100px) {
-  .center-area { grid-template-rows: 0.9fr 1.1fr; }
   /* Auf schmalen Viewports Nebeneinander nicht erzwingen — bleibt gestapelt. */
-  .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 0.9fr 1.1fr; }
+  .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); }
   .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
 }
 
