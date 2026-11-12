@@ -1,10 +1,7 @@
 'use strict'
 
 import { store, DOM, initDOM } from './state.js'
-import {
-  graphOptions,
-  ANIM_CX, ANIM_CY_STACK, ANIM_CY_SPLIT,
-} from './constants.js'
+import { graphOptions } from './constants.js'
 import {
   recomputeDerived, precompute, extendMotionData, recalculateAxisLimits,
   position, velocity, acceleration, angleDeg, interpolateAt,
@@ -12,13 +9,22 @@ import {
 import {
   setupScene, updateScene, updateGraph, updateKennwerte,
   drawStopwatchMarks, drawSubdialMarks, initDigitalDisplaySegments,
-  fmt, updateGraphHover,
+  fmt, updateGraphHover, sceneCenter,
 } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
 
-// Sim-Zentrum layout-abhängig (gestapelt CY=260, Split CY=360); cx bleibt 225.
-function animCenter() {
-  return { cx: ANIM_CX, cy: store.layoutSplit ? ANIM_CY_SPLIT : ANIM_CY_STACK }
+// Sim-Zentrum layout-abhängig (gestapelt CY=260, Split CY=360); bei aktiver
+// Leinwand (FK6) verschoben, damit Lampe/Leinwand/Stoppuhr Platz haben.
+const animCenter = sceneCenter
+
+// ── Schattenprojektion (FK6): Hinweistext zur gewählten Leinwand ─────────────
+// Beide Varianten stehen statisch in index.html (MathJax beim Laden), JS blendet
+// nur um.
+function applyShadowInfo() {
+  const side = store.shadowSide
+  const vert = side === 'left' || side === 'right'
+  DOM.shadowInfoY.style.display = side !== 'off' && vert ? '' : 'none'
+  DOM.shadowInfoX.style.display = side !== 'off' && !vert ? '' : 'none'
 }
 
 // ── Theme (einheitlicher Key fh_theme auf allen Seiten) ──────────────────────
@@ -154,6 +160,8 @@ function resetSim(isPlayTrigger = false) {
   store.showAccelerationVector = DOM.togAccelerationVector.checked
   store.showAccelerationComponents = DOM.togAccelerationComponents.checked
   store.showTrajectory = DOM.togTrajectory.checked
+  store.shadowSide = DOM.shadowSelect.value
+  applyShadowInfo()
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
 
   recomputeDerived()
@@ -333,6 +341,13 @@ function setupUI() {
   ]
   visToggles.forEach(([togEl, key]) => {
     togEl.addEventListener('change', () => { store[key] = togEl.checked; resetSim(false) })
+  })
+
+  // Leinwand-Wahl (FK6): Szene neu aufbauen, Sim-Zeit bleibt (wie Layout-Wechsel)
+  DOM.shadowSelect.addEventListener('change', () => {
+    store.shadowSide = DOM.shadowSelect.value
+    applyShadowInfo()
+    relayout()
   })
 
   DOM.playBtn.addEventListener('click', startAnimation)

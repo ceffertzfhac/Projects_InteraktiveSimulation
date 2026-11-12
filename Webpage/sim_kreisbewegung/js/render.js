@@ -13,6 +13,8 @@ import {
   DIGITAL_FRAME_X, DIGITAL_FRAME_Y, DIGITAL_FRAME_W, DIGITAL_FRAME_H,
   DIGIT_SEGMENTS_MAP,
   graphTitles, graphAxisLabels, graphXAxisLabels,
+  SHADOW_R_MAX, SHADOW_GAP, SCREEN_THICK, LAMP_DEPTH, BEAM_OVERHANG,
+  SHADOW_CENTERS,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { linePlotIndex, frequency } from './physics.js'
@@ -28,6 +30,17 @@ const animH      = () => store.layoutSplit ? ANIM_H_SPLIT      : ANIM_H_STACK
 export const animCY = () => store.layoutSplit ? ANIM_CY_SPLIT    : ANIM_CY_STACK
 const graphW     = () => store.layoutSplit ? GRAPH_W_SPLIT     : GRAPH_W_STACK
 const graphHFull = () => store.layoutSplit ? GRAPH_H_SPLIT     : GRAPH_H_STACK
+
+// Szenenzentrum (Kreismittelpunkt in SVG-Koordinaten): ohne Leinwand das
+// layout-abhängige Standardzentrum, mit Leinwand (FK6) aus SHADOW_CENTERS, damit
+// Lampe, Leinwand und Stoppuhr nebeneinander Platz finden.
+const shadowActive = () => store.shadowSide !== 'off'
+const screenVertical = () => store.shadowSide === 'left' || store.shadowSide === 'right'
+export function sceneCenter() {
+  if (!shadowActive()) return { cx: ANIM_CX, cy: animCY() }
+  const key = (store.layoutSplit ? 'split' : 'stack') + (screenVertical() ? 'V' : 'H')
+  return SHADOW_CENTERS[key]
+}
 
 // ── Pfeilspitzen-Marker-Längen (px) ──────────────────────────────────────────
 // Alle Animations-Marker: markerWidth=5, markerUnits=strokeWidth (Default) →
@@ -93,7 +106,7 @@ function createStyledSvgText(svgEl, text) {
 
 // ── Zoom: passt ppm so an, daß der Kreisradius in die Zeichenfläche paßt ─────
 export function updateZoom() {
-  const usable = Math.min(ANIM_W, animH()) / 2 - 40
+  const usable = shadowActive() ? SHADOW_R_MAX : Math.min(ANIM_W, animH()) / 2 - 40
   const needed = store.R * DEFAULT_PIXELS_PER_METER
   store.zoomFactor = needed > usable ? usable / needed : 1
   store.currentPixelsPerMeter = DEFAULT_PIXELS_PER_METER * store.zoomFactor
@@ -104,24 +117,30 @@ export function updateZoom() {
 export function drawCoordSystem() {
   DOM.animationCoordSystem.innerHTML = ''
   const ppm = store.currentPixelsPerMeter
-  const cy = animCY()
+  const { cx, cy } = sceneCenter()
   const axLen = Math.max(2.0, store.R) * ppm * 1.05
+  // FK6: die Achse in Lichtrichtung endet vor Leinwand bzw. Lampe
+  const rPx = store.R * ppm
+  const axLenX = shadowActive() && screenVertical() ? rPx + 16 : axLen
+  const axLenY = shadowActive() && !screenVertical() ? rPx + 16 : axLen
   // x-Achse (Schaft um Marker-Länge kürzen, Spitze via refX am Original-Ende)
-  const axEnd = shortenEnd(ANIM_CX - 10, cy, ANIM_CX + axLen, cy, ARROW_LEN_AXIS)
+  const axEnd = shortenEnd(cx - 10, cy, cx + axLenX, cy, ARROW_LEN_AXIS)
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX - 10, y1: cy, x2: axEnd.x2, y2: axEnd.y2,
+    x1: cx - 10, y1: cy, x2: axEnd.x2, y2: axEnd.y2,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
-  const xl = el('text', { x: ANIM_CX + axLen + 8, y: cy + 4, 'font-size': 13, fill: 'var(--text)' })
+  const xl = el('text', { x: cx + axLenX + 5, y: cy - 6, 'font-size': 13, fill: 'var(--text)',
+    'font-style': 'italic' })
   xl.textContent = 'x'
   DOM.animationCoordSystem.appendChild(xl)
   // y-Achse
-  const ayEnd = shortenEnd(ANIM_CX, cy + 10, ANIM_CX, cy - axLen, ARROW_LEN_AXIS)
+  const ayEnd = shortenEnd(cx, cy + 10, cx, cy - axLenY, ARROW_LEN_AXIS)
   DOM.animationCoordSystem.appendChild(el('line', {
-    x1: ANIM_CX, y1: cy + 10, x2: ayEnd.x2, y2: ayEnd.y2,
+    x1: cx, y1: cy + 10, x2: ayEnd.x2, y2: ayEnd.y2,
     stroke: 'var(--text)', 'stroke-width': 1.2, 'marker-end': 'url(#anim-arrowhead)',
   }))
-  const yl = el('text', { x: ANIM_CX - 14, y: cy - axLen - 4, 'font-size': 13, fill: 'var(--text)' })
+  const yl = el('text', { x: cx - 14, y: cy - axLenY - 4, 'font-size': 13, fill: 'var(--text)',
+    'font-style': 'italic' })
   yl.textContent = 'y'
   DOM.animationCoordSystem.appendChild(yl)
 }
@@ -133,8 +152,137 @@ export function drawCoordSystem() {
 export function drawTrajectoryCircle() {
   const r = store.R * store.currentPixelsPerMeter
   DOM.disk.setAttribute('r', r)
-  DOM.disk.setAttribute('cx', ANIM_CX)
-  DOM.disk.setAttribute('cy', animCY())
+  const { cx, cy } = sceneCenter()
+  DOM.disk.setAttribute('cx', cx)
+  DOM.disk.setAttribute('cy', cy)
+}
+
+// ── Schattenprojektion: Lampe + Leinwand (→ BACKLOG FK6) ─────────────────────
+// Geometrie in zwei Koordinaten relativ zum Szenenzentrum:
+//   u = Abstand längs der Lichtrichtung (positiv zur Leinwand hin, px)
+//   w = SVG-Versatz längs der Leinwand (px; bei senkrechter Leinwand −y·ppm,
+//       bei waagerechter +x·ppm)
+// Die Lampe steht bei u < 0, die Leinwand bei u > 0. Paralleles Licht: der
+// Schatten des Punkts liegt auf der Leinwand bei demselben w wie der Punkt.
+function shadowFrame() {
+  const { cx, cy } = sceneCenter()
+  const side = store.shadowSide
+  const n = { left: [-1, 0], right: [1, 0], top: [0, -1], bottom: [0, 1] }[side]
+  const vert = screenVertical()
+  const r = store.R * store.currentPixelsPerMeter
+  const toXY = (u, w) => vert ? [cx + n[0] * u, cy + w] : [cx + w, cy + n[1] * u]
+  const rectUW = (u1, u2, w1, w2) => {
+    const [xa, ya] = toXY(u1, w1), [xb, yb] = toXY(u2, w2)
+    return { x: Math.min(xa, xb), y: Math.min(ya, yb), width: Math.abs(xb - xa), height: Math.abs(yb - ya) }
+  }
+  const d = r + SHADOW_GAP            // Leinwand-Innenkante bzw. Linse
+  const half = r + BEAM_OVERHANG      // halbe Breite von Lichtband/Leinwand/Lampe
+  return { cx, cy, side, n, vert, r, d, half, toXY, rectUW }
+}
+
+const rectPath = q => `M${q.x.toFixed(2)} ${q.y.toFixed(2)}h${q.width.toFixed(2)}v${q.height.toFixed(2)}h${(-q.width).toFixed(2)}z`
+const setRect = (elm, q) => { for (const k in q) elm.setAttribute(k, q[k].toFixed(2)) }
+
+// Statische Teile (Leinwand mit Skala, Leuchtstoffröhre), bei jedem setupScene neu
+export function drawShadowSetup() {
+  DOM.shadowStatic.innerHTML = ''
+  if (!shadowActive()) { DOM.shadowGroup.style.visibility = 'hidden'; return }
+  DOM.shadowGroup.style.visibility = 'visible'
+  const F = shadowFrame()
+  const { d, half, vert, rectUW, toXY } = F
+  const ppm = store.currentPixelsPerMeter
+  const outer = d + SCREEN_THICK
+
+  // Leinwand
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(d, outer, -half, half), class: 'shadow-screen' }))
+
+  // Skala auf der Außenseite: 1-2-4-5-Schritte, ±R hervorgehoben (Akzent)
+  const R = store.R
+  const step = niceStepLE(2 * R, 4)
+  const dec = (String(+step.toFixed(4)).split('.')[1] || '').length   // 0,25 → 2 Stellen
+  const sign = vert ? -1 : 1                      // Meter → w (senkrecht: SVG-y invertiert)
+  const ticks = []
+  for (let v = Math.ceil(-R / step - 1e-9) * step; v <= R + 1e-9; v = Math.round((v + step) * 1e9) / 1e9)
+    ticks.push({ v, isR: Math.abs(Math.abs(v) - R) < 1e-6 })
+  if (!ticks.some(tk => tk.isR && tk.v > 0)) ticks.push({ v: R, isR: true })
+  if (!ticks.some(tk => tk.isR && tk.v < 0)) ticks.push({ v: -R, isR: true })
+  const minGap = vert ? 12 : 22                   // Mindestabstand der Beschriftungen (px)
+  const rTicksW = ticks.filter(tk => tk.isR).map(tk => tk.v * ppm)
+  for (const tk of ticks) {
+    const w = sign * tk.v * ppm
+    const len = tk.isR ? 8 : 5
+    const [x1, y1] = toXY(outer, w), [x2, y2] = toXY(outer + len, w)
+    DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2,
+      class: tk.isR ? 'shadow-tick r-tick' : 'shadow-tick' }))
+    // normale Beschriftung entfällt, wenn sie mit einer ±R-Beschriftung kollidiert
+    if (!tk.isR && rTicksW.some(rw => Math.abs(Math.abs(rw) - Math.abs(tk.v * ppm)) < minGap
+        && Math.sign(rw) === Math.sign(tk.v))) continue
+    const [lx, ly] = toXY(outer + 10, w)
+    const lab = el('text', { class: tk.isR ? 'shadow-tick-label r-label' : 'shadow-tick-label' })
+    if (vert) {
+      lab.setAttribute('x', lx); lab.setAttribute('y', ly + 3.5)
+      lab.setAttribute('text-anchor', F.side === 'right' ? 'start' : 'end')
+    } else {
+      lab.setAttribute('x', lx)
+      lab.setAttribute('y', F.side === 'top' ? ly - 1 : ly + 8)
+      lab.setAttribute('text-anchor', 'middle')
+    }
+    lab.textContent = Math.abs(tk.v) < 1e-9 ? '0'
+      : fmt(tk.v, tk.isR ? Math.max(dec, 1) : dec)   // R-Regler: 0,1-m-Schritte
+    DOM.shadowStatic.appendChild(lab)
+  }
+  // Achsenbeschriftung der Leinwand: senkrecht unter dem unteren Ende,
+  // waagerecht links vom linken Ende
+  const axl = el('text', { class: 'shadow-axis-label' })
+  if (vert) {
+    const [x, y] = toXY(d + SCREEN_THICK / 2, half)
+    axl.setAttribute('x', x); axl.setAttribute('y', y + 15); axl.setAttribute('text-anchor', 'middle')
+    setAxisLabel(axl, 'y / m')
+  } else {
+    const [x, y] = toXY(d + SCREEN_THICK / 2, -half)
+    axl.setAttribute('x', x - 6); axl.setAttribute('y', y + 4); axl.setAttribute('text-anchor', 'end')
+    setAxisLabel(axl, 'x / m')
+  }
+  DOM.shadowStatic.appendChild(axl)
+
+  // Lampe als Leuchtstoffröhre (paralleles Licht): Reflektor dahinter, Leucht-
+  // schein, Röhre mit runden Enden, graue Endkappen mit je zwei Kontaktstiften
+  const cap = 9                                   // Länge einer Endkappe (px)
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - LAMP_DEPTH, -d - LAMP_DEPTH + 3, -half, half),
+    rx: 1.5, class: 'tube-reflector' }))
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 14, -d + 1, -half + cap - 2, half - cap + 2),
+    rx: 7.5, class: 'tube-glow' }))
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 11, -d - 2, -half + cap - 1, half - cap + 1),
+    rx: 4.5, class: 'tube-body' }))
+  for (const sgn of [-1, 1]) {
+    const w0 = sgn * (half - cap), w1 = sgn * (half - 2)
+    DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 12, -d - 1, Math.min(w0, w1), Math.max(w0, w1)),
+      rx: 1.5, class: 'tube-cap' }))
+    for (const u of [-d - 9, -d - 4]) {
+      const [x1, y1] = toXY(u, w1), [x2, y2] = toXY(u, sgn * half)
+      DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'tube-pin' }))
+    }
+  }
+}
+
+// Dynamische Teile: Lichtband, Schattensäule hinter dem Punkt, Schatten auf der Leinwand
+function updateShadow(p) {
+  if (!shadowActive()) return
+  const F = shadowFrame()
+  const { n, vert, d, half, rectUW } = F
+  const ppm = store.currentPixelsPerMeter
+  const outer = d + SCREEN_THICK
+  const dx = p.x * ppm, dy = -p.y * ppm
+  const uP = dx * n[0] + dy * n[1]               // Lage des Punkts längs des Lichts
+  const wOf = coord => (vert ? -coord : coord) * ppm
+  const wP = wOf(vert ? p.y : p.x)
+  const pr = POINT_RADIUS
+
+  // Lichtband durchgehend; die Schattensäule liegt als leicht dunkle Fläche
+  // darüber (dunkler als das beleuchtete Band, in beiden Themes)
+  DOM.lightBeam.setAttribute('d', rectPath(rectUW(-d, outer, -half, half)))
+  setRect(DOM.shadowColumn, rectUW(uP, outer, wP - pr, wP + pr))
+  setRect(DOM.screenShadow, rectUW(d - 1, outer + 1, wP - pr, wP + pr))
 }
 
 // ── Stoppuhr-Skalen ──────────────────────────────────────────────────────────
@@ -231,6 +379,7 @@ export function setupScene() {
   updateZoom()
   drawCoordSystem()
   drawTrajectoryCircle()
+  drawShadowSetup()
   // Stoppuhr oben rechts: auf 80 % (scale 0,80), etwa eine halbe Uhrbreite
   // zur Seite und noch ~0,2 Uhrbreite nach rechts + unten geschoben. Analog-
   // Kreis Ø 115 px, Center (405, 83), bbox x 347..463, y 25..141. Rechte
@@ -238,7 +387,7 @@ export function setupScene() {
   // Eck-Platzierung); LCD-Rahmen des Digital-Easteregg ragt weiter über
   // (analog ist Default).
   DOM.stopwatch.setAttribute('transform', 'translate(181, -13) scale(0.8)')
-  return { cx: ANIM_CX, cy: animCY() }
+  return sceneCenter()
 }
 
 // ── Vektor-Linie setzen (mit Sichtbarkeit) ───────────────────────────────────
@@ -307,6 +456,9 @@ export function updateScene(t, p, v, a, centers) {
     DOM.trajectoryPath.style.visibility = d ? 'visible' : 'hidden'
     DOM.disk.style.visibility = 'visible'
   }
+
+  // Schattenprojektion (FK6)
+  updateShadow(p)
 
   // Stoppuhr
   if (store.isDigitalDisplay) {

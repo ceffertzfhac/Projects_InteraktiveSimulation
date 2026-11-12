@@ -56,6 +56,8 @@ export const store = {
   showAccelerationVector: true,
   showAccelerationComponents: false,
   showTrajectory: true,
+  // Schattenprojektion (FK6): 'off' | 'left' | 'right' | 'top' | 'bottom' = Seite der Leinwand
+  shadowSide: 'off',
 
   // Precompute-Zeitreihen
   tData: [],
@@ -85,6 +87,16 @@ export function initDOM() {
   DOM.trajectoryPath = q('trajectory_path')
   DOM.point = q('point')
   DOM.zoomTextDisplay = q('zoom_text_display')
+
+  // Schattenprojektion (FK6)
+  DOM.shadowGroup = q('shadow_group')
+  DOM.shadowStatic = q('shadow_static')
+  DOM.lightBeam = q('light_beam')
+  DOM.shadowColumn = q('shadow_column')
+  DOM.screenShadow = q('screen_shadow')
+  DOM.shadowSelect = q('shadow_select')
+  DOM.shadowInfoX = q('shadow_info_x')
+  DOM.shadowInfoY = q('shadow_info_y')
 
   // Vektoren (Hauptvektoren + Komponenten)
   DOM.positionVector = q('position_vector')

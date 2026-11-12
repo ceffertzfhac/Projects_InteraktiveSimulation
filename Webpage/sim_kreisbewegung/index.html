@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreisbewegung
-        <span class="version">v1.7.1</span>
+        <span class="version">v1.8.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -165,6 +165,10 @@ window.MathJax = {
         <div class="legend-label">Komponente \(a_y\)</div>
         <div class="legend-swatch" style="background:var(--c-traj);opacity:.7"></div>
         <div class="legend-label">Bahnkurve</div>
+        <div class="legend-swatch" style="background:var(--c-light)"></div>
+        <div class="legend-label">Licht der Leuchtstoffröhre (parallel)</div>
+        <div class="legend-swatch" style="background:var(--c-shadow)"></div>
+        <div class="legend-label">Schatten auf der Leinwand</div>
       </div>
     </div>
 
@@ -175,6 +179,32 @@ window.MathJax = {
         <label class="speed-pill"><input type="radio" name="speed" value="0.5"><span>½×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.25"><span>¼×</span></label>
         <label class="speed-pill"><input type="radio" name="speed" value="0.125"><span>⅛×</span></label>
+      </div>
+    </div>
+
+    <div class="panel-section collapsible">
+      <button class="panel-label" type="button" aria-expanded="true">Schattenprojektion<span class="acc-chevron" aria-hidden="true">▾</span></button>
+      <div class="slider-label">Leinwand (Lampe steht gegenüber)</div>
+      <div>
+        <select id="shadow_select" class="select-field" title="Seite der Leinwand; die Lampe steht gegenüber">
+          <option value="off" selected>keine Leinwand</option>
+          <option value="left">Leinwand links · Lampe rechts</option>
+          <option value="right">Leinwand rechts · Lampe links</option>
+          <option value="top">Leinwand oben · Lampe unten</option>
+          <option value="bottom">Leinwand unten · Lampe oben</option>
+        </select>
+      </div>
+      <div class="note shadow-info" id="shadow_info_y" style="display:none">
+        Paralleles Licht längs \(x\): Der Schatten zeigt nur die
+        \(y\)-Koordinate,
+        \[y(t) = R\sin(\varphi_0 + \omega\,t),\]
+        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
+      </div>
+      <div class="note shadow-info" id="shadow_info_x" style="display:none">
+        Paralleles Licht längs \(y\): Der Schatten zeigt nur die
+        \(x\)-Koordinate,
+        \[x(t) = R\cos(\varphi_0 + \omega\,t),\]
+        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
       </div>
     </div>
 
@@ -202,6 +232,14 @@ window.MathJax = {
         </defs>
 
         <g id="animation_group">
+          <!-- Schattenprojektion (FK6): Lichtband, Schattensäule, Leinwand mit
+               Schatten, Leuchtstoffröhre — ganz hinten, unter Achsen/Kreis -->
+          <g id="shadow_group" style="visibility:hidden">
+            <path id="light_beam" class="light-beam" d=""/>
+            <rect id="shadow_column" class="shadow-column"/>
+            <g id="shadow_static"></g>
+            <rect id="screen_shadow" class="screen-shadow" rx="2"/>
+          </g>
           <g id="animation_coord_system"></g>
           <circle id="disk" cx="225" cy="260" r="100" fill="none" stroke="var(--c-traj)" stroke-width="0" opacity="0.06"/>
           <path id="trajectory_path" fill="none" stroke="var(--c-traj)" stroke-width="1.5" stroke-dasharray="4,4" d=""/>

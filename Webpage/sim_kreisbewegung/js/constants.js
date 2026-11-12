@@ -23,6 +23,23 @@ export const ANIM_CX = ANIM_W / 2
 export const ANIM_H_STACK = 480, ANIM_CY_STACK = 260
 export const ANIM_H_SPLIT = 720, ANIM_CY_SPLIT = 360
 
+// ── Schattenprojektion: Lampe + Leinwand (→ BACKLOG FK6) ─────────────────────
+// Paralleles Licht von der Lampe zur gegenüberliegenden Leinwand; der Schatten
+// des Massenpunkts zeigt nur EINE Koordinate (Leinwand links/rechts → y(t),
+// oben/unten → x(t)). Bei aktiver Leinwand wird der Kreis auf SHADOW_R_MAX
+// begrenzt und das Szenenzentrum je Layout so verschoben, daß Lampe, Leinwand
+// samt Skala und die Stoppuhr (oben rechts, bbox x ≥ 347, y ≤ 141) frei liegen.
+export const SHADOW_R_MAX = 140     // max. Kreisradius (px) bei aktiver Leinwand
+export const SHADOW_GAP = 40        // Abstand Kreisrand → Leinwand-Innenkante bzw. Linse (px)
+export const SCREEN_THICK = 6       // Leinwand-Dicke (px)
+export const LAMP_DEPTH = 18        // Tiefe der Leuchtstoffröhre samt Reflektor (px)
+export const BEAM_OVERHANG = 14     // Lichtband/Leinwand/Lampe ragen so weit über den Kreis (px)
+// Szenenzentrum je Layout × Leinwand-Ausrichtung (V = links/rechts, H = oben/unten)
+export const SHADOW_CENTERS = {
+  stackV: { cx: 225, cy: 300 }, stackH: { cx: 190, cy: 260 },
+  splitV: { cx: 225, cy: 360 }, splitH: { cx: 225, cy: 360 },
+}
+
 // ── Slider-Grenzen ────────────────────────────────────────────────────────────
 export const R_MIN = 0.5, R_MAX = 2.0         // Radius (m)
 export const PHI0_MIN = 0, PHI0_MAX = 360      // Anfangswinkel (°)

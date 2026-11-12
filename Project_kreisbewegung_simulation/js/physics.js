@@ -33,6 +33,14 @@ export function acceleration(t) {
   const phi = angleRad(t), w = store.omega, R = store.R
   return { x: -R * w * w * Math.cos(phi), y: -R * w * w * Math.sin(phi) }
 }
+// Schattenkoordinate auf der Leinwand bei parallelem Licht (→ BACKLOG FK6;
+// physikalische Aussage des Features, abgesichert per Vitest):
+// Leinwand links/rechts (Licht längs x) → y(t) = R·sin(φ); oben/unten (Licht
+// längs y) → x(t) = R·cos(φ). Beides eine harmonische Schwingung mit Amplitude R.
+export function shadowCoord(side, t) {
+  const p = position(t)
+  return side === 'left' || side === 'right' ? p.y : p.x
+}
 export function angleDeg(t) {
   const a = (angleRad(t) * 180) / Math.PI
   // auf [0°, 360°) normieren

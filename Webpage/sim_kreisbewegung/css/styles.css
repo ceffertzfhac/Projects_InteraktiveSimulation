@@ -18,6 +18,12 @@
   --c-ax:   #17a2b8;   /* a_x-Komponente  – Türkis */
   --c-ay:   #e0782d;  /* a_y-Komponente  – Orange */
   --c-traj: #7f7f7f;  /* Bahnkurve       – Grau */
+
+  /* Schattenprojektion (FK6) */
+  --c-light:  #f2b600;  /* Licht/Linse     – Warmgelb */
+  --c-shadow: #3c3c3c;  /* Schatten        – Dunkelgrau */
+  --c-screen: #f4f4f2;  /* Leinwand        – Hellgrau */
+  --c-tube:   #fffbe8;  /* Leuchtstoffröhre – fast weiß */
 }
 body.dark {
   --graph-bg:   #161925;
@@ -34,6 +40,11 @@ body.dark {
   --c-ax:   #56b4e9;
   --c-ay:   #f0e442;
   --c-traj: #9aa3b8;
+
+  --c-light:  #ffd84d;
+  --c-shadow: #000000;
+  --c-screen: #4a5068;
+  --c-tube:   #fffbe8;
 }
 
 /* ── Marker (Pfeilspitzen) ──────────────────────────────────────────────────── */
@@ -55,6 +66,25 @@ body.dark {
 #point           { fill: var(--accent); stroke: var(--text); }
 .zoom-text       { fill: var(--text2); font-family: var(--font-mono); font-size: 11px; }
 #zoom_text_display { fill: var(--text2); font-family: var(--font-mono); font-size: 11px; }
+
+/* ── Schattenprojektion: Lampe + Leinwand (FK6) ────────────────────────────── */
+.light-beam      { fill: var(--c-light); opacity: .22; }
+body.dark .light-beam { opacity: .16; }
+.shadow-column   { fill: var(--c-shadow); opacity: .13; }
+body.dark .shadow-column { opacity: .35; }
+.shadow-screen   { fill: var(--c-screen); stroke: var(--text2); stroke-width: 1; }
+.screen-shadow   { fill: var(--c-shadow); opacity: .8; }
+.shadow-tick     { stroke: var(--text2); stroke-width: 1; }
+.shadow-tick.r-tick { stroke: var(--accent); stroke-width: 1.6; }
+.shadow-tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
+.shadow-tick-label.r-label { fill: var(--accent); font-weight: 600; }
+.shadow-axis-label { fill: var(--text); font-size: 11px; font-family: var(--font-ui); }
+.tube-reflector  { fill: var(--text3); }
+.tube-glow       { fill: var(--c-light); opacity: .45; }
+.tube-body       { fill: var(--c-tube); stroke: var(--c-light); stroke-width: 1; }
+.tube-cap        { fill: #9a9ea8; stroke: #6c707a; stroke-width: .8; }
+.tube-pin        { stroke: #6c707a; stroke-width: 1.2; }
+.shadow-info     { font-size: .7rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
 
 /* ── Vektoren ──────────────────────────────────────────────────────────────── */
 #position_vector     { stroke: var(--c-r); }

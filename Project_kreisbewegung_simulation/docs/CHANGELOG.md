@@ -5,6 +5,26 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.8.0 — 2026-11-12
+
+### Neu
+- **Schattenprojektion mit Lampe und Leinwand (→ BACKLOG FK6).** Neuer Cluster
+  „Schattenprojektion“ als letzter Eintrag der linken Sidebar: Leinwand links,
+  rechts, oben oder unten wählbar, die Lampe (Leuchtstoffröhre mit Reflektor,
+  Endkappen und Kontaktstiften) steht jeweils gegenüber (Standard: keine
+  Leinwand). Die Röhre strahlt paralleles Licht ab; der Schatten des
+  Massenpunkts auf der Leinwand zeigt deshalb genau eine Koordinate —
+  links/rechts \(y(t)\), oben/unten \(x(t)\) — und schwingt harmonisch mit
+  Amplitude \(R\). Sichtbar sind das Lichtband mit einer leicht dunklen
+  Schattensäule hinter dem Punkt, der Schatten auf der Leinwand und eine
+  Skala in m auf der Leinwand mit hervorgehobenem \(\pm R\). Ein Hinweis mit der Gleichung der Schwingung
+  erscheint unter der Auswahl. Bei aktiver Leinwand wird der Kreis auf
+  140 px Radius begrenzt und das Szenenzentrum so verschoben, dass Lampe,
+  Leinwand und Stoppuhr frei liegen; die Achse in Lichtrichtung endet vor
+  Leinwand bzw. Lampe. Wechsel der Leinwand setzt die Zeit nicht zurück.
+  Legende um „Licht (parallel)“ und „Schatten auf der Leinwand“ ergänzt.
+  Physik-Helfer `shadowCoord()` mit Vitest-Test.
+
 ## v1.7.1 — 2026-10-26
 
 ### Behoben
