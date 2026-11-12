@@ -5,6 +5,13 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.1 — 2026-11-12
+
+### Geändert
+- **Lampe und Linienschreiber sind beim Laden aus (→ BACKLOG FK10).** Nach der
+  Wahl einer Leinwand werden sie über die Kippschalter in der Szene
+  eingeschaltet; ihr Zustand bleibt bei Reset und Parameteränderungen erhalten.
+
 ## v1.11.0 — 2026-11-12
 
 ### Neu

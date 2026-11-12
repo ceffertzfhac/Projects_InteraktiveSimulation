@@ -58,9 +58,9 @@ export const store = {
   showTrajectory: true,
   // Schattenprojektion (FK6): 'off' | 'left' | 'right' | 'top' | 'bottom' = Seite der Leinwand
   shadowSide: 'off',
-  lampOn: true,          // Schalter an der Leuchte (FK7)
+  lampOn: false,         // Schalter an der Leuchte (FK7); Standard aus (FK10)
   showRecorder: true,    // Linienschreiber hinter der Leinwand eingeblendet (Sidebar, FK8 c)
-  recorderOn: true,      // Schalter am Linienschreiber (FK8 b)
+  recorderOn: false,     // Schalter am Linienschreiber (FK8 b); Standard aus (FK10)
   // Aus-Intervalle [Beginn, Ende|null] in Sim-Zeit — bestimmen Papiervorschub und Tintenlücken
   lampOffLog: [],
   recStart: 0,           // Aufzeichnungsbeginn (Leinwandwechsel / Schreiber eingeblendet)
