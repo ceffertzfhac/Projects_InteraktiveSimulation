@@ -91,8 +91,9 @@ body.dark .shadow-column { opacity: .35; }
 .strip-time.bold { stroke: #8fc4a0; stroke-width: .8; }
 .strip-hole      { fill: var(--bg); stroke: #a9b8a8; stroke-width: .5; }
 .strip-trace     { fill: none; stroke: #c62828; stroke-width: 1.6; stroke-linejoin: round; }
-.strip-roll      { fill: #ece9dc; stroke: #8f8a78; stroke-width: .9; }
-.strip-roll-shine { stroke: #ffffff; stroke-width: 1.2; opacity: .8; }
+.strip-roll-body { fill: #fbfaf2; stroke: #8f8a78; stroke-width: .8; }
+.roll-core       { fill: #9a9585; stroke: #6f6a5c; stroke-width: .6; }
+.roll-edge       { stroke: #6f6a5c; stroke-width: .9; }
 .recorder-head   { fill: #4a4f5a; stroke: #2e323a; stroke-width: .8; }
 .recorder-rail   { stroke: #b9bdc6; stroke-width: 1.2; }
 .recorder-carriage { fill: #d9dce2; stroke: #2e323a; stroke-width: .8; }
@@ -120,7 +121,6 @@ body.dark .shadow-column { opacity: .35; }
 .tg-label        { fill: var(--text); font-size: 11px; font-weight: 600; font-family: var(--font-ui); pointer-events: none; }
 .tg-state        { fill: #3a3e47; font-size: 9px; font-weight: 700; font-family: var(--font-ui); letter-spacing: .03em; pointer-events: none; }
 .tg-state.on     { fill: #ffffff; }
-.strip-roll-line { stroke: #b3ad98; stroke-width: 1; }
 .shadow-info     { font-size: .7rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
 
 /* ── Vektoren ──────────────────────────────────────────────────────────────── */

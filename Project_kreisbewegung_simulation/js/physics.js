@@ -52,6 +52,21 @@ export function recorderTime(t, log) {
   for (const [s, e] of log) if (s < t) off += Math.min(e === null ? t : e, t) - s
   return t - off
 }
+// Aufwickelrolle des Linienschreibers (FK9), Ansicht senkrecht zur Rollenachse:
+// Das Papier läuft beim Auflaufpunkt u₀ tangential oben auf den Zylinder
+// (Radius r). Eine Papierstelle mit Bogenlänge s hinter u₀ liegt beim Winkel
+// φ = s/r und erscheint bei u = u₀ + r·sin φ; sichtbar nur auf der Vorderseite
+// (φ < π/2). Rückgabe { u, c } mit c = cos φ (Stauchung/Neigung) oder null.
+export function rollRadius(woundLen, r0, rMax, thick) {
+  return Math.min(rMax, Math.sqrt(r0 * r0 + thick * Math.max(0, woundLen) / Math.PI))
+}
+export function paperToRoll(ell, u0, r) {
+  if (ell <= u0) return { u: ell, c: 1 }
+  const phi = (ell - u0) / r
+  if (phi >= Math.PI / 2) return null
+  return { u: u0 + r * Math.sin(phi), c: Math.cos(phi) }
+}
+
 export function angleDeg(t) {
   const a = (angleRad(t) * 180) / Math.PI
   // auf [0°, 360°) normieren

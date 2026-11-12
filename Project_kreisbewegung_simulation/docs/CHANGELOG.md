@@ -5,6 +5,19 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.0 — 2026-11-12
+
+### Neu
+- **Echtes Aufwickeln am Linienschreiber (→ BACKLOG FK9).** Die Aufwickelrolle
+  ist ein Zylinder, auf den das Papier oben tangential aufläuft. Jede
+  Papierstelle mit Bogenlänge \(s\) hinter dem Auflaufpunkt liegt beim Winkel
+  \(\varphi = s/r\) und erscheint bei \(u_0 + r\sin\varphi\) — Tintenspur,
+  Zeitraster und Lochrand laufen so sichtbar auf die Rolle, werden zum Rand hin
+  gestaucht und schattiert und verschwinden am Viertelumfang. Der Radius wächst
+  mit der aufgewickelten Länge \(L\): \(r^2 = r_0^2 + d\,L/\pi\) (10 px bis
+  18 px). Die frühere angedeutete Streifen-Drehung entfällt. Physik-Helfer
+  `rollRadius()`/`paperToRoll()` mit Vitest-Tests.
+
 ## v1.10.0 — 2026-11-12
 
 ### Neu

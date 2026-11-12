@@ -53,3 +53,25 @@ test('inIntervals erkennt Aus-Zeiten (Beginn inklusive, Ende exklusive)', () => 
   expect(inIntervals(2, log)).toBe(false)
   expect(inIntervals(99, log)).toBe(true)
 })
+
+// Aufwickelrolle (→ BACKLOG FK9)
+import { rollRadius, paperToRoll } from '../Project_kreisbewegung_simulation/js/physics.js'
+
+test('Rollenradius wächst wie √(r₀² + d·L/π) und ist begrenzt', () => {
+  expect(rollRadius(0, 5, 11, 0.05)).toBe(5)
+  expect(rollRadius(-30, 5, 11, 0.05)).toBe(5)
+  expect(rollRadius(1000, 5, 11, 0.05)).toBeCloseTo(Math.sqrt(25 + 50 / Math.PI), 12)
+  expect(rollRadius(1e7, 5, 11, 0.05)).toBe(11)
+})
+
+test('Papier auf der Rolle: u = u₀ + r·sin(s/r), sichtbar bis zum Viertelumfang', () => {
+  expect(paperToRoll(90, 100, 8)).toEqual({ u: 90, c: 1 })            // noch flach
+  const m = paperToRoll(100 + 8 * Math.PI / 6, 100, 8)                 // φ = 30°
+  expect(m.u).toBeCloseTo(104, 10)
+  expect(m.c).toBeCloseTo(Math.cos(Math.PI / 6), 10)
+  expect(paperToRoll(100 + 8 * Math.PI / 2, 100, 8)).toBeNull()        // Rollenkante
+  // monoton und gestaucht: gleiche Bogenstücke werden zum Rand hin kürzer
+  const a = paperToRoll(102, 100, 8).u - paperToRoll(100.001, 100, 8).u
+  const b = paperToRoll(112, 100, 8).u - paperToRoll(110, 100, 8).u
+  expect(b).toBeLessThan(a)
+})

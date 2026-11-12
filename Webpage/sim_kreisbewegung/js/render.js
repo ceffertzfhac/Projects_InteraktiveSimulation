@@ -15,10 +15,11 @@ import {
   graphTitles, graphAxisLabels, graphXAxisLabels,
   SHADOW_R_MAX, SHADOW_GAP, SCREEN_THICK, LAMP_DEPTH, BEAM_OVERHANG,
   SHADOW_CENTERS, STOPWATCH_BBOX, STOPWATCH_SHIFT, STRIP_GAP, STRIP_HEAD, STRIP_ROLL, STRIP_LEN, STRIP_SPEED, STRIP_LABEL,
+  ROLL_R0, ROLL_R_MAX, PAPER_THICK,
   TIME_STEP,
 } from './constants.js'
 import { store, DOM } from './state.js'
-import { linePlotIndex, frequency, shadowCoord, recorderTime, inIntervals } from './physics.js'
+import { linePlotIndex, frequency, shadowCoord, recorderTime, inIntervals, rollRadius, paperToRoll } from './physics.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
@@ -375,37 +376,58 @@ function drawRecorder(F) {
   const sc = scaleTicks(), sign = vert ? -1 : 1
   const s0 = outer + STRIP_GAP, s1 = s0 + STRIP_LEN, uPen = s0 + STRIP_HEAD
   const add = e => { DOM.shadowStatic.appendChild(e); return e }
-  add(el('rect', { ...rectUW(s0, s1, -half, half), class: 'strip-paper' }))
-  // feine Wertelinien auf halben Schritten
-  for (let v = Math.ceil(-sc.R / sc.step - 1e-9) * sc.step - sc.step / 2; v <= sc.R; v += sc.step) {
-    if (Math.abs(v) > sc.R) continue
-    const [x1, y1] = toXY(s0, sign * v * ppm), [x2, y2] = toXY(s1, sign * v * ppm)
-    add(el('line', { x1, y1, x2, y2, class: 'strip-grid fine' }))
+  const vLines = (u1, u2, parent, clsFine = true) => {   // Wertelinien von u1 bis u2
+    const put = e => parent.appendChild(e)
+    if (clsFine) for (let v = Math.ceil(-sc.R / sc.step - 1e-9) * sc.step - sc.step / 2; v <= sc.R; v += sc.step) {
+      if (Math.abs(v) > sc.R) continue
+      const [x1, y1] = toXY(u1, sign * v * ppm), [x2, y2] = toXY(u2, sign * v * ppm)
+      put(el('line', { x1, y1, x2, y2, class: 'strip-grid fine' }))
+    }
+    for (const tk of sc.ticks) {
+      const w = sign * tk.v * ppm
+      const [x1, y1] = toXY(u1, w), [x2, y2] = toXY(u2, w)
+      put(el('line', { x1, y1, x2, y2,
+        class: tk.isR ? 'strip-grid r-grid' : (Math.abs(tk.v) < 1e-9 ? 'strip-grid zero' : 'strip-grid') }))
+    }
   }
-  // Zeitraster (fein alle 0,5 s, kräftig jede Sekunde) und Lochrand: Pools
+  // Aufwickelrolle (FK9), Teil 1: Kern-Enden und Wickelkörper (Größe je Frame);
+  // die linke Hälfte liegt unter dem auflaufenden Papier
+  for (const sgn of [-1, 1]) {
+    add(el('rect', { ...rectUW(s1 - 5, s1 + 5, sgn > 0 ? half : -half - 5, sgn > 0 ? half + 5 : -half),
+      rx: 1, class: 'roll-core' }))
+  }
+  DOM.rollBody = add(el('rect', { class: 'strip-roll-body' }))
+  // flaches Papier bis zum Auflaufpunkt
+  add(el('rect', { ...rectUW(s0, s1, -half, half), class: 'strip-paper' }))
+  vLines(s0, s1, DOM.shadowStatic)
+  // Wertelinien auf der Rolle, auf die sichtbare Wickelfläche beschnitten
+  const clip = el('clipPath', { id: 'roll_clip' })
+  DOM.rollClipRect = el('rect', {})
+  clip.appendChild(DOM.rollClipRect)
+  add(el('defs', {})).appendChild(clip)
+  const onRoll = add(el('g', { 'clip-path': 'url(#roll_clip)' }))
+  vLines(s1, s1 + ROLL_R_MAX + 1, onRoll)
+  // Zeitraster (fein alle 0,5 s, kräftig jede Sekunde) und Lochrand: Pools,
+  // groß genug für flaches Papier + Viertelumfang der Rolle
+  const extra = ROLL_R_MAX * Math.PI / 2
   DOM.stripTimeLines = add(el('g', {}))
-  for (let k = 0; k < Math.ceil(STRIP_LEN / (STRIP_SPEED / 2)) + 1; k++)
+  for (let k = 0; k < Math.ceil((STRIP_LEN + extra) / (STRIP_SPEED / 2)) + 1; k++)
     DOM.stripTimeLines.appendChild(el('line', { visibility: 'hidden' }))
   DOM.stripHoles = add(el('g', {}))
-  for (let k = 0; k < 2 * (Math.ceil(STRIP_LEN / 10) + 1); k++)
-    DOM.stripHoles.appendChild(el('circle', { r: 1.5, class: 'strip-hole', visibility: 'hidden' }))
-  for (const tk of sc.ticks) {
-    const w = sign * tk.v * ppm
-    const [x1, y1] = toXY(s0, w), [x2, y2] = toXY(s1, w)
-    add(el('line', { x1, y1, x2, y2,
-      class: tk.isR ? 'strip-grid r-grid' : (Math.abs(tk.v) < 1e-9 ? 'strip-grid zero' : 'strip-grid') }))
-  }
+  for (let k = 0; k < 2 * (Math.ceil((STRIP_LEN + extra) / 10) + 1); k++)
+    DOM.stripHoles.appendChild(el('ellipse', { class: 'strip-hole', visibility: 'hidden' }))
   drawScaleLabels(F, sc, s1 + STRIP_ROLL + 6, true)
   // Tintenspur (Pfad mit Lücken, wo Lampe oder Schreiber aus waren)
   DOM.stripTrace = add(el('path', { class: 'strip-trace', d: '' }))
-  // Aufwickelrolle: Zylinder mit Glanzlinie und mitlaufenden Streifen (Drehung)
-  add(el('rect', { ...rectUW(s1 - 1, s1 + STRIP_ROLL, -half - 2, half + 2), rx: STRIP_ROLL / 2, class: 'strip-roll' }))
-  DOM.stripRollLines = add(el('g', {}))
-  for (let k = 0; k < 4; k++) DOM.stripRollLines.appendChild(el('line', { class: 'strip-roll-line', visibility: 'hidden' }))
-  {
-    const [x1, y1] = toXY(s1 + STRIP_ROLL * 0.3, -half), [x2, y2] = toXY(s1 + STRIP_ROLL * 0.3, half)
-    add(el('line', { x1, y1, x2, y2, class: 'strip-roll-shine' }))
-  }
+  // Rolle, Teil 2: Schattierung des Zylinders (Verlauf, Lage je Frame)
+  const grad = el('linearGradient', { id: 'roll_shade', gradientUnits: 'userSpaceOnUse' })
+  for (const [o, a] of [[0, 0], [0.5, 0.06], [0.8, 0.22], [1, 0.5]])
+    grad.appendChild(el('stop', { offset: o, 'stop-color': '#000', 'stop-opacity': a }))
+  DOM.rollGrad = grad
+  add(el('defs', {})).appendChild(grad)
+  DOM.rollShade = add(el('rect', { fill: 'url(#roll_shade)' }))
+  DOM.rollEdge = add(el('line', { class: 'roll-edge' }))
+
   // Schreibwerk: Gehäuse, Führungsschiene, Schlitten mit Stift
   add(el('rect', { ...rectUW(s0 - 1, uPen - 3, -half - 3, half + 3), rx: 2.5, class: 'recorder-head' }))
   {
@@ -496,39 +518,45 @@ function updateRecorder(F, t, wOf) {
   const s0 = d + SCREEN_THICK + STRIP_GAP, s1 = s0 + STRIP_LEN, uPen = s0 + STRIP_HEAD
   const tau = recorderTime(t, store.recOffLog)
 
-  // Zeitraster und Lochrand laufen mit dem Papier
+  // Aufwickelrolle (FK9): Radius aus der aufgewickelten Länge; jede Papierstelle ℓ
+  // (flache Koordinate) wird über paperToRoll auf Papier bzw. Rolle abgebildet
+  const r = rollRadius(tau * STRIP_SPEED - (s1 - uPen), ROLL_R0, ROLL_R_MAX, PAPER_THICK)
+  setRect(DOM.rollBody, rectUW(s1 - r, s1 + r, -half, half))
+  setRect(DOM.rollClipRect, rectUW(s1, s1 + r, -half, half))
+  setRect(DOM.rollShade, rectUW(s1, s1 + r, -half, half))
+  {
+    const [gx1, gy1] = toXY(s1, 0), [gx2, gy2] = toXY(s1 + r, 0)
+    DOM.rollGrad.setAttribute('x1', gx1); DOM.rollGrad.setAttribute('y1', gy1)
+    DOM.rollGrad.setAttribute('x2', gx2); DOM.rollGrad.setAttribute('y2', gy2)
+    const [ex1, ey1] = toXY(s1 + r, -half), [ex2, ey2] = toXY(s1 + r, half)
+    DOM.rollEdge.setAttribute('x1', ex1); DOM.rollEdge.setAttribute('y1', ey1)
+    DOM.rollEdge.setAttribute('x2', ex2); DOM.rollEdge.setAttribute('y2', ey2)
+  }
+  const map = ell => paperToRoll(ell, s1, r)
+
+  // Zeitraster und Lochrand laufen mit dem Papier (auf der Rolle gestaucht)
   const lines = DOM.stripTimeLines.children
   const kMax = Math.floor(tau / 0.5)
   for (let j = 0; j < lines.length; j++) {
-    const k = kMax - j, u = uPen + (tau - k * 0.5) * STRIP_SPEED, ln = lines[j]
-    if (u > s1) { ln.style.visibility = 'hidden'; continue }
-    const [x1, y1] = toXY(u, -half + 7), [x2, y2] = toXY(u, half - 7)
+    const k = kMax - j, m = map(uPen + (tau - k * 0.5) * STRIP_SPEED), ln = lines[j]
+    if (!m) { ln.style.visibility = 'hidden'; continue }
+    const [x1, y1] = toXY(m.u, -half + 7), [x2, y2] = toXY(m.u, half - 7)
     ln.setAttribute('x1', x1); ln.setAttribute('y1', y1); ln.setAttribute('x2', x2); ln.setAttribute('y2', y2)
     ln.setAttribute('class', k % 2 === 0 ? 'strip-time bold' : 'strip-time')
     ln.style.visibility = 'visible'
   }
   const holes = DOM.stripHoles.children, off = (tau * STRIP_SPEED) % 10
   for (let k = 0; k < holes.length / 2; k++) {
-    const u = s0 + off + k * 10
-    for (const [m, w] of [[0, -half + 3.5], [1, half - 3.5]]) {
-      const h = holes[2 * k + m]
-      if (u > s1 - 1) { h.style.visibility = 'hidden'; continue }
-      const [x, y] = toXY(u, w)
-      h.setAttribute('cx', x); h.setAttribute('cy', y); h.style.visibility = 'visible'
+    const m = map(s0 + off + k * 10)
+    for (const [j, w] of [[0, -half + 3.5], [1, half - 3.5]]) {
+      const h = holes[2 * k + j]
+      if (!m) { h.style.visibility = 'hidden'; continue }
+      const [x, y] = toXY(m.u, w)
+      h.setAttribute('cx', x); h.setAttribute('cy', y)
+      h.setAttribute(vert ? 'rx' : 'ry', (1.5 * m.c).toFixed(2)); h.setAttribute(vert ? 'ry' : 'rx', 1.5)
+      h.style.visibility = 'visible'
     }
   }
-  // Aufwickelrolle dreht sich (FK8 f): Streifen auf der Vorderseite des
-  // Zylinders, Winkel = Papierweg / Rollenradius
-  const rr = STRIP_ROLL / 2, uc = s1 - 0.5 + (STRIP_ROLL + 1) / 2
-  const ang = (tau * STRIP_SPEED) / rr
-  ;[...DOM.stripRollLines.children].forEach((ln, j) => {
-    const a = ang + j * Math.PI / 2
-    if (Math.cos(a) < 0.15) { ln.style.visibility = 'hidden'; return }
-    const u = uc - rr * 0.9 * Math.sin(a)
-    const [x1, y1] = toXY(u, -half), [x2, y2] = toXY(u, half)
-    ln.setAttribute('x1', x1); ln.setAttribute('y1', y1); ln.setAttribute('x2', x2); ln.setAttribute('y2', y2)
-    ln.style.visibility = 'visible'
-  })
 
   // Schlitten folgt dem Schatten; bei ausgeschalteter Lampe bleibt er dort
   // stehen, wo der Schatten beim Ausschalten war
@@ -542,7 +570,7 @@ function updateRecorder(F, t, wOf) {
   // Tintenspur
   const writing = ti => ti >= store.recStart - 1e-9 && !inIntervals(ti, lampLog) && !inIntervals(ti, store.recOffLog)
   const arr = vert ? store.yData : store.xData
-  const span = (s1 - uPen) / STRIP_SPEED
+  const span = (s1 - uPen + r * Math.PI / 2) / STRIP_SPEED   // bis zur Rollenkante
   const iMax = Math.min(store.tData.length - 1, Math.floor(t / TIME_STEP + 1e-6))
   let path = '', down = false
   const pt = (u, w) => { const [x, y] = toXY(u, w); path += `${down ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`; down = true }
@@ -552,8 +580,9 @@ function updateRecorder(F, t, wOf) {
     if (ti < tau - span) break                    // τ(tᵢ) ≤ tᵢ → ab hier zu alt
     if (!writing(ti)) { down = false; continue }
     const age = tau - recorderTime(ti, store.recOffLog)
-    if (age > span) break
-    pt(uPen + age * STRIP_SPEED, wOf(arr[i]))
+    const m = map(uPen + age * STRIP_SPEED)
+    if (!m) break
+    pt(m.u, wOf(arr[i]))
   }
   DOM.stripTrace.setAttribute('d', path)
 }

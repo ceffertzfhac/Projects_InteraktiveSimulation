@@ -39,7 +39,12 @@ export const LAMP_DEPTH = 22        // Tiefe der Leuchte: Montageschiene + Fassu
 // Die Zeichenfläche wächst in Laufrichtung um den Schreiber (computeViewBox).
 export const STRIP_GAP = 3          // Abstand Leinwand-Rückseite → Schreibwerk (px)
 export const STRIP_HEAD = 14        // Tiefe des Schreibwerks; Stift an dessen Außenkante (px)
-export const STRIP_ROLL = 10        // Durchmesser der Aufwickelrolle (px)
+export const STRIP_ROLL = 20        // max. Ausdehnung der Rolle hinter dem Auflaufpunkt (px)
+// Aufwickelrolle (FK9): Papier läuft oben tangential auf; Radius wächst mit der
+// aufgewickelten Länge L: r² = r₀² + d·L/π (d = Papierdicke), begrenzt auf ROLL_R_MAX
+export const ROLL_R0 = 10           // Kernradius samt Anfangswicklung (px)
+export const ROLL_R_MAX = 18        // größter Radius (px)
+export const PAPER_THICK = 0.1      // Papierdicke (px)
 export const STRIP_LEN = 214        // Papierlänge ab Schreibwerk-Innenkante (px)
 export const STRIP_SPEED = 40       // Vorschub (px/s)
 export const STRIP_LABEL = { V: 30, H: 16 }   // Platz für die Skalenbeschriftung am Streifenende
