@@ -5,6 +5,25 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.9.0 — 2026-11-12
+
+### Neu (→ BACKLOG FK7)
+- **Leuchte mit echter Halterung:** Montageschiene mit Schrauben, Fassungen an
+  beiden Enden, die Röhre steckt dazwischen.
+- **An-/Aus-Schalter in der Szene:** Wippschalter am Ende der Leuchte (I/0),
+  per Klick oder Enter/Leertaste. Aus: Röhre grau, kein Licht, kein Schatten;
+  der Stift des Schreibers bleibt stehen, das Papier läuft weiter.
+- **Leinwand erkennbarer:** weißes Tuch zur Lampe hin, dunkle Rückwand,
+  schwarze Randstreifen an beiden Enden, Schriftzug „Leinwand“.
+- **Linienschreiber hinter der Leinwand:** Schreibwerk mit Stiftschlitten an
+  der Leinwand-Rückseite; der Stift folgt dem Schatten, das Endlospapier
+  (grünes Raster, Lochrand, Sekundenlinien) läuft mit 40 px/s von der Leinwand
+  weg nach außen auf eine Aufwickelrolle — Leinwand links → Papier läuft nach
+  links. Die rote Tintenspur zeigt die letzten 5 s als Sinus-/Kosinuskurve.
+  Die Skala in m (±R hervorgehoben) sitzt jetzt am äußeren Papierende.
+- Die Zeichenfläche wächst in Laufrichtung des Papiers, statt die Szene zu
+  verkleinern; die Zoom-Anzeige weicht bei Leinwand oben nach unten links aus.
+
 ## v1.8.0 — 2026-11-12
 
 ### Neu

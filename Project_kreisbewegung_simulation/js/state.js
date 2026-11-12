@@ -58,6 +58,7 @@ export const store = {
   showTrajectory: true,
   // Schattenprojektion (FK6): 'off' | 'left' | 'right' | 'top' | 'bottom' = Seite der Leinwand
   shadowSide: 'off',
+  lampOn: true,          // Schalter an der Leuchte (FK7)
 
   // Precompute-Zeitreihen
   tData: [],

@@ -31,13 +31,24 @@ export const ANIM_H_SPLIT = 720, ANIM_CY_SPLIT = 360
 // samt Skala und die Stoppuhr (oben rechts, bbox x ≥ 347, y ≤ 141) frei liegen.
 export const SHADOW_R_MAX = 140     // max. Kreisradius (px) bei aktiver Leinwand
 export const SHADOW_GAP = 40        // Abstand Kreisrand → Leinwand-Innenkante bzw. Linse (px)
-export const SCREEN_THICK = 6       // Leinwand-Dicke (px)
-export const LAMP_DEPTH = 18        // Tiefe der Leuchtstoffröhre samt Reflektor (px)
+export const SCREEN_THICK = 8       // Leinwand-Dicke inkl. Rückwand (px)
+export const LAMP_DEPTH = 22        // Tiefe der Leuchte: Montageschiene + Fassungen + Röhre (px)
+export const SWITCH_LEN = 24        // Länge des Schalters am Ende der Leuchte (px)
+// Linienschreiber hinter der Leinwand (FK7 d): Schreibwerk mit Stiftschlitten an
+// der Leinwand, Papier läuft mit STRIP_SPEED nach außen auf eine Aufwickelrolle;
+// sichtbar sind (STRIP_LEN − STRIP_HEAD) / STRIP_SPEED = 5 s Aufzeichnung.
+// Die Zeichenfläche wächst in Laufrichtung um den Schreiber (computeViewBox).
+export const STRIP_GAP = 3          // Abstand Leinwand-Rückseite → Schreibwerk (px)
+export const STRIP_HEAD = 14        // Tiefe des Schreibwerks; Stift an dessen Außenkante (px)
+export const STRIP_ROLL = 10        // Durchmesser der Aufwickelrolle (px)
+export const STRIP_LEN = 214        // Papierlänge ab Schreibwerk-Innenkante (px)
+export const STRIP_SPEED = 40       // Vorschub (px/s)
+export const STRIP_LABEL = { V: 30, H: 16 }   // Platz für die Skalenbeschriftung am Streifenende
 export const BEAM_OVERHANG = 14     // Lichtband/Leinwand/Lampe ragen so weit über den Kreis (px)
 // Szenenzentrum je Layout × Leinwand-Ausrichtung (V = links/rechts, H = oben/unten)
 export const SHADOW_CENTERS = {
-  stackV: { cx: 225, cy: 300 }, stackH: { cx: 190, cy: 260 },
-  splitV: { cx: 225, cy: 360 }, splitH: { cx: 225, cy: 360 },
+  stackV: { cx: 225, cy: 300 }, stackH: { cx: 186, cy: 260 },
+  splitV: { cx: 225, cy: 360 }, splitH: { cx: 186, cy: 360 },
 }
 
 // ── Slider-Grenzen ────────────────────────────────────────────────────────────

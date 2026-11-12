@@ -13,8 +13,9 @@ import {
   DIGITAL_FRAME_X, DIGITAL_FRAME_Y, DIGITAL_FRAME_W, DIGITAL_FRAME_H,
   DIGIT_SEGMENTS_MAP,
   graphTitles, graphAxisLabels, graphXAxisLabels,
-  SHADOW_R_MAX, SHADOW_GAP, SCREEN_THICK, LAMP_DEPTH, BEAM_OVERHANG,
-  SHADOW_CENTERS,
+  SHADOW_R_MAX, SHADOW_GAP, SCREEN_THICK, LAMP_DEPTH, SWITCH_LEN, BEAM_OVERHANG,
+  SHADOW_CENTERS, STRIP_GAP, STRIP_HEAD, STRIP_ROLL, STRIP_LEN, STRIP_SPEED, STRIP_LABEL,
+  TIME_STEP,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { linePlotIndex, frequency } from './physics.js'
@@ -183,7 +184,31 @@ function shadowFrame() {
 const rectPath = q => `M${q.x.toFixed(2)} ${q.y.toFixed(2)}h${q.width.toFixed(2)}v${q.height.toFixed(2)}h${(-q.width).toFixed(2)}z`
 const setRect = (elm, q) => { for (const k in q) elm.setAttribute(k, q[k].toFixed(2)) }
 
-// Statische Teile (Leinwand mit Skala, Leuchtstoffröhre), bei jedem setupScene neu
+// Sim-ViewBox: Standard 0 0 W H (layout-abhängig); bei aktiver Leinwand wächst
+// sie in Laufrichtung des Papierstreifens (FK7 d), statt die Szene zu
+// verkleinern — im gestapelten Layout ist seitlich ohnehin Platz frei.
+function computeViewBox() {
+  let x0 = 0, y0 = 0, x1 = ANIM_W, y1 = animH()
+  if (shadowActive()) {
+    const F = shadowFrame()
+    const far = F.d + SCREEN_THICK + STRIP_GAP + STRIP_LEN + STRIP_ROLL + STRIP_LABEL[F.vert ? 'V' : 'H'] + 6
+    if (F.side === 'left') x0 = Math.min(0, F.cx - far)
+    if (F.side === 'right') x1 = Math.max(ANIM_W, F.cx + far)
+    if (F.side === 'top') y0 = Math.min(0, F.cy - far)
+    if (F.side === 'bottom') y1 = Math.max(animH(), F.cy + far)
+  }
+  DOM.mainSvg.setAttribute('viewBox', `${x0} ${y0} ${x1 - x0} ${y1 - y0}`)
+  // Zoom-Anzeige oben links; bei Leinwand oben liegt dort der Schreiber → unten
+  // links (unten rechts steht das Zeit-Label)
+  const zt = DOM.zoomTextDisplay
+  if (store.shadowSide === 'top') {
+    zt.setAttribute('x', x0 + 12); zt.setAttribute('y', y1 - 4); zt.setAttribute('text-anchor', 'start')
+  } else {
+    zt.setAttribute('x', x0 + 12); zt.setAttribute('y', y0 + 20); zt.setAttribute('text-anchor', 'start')
+  }
+}
+
+// Statische Teile (Leinwand, Papierstreifen, Leuchte mit Schalter), bei jedem setupScene neu
 export function drawShadowSetup() {
   DOM.shadowStatic.innerHTML = ''
   if (!shadowActive()) { DOM.shadowGroup.style.visibility = 'hidden'; return }
@@ -193,31 +218,75 @@ export function drawShadowSetup() {
   const ppm = store.currentPixelsPerMeter
   const outer = d + SCREEN_THICK
 
-  // Leinwand
-  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(d, outer, -half, half), class: 'shadow-screen' }))
+  // Leinwand (Projektionsleinwand, FK7): weißes Tuch zur Lampe hin, dunkle
+  // Rückwand außen, schwarze Randstreifen an beiden Enden wie bei einer echten
+  // Leinwand; Schriftzug „Leinwand" im Spalt am Ende ohne Achsbeschriftung
+  const border = 7
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(d, outer, -half, half), class: 'screen-back' }))
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(d, outer - 2.5, -half + border, half - border),
+    class: 'screen-cloth' }))
+  for (const sgn of [-1, 1]) {
+    DOM.shadowStatic.appendChild(el('rect', { ...rectUW(d - 1, outer, sgn > 0 ? half - border : -half,
+      sgn > 0 ? half : -half + border), rx: 1.5, class: 'screen-border' }))
+  }
+  {
+    const wl = vert ? -half + border + 4 : half - border - 4   // senkrecht oben, waagerecht rechts
+    const [lx, ly] = toXY(d - 5, wl)
+    const lab = el('text', { x: lx, y: ly, class: 'screen-label' })
+    if (vert) {
+      lab.setAttribute('text-anchor', 'end')
+      lab.setAttribute('transform', `rotate(-90 ${lx} ${ly})`)
+      lab.setAttribute('dy', F.side === 'right' ? 0 : 7)
+    } else {
+      lab.setAttribute('text-anchor', 'end')
+      lab.setAttribute('dy', F.side === 'top' ? 7 : 0)
+    }
+    lab.textContent = 'Leinwand'
+    DOM.shadowStatic.appendChild(lab)
+  }
 
-  // Skala auf der Außenseite: 1-2-4-5-Schritte, ±R hervorgehoben (Akzent)
+  // Linienschreiber (FK7 d) auf der Außenseite der Leinwand: Endlospapier mit
+  // grünem Raster (Werte in 1-2-4-5-Schritten, ±R in Akzentfarbe) und Lochrand,
+  // Aufwickelrolle außen, Schreibwerk mit Stiftschlitten an der Leinwand.
+  // Bewegte Teile (Zeitraster, Lochrand, Tintenspur, Schlitten) in updateShadow.
   const R = store.R
   const step = niceStepLE(2 * R, 4)
   const dec = (String(+step.toFixed(4)).split('.')[1] || '').length   // 0,25 → 2 Stellen
   const sign = vert ? -1 : 1                      // Meter → w (senkrecht: SVG-y invertiert)
+  const s0 = outer + STRIP_GAP, s1 = s0 + STRIP_LEN, uPen = s0 + STRIP_HEAD
+  const lab0 = s1 + STRIP_ROLL + 6               // Beschriftung hinter der Rolle
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(s0, s1, -half, half), class: 'strip-paper' }))
   const ticks = []
   for (let v = Math.ceil(-R / step - 1e-9) * step; v <= R + 1e-9; v = Math.round((v + step) * 1e9) / 1e9)
     ticks.push({ v, isR: Math.abs(Math.abs(v) - R) < 1e-6 })
   if (!ticks.some(tk => tk.isR && tk.v > 0)) ticks.push({ v: R, isR: true })
   if (!ticks.some(tk => tk.isR && tk.v < 0)) ticks.push({ v: -R, isR: true })
+  // feine Wertelinien auf halben Schritten
+  for (let v = Math.ceil(-R / step - 1e-9) * step - step / 2; v <= R; v += step) {
+    if (Math.abs(v) > R) continue
+    const [x1, y1] = toXY(s0, sign * v * ppm), [x2, y2] = toXY(s1, sign * v * ppm)
+    DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'strip-grid fine' }))
+  }
+  // Zeitraster (fein alle 0,5 s, kräftig jede Sekunde) und Lochrand: Pools
+  DOM.stripTimeLines = el('g', {})
+  const nT = Math.ceil(STRIP_LEN / (STRIP_SPEED / 2)) + 1
+  for (let k = 0; k < nT; k++) DOM.stripTimeLines.appendChild(el('line', { visibility: 'hidden' }))
+  DOM.shadowStatic.appendChild(DOM.stripTimeLines)
+  DOM.stripHoles = el('g', {})
+  for (let k = 0; k < 2 * (Math.ceil(STRIP_LEN / 10) + 1); k++)
+    DOM.stripHoles.appendChild(el('circle', { r: 1.5, class: 'strip-hole', visibility: 'hidden' }))
+  DOM.shadowStatic.appendChild(DOM.stripHoles)
   const minGap = vert ? 12 : 22                   // Mindestabstand der Beschriftungen (px)
   const rTicksW = ticks.filter(tk => tk.isR).map(tk => tk.v * ppm)
   for (const tk of ticks) {
     const w = sign * tk.v * ppm
-    const len = tk.isR ? 8 : 5
-    const [x1, y1] = toXY(outer, w), [x2, y2] = toXY(outer + len, w)
+    const [x1, y1] = toXY(s0, w), [x2, y2] = toXY(s1, w)
     DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2,
-      class: tk.isR ? 'shadow-tick r-tick' : 'shadow-tick' }))
+      class: tk.isR ? 'strip-grid r-grid' : (Math.abs(tk.v) < 1e-9 ? 'strip-grid zero' : 'strip-grid') }))
     // normale Beschriftung entfällt, wenn sie mit einer ±R-Beschriftung kollidiert
     if (!tk.isR && rTicksW.some(rw => Math.abs(Math.abs(rw) - Math.abs(tk.v * ppm)) < minGap
         && Math.sign(rw) === Math.sign(tk.v))) continue
-    const [lx, ly] = toXY(outer + 10, w)
+    const [lx, ly] = toXY(lab0, w)
     const lab = el('text', { class: tk.isR ? 'shadow-tick-label r-label' : 'shadow-tick-label' })
     if (vert) {
       lab.setAttribute('x', lx); lab.setAttribute('y', ly + 3.5)
@@ -231,42 +300,117 @@ export function drawShadowSetup() {
       : fmt(tk.v, tk.isR ? Math.max(dec, 1) : dec)   // R-Regler: 0,1-m-Schritte
     DOM.shadowStatic.appendChild(lab)
   }
-  // Achsenbeschriftung der Leinwand: senkrecht unter dem unteren Ende,
-  // waagerecht links vom linken Ende
+  // Tintenspur
+  DOM.stripTrace = el('polyline', { class: 'strip-trace', points: '' })
+  DOM.shadowStatic.appendChild(DOM.stripTrace)
+  // Aufwickelrolle (Zylinder mit Glanzlinie)
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(s1 - 1, s1 + STRIP_ROLL, -half - 2, half + 2),
+    rx: STRIP_ROLL / 2, class: 'strip-roll' }))
+  {
+    const [x1, y1] = toXY(s1 + STRIP_ROLL * 0.35, -half), [x2, y2] = toXY(s1 + STRIP_ROLL * 0.35, half)
+    DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'strip-roll-shine' }))
+  }
+  // Schreibwerk: Gehäuse über dem Papieranfang, Führungsschiene, Schlitten mit
+  // Stift (Schlitten und Stift bewegen sich mit dem Schatten)
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(s0 - 1, uPen - 3, -half - 3, half + 3),
+    rx: 2.5, class: 'recorder-head' }))
+  {
+    const [x1, y1] = toXY(uPen - 7.5, -half - 1), [x2, y2] = toXY(uPen - 7.5, half + 1)
+    DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'recorder-rail' }))
+  }
+  DOM.stripCarriage = el('rect', { rx: 1.5, class: 'recorder-carriage' })
+  DOM.shadowStatic.appendChild(DOM.stripCarriage)
+  DOM.stripPen = el('circle', { r: 2.2, class: 'strip-pen' })
+  DOM.shadowStatic.appendChild(DOM.stripPen)
+
+  // Achsenbeschriftung am äußeren Streifenende: senkrechte Leinwand über der
+  // Beschriftungsspalte, waagerechte links von der Beschriftungszeile
   const axl = el('text', { class: 'shadow-axis-label' })
   if (vert) {
-    const [x, y] = toXY(d + SCREEN_THICK / 2, half)
-    axl.setAttribute('x', x); axl.setAttribute('y', y + 15); axl.setAttribute('text-anchor', 'middle')
+    const [x, y] = toXY(lab0, -half)
+    axl.setAttribute('x', x); axl.setAttribute('y', y - 6)
+    axl.setAttribute('text-anchor', F.side === 'right' ? 'start' : 'end')
     setAxisLabel(axl, 'y / m')
   } else {
-    const [x, y] = toXY(d + SCREEN_THICK / 2, -half)
-    axl.setAttribute('x', x - 6); axl.setAttribute('y', y + 4); axl.setAttribute('text-anchor', 'end')
+    const [x, y] = toXY(lab0, -half)
+    axl.setAttribute('x', x - 6); axl.setAttribute('y', F.side === 'top' ? y - 1 : y + 8)
+    axl.setAttribute('text-anchor', 'end')
     setAxisLabel(axl, 'x / m')
   }
   DOM.shadowStatic.appendChild(axl)
 
-  // Lampe als Leuchtstoffröhre (paralleles Licht): Reflektor dahinter, Leucht-
-  // schein, Röhre mit runden Enden, graue Endkappen mit je zwei Kontaktstiften
-  const cap = 9                                   // Länge einer Endkappe (px)
-  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - LAMP_DEPTH, -d - LAMP_DEPTH + 3, -half, half),
-    rx: 1.5, class: 'tube-reflector' }))
-  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 14, -d + 1, -half + cap - 2, half - cap + 2),
-    rx: 7.5, class: 'tube-glow' }))
-  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 11, -d - 2, -half + cap - 1, half - cap + 1),
-    rx: 4.5, class: 'tube-body' }))
-  for (const sgn of [-1, 1]) {
-    const w0 = sgn * (half - cap), w1 = sgn * (half - 2)
-    DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 12, -d - 1, Math.min(w0, w1), Math.max(w0, w1)),
-      rx: 1.5, class: 'tube-cap' }))
-    for (const u of [-d - 9, -d - 4]) {
-      const [x1, y1] = toXY(u, w1), [x2, y2] = toXY(u, sgn * half)
-      DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'tube-pin' }))
-    }
+  // Beschriftung „Linienschreiber" mit Pfeil in Papierlaufrichtung, neben dem Papier
+  // (senkrechte Leinwand unten, waagerechte links)
+  {
+    const wl = vert ? half + 11 : -half - 6
+    const [ax1, ay1] = toXY(uPen + 4, wl), [ax2, ay2] = toXY(uPen + 34, wl)
+    DOM.shadowStatic.appendChild(el('line', { x1: ax1, y1: ay1, x2: ax2, y2: ay2,
+      class: 'strip-arrow', 'marker-end': 'url(#anim-arrowhead)' }))
+    const [tx, ty] = toXY(uPen + 44, wl)
+    const lt = el('text', { x: tx, y: ty + 3, class: 'strip-label', 'text-anchor': 'start' })
+    if (!vert) {
+      lt.setAttribute('transform', `rotate(-90 ${tx} ${ty})`)
+      lt.setAttribute('text-anchor', F.side === 'top' ? 'start' : 'end')
+    } else if (F.side === 'left') lt.setAttribute('text-anchor', 'end')
+    lt.textContent = 'Linienschreiber · 5 s'
+    DOM.shadowStatic.appendChild(lt)
   }
+
+  // Leuchte (FK7): Montageschiene hinten mit zwei Schrauben, Fassungen an beiden
+  // Enden, dazwischen die Röhre (an: hell mit Leuchtschein, aus: grau), am
+  // freien Ende ein anklickbarer Wippschalter (I = an, 0 = aus)
+  const on = store.lampOn
+  const L = LAMP_DEPTH, sock = 10               // Fassungslänge längs der Röhre (px)
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - L, -d - L + 7, -half, half),
+    rx: 2, class: 'lamp-rail' }))
+  for (const sgn of [-1, 1]) {
+    const [sx, sy] = toXY(-d - L + 3.5, sgn * (half - sock - 10))
+    DOM.shadowStatic.appendChild(el('circle', { cx: sx, cy: sy, r: 1.6, class: 'lamp-screw' }))
+  }
+  if (on) DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 16, -d + 1, -half + sock - 2, half - sock + 2),
+    rx: 8.5, class: 'tube-glow' }))
+  DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - 13, -d - 3, -half + sock - 3, half - sock + 3),
+    rx: 5, class: on ? 'tube-body' : 'tube-body off' }))
+  for (const sgn of [-1, 1]) {
+    const w0 = sgn * (half - sock), w1 = sgn * half
+    DOM.shadowStatic.appendChild(el('rect', { ...rectUW(-d - L + 6, -d - 1, Math.min(w0, w1), Math.max(w0, w1)),
+      rx: 2, class: 'lamp-socket' }))
+    // Schlitz der Fassung, in dem die Röhre steckt
+    const [x1, y1] = toXY(-d - 8, w0 + sgn * 3), [x2, y2] = toXY(-d - 8, w1 - sgn * 2)
+    DOM.shadowStatic.appendChild(el('line', { x1, y1, x2, y2, class: 'lamp-socket-slot' }))
+  }
+
+  // Wippschalter am freien Ende: senkrechte Leuchte unten, waagerechte links
+  // (dort kollidiert nichts mit Stoppuhr oder Leinwandbeschriftung)
+  const ws = vert ? 1 : -1
+  const wA = ws * (half + 2), wB = ws * (half + 2 + SWITCH_LEN)
+  const sw = el('g', { class: 'lamp-switch', 'data-role': 'lamp-switch', role: 'button',
+    tabindex: 0, 'aria-label': on ? 'Lampe ausschalten' : 'Lampe einschalten' })
+  const tip = el('title', {}); tip.textContent = on ? 'Lampe ausschalten' : 'Lampe einschalten'
+  sw.appendChild(tip)
+  sw.appendChild(el('rect', { ...rectUW(-d - L, -d - 1, Math.min(wA, wB), Math.max(wA, wB)),
+    rx: 3, class: 'switch-plate' }))
+  // Wippe: zwei Hälften längs w; die gedrückte Hälfte ist dunkel, die andere
+  // trägt bei „an" die Akzentfarbe
+  const wm = (wA + wB) / 2, inset = 4
+  const half1 = [wA + ws * inset, wm], half2 = [wm, wB - ws * inset]
+  const rk = ([p, q], cls) => sw.appendChild(el('rect', { ...rectUW(-d - L + 5, -d - 6,
+    Math.min(p, q), Math.max(p, q)), class: cls }))
+  rk(half1, on ? 'switch-rocker on' : 'switch-rocker pressed')
+  rk(half2, on ? 'switch-rocker pressed' : 'switch-rocker')
+  const mark = (wc, txt) => {
+    const [mx, my] = toXY(-d - L / 2 - 3.5, wc)
+    const t = el('text', { x: mx, y: my + 3, 'text-anchor': 'middle', class: 'switch-mark' })
+    t.textContent = txt
+    sw.appendChild(t)
+  }
+  mark((half1[0] + half1[1]) / 2, 'I')
+  mark((half2[0] + half2[1]) / 2, '0')
+  DOM.shadowStatic.appendChild(sw)
 }
 
 // Dynamische Teile: Lichtband, Schattensäule hinter dem Punkt, Schatten auf der Leinwand
-function updateShadow(p) {
+function updateShadow(t, p) {
   if (!shadowActive()) return
   const F = shadowFrame()
   const { n, vert, d, half, rectUW } = F
@@ -278,11 +422,66 @@ function updateShadow(p) {
   const wP = wOf(vert ? p.y : p.x)
   const pr = POINT_RADIUS
 
+  // Lampe aus (FK7): kein Licht, also auch kein Schatten
+  const lit = store.lampOn ? 'visible' : 'hidden'
+  DOM.lightBeam.style.visibility = lit
+  DOM.shadowColumn.style.visibility = lit
+  DOM.screenShadow.style.visibility = lit
+  DOM.stripTrace.style.visibility = lit
+
+  // Linienschreiber: Zeitraster und Lochrand laufen mit dem Papier nach außen
+  const s0 = outer + STRIP_GAP, s1 = s0 + STRIP_LEN, uPen = s0 + STRIP_HEAD
+  const lines = DOM.stripTimeLines.children
+  const halfS = 0.5, kMax = Math.floor(t / halfS)
+  for (let j = 0; j < lines.length; j++) {
+    const k = kMax - j
+    const u = uPen + (t - k * halfS) * STRIP_SPEED
+    const ln = lines[j]
+    if (u > s1) { ln.style.visibility = 'hidden'; continue }
+    const [x1, y1] = F.toXY(u, -half + 7), [x2, y2] = F.toXY(u, half - 7)
+    ln.setAttribute('x1', x1); ln.setAttribute('y1', y1); ln.setAttribute('x2', x2); ln.setAttribute('y2', y2)
+    ln.setAttribute('class', k % 2 === 0 ? 'strip-time bold' : 'strip-time')
+    ln.style.visibility = 'visible'
+  }
+  const holes = DOM.stripHoles.children, nH = holes.length / 2
+  const off = (t * STRIP_SPEED) % 10
+  for (let k = 0; k < nH; k++) {
+    const u = s0 + off + k * 10
+    for (const [m, w] of [[0, -half + 3.5], [1, half - 3.5]]) {
+      const h = holes[2 * k + m]
+      if (u > s1 - 1) { h.style.visibility = 'hidden'; continue }
+      const [x, y] = F.toXY(u, w)
+      h.setAttribute('cx', x); h.setAttribute('cy', y); h.style.visibility = 'visible'
+    }
+  }
+  // Schlitten folgt dem Schatten (auch bei ausgeschalteter Lampe: steht still)
+  const wPen = store.lampOn ? wP : (DOM.stripPen.dataset.w !== undefined ? +DOM.stripPen.dataset.w : wP)
+  DOM.stripPen.dataset.w = wPen
+  setRect(DOM.stripCarriage, rectUW(uPen - 12, uPen - 1, wPen - 5, wPen + 5))
+  const [penX, penY] = F.toXY(uPen, wPen)
+  DOM.stripPen.setAttribute('cx', penX); DOM.stripPen.setAttribute('cy', penY)
+  if (!store.lampOn) return
+
   // Lichtband durchgehend; die Schattensäule liegt als leicht dunkle Fläche
   // darüber (dunkler als das beleuchtete Band, in beiden Themes)
   DOM.lightBeam.setAttribute('d', rectPath(rectUW(-d, outer, -half, half)))
   setRect(DOM.shadowColumn, rectUW(uP, outer, wP - pr, wP + pr))
-  setRect(DOM.screenShadow, rectUW(d - 1, outer + 1, wP - pr, wP + pr))
+  setRect(DOM.screenShadow, rectUW(d, outer - 2.5, wP - pr, wP + pr))
+
+  // Tintenspur: neuester Punkt am Stift, ältere weiter außen
+  // (nur seit t = 0, Stützpunkte aus den Precompute-Daten)
+  const arr = vert ? store.yData : store.xData
+  const iMin = Math.max(0, Math.ceil((t - (s1 - uPen) / STRIP_SPEED) / TIME_STEP))
+  const iMax = Math.min(store.tData.length - 1, Math.floor(t / TIME_STEP + 1e-6))
+  let pts = ''
+  const pushPt = (u, w) => { const [x, y] = F.toXY(u, w); pts += `${x.toFixed(1)},${y.toFixed(1)} ` }
+  pushPt(uPen, wP)
+  for (let i = iMax; i >= iMin; i--) {
+    const u = uPen + (t - store.tData[i]) * STRIP_SPEED
+    if (u > s1 || u < uPen) continue
+    pushPt(u, wOf(arr[i]))
+  }
+  DOM.stripTrace.setAttribute('points', pts)
 }
 
 // ── Stoppuhr-Skalen ──────────────────────────────────────────────────────────
@@ -375,8 +574,8 @@ export function updateDigitalDisplay(totalSeconds) {
 // ── Szene aufbauen (statische Elemente) ──────────────────────────────────────
 export function setupScene() {
   // Sim-ViewBox layout-abhängig (gestapelt 450×480, Split 450×720 portrait)
-  DOM.mainSvg.setAttribute('viewBox', `0 0 ${ANIM_W} ${animH()}`)
   updateZoom()
+  computeViewBox()
   drawCoordSystem()
   drawTrajectoryCircle()
   drawShadowSetup()
@@ -458,7 +657,7 @@ export function updateScene(t, p, v, a, centers) {
   }
 
   // Schattenprojektion (FK6)
-  updateShadow(p)
+  updateShadow(t, p)
 
   // Stoppuhr
   if (store.isDigitalDisplay) {

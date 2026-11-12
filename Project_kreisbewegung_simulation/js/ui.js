@@ -350,6 +350,19 @@ function setupUI() {
     relayout()
   })
 
+  // An-/Aus-Schalter an der Leuchte (FK7): Teil der neu aufgebauten Szene,
+  // daher per Delegation; Enter/Leertaste für die Tastatur
+  const toggleLamp = () => { store.lampOn = !store.lampOn; relayout() }
+  DOM.shadowStatic.addEventListener('click', e => {
+    if (e.target.closest('[data-role="lamp-switch"]')) toggleLamp()
+  })
+  DOM.shadowStatic.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('[data-role="lamp-switch"]')) {
+      e.preventDefault(); toggleLamp()
+      document.querySelector('[data-role="lamp-switch"]')?.focus()
+    }
+  })
+
   DOM.playBtn.addEventListener('click', startAnimation)
   DOM.pauseBtn.addEventListener('click', stopAnimation)
   DOM.resetBtn.addEventListener('click', () => { store.visualTime = 0; store.simulatedTime = 0; resetSim(false) })

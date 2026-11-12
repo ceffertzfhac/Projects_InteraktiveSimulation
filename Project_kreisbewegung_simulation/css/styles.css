@@ -22,7 +22,9 @@
   /* Schattenprojektion (FK6) */
   --c-light:  #f2b600;  /* Licht/Linse     – Warmgelb */
   --c-shadow: #3c3c3c;  /* Schatten        – Dunkelgrau */
-  --c-screen: #f4f4f2;  /* Leinwand        – Hellgrau */
+  --c-screen: #ffffff;  /* Leinwand-Tuch   – Weiß */
+  --c-screen-back: #5b606b; /* Leinwand-Rückwand */
+  --c-tube-off: #dadce2; /* Röhre aus */
   --c-tube:   #fffbe8;  /* Leuchtstoffröhre – fast weiß */
 }
 body.dark {
@@ -43,7 +45,9 @@ body.dark {
 
   --c-light:  #ffd84d;
   --c-shadow: #000000;
-  --c-screen: #4a5068;
+  --c-screen: #e6e8ee;
+  --c-screen-back: #8a90a2;
+  --c-tube-off: #6a7083;
   --c-tube:   #fffbe8;
 }
 
@@ -72,18 +76,48 @@ body.dark {
 body.dark .light-beam { opacity: .16; }
 .shadow-column   { fill: var(--c-shadow); opacity: .13; }
 body.dark .shadow-column { opacity: .35; }
-.shadow-screen   { fill: var(--c-screen); stroke: var(--text2); stroke-width: 1; }
+.screen-back     { fill: var(--c-screen-back); }
+.screen-cloth, .screen-back { stroke: var(--text3); stroke-width: .6; }
+.screen-cloth    { fill: var(--c-screen); }
+.screen-border   { fill: #1e1e22; }
+.screen-label    { fill: var(--text2); font-size: 9px; font-family: var(--font-ui); font-style: normal; letter-spacing: .04em; }
 .screen-shadow   { fill: var(--c-shadow); opacity: .8; }
-.shadow-tick     { stroke: var(--text2); stroke-width: 1; }
-.shadow-tick.r-tick { stroke: var(--accent); stroke-width: 1.6; }
+.strip-paper     { fill: #fbfaf2; stroke: #a9b8a8; stroke-width: .8; }
+.strip-grid      { stroke: #8fc4a0; stroke-width: .8; }
+.strip-grid.fine { stroke: #cfe6d5; stroke-width: .6; }
+.strip-grid.zero { stroke: #4f9a6a; stroke-width: 1; }
+.strip-grid.r-grid { stroke: var(--accent); stroke-width: 1.1; }
+.strip-time      { stroke: #cfe6d5; stroke-width: .6; }
+.strip-time.bold { stroke: #8fc4a0; stroke-width: .8; }
+.strip-hole      { fill: var(--bg); stroke: #a9b8a8; stroke-width: .5; }
+.strip-trace     { fill: none; stroke: #c62828; stroke-width: 1.6; stroke-linejoin: round; }
+.strip-roll      { fill: #ece9dc; stroke: #8f8a78; stroke-width: .9; }
+.strip-roll-shine { stroke: #ffffff; stroke-width: 1.2; opacity: .8; }
+.recorder-head   { fill: #4a4f5a; stroke: #2e323a; stroke-width: .8; }
+.recorder-rail   { stroke: #b9bdc6; stroke-width: 1.2; }
+.recorder-carriage { fill: #d9dce2; stroke: #2e323a; stroke-width: .8; }
+.strip-pen       { fill: #c62828; stroke: #7a1515; stroke-width: .6; }
+.strip-arrow     { stroke: var(--text2); stroke-width: 1.2; }
+.strip-label     { fill: var(--text2); font-size: 9px; font-family: var(--font-ui); }
 .shadow-tick-label { fill: var(--text2); font-size: 10px; font-family: var(--font-mono); }
 .shadow-tick-label.r-label { fill: var(--accent); font-weight: 600; }
 .shadow-axis-label { fill: var(--text); font-size: 11px; font-family: var(--font-ui); }
-.tube-reflector  { fill: var(--text3); }
+.lamp-rail       { fill: #b9bdc6; stroke: #7a7f8a; stroke-width: .8; }
+.lamp-screw      { fill: #6c707a; }
+.lamp-socket     { fill: #e9eaee; stroke: #7a7f8a; stroke-width: .9; }
+.lamp-socket-slot { stroke: #7a7f8a; stroke-width: 1; }
 .tube-glow       { fill: var(--c-light); opacity: .45; }
 .tube-body       { fill: var(--c-tube); stroke: var(--c-light); stroke-width: 1; }
-.tube-cap        { fill: #9a9ea8; stroke: #6c707a; stroke-width: .8; }
-.tube-pin        { stroke: #6c707a; stroke-width: 1.2; }
+.tube-body.off   { fill: var(--c-tube-off); stroke: #8a8f9a; }
+.lamp-switch     { cursor: pointer; }
+.lamp-switch:focus-visible { outline: none; }
+.lamp-switch:focus-visible .switch-plate { stroke: var(--accent); stroke-width: 2; }
+.switch-plate    { fill: var(--surface); stroke: var(--text2); stroke-width: 1; }
+.lamp-switch:hover .switch-plate { stroke: var(--accent); }
+.switch-rocker   { fill: #d4d6dc; stroke: #7a7f8a; stroke-width: .7; }
+.switch-rocker.pressed { fill: #8d919c; }
+.switch-rocker.on { fill: var(--accent); }
+.switch-mark     { fill: #1e1e22; font-size: 8px; font-family: var(--font-mono); font-weight: 700; pointer-events: none; }
 .shadow-info     { font-size: .7rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
 
 /* ── Vektoren ──────────────────────────────────────────────────────────────── */
