@@ -285,6 +285,28 @@ body.dark .theme-toggle::before { transform: translateX(16px); background: #fff;
   color: var(--text3); pointer-events: none;
 }
 
+/* ── Verschiebbare Trennlinie Simulation ↔ Diagramm (I24, shared/js/split-divider.js) ──
+   Griff liegt mittig auf der Kante; die Sim nutzt --split-a/--split-b in ihrem Grid. */
+[data-resizable-split] { position: relative; }
+.split-handle {
+  position: absolute; z-index: 5; width: 100%; height: 12px; margin-top: -7.5px;
+  cursor: row-resize; touch-action: none; outline: none;
+}
+.split-handle.vertical { width: 12px; height: 100%; margin-top: 0; margin-left: -7.5px; cursor: col-resize; }
+.split-handle::before {          /* Griffleiste in der Mitte */
+  content: ''; position: absolute; left: 50%; top: 50%; width: 42px; height: 5px;
+  transform: translate(-50%, -50%); border-radius: 3px;
+  background: var(--border2); transition: background .15s, width .15s;
+}
+.split-handle.vertical::before { width: 5px; height: 42px; }
+.split-handle:hover::before, .split-handle:focus-visible::before, .split-handle.dragging::before { background: var(--accent); }
+.split-handle:hover::after, .split-handle.dragging::after, .split-handle:focus-visible::after {   /* Linie hervorheben */
+  content: ''; position: absolute; inset: 4.5px 0; background: var(--accent); opacity: .55;
+}
+.split-handle.vertical:hover::after, .split-handle.vertical.dragging::after,
+.split-handle.vertical:focus-visible::after { inset: 0 4.5px; }
+body.split-dragging { user-select: none; cursor: row-resize; }
+
 /* ── SLIDERS ─────────────────────────────────────────────────── */
 .slider-label { font-size: .73rem; color: var(--text2); margin-bottom: 3px; }
 .slider-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; margin-bottom: 10px; }
