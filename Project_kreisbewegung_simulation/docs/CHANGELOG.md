@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.3 — 2026-11-17
+
+### Geändert
+- Farbvorgabe der Vorlesungsfolien (→ BACKLOG I26): radialer Ortsvektor *r* = Apple „Blaubeere“ (`#0433ff`, dunkel `#6b86ff`), tangentialer Bahngeschwindigkeitsvektor *v* = Apple „Mandarine“ (`#ff9300`, dunkel `#ffb13d`). Komponentenfarben angepaßt, damit nichts mit Mandarine/Blaubeere kollidiert: *r*ₓ Himmelblau, *a*ᵧ Mauve.
+
 ## v1.11.2 — 2026-11-17
 
 ### Geändert

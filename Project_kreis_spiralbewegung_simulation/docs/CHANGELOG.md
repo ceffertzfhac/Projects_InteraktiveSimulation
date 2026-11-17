@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.3] — 2026-11-17
+
+### Geändert
+- Farbvorgabe der Vorlesungsfolien (→ BACKLOG I26): radialer Ortsvektor *r* = Apple „Blaubeere“ (`#0433ff`, dunkel `#6b86ff`), tangentialer Bahngeschwindigkeitsvektor *v* = Apple „Mandarine“ (`#ff9300`, dunkel `#ffb13d`).
+
 ## [1.12.2] — 2026-11-17
 
 ### Behoben

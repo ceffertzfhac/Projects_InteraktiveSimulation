@@ -11,8 +11,8 @@
   --disk-fill:   #e0e0e0;
   --disk-stroke: #cccccc;
 
-  --c-r:      #b08010;   /* Ortsvektor r   – Bernstein (wie Kreisbewegung --c-r) */
-  --c-v:      var(--c-vel);   /* Geschw. v – Blau (shared Okabe-Ito) */
+  --c-r:      #0433ff;   /* Ortsvektor r – Apple „Blaubeere“ (Vorlesungsfolien) */
+  --c-v:      #ff9300;   /* Geschw. v – Apple „Mandarine“ (Vorlesungsfolien) */
   --c-a:      var(--c-acc);   /* Beschl. a – Rot (shared Okabe-Ito) */
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
   --c-alpha:  #cc79a7;   /* Winkelbeschl. α – Mauve (Okabe reddish-purple) */
@@ -28,8 +28,8 @@ body.dark {
   --disk-fill:   #2a3148;
   --disk-stroke: #3d4766;
 
-  --c-r:      #ffcc33;
-  --c-v:      var(--c-vel);
+  --c-r:      #6b86ff;
+  --c-v:      #ffb13d;
   --c-a:      var(--c-acc);
   --c-omega:  var(--accent);
   --c-alpha:  #e078c3;

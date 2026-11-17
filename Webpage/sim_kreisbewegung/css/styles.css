@@ -10,13 +10,16 @@
      Hauptvektoren: r → Bernstein (Ort), v → Blau, a → Rot (Okabe-Ito-Schema).
      Komponenten x/y jeweils abgeleitete, unterscheidbare Töne — farbblinden-
      sicher gewählt (kein purple+green+orange zugleich). */
-  --c-r:    #b08010;   /* Ortsvektor r    – Bernstein (wie --c-p1 light) */
-  --c-rx:   #1f77b4;   /* r_x-Komponente  – Blau */
+  /* Vorlesungsfolien: radialer Ortsvektor r = Apple „Blaubeere“, tangentialer
+     Bahngeschwindigkeitsvektor v = Apple „Mandarine“ (PO-Vorgabe 2026-11-17) */
+  --c-r:    #0433ff;   /* Ortsvektor r    – Blaubeere */
+  --c-v:    #ff9300;   /* Geschwindigkeit v – Mandarine */
+  --c-rx:   #56b4e9;   /* r_x-Komponente  – Himmelblau */
   --c-ry:   #1a8a50;  /* r_y-Komponente  – Grün */
   --c-vx:   #b8860b;   /* v_x-Komponente  – Dunkelgelb */
   --c-vy:   #c03030;  /* v_y-Komponente  – Rot */
   --c-ax:   #17a2b8;   /* a_x-Komponente  – Türkis */
-  --c-ay:   #e0782d;  /* a_y-Komponente  – Orange */
+  --c-ay:   #cc79a7;  /* a_y-Komponente  – Mauve (frei von Mandarine) */
   --c-traj: #7f7f7f;  /* Bahnkurve       – Grau */
 
   /* Schattenprojektion (FK6) */
@@ -34,13 +37,14 @@ body.dark {
   --lcd-on:     #ff5555;
   --lcd-off:    #1a0808;
 
-  --c-r:    #ffcc33;
-  --c-rx:   #66aaff;
+  --c-r:    #6b86ff;
+  --c-v:    #ffb13d;
+  --c-rx:   #a9d3f5;
   --c-ry:   #55ee99;
   --c-vx:   #ffcc33;
   --c-vy:   #ff7777;
   --c-ax:   #56b4e9;
-  --c-ay:   #f0e442;
+  --c-ay:   #e078c3;
   --c-traj: #9aa3b8;
 
   --c-light:  #ffd84d;
@@ -56,7 +60,7 @@ body.dark {
 #arrowhead-r polygon  { fill: var(--c-r); }
 #arrowhead-rx polygon { fill: var(--c-rx); }
 #arrowhead-ry polygon { fill: var(--c-ry); }
-#arrowhead-v polygon  { fill: var(--c-vel); }
+#arrowhead-v polygon  { fill: var(--c-v); }
 #arrowhead-vx polygon { fill: var(--c-vx); }
 #arrowhead-vy polygon { fill: var(--c-vy); }
 #arrowhead-a polygon  { fill: var(--c-acc); }
@@ -127,7 +131,7 @@ body.dark .shadow-column { opacity: .35; }
 #position_vector     { stroke: var(--c-r); }
 #position_vector_x   { stroke: var(--c-rx); }
 #position_vector_y   { stroke: var(--c-ry); }
-#velocity_vector     { stroke: var(--c-vel); }
+#velocity_vector     { stroke: var(--c-v); }
 #velocity_vector_x   { stroke: var(--c-vx); }
 #velocity_vector_y   { stroke: var(--c-vy); }
 #acceleration_vector { stroke: var(--c-acc); }
