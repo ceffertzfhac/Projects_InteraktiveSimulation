@@ -193,8 +193,8 @@ function drawRadius(P, R_t) {
   // Beschriftung mittig, senkrecht zur Linie versetzt (immer nach oben/außen)
   let nx = -dy / len, ny = dx / len
   if (ny > 0) { nx = -nx; ny = -ny }
-  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 16)
-  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 16 + 7)
+  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 14)
+  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 14 + 6)
   DOM.radiusGroup.style.visibility = 'visible'
 }
 

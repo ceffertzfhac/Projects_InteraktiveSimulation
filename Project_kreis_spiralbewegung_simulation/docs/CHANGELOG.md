@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.6] — 2026-11-17
+
+### Geändert
+- Radius-Linie dezenter (2 px, mittleres Grau, *R* normal 18 px, kleinerer Mittelpunkt), aber weiterhin gut sichtbar (→ BACKLOG FX8).
+
 ## [1.12.5] — 2026-11-17
 
 ### Geändert
