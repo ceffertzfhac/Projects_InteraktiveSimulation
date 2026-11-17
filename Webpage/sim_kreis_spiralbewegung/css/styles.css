@@ -17,6 +17,7 @@
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
   --c-alpha:  #cc79a7;   /* Winkelbeschl. α – Mauve (Okabe reddish-purple) */
   --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
+  --c-radius: #555b6e;   /* Radius R – Schiefergrau (gestrichelt) */
   --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
   --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
 }
@@ -33,6 +34,7 @@ body.dark {
   --c-omega:  var(--accent);
   --c-alpha:  #e078c3;
   --c-phi:    #55ee99;
+  --c-radius: #b5bacb;
   --c-traj:   #9aa3b8;
   --c-point:  #e6eaf5;
 }
@@ -62,6 +64,10 @@ body.dark {
 /* Phi-Bogen */
 #phi_arc               { stroke: var(--c-phi); stroke-width: 1.5; fill: none; }
 #phi_label             { fill: var(--c-phi); font-style: italic; font-size: 14px; }
+
+/* Radius R */
+#radius_line            { stroke: var(--c-radius); stroke-width: 2; stroke-dasharray: 7,4; }
+#radius_label           { fill: var(--c-radius); font-style: italic; font-size: 16px; stroke: none; }
 
 /* Hauptvektoren + Komponenten (Komponenten in Elternfarbe, dashed/dotted) */
 #position_vector       { stroke: var(--c-r); stroke-width: 2.5; }

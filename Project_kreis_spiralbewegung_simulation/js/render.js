@@ -179,14 +179,33 @@ function drawPhiArc(phiRad, R_t) {
   }
 }
 
+// ── Radius R (Strecke Mittelpunkt → Massenpunkt, gestrichelt + Beschriftung) ─
+function drawRadius(P, R_t) {
+  DOM.radiusGroup.style.visibility = 'hidden'
+  if (!store.togRadius || R_t < 0.05) return
+  const c = physToScreen(0, 0, P.z), p = physToScreen(P.x, P.y, P.z)
+  const dx = p.x - c.x, dy = p.y - c.y
+  const len = Math.hypot(dx, dy)
+  if (len < 12) return
+  DOM.radiusLine.setAttribute('x1', c.x); DOM.radiusLine.setAttribute('y1', c.y)
+  DOM.radiusLine.setAttribute('x2', p.x); DOM.radiusLine.setAttribute('y2', p.y)
+  // Beschriftung mittig, senkrecht zur Linie versetzt (immer nach oben/außen)
+  let nx = -dy / len, ny = dx / len
+  if (ny > 0) { nx = -nx; ny = -ny }
+  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 12)
+  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 12 + 5)
+  DOM.radiusGroup.style.visibility = 'visible'
+}
+
 // ── Vektoren + Zerlegung ─────────────────────────────────────────────────────
 function drawVectors(P, R_t) {
   // Alle Vektoren (+ Komponentengruppe) + Phi-Gruppe erst verbergen, dann selektiv
   // anzeigen. [id*="_vector"] greift auch die _x/_y/_r/_t-Komponenten sowie die
   // vector_components_group; Kind-visibility:visible überdeckt Eltern:hidden.
-  DOM.animationGroup.querySelectorAll('[id*="_vector"], #phi_arc_group').forEach(e => { e.style.visibility = 'hidden' })
+  DOM.animationGroup.querySelectorAll('[id*="_vector"], #phi_arc_group, #radius_group').forEach(e => { e.style.visibility = 'hidden' })
 
   drawPhiArc(P.phiRad, R_t)
+  drawRadius(P, R_t)
 
   const P_POINT = physToScreen(P.x, P.y, P.z)
   const P_ORIGIN = physToScreen(0, 0, 0)

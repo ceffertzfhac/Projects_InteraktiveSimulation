@@ -129,6 +129,7 @@ function resetSim(isPlayTrigger = false) {
   store.togAlpha = DOM.toggleAlpha.checked
   store.togPhi = DOM.togglePhi.checked
   store.togTrajectory = DOM.toggleTrajectory.checked
+  store.togRadius = DOM.toggleRadius.checked
   store.scaleAt = DOM.toggleAtScaling.checked
 
   const isISO = store.currentView === 'ISO'
@@ -383,7 +384,7 @@ DOM.layoutToggle?.addEventListener('click', () => {
 })
 
 // Redraw-Only-Toggles
-;[DOM.toggleOmega, DOM.toggleAlpha, DOM.togglePhi, DOM.toggleTrajectory, DOM.toggleAtScaling].forEach(cb =>
+;[DOM.toggleOmega, DOM.toggleAlpha, DOM.togglePhi, DOM.toggleRadius, DOM.toggleTrajectory, DOM.toggleAtScaling].forEach(cb =>
   cb.addEventListener('change', () => { resetSim(true) }))
 
 // Vektor-Toggles: Fieldset ein/aus + decomp zurücksetzen

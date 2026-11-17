@@ -3,6 +3,14 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.11.0] — 2026-11-17
+
+### Neu
+- **Schalter „Radius *R*“ unter Visualisierung (→ BACKLOG FX8).** Zeigt die
+  Strecke Mittelpunkt → Massenpunkt gestrichelt mit Beschriftung *R*; folgt in
+  2D und 3D (ISO) und beim Spiralmodus dem wachsenden Radius *R*(*t*). Neuer
+  Legendeneintrag, Farbe `--c-radius` (Hell/Dunkel).
+
 ## [1.10.1] — 2026-10-26
 
 ### Behoben

@@ -18,7 +18,7 @@ export const store = {
 
   // Visualisierungs-Toggles
   togPosition: false, togVelocity: false, togAcceleration: false,
-  togOmega: false, togAlpha: false, togPhi: false, togTrajectory: false,
+  togOmega: false, togAlpha: false, togPhi: false, togRadius: false, togTrajectory: false,
   stopwatchVisible: true,
 
   // Auto-Stopp
@@ -93,6 +93,7 @@ export function initDOM() {
   DOM.toggleAlpha = q('toggle_alpha_vector')
   DOM.togglePhi = q('toggle_phi_arc')
   DOM.toggleTrajectory = q('toggle_trajectory')
+  DOM.toggleRadius = q('toggle_radius')
   DOM.toggleAtScaling = q('toggle_at_scaling')
   DOM.rDecompFieldset = q('r_decomp_fieldset')
   DOM.vDecompFieldset = q('v_decomp_fieldset')
@@ -128,6 +129,9 @@ export function initDOM() {
   DOM.phiArcGroup = q('phi_arc_group')
   DOM.phiArc = q('phi_arc')
   DOM.phiLabel = q('phi_label')
+  DOM.radiusGroup = q('radius_group')
+  DOM.radiusLine = q('radius_line')
+  DOM.radiusLabel = q('radius_label')
   DOM.positionVector = q('position_vector')
   DOM.velocityVector = q('velocity_vector')
   DOM.accelerationVector = q('acceleration_vector')
