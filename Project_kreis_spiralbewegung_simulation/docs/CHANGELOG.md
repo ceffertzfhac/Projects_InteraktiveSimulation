@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.15] — 2026-11-17
+
+### Geändert
+- **Farbmischung von *v* deutlich sichtbarer:** Der Mischanteil richtet sich nach dem Neigungswinkel von *v* gegen die Tangente (0° = Mandarine, ab 30° = Azur) statt nach dem Betragsanteil. Bei Spirale mit wachsendem Radius dominierte *v*ₜ sonst so schnell, daß die Farbe kaum vom Orange abwich.
+
 ## [1.12.14] — 2026-11-17
 
 ### Geändert

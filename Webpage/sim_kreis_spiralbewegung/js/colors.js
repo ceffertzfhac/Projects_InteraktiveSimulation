@@ -64,7 +64,9 @@ export function updateDynamicColors(P) {
     const vr = P.vx * ux + P.vy * uy, vt = -P.vx * uy + P.vy * ux
     const da = Math.abs(ar) + Math.abs(at), dv = Math.abs(vr) + Math.abs(vt)
     sa = da > 1e-9 ? Math.abs(at) / da : 0
-    sv = dv > 1e-9 ? Math.abs(vr) / dv : 0
+    // v: Neigungswinkel gegen die Tangente (0° = rein tangential, ≥ 30° = voll Azur) —
+    // empfindlicher als der Betragsanteil, weil v_t bei wachsendem R schnell dominiert.
+    sv = dv > 1e-9 ? Math.min(1, Math.atan2(Math.abs(vr), Math.abs(vt)) / (Math.PI / 6)) : 0
   }
   const pal = document.body.classList.contains('dark') ? PALETTE.dark : PALETTE.light
   document.body.style.setProperty('--c-a', mixColors(pal.ar, pal.at, sa))
