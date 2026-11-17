@@ -141,7 +141,21 @@ function liveObjects(t) {
 }
 
 // ── Layout-Umschalter (Probe: Sim & Diagramm übereinander / nebeneinander) ────
+// Bei Fensterbreite ≤ 1100 px erzwingt das CSS das gestapelte Layout → Button
+// ausgrauen, Hover-Hinweis (Native-Tooltip auch am disabled-Button).
+const _LAYOUT_TITLE = 'Layout: Simulation & Diagramm übereinander / nebeneinander'
+const _NARROW_MQ = window.matchMedia('(max-width: 1100px)')
+function updateLayoutAvailability() {
+  if (!DOM.layoutToggle) return
+  DOM.layoutToggle.disabled = _NARROW_MQ.matches
+  DOM.layoutToggle.title = _NARROW_MQ.matches
+    ? 'Nebeneinander ist erst ab ca. 1100 px Fensterbreite möglich – bitte Fenster vergrößern.'
+    : _LAYOUT_TITLE
+}
+_NARROW_MQ.addEventListener('change', updateLayoutAvailability)
+
 function applyLayout() {
+  updateLayoutAvailability()
   DOM.centerArea.classList.toggle('layout-split', store.layoutSplit)
   DOM.layoutToggle.textContent = store.layoutSplit ? 'Übereinander' : 'Nebeneinander'
 }

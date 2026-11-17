@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.16] — 2026-11-17
+
+### Geändert
+- **Layout-Button bei schmalem Fenster (≤ 1100 px) ausgegraut** mit Hover-Hinweis, statt wirkungslos zu bleiben (dort erzwingt das CSS das gestapelte Layout).
+
 ## [1.12.15] — 2026-11-17
 
 ### Geändert

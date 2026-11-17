@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.6 — 2026-11-17
+
+### Geändert
+- **Layout-Button bei schmalem Fenster (≤ 1100 px) ausgegraut** mit Hover-Hinweis, statt wirkungslos zu bleiben (dort erzwingt das CSS das gestapelte Layout).
+
 ## v1.11.5 — 2026-11-17
 
 ### Geändert
