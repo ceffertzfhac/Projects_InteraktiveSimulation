@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.2] — 2026-11-17
+
+### Behoben
+- **Einheit „m“ auf der y-Achse des Diagramms *R*(*t*) fehlte** (→ BACKLOG FX9).
+
 ## [1.12.1] — 2026-11-17
 
 ### Geändert

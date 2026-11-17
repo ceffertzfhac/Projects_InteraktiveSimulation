@@ -378,7 +378,7 @@ function yUnitString(qq) {
     if (qq === 'alpha') u += '/s²'
     return u
   }
-  if (qq === 'x' || qq === 'y') return 'm'
+  if (qq === 'x' || qq === 'y' || qq === 'R') return 'm'
   if (qq.startsWith('v')) return 'm/s'
   if (qq.startsWith('a') || qq === 'ar' || qq === 'at') return 'm/s²'
   return ''
