@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.9] — 2026-11-17
+
+### Geändert
+- **Beschleunigungs-Familie in Farben (→ BACKLOG I26).** *a*ᵣ = Violett (`#8f26f3`), *a*ₜ = Pink (`#ff45a4`), *a* = Magenta (`#ec36ec`, Hue-Mitte der beiden): *a*ᵣ liegt farblich nahe der radialen Blaubeere, *a*ₜ nahe der tangentialen Mandarine, ohne mit *r* oder *v* verwechselbar zu sein. Feste Farben, keine dynamische Mischung. Legende um *a*ᵣ/*a*ₜ ergänzt; Winkelbeschleunigung *α* von Rot auf Braun, damit sie nicht mit Pink kollidiert.
+
 ## [1.12.8] — 2026-11-17
 
 ### Geändert

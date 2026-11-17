@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreis- und Spiralbewegung
-        <span class="version">v1.12.8</span>
+        <span class="version">v1.12.9</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -165,6 +165,8 @@ window.MathJax = {
         <div class="legend-swatch" style="background:var(--c-r)"></div><div class="legend-label">Ortsvektor \(\vec{r}\)</div>
         <div class="legend-swatch" style="background:var(--c-v)"></div><div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
         <div class="legend-swatch" style="background:var(--c-a)"></div><div class="legend-label">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" style="background:var(--c-ar)"></div><div class="legend-label">Radialanteil \(\vec{a}_r\)</div>
+        <div class="legend-swatch" style="background:var(--c-at)"></div><div class="legend-label">Tangentialanteil \(\vec{a}_t\)</div>
         <div class="legend-swatch" style="background:var(--c-omega)"></div><div class="legend-label">Winkelgeschw. \(\vec{\omega}\)</div>
         <div class="legend-swatch" style="background:var(--c-alpha)"></div><div class="legend-label">Winkelbeschl. \(\vec{\alpha}\)</div>
         <div class="legend-swatch" style="background:var(--c-phi)"></div><div class="legend-label">Winkel \(\varphi\)</div>
@@ -253,6 +255,8 @@ window.MathJax = {
           <marker id="arrow-r" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrow-v" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrow-a" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-ar" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
+          <marker id="arrow-at" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrow-omega" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrow-alpha" markerWidth="5" markerHeight="3.5" refX="0" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5"/></marker>
           <marker id="arrow-phi" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5"/></marker>
@@ -309,8 +313,8 @@ window.MathJax = {
             <line id="velocity_vector_t" fill="none" marker-end="url(#arrow-v)"/>
             <line id="acceleration_vector_x" fill="none"/>
             <line id="acceleration_vector_y" fill="none"/>
-            <line id="acceleration_vector_r" fill="none" marker-end="url(#arrow-a)"/>
-            <line id="acceleration_vector_t" fill="none" marker-end="url(#arrow-a)"/>
+            <line id="acceleration_vector_r" fill="none" marker-end="url(#arrow-ar)"/>
+            <line id="acceleration_vector_t" fill="none" marker-end="url(#arrow-at)"/>
           </g>
 
           <line id="position_vector" marker-end="url(#arrow-r)"/>
