@@ -13,10 +13,15 @@
 
   --c-r:      #0433ff;   /* Ortsvektor r – Apple „Blaubeere“ (Vorlesungsfolien) */
   --c-v:      #ff9300;   /* Geschw. v – Apple „Mandarine“ (Vorlesungsfolien) */
-  /* Beschleunigungs-Familie: a = Magenta (Folien), a_r/a_t = Violett/Pink links/rechts davon
+  /* a und v ändern ihre Farbe laufend (js/colors.js setzt --c-a/--c-v inline an <body>):
+   a: Violett (radial) → Pink (tangential); v: Mandarine (tangential) → Azur (radial).
+   Die Werte hier sind nur Start-/Fallback-Farben. */
+/* Beschleunigungs-Familie: a = Magenta (Folien), a_r/a_t = Violett/Pink links/rechts davon
      auf dem Farbkreis (a_r nahe Blaubeere = radial, a_t nahe Mandarine = tangential) */
   --c-a:      #ec36ec;   /* Beschl. a – Magenta (Hue-Mitte von a_r und a_t) */
   --c-ar:     #8f26f3;   /* a_r – Violett */
+  --c-vt:     #ff9300;   /* v_t – Mandarine (Tangentialanteil) */
+  --c-vr:     #0092dc;   /* v_r – Azur (Radialanteil, nur Spirale) */
   --c-at:     #ff45a4;   /* a_t – Pink */
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
   --c-alpha:  #8c564b;   /* Winkelbeschl. α – Braun (frei von Magenta/Pink) */
@@ -36,6 +41,8 @@ body.dark {
   --c-v:      #ffb13d;
   --c-a:      #f06ff0;
   --c-ar:     #b983ff;
+  --c-vt:     #ffb13d;
+  --c-vr:     #55c4fe;
   --c-at:     #ff7fc0;
   --c-omega:  var(--accent);
   --c-alpha:  #d2a18f;
@@ -51,6 +58,8 @@ body.dark {
 #arrow-r polygon       { fill: var(--c-r); }
 #arrow-v polygon       { fill: var(--c-v); }
 #arrow-a polygon       { fill: var(--c-a); }
+#arrow-vt polygon      { fill: var(--c-vt); }
+#arrow-vr polygon      { fill: var(--c-vr); }
 #arrow-ar polygon      { fill: var(--c-ar); }
 #arrow-at polygon      { fill: var(--c-at); }
 #arrow-omega polygon   { fill: var(--c-omega); }
@@ -85,8 +94,8 @@ body.dark {
 #velocity_vector       { stroke: var(--c-v); stroke-width: 2.5; }
 #velocity_vector_x     { stroke: var(--c-v); stroke-width: 2.5; stroke-dasharray: 4,4; }
 #velocity_vector_y     { stroke: var(--c-v); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }
-#velocity_vector_r     { stroke: var(--c-v); stroke-width: 2; }
-#velocity_vector_t     { stroke: var(--c-v); stroke-width: 2; }
+#velocity_vector_r     { stroke: var(--c-vr); stroke-width: 2; }
+#velocity_vector_t     { stroke: var(--c-vt); stroke-width: 2; }
 #acceleration_vector   { stroke: var(--c-a); stroke-width: 3; }
 #acceleration_vector_x { stroke: var(--c-a); stroke-width: 2.5; stroke-dasharray: 4,4; }
 #acceleration_vector_y { stroke: var(--c-a); stroke-width: 3; stroke-dasharray: 0,8; stroke-linecap: round; }

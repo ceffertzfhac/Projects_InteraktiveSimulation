@@ -11,6 +11,7 @@ import {
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { interpolateAt, linePlotIndex, radiusAt } from './physics.js'
+import { updateDynamicColors } from './colors.js'
 import { fmt } from '../../shared/js/format.js'
 import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
@@ -205,6 +206,7 @@ function drawVectors(P, R_t) {
   // vector_components_group; Kind-visibility:visible überdeckt Eltern:hidden.
   DOM.animationGroup.querySelectorAll('[id*="_vector"], #phi_arc_group, #radius_group').forEach(e => { e.style.visibility = 'hidden' })
 
+  updateDynamicColors(P)
   drawPhiArc(P.phiRad, R_t)
   drawRadius(P, R_t)
 

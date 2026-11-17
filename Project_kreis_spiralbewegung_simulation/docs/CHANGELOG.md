@@ -3,6 +3,12 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.10] — 2026-11-17
+
+### Neu
+- **Dynamische Farbe von *a* und *v* (→ BACKLOG I26).** *a* mischt sich laufend von Violett (rein radial, *a*ᵣ) über Magenta nach Pink (rein tangential, *a*ₜ), *v* von Mandarine (rein tangential, *v*ₜ) nach Azur (rein radial, *v*ᵣ, nur Spirale). Mischung im OKLCH-Raum (`js/colors.js`), Anteil aus der echten Zerlegung in r̂/t̂. Die Legende (Swatch) und die Schalter-Beschriftung zeigen automatisch die aktuelle Farbe; zusätzliche Legendenzeilen *v*ᵣ/*v*ₜ (nur Spirale) und *a*ᵣ/*a*ₜ geben die Endfarben an. Komponenten *v*ᵣ/*v*ₜ haben feste Farben.
+- Theme-Wechsel zeichnet die Szene neu, damit die Mischfarben auch im Stillstand zum Modus passen.
+
 ## [1.12.9] — 2026-11-17
 
 ### Geändert
