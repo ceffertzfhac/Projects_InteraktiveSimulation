@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.4] — 2026-11-17
+
+### Geändert
+- Beschleunigungsvektor *a* = Apple „Magenta“ (`#ff40ff`, dunkel `#ff7cff`), passend zu den Vorlesungsfolien (→ BACKLOG I26). Winkelbeschleunigung *α* jetzt Rot, damit sie nicht mit Magenta kollidiert.
+
 ## [1.12.3] — 2026-11-17
 
 ### Geändert

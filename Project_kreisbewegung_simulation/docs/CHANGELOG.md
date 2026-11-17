@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.4 — 2026-11-17
+
+### Geändert
+- Beschleunigungsvektor *a* = Apple „Magenta“ (`#ff40ff`, dunkel `#ff7cff`), passend zu den Vorlesungsfolien (→ BACKLOG I26). *a*ᵧ jetzt Braun.
+
 ## v1.11.3 — 2026-11-17
 
 ### Geändert

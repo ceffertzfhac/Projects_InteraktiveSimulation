@@ -14,12 +14,13 @@
      Bahngeschwindigkeitsvektor v = Apple „Mandarine“ (PO-Vorgabe 2026-11-17) */
   --c-r:    #0433ff;   /* Ortsvektor r    – Blaubeere */
   --c-v:    #ff9300;   /* Geschwindigkeit v – Mandarine */
+  --c-a:    #ff40ff;   /* Beschleunigung a – Magenta (Vorlesungsfolien) */
   --c-rx:   #56b4e9;   /* r_x-Komponente  – Himmelblau */
   --c-ry:   #1a8a50;  /* r_y-Komponente  – Grün */
   --c-vx:   #b8860b;   /* v_x-Komponente  – Dunkelgelb */
   --c-vy:   #c03030;  /* v_y-Komponente  – Rot */
   --c-ax:   #17a2b8;   /* a_x-Komponente  – Türkis */
-  --c-ay:   #cc79a7;  /* a_y-Komponente  – Mauve (frei von Mandarine) */
+  --c-ay:   #8c564b;  /* a_y-Komponente  – Braun (frei von Mandarine/Magenta) */
   --c-traj: #7f7f7f;  /* Bahnkurve       – Grau */
 
   /* Schattenprojektion (FK6) */
@@ -39,12 +40,13 @@ body.dark {
 
   --c-r:    #6b86ff;
   --c-v:    #ffb13d;
+  --c-a:    #ff7cff;
   --c-rx:   #a9d3f5;
   --c-ry:   #55ee99;
   --c-vx:   #ffcc33;
   --c-vy:   #ff7777;
   --c-ax:   #56b4e9;
-  --c-ay:   #e078c3;
+  --c-ay:   #d2a18f;
   --c-traj: #9aa3b8;
 
   --c-light:  #ffd84d;
@@ -63,7 +65,7 @@ body.dark {
 #arrowhead-v polygon  { fill: var(--c-v); }
 #arrowhead-vx polygon { fill: var(--c-vx); }
 #arrowhead-vy polygon { fill: var(--c-vy); }
-#arrowhead-a polygon  { fill: var(--c-acc); }
+#arrowhead-a polygon  { fill: var(--c-a); }
 #arrowhead-ax polygon { fill: var(--c-ax); }
 #arrowhead-ay polygon { fill: var(--c-ay); }
 #graph-arrowhead polygon { fill: var(--text); }
@@ -134,7 +136,7 @@ body.dark .shadow-column { opacity: .35; }
 #velocity_vector     { stroke: var(--c-v); }
 #velocity_vector_x   { stroke: var(--c-vx); }
 #velocity_vector_y   { stroke: var(--c-vy); }
-#acceleration_vector { stroke: var(--c-acc); }
+#acceleration_vector { stroke: var(--c-a); }
 #acceleration_vector_x { stroke: var(--c-ax); }
 #acceleration_vector_y { stroke: var(--c-ay); }
 

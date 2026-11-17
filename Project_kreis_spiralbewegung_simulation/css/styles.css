@@ -13,9 +13,9 @@
 
   --c-r:      #0433ff;   /* Ortsvektor r – Apple „Blaubeere“ (Vorlesungsfolien) */
   --c-v:      #ff9300;   /* Geschw. v – Apple „Mandarine“ (Vorlesungsfolien) */
-  --c-a:      var(--c-acc);   /* Beschl. a – Rot (shared Okabe-Ito) */
+  --c-a:      #ff40ff;   /* Beschl. a – Apple „Magenta“ (Vorlesungsfolien) */
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
-  --c-alpha:  #cc79a7;   /* Winkelbeschl. α – Mauve (Okabe reddish-purple) */
+  --c-alpha:  #c03030;   /* Winkelbeschl. α – Rot (frei von Magenta) */
   --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
   --c-radius: #555b6e;   /* Radius R – Schiefergrau (gestrichelt) */
   --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
@@ -30,9 +30,9 @@ body.dark {
 
   --c-r:      #6b86ff;
   --c-v:      #ffb13d;
-  --c-a:      var(--c-acc);
+  --c-a:      #ff7cff;
   --c-omega:  var(--accent);
-  --c-alpha:  #e078c3;
+  --c-alpha:  #ff7777;
   --c-phi:    #55ee99;
   --c-radius: #b5bacb;
   --c-traj:   #9aa3b8;
