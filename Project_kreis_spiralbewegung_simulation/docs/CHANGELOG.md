@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.8] — 2026-11-17
+
+### Geändert
+- **Zerlegungs-Komponenten folgen der Aktivierungs-Reihenfolge.** Wird eine Zerlegung (kartesisch/polar) gewählt, wandern Vektor und Komponenten nach vorn; die Komponenten-Linien liegen nicht mehr in einer festen Ebene unter allen Hauptvektoren.
+
 ## [1.12.7] — 2026-11-17
 
 ### Geändert

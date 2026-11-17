@@ -402,14 +402,26 @@ wireVectorToggle(DOM.togglePosition, DOM.rDecompFieldset, 'r_decomp')
 wireVectorToggle(DOM.toggleVelocity, DOM.vDecompFieldset, 'v_decomp')
 wireVectorToggle(DOM.toggleAcceleration, DOM.aDecompFieldset, 'a_decomp')
 
-// Zeichenreihenfolge: zuletzt eingeschaltete Hauptvektoren liegen zuoberst
-// (vor dem Massenpunkt eingefügt, der immer ganz oben bleibt).
-;[[DOM.togglePosition, DOM.positionVector], [DOM.toggleVelocity, DOM.velocityVector],
-  [DOM.toggleAcceleration, DOM.accelerationVector], [DOM.toggleOmega, DOM.omegaVector],
-  [DOM.toggleAlpha, DOM.alphaVector]].forEach(([toggle, vec]) =>
-  toggle.addEventListener('change', () => {
-    if (toggle.checked) vec.parentNode.insertBefore(vec, DOM.point)
-  }))
+// Zeichenreihenfolge: zuletzt eingeschaltete Vektoren — und zuletzt gewählte Zerlegungen —
+// liegen zuoberst. Ein Vektor wandert samt seinen Komponenten (x/y bzw. r/t) vor den
+// Massenpunkt, der immer ganz oben bleibt. Die Komponenten-Linien werden dabei aus der
+// Hilfsgruppe `vector_components_group` in dieselbe Ebene wie die Hauptvektoren gehoben.
+function bringToFront(base) {
+  ;[base, `${base}_x`, `${base}_y`, `${base}_r`, `${base}_t`].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) DOM.point.parentNode.insertBefore(el, DOM.point)
+  })
+}
+;[[DOM.togglePosition, 'position_vector', 'r_decomp'],
+  [DOM.toggleVelocity, 'velocity_vector', 'v_decomp'],
+  [DOM.toggleAcceleration, 'acceleration_vector', 'a_decomp'],
+  [DOM.toggleOmega, 'omega_vector'], [DOM.toggleAlpha, 'alpha_vector']].forEach(([toggle, base, radioName]) => {
+  toggle.addEventListener('change', () => { if (toggle.checked) bringToFront(base) })
+  if (radioName) {
+    document.querySelectorAll(`input[name="${radioName}"]`).forEach(r =>
+      r.addEventListener('change', () => { if (r.checked && r.value !== 'none') bringToFront(base) }))
+  }
+})
 
 // Stoppuhr-Sichtbarkeit
 DOM.stopwatch.addEventListener('click', () => {
