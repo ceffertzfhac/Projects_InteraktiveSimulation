@@ -374,6 +374,22 @@ function setupUI() {
     [DOM.togAccelerationComponents, 'showAccelerationComponents'],
     [DOM.togTrajectory, 'showTrajectory'],
   ]
+  // Zeichenreihenfolge: zuletzt eingeschaltete Vektoren (samt x/y-Komponenten) liegen zuoberst,
+  // knapp unter der Stoppuhr.
+  const stackGroups = [
+    [[DOM.togPositionVector, DOM.togPositionComponents], 'position_vector'],
+    [[DOM.togVelocityVector, DOM.togVelocityComponents], 'velocity_vector'],
+    [[DOM.togAccelerationVector, DOM.togAccelerationComponents], 'acceleration_vector'],
+  ]
+  stackGroups.forEach(([togs, base]) => togs.forEach(t => t.addEventListener('change', () => {
+    if (!t.checked) return
+    const stopwatch = document.getElementById('stopwatch')
+    ;[base, `${base}_x`, `${base}_y`].forEach(id => {
+      const el = document.getElementById(id)
+      el.parentNode.insertBefore(el, stopwatch)
+    })
+  })))
+
   visToggles.forEach(([togEl, key]) => {
     togEl.addEventListener('change', () => { store[key] = togEl.checked; resetSim(false) })
   })

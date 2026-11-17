@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.5 — 2026-11-17
+
+### Geändert
+- **Zuletzt eingeschalteter Vektor liegt zuoberst** (samt x/y-Komponenten, knapp unter der Stoppuhr) — wie bei Kreis-/Spiralbewegung v1.12.7.
+
 ## v1.11.4 — 2026-11-17
 
 ### Geändert
