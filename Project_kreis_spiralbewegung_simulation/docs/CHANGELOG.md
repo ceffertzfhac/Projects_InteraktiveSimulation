@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.14] — 2026-11-17
+
+### Geändert
+- **Endfarben der Mischfarben schon vor der Zerlegung in der Legende:** *a*ᵣ/*a*ₜ erscheinen, sobald *a* eingeschaltet ist, *v*ᵣ/*v*ₜ sobald *v* eingeschaltet ist und der Spiralmodus läuft — als Referenz, zwischen welchen Farben sich *a* bzw. *v* bewegt.
+
 ## [1.12.13] — 2026-11-17
 
 ### Geändert

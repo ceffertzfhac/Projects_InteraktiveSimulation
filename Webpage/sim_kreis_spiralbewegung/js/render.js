@@ -201,15 +201,15 @@ function drawRadius(P, R_t) {
 
 // ── Legende: zeigt nur, was gerade in der Szene zu sehen ist ────────────────
 function updateLegend() {
-  const polar2D = store.currentView === '2D'
   const show = {
     r: store.togPosition, R: store.togRadius,
     v: store.togVelocity,
-    vr: store.togVelocity && store.vDecomp === 'polar' && polar2D,
-    vt: store.togVelocity && store.vDecomp === 'polar' && polar2D,
+    // Endfarben der dynamischen Mischfarbe schon ohne Zerlegung zeigen (Referenz für den Farbverlauf)
+    vr: store.togVelocity && store.motionMode === 'spirale',
+    vt: store.togVelocity && store.motionMode === 'spirale',
     a: store.togAcceleration,
-    ar: store.togAcceleration && store.aDecomp === 'polar' && polar2D,
-    at: store.togAcceleration && store.aDecomp === 'polar' && polar2D,
+    ar: store.togAcceleration,
+    at: store.togAcceleration,
     omega: store.togOmega, alpha: store.togAlpha, phi: store.togPhi, traj: store.togTrajectory,
   }
   document.querySelectorAll('[data-legend]').forEach(e => {
