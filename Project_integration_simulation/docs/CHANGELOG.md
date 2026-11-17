@@ -4,6 +4,7 @@
 
 ### Geändert
 - **Kompakte Topbar bei knappem Platz (→ BACKLOG I25).** Wird die Kopfleiste zu eng, zeigen „← Übersicht“, Layout-Umschalter und die Buttons rechts (Play, Pause, Reset, CSV …) nur noch ein Symbol; der volle Name erscheint als Hover-Tooltip (`shared/js/topbar-compact.js`).
+  Bei sehr schmalen Fenstern entfallen zusätzlich Institut und Copyright im Titelblock.
 - **Layout-Umschalter mit Piktogramm des Ziel-Layouts** statt der Zeichen ▦/⊟; Tooltip „Wechseln zu: …“ (→ BACKLOG I25).
 
 ## [1.3.0] — 2026-10-01

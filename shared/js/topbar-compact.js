@@ -83,14 +83,19 @@ export function initTopbarCompact(doc = document) {
     const title = bar.querySelector('.topbar-title-text')
     const t = bar.querySelector('.topbar-title')
     return bar.scrollWidth > bar.clientWidth + 1 ||
+      (t && t.scrollHeight > bar.clientHeight + 1) ||
       (title && t && title.scrollWidth > t.clientWidth + 1) ||
       (title && title.getBoundingClientRect().width < title.scrollWidth - 1)
   }
   let raf = 0
   const update = () => {
     raf = 0
+    bar.classList.remove('mini')
     apply(false)
-    apply(tight())
+    const c = tight()
+    apply(c)
+    // Stufe 2: reicht auch das nicht, entfallen Institut und Copyright im Titelblock.
+    if (c && tight()) bar.classList.add('mini')
   }
   const schedule = () => { if (!raf) raf = setTimeout(update, 0) }
   new ResizeObserver(schedule).observe(bar)
