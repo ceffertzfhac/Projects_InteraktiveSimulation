@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.12] — 2026-11-17
+
+### Geändert
+- **Ortsvektor und Beschleunigung klarer getrennt.** Ein rein radialer *a*-Vektor (α = 0) ist jetzt exakt Magenta wie in den Vorlesungen (`#ff40ff`); *a*ᵣ = Magenta, *a*ₜ = Karmin (`#df0760`), *a* mischt dazwischen. Das frühere Violett lag zu nah an der Blaubeere von *r*.
+
 ## [1.12.11] — 2026-11-17
 
 ### Geändert

@@ -2,14 +2,14 @@
 
 // Dynamische Vektorfarben (Beschleunigung a, Geschwindigkeit v) — Mischung im OKLCH-Raum
 // entlang des Farbkreises (kürzester Weg), nicht in RGB (Komplementärfarben ergäben Grau).
-//   a: Violett (rein radial, a_r) → Pink (rein tangential, a_t)
+//   a: Magenta (rein radial, a_r — Farbe der Vorlesungsfolien) → Karmin (rein tangential, a_t)
 //   v: Mandarine (rein tangential, v_t) → Azur (rein radial, v_r; nur bei Spirale ≠ 0)
 // Die aktuelle Farbe wird als CSS-Variable --c-a / --c-v an <body> gesetzt; Szene und
 // Legende ziehen sie über var() — die Legende zeigt so immer die gerade benutzte Farbe.
 
 const PALETTE = {
-  light: { ar: '#8f26f3', at: '#ff45a4', vt: '#ff9300', vr: '#0092dc' },
-  dark:  { ar: '#b983ff', at: '#ff7fc0', vt: '#ffb13d', vr: '#55c4fe' },
+  light: { ar: '#ff40ff', at: '#df0760', vt: '#ff9300', vr: '#0092dc' },
+  dark:  { ar: '#ff7cff', at: '#ff6d96', vt: '#ffb13d', vr: '#55c4fe' },
 }
 
 function hexToOklch(hex) {
