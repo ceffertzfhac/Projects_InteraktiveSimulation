@@ -17,7 +17,7 @@
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
   --c-alpha:  #c03030;   /* Winkelbeschl. α – Rot (frei von Magenta) */
   --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
-  --c-radius: #555b6e;   /* Radius R – Schiefergrau (gestrichelt) */
+  --c-radius: #2f3447;   /* Radius R – Schiefergrau (gestrichelt) */
   --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
   --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
 }
@@ -34,7 +34,7 @@ body.dark {
   --c-omega:  var(--accent);
   --c-alpha:  #ff7777;
   --c-phi:    #55ee99;
-  --c-radius: #b5bacb;
+  --c-radius: #e3e7f3;
   --c-traj:   #9aa3b8;
   --c-point:  #e6eaf5;
 }
@@ -66,8 +66,9 @@ body.dark {
 #phi_label             { fill: var(--c-phi); font-style: italic; font-size: 14px; }
 
 /* Radius R */
-#radius_line            { stroke: var(--c-radius); stroke-width: 2; stroke-dasharray: 7,4; }
-#radius_label           { fill: var(--c-radius); font-style: italic; font-size: 16px; stroke: none; }
+#radius_line            { stroke: var(--c-radius); stroke-width: 3; stroke-dasharray: 9,6; stroke-linecap: butt; }
+#radius_center          { fill: var(--c-radius); }
+#radius_label           { fill: var(--c-radius); font-style: italic; font-weight: 700; font-size: 22px; stroke: none; paint-order: stroke; }
 
 /* Hauptvektoren + Komponenten (Komponenten in Elternfarbe, dashed/dotted) */
 #position_vector       { stroke: var(--c-r); stroke-width: 2.5; }

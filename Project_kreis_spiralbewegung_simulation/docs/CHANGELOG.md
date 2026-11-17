@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.5] — 2026-11-17
+
+### Geändert
+- **Radius-Linie auffälliger (→ BACKLOG FX8).** Dicker (3 px), kontrastreichere Farbe, größeres fettes *R* und Punkt im Bahnmittelpunkt — als Orientierungshilfe, an der man bei *α* ≠ 0 sieht, daß *a* nicht mehr rein radial ist (v. a. in der ISO-Ansicht).
+
 ## [1.12.4] — 2026-11-17
 
 ### Geändert

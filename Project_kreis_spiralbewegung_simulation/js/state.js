@@ -131,6 +131,7 @@ export function initDOM() {
   DOM.phiLabel = q('phi_label')
   DOM.radiusGroup = q('radius_group')
   DOM.radiusLine = q('radius_line')
+  DOM.radiusCenter = q('radius_center')
   DOM.radiusLabel = q('radius_label')
   DOM.positionVector = q('position_vector')
   DOM.velocityVector = q('velocity_vector')

@@ -189,11 +189,12 @@ function drawRadius(P, R_t) {
   if (len < 12) return
   DOM.radiusLine.setAttribute('x1', c.x); DOM.radiusLine.setAttribute('y1', c.y)
   DOM.radiusLine.setAttribute('x2', p.x); DOM.radiusLine.setAttribute('y2', p.y)
+  DOM.radiusCenter.setAttribute('cx', c.x); DOM.radiusCenter.setAttribute('cy', c.y)
   // Beschriftung mittig, senkrecht zur Linie versetzt (immer nach oben/außen)
   let nx = -dy / len, ny = dx / len
   if (ny > 0) { nx = -nx; ny = -ny }
-  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 12)
-  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 12 + 5)
+  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 16)
+  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 16 + 7)
   DOM.radiusGroup.style.visibility = 'visible'
 }
 
