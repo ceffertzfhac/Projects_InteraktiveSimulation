@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.11] — 2026-11-17
+
+### Geändert
+- **Legende dynamisch:** Sie zeigt nur noch, was in der Szene tatsächlich zu sehen ist (eingeschaltete Vektoren, Radius, Winkel, Bahn; *v*ᵣ/*v*ₜ bzw. *a*ᵣ/*a*ₜ nur bei gewählter polarer Zerlegung). Eine leere Legende zeigt nur die Überschrift.
+
 ## [1.12.10] — 2026-11-17
 
 ### Neu

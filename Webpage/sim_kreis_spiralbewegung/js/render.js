@@ -199,6 +199,25 @@ function drawRadius(P, R_t) {
   DOM.radiusGroup.style.visibility = 'visible'
 }
 
+// ── Legende: zeigt nur, was gerade in der Szene zu sehen ist ────────────────
+function updateLegend() {
+  const polar2D = store.currentView === '2D'
+  const show = {
+    r: store.togPosition, R: store.togRadius,
+    v: store.togVelocity,
+    vr: store.togVelocity && store.vDecomp === 'polar' && polar2D,
+    vt: store.togVelocity && store.vDecomp === 'polar' && polar2D,
+    a: store.togAcceleration,
+    ar: store.togAcceleration && store.aDecomp === 'polar' && polar2D,
+    at: store.togAcceleration && store.aDecomp === 'polar' && polar2D,
+    omega: store.togOmega, alpha: store.togAlpha, phi: store.togPhi, traj: store.togTrajectory,
+  }
+  document.querySelectorAll('[data-legend]').forEach(e => {
+    const d = show[e.dataset.legend] ? '' : 'none'
+    if (e.style.display !== d) e.style.display = d
+  })
+}
+
 // ── Vektoren + Zerlegung ─────────────────────────────────────────────────────
 function drawVectors(P, R_t) {
   // Alle Vektoren (+ Komponentengruppe) + Phi-Gruppe erst verbergen, dann selektiv
@@ -207,6 +226,7 @@ function drawVectors(P, R_t) {
   DOM.animationGroup.querySelectorAll('[id*="_vector"], #phi_arc_group, #radius_group').forEach(e => { e.style.visibility = 'hidden' })
 
   updateDynamicColors(P)
+  updateLegend()
   drawPhiArc(P.phiRad, R_t)
   drawRadius(P, R_t)
 

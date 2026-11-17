@@ -155,7 +155,6 @@ function resetSim(isPlayTrigger = false) {
   // Achtung: alphaDeg (frisch gelesen) nehmen, nicht store.alpha_rad — letzterer
   // wird erst weiter unten gesetzt, sonst hinkt die Umschaltung einen Wert hinterher.
   const alphaNonZero = Math.abs(alphaDeg) > 1e-6
-  document.querySelectorAll('[data-spiral-only]').forEach(e => { e.style.display = isKreis ? 'none' : '' })
   DOM.radiusLabelKreis.style.display = isKreis ? '' : 'none'
   DOM.radiusLabelSpiral.style.display = isKreis ? 'none' : ''
   DOM.formulasKreis.style.display = (isKreis && !alphaNonZero) ? '' : 'none'

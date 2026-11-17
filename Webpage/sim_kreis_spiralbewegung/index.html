@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreis- und Spiralbewegung
-        <span class="version">v1.12.10</span>
+        <span class="version">v1.12.11</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -161,19 +161,19 @@ window.MathJax = {
 
     <div class="panel-section collapsible">
       <button class="panel-label" type="button" aria-expanded="true">Legende<span class="acc-chevron" aria-hidden="true">▾</span></button>
-      <div class="legend-grid">
-        <div class="legend-swatch" style="background:var(--c-r)"></div><div class="legend-label">Ortsvektor \(\vec{r}\)</div>
-        <div class="legend-swatch" style="background:var(--c-v)"></div><div class="legend-label">Geschwindigkeit \(\vec{v}\)</div>
-        <div class="legend-swatch" data-spiral-only style="background:var(--c-vr)"></div><div class="legend-label" data-spiral-only>Radialanteil \(\vec{v}_r\)</div>
-        <div class="legend-swatch" data-spiral-only style="background:var(--c-vt)"></div><div class="legend-label" data-spiral-only>Tangentialanteil \(\vec{v}_t\)</div>
-        <div class="legend-swatch" style="background:var(--c-a)"></div><div class="legend-label">Beschleunigung \(\vec{a}\)</div>
-        <div class="legend-swatch" style="background:var(--c-ar)"></div><div class="legend-label">Radialanteil \(\vec{a}_r\)</div>
-        <div class="legend-swatch" style="background:var(--c-at)"></div><div class="legend-label">Tangentialanteil \(\vec{a}_t\)</div>
-        <div class="legend-swatch" style="background:var(--c-omega)"></div><div class="legend-label">Winkelgeschw. \(\vec{\omega}\)</div>
-        <div class="legend-swatch" style="background:var(--c-alpha)"></div><div class="legend-label">Winkelbeschl. \(\vec{\alpha}\)</div>
-        <div class="legend-swatch" style="background:var(--c-phi)"></div><div class="legend-label">Winkel \(\varphi\)</div>
-        <div class="legend-swatch" style="background:var(--c-radius)"></div><div class="legend-label">Radius \(R\)</div>
-        <div class="legend-swatch" style="background:var(--c-traj)"></div><div class="legend-label">Bahnverlauf</div>
+      <div class="legend-grid" id="legend_grid">
+        <div class="legend-swatch" data-legend="r" style="background:var(--c-r)"></div><div class="legend-label" data-legend="r">Ortsvektor \(\vec{r}\)</div>
+        <div class="legend-swatch" data-legend="R" style="background:var(--c-radius)"></div><div class="legend-label" data-legend="R">Radius \(R\)</div>
+        <div class="legend-swatch" data-legend="v" style="background:var(--c-v)"></div><div class="legend-label" data-legend="v">Geschwindigkeit \(\vec{v}\)</div>
+        <div class="legend-swatch" data-legend="vr" style="background:var(--c-vr)"></div><div class="legend-label" data-legend="vr">Radialanteil \(\vec{v}_r\)</div>
+        <div class="legend-swatch" data-legend="vt" style="background:var(--c-vt)"></div><div class="legend-label" data-legend="vt">Tangentialanteil \(\vec{v}_t\)</div>
+        <div class="legend-swatch" data-legend="a" style="background:var(--c-a)"></div><div class="legend-label" data-legend="a">Beschleunigung \(\vec{a}\)</div>
+        <div class="legend-swatch" data-legend="ar" style="background:var(--c-ar)"></div><div class="legend-label" data-legend="ar">Radialanteil \(\vec{a}_r\)</div>
+        <div class="legend-swatch" data-legend="at" style="background:var(--c-at)"></div><div class="legend-label" data-legend="at">Tangentialanteil \(\vec{a}_t\)</div>
+        <div class="legend-swatch" data-legend="omega" style="background:var(--c-omega)"></div><div class="legend-label" data-legend="omega">Winkelgeschw. \(\vec{\omega}\)</div>
+        <div class="legend-swatch" data-legend="alpha" style="background:var(--c-alpha)"></div><div class="legend-label" data-legend="alpha">Winkelbeschl. \(\vec{\alpha}\)</div>
+        <div class="legend-swatch" data-legend="phi" style="background:var(--c-phi)"></div><div class="legend-label" data-legend="phi">Winkel \(\varphi\)</div>
+        <div class="legend-swatch" data-legend="traj" style="background:var(--c-traj)"></div><div class="legend-label" data-legend="traj">Bahnverlauf</div>
       </div>
     </div>
 
