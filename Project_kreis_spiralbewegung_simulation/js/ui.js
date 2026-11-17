@@ -402,6 +402,15 @@ wireVectorToggle(DOM.togglePosition, DOM.rDecompFieldset, 'r_decomp')
 wireVectorToggle(DOM.toggleVelocity, DOM.vDecompFieldset, 'v_decomp')
 wireVectorToggle(DOM.toggleAcceleration, DOM.aDecompFieldset, 'a_decomp')
 
+// Zeichenreihenfolge: zuletzt eingeschaltete Hauptvektoren liegen zuoberst
+// (vor dem Massenpunkt eingefügt, der immer ganz oben bleibt).
+;[[DOM.togglePosition, DOM.positionVector], [DOM.toggleVelocity, DOM.velocityVector],
+  [DOM.toggleAcceleration, DOM.accelerationVector], [DOM.toggleOmega, DOM.omegaVector],
+  [DOM.toggleAlpha, DOM.alphaVector]].forEach(([toggle, vec]) =>
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) vec.parentNode.insertBefore(vec, DOM.point)
+  }))
+
 // Stoppuhr-Sichtbarkeit
 DOM.stopwatch.addEventListener('click', () => {
   store.stopwatchVisible = !store.stopwatchVisible

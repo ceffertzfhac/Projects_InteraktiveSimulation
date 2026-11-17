@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.7] — 2026-11-17
+
+### Geändert
+- **Zuletzt aktivierter Vektor liegt zuoberst.** Beim Einschalten eines Vektors (*r*, *v*, *a*, *ω*, *α*) wird sein SVG-Element an das Ende der Vektorebene (vor den Massenpunkt) verschoben; der Massenpunkt bleibt immer vorn.
+
 ## [1.12.6] — 2026-11-17
 
 ### Geändert
