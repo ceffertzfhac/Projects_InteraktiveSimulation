@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.13] — 2026-11-17
+
+### Geändert
+- *a*ₜ von Karmin auf Apfelrot (`#ff2600`, dunkel `#ff7a5c`) — näher an Mandarine, weniger dunkel.
+
 ## [1.12.12] — 2026-11-17
 
 ### Geändert

@@ -14,7 +14,7 @@
   --c-r:      #0433ff;   /* Ortsvektor r – Apple „Blaubeere“ (Vorlesungsfolien) */
   --c-v:      #ff9300;   /* Geschw. v – Apple „Mandarine“ (Vorlesungsfolien) */
   /* a und v ändern ihre Farbe laufend (js/colors.js setzt --c-a/--c-v inline an <body>):
-   a: Magenta (radial) → Karmin (tangential); v: Mandarine (tangential) → Azur (radial).
+   a: Magenta (radial) → Apfelrot (tangential); v: Mandarine (tangential) → Azur (radial).
    Die Werte hier sind nur Start-/Fallback-Farben. */
 /* Beschleunigungs-Familie: a = Magenta (Folien), a_r/a_t = Violett/Pink links/rechts davon
      auf dem Farbkreis (a_r nahe Blaubeere = radial, a_t nahe Mandarine = tangential) */
@@ -22,7 +22,7 @@
   --c-ar:     #ff40ff;   /* a_r – Magenta */
   --c-vt:     #ff9300;   /* v_t – Mandarine (Tangentialanteil) */
   --c-vr:     #0092dc;   /* v_r – Azur (Radialanteil, nur Spirale) */
-  --c-at:     #df0760;   /* a_t – Karmin */
+  --c-at:     #ff2600;   /* a_t – Apfelrot */
   --c-omega:  var(--accent);   /* Winkelgeschw. ω – Mint */
   --c-alpha:  #8c564b;   /* Winkelbeschl. α – Braun (frei von Magenta/Pink) */
   --c-phi:    #009e73;   /* Winkel φ       – Blaugrün (Okabe bluish-green) */
@@ -43,7 +43,7 @@ body.dark {
   --c-ar:     #ff7cff;
   --c-vt:     #ffb13d;
   --c-vr:     #55c4fe;
-  --c-at:     #ff6d96;
+  --c-at:     #ff7a5c;
   --c-omega:  var(--accent);
   --c-alpha:  #d2a18f;
   --c-phi:    #55ee99;
