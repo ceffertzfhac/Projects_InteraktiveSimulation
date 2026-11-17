@@ -31,6 +31,7 @@ export function precompute() {
     const ay = -R_t * omega_t * omega_t * sinPhi + R_t * alpha_rad * cosPhi + 2 * vr * omega_t * cosPhi
 
     fd.t.push(t)
+    fd.p_R.push(R_t)
     fd.p_x.push(x); fd.p_y.push(y)
     fd.p_vx.push(vx); fd.p_vy.push(vy)
     fd.p_ax.push(ax); fd.p_ay.push(ay)
@@ -57,7 +58,7 @@ export function computeAxisLimits() {
   const fd = store.fullData
   const limits = {}
   const t_max = store.effectiveDuration
-  const magnitude = ['ar', 'at', 'vabs', 'aabs']
+  const magnitude = ['R', 'ar', 'at', 'vabs', 'aabs']
   const symmetric = ['x', 'y', 'vx', 'vy', 'ax', 'ay']
 
   quantities.forEach(qq => {

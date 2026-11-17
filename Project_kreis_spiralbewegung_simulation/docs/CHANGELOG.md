@@ -3,6 +3,13 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.12.0] — 2026-11-17
+
+### Neu
+- **Diagrammtyp „Radius *R*(*t*)“ (→ BACKLOG FX9).** Neue Größe `R` in beiden
+  Diagramm-Pickern (Gruppe „Radius“), Betragsachse 0…max, in der
+  „Alle Daten“-CSV als erste Größenspalte (`R / m`).
+
 ## [1.11.0] — 2026-11-17
 
 ### Neu

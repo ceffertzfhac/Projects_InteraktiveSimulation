@@ -48,14 +48,14 @@ export const PAD_L = 55, PAD_R = 15, PAD_T = 30, PAD_B = 40
 // ── Subjekte & Größen ────────────────────────────────────────────────────────
 export const subjects = ['p']            // einzelner Partikel
 export const quantities = [
-  'x', 'y', 'vx', 'vy', 'ax', 'ay',      // kartesische Komponenten
+  'R', 'x', 'y', 'vx', 'vy', 'ax', 'ay',  // Radius + kartesische Komponenten
   'phi', 'omega', 'alpha',               // Winkelgrößen (in Grad gespeichert)
   'ar', 'at', 'vabs', 'aabs',            // Beträge (|a_r|, |a_t|, |v|, |a|)
 ]
 
 // Einheiten je Größe (Basis; Winkelgrößen in Grad — rad nur für UI/Graph-Anzeige)
 export const quantityUnits = {
-  x: 'm', y: 'm',
+  R: 'm', x: 'm', y: 'm',
   vx: 'm/s', vy: 'm/s',
   ax: 'm/s²', ay: 'm/s²',
   phi: '°', omega: '°/s', alpha: '°/s²',
@@ -65,7 +65,7 @@ export const quantityUnits = {
 // Symbole für Achsenbeschriftung (Unicode-Subscripts)
 export const quantitySymbols = {
   phi: 'φ', omega: 'ω', alpha: 'α',
-  x: 'x', y: 'y', vx: 'vₓ', vy: 'vᵧ', ax: 'aₓ', ay: 'aᵧ',
+  R: 'R', x: 'x', y: 'y', vx: 'vₓ', vy: 'vᵧ', ax: 'aₓ', ay: 'aᵧ',
   ar: '|aᵣ|', at: '|aₜ|', vabs: '|v|', aabs: '|a|',
 }
 
@@ -75,6 +75,9 @@ export const graphOptions = {
     phi: 'Winkel <i>φ</i>(<i>t</i>)',
     omega: 'Winkelgeschw. <i>ω</i>(<i>t</i>)',
     alpha: 'Winkelbeschl. <i>α</i>(<i>t</i>)',
+  },
+  'Radius': {
+    R: 'Radius <i>R</i>(<i>t</i>)',
   },
   'Orts-Komponenten': {
     x: 'Ort <i>x</i>(<i>t</i>)',
@@ -99,7 +102,7 @@ export const graphOptions = {
 // Kurze Graph-Titel (TextContent-Variante ohne Einheit — setGraphTitle)
 export const graphTitles = {
   phi: 'Winkel φ(t)', omega: 'Winkelgeschw. ω(t)', alpha: 'Winkelbeschl. α(t)',
-  x: 'Ort x(t)', y: 'Ort y(t)',
+  R: 'Radius R(t)', x: 'Ort x(t)', y: 'Ort y(t)',
   vx: 'Geschw. vₓ(t)', vy: 'Geschw. vᵧ(t)',
   ax: 'Beschl. aₓ(t)', ay: 'Beschl. aᵧ(t)',
   vabs: 'Geschwindigkeitsbetrag |v(t)|', aabs: 'Beschleunigungsbetrag |a(t)|',
@@ -109,14 +112,14 @@ export const graphTitles = {
 // CSV-Header je Größe (Winkelgrößen immer in Grad — Vergleichbarkeit)
 export const csvHeader = {
   t: 't / s',
-  x: 'x / m', y: 'y / m', vx: 'vx / m/s', vy: 'vy / m/s',
+  R: 'R / m', x: 'x / m', y: 'y / m', vx: 'vx / m/s', vy: 'vy / m/s',
   ax: 'ax / m/s^2', ay: 'ay / m/s^2',
   phi: 'phi / deg', omega: 'omega / deg/s', alpha: 'alpha / deg/s^2',
   ar: '|ar| / m/s^2', at: '|at| / m/s^2', vabs: '|v| / m/s', aabs: '|a| / m/s^2',
 }
 
 // Reihenfolge der Voll-CSV (Alle Daten) — wie Quelldatei
-export const allCsvQuantities = ['x', 'y', 'vx', 'vy', 'ax', 'ay', 'phi', 'omega', 'alpha', 'ar', 'at', 'vabs', 'aabs']
+export const allCsvQuantities = ['R', 'x', 'y', 'vx', 'vy', 'ax', 'ay', 'phi', 'omega', 'alpha', 'ar', 'at', 'vabs', 'aabs']
 
 // ── Szenarien-Presets ────────────────────────────────────────────────────────
 export const PRESETS = {

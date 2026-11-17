@@ -387,7 +387,7 @@ function yUnitString(qq) {
 // Auto-Range für Y: min/max über den bisher geplotteten Daten-Abschnitt [0..n),
 // mit derselben typspezifischen Padding wie computeAxisLimits (Beteiligung von 0
 // bei Betrags-/Symmetrie-Größen, kleiner Bereich um konstante Werte). cf = rad-Faktor.
-const MAGNITUDE_Q = ['ar', 'at', 'vabs', 'aabs']
+const MAGNITUDE_Q = ['R', 'ar', 'at', 'vabs', 'aabs']
 const SYMMETRIC_Q = ['x', 'y', 'vx', 'vy', 'ax', 'ay']
 function plottedValueRange(qq, data, n, cf) {
   let rawMin = Infinity, rawMax = -Infinity
