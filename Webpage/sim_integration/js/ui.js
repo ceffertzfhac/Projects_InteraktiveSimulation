@@ -120,7 +120,7 @@ function applyN() {
 // ── Layout: Sim/Diagramm übereinander ↔ nebeneinander ────────────────────────
 function applyLayout() {
   DOM.centerArea.classList.toggle('layout-split', store.layoutSplit)
-  DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
+  DOM.layoutToggle.textContent = store.layoutSplit ? 'Übereinander' : 'Nebeneinander'
   // Zellform hat sich geändert → Formate neu berechnen (Portrait/Landscape)
   requestAnimationFrame(() => { drawBackground(); updateScene() })
 }

@@ -74,7 +74,7 @@ function hideAutoStopWarning() { DOM.autoStopWarning.style.display = 'none' }
 // die Sim-Zeit wird nicht zurückgesetzt.
 function applyLayout() {
   DOM.centerArea.classList.toggle('layout-split', store.layoutSplit)
-  DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
+  DOM.layoutToggle.textContent = store.layoutSplit ? 'Übereinander' : 'Nebeneinander'
 }
 
 // ── Pill-Active-State (kanonisch vgl. Atwood .radio-pill) ────────────────────

@@ -1,5 +1,11 @@
 # CHANGELOG — Die Integration als Grenzwert
 
+## [1.3.1] — 2026-11-17
+
+### Geändert
+- **Kompakte Topbar bei knappem Platz (→ BACKLOG I25).** Wird die Kopfleiste zu eng, zeigen „← Übersicht“, Layout-Umschalter und die Buttons rechts (Play, Pause, Reset, CSV …) nur noch ein Symbol; der volle Name erscheint als Hover-Tooltip (`shared/js/topbar-compact.js`).
+- **Layout-Umschalter mit Piktogramm des Ziel-Layouts** statt der Zeichen ▦/⊟; Tooltip „Wechseln zu: …“ (→ BACKLOG I25).
+
 ## [1.3.0] — 2026-10-01
 
 Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.

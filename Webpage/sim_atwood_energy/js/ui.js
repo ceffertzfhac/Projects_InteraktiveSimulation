@@ -155,7 +155,7 @@ function applyLayout() {
   const split = store.layoutSplit;
   DOM.mainSvg.closest('.center-area').classList.toggle('layout-split', split);
   if (DOM.layoutToggle) {                              // FAE11: Button ausgeblendet → null-sicher
-    DOM.layoutToggle.textContent = split ? '▦ Nebeneinander' : '▦ Übereinander';
+    DOM.layoutToggle.textContent = split ? 'Nebeneinander' : 'Übereinander';
     DOM.layoutToggle.classList.toggle('active', split);
   }
   localStorage.setItem('atwood_energy_layout', split ? 'split' : 'stacked');

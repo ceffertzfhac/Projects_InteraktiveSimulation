@@ -143,7 +143,7 @@ function liveObjects(t) {
 // ── Layout-Umschalter (Probe: Sim & Diagramm übereinander / nebeneinander) ────
 function applyLayout() {
   DOM.centerArea.classList.toggle('layout-split', store.layoutSplit)
-  DOM.layoutToggle.textContent = store.layoutSplit ? '⊟ Übereinander' : '▦ Nebeneinander'
+  DOM.layoutToggle.textContent = store.layoutSplit ? 'Übereinander' : 'Nebeneinander'
 }
 
 // Layout-Wechsel live: Sim-/Graph-ViewBox, Zoom, Koordinatensystem, Szene und

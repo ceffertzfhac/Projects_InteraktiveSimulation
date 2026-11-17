@@ -396,3 +396,54 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
 .graph-hover-tooltip-bg { fill: var(--tooltip-bg); fill-opacity: 0.9; stroke: var(--border2); stroke-width: 1; rx: 4; }
 .graph-hover-tooltip-text { fill: var(--text); font-size: 11px; font-family: var(--font-mono); pointer-events: none; }
 .graph-hit-rect { fill: none; pointer-events: visible; cursor: crosshair; }
+/* ── TOPBAR KOMPAKT (→ BACKLOG I25) ──────────────────────────── */
+.topbar-right .btn-short { display: none; }
+.topbar-right.compact .btn-full { display: none; }
+.topbar-right.compact .btn-short { display: inline; }
+.topbar { overflow: visible; }
+/* shared/js/topbar-compact.js setzt .compact, wenn die Buttonleiste zu eng wird:
+   nur Symbol im Button, voller Name als Hover-/Fokus-Tooltip (data-tip). */
+.topbar-right.compact { gap: 4px; }
+.topbar-right.compact .btn {
+  padding: 6px 8px; min-width: 32px; position: relative; line-height: 1.1;
+}
+.topbar-right.compact .btn .btn-icon { font-size: 1.1em; }
+.topbar-right.compact .btn[data-tip]:hover::after,
+.topbar-right.compact .btn[data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 200;
+  padding: 4px 8px; border-radius: var(--r); white-space: nowrap;
+  background: var(--text); color: var(--bg);
+  font-size: .72rem; font-weight: 500; pointer-events: none;
+}
+.topbar-right.compact .theme-toggle-wrap span { font-size: .72rem !important; }
+
+/* Linke Topbar-Elemente („← Übersicht“, Layout-Umschalter): Text per font-size:0
+   ausgeblendet (Sim darf ihn weiter neu setzen), Symbol aus data-short. */
+.topbar-left.compact .back-btn,
+.topbar-left.compact .btn { font-size: 0; position: relative; padding: 5px 8px; min-width: 32px; text-align: center; }
+.topbar-left.compact .back-btn::before,
+.topbar-left.compact .btn::before { content: attr(data-short); font-size: .8rem; }
+.topbar-left.compact [data-tip]:hover::after,
+.topbar-left.compact [data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 200;
+  padding: 4px 8px; border-radius: var(--r); white-space: nowrap;
+  background: var(--text); color: var(--bg);
+  font-size: .72rem; font-weight: 500; pointer-events: none;
+}
+
+/* Layout-Umschalter: Piktogramm des ZIEL-Layouts (data-layout, gesetzt von
+   topbar-compact.js): side = zwei Felder nebeneinander, stack = übereinander. */
+.layout-toggle-btn[data-layout="side"] {
+  --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Crect x='1' y='1' width='14' height='10' rx='1.5' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M8 1v10' stroke='black' stroke-width='1.6'/%3E%3C/svg%3E");
+}
+.layout-toggle-btn[data-layout="stack"] {
+  --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Crect x='1' y='1' width='14' height='10' rx='1.5' fill='none' stroke='black' stroke-width='1.6'/%3E%3Cpath d='M1 6h14' stroke='black' stroke-width='1.6'/%3E%3C/svg%3E");
+}
+.layout-toggle-btn::before {
+  content: ''; display: inline-block; width: 16px; height: 12px;
+  margin-right: 6px; vertical-align: -1px; background: currentColor;
+  -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat;
+}
+.topbar-left.compact .layout-toggle-btn::before { content: ''; margin-right: 0; font-size: initial; }

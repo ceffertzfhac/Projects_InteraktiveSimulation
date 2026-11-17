@@ -1,5 +1,10 @@
 # Changelog – Atwood-Maschine
 
+## v2.6.1 — 2026-11-17
+
+### Geändert
+- **Kompakte Topbar bei knappem Platz (→ BACKLOG I25).** Wird die Kopfleiste zu eng, zeigen „← Übersicht“, Layout-Umschalter und die Buttons rechts (Play, Pause, Reset, CSV …) nur noch ein Symbol; der volle Name erscheint als Hover-Tooltip (`shared/js/topbar-compact.js`).
+
 ## v2.6.0 — 2026-10-01
 
 Feature (→ BACKLOG I20): Vollbild per Taste **F** — gemeinsames Modul `shared/js/fullscreen.js` (eine Script-Zeile); Esc beendet das Vollbild, in Texteingaben wird F ignoriert.
