@@ -3,6 +3,12 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.16.2] — 2026-11-18
+
+### Behoben
+- **Auswahlmenü für Diagramm 2 repariert** (Folgefehler aus FX13): Die Punktauswahl steckte in derselben Zeile wie „Diagramm 2“, die Diagrammauswahl wurde dadurch zusammengequetscht. Jetzt je eine eigene Zeile; beide Punktauswahlen heißen kurz „Punkte“ und sind so breit wie die übrigen Menüs.
+- **Kurzlegende in den Diagrammen weicht den Kurven aus:** Sie sitzt in der Ecke der Plotfläche mit den wenigsten Kurvenpunkten (rechts mit Abstand zum Wiedergabe-Marker) und hat einen halbtransparenten Hintergrund. Vorher stand sie fest oben links und überdeckte z. B. den Anfang von *x*(*t*).
+
 ## [1.16.1] — 2026-11-18
 
 ### Geändert

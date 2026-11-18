@@ -155,6 +155,7 @@ body.dark {
 .graph-line-b.dashed   { stroke-dasharray: 7 5; }
 .graph-point-b         { fill: var(--c-point-b); }
 .graph-legend-text     { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
+.graph-legend-bg       { fill: var(--graph-bg); fill-opacity: 0.85; stroke: var(--border); stroke-width: 1; }
 
 /* ── ANALYSE-PANEL: nur diese Sim 1,5× breiter (270 → 405 px) ──────────────── */
 /* Diese Sim hat viele Vektoren/Größen + Physik-Formelblock → mehr Platz als

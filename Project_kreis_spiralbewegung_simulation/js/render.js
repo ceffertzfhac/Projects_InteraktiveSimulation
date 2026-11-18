@@ -769,10 +769,12 @@ function drawGraph(idx, time, geom) {
     curVal = data[i] + a * ((data[i + 1] || data[i]) - data[i])
   }
   const series = graphSeries(idx, qq)
+  const plotted = []                                   // Bildpunkte aller Kurven (für die Legendenlage)
   series.forEach(sr => {
     const pts = []
     for (let i = 0; i < plotIndex && i < data.length; i++) {
-      pts.push(`${scaleT(tArr[i])},${scaleY(data[i] * sr.f * cf)}`)
+      const X = scaleT(tArr[i]), Y = scaleY(data[i] * sr.f * cf)
+      pts.push(`${X},${Y}`); plotted.push([X, Y])
     }
     if (curVal !== null) pts.push(`${scaleT(time)},${scaleY(curVal * sr.f * cf)}`)
     group.appendChild(el('polyline', {
@@ -784,12 +786,25 @@ function drawGraph(idx, time, geom) {
       r: 4, cx: scaleT(time), cy: scaleY(curVal * sr.f * cf), class: sr.point,
     })))
   }
-  // Kurzlegende oben links in der Plotfläche (nur Scheibenmodus)
+  // Kurzlegende (nur Scheibenmodus): in der Ecke der Plotfläche, die am wenigsten
+  // Kurvenpunkte enthält; die rechte Ecke hält Abstand zum Wiedergabe-Marker am rechten
+  // Rand. Halbtransparenter Hintergrund, falls sich eine Kurve doch kreuzt.
   if (series.length && series[0].label) {
+    const LW = 104, LH = 10 + series.length * 17, M = 8, MR = 22
+    const corners = [
+      [PAD_L + M, PAD_T + M], [PAD_L + plotW - LW - MR, PAD_T + M],
+      [PAD_L + M, PAD_T + plotH - LH - M - 14], [PAD_L + plotW - LW - MR, PAD_T + plotH - LH - M - 14],
+    ]
+    const hits = ([x, y]) => plotted.reduce((n, [px, py]) =>
+      n + (px >= x - 4 && px <= x + LW + 4 && py >= y - 4 && py <= y + LH + 4 ? 1 : 0), 0)
+    let best = corners[0], bestN = Infinity
+    corners.forEach(c => { const n = hits(c); if (n < bestN) { best = c; bestN = n } })
+    const [lx, ly] = best
+    group.appendChild(el('rect', { x: lx, y: ly, width: LW, height: LH, rx: 4, class: 'graph-legend-bg' }))
     series.forEach((sr, k) => {
-      const y = PAD_T + 16 + k * 17
-      group.appendChild(el('line', { x1: PAD_L + 10, y1: y - 4, x2: PAD_L + 32, y2: y - 4, class: `graph-line ${sr.line}` }))
-      const tx = el('text', { x: PAD_L + 38, y, class: 'graph-legend-text' })
+      const y = ly + 16 + k * 17
+      group.appendChild(el('line', { x1: lx + 8, y1: y - 4, x2: lx + 30, y2: y - 4, class: `graph-line ${sr.line}` }))
+      const tx = el('text', { x: lx + 36, y, class: 'graph-legend-text' })
       tx.textContent = sr.label
       group.appendChild(tx)
     })
