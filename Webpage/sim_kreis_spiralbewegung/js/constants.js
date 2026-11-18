@@ -127,4 +127,12 @@ export const PRESETS = {
   start:          { mode: 'kreis',   R0: 1.5, vr: 0,   omega0: 0,   alpha: 20 },
   brems:          { mode: 'kreis',   R0: 1.5, vr: 0,   omega0: 120, alpha: -15 },
   spirale_aussen: { mode: 'spirale', R0: 0.2, vr: 0.3, omega0: 150, alpha: 0 },
+  // Rotierende Scheibe (Übung 7): zwei Punkte auf derselben Scheibe, A am Rand (r = R),
+  // B auf halbem Weg zur Achse (r = R/2). scheibe:true schaltet Punkt B, Speiche und
+  // Vergleichstabelle ein (nur Kreisbahn, 2D) und stellt v, a (polar zerlegt) an.
+  scheibe:          { mode: 'kreis', R0: 2.0, vr: 0, omega0: 60, alpha: 0,  scheibe: true },
+  scheibe_anfahren: { mode: 'kreis', R0: 2.0, vr: 0, omega0: 0,  alpha: 30, scheibe: true },
 }
+
+// Radienverhältnis r_B / r_A des zweiten Punkts im Szenario „Rotierende Scheibe“
+export const SCHEIBE_B_FAKTOR = 0.5

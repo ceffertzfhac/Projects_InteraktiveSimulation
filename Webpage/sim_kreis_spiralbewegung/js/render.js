@@ -8,6 +8,7 @@ import {
   ZOOM_TEXT_X, ZOOM_TEXT_Y,
   PAD_L, PAD_R, PAD_T, PAD_B,
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
+  SCHEIBE_B_FAKTOR,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { interpolateAt, linePlotIndex, radiusAt } from './physics.js'
@@ -211,6 +212,8 @@ function updateLegend() {
     ar: store.togAcceleration,
     at: store.togAcceleration,
     omega: store.togOmega, alpha: store.togAlpha, phi: store.togPhi, traj: store.togTrajectory,
+    // Szenario „Rotierende Scheibe“: nur dort sind A und B zu unterscheiden
+    punktA: scheibeAktiv(), punktB: scheibeAktiv(),
   }
   document.querySelectorAll('[data-legend]').forEach(e => {
     const d = show[e.dataset.legend] ? '' : 'none'
@@ -321,6 +324,138 @@ function drawVectors(P, R_t) {
       const PE = projectISO(0, 0, P.z + len)
       setMain(DOM.alphaVector, P_CENTER.x, P_CENTER.y, PE.x, PE.y, ARROW_LEN_MAIN)
     }
+  }
+}
+
+
+// ── Szenario „Rotierende Scheibe“: Punkt B (r = R/2) neben Punkt A (Rand) ────
+// Nur Kreisbahn + 2D. Beide Punkte teilen φ, ω, α (starre Scheibe); sie
+// unterscheiden sich im Radius und damit in s, v, a_ZP, a_t. Punkt A ist der
+// normale Partikel (drawVectors); hier kommen Speiche, Bahn und Vektoren von B
+// sowie die Vergleichstabelle dazu.
+const SCHEIBE_ROWS = [
+  { key: 'r',     label: 'Radius <i>r</i>',               ratio: true },
+  { key: 'dphi',  label: 'Drehwinkel Δ<i>φ</i>',          ratio: true },
+  { key: 's',     label: 'Weg <i>s</i>',                  ratio: true },
+  { key: 'omega', label: 'Winkelgeschw. <i>ω</i>',        ratio: true },
+  { key: 'alpha', label: 'Winkelbeschl. <i>α</i>',        ratio: true },
+  { key: 'v',     label: 'Bahngeschw. |<i>v</i>|',        ratio: true },
+  { key: 'ar',    label: 'Zentripetal |<i>a</i>ᵣ|',      ratio: true },
+  { key: 'at',    label: 'Tangential |<i>a</i>ₜ|',        ratio: true },
+]
+let scheibeCells = null
+
+function scheibeAktiv() {
+  return store.scheibe && store.motionMode === 'kreis' && store.currentView === '2D'
+}
+
+function buildScheibeTable() {
+  const grid = DOM.scheibeGrid
+  grid.innerHTML = ''
+  const cell = (cls, html) => {
+    const d = document.createElement('div')
+    d.className = `analysis-cell ${cls}`
+    d.innerHTML = html
+    grid.appendChild(d)
+    return d
+  }
+  cell('key', '')
+  cell('head a', 'A (Rand)'); cell('head b', 'B (Mitte)'); cell('head', 'A : B')
+  scheibeCells = {}
+  SCHEIBE_ROWS.forEach(r => {
+    cell('key', r.label)
+    scheibeCells[r.key] = { a: cell('val', '—'), b: cell('val', '—'), q: cell('val ratio', '—') }
+  })
+}
+
+function scheibeWerte(P, r) {
+  const omega = P.omega * Math.PI / 180            // rad/s
+  const dphiDeg = P.phi - store.phi0_rad * 180 / Math.PI
+  return {
+    r, dphi: dphiDeg, s: r * Math.abs(dphiDeg) * Math.PI / 180,
+    omega: P.omega, alpha: P.alpha,
+    v: Math.abs(r * omega), ar: r * omega * omega, at: Math.abs(r * store.alpha_rad),
+  }
+}
+
+function updateScheibePanel(P) {
+  const on = scheibeAktiv()
+  DOM.scheibePanel.style.display = on ? '' : 'none'
+  if (!on) return
+  if (!scheibeCells) buildScheibeTable()
+  const rA = store.R0, rB = store.R0 * SCHEIBE_B_FAKTOR
+  const A = scheibeWerte(P, rA), B = scheibeWerte(P, rB)
+  const unit = { r: 'm', s: 'm', v: 'm/s', ar: 'm/s²', at: 'm/s²' }
+  const ang = { dphi: 'phi', omega: 'omega', alpha: 'alpha' }
+  SCHEIBE_ROWS.forEach(row => {
+    const c = scheibeCells[row.key]
+    const show = (v, unitOverride) => {
+      if (ang[row.key]) { const d = angleDisplay(ang[row.key], v); return `${fmt(d.val, 2)} ${d.unit}` }
+      return `${fmt(v, 2)} ${unit[row.key]}`
+    }
+    c.a.textContent = show(A[row.key])
+    c.b.textContent = show(B[row.key])
+    const q = Math.abs(B[row.key]) > 1e-9 ? A[row.key] / B[row.key] : NaN
+    c.q.textContent = Number.isFinite(q) ? fmt(q, 2) : '—'
+  })
+}
+
+function drawScheibe(P, R_t) {
+  const on = scheibeAktiv()
+  DOM.scheibeGroup.style.visibility = on ? 'visible' : 'hidden'
+  if (!on) return
+  const phi = P.phiRad
+  const rB = R_t * SCHEIBE_B_FAKTOR
+  const ux = Math.cos(phi), uy = Math.sin(phi)         // r̂
+  const tx = -uy, ty = ux                              // t̂
+  const omega = P.omegaRad, alpha = store.alpha_rad
+  const C = physToScreen(0, 0, 0)
+  const PA = physToScreen(R_t * ux, R_t * uy, 0)
+  const PB = physToScreen(rB * ux, rB * uy, 0)
+  const vScale = VEL_SCALE * store.zoomFactor
+  const aScale = ACC_SCALE * store.zoomFactor
+
+  DOM.scheibeBahnB.setAttribute('cx', C.x); DOM.scheibeBahnB.setAttribute('cy', C.y)
+  DOM.scheibeBahnB.setAttribute('r', rB * store.currentPixelsPerMeter)
+  DOM.scheibeSpoke.setAttribute('x1', C.x); DOM.scheibeSpoke.setAttribute('y1', C.y)
+  DOM.scheibeSpoke.setAttribute('x2', PA.x); DOM.scheibeSpoke.setAttribute('y2', PA.y)
+  DOM.scheibePointB.setAttribute('cx', PB.x); DOM.scheibePointB.setAttribute('cy', PB.y)
+
+  // Beschriftung neben dem Punkt, radial nach außen
+  const labelAt = (el, p, off) => {
+    el.setAttribute('x', p.x + ux * off); el.setAttribute('y', p.y - uy * off + 6)
+  }
+  labelAt(DOM.scheibeLabelA, PA, 20)
+  labelAt(DOM.scheibeLabelB, PB, 20)
+
+  const setVec = (lineEl, show, x2, y2, by, opacity = '1') => {
+    lineEl.style.visibility = 'hidden'
+    if (!show) return
+    const s = shortenEnd(PB.x, PB.y, x2, y2, by)
+    if (!s) return
+    lineEl.setAttribute('x1', PB.x); lineEl.setAttribute('y1', PB.y)
+    lineEl.setAttribute('x2', s.x2); lineEl.setAttribute('y2', s.y2)
+    lineEl.style.opacity = opacity
+    lineEl.style.visibility = 'visible'
+  }
+  // v_B tangential
+  const vB = rB * omega
+  const PV = physToScreen(rB * ux + tx * vB * vScale, rB * uy + ty * vB * vScale, 0)
+  setVec(DOM.scheibeVB, store.togVelocity && Math.abs(vB) > 1e-6, PV.x, PV.y, ARROW_LEN_MAIN)
+  // a_B gesamt = −ω²r r̂ + α r t̂
+  const arB = rB * omega * omega, atB = rB * alpha
+  const polar = store.aDecomp === 'polar'
+  const PAB = physToScreen(rB * ux + (-arB * ux + atB * tx) * aScale, rB * uy + (-arB * uy + atB * ty) * aScale, 0)
+  setVec(DOM.scheibeAB, store.togAcceleration && Math.hypot(arB, atB) > 1e-6, PAB.x, PAB.y, ARROW_LEN_ACC, polar ? '0.4' : '1')
+  if (polar) {
+    const PAR = physToScreen(rB * ux - arB * ux * aScale, rB * uy - arB * uy * aScale, 0)
+    setVec(DOM.scheibeArB, store.togAcceleration && Math.abs(arB) > 1e-6, PAR.x, PAR.y, ARROW_LEN_POLAR)
+    const f = store.scaleAt ? 10.0 : 1.0
+    const sgn = Math.sign(alpha)
+    const PAT = physToScreen(rB * ux + sgn * tx * Math.abs(atB) * aScale * f, rB * uy + sgn * ty * Math.abs(atB) * aScale * f, 0)
+    setVec(DOM.scheibeAtB, store.togAcceleration && Math.abs(atB) > 1e-6, PAT.x, PAT.y, ARROW_LEN_POLAR)
+  } else {
+    DOM.scheibeArB.style.visibility = 'hidden'; DOM.scheibeAtB.style.visibility = 'hidden'
   }
 }
 
@@ -781,6 +916,7 @@ export function updateScene(time) {
     phiRad,
     omegaDeg: P.omega, alphaDeg: P.alpha,
   }, R_t)
+  drawScheibe({ phiRad, omegaRad: P.omega * Math.PI / 180 }, R_t)
 
   // Stoppuhr-Hauptzeiger (1 U/60 s)
   const ma = (time % 60 / 60) * 2 * Math.PI
@@ -794,6 +930,7 @@ export function updateScene(time) {
   DOM.subHand.setAttribute('y2', scy - WATCH_SUBDIAL_R * Math.cos(sa))
 
   updateAnalysisPanel(P)
+  updateScheibePanel(P)
   drawGraphs(time)
 
   DOM.timeLabel.innerHTML = `<i>t</i> = ${fmt(time, 2)} s`

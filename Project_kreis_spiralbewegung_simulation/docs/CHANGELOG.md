@@ -3,6 +3,17 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.0] — 2026-11-18
+
+### Hinzugefügt
+- **Szenario „Rotierende Scheibe“** (Übung 7, WS 26/27; zwei Presets: *gleichförmig* R = 2 m, ω = 60 °/s und *anfahrend* ω₀ = 0, α = 30 °/s²). Zwei Punkte auf derselben Scheibe: **A am Rand** (r = R) und **B in der Mitte** zwischen Rand und Achse (r = R/2), dazu Speiche, Bahnkreis von B und Beschriftung A/B. Nur Kreisbahn + 2D.
+- **Legende kontextuell:** „Punkt A (Rand)“ und „Punkt B (Mitte)“ erscheinen nur im Szenario.
+- Vektoren von B (*v*, *a*, bei polarer Zerlegung *a*ᵣ und *a*ₜ) mit denselben Schaltern, Farben und Skalen wie bei A — gleiche Skala heißt: die Pfeile von B sind für *v*, *a*ᵣ und *a*ₜ halb so lang wie die von A.
+- **Vergleichstabelle A | B | A : B** im Analyse-Panel (Radius, Drehwinkel, Weg, ω, α, |*v*|, |*a*ᵣ|, |*a*ₜ|). Das Preset klappt das Panel auf, schaltet *v*, *a* (polar) und *R* ein.
+
+### Bekannte Grenze
+- Keine eigenen Diagrammkurven für B (Diagramme zeigen weiter Punkt A); Vergleich über die Tabelle.
+
 ## [1.12.16] — 2026-11-17
 
 ### Geändert

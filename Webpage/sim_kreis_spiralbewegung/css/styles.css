@@ -29,6 +29,7 @@
   --c-radius: #444a5e;   /* Radius R – Schiefergrau (gestrichelt) */
   --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
   --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
+  --c-point-b: #0072b2;  /* Scheibe: Punkt B – Okabe-Ito-Blau, unterscheidbar von Punkt A */
 }
 
 body.dark {
@@ -50,6 +51,7 @@ body.dark {
   --c-radius: #c4c9d9;
   --c-traj:   #9aa3b8;
   --c-point:  #e6eaf5;
+  --c-point-b: #56b4e9;
 }
 
 /* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */
@@ -74,6 +76,23 @@ body.dark {
 /* Disk + Partikel */
 #disk                  { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
 #point                 { fill: var(--c-point); }
+
+/* Szenario „Rotierende Scheibe“: Punkt B, Speiche, Bahn von B, Vektoren von B */
+#sch_point_b           { fill: var(--c-point-b); }
+#sch_spoke             { stroke: var(--c-radius); stroke-width: 1.5; }
+#sch_bahn_b            { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; }
+#sch_label_a           { fill: var(--c-point); }
+#sch_label_b           { fill: var(--c-point-b); }
+#sch_label_a, #sch_label_b { font-size: 16px; font-weight: 600; stroke: none; }
+#sch_v_b               { stroke: var(--c-v); stroke-width: 2.5; }
+#sch_a_b               { stroke: var(--c-a); stroke-width: 3; }
+#sch_ar_b              { stroke: var(--c-ar); stroke-width: 2; }
+#sch_at_b              { stroke: var(--c-at); stroke-width: 2; }
+.scheibe-grid          { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+.scheibe-grid .analysis-cell.head { color: var(--text2); font-weight: 600; text-align: right; }
+.scheibe-grid .analysis-cell.head.a { color: var(--c-point); }
+.scheibe-grid .analysis-cell.head.b { color: var(--c-point-b); }
+.scheibe-grid .analysis-cell.ratio { color: var(--text3); }
 
 /* Bahnkurve */
 #trajectory_path       { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; fill: none; }

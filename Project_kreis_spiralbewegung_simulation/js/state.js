@@ -11,6 +11,7 @@ export const store = {
   // Modus / Ansicht / Einheit / Diagramm / Anordnung
   motionMode: 'kreis', currentView: '2D', angleUnit: 'deg',
   diagramMode: '1', graphType1: 'phi', graphType2: 'omega',
+  scheibe: false,       // Szenario „Rotierende Scheibe“ gewählt (wirksam nur bei Kreisbahn + 2D)
   layoutSplit: false,   // Sim & Diagramm übereinander (false) / nebeneinander (true) — FX6, einheitlich mit Kreisbewegung
 
   // Vektorzerlegung
@@ -125,6 +126,14 @@ export function initDOM() {
   DOM.coordSystem2d = q('animation_coord_system_2d')
   DOM.disk = q('disk')
   DOM.point = q('point')
+  DOM.scheibeGroup = q('scheibe_group')
+  DOM.scheibeSpoke = q('sch_spoke')
+  DOM.scheibeBahnB = q('sch_bahn_b')
+  DOM.scheibePointB = q('sch_point_b')
+  DOM.scheibeLabelA = q('sch_label_a'); DOM.scheibeLabelB = q('sch_label_b')
+  DOM.scheibeVB = q('sch_v_b'); DOM.scheibeAB = q('sch_a_b')
+  DOM.scheibeArB = q('sch_ar_b'); DOM.scheibeAtB = q('sch_at_b')
+  DOM.scheibePanel = q('scheibe_panel'); DOM.scheibeGrid = q('scheibe_grid')
   DOM.trajectoryPath = q('trajectory_path')
   DOM.phiArcGroup = q('phi_arc_group')
   DOM.phiArc = q('phi_arc')

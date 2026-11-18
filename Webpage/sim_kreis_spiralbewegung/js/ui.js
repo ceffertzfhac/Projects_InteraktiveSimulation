@@ -344,6 +344,18 @@ function loadPreset(preset) {
   DOM.omega0Slider.value = p.omega0
   DOM.alphaSlider.value = p.alpha
   DOM.presetSelect.value = 'none'
+  store.scheibe = !!p.scheibe
+  if (p.scheibe) {
+    // Szenario „Rotierende Scheibe“: 2D, v und a an (a polar zerlegt), Radius R sichtbar,
+    // Analyse-Panel mit der Vergleichstabelle aufklappen
+    DOM.viewSelect.value = '2D'
+    DOM.toggleVelocity.checked = true
+    DOM.toggleAcceleration.checked = true
+    DOM.toggleRadius.checked = true
+    document.querySelector('input[name="a_decomp"][value="polar"]').checked = true
+    DOM.appLayout.classList.remove('analysis-collapsed')
+    DOM.analysisToggle.setAttribute('aria-expanded', 'true')
+  }
   store.simulatedTime = 0
   store.nStop = 1
   DOM.nValueDisplay.textContent = store.nStop
