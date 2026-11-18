@@ -3,6 +3,14 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.15.0] — 2026-11-18
+
+### Hinzugefügt
+- **Beide Punkte in den Diagrammen** (→ BACKLOG FX13, PO-Wunsch). Im Modus „Rotierende Scheibe“ zeigt jedes Diagramm eine Kurve für A (Rand, dunkel) und B (Mitte, blau), mit Kurzlegende in der Plotfläche. Bei φ, ω, α sind beide Kurven deckungsgleich (starre Scheibe); B ist dann gestrichelt, damit A sichtbar bleibt.
+- **Vergleich im Zwei-Diagramm-Modus:** neue Auswahl „Punkte in Diagramm 1/2“ (A und B · nur A · nur B), nur im Scheibenmodus sichtbar. Die Achsenskala richtet sich immer nach A, so lassen sich z. B. *v*ₓ(*t*) „nur A“ und „nur B“ nebeneinander direkt vergleichen.
+- Hover-Tooltip nennt die Werte je Punkt („(A)“, „(B)“); Live-Analyse heißt im Modus „Live-Analyse – Punkt A (Rand)“.
+- **CSV im Scheibenmodus** mit Spalten „(A)“ und „(B)“ (Diagramm-CSV gemäß Punktauswahl; φ, ω, α nur einmal, da für beide Punkte gleich).
+
 ## [1.14.2] — 2026-11-18
 
 ### Behoben

@@ -18,6 +18,7 @@ import { shortenEnd } from '../../shared/js/vectors.js'
 import { setAxisLabel, setGraphTitle } from '../../shared/js/svg-text.js'
 import { tAxisStep, niceStepLE } from '../../shared/js/ticks.js'
 export { fmt }
+export { bFaktor }
 
 const NS = 'http://www.w3.org/2000/svg'
 
@@ -407,6 +408,7 @@ function scheibeWerte(P, r, time) {
 function updateScheibePanel(P, time) {
   const on = scheibeAktiv()
   DOM.scheibePanel.style.display = on ? '' : 'none'
+  DOM.liveLabel.textContent = on ? 'Live-Analyse – Punkt A (Rand)' : 'Live-Analyse'   // FX13
   if (!on) return
   if (!scheibeCells) buildScheibeTable()
   const rA = store.R0, rB = store.R0 * SCHEIBE_B_FAKTOR
@@ -621,6 +623,24 @@ function plottedValueRange(qq, data, n, cf) {
   return { min, max }
 }
 
+// FX13: Kurven je Diagramm. Außerhalb des Scheibenmodus eine Kurve (Punkt A = der
+// Massenpunkt). Im Modus A und/oder B; B = SCHEIBE_B_FAKTOR × A für alle Längen-,
+// Geschwindigkeits- und Beschleunigungsgrößen, identisch für φ/ω/α (starre Scheibe) —
+// dann B gestrichelt, damit die deckungsgleiche Kurve von A sichtbar bleibt.
+const ANGULAR_Q = ['phi', 'omega', 'alpha']
+function bFaktor(qq) { return ANGULAR_Q.includes(qq) ? 1 : SCHEIBE_B_FAKTOR }
+function graphSeries(idx, qq) {
+  if (store.motionMode !== 'scheibe') return [{ f: 1, line: `graph-line-${idx}`, point: 'graph-point' }]
+  const sel = store.graphPoints[idx] || 'ab'
+  const out = []
+  if (sel !== 'b') out.push({ f: 1, line: 'graph-line-a', point: 'graph-point', label: 'A (Rand)', key: 'A' })
+  if (sel !== 'a') {
+    const f = bFaktor(qq)
+    out.push({ f, line: 'graph-line-b' + (f === 1 && sel === 'ab' ? ' dashed' : ''), point: 'graph-point-b', label: 'B (Mitte)', key: 'B' })
+  }
+  return out
+}
+
 function drawGraph(idx, time, geom) {
   const group = idx === 1 ? DOM.graphGroup1 : DOM.graphGroup2
   group.innerHTML = ''
@@ -738,26 +758,41 @@ function drawGraph(idx, time, geom) {
   setAxisLabel(xLabel, 't / s')
   group.appendChild(xLabel)
 
-  // Datenlinie + aktueller Punkt
-  const pts = []
-  for (let i = 0; i < plotIndex && i < data.length; i++) {
-    pts.push(`${scaleT(tArr[i])},${scaleY(data[i] * cf)}`)
-  }
+  // Datenlinie(n) + aktueller Punkt. FX13: Im Scheibenmodus je eine Kurve für A und B
+  // (B = Faktor × A, s. graphSeries); die Achsenskala bleibt die von A, damit zwei
+  // Diagramme „nur A“ / „nur B“ direkt vergleichbar sind (B liegt stets im Bereich von A).
   let curVal = null
   if (plotIndex > 0 && time <= tEnd + 1e-9) {
     const i = Math.max(0, plotIndex - 1)
     const t1 = tArr[i], t2 = tArr[i + 1] || t1
     const a = t2 > t1 ? (time - t1) / (t2 - t1) : 0
     curVal = data[i] + a * ((data[i + 1] || data[i]) - data[i])
-    pts.push(`${scaleT(time)},${scaleY(curVal * cf)}`)
   }
-  group.appendChild(el('polyline', {
-    fill: 'none', 'stroke-width': 2, points: pts.join(' '), class: `graph-line graph-line-${idx}`,
-  }))
-  if (curVal !== null) {
-    group.appendChild(el('circle', {
-      r: 4, cx: scaleT(time), cy: scaleY(curVal * cf), class: 'graph-point',
+  const series = graphSeries(idx, qq)
+  series.forEach(sr => {
+    const pts = []
+    for (let i = 0; i < plotIndex && i < data.length; i++) {
+      pts.push(`${scaleT(tArr[i])},${scaleY(data[i] * sr.f * cf)}`)
+    }
+    if (curVal !== null) pts.push(`${scaleT(time)},${scaleY(curVal * sr.f * cf)}`)
+    group.appendChild(el('polyline', {
+      fill: 'none', 'stroke-width': 2, points: pts.join(' '), class: `graph-line ${sr.line}`,
     }))
+  })
+  if (curVal !== null) {
+    series.forEach(sr => group.appendChild(el('circle', {
+      r: 4, cx: scaleT(time), cy: scaleY(curVal * sr.f * cf), class: sr.point,
+    })))
+  }
+  // Kurzlegende oben links in der Plotfläche (nur Scheibenmodus)
+  if (series.length && series[0].label) {
+    series.forEach((sr, k) => {
+      const y = PAD_T + 16 + k * 17
+      group.appendChild(el('line', { x1: PAD_L + 10, y1: y - 4, x2: PAD_L + 32, y2: y - 4, class: `graph-line ${sr.line}` }))
+      const tx = el('text', { x: PAD_L + 38, y, class: 'graph-legend-text' })
+      tx.textContent = sr.label
+      group.appendChild(tx)
+    })
   }
 
   // Titel (letztes Kind → über Datenlinien + bg)
@@ -806,11 +841,14 @@ function drawHoverAtT(idx, gs, t) {
   DOM.hoverLine[idx].setAttribute('y1', PAD_T); DOM.hoverLine[idx].setAttribute('y2', PAD_T + plotH)
   DOM.hoverLine[idx].setAttribute('visibility', 'visible')
 
+  // FX13: im Scheibenmodus Ring auf der ersten gezeigten Kurve, Tooltip mit allen Kurven
+  const series = graphSeries(idx, qq)
   DOM.hoverPoint[idx].setAttribute('cx', xPix)
-  DOM.hoverPoint[idx].setAttribute('cy', scaleY(val))
+  DOM.hoverPoint[idx].setAttribute('cy', scaleY(val * series[0].f))
   DOM.hoverPoint[idx].setAttribute('visibility', 'visible')
 
-  renderHoverTooltip(idx, qq, t, val, xPix, plotW)
+  const vals = series.map(sr => ({ key: sr.key, val: val * sr.f }))
+  renderHoverTooltip(idx, qq, t, vals, xPix, plotW)
 }
 
 // Zeichnet den Hover-Cursor im hoverSourceSlot neu (Auto-Range wächst mit der
@@ -872,13 +910,13 @@ export function updateGraphHover(idx, localX) {
   refreshHover()
 }
 
-function renderHoverTooltip(idx, qq, t, val, xPix, plotW) {
+function renderHoverTooltip(idx, qq, t, vals, xPix, plotW) {
   const textEl = DOM.hoverTooltipText[idx]
   textEl.innerHTML = ''
   const lineH = 15
   const rows = [
     { text: `t = ${fmt(t, 2)} s`, italic: true },
-    { text: `${quantitySymbols[qq]} = ${fmt(val, 2)} ${yUnitString(qq)}` },
+    ...vals.map(v => ({ text: `${quantitySymbols[qq]}${v.key ? ` (${v.key})` : ''} = ${fmt(v.val, 2)} ${yUnitString(qq)}` })),
   ]
   rows.forEach((row, i) => {
     const tspan = el('tspan', { x: 8, y: 16 + i * lineH })

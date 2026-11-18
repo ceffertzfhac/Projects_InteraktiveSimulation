@@ -149,6 +149,12 @@ body.dark {
 .graph-line-1          { stroke: var(--accent); }
 .graph-line-2          { stroke: var(--c-v); }
 .graph-point           { fill: var(--c-point); }
+/* FX13: Modus „Rotierende Scheibe“ — Kurven von Punkt A und B */
+.graph-line-a          { stroke: var(--c-point); }
+.graph-line-b          { stroke: var(--c-point-b); }
+.graph-line-b.dashed   { stroke-dasharray: 7 5; }
+.graph-point-b         { fill: var(--c-point-b); }
+.graph-legend-text     { fill: var(--text); font-size: 12px; font-family: var(--font-ui); }
 
 /* ── ANALYSE-PANEL: nur diese Sim 1,5× breiter (270 → 405 px) ──────────────── */
 /* Diese Sim hat viele Vektoren/Größen + Physik-Formelblock → mehr Platz als

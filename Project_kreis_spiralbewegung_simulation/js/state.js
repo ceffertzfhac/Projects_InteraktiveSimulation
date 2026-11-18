@@ -11,6 +11,7 @@ export const store = {
   // Modus / Ansicht / Einheit / Diagramm / Anordnung
   motionMode: 'kreis', currentView: '2D', angleUnit: 'deg',
   diagramMode: '1', graphType1: 'phi', graphType2: 'omega',
+  graphPoints: { 1: 'ab', 2: 'ab' },   // FX13: Modus „Rotierende Scheibe“ — Kurven A und/oder B je Diagramm
   lastMode: 'kreis',    // Modus vor dem aktuellen resetSim (für Standardwerte beim Wechsel in „Rotierende Scheibe“)
   layoutSplit: false,   // Sim & Diagramm übereinander (false) / nebeneinander (true) — FX6, einheitlich mit Kreisbewegung
 
@@ -115,6 +116,9 @@ export function initDOM() {
   DOM.speedGroup = q('speed_group')
   DOM.dualGraphControl = q('dual_graph_control')
   DOM.graphSelect1 = q('graph_select_1'); DOM.graphSelect2 = q('graph_select_2')
+  DOM.graphPoints = { 1: q('graph_points_1'), 2: q('graph_points_2') }
+  DOM.graphPointsControl = { 1: q('graph_points_control_1'), 2: q('graph_points_control_2') }
+  DOM.liveLabel = q('live_label')
   DOM.layoutToggle = q('layout_toggle')
   DOM.centerArea = q('center_area')
 

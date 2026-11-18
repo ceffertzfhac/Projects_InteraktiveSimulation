@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreis- und Spiralbewegung
-        <span class="version">v1.14.2</span>
+        <span class="version">v1.15.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -189,9 +189,26 @@ window.MathJax = {
         <span class="slider-label">Diagramm 1</span>
         <select id="graph_select_1" class="select-field"></select>
       </div>
+      <!-- FX13: Modus „Rotierende Scheibe“ — welche Punkte das Diagramm zeigt -->
+      <div class="vis-control" id="graph_points_control_1" style="display:none">
+        <span class="slider-label">Punkte in Diagramm 1</span>
+        <select id="graph_points_1" class="select-field">
+          <option value="ab" selected>A und B</option>
+          <option value="a">nur A (Rand)</option>
+          <option value="b">nur B (Mitte)</option>
+        </select>
+      </div>
       <div class="vis-control" id="dual_graph_control" style="display:none">
         <span class="slider-label">Diagramm 2</span>
         <select id="graph_select_2" class="select-field"></select>
+        <div id="graph_points_control_2" style="display:none;margin-top:8px">
+        <span class="slider-label">Punkte in Diagramm 2</span>
+        <select id="graph_points_2" class="select-field">
+          <option value="ab" selected>A und B</option>
+          <option value="a">nur A (Rand)</option>
+          <option value="b">nur B (Mitte)</option>
+        </select>
+        </div>
       </div>
       <div class="vis-control" style="margin-top:8px">
         <span class="slider-label">Winkeleinheit</span>
@@ -394,7 +411,7 @@ window.MathJax = {
     <div class="panel-body">
 
     <div class="panel-section">
-      <div class="panel-label">Live-Analyse</div>
+      <div class="panel-label" id="live_label">Live-Analyse</div>
       <div class="analysis-grid">
         <div class="analysis-cell key">Ort \(x\)</div><div class="analysis-cell val" id="live_x">— m</div>
         <div class="analysis-cell key">Ort \(y\)</div><div class="analysis-cell val" id="live_y">— m</div>

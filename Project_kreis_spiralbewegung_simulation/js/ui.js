@@ -6,7 +6,7 @@ import {
 } from './constants.js'
 import { store, DOM, initDOM } from './state.js'
 import { precompute, calculatePreciseStopTime } from './physics.js'
-import { fmt, drawBackground, updateScene, updateGraphHover } from './render.js'
+import { fmt, bFaktor, drawBackground, updateScene, updateGraphHover } from './render.js'
 import { attachGraphHover } from '../../shared/js/hover.js'
 import { exportSVG, exportPNG } from '../../shared/js/export-image.js'
 
@@ -155,6 +155,11 @@ function resetSim(isPlayTrigger = false) {
   DOM.speedRadios.forEach(r => { if (r.checked) store.speedFactor = parseFloat(r.value) })
   store.graphType1 = DOM.graphSelect1.value
   store.graphType2 = DOM.graphSelect2.value
+  // FX13: Punktauswahl je Diagramm nur im Scheibenmodus
+  ;[1, 2].forEach(i => {
+    store.graphPoints[i] = DOM.graphPoints[i].value
+    DOM.graphPointsControl[i].style.display = DOM.motionModeSelect.value === 'scheibe' ? '' : 'none'
+  })
 
   store.togPosition = DOM.togglePosition.checked
   store.togVelocity = DOM.toggleVelocity.checked
@@ -330,12 +335,24 @@ function downloadCSV(content, filename) {
   URL.revokeObjectURL(url)
 }
 
+// FX13: Im Scheibenmodus Spalten je Punkt — „(A)“ = Rand, „(B)“ = Mitte (B = Faktor × A)
+function csvColumns(qq, sel = 'ab') {
+  const fd = store.fullData, a = fd[`p_${qq}`]
+  if (store.motionMode !== 'scheibe') return [[csvHeader[qq], a]]
+  if (sel === 'ab' && bFaktor(qq) === 1) return [[csvHeader[qq], a]]   // φ/ω/α: für A und B gleich
+  const cols = []
+  if (sel !== 'b') cols.push([`${csvHeader[qq]} (A)`, a])
+  if (sel !== 'a') { const f = bFaktor(qq); cols.push([`${csvHeader[qq]} (B)`, a.map(v => v * f)]) }
+  return cols
+}
+
 function exportDiagramCSV() {
   const fd = store.fullData
   if (!fd.t || !fd.t.length) { alert('Es gibt keine Daten zum Exportieren. Bitte starten Sie zuerst die Simulation.'); return }
-  const headers = ['t / s', csvHeader[store.graphType1]]
-  const arrays = [fd.t, fd[`p_${store.graphType1}`]]
-  if (store.diagramMode === '2') { headers.push(csvHeader[store.graphType2]); arrays.push(fd[`p_${store.graphType2}`]) }
+  const cols = [...csvColumns(store.graphType1, store.graphPoints[1]),
+    ...(store.diagramMode === '2' ? csvColumns(store.graphType2, store.graphPoints[2]) : [])]
+  const headers = ['t / s', ...cols.map(c => c[0])]
+  const arrays = [fd.t, ...cols.map(c => c[1])]
   const rows = [`sep=;\n${headers.join(';')}`]
   for (let i = 0; i < fd.t.length; i++) {
     rows.push(arrays.map(arr => arr[i] !== undefined ? fmt(arr[i], 4) : '').join(';'))
@@ -346,10 +363,11 @@ function exportDiagramCSV() {
 function exportAllCSV() {
   const fd = store.fullData
   if (!fd.t || !fd.t.length) { alert('Es gibt keine Daten zum Exportieren. Bitte starten Sie zuerst die Simulation.'); return }
-  const headers = ['t / s', ...allCsvQuantities.map(q => csvHeader[q])]
+  const cols = allCsvQuantities.flatMap(q => csvColumns(q))
+  const headers = ['t / s', ...cols.map(c => c[0])]
   const rows = [`sep=;\n${headers.join(';')}`]
   for (let i = 0; i < fd.t.length; i++) {
-    rows.push([fmt(fd.t[i], 4), ...allCsvQuantities.map(q => fmt(fd[`p_${q}`][i], 4))].join(';'))
+    rows.push([fmt(fd.t[i], 4), ...cols.map(c => fmt(c[1][i], 4))].join(';'))
   }
   downloadCSV(rows.join('\n'), 'alle_simulationsdaten.csv')
 }
@@ -410,6 +428,10 @@ DOM.diagramModeRadios.forEach(r => r.addEventListener('change', () => {
 }))
 DOM.graphSelect1.addEventListener('change', () => { store.graphType1 = DOM.graphSelect1.value; updateScene(store.simulatedTime) })
 DOM.graphSelect2.addEventListener('change', () => { store.graphType2 = DOM.graphSelect2.value; updateScene(store.simulatedTime) })
+;[1, 2].forEach(i => DOM.graphPoints[i].addEventListener('change', () => {
+  store.graphPoints[i] = DOM.graphPoints[i].value
+  updateScene(store.simulatedTime)
+}))
 
 // Anordnung Sim/Diagramm (nur Redraw, kein Reset — FX6, einheitlich mit Kreisbewegung)
 DOM.layoutToggle?.addEventListener('click', () => {
