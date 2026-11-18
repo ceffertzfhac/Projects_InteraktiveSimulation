@@ -19,5 +19,7 @@
  */
 export function fmt(value, decimals = 2) {
   if (!Number.isFinite(value)) return '—'
-  return value.toFixed(decimals).replace('.', ',')
+  const s = value.toFixed(decimals)
+  // T15: kleine negative Werte, die auf 0 runden, ohne Minuszeichen („-0,00“ → „0,00“)
+  return (/^-0(\.0*)?$/.test(s) ? s.slice(1) : s).replace('.', ',')
 }
