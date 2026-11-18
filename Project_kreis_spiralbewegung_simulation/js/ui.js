@@ -125,6 +125,14 @@ function resetSim(isPlayTrigger = false) {
   }
   store.lastMode = DOM.motionModeSelect.value
 
+  // B63: Die Scheibe (Punkt B, Vergleichstabelle) gibt es nur in 2D → ISO im Modus sperren,
+  // mit sichtbarem Hinweis in der Auswahl statt stummem Verlust.
+  const scheibe = DOM.motionModeSelect.value === 'scheibe'
+  const isoOpt = DOM.viewSelect.querySelector('option[value="ISO"]')
+  isoOpt.disabled = scheibe
+  isoOpt.textContent = scheibe ? '3D (ISO-Ansicht) – nicht bei Rotierender Scheibe' : '3D (ISO-Ansicht)'
+  if (scheibe && DOM.viewSelect.value === 'ISO') DOM.viewSelect.value = '2D'
+
   // Controls → Store
   store.currentView = DOM.viewSelect.value
   store.angleUnit = DOM.angleUnitSelect.value

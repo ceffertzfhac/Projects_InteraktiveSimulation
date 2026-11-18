@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.6] — 2026-11-18
+
+### Geändert
+- **ISO-Ansicht im Modus „Rotierende Scheibe“ gesperrt** (→ BACKLOG B63). Die Auswahl zeigt „3D (ISO-Ansicht) – nicht bei Rotierender Scheibe“ ausgegraut. Bisher verschwanden in ISO Punkt B, Tabelle und Legendeneinträge ohne Hinweis.
+
 ## [1.13.5] — 2026-11-18
 
 ### Geändert
