@@ -131,3 +131,6 @@ export const PRESETS = {
 
 // Radienverhältnis r_B / r_A des zweiten Punkts im Modus „Rotierende Scheibe“
 export const SCHEIBE_B_FAKTOR = 0.5
+
+// Maßstab der Beschleunigungspfeile im Modus „Rotierende Scheibe“ (× ACC_SCALE, A und B gleich, B62)
+export const SCHEIBE_A_FAKTOR = 1.6

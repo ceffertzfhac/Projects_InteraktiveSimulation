@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.14.2] — 2026-11-18
+
+### Behoben
+- **Beschleunigungspfeile im Scheibenmodus 1,6-fach skaliert** (für A und B gleich, `SCHEIBE_A_FAKTOR`, → BACKLOG B62). Vorher waren die halb so langen Pfeile von B bei Standardwerten kürzer als ihre Spitze: *a*_B verschwand, *a*ᵣ,B war nur eine Spitze. Kleine *a*ₜ (z. B. α = 20 °/s²) bleiben wie bisher erst mit „*a*ₜ 10× vergrößern“ gut sichtbar.
+
 ## [1.14.1] — 2026-11-18
 
 ### Behoben

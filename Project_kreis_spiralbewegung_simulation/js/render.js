@@ -8,7 +8,7 @@ import {
   ZOOM_TEXT_X, ZOOM_TEXT_Y,
   PAD_L, PAD_R, PAD_T, PAD_B,
   quantities, quantityUnits, quantitySymbols, graphOptions, graphTitles,
-  SCHEIBE_B_FAKTOR,
+  SCHEIBE_B_FAKTOR, SCHEIBE_A_FAKTOR,
 } from './constants.js'
 import { store, DOM } from './state.js'
 import { interpolateAt, linePlotIndex, radiusAt } from './physics.js'
@@ -228,6 +228,12 @@ function updateLegend() {
   })
 }
 
+// Maßstab der Beschleunigungspfeile. B62: Im Scheibenmodus 1,6-fach (für A und B gleich),
+// sonst wären die halb so langen Pfeile von B kürzer als ihre Spitze und verschwänden.
+function accScale() {
+  return ACC_SCALE * store.zoomFactor * (scheibeAktiv() ? SCHEIBE_A_FAKTOR : 1)
+}
+
 // ── Vektoren + Zerlegung ─────────────────────────────────────────────────────
 function drawVectors(P, R_t) {
   // Alle Vektoren (+ Komponentengruppe) + Phi-Gruppe erst verbergen, dann selektiv
@@ -244,7 +250,7 @@ function drawVectors(P, R_t) {
   const P_ORIGIN = physToScreen(0, 0, 0)
   const P_CENTER = physToScreen(0, 0, P.z)
   const vScale = VEL_SCALE * store.zoomFactor
-  const aScale = ACC_SCALE * store.zoomFactor
+  const aScale = accScale()
 
   const setMain = (lineEl, x1, y1, x2, y2, by) => {
     const s = shortenEnd(x1, y1, x2, y2, by)
@@ -460,7 +466,7 @@ function drawScheibe(P, R_t) {
   const PA = physToScreen(R_t * ux, R_t * uy, 0)
   const PB = physToScreen(rB * ux, rB * uy, 0)
   const vScale = VEL_SCALE * store.zoomFactor
-  const aScale = ACC_SCALE * store.zoomFactor
+  const aScale = accScale()
 
   DOM.scheibeBahnB.setAttribute('cx', C.x); DOM.scheibeBahnB.setAttribute('cy', C.y)
   DOM.scheibeBahnB.setAttribute('r', rB * store.currentPixelsPerMeter)
