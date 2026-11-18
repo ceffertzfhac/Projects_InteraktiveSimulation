@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.5] — 2026-11-18
+
+### Geändert
+- **Reset behält den Modus** (→ BACKLOG B64) und lädt dessen Standardwerte: Kreisbahn und Rotierende Scheibe „Gleichförmig“, Spiralbahn „Spirale (außen)“. Bisher sprang Reset im Spiralmodus auf die Kreisbahn, im Scheibenmodus nicht.
+
 ## [1.13.4] — 2026-11-18
 
 ### Geändert

@@ -472,7 +472,9 @@ DOM.resetBtn.addEventListener('click', () => {
   store.simulatedTime = 0
   store.nStop = 1
   DOM.nValueDisplay.textContent = store.nStop
-  loadPreset('gleich')
+  // B64: Reset = Standardwerte des AKTUELLEN Modus — Kreisbahn und Scheibe „Gleichförmig“,
+  // Spiralbahn „Spirale (außen)“; der Modus selbst bleibt.
+  loadPreset(DOM.motionModeSelect.value === 'spirale' ? 'spirale_aussen' : 'gleich')
 })
 DOM.exportDiagram.addEventListener('click', exportDiagramCSV)
 DOM.exportAll.addEventListener('click', exportAllCSV)
