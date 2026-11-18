@@ -97,11 +97,11 @@ body.dark {
 .center-area { display: flex; overflow: hidden; background: var(--bg); transition: background .3s; }
 /* Default = Übereinander (Spalte) */
 .center-area:not(.layout-split) { flex-direction: column; }
-.center-area:not(.layout-split) .sim-wrapper { flex: 0 0 54%; border-bottom: 1px solid var(--border); }
+.center-area:not(.layout-split) .sim-wrapper { flex: 0 0 var(--split-a-pct, 54%); border-bottom: 1px solid var(--border); }
 .center-area:not(.layout-split) .graph-wrapper { flex: 1 1 auto; }
 /* Nebeneinander = Zeile */
 .center-area.layout-split { flex-direction: row; }
-.center-area.layout-split .sim-wrapper { flex: 0 0 44%; border-right: 1px solid var(--border); }
+.center-area.layout-split .sim-wrapper { flex: 0 0 var(--split-a-pct, 44%); border-right: 1px solid var(--border); }
 .center-area.layout-split .graph-wrapper { flex: 1 1 auto; }
 
 .sim-wrapper { position: relative; overflow: hidden; min-height: 0; }

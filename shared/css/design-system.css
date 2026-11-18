@@ -309,6 +309,7 @@ body.dark .theme-toggle::before { transform: translateX(16px); background: #fff;
 .split-handle.vertical:hover::after, .split-handle.vertical.dragging::after,
 .split-handle.vertical:focus-visible::after { inset: 0 4.5px; }
 body.split-dragging { user-select: none; cursor: row-resize; }
+body.split-dragging.split-col { cursor: col-resize; }
 
 /* ── SLIDERS ─────────────────────────────────────────────────── */
 .slider-label { font-size: .73rem; color: var(--text2); margin-bottom: 3px; }

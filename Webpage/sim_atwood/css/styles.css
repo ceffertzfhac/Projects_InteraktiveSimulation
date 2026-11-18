@@ -97,7 +97,7 @@ body.dark {
   background: var(--bg); transition: background 0.3s;
 }
 .sim-wrapper {
-  flex: 0 0 44%; overflow: hidden; position: relative;
+  flex: 0 0 var(--split-a-pct, 44%);   /* I24: verschiebbare Trennlinie */ overflow: hidden; position: relative;
   border-right: 1px solid var(--border);
 }
 #main_svg { width: 100%; height: 100%; display: block; }

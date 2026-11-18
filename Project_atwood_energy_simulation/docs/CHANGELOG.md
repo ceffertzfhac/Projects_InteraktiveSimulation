@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.7.0 — 2026-11-18
+
+### Hinzugefügt
+- **Verschiebbare Trennlinie zwischen Simulation und Diagramm** (→ BACKLOG I24, Rollout). Griff auf der Trennlinie ziehen (40 : 60 bis 60 : 40), Pfeiltasten ±2 %, Doppelklick oder Pos1 = Standard (Standard 44 : 56 bleibt). Der Wert wird je Sim gespeichert. Gemeinsames Modul `shared/js/split-divider.js`.
+
 ## v1.6.1 — 2026-11-17
 
 ### Geändert

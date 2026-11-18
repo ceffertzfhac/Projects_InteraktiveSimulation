@@ -71,7 +71,7 @@ body.dark {
 .graph-title-text { fill: var(--text); font-size: 15px; font-family: var(--font-ui); font-weight: 600; }
 
 /* ── CENTER-LAYOUT: Simulation + Diagramm gestapelt (wie Rollende Körper) ── */
-.center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area { display: grid; grid-template-rows: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); overflow: hidden; background: var(--bg); transition: background 0.3s; }
 .sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
 #main_svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .graph-wrapper { position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }

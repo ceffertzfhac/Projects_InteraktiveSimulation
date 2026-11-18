@@ -169,8 +169,8 @@ body.dark {
 /* ── CENTER-LAYOUT: Simulation + Diagramm (übereinander / nebeneinander) ──── */
 /* Einheitlich mit Kreisbewegung: .layout-split-Klasse am #center_area, gleiche
    Spalten/Zeilen, Trennlinie rechts, @media-Fallback auf schmalen Viewports. */
-.center-area { display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
-.center-area.layout-split { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.center-area { display: grid; grid-template-rows: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area.layout-split { grid-template-columns: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); grid-template-rows: 1fr; }
 .sim-wrapper { position: relative; border-bottom: 3px solid var(--border2); overflow: hidden; background: var(--bg); }
 .center-area.layout-split .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
 .center-area.layout-split .graph-wrapper { padding-top: 0; padding-left: 4px; }
@@ -180,7 +180,7 @@ body.dark {
 
 /* Schmale Viewports: immer übereinander (sonst wird es zu eng) — wie Kreisbewegung */
 @media (max-width: 1100px) {
-  .center-area, .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .center-area, .center-area.layout-split { grid-template-columns: 1fr; grid-template-rows: minmax(0, var(--split-a, 1fr)) minmax(0, var(--split-b, 1fr)); }
   .center-area.layout-split .sim-wrapper { border-bottom: 3px solid var(--border2); border-right: none; }
   .center-area.layout-split .graph-wrapper { padding-top: 4px; padding-left: 0; }
 }

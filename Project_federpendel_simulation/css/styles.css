@@ -71,17 +71,17 @@ body.dark {
    Vertikaler Aufbau → nebeneinander (Sim links, Diagramm rechts): das Sim-SVG
    ist hoch (viewBox auf Inhaltsbereich gestrafft, Aspect 0,63) → paßt in die
    hohe, schmale Zelle. Umschaltung per `.layout-side`-Klasse in setupScene. */
-.center-area  { display: grid; grid-template-rows: 0.9fr 1.1fr; overflow: hidden; background: var(--bg); transition: background 0.3s; }
+.center-area  { display: grid; grid-template-rows: minmax(0, var(--split-a, 0.9fr)) minmax(0, var(--split-b, 1.1fr)); overflow: hidden; background: var(--bg); transition: background 0.3s; }
 .sim-wrapper  { position: relative; overflow: hidden; border-bottom: 3px solid var(--border2); background: var(--bg); }
 .graph-wrapper{ position: relative; overflow: hidden; background: var(--bg); padding-top: 4px; }
 
 /* Vertikaler Aufbau: nebeneinander */
-.center-area.layout-side { grid-template-columns: 1.1fr 1fr; grid-template-rows: 1fr; }
+.center-area.layout-side { grid-template-columns: minmax(0, var(--split-a, 1.1fr)) minmax(0, var(--split-b, 1fr)); grid-template-rows: 1fr; }
 .center-area.layout-side .sim-wrapper { border-bottom: none; border-right: 3px solid var(--border2); }
 
 /* Schmalere Viewports: immer gestapelt (sonst wird es zu eng) */
 @media (max-width: 1100px) {
-  .center-area, .center-area.layout-side { grid-template-columns: 1fr; grid-template-rows: 0.9fr 1.1fr; }
+  .center-area, .center-area.layout-side { grid-template-columns: 1fr; grid-template-rows: minmax(0, var(--split-a, 0.9fr)) minmax(0, var(--split-b, 1.1fr)); }
   .center-area.layout-side .sim-wrapper { border-right: none; border-bottom: 3px solid var(--border2); }
 }
 /* Manuelle Zeitmessung: Start-Button als HTML-Overlay über der Sim-Szene
