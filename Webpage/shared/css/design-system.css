@@ -158,6 +158,9 @@ body {
 .topbar-title-text {
   display: flex; flex-direction: column; align-items: center; min-width: 0; line-height: 1.25;
 }
+/* Titelzeile bricht nie um: sonst überläuft sie bei knapper Breite Logo und
+   Buttons, ohne daß topbar-compact.js die Enge erkennt (→ BACKLOG B66). */
+.topbar-title-line { white-space: nowrap; }
 .topbar-title .copyright {
   color: var(--text3); font-weight: 400; font-size: .62rem; letter-spacing: .02em;
   white-space: nowrap; margin-top: 2px;
