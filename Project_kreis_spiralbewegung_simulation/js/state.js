@@ -127,7 +127,7 @@ export function initDOM() {
   DOM.disk = q('disk')
   DOM.point = q('point')
   DOM.scheibeGroup = q('scheibe_group')
-  DOM.scheibeSpoke = q('sch_spoke')
+  DOM.scheibeDeco = q('sch_disk_deco')
   DOM.scheibeBahnB = q('sch_bahn_b')
   DOM.scheibePointB = q('sch_point_b')
   DOM.scheibeLabelA = q('sch_label_a'); DOM.scheibeLabelB = q('sch_label_b')

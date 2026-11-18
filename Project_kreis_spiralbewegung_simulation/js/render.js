@@ -413,9 +413,36 @@ function updateScheibePanel(P, time) {
   })
 }
 
+// FX12: Scheibe als starrer Körper — kräftiger Rand (CSS #disk.scheibe), Nabe und
+// sechs mitdrehende Speichen. Die Speichen liegen um 30° gegen den Radius zu A versetzt,
+// damit sie weder Radiuslinie R noch Ortsvektor noch Punkt B überdecken (B61).
+const SCHEIBE_SPEICHEN = 6
+function drawScheibeDeko(on, phi, R_t) {
+  DOM.disk.classList.toggle('scheibe', on)
+  DOM.scheibeDeco.style.visibility = on ? 'visible' : 'hidden'
+  if (!on) return
+  if (!DOM.scheibeDeco.firstChild) {
+    for (let k = 0; k < SCHEIBE_SPEICHEN; k++) DOM.scheibeDeco.appendChild(el('line', {}))
+    DOM.scheibeDeco.appendChild(el('circle', {}))
+  }
+  const C = physToScreen(0, 0, 0)
+  const ppm = store.currentPixelsPerMeter
+  const rHub = Math.max(5, 0.1 * R_t * ppm)
+  const lines = DOM.scheibeDeco.querySelectorAll('line')
+  lines.forEach((ln, k) => {
+    const a = phi + Math.PI / 6 + k * 2 * Math.PI / SCHEIBE_SPEICHEN
+    const ca = Math.cos(a), sa = Math.sin(a)
+    ln.setAttribute('x1', C.x + rHub * ca); ln.setAttribute('y1', C.y - rHub * sa)
+    ln.setAttribute('x2', C.x + R_t * ppm * ca); ln.setAttribute('y2', C.y - R_t * ppm * sa)
+  })
+  const hub = DOM.scheibeDeco.querySelector('circle')
+  hub.setAttribute('cx', C.x); hub.setAttribute('cy', C.y); hub.setAttribute('r', rHub)
+}
+
 function drawScheibe(P, R_t) {
   const on = scheibeAktiv()
   DOM.scheibeGroup.style.visibility = on ? 'visible' : 'hidden'
+  drawScheibeDeko(on, P.phiRad, R_t)
   if (!on) return
   const phi = P.phiRad
   const rB = R_t * SCHEIBE_B_FAKTOR
@@ -430,8 +457,6 @@ function drawScheibe(P, R_t) {
 
   DOM.scheibeBahnB.setAttribute('cx', C.x); DOM.scheibeBahnB.setAttribute('cy', C.y)
   DOM.scheibeBahnB.setAttribute('r', rB * store.currentPixelsPerMeter)
-  DOM.scheibeSpoke.setAttribute('x1', C.x); DOM.scheibeSpoke.setAttribute('y1', C.y)
-  DOM.scheibeSpoke.setAttribute('x2', PA.x); DOM.scheibeSpoke.setAttribute('y2', PA.y)
   DOM.scheibePointB.setAttribute('cx', PB.x); DOM.scheibePointB.setAttribute('cy', PB.y)
 
   // Beschriftung neben dem Punkt, radial nach außen

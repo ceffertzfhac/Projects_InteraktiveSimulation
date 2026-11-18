@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreis- und Spiralbewegung
-        <span class="version">v1.13.6</span>
+        <span class="version">v1.14.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -283,6 +283,8 @@ window.MathJax = {
           <g id="view_2d_elements">
             <g id="animation_coord_system_2d"></g>
             <circle id="disk" fill-opacity="0.4"/>
+            <!-- FX12: Modus „Rotierende Scheibe“ — mitdrehende Speichen + Nabe (render.js drawScheibe) -->
+            <g id="sch_disk_deco" style="visibility:hidden"></g>
           </g>
 
           <!-- Stoppuhr vor Bahn/Vektoren/Punkt, damit ihre deckende Fuellung
@@ -333,7 +335,6 @@ window.MathJax = {
                Beschriftung beider Punkte. Sichtbar nur im Modus „scheibe“ + 2D (render.js drawScheibe). -->
           <g id="scheibe_group" style="visibility:hidden">
             <circle id="sch_bahn_b" fill="none"/>
-            <line id="sch_spoke"/>
             <line id="sch_v_b" marker-end="url(#arrow-v)"/>
             <line id="sch_a_b" marker-end="url(#arrow-a)"/>
             <line id="sch_ar_b" marker-end="url(#arrow-ar)"/>

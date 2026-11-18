@@ -3,6 +3,12 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.14.0] — 2026-11-18
+
+### Hinzugefügt
+- **Darstellung als starre Scheibe** (→ BACKLOG FX12, PO-Wunsch): kräftiger Rand, Nabe im Mittelpunkt und sechs Speichen, die sich mit der Scheibe drehen. So ist die Drehung des starren Körpers auch ohne Vektoren sichtbar. Farben `--sch-rim`/`--sch-spoke` mit Dunkelmodus-Varianten.
+- **Doppelte Speiche entfällt** (→ BACKLOG B61). Die Linie Mittelpunkt → A lag deckungsgleich auf Radiuslinie *R* und Ortsvektor. Die neuen Speichen sind um 30° gegen den Radius zu A versetzt und überdecken weder *R*, *r* noch Punkt B.
+
 ## [1.13.6] — 2026-11-18
 
 ### Geändert
