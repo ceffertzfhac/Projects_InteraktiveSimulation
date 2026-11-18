@@ -113,17 +113,15 @@ function resetSim(isPlayTrigger = false) {
     store.isAutoStopping = false
   }
 
-  // Wechsel in den Modus „Rotierende Scheibe“: Standardansicht setzen (2D, v und a an,
-  // a polar zerlegt, Radius R sichtbar, Analyse-Panel mit der Vergleichstabelle auf).
+  // Wechsel in den Modus „Rotierende Scheibe“: Standardansicht = 2D, alle Vektoren aus
+  // (FX11, PO 2026-11-18); das Analyse-Panel bleibt, wie der Nutzer es hatte.
   // Nur beim Wechsel, danach bleibt alles dem Nutzer überlassen.
   if (!isPlayTrigger && DOM.motionModeSelect.value === 'scheibe' && store.lastMode !== 'scheibe') {
     DOM.viewSelect.value = '2D'
-    DOM.toggleVelocity.checked = true
-    DOM.toggleAcceleration.checked = true
-    DOM.toggleRadius.checked = true
-    document.querySelector('input[name="a_decomp"][value="polar"]').checked = true
-    DOM.appLayout.classList.remove('analysis-collapsed')
-    DOM.analysisToggle.setAttribute('aria-expanded', 'true')
+    ;[DOM.togglePosition, DOM.toggleVelocity, DOM.toggleAcceleration].forEach(t => { t.checked = false })
+    ;['r_decomp', 'v_decomp', 'a_decomp'].forEach(n => {
+      document.querySelector(`input[name="${n}"][value="none"]`).checked = true
+    })
   }
   store.lastMode = DOM.motionModeSelect.value
 

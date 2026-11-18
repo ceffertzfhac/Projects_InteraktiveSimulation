@@ -3,6 +3,12 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.4] — 2026-11-18
+
+### Geändert
+- **Wechsel in „Rotierende Scheibe“ klappt die Analyse nicht mehr auf** (→ BACKLOG FX11, PO-Wunsch). Die Vergleichstabelle A | B erscheint, sobald der Nutzer die Analyse öffnet.
+- **Beim Wechsel in den Modus sind alle Vektoren aus** (*r*, *v*, *a*, Zerlegungen „Keine“); Ansicht 2D. Danach gehören alle Schalter wieder dem Nutzer.
+
 ## [1.13.3] — 2026-11-18
 
 ### Behoben
