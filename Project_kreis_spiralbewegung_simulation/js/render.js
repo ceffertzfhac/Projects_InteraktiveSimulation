@@ -241,10 +241,17 @@ function drawVectors(P, R_t) {
 
   const setMain = (lineEl, x1, y1, x2, y2, by) => {
     const s = shortenEnd(x1, y1, x2, y2, by)
-    if (!s) { lineEl.style.visibility = 'hidden'; return } // B23: Vektor kürzer als Spitze
+    if (!s) { lineEl.style.visibility = 'hidden'; return false } // B23: Vektor kürzer als Spitze
     lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1)
     lineEl.setAttribute('x2', s.x2); lineEl.setAttribute('y2', s.y2)
     lineEl.style.visibility = 'visible'
+    return true
+  }
+  // B65: Komponente nur zeigen, wenn sie nicht verschwindet UND setMain sie zeichnen konnte
+  // (sonst bliebe eine Linie der Länge 0 im SVG-Ursprung sichtbar, samt Pfeilspitze).
+  const setComp = (lineEl, nonZero, x1, y1, x2, y2, by) => {
+    if (!nonZero) { lineEl.style.visibility = 'hidden'; return }
+    setMain(lineEl, x1, y1, x2, y2, by)
   }
 
   if (store.togPosition) {
@@ -275,13 +282,11 @@ function drawVectors(P, R_t) {
       const rLen = Math.hypot(P.x, P.y)
       const ux = rLen > 0 ? P.x / rLen : 0, uy = rLen > 0 ? P.y / rLen : 0
       const PVR = physToScreen(P.x + ux * store.vr * vScale, P.y + uy * store.vr * vScale, P.z)
-      setMain(DOM.velocityVectorR, P_POINT.x, P_POINT.y, PVR.x, PVR.y, ARROW_LEN_POLAR)
-      if (Math.abs(store.vr) > 1e-6) DOM.velocityVectorR.style.visibility = 'visible'
+      setComp(DOM.velocityVectorR, Math.abs(store.vr) > 1e-6, P_POINT.x, P_POINT.y, PVR.x, PVR.y, ARROW_LEN_POLAR)
       const vtMag = R_t * P.omegaRad
       const tx = -uy, ty = ux
       const PVT = physToScreen(P.x + tx * vtMag * vScale, P.y + ty * vtMag * vScale, P.z)
-      setMain(DOM.velocityVectorT, P_POINT.x, P_POINT.y, PVT.x, PVT.y, ARROW_LEN_POLAR)
-      if (Math.abs(vtMag) > 1e-6) DOM.velocityVectorT.style.visibility = 'visible'
+      setComp(DOM.velocityVectorT, Math.abs(vtMag) > 1e-6, P_POINT.x, P_POINT.y, PVT.x, PVT.y, ARROW_LEN_POLAR)
     }
   }
 
@@ -300,15 +305,13 @@ function drawVectors(P, R_t) {
       const rLen = Math.hypot(P.x, P.y)
       const ux = rLen > 0 ? P.x / rLen : 0, uy = rLen > 0 ? P.y / rLen : 0
       const PAR = physToScreen(P.x - ux * P.arMag * aScale, P.y - uy * P.arMag * aScale, P.z)
-      setMain(DOM.accelerationVectorR, P_POINT.x, P_POINT.y, PAR.x, PAR.y, ARROW_LEN_POLAR)
-      if (Math.abs(P.arMag) > 1e-6) DOM.accelerationVectorR.style.visibility = 'visible'
+      setComp(DOM.accelerationVectorR, Math.abs(P.arMag) > 1e-6, P_POINT.x, P_POINT.y, PAR.x, PAR.y, ARROW_LEN_POLAR)
       if (Math.abs(P.atMag) > 1e-6) {
         const tx = -uy, ty = ux
         const atSign = Math.sign(store.alpha_rad)
         const f = store.scaleAt ? 10.0 : 1.0
         const PAT = physToScreen(P.x + atSign * tx * P.atMag * aScale * f, P.y + atSign * ty * P.atMag * aScale * f, P.z)
         setMain(DOM.accelerationVectorT, P_POINT.x, P_POINT.y, PAT.x, PAT.y, ARROW_LEN_POLAR)
-        DOM.accelerationVectorT.style.visibility = 'visible'
       }
     }
   }

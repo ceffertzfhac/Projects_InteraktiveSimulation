@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.2] — 2026-11-18
+
+### Behoben
+- **Zu kurze Vektor-Komponenten bleiben verborgen** (→ BACKLOG B65). *v*ᵣ, *v*ₜ, *a*ᵣ und *a*ₜ wurden nach dem Zeichnen sichtbar geschaltet, auch wenn der Pfeil kürzer als seine Spitze war (Regel B23). Dann blieb eine Linie der Länge 0 im SVG-Ursprung stehen und ihre Pfeilspitze erschien als Fleck links oben in der Szene (z. B. „Anfahren“, polare Zerlegung).
+
 ## [1.13.0] — 2026-11-18
 
 ### Hinzugefügt
