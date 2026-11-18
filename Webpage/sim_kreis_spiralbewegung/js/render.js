@@ -351,14 +351,14 @@ function drawVectors(P, R_t) {
 // normale Partikel (drawVectors); hier kommen Speiche, Bahn und Vektoren von B
 // sowie die Vergleichstabelle dazu.
 const SCHEIBE_ROWS = [
-  { key: 'r',     label: 'Radius <i>r</i>',               ratio: true },
-  { key: 'dphi',  label: 'Drehwinkel Δ<i>φ</i>',          ratio: true },
-  { key: 's',     label: 'Bahnweg <i>s</i>',              ratio: true },
-  { key: 'omega', label: 'Winkelgeschw. <i>ω</i>',        ratio: true },
-  { key: 'alpha', label: 'Winkelbeschl. <i>α</i>',        ratio: true },
-  { key: 'v',     label: 'Bahngeschw. |<i>v</i>|',        ratio: true },
-  { key: 'ar',    label: 'Zentripetal |<i>a</i>ᵣ|',      ratio: true },
-  { key: 'at',    label: 'Tangential |<i>a</i>ₜ|',        ratio: true },
+  { key: 'r',     label: 'Radius <i>r</i>' },
+  { key: 'dphi',  label: 'Drehwinkel Δ<i>φ</i>' },
+  { key: 's',     label: 'Bahnweg <i>s</i>' },
+  { key: 'omega', label: 'Winkelgeschw. <i>ω</i>' },
+  { key: 'alpha', label: 'Winkelbeschl. <i>α</i>' },
+  { key: 'v',     label: 'Bahngeschw. |<i>v</i>|' },
+  { key: 'ar',    label: 'Zentripetal |<i>a</i>ᵣ|' },
+  { key: 'at',    label: 'Tangential |<i>a</i>ₜ|' },
 ]
 let scheibeCells = null
 
@@ -417,7 +417,7 @@ function updateScheibePanel(P, time) {
   const ang = { dphi: 'phi', omega: 'omega', alpha: 'alpha' }
   SCHEIBE_ROWS.forEach(row => {
     const c = scheibeCells[row.key]
-    const show = (v, unitOverride) => {
+    const show = v => {
       if (ang[row.key]) { const d = angleDisplay(ang[row.key], v); return `${fmt(d.val, 2)} ${d.unit}` }
       return `${fmt(v, 2)} ${unit[row.key]}`
     }

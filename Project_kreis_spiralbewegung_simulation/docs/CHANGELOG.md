@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.15.1] — 2026-11-18
+
+### Geändert
+- Aufräumen nach dem Review (→ BACKLOG T19): CHANGELOG-Reihenfolge 1.13.1 vor 1.13.0, Grenzen des Scheibenmodus in `docs/KNOWN_LIMITATIONS.md`, ungenutzte Tabellenfelder `ratio` und Parameter `unitOverride` entfernt. Keine sichtbare Änderung.
+
 ## [1.15.0] — 2026-11-18
 
 ### Hinzugefügt
@@ -54,6 +59,11 @@ Die Version in `index.html` ist mit der neuesten Changelog-Version synchron geha
 ### Behoben
 - **Zu kurze Vektor-Komponenten bleiben verborgen** (→ BACKLOG B65). *v*ᵣ, *v*ₜ, *a*ᵣ und *a*ₜ wurden nach dem Zeichnen sichtbar geschaltet, auch wenn der Pfeil kürzer als seine Spitze war (Regel B23). Dann blieb eine Linie der Länge 0 im SVG-Ursprung stehen und ihre Pfeilspitze erschien als Fleck links oben in der Szene (z. B. „Anfahren“, polare Zerlegung).
 
+## [1.13.1] — 2026-11-18
+
+### Geändert
+- **„Rotierende Scheibe“ ist ein Modus, kein Szenario mehr** (Auswahl *Modus*: Kreisbahn · Spiralbahn · Rotierende Scheibe). Die zwei Szenario-Presets aus 1.13.0 entfallen. Beim Wechsel in den Modus stellt die Sim 2D, *v* und *a* (polar zerlegt) und *R* an und klappt die Analyse auf; danach gehören alle Schalter dem Nutzer. Radius, ω₀ und α stellt der Nutzer wie bisher an den Reglern ein; die Kreisbahn-Szenarien (Gleichförmig, Anfahren, Abbremsen) gelten auch im Modus.
+
 ## [1.13.0] — 2026-11-18
 
 ### Hinzugefügt
@@ -64,11 +74,6 @@ Die Version in `index.html` ist mit der neuesten Changelog-Version synchron geha
 
 ### Bekannte Grenze
 - Keine eigenen Diagrammkurven für B (Diagramme zeigen weiter Punkt A); Vergleich über die Tabelle.
-
-## [1.13.1] — 2026-11-18
-
-### Geändert
-- **„Rotierende Scheibe“ ist ein Modus, kein Szenario mehr** (Auswahl *Modus*: Kreisbahn · Spiralbahn · Rotierende Scheibe). Die zwei Szenario-Presets aus 1.13.0 entfallen. Beim Wechsel in den Modus stellt die Sim 2D, *v* und *a* (polar zerlegt) und *R* an und klappt die Analyse auf; danach gehören alle Schalter dem Nutzer. Radius, ω₀ und α stellt der Nutzer wie bisher an den Reglern ein; die Kreisbahn-Szenarien (Gleichförmig, Anfahren, Abbremsen) gelten auch im Modus.
 
 ## [1.12.16] — 2026-11-17
 

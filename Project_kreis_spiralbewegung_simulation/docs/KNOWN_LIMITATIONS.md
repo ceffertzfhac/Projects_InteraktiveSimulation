@@ -16,3 +16,10 @@ Folge-Aufgaben dieser Sim: → **FX1** (Okabe-Ito-Farbpalette), → **FX2**
 - **Hover-Cursor (I5) nur auf bereits gezeichnetem Kurvenabschnitt**
   (konsistent mit der Zykloide-Referenz und den anderen Rollout-Sims). → **I5**.
 - **Spiral-Modus** erzwingt v_r≠0; im Kreis-Modus wird v_r=0 erzwungen.
+- **Modus „Rotierende Scheibe“ nur in 2D** — ISO ist im Modus gesperrt (→ **B63**).
+  Punkt B liegt fest bei r = R/2 auf dem Radius zu A (`SCHEIBE_B_FAKTOR`).
+- **Scheibe: Beschleunigungspfeile 1,6-fach skaliert** (A und B gleich,
+  `SCHEIBE_A_FAKTOR`, → **B62**); kleine *a*ₜ sind erst mit „10× vergrößern“ gut
+  sichtbar. Bei großem ω reicht der Pfeil *a*_A über Punkt B hinweg (gleicher Radius).
+- **Scheibe: Live-Analyse zeigt Punkt A**; B steht in der Vergleichstabelle und in
+  den Diagrammen/CSV (→ **FX13**).
