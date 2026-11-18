@@ -44,7 +44,7 @@ function enableControls(enable) {
   els.forEach(e => { e.disabled = !enable })
   // Modus-/Ansichts-abhängige Disabled-States wiederherstellen
   const isISO = store.currentView === 'ISO'
-  const isKreis = store.motionMode === 'kreis'
+  const isKreis = store.motionMode !== 'spirale'   // „kreis“ und „scheibe“
   DOM.hSlider.disabled = enable && !isISO
   DOM.vrSlider.disabled = enable && isKreis
   if (enable && isISO) {
@@ -113,6 +113,20 @@ function resetSim(isPlayTrigger = false) {
     store.isAutoStopping = false
   }
 
+  // Wechsel in den Modus „Rotierende Scheibe“: Standardansicht setzen (2D, v und a an,
+  // a polar zerlegt, Radius R sichtbar, Analyse-Panel mit der Vergleichstabelle auf).
+  // Nur beim Wechsel, danach bleibt alles dem Nutzer überlassen.
+  if (!isPlayTrigger && DOM.motionModeSelect.value === 'scheibe' && store.lastMode !== 'scheibe') {
+    DOM.viewSelect.value = '2D'
+    DOM.toggleVelocity.checked = true
+    DOM.toggleAcceleration.checked = true
+    DOM.toggleRadius.checked = true
+    document.querySelector('input[name="a_decomp"][value="polar"]').checked = true
+    DOM.appLayout.classList.remove('analysis-collapsed')
+    DOM.analysisToggle.setAttribute('aria-expanded', 'true')
+  }
+  store.lastMode = DOM.motionModeSelect.value
+
   // Controls → Store
   store.currentView = DOM.viewSelect.value
   store.angleUnit = DOM.angleUnitSelect.value
@@ -147,7 +161,7 @@ function resetSim(isPlayTrigger = false) {
   store.scaleAt = DOM.toggleAtScaling.checked
 
   const isISO = store.currentView === 'ISO'
-  const isKreis = store.motionMode === 'kreis'
+  const isKreis = store.motionMode !== 'spirale'   // „kreis“ und „scheibe“ haben konstanten Radius
 
   // ISO: Zerlegungen deaktivieren; Kreis: v_r aus; 2D: h aus
   if (isISO) {
@@ -338,24 +352,13 @@ function exportAllCSV() {
 function loadPreset(preset) {
   const p = PRESETS[preset]
   if (!p) return
-  DOM.motionModeSelect.value = p.mode
+  // Kreisbahn-Presets (gleich/start/brems) gelten auch im Modus „Rotierende Scheibe“
+  if (!(p.mode === 'kreis' && DOM.motionModeSelect.value === 'scheibe')) DOM.motionModeSelect.value = p.mode
   DOM.radiusSlider.value = p.R0
   DOM.vrSlider.value = p.vr
   DOM.omega0Slider.value = p.omega0
   DOM.alphaSlider.value = p.alpha
   DOM.presetSelect.value = 'none'
-  store.scheibe = !!p.scheibe
-  if (p.scheibe) {
-    // Szenario „Rotierende Scheibe“: 2D, v und a an (a polar zerlegt), Radius R sichtbar,
-    // Analyse-Panel mit der Vergleichstabelle aufklappen
-    DOM.viewSelect.value = '2D'
-    DOM.toggleVelocity.checked = true
-    DOM.toggleAcceleration.checked = true
-    DOM.toggleRadius.checked = true
-    document.querySelector('input[name="a_decomp"][value="polar"]').checked = true
-    DOM.appLayout.classList.remove('analysis-collapsed')
-    DOM.analysisToggle.setAttribute('aria-expanded', 'true')
-  }
   store.simulatedTime = 0
   store.nStop = 1
   DOM.nValueDisplay.textContent = store.nStop

@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreis- und Spiralbewegung
-        <span class="version">v1.13.0</span>
+        <span class="version">v1.13.1</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -209,6 +209,7 @@ window.MathJax = {
         <select id="motion_mode_select" class="select-field">
           <option value="kreis" selected>Kreisbahn</option>
           <option value="spirale">Spiralbahn</option>
+          <option value="scheibe">Rotierende Scheibe</option>
         </select>
       </div>
       <div class="vis-control">
@@ -219,8 +220,6 @@ window.MathJax = {
           <option value="start">Anfahren</option>
           <option value="brems">Abbremsen</option>
           <option value="spirale_aussen">Spirale (außen)</option>
-          <option value="scheibe">Rotierende Scheibe (gleichförmig)</option>
-          <option value="scheibe_anfahren">Rotierende Scheibe (anfahrend)</option>
         </select>
       </div>
     </div>
@@ -330,8 +329,8 @@ window.MathJax = {
           <line id="acceleration_vector" marker-end="url(#arrow-a)"/>
           <line id="omega_vector" marker-end="url(#arrow-omega)"/>
           <line id="alpha_vector" marker-end="url(#arrow-alpha)"/>
-          <!-- Szenario „Rotierende Scheibe“: Speiche, Bahn und Vektoren von Punkt B (r = R/2),
-               Beschriftung beider Punkte. Sichtbar nur bei Kreisbahn + 2D (render.js drawScheibe). -->
+          <!-- Modus „Rotierende Scheibe“: Speiche, Bahn und Vektoren von Punkt B (r = R/2),
+               Beschriftung beider Punkte. Sichtbar nur im Modus „scheibe“ + 2D (render.js drawScheibe). -->
           <g id="scheibe_group" style="visibility:hidden">
             <circle id="sch_bahn_b" fill="none"/>
             <line id="sch_spoke"/>

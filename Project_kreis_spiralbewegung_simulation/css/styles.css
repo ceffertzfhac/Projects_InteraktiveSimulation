@@ -77,7 +77,7 @@ body.dark {
 #disk                  { fill: var(--disk-fill); stroke: var(--disk-stroke); stroke-width: 1; fill-opacity: 0.4; }
 #point                 { fill: var(--c-point); }
 
-/* Szenario „Rotierende Scheibe“: Punkt B, Speiche, Bahn von B, Vektoren von B */
+/* Modus „Rotierende Scheibe“: Punkt B, Speiche, Bahn von B, Vektoren von B */
 #sch_point_b           { fill: var(--c-point-b); }
 #sch_spoke             { stroke: var(--c-radius); stroke-width: 1.5; }
 #sch_bahn_b            { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; }

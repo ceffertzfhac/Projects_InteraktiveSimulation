@@ -6,13 +6,18 @@ Die Version in `index.html` ist mit der neuesten Changelog-Version synchron geha
 ## [1.13.0] — 2026-11-18
 
 ### Hinzugefügt
-- **Szenario „Rotierende Scheibe“** (Übung 7, WS 26/27; zwei Presets: *gleichförmig* R = 2 m, ω = 60 °/s und *anfahrend* ω₀ = 0, α = 30 °/s²). Zwei Punkte auf derselben Scheibe: **A am Rand** (r = R) und **B in der Mitte** zwischen Rand und Achse (r = R/2), dazu Speiche, Bahnkreis von B und Beschriftung A/B. Nur Kreisbahn + 2D.
+- **Szenario „Rotierende Scheibe“** (Übung 7, WS 26/27; in 1.13.1 zum Modus umgebaut). Zwei Punkte auf derselben Scheibe: **A am Rand** (r = R) und **B in der Mitte** zwischen Rand und Achse (r = R/2), dazu Speiche, Bahnkreis von B und Beschriftung A/B. Nur Kreisbahn + 2D.
 - **Legende kontextuell:** „Punkt A (Rand)“ und „Punkt B (Mitte)“ erscheinen nur im Szenario.
 - Vektoren von B (*v*, *a*, bei polarer Zerlegung *a*ᵣ und *a*ₜ) mit denselben Schaltern, Farben und Skalen wie bei A — gleiche Skala heißt: die Pfeile von B sind für *v*, *a*ᵣ und *a*ₜ halb so lang wie die von A.
 - **Vergleichstabelle A | B | A : B** im Analyse-Panel (Radius, Drehwinkel, Weg, ω, α, |*v*|, |*a*ᵣ|, |*a*ₜ|). Das Preset klappt das Panel auf, schaltet *v*, *a* (polar) und *R* ein.
 
 ### Bekannte Grenze
 - Keine eigenen Diagrammkurven für B (Diagramme zeigen weiter Punkt A); Vergleich über die Tabelle.
+
+## [1.13.1] — 2026-11-18
+
+### Geändert
+- **„Rotierende Scheibe“ ist ein Modus, kein Szenario mehr** (Auswahl *Modus*: Kreisbahn · Spiralbahn · Rotierende Scheibe). Die zwei Szenario-Presets aus 1.13.0 entfallen. Beim Wechsel in den Modus stellt die Sim 2D, *v* und *a* (polar zerlegt) und *R* an und klappt die Analyse auf; danach gehören alle Schalter dem Nutzer. Radius, ω₀ und α stellt der Nutzer wie bisher an den Reglern ein; die Kreisbahn-Szenarien (Gleichförmig, Anfahren, Abbremsen) gelten auch im Modus.
 
 ## [1.12.16] — 2026-11-17
 

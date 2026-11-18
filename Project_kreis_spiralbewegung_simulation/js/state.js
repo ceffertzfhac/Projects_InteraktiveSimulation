@@ -11,7 +11,7 @@ export const store = {
   // Modus / Ansicht / Einheit / Diagramm / Anordnung
   motionMode: 'kreis', currentView: '2D', angleUnit: 'deg',
   diagramMode: '1', graphType1: 'phi', graphType2: 'omega',
-  scheibe: false,       // Szenario „Rotierende Scheibe“ gewählt (wirksam nur bei Kreisbahn + 2D)
+  lastMode: 'kreis',    // Modus vor dem aktuellen resetSim (für Standardwerte beim Wechsel in „Rotierende Scheibe“)
   layoutSplit: false,   // Sim & Diagramm übereinander (false) / nebeneinander (true) — FX6, einheitlich mit Kreisbewegung
 
   // Vektorzerlegung

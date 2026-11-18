@@ -212,7 +212,7 @@ function updateLegend() {
     ar: store.togAcceleration,
     at: store.togAcceleration,
     omega: store.togOmega, alpha: store.togAlpha, phi: store.togPhi, traj: store.togTrajectory,
-    // Szenario „Rotierende Scheibe“: nur dort sind A und B zu unterscheiden
+    // Modus „Rotierende Scheibe“: nur dort sind A und B zu unterscheiden
     punktA: scheibeAktiv(), punktB: scheibeAktiv(),
   }
   document.querySelectorAll('[data-legend]').forEach(e => {
@@ -328,8 +328,8 @@ function drawVectors(P, R_t) {
 }
 
 
-// ── Szenario „Rotierende Scheibe“: Punkt B (r = R/2) neben Punkt A (Rand) ────
-// Nur Kreisbahn + 2D. Beide Punkte teilen φ, ω, α (starre Scheibe); sie
+// ── Modus „Rotierende Scheibe“: Punkt B (r = R/2) neben Punkt A (Rand) ────
+// Kreisbahn-Physik (R konstant, v_r = 0), nur 2D. Beide Punkte teilen φ, ω, α (starre Scheibe); sie
 // unterscheiden sich im Radius und damit in s, v, a_ZP, a_t. Punkt A ist der
 // normale Partikel (drawVectors); hier kommen Speiche, Bahn und Vektoren von B
 // sowie die Vergleichstabelle dazu.
@@ -346,7 +346,7 @@ const SCHEIBE_ROWS = [
 let scheibeCells = null
 
 function scheibeAktiv() {
-  return store.scheibe && store.motionMode === 'kreis' && store.currentView === '2D'
+  return store.motionMode === 'scheibe' && store.currentView === '2D'
 }
 
 function buildScheibeTable() {
