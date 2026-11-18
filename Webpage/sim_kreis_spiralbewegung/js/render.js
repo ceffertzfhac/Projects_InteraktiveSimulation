@@ -339,7 +339,7 @@ function drawVectors(P, R_t) {
 const SCHEIBE_ROWS = [
   { key: 'r',     label: 'Radius <i>r</i>',               ratio: true },
   { key: 'dphi',  label: 'Drehwinkel Δ<i>φ</i>',          ratio: true },
-  { key: 's',     label: 'Weg <i>s</i>',                  ratio: true },
+  { key: 's',     label: 'Bahnweg <i>s</i>',              ratio: true },
   { key: 'omega', label: 'Winkelgeschw. <i>ω</i>',        ratio: true },
   { key: 'alpha', label: 'Winkelbeschl. <i>α</i>',        ratio: true },
   { key: 'v',     label: 'Bahngeschw. |<i>v</i>|',        ratio: true },
@@ -371,23 +371,33 @@ function buildScheibeTable() {
   })
 }
 
-function scheibeWerte(P, r) {
+// Überstrichener Winkel ∫|ω| dt von 0 bis t (rad) — bei Richtungsumkehr (ω wechselt
+// das Vorzeichen bei t* = −ω₀/α) werden beide Teilstücke addiert, nicht saldiert (B59).
+function sweptAngle(t) {
+  const w0 = store.omega0_rad, al = store.alpha_rad
+  const dphi = tt => w0 * tt + 0.5 * al * tt * tt
+  const tStar = Math.abs(al) > 1e-12 ? -w0 / al : -1
+  if (tStar > 0 && tStar < t) return Math.abs(dphi(tStar)) + Math.abs(dphi(t) - dphi(tStar))
+  return Math.abs(dphi(t))
+}
+
+function scheibeWerte(P, r, time) {
   const omega = P.omega * Math.PI / 180            // rad/s
   const dphiDeg = P.phi - store.phi0_rad * 180 / Math.PI
   return {
-    r, dphi: dphiDeg, s: r * Math.abs(dphiDeg) * Math.PI / 180,
+    r, dphi: dphiDeg, s: r * sweptAngle(time),
     omega: P.omega, alpha: P.alpha,
     v: Math.abs(r * omega), ar: r * omega * omega, at: Math.abs(r * store.alpha_rad),
   }
 }
 
-function updateScheibePanel(P) {
+function updateScheibePanel(P, time) {
   const on = scheibeAktiv()
   DOM.scheibePanel.style.display = on ? '' : 'none'
   if (!on) return
   if (!scheibeCells) buildScheibeTable()
   const rA = store.R0, rB = store.R0 * SCHEIBE_B_FAKTOR
-  const A = scheibeWerte(P, rA), B = scheibeWerte(P, rB)
+  const A = scheibeWerte(P, rA, time), B = scheibeWerte(P, rB, time)
   const unit = { r: 'm', s: 'm', v: 'm/s', ar: 'm/s²', at: 'm/s²' }
   const ang = { dphi: 'phi', omega: 'omega', alpha: 'alpha' }
   SCHEIBE_ROWS.forEach(row => {
@@ -933,7 +943,7 @@ export function updateScene(time) {
   DOM.subHand.setAttribute('y2', scy - WATCH_SUBDIAL_R * Math.cos(sa))
 
   updateAnalysisPanel(P)
-  updateScheibePanel(P)
+  updateScheibePanel(P, time)
   drawGraphs(time)
 
   DOM.timeLabel.innerHTML = `<i>t</i> = ${fmt(time, 2)} s`

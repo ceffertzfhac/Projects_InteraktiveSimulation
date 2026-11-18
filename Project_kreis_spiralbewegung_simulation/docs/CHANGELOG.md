@@ -3,6 +3,12 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.13.3] — 2026-11-18
+
+### Behoben
+- **Bahnweg *s* in der Vergleichstabelle A | B stimmt auch nach einer Richtungsumkehr** (→ BACKLOG B59). Bisher galt *s* = *r*·|Δφ| mit dem Nettowinkel; im Szenario „Abbremsen“ schrumpfte der Weg nach dem Umkehrpunkt (8 s) wieder bis auf 0. Jetzt *s* = *r*·∫|ω| d*t*: beide Teilstücke vor und nach der Umkehr werden addiert. Zeile heißt jetzt „Bahnweg *s*“.
+- „-0,00“ bei Werten nahe 0 entfällt (shared `fmt`, → T15).
+
 ## [1.13.2] — 2026-11-18
 
 ### Behoben
