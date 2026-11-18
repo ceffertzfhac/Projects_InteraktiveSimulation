@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.16.1] — 2026-11-18
+
+### Geändert
+- **Scheibendarstellung dezenter** (PO-Wunsch, zu FX12): Rand 2,5 statt 4 px, Speichen 1,25 statt 2 px und heller, Füllung etwas transparenter, kleinere Nabe. Die Scheibe bleibt in Hell- und Dunkelmodus erkennbar.
+
 ## [1.16.0] — 2026-11-18
 
 ### Hinzugefügt

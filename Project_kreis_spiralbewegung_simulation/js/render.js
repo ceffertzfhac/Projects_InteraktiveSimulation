@@ -442,7 +442,7 @@ function drawScheibeDeko(on, phi, R_t) {
   }
   const C = physToScreen(0, 0, 0)
   const ppm = store.currentPixelsPerMeter
-  const rHub = Math.max(5, 0.1 * R_t * ppm)
+  const rHub = Math.max(4, 0.07 * R_t * ppm)
   const lines = DOM.scheibeDeco.querySelectorAll('line')
   lines.forEach((ln, k) => {
     const a = phi + Math.PI / 6 + k * 2 * Math.PI / SCHEIBE_SPEICHEN

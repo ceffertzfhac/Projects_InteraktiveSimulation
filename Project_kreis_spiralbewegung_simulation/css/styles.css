@@ -30,8 +30,8 @@
   --c-traj:   #7f7f7f;   /* Bahnkurve – Grau (gestrichelt, wie Kreisbewegung) */
   --c-point:  #1a1e2e;   /* Partikel – = --text (light); frei von Vektorfarben */
   --c-point-b: #0072b2;  /* Scheibe: Punkt B – Okabe-Ito-Blau, unterscheidbar von Punkt A */
-  --sch-rim:   #8b93a8;  /* Scheibe: Rand + Nabe (FX12) */
-  --sch-spoke: #aeb4c4;  /* Scheibe: mitdrehende Speichen */
+  --sch-rim:   #a3aabb;  /* Scheibe: Rand + Nabe (FX12) */
+  --sch-spoke: #c3c8d4;  /* Scheibe: mitdrehende Speichen */
 }
 
 body.dark {
@@ -54,8 +54,8 @@ body.dark {
   --c-traj:   #9aa3b8;
   --c-point:  #e6eaf5;
   --c-point-b: #56b4e9;
-  --sch-rim:   #7c86a6;
-  --sch-spoke: #4b5577;
+  --sch-rim:   #5f6989;
+  --sch-spoke: #3a4360;
 }
 
 /* ── SVG CSS-VAR TARGETS (var() nur in CSS, nicht in SVG-Attributen) ───────── */
@@ -83,8 +83,8 @@ body.dark {
 
 /* Modus „Rotierende Scheibe“: Punkt B, Speiche, Bahn von B, Vektoren von B */
 #sch_point_b           { fill: var(--c-point-b); }
-#disk.scheibe          { stroke: var(--sch-rim); stroke-width: 4; fill-opacity: 0.6; }
-#sch_disk_deco line    { stroke: var(--sch-spoke); stroke-width: 2; stroke-linecap: round; }
+#disk.scheibe          { stroke: var(--sch-rim); stroke-width: 2.5; fill-opacity: 0.45; }
+#sch_disk_deco line    { stroke: var(--sch-spoke); stroke-width: 1.25; stroke-linecap: round; }
 #sch_disk_deco circle  { fill: var(--sch-rim); stroke: none; }
 #sch_bahn_b            { stroke: var(--c-traj); stroke-width: 1.5; stroke-dasharray: 4,4; }
 #sch_label_a           { fill: var(--c-point); }
