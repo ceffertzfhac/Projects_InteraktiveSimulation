@@ -3,6 +3,11 @@
 Versionierung: patch = Bugfix/Style, minor = neues Feature, major = brechende Änderung.
 Die Version in `index.html` ist mit der neuesten Changelog-Version synchron gehalten.
 
+## [1.14.1] — 2026-11-18
+
+### Behoben
+- **Beschriftungen im Scheibenmodus kollidieren nicht mehr** (→ BACKLOG B60). „A“ und „B“ stehen schräg außen-hinten am Punkt (gegen den Drehsinn), frei von *v* (vorn), *a* (innen), Radiuslinie und *y*-Achse. Das Label *R* sitzt im Modus bei ¾ der Strecke auf der Seite des Drehsinns statt in der Mitte, wo es genau auf Punkt B lag.
+
 ## [1.14.0] — 2026-11-18
 
 ### Hinzugefügt

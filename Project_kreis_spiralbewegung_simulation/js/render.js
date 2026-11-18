@@ -192,11 +192,18 @@ function drawRadius(P, R_t) {
   DOM.radiusLine.setAttribute('x1', c.x); DOM.radiusLine.setAttribute('y1', c.y)
   DOM.radiusLine.setAttribute('x2', p.x); DOM.radiusLine.setAttribute('y2', p.y)
   DOM.radiusCenter.setAttribute('cx', c.x); DOM.radiusCenter.setAttribute('cy', c.y)
-  // Beschriftung mittig, senkrecht zur Linie versetzt (immer nach oben/außen)
+  // Beschriftung mittig, senkrecht zur Linie versetzt (immer nach oben/außen).
+  // B60: Im Scheibenmodus läge die Mitte genau auf Punkt B (r = R/2) → dort bei 3/4 der
+  // Strecke und auf der Seite, in die sich die Scheibe dreht (weg von den Labels A/B).
   let nx = -dy / len, ny = dx / len
-  if (ny > 0) { nx = -nx; ny = -ny }
-  DOM.radiusLabel.setAttribute('x', (c.x + p.x) / 2 + nx * 14)
-  DOM.radiusLabel.setAttribute('y', (c.y + p.y) / 2 + ny * 14 + 6)
+  let f = 0.5
+  if (scheibeAktiv()) {
+    f = 0.75
+    const s = Math.sign(P.omegaRad) || 1          // Drehsinn: Normale = +t̂ (Bildschirm: y nach unten)
+    nx = s * dy / len; ny = -s * dx / len
+  } else if (ny > 0) { nx = -nx; ny = -ny }
+  DOM.radiusLabel.setAttribute('x', c.x + f * dx + nx * 14)
+  DOM.radiusLabel.setAttribute('y', c.y + f * dy + ny * 14 + 6)
   DOM.radiusGroup.style.visibility = 'visible'
 }
 
@@ -459,12 +466,15 @@ function drawScheibe(P, R_t) {
   DOM.scheibeBahnB.setAttribute('r', rB * store.currentPixelsPerMeter)
   DOM.scheibePointB.setAttribute('cx', PB.x); DOM.scheibePointB.setAttribute('cy', PB.y)
 
-  // Beschriftung neben dem Punkt, radial nach außen
+  // Beschriftung schräg außen-hinten (r̂ − Drehsinn·t̂): frei von v (vorn), a (innen),
+  // der Radiuslinie und der y-Achse bei φ = 90° (B60)
+  const sw = Math.sign(omega) || 1
+  const lx = (ux - sw * tx) / Math.SQRT2, ly = (uy - sw * ty) / Math.SQRT2
   const labelAt = (el, p, off) => {
-    el.setAttribute('x', p.x + ux * off); el.setAttribute('y', p.y - uy * off + 6)
+    el.setAttribute('x', p.x + lx * off); el.setAttribute('y', p.y - ly * off + 6)
   }
   labelAt(DOM.scheibeLabelA, PA, 20)
-  labelAt(DOM.scheibeLabelB, PB, 20)
+  labelAt(DOM.scheibeLabelB, PB, 19)
 
   const setVec = (lineEl, show, x2, y2, by, opacity = '1') => {
     lineEl.style.visibility = 'hidden'
