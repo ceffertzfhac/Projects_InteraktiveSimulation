@@ -321,8 +321,10 @@ function drawSceneToggle(F, { uA, uB, w, on, role, what, name }) {
 // bei jedem setupScene neu
 export function drawShadowSetup() {
   DOM.shadowStatic.innerHTML = ''
-  if (!shadowActive()) { DOM.shadowGroup.style.visibility = 'hidden'; return }
-  DOM.shadowGroup.style.visibility = 'visible'
+  // B67: display statt visibility — Kinder mit eigenem visibility:visible (Lichtband,
+  // Schattensäule, Leinwandschatten) würden ein visibility:hidden der Gruppe überstimmen
+  if (!shadowActive()) { DOM.shadowGroup.style.display = 'none'; return }
+  DOM.shadowGroup.style.display = ''
   const F = shadowFrame()
   drawScreen(F)
   if (store.showRecorder) drawRecorder(F)

@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.8 — 2026-11-23
+
+### Behoben
+- **Reste der Schattenprojektion nach „keine Leinwand“ (B67).** Wurde die Leinwand bei eingeschalteter Lampe abgewählt, blieben Lichtband, Schattensäule und Schatten auf der Simulationsfläche stehen: Die Elemente trugen selbst `visibility: visible` und überstimmten damit das Ausblenden der Gruppe. Die Gruppe wird jetzt per `display` ausgeblendet.
+
 ## v1.11.7 — 2026-11-23
 
 ### Geändert
