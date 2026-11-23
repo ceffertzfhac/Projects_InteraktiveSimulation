@@ -49,6 +49,7 @@ function logToggle(log, nowOn, t) {
 function applyShadowInfo() {
   const side = store.shadowSide
   const vert = side === 'left' || side === 'right'
+  DOM.shadowPanel.style.display = side !== 'off' ? '' : 'none'
   DOM.shadowInfoY.style.display = side !== 'off' && vert ? '' : 'none'
   DOM.shadowInfoX.style.display = side !== 'off' && !vert ? '' : 'none'
   DOM.recorderInfo.style.display = side !== 'off' && store.showRecorder ? '' : 'none'

@@ -26,7 +26,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreisbewegung
-        <span class="version">v1.11.6</span>
+        <span class="version">v1.11.7</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -200,26 +200,6 @@ window.MathJax = {
           <input type="checkbox" id="toggle_recorder" checked>
           <span class="toggle-track"></span><span class="toggle-thumb"></span>
         </label>
-      </div>
-      <div class="note shadow-info" id="shadow_info_y" style="display:none">
-        Paralleles Licht längs \(x\): Der Schatten zeigt nur die
-        \(y\)-Koordinate,
-        \[y(t) = R\sin(\varphi_0 + \omega\,t),\]
-        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
-      </div>
-      <div class="note shadow-info" id="shadow_info_x" style="display:none">
-        Paralleles Licht längs \(y\): Der Schatten zeigt nur die
-        \(x\)-Koordinate,
-        \[x(t) = R\cos(\varphi_0 + \omega\,t),\]
-        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
-      </div>
-      <div class="note shadow-info" id="recorder_info" style="display:none">
-        Der Linienschreiber zeichnet die Lage des Schattens auf einem Papierstreifen
-        auf, der gleichmäßig von der Leinwand weg läuft. So wird aus der Hin- und
-        Herbewegung eine Kurve über der Zeit: dieselbe Sinus- bzw. Kosinusfunktion
-        wie im Diagramm. Lampe und Schreiber lassen sich in der Szene mit ihren
-        Schaltern an- und ausschalten; bei ausgeschalteter Lampe gibt es keinen
-        Schatten und damit keine Aufzeichnung.
       </div>
     </div>
 
@@ -404,6 +384,32 @@ window.MathJax = {
       <div class="note" style="font-size:.68rem;color:var(--text3);margin-top:6px;line-height:1.5">
         Das Vorzeichen von \(\omega\) gibt die Drehrichtung an (negativ = gegen
         den Uhrzeigersinn); \(|\omega|\) ist die Umlaufgeschwindigkeit (Betrag).
+      </div>
+    </div>
+
+    <!-- FK11: Erläuterungen zur Schattenprojektion (aus der linken Sidebar hierher verlegt);
+         sichtbar nur mit Leinwand (ui.js applyShadowInfo) -->
+    <div class="panel-section" id="shadow_panel" style="display:none">
+      <div class="panel-label">Schattenprojektion</div>
+      <div class="note shadow-info" id="shadow_info_y" style="display:none">
+        Paralleles Licht längs \(x\): Der Schatten zeigt nur die
+        \(y\)-Koordinate,
+        \[y(t) = R\sin(\varphi_0 + \omega\,t),\]
+        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
+      </div>
+      <div class="note shadow-info" id="shadow_info_x" style="display:none">
+        Paralleles Licht längs \(y\): Der Schatten zeigt nur die
+        \(x\)-Koordinate,
+        \[x(t) = R\cos(\varphi_0 + \omega\,t),\]
+        eine harmonische Schwingung mit Amplitude \(R\) und Periodendauer \(T\).
+      </div>
+      <div class="note shadow-info" id="recorder_info" style="display:none">
+        Der Linienschreiber zeichnet die Lage des Schattens auf einem Papierstreifen
+        auf, der gleichmäßig von der Leinwand weg läuft. So wird aus der Hin- und
+        Herbewegung eine Kurve über der Zeit: dieselbe Sinus- bzw. Kosinusfunktion
+        wie im Diagramm. Lampe und Schreiber lassen sich in der Szene mit ihren
+        Schaltern an- und ausschalten; bei ausgeschalteter Lampe gibt es keinen
+        Schatten und damit keine Aufzeichnung.
       </div>
     </div>
 

@@ -103,6 +103,7 @@ export function initDOM() {
   DOM.screenShadow = q('screen_shadow')
   DOM.shadowSelect = q('shadow_select')
   DOM.togRecorder = q('toggle_recorder')
+  DOM.shadowPanel = q('shadow_panel')
   DOM.recorderInfo = q('recorder_info')
   DOM.shadowInfoX = q('shadow_info_x')
   DOM.shadowInfoY = q('shadow_info_y')

@@ -5,6 +5,11 @@ Alle nennenswerten Änderungen an dieser Simulation. Version folgt
 major = brechende Änderung. Die Versionsnummer in `index.html` wird
 mitgeführt.
 
+## v1.11.7 — 2026-11-23
+
+### Geändert
+- **Erläuterungen zur Schattenprojektion in die rechte Analyse-Sidebar verlegt (FK11).** Die Texte zu Schatten (*x*(*t*) bzw. *y*(*t*)) und Linienschreiber standen in der linken Bedien-Sidebar; jetzt bilden sie in der Analyse den Abschnitt „Schattenprojektion“, sichtbar nur mit Leinwand. Links bleiben nur die Bedienelemente.
+
 ## v1.11.6 — 2026-11-17
 
 ### Geändert
