@@ -1,5 +1,14 @@
 # Changelog – Kreiskinematik und Vektorrechnung (Schritt-Animation)
 
+## v0.1.1 — 2026-11-28
+
+DOM-freies Modell `js/model.js` (→ FKI4): Vektorrechnung; Ebenen P0 (*z* = 0), P1 (*z* = 2),
+P2 (*x* = 2), P2′ (*x* = 3), P3 (*x* + *y* − 2*z* = 6), P4 (*y* = 2) mit Mittelpunkten auf der Achse
+durch den Ursprung und rechtshändiger Basis (E8–E10); *v*_T = *ω* × *r*, *a*_Z = *ω* × (*ω* × *r*),
+*a*_T = *α* × *r*, *a* = *a*_T + *a*_Z, Bremsfall mit Umkehr (E14–E18); archimedische Spirale in P3
+mit Mittelpunkt als Projektion von *r*(0) (E20, E21). Vitest `test/kreiskinematik.model.test.js`
+(11 Tests: Kreuzprodukte = Ableitungen, |*v*| = *ωR*, *a*_Z ∥ −(*r* − *r*_M), Ebenengleichungen).
+
 ## v0.1.0 — 2026-11-28
 
 Projektgerüst aus `_scaffold_schritt_animation/` (→ BACKLOG N12, FKI1).
