@@ -18,3 +18,11 @@ dass Gesprächsregeln nicht prüfbar waren.
 Mehrere Reviews pro Tag ergeben mehrere Einträge. Jeder Eintrag bleibt
 bei wenigen Zeilen.
 -->
+
+## 2026-11-28 – Projekt eingerichtet
+- Ziel: Projekt für die Session-Skills ausstatten
+- Erledigt: CLAUDE.md um Arbeitsgedächtnis, Backlogs (BACKLOG.md), Vault (keiner), Arbeitsregeln P1–P5 und Projektspezifische Regeln ergänzt; SESSION_LOG.md angelegt
+- Offen/Probleme: BACKLOG.md ohne Datumsfelder Angelegt/Begonnen/Erledigt und mit ✅-Status statt offen/in Arbeit/erledigt – Metriken in /session-start unvollständig; Ordner Project_Animation_Kreisbwegung/ ungetrackt (wird in FKI1.1 umbenannt)
+- Nächster Schritt: I27 bzw. FKI1 (Kreiskinematik-Animation) laut BACKLOG.md
+- Regelprüfung: entfällt (Einrichtung)
+- Stand: 850ea6f
