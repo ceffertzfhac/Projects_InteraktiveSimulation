@@ -31,7 +31,9 @@ function setupFreeCamera() {
   DOM.viewReset.addEventListener('click', () => st.resetUser())
   document.addEventListener('keydown', e => {
     if (e.target.closest('textarea, select, input:not([type=radio]):not([type=checkbox])')) return
-    if ((e.key === 'r' || e.key === 'R') && !e.altKey && !e.ctrlKey && !e.metaKey) { st.resetUser(); e.preventDefault() }
+    if ((e.key !== 'r' && e.key !== 'R') || e.altKey || e.ctrlKey || e.metaKey) return
+    st.resetUser()
+    e.preventDefault()
   })
 }
 

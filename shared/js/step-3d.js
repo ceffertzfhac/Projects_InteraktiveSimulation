@@ -87,7 +87,8 @@ export function createStage3D({ container, fov = 30, maxDpr = 2 } = {}) {
     const el = Math.max(-88, Math.min(88, cam.el + user.el)) * DEG
     const d = cam.d * 2 ** user.zoom
     const t = new THREE.Vector3(cam.tx, cam.ty, cam.tz)
-    camera.position.set(t.x + d * Math.sin(az) * Math.cos(el), t.y + d * Math.sin(el), t.z + d * Math.cos(az) * Math.cos(el))
+    const ce = Math.cos(el)
+    camera.position.set(t.x + d * Math.sin(az) * ce, t.y + d * Math.sin(el), t.z + d * Math.cos(az) * ce)
     camera.up.copy(UP)
     camera.lookAt(t)
     camera.updateMatrixWorld()

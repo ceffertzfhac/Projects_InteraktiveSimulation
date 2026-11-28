@@ -1,5 +1,9 @@
 # Changelog – Kreiskinematik und Vektorrechnung (Schritt-Animation)
 
+## v0.2.1 — 2026-11-28
+
+Code-Stil: Zeilen über ~100 Zeichen umbrochen (constants, ui; shared/js/step-3d.js). Keine Verhaltensänderung.
+
 ## v0.2.0 — 2026-11-28
 
 Technischer Durchstich (→ FKI2, FKI3.1–3.3, E23) als Kapitel „Durchstich 3D“ (4 Schritte,

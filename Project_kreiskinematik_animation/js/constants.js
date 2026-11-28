@@ -6,7 +6,9 @@ export const STAGE = { w: 1200, h: 675, split: 800 }
 
 // Timing (Sekunden bei Tempo 1×) und Easing
 export const T = { cam: 2.0, draw: 1.4, reveal: 0.7, pop: 0.6, fade: 0.5, move: 1.6 }
-export const EASE = { cam: 'power2.inOut', reveal: 'power3.out', pop: 'back.out(2.2)', lin: 'none', move: 'power1.inOut' }
+export const EASE = {
+  cam: 'power2.inOut', reveal: 'power3.out', pop: 'back.out(2.2)', lin: 'none', move: 'power1.inOut',
+}
 
 // Kamera: Frontansicht (x rechts, y oben, z aus dem Bildschirm) und „typische Lage“ (E4)
 export const CAM_FRONT = { camAz: 0, camEl: 0, camD: 15, camTx: 0, camTy: 0, camTz: 0 }
