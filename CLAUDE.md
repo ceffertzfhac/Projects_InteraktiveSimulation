@@ -181,3 +181,33 @@ Checklist before shipping:
 - [ ] Dark Mode lesbar (alle Farben via CSS Custom Properties)
 - [ ] Physikalische Größen kursiv überall (setAxisLabel, setGraphTitle, `<i>`)
 - [ ] Versionsnummer in `index.html` und `docs/CHANGELOG.md` synchron
+
+## Arbeitsgedächtnis
+
+- Session-Log: `SESSION_LOG.md`, neuester Eintrag oben. Das Format steht im Kopf der Datei.
+- Sessions beginnen mit `/session-start` und enden mit `/session-review`.
+
+## Backlogs
+
+<!-- Alle Backlog-Dateien dieses Projekts, je mit einem Halbsatz zum Thema. /project-setup und /grill-me tragen neue Backlogs hier ein. -->
+- `BACKLOG.md` – zentraler MoSCoW-Tracker für Bugs, Tech-Schulden, Features, Migrationen und neue Sims aller Simulationen und Animationen
+
+## Vault
+
+- Vault: keiner
+
+## Arbeitsregeln
+
+P1. **Kleinschrittig committen.** Claude committet selbstständig nach jedem abgeschlossenen Item bzw. jeder in sich fertigen Änderung und nennt den Commit kurz im Chat. Kein Commit bündelt mehrere unabhängige Änderungen.
+
+P2. **Nie ungefragt pushen.** Claude pusht nur nach ausdrücklicher Zustimmung des Users.
+
+P3. **Backlog sofort nachziehen.** Ist ein Item oder eine Story erledigt, setzt Claude den Status und hakt die Akzeptanzkriterien ab, im selben Commit wie die Arbeit. Mit jedem Statuswechsel einer Story setzt Claude im selben Commit das Datumsfeld: `Begonnen` bei „in Arbeit“, `Erledigt` bei „erledigt“ (bei direktem Wechsel auf „erledigt“ beide); neue Stories erhalten `Angelegt`. Neu entdeckte Aufgaben trägt Claude sofort als Item in den passenden Backlog ein.
+
+P4. **Vault sofort pflegen.** Sobald eine fachliche Erkenntnis, Entscheidung oder Quelle feststeht, die laut Abschnitt „Vault“ dorthin gehört, schreibt Claude sie in den Vault und nennt die Notiz kurz im Chat. Entfällt bei „Vault: keiner“.
+
+P5. **Review nach jeder Story.** Ist eine Story abgeschlossen, fragt Claude den User: „Review jetzt?“. Bei „nein“ fragt Claude, ob gepusht werden soll.
+
+## Projektspezifische Regeln
+
+<!-- Regeln, die nur für dieses Projekt gelten. /session-review schärft sie nach, wenn ein Verstoß auftritt, und nennt die Änderung. -->
