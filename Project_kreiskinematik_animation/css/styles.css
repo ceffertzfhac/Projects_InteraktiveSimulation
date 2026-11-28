@@ -1,0 +1,17 @@
+/* Kreiskinematik — Layout ⅔ 3D-Bühne | ⅓ Formelspalte, Farben.
+   Gemeinsames: shared/css/step-animation.css (Layout wie Messunsicherheit). */
+
+/* 3D-Bühne: linke ⅔ */
+.stage-3d { position: absolute; left: 0; top: 0; width: 66.667cqw; height: 100%; }
+#stage_svg { pointer-events: none; }
+
+/* Formelspalte: rechtes Drittel, Karten stehen übereinander und überblenden */
+.col-bg { position: absolute; top: 0; right: 0; bottom: 0; width: 33.333cqw;
+  background: var(--card-bg); border-left: 1px solid var(--card-border); }
+.slide-card.pos-col { position: absolute; right: 0; top: 0; bottom: 0; width: 33.333cqw; box-sizing: border-box;
+  border: none; border-radius: 0; background: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  padding: 2.4cqw 2.2cqw; font-size: 1.58cqw; display: grid; align-content: center; }
+.slide-card.pos-col h3 { font-size: 1.25em; }
+.slide-card.pos-col .formula { font-size: 1em; white-space: nowrap; }
+.slide-card p, .slide-card h3 { hyphens: manual; text-wrap: pretty; }
