@@ -54,6 +54,14 @@ state → render → steps → index.html → ui (Reihenfolge und Regeln: Scaffo
 Bühnenplatz von Anfang an planen (Kartenfläche rechts oben freihalten). Gemeinsame
 Bausteine (Vergleichstafel, Taschenrechner, Zusammenfassung, Druck) wiederverwenden.
 
+**3D-Weg** (Raumvektoren, Ebenen, Bahnen im Raum — Blueprint §10.7): Bühne mit
+`shared/js/step-3d.js` (Three.js, CDN gepinnt) statt bzw. zusätzlich zur SVG-Bühne; Referenz
+`Project_kreiskinematik_animation/`. Szene bleibt Zahlenzustand (Kamera, Pfeil-Endpunkte,
+Deckkraft); Beschriftungen als statisches MathJax-HTML im Overlay mit `data-print-clone`, Leinwand
+mit `data-print-snapshot`. Vor dem Szenenbau einen kurzen **technischen Durchstich** (3 Schritte:
+Koordinatensystem, Ebene, Pfeil mit Label, Kamerafahrt, Druck, Dark Mode) abnehmen lassen.
+Tonspur-Animationen ohne Zusammenfassung/Merke: begründete Ausnahme laut Leitlinie §1.6.
+
 ### Phase 4 — Prüfung (selbst, vollständig)
 Mit den Werkzeugen aus `scripts/` (siehe `references/pruefung.md`): **jeden** Schritt-Endzustand
 in beiden Modi aufnehmen und ansehen, Reversibilität und Auto-Play prüfen, Halt-Warnungen = 0,

@@ -14,7 +14,7 @@ automatisierten Tests** — Verifikation erfolgt manuell im Browser.
 
 ```
 Project_<sim>_simulation/   # modulare Sims (je index.html + js/{constants,state,physics,render,ui}.js + css/ + docs/) — 16 Stück
-Project_<thema>_animation/  # Schritt-Animationen (Lehr-Animationen, GSAP-Timeline statt rAF-Loop, Blueprint §10) — 1 Stück
+Project_<thema>_animation/  # Schritt-Animationen (Lehr-Animationen, GSAP-Timeline statt rAF-Loop, 3D: Three.js via shared/js/step-3d.js, Blueprint §10/§10.7) — 1 Stück
 _scaffold_neue_sim/, _scaffold_schritt_animation/  # lauffähige Vorlagen für neue Sims bzw. Schritt-Animationen
 Webpage/                   # deploybare statische Site (sim_<name>/, relative Pfade) — GitHub-Pages-Target (Mirror von Project_*/ OHNE die in NICHT_OEFFENTLICH gelisteten Sims, s. scripts/sync-webpage.sh)
 AllAnimations/              # globale Übersichtsseite (index.html) + lauffähige Standalone-Prototypen + Vorschaubilder/

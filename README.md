@@ -37,7 +37,8 @@ Build-Schritt, kein npm): Vanilla-JS-ES-Module, SVG-Grafik, MathJax 3 für Forme
 
 - **`Project_*_animation/`** — **Schritt-Animationen** (Lehr-Animationen für Vorlesung
   und Lernvideo): festes Drehbuch, Bedienung nur Weiter/Zurück/Auto-Play/Reset,
-  GSAP-Timeline statt Echtzeit-Loop (Blueprint §10, BACKLOG I19). Vorlage:
+  GSAP-Timeline statt Echtzeit-Loop (Blueprint §10, BACKLOG I19); 3D-Inhalt mit Three.js
+  über `shared/js/step-3d.js` (Blueprint §10.7, BACKLOG I27). Vorlage:
   `_scaffold_schritt_animation/`.
   - `Project_signifikante_stellen_animation/` — Signifikante Stellen (Kapitel Grundlagen, Multiplikation, Division und Addition; öffentlich als `Webpage/anim_signifikante_stellen/`)
   - `Project_messunsicherheit_animation/` — Bestwert, Standardabweichung, Messunsicherheit (Schritt-Animation, öffentlich seit 2026-10-15)

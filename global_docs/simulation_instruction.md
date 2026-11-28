@@ -952,6 +952,7 @@ Ordnername `Project_<name>_animation/`.
 | Diagramm-Steuerung, Hover, CSV | entfällt |
 | rAF-Loop über `simulatedTime` | **GSAP-Timeline** mit einem Label je Schritt |
 | keine Fremdbibliotheken | **GSAP 3.13 per CDN** (klassisches `<script>` *vor* den Modulen → `window.gsap`) |
+| keine Fremdbibliotheken | bei 3D-Inhalt zusätzlich **Three.js per CDN** (gepinnte Version, ES-Modul-Import in `shared/js/step-3d.js`, → §10.7, BACKLOG I27) |
 
 Die Position steht in der Adresse (`#<kapitel>/<schritt>`, per `history.replaceState`,
 → BACKLOG FSS9 v): Neuladen bleibt an derselben Stelle, Links auf einen Schritt sind
@@ -1037,3 +1038,47 @@ Szene muß zahlengleich sein (so für v0.1.0 durchgeführt).
 
 - GSAP und MathJax per CDN → ohne Internet keine Animation (vor der Vorlesung prüfen).
 - Sync-/Drift-Skripte führen Animationen in der Liste `ANIMS` (→ FSS3).
+- Three.js ebenfalls per CDN (nur 3D-Animationen) → gleiche Einschränkung.
+
+### 10.7 3D-Schritt-Animationen mit Three.js (→ BACKLOG I27, PO-Entscheidung 2026-11-28)
+
+**Geltungsbereich:** nur Schritt-Animationen mit echtem 3D-Inhalt (Raumvektoren, Ebenen,
+Bahnen im Raum). Interaktive Sims bleiben ohne Three.js (FR8 „Won't“). Erste Anwendung und
+Referenz: `Project_kreiskinematik_animation/` (N12).
+
+**Einbindung:** `shared/js/step-3d.js` importiert Three.js als ES-Modul direkt von der CDN mit
+**gepinnter Version** (`three@<x.y.z>/build/three.module.js`, kein Import-Map, keine Addons wie
+`OrbitControls`, die den nackten Spezifizierer `three` brauchen). Version nur bewusst anheben
+und dann alle 3D-Animationen prüfen.
+
+**Regeln:**
+1. **Zahlenzustand bleibt die einzige Wahrheit.** Die Szene ist weiter ein flaches Objekt aus
+   Zahlen (Kamera `camAz camEl camD camTx camTy camTz`, Pfeil-Endpunkte, Deckkraft, Fortschritt
+   einer Spur, Farbmischung …). `render(S)` leitet daraus bei jedem Aufruf den ganzen
+   Three.js-Szenengraphen ab (Positionen, Skalierung, Deckkraft, Sichtbarkeit) — kein Tween auf
+   Three.js-Objekten, kein Hinzufügen/Entfernen im Drehbuch. Objekte werden einmal beim Start
+   erzeugt und nur ein-/ausgeblendet. So gelten Reversibilität und headless-Prüfung (§10.3) unverändert.
+2. **Koordinaten:** Physik = Three.js-Weltkoordinaten (rechtshändig, *y* oben, *z* zum Betrachter).
+   Kamera als Kugelkoordinaten um einen Zielpunkt (Azimut ab +*z* Richtung +*x*, Elevation, Abstand).
+3. **Freie Kamera nur bei Pause:** Ziehen dreht, Mausrad zoomt — als **Nutzer-Versatz außerhalb
+   der Szene**, nur wenn die Engine weder spielt noch einen Schritt abspielt. Beim nächsten Schritt,
+   bei Auto-Play und auf Taste R / Knopf „Ansicht“ fährt der Versatz **weich** (≈ 0,8 s) auf null zurück.
+   Der Versatz gehört nicht zur Szene → Zustände der Schritte bleiben reproduzierbar (Druck, Video).
+4. **Pfeile:** Schaft (Zylinder) + Spitze (Kegel) mit fester Spitzenlänge in Weltmaßen; die Spitze
+   endet exakt am Zielpunkt. Ist der Pfeil nicht länger als die Spitze, wird er ausgeblendet
+   (B23 sinngemäß).
+5. **Ebenen:** halbtransparente Fläche (`depthWrite: false`, beidseitig) + deckender Rand; Vektoren
+   und Bahnen zeichnen nach den Flächen (`renderOrder`), damit sie nicht verschluckt werden.
+6. **Beschriftung als HTML-Overlay:** Symbole sind statisches HTML mit MathJax im Overlay über der
+   Leinwand (kein Text in WebGL — Schrift bliebe sonst nicht konstant groß und nicht MathJax-gesetzt).
+   `render` projiziert den 3D-Ankerpunkt (z. B. Pfeilspitze) und setzt nur Lage und Deckkraft —
+   die Beschriftung folgt auch beim freien Drehen. Wechsel Label ↔ Legende über Szenen-Zahlen.
+7. **Farben** aus CSS-Tokens (`getComputedStyle`), bei jedem Render auf Theme-Wechsel geprüft —
+   Dark Mode und der helle Druck greifen ohne eigene Logik. Mischfarben (Grau → Mint, Magenta ↔
+   Apfelrot) per Szenen-Zahl interpoliert.
+8. **Druck:** Renderer mit `preserveDrawingBuffer: true`; `step-print.js` ersetzt jede Leinwand mit
+   `data-print-snapshot` im Ausdruck durch ein Bild (`toDataURL`) und klont Overlays mit
+   `data-print-clone` (Beschriftungen) — je Schritt nach `goto` (Endzustand, helles Thema).
+9. **Bühne:** Leinwand in ihrer Bühnenfläche (z. B. linke ⅔) mit `ResizeObserver` und
+   `devicePixelRatio` (≤ 2) — skaliert wie die SVG-Bühne im Fenster, Vollbild und Druck.
+

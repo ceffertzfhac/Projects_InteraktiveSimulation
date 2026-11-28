@@ -83,6 +83,14 @@ Jedes Kapitel endet gleich:
 
 Ein Abschlusskapitel „Zusammenfassung“ wiederholt je Rechenart Regel + Beispiel A/B.
 
+**Begründete Ausnahme: Tonspur-Animationen** (→ BACKLOG I27, Referenz Kreiskinematik N12):
+Erklärt der Dozent alles live bzw. auf der Tonspur und laufen die Kapitel **nahtlos ineinander**
+(jedes Kapitel startet per stillem Vorspann aus dem Endzustand des Vorgängers), entfallen
+Zusammenfassungs- und Merke-Folien sowie das Abschlusskapitel. Die Bühne trägt dann nur Formeln,
+gegebenenfalls Überschrift oder Stichwort. Das große Logo erscheint **nur einmal** auf dem
+Endzustand des letzten Kapitels (sonst klein in der Topbar). Die Ausnahme wird im CHANGELOG der
+Animation benannt.
+
 ---
 
 ## 2. Gestaltung — wie es aussieht
@@ -170,7 +178,11 @@ Vollfolie; Kicker und Überschrift halten den Platz frei (`shared/css/step-anima
 4. **Kapitel, die aufeinander aufbauen**, spielen den Vorgänger still als Vorspann ab.
 5. **Bühnenplatz planen:** Geometrie-Konstanten so wählen, dass Karte, Tafeln, Achsen und
    Beschriftungen in **allen** Schritten getrennt bleiben (Plotbreite, Achsen-y, Tabellen-x).
-6. Gemeinsame Bausteine wiederverwenden (`stellen.js`-artige Module: Vergleichstafel,
+6. **3D-Inhalt** (Raumvektoren, Ebenen, Bahnen im Raum): Three.js über `shared/js/step-3d.js`
+   (Blueprint §10.7) — Szene bleibt Zahlenzustand, Beschriftungen als MathJax-HTML-Overlay,
+   freie Mausdrehung nur bei Pause mit weicher Rückfahrt. Ebenen halbtransparent, Vektoren davor;
+   Symbole an der Pfeilspitze nur beim ersten Erscheinen, danach übernimmt eine Legende.
+7. Gemeinsame Bausteine wiederverwenden (`stellen.js`-artige Module: Vergleichstafel,
    Taschenrechner, Zusammenfassung) statt pro Kapitel neu.
 
 ---
