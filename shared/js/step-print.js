@@ -5,13 +5,14 @@
 // werden geklont, danach window.print() (im Dialog „Als PDF sichern"). Die Klone verlieren
 // ihre ids (keine Dubletten); Verläufe/Clips beziehen sich weiter auf die Originale, die
 // beim Drucken unsichtbar, aber gerendert bleiben. Gedruckt wird immer im hellen Thema.
+// 3D-Bühnen (data-print-snapshot, step-3d.js) erscheinen als Bild, data-print-clone-Ebenen als Klon.
 
 const PRINT_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"
   stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7V2.8h9V7"/>
   <rect x="2.5" y="7" width="15" height="7" rx="1.6"/><rect x="5.5" y="11.5" width="9" height="5.7" rx=".6"
   fill="var(--surface)"/><circle cx="14.6" cy="9.3" r=".7" fill="currentColor" stroke="none"/></svg>`
 
-export function createPrint({ presenter, button, popover, stage, docTitle }) {
+export function createPrint({ presenter, button, popover, stage, docTitle, before = () => {} }) {
   button.innerHTML = PRINT_ICON
   const cur = popover.querySelector('[data-print="chapter"]')
   button.addEventListener('click', () => {
@@ -31,14 +32,34 @@ export function createPrint({ presenter, button, popover, stage, docTitle }) {
     page.className = 'print-page'
     const st = document.createElement('div')
     st.className = 'stage print-stage'
-    const svg = stage.querySelector('svg').cloneNode(true)
-    const layer = stage.querySelector('.slide-layer').cloneNode(true)
+    const svg = stage.querySelector(':scope > svg').cloneNode(true)
+    const layer = stage.querySelector(':scope > .slide-layer').cloneNode(true)
     // nur sichtbare Karten behalten (GSAP-autoAlpha setzt inline visibility „inherit"/„hidden")
     layer.querySelectorAll('.slide-card').forEach(c => {
       if (!c.style.visibility || c.style.visibility === 'hidden' || Number(c.style.opacity || 0) < 0.05) c.remove()
     })
-    ;[svg, layer].forEach(r => { r.removeAttribute('id'); r.querySelectorAll('[id]').forEach(el => el.removeAttribute('id')) })
-    st.append(svg, layer)
+    // 3D-Bühnen (data-print-snapshot): Leinwand → Bild des aktuellen Bildes (WebGL mit
+    // preserveDrawingBuffer); weitere Ebenen (data-print-clone) einfach klonen. Reihenfolge wie im DOM.
+    const extra = new Map()
+    stage.querySelectorAll(':scope > [data-print-snapshot], :scope > [data-print-clone]').forEach(el => {
+      const c = el.cloneNode(true)
+      if (el.hasAttribute('data-print-snapshot')) {
+        const src = [...el.querySelectorAll('canvas')]
+        c.querySelectorAll('canvas').forEach((cv, k) => {
+          const img = document.createElement('img')
+          img.src = src[k].toDataURL('image/png')
+          img.className = cv.className
+          img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'
+          cv.replaceWith(img)
+        })
+      }
+      extra.set(el, c)
+    })
+    const parts = [svg, layer, ...extra.values()]
+    parts.forEach(r => { r.removeAttribute('id'); r.querySelectorAll('[id]').forEach(el => el.removeAttribute('id')) })
+    const orig = [stage.querySelector(':scope > svg'), stage.querySelector(':scope > .slide-layer'), ...extra.keys()]
+    const order = [...stage.children]
+    parts.map((p, k) => [order.indexOf(orig[k]), p]).sort((a, b) => a[0] - b[0]).forEach(([, p]) => st.append(p))
     const cap = document.createElement('div')
     cap.className = 'print-cap'
     cap.innerHTML = `<span><b>${docTitle}</b> · ${ch.title} · Schritt ${E.stepOf(i)} / ${E.steps}</span><span>${E.title(i)}</span>`
@@ -48,6 +69,7 @@ export function createPrint({ presenter, button, popover, stage, docTitle }) {
 
   function run(ids) {
     const back = { chapter: presenter.chapter, index: presenter.engine.index }
+    before()                                  // z. B. freie 3D-Ansicht auf die Drehbuch-Kamera
     const theme = document.body.classList.contains('dark')
     document.body.classList.replace('dark', 'light')
     const box = document.createElement('div')

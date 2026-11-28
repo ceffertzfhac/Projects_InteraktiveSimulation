@@ -1,7 +1,7 @@
 // CDP-Treiber für Schritt-Animationen (dev-only, ohne npm): startet Chrome headless und
 // stellt globalThis.B = { send, evalJs, shot, goto, sleep, logs } für ein Prüfskript bereit.
 //   node cdp.mjs ./shots.mjs      (Server vom Repo-Root: python3 -m http.server 8765)
-// Umgebung: CHROME (Pfad), BASE (http://localhost:8765), W/H (1600×1000)
+// Umgebung: CHROME (Pfad), BASE (http://localhost:8765), W/H (1600×1000), GL=1 (WebGL für 3D)
 import { spawn } from 'node:child_process'
 import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -12,7 +12,9 @@ const CH = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS
 const W = +(process.env.W || 1600), H = +(process.env.H || 1000)
 const port = 9300 + Math.floor(Math.random() * 500)
 const dir = mkdtempSync(tmpdir() + '/cdp')
-const proc = spawn(CH, ['--headless=new', '--disable-gpu', '--hide-scrollbars', `--user-data-dir=${dir}`,
+// GL=1: WebGL über SwiftShader (3D-Animationen mit Three.js, Blueprint §10.7) statt --disable-gpu
+const GPU = process.env.GL ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--disable-gpu']
+const proc = spawn(CH, ['--headless=new', ...GPU, '--hide-scrollbars', `--user-data-dir=${dir}`,
   `--remote-debugging-port=${port}`, `--window-size=${W},${H}`, 'about:blank'], { stdio: 'ignore' })
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 let targets

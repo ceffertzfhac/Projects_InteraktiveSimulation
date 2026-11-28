@@ -1067,8 +1067,9 @@ und dann alle 3D-Animationen prüfen.
 4. **Pfeile:** Schaft (Zylinder) + Spitze (Kegel) mit fester Spitzenlänge in Weltmaßen; die Spitze
    endet exakt am Zielpunkt. Ist der Pfeil nicht länger als die Spitze, wird er ausgeblendet
    (B23 sinngemäß).
-5. **Ebenen:** halbtransparente Fläche (`depthWrite: false`, beidseitig) + deckender Rand; Vektoren
-   und Bahnen zeichnen nach den Flächen (`renderOrder`), damit sie nicht verschluckt werden.
+5. **Ebenen:** halbtransparente Fläche (`depthWrite: false`, beidseitig) + Rand; Flächen zeichnen
+   **zuletzt** (`renderOrder` hoch), nach den deckenden Vektoren und Bahnen (die Tiefe schreiben):
+   Teile hinter der Ebene erscheinen getönt, Teile davor unverdeckt — wie im Raum.
 6. **Beschriftung als HTML-Overlay:** Symbole sind statisches HTML mit MathJax im Overlay über der
    Leinwand (kein Text in WebGL — Schrift bliebe sonst nicht konstant groß und nicht MathJax-gesetzt).
    `render` projiziert den 3D-Ankerpunkt (z. B. Pfeilspitze) und setzt nur Lage und Deckkraft —

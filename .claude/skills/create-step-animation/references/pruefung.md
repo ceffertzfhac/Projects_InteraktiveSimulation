@@ -1,6 +1,8 @@
 # Prüfung mit den Skill-Werkzeugen
 
-Werkzeuge in `../scripts/` (Node ≥ 22, Chrome, Python mit Pillow; kein npm nötig).
+Werkzeuge in `../scripts/` (Node ≥ 22 oder Node 20 mit `node --experimental-websocket`, Chrome,
+Python mit Pillow; kein npm nötig). **3D-Animationen (Three.js):** `GL=1` setzen, sonst hat der
+Headless-Chrome kein WebGL.
 Server **vom Repo-Root**: `python3 -m http.server 8765`.
 
 ```bash
