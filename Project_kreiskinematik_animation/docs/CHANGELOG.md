@@ -1,5 +1,22 @@
 # Changelog – Kreiskinematik und Vektorrechnung (Schritt-Animation)
 
+## v0.2.0 — 2026-11-28
+
+Technischer Durchstich (→ FKI2, FKI3.1–3.3, E23) als Kapitel „Durchstich 3D“ (4 Schritte,
+Präsentationsmodus 10 Halte; kein Vorspann für die übrigen Kapitel):
+- 3D-Bühne über das neue Shared-Modul `shared/js/step-3d.js` (Three.js 0.170.0, CDN gepinnt):
+  Kamera aus Szenen-Zahlen (Azimut, Elevation, Abstand, Zielpunkt), Pfeile (Spitze endet am Ziel,
+  zu kurze Pfeile ausgeblendet), halbtransparente Ebene (zuletzt gezeichnet → verdeckte Teile
+  getönt), Kugeln, Röhren
+- Koordinatensystem rechtshändig, *y* oben, *z* aus dem Bildschirm (E4); baut sich in der
+  Frontansicht auf und dreht per Kamerafahrt in die typische Lage
+- freies Drehen (Ziehen) und Zoomen (Mausrad) nur bei Pause; nächster Schritt, Auto-Play,
+  Taste R und Knopf „⟲ Ansicht“ fahren weich zur Drehbuch-Kamera zurück (E12)
+- MathJax-Beschriftung folgt der Pfeilspitze (HTML-Overlay), auch beim Drehen; nur beim ersten
+  Erscheinen, danach Legende unten in der Formelspalte mit nur den sichtbaren Vektoren (E13)
+- Vorlesungspalette hell/dunkel (I26, E7); *n* Grau → Mint beim Wechsel zu *ω*
+- Druck/PDF: Endzustand je Schritt mit WebGL-Bild und Beschriftungen
+
 ## v0.1.1 — 2026-11-28
 
 DOM-freies Modell `js/model.js` (→ FKI4): Vektorrechnung; Ebenen P0 (*z* = 0), P1 (*z* = 2),

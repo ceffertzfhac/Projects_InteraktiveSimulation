@@ -32,7 +32,7 @@ window.MathJax = {
     <div class="topbar-title-text">
       <div class="topbar-title-line">
         Kreiskinematik und Vektorrechnung
-        <span class="version">v0.1.1</span>
+        <span class="version">v0.2.0</span>
         <span class="inst">FH Aachen – FB 8 – Physik</span>
       </div>
       <div class="copyright">© 2026 FH Aachen, FB 8 · Alle Rechte vorbehalten</div>
@@ -61,18 +61,61 @@ window.MathJax = {
 
 <div class="stage-wrap">
   <div class="stage">
-    <!-- Linke ⅔: 3D-Bühne (Three.js, js/render.js), rechte ⅓: Formelspalte -->
-    <div class="stage-3d" id="stage_3d"></div>
+    <!-- Linke ⅔: 3D-Bühne (Three.js über shared/js/step-3d.js), rechte ⅓: Formelspalte -->
+    <div class="stage-3d" id="stage_3d">
+      <button class="view-reset" id="view_reset" title="Ansicht zurücksetzen (R)">⟲ Ansicht</button>
+    </div>
     <svg id="stage_svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet"
          aria-label="Animationsbühne"></svg>
-    <div class="col-bg"></div>
+    <div class="col-bg" data-print-clone></div>
+
+    <!-- Beschriftungen der 3D-Bühne: statisches MathJax, render.js setzt nur Lage und Deckkraft -->
+    <div class="label-src" hidden>
+      <span data-lab="x" class="lab-axis">\(x\)</span>
+      <span data-lab="y" class="lab-axis">\(y\)</span>
+      <span data-lab="z" class="lab-axis">\(z\)</span>
+      <span data-lab="n" class="lab-n">\(\vec n\)</span>
+      <span data-lab="w" class="lab-w">\(\vec\omega\)</span>
+      <span data-lab="r" class="lab-r">\(\vec r\)</span>
+    </div>
 
     <!-- Formelspalte: statisches HTML, MathJax setzt einmal beim Laden.
          Sichtbarkeit steuert ausschließlich die Timeline (steps.js). -->
     <div class="slide-layer">
+      <!-- Durchstich (technischer Probelauf) -->
+      <div class="slide-card pos-col" data-card="d_axes">
+        <div class="kicker">Durchstich · 3D</div>
+        <h3>Koordinatensystem</h3>
+        <p>rechtshändig: \(x\) nach rechts, \(y\) nach oben, \(z\) aus dem Bildschirm</p>
+      </div>
+      <div class="slide-card pos-col" data-card="d_plane">
+        <div class="kicker">Durchstich · 3D</div>
+        <h3>Ebene mit Normalenvektor</h3>
+        <div class="formula">\(x + y - 2z = 6\)</div>
+        <div class="formula">\(\vec n = \begin{pmatrix} 1 \\ 1 \\ -2 \end{pmatrix}\)</div>
+      </div>
+      <div class="slide-card pos-col" data-card="d_r">
+        <div class="kicker">Durchstich · 3D</div>
+        <h3>Ortsvektoren zu Punkten der Ebene</h3>
+        <div class="formula">\(\vec r = \begin{pmatrix} x \\ y \\ z \end{pmatrix}\)</div>
+      </div>
+      <div class="slide-card pos-col" data-card="d_mix">
+        <div class="kicker">Durchstich · 3D</div>
+        <h3>Farbwechsel \(\vec n \to \vec\omega\)</h3>
+        <p>Grau → Mint (Kapitel 3: \(\vec\omega\) als Normalenvektor)</p>
+      </div>
+
+      <!-- Kapitel 1 -->
       <div class="slide-card pos-col" data-card="k1_title">
         <div class="kicker">Kapitel 1</div>
         <h3>Normalform der Ebene</h3>
+      </div>
+
+      <!-- Legende: nur sichtbare Vektoren, deren Beschriftung schon übergeben hat (E13) -->
+      <div class="legend-3d" aria-label="Legende">
+        <div class="leg-item" data-leg="n"><span class="leg-sw"></span>\(\vec n\)<span class="leg-t">Normalenvektor</span></div>
+        <div class="leg-item" data-leg="w"><span class="leg-sw"></span>\(\vec\omega\)<span class="leg-t">Winkelgeschwindigkeit</span></div>
+        <div class="leg-item" data-leg="r"><span class="leg-sw"></span>\(\vec r\)<span class="leg-t">Ortsvektor</span></div>
       </div>
     </div>
   </div>
