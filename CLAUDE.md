@@ -156,7 +156,7 @@ Shared CSS-Tokens: `shared/css/design-system.css` (für neue Sims und Übersicht
 - ES6+: `const`/`let`, arrow functions, template literals, no semicolons
 - `'use strict'` at the top of each module
 - Naming: `UPPER_SNAKE_CASE` for constants, `camelCase` for variables/functions, `snake_case` for DOM IDs, `_prefix` for module-private variables
-- Max line length ~100 characters
+- Max line length ~100 characters — vor jedem Commit neuer oder stark geänderter JS-Dateien prüft Claude die Zeilenlängen (Zeichen, nicht Bytes) und bricht Zeilen über ~100 Zeichen um
 
 ## Adding a New Simulation
 
@@ -199,16 +199,18 @@ Checklist before shipping:
 
 ## Arbeitsregeln
 
-P1. **Kleinschrittig committen.** Claude committet selbstständig nach jedem abgeschlossenen Item bzw. jeder in sich fertigen Änderung und nennt den Commit kurz im Chat. Kein Commit bündelt mehrere unabhängige Änderungen.
+P1. **Kleinschrittig committen.** Claude committet selbstständig nach jedem abgeschlossenen Item bzw. jeder in sich fertigen Änderung und nennt den Commit kurz im Chat. Kein Commit bündelt mehrere unabhängige Änderungen. Vor jedem `git add` mit mehreren Pfaden prüft Claude, ob Werkzeug-, Doku- oder Bugfix-Änderungen dabei sind, die auch ohne den Rest Sinn ergeben (z. B. ein Prüfwerkzeug-Schalter neben einem neuen Modul); diese stagt und committet Claude einzeln.
 
 P2. **Nie ungefragt pushen.** Claude pusht nur nach ausdrücklicher Zustimmung des Users.
 
-P3. **Backlog sofort nachziehen.** Ist ein Item oder eine Story erledigt, setzt Claude den Status und hakt die Akzeptanzkriterien ab, im selben Commit wie die Arbeit. Mit jedem Statuswechsel einer Story setzt Claude im selben Commit das Datumsfeld: `Begonnen` bei „in Arbeit“, `Erledigt` bei „erledigt“ (bei direktem Wechsel auf „erledigt“ beide); neue Stories erhalten `Angelegt`. Neu entdeckte Aufgaben trägt Claude sofort als Item in den passenden Backlog ein.
+P3. **Backlog sofort nachziehen.** Ist ein Item oder eine Story erledigt, setzt Claude den Status und hakt die Akzeptanzkriterien ab, im selben Commit wie die Arbeit. Mit jedem Statuswechsel einer Story setzt Claude im selben Commit das Datumsfeld: `Begonnen` bei „in Arbeit“, `Erledigt` bei „erledigt“ (bei direktem Wechsel auf „erledigt“ beide); neue Stories erhalten `Angelegt`. Beginnt die erste Story eines Epics, setzt Claude im selben Commit auch das Epic auf „in Arbeit“ mit `Begonnen`. Neu entdeckte Aufgaben – auch Nebenbefunde aus Prüfläufen, die die aktuelle Story nicht blockieren (z. B. ein Fehlalarm des Prüfwerkzeugs) – trägt Claude sofort als Item in den passenden Backlog ein, nicht erst im Review.
 
 P4. **Vault sofort pflegen.** Sobald eine fachliche Erkenntnis, Entscheidung oder Quelle feststeht, die laut Abschnitt „Vault“ dorthin gehört, schreibt Claude sie in den Vault und nennt die Notiz kurz im Chat. Entfällt bei „Vault: keiner“.
 
-P5. **Review nach jeder Story.** Ist eine Story abgeschlossen, fragt Claude den User: „Review jetzt?“. Bei „nein“ fragt Claude, ob gepusht werden soll.
+P5. **Review nach jeder Story.** Ist eine Story abgeschlossen, fragt Claude den User: „Review jetzt?“. Bei „nein“ fragt Claude, ob gepusht werden soll. Hat der User eine Kette ohne Rückfragen angeordnet, stellt Claude die Frage einmal am ersten vorgeschriebenen Halt bzw. am Ende der Kette, für alle bis dahin abgeschlossenen Stories, und nennt diese Stories in der Frage.
 
 ## Projektspezifische Regeln
+
+- **Neue Sim oder Animation in der Übersicht:** Mit dem Projektgerüst einer neuen Sim bzw. Schritt-Animation trägt Claude sie im selben Commit in `## Project Overview` dieser Datei ein (Status, Backlog-IDs, öffentlich ja/nein).
 
 <!-- Regeln, die nur für dieses Projekt gelten. /session-review schärft sie nach, wenn ein Verstoß auftritt, und nennt die Änderung. -->
